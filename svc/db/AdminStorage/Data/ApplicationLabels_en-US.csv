@@ -200,6 +200,8 @@ Discard_Success_Message,"Changes have been discarded."
 Create_New_Dialog_Header,"New Artifact"
 Create_New_Dialog_Artifact_Type,"Artifact Type"
 Create_New_Dialog_Artifact_Name,"Name of Artifact"
+Confirm_Publish_Collection, "Please publish your changes before entering the review. Would you like to proceed?"
+Create_Rapid_Review, "Create Rapid Review"
 
 # glossary artifact
 Artifact_Glossary_Term,"Term"

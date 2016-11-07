@@ -124,6 +124,7 @@ export class ProcessDiagram {
     private navigateToAssociatedArtifact = (info: any) => {
         const options = {
             id: info.id,
+            version: info.version,
             enableTracking: info.enableTracking
         };
         this.navigationService.navigateTo(options);

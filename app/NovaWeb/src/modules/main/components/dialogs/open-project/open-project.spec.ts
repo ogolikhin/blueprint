@@ -6,24 +6,24 @@ import {IDialogSettings} from "../../../../shared";
 import {Models, Enums, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../../models";
 import {IArtifactManager} from "../../../../managers";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 
 describe("OpenProjectController", () => {
     let localization: ILocalizationService;
-    let artifactManager: IArtifactManager;
     let projectService: IProjectService;
     let $sce: ng.ISCEService;
     let controller: OpenProjectController;
+    let $scope: ng.IScope;
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$sce_: ng.ISCEService) => {
-        const $scope = $rootScope.$new();
+        $scope = $rootScope.$new();
         localization = jasmine.createSpyObj("localization", ["get"]) as ILocalizationService;
         (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
-        artifactManager = {} as IArtifactManager;
         projectService = {} as IProjectService;
         const dialogSettings = {} as IDialogSettings;
         $sce = _$sce_;
-        controller = new OpenProjectController($scope, localization, $uibModalInstance, artifactManager, projectService, dialogSettings, $sce);
+        controller = new OpenProjectController($scope, localization, $uibModalInstance, projectService, dialogSettings, $sce);
     }));
 
     it("constructor sets root node", () => {
@@ -32,7 +32,7 @@ describe("OpenProjectController", () => {
         // Act
 
         // Assert
-        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, {
+        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -73,8 +73,14 @@ describe("OpenProjectController", () => {
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
 
+             const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
+
             // Act
-            const result = controller.columns[0].innerRenderer(vm, cell);
+            const result = controller.columns[0].innerRenderer(params);
 
             // Assert
             expect(result).toEqual(`<span class="ag-group-value-wrapper"><i></i><span>name</span></span>`);
@@ -83,9 +89,15 @@ describe("OpenProjectController", () => {
         it("innerRenderer, when project, calls ok on enter", () => {
             // Arrange
             const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-            const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+            const vm = controller.factory.createInstanceItemNodeVM(model);
             const cell = document.createElement("div");
-            controller.columns[0].innerRenderer(vm, cell);
+            const params: IColumnRendererParams = {
+                vm: vm,
+                $scope: $scope,
+                eGridCell: cell
+            };
+
+            controller.columns[0].innerRenderer(params);
             spyOn(controller, "ok");
 
             // Act
@@ -108,7 +120,7 @@ describe("OpenProjectController", () => {
             type: AdminStoreModels.InstanceItemType.Project,
             hasChildren: true
         } as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
         // Act
         controller.onSelect(vm, true);
@@ -130,7 +142,7 @@ describe("OpenProjectController", () => {
     it("onSelect, when selected folder, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Folder} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
         // Act
         controller.onSelect(vm, true);
@@ -146,7 +158,7 @@ describe("OpenProjectController", () => {
     it("onDoubleClick, when project, sets selection and calls ok", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(artifactManager, projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
         spyOn(controller, "ok");
 
         // Act

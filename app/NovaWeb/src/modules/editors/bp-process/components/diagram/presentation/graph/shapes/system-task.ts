@@ -45,11 +45,13 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     public callout: DiagramNodeElement;
 
-    constructor(model: ISystemTaskShape,
-                rootScope: any,
-                private defaultPersonaValue: string,
-                private nodeFactorySettings: NodeFactorySettings = null,
-                private shapesFactory: ShapesFactory) {
+    constructor(
+        model: ISystemTaskShape,
+        rootScope: any,
+        private defaultPersonaValue: string,
+        private nodeFactorySettings: NodeFactorySettings = null,
+        private shapesFactory: ShapesFactory
+    ) {
         super(model);
 
         this.rootScope = rootScope;
@@ -413,6 +415,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
             id: this.associatedArtifact.id,
+            version: this.associatedArtifact.version,
             enableTracking: true
         });
     }

@@ -1,11 +1,11 @@
-﻿import {ILocalizationService} from "../../../core";
-import {Models} from "../../../main";
+﻿import {Models} from "../../../main";
 import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {AppConstants} from "../../../core/constants/appConstants";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 interface ISortOptions {
     value: boolean;

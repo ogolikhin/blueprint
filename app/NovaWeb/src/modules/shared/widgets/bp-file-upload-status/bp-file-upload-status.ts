@@ -1,8 +1,7 @@
-import "angular";
-import {ILocalizationService} from "../../../core";
 import {IDialogSettings, BaseDialogController} from "../bp-dialog";
 import {FiletypeParser} from "../../../shared/utils/filetypeParser";
 import {IFileUploadService, IFileResult} from "../../../core/file-upload/fileUploadService";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IBpFileUploadStatusController {
     // propertyMap: any;

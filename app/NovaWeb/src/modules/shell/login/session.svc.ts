@@ -1,9 +1,9 @@
 ﻿import "angular";
-import { ILocalizationService } from "../../core/";
 import { IDialogService } from "../../shared/";
 import { IAuth, IUser } from "./auth.svc";
 import { SessionTokenHelper } from "./session.token.helper";
 import { LoginCtrl, ILoginInfo } from "./login.ctrl";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;

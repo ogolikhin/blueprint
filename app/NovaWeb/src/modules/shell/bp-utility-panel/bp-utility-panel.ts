@@ -1,10 +1,9 @@
-import * as angular from "angular";
 import * as _ from "lodash";
-import {ILocalizationService} from "../../core";
 import {Models} from "../../main";
 import {IArtifactManager, ISelection, IStatefulItem} from "../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export enum PanelType {
     Properties,

@@ -1,10 +1,10 @@
-import {ILocalizationService} from "../../../../core";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";

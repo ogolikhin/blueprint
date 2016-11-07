@@ -1,5 +1,4 @@
-﻿import {ILocalizationService} from "../../../core";
-import {
+﻿import {
     IArtifactManager,
     IStatefulArtifact,
     IStatefulSubArtifact
@@ -11,6 +10,7 @@ import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Message, MessageType} from "../../../core/messages/message";
 import {Helper} from "../../../shared/utils/helper";
 import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");

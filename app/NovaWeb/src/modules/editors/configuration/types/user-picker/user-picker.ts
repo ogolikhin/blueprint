@@ -1,9 +1,9 @@
-import * as angular from "angular";
 import "angular-formly";
-import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
+import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {Models} from "../../../../main/models";
 import {PropertyContext} from "../../../bp-artifact/bp-property-context";
 import {BPFieldBaseController} from "../base-controller";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 interface IUserGroup extends Models.IUserGroup {
     isImported?: boolean;

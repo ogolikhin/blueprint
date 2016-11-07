@@ -1,7 +1,7 @@
-﻿import {ILocalizationService} from "../../core";
-import {ISession} from "./session.svc";
+﻿import {ISession} from "./session.svc";
 import {ISettingsService} from "../../core/configuration/settings";
 import {HttpStatusCode} from "../../core/http/http-status-code";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class ILoginInfo {
     public userName: string;

@@ -1,9 +1,9 @@
-import {ILocalizationService} from "../../../../core";
 import {BPButtonAction} from "../../../../shared";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class RefreshAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,

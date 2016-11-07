@@ -1,13 +1,12 @@
-﻿import * as angular from "angular";
-import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
-import {ILocalizationService} from "../../../core";
 import {ArtifactPickerNodeVM, InstanceItemNodeVM} from "./bp-artifact-picker-node-vm";
 import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {Models, AdminStoreModels, SearchServiceModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class ArtifactPickerDialogController extends BaseDialogController {
     public hasCloseButton: boolean = true;

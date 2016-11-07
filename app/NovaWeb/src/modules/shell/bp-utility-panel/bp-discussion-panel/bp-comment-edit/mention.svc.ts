@@ -1,6 +1,6 @@
-﻿import * as angular from "angular";
-import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
+﻿import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {Helper} from "../../../../shared/utils/helper";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 // TinyMCE mention plugin interface - https://github.com/CogniStreamer/tinyMCE-mention
 export interface ITinyMceMentionOptions<T> {

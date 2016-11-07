@@ -1,6 +1,5 @@
 import {IArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "../../../../managers/artifact-manager";
 import {Helper} from "../../../../shared/utils/helper";
-import {ILocalizationService} from "../../../../core";
 import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
@@ -8,6 +7,7 @@ import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-u
 import {BPFieldBaseController} from "../base-controller";
 import {ISettingsService} from "../../../../core/configuration/settings";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";

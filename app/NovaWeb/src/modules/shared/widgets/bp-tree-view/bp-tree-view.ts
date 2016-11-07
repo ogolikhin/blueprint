@@ -1,8 +1,7 @@
 import * as _ from "lodash";
-import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
-import {ILocalizationService} from "../../../core";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 /**
  * Usage:
@@ -409,7 +408,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 export class HeaderCell {
     constructor(public gridOptions: agGrid.GridOptions) { }
 
-    selectAll(value: boolean) {        
+    selectAll(value: boolean) {
         this.gridOptions.api.forEachNodeAfterFilter(node => node.setSelected(value));
     }
 }

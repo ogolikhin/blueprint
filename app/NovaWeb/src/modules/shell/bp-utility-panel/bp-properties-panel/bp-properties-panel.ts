@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../../core";
 import {Models} from "../../../main";
 import {
     ISelectionManager,
@@ -14,6 +13,7 @@ import {PropertyLookupEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");

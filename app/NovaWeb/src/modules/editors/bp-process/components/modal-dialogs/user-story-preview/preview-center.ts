@@ -2,8 +2,8 @@ import {UserStoryProperties} from "../../diagram/presentation/graph/shapes/user-
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../../../core";
 import {IMessageService} from "../../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";

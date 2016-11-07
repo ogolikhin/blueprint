@@ -1,5 +1,5 @@
-import {ILocalizationService} from "../../../core";
 import {Relationships} from "../../../main";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IArtifactRelationshipsService {
     getRelationships(artifactId: number,
@@ -38,7 +38,7 @@ export class ArtifactRelationshipsService implements IArtifactRelationshipsServi
         this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Relationships.IArtifactRelationshipsResultSet>) => {
                 defer.resolve(result.data);
-            }, 
+            },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.reject(result.data);
             }

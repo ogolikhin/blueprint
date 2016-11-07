@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../../core/";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
 import {IArtifactService} from "../artifact";
@@ -8,6 +7,7 @@ import {IArtifactRelationshipsService} from "../relationships";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;

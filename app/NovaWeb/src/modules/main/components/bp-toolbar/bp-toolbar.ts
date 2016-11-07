@@ -1,5 +1,4 @@
-﻿import {ILocalizationService} from "../../../core";
-import {IDialogSettings, IDialogService} from "../../../shared";
+﻿import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -12,6 +11,7 @@ import {Project} from "../../../managers/project-manager/project";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;

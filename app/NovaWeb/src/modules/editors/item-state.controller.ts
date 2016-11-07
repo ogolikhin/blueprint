@@ -2,13 +2,13 @@ import {Models} from "../main/models";
 import {IArtifactManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact";
-import {ILocalizationService} from "../core/localization";
 import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
 import {IApplicationError} from "../core/error/applicationError";
 import {HttpStatusCode} from "../core/http/http-status-code";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {IMessageService} from "../core/messages/message.svc";
 import {MessageType, Message} from "../core/messages/message";
+import {ILocalizationService} from "../core/localization/localizationService";
 
 export class ItemStateController {
 

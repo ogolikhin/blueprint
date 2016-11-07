@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../core";
 import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {Project, ArtifactNode} from "./project";
@@ -11,6 +10,7 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;

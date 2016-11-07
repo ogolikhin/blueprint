@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../../core";
 import {Models} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
@@ -19,6 +18,7 @@ import {
 } from "../../../managers/artifact-manager";
 import {ISettingsService} from "../../../core/configuration/settings";
 import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");

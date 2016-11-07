@@ -1,5 +1,5 @@
-﻿import {ILocalizationService} from "../../../../core";
-import {Models} from "../../../../main";
+﻿import {Models} from "../../../../main";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPArtifactHistoryItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-history-item.html");

@@ -1,6 +1,5 @@
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {ILocalizationService} from "../../../core";
 import {IArtifactManager, IStatefulArtifact, IMetaDataService} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
@@ -21,6 +20,7 @@ import {
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");

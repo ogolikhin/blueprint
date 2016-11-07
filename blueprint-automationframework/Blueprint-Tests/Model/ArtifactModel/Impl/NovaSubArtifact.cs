@@ -22,6 +22,8 @@ namespace Model.ArtifactModel.Impl
 
         public int ItemTypeId { get; set; }
 
+//        public string? ItemTypeName { get; set; }
+
         public string DisplayName { get; set; }
 
         public int PredefinedType { get; set; }

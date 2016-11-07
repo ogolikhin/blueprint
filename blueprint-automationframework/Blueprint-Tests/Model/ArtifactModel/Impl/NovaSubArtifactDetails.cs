@@ -23,6 +23,8 @@ namespace Model.ArtifactModel.Impl
 
         public int ItemTypeId { get; set; }
 
+//        public string? ItemTypeName { get; set; }
+
         public int ItemTypeVersionId { get; set; }
 
         public string Prefix { get; set; }

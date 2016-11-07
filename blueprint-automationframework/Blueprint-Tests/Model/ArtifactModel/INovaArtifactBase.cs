@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 using Model.ArtifactModel.Impl;
 using System.Diagnostics.CodeAnalysis;
 
@@ -11,8 +10,8 @@ namespace Model.ArtifactModel
         #region Serialized JSON Properties
 
         int Id { get; set; }
-        string ItemTypeName { get; set; }
         int? ItemTypeId { get; set; }
+        string ItemTypeName { get; set; }
         string Name { get; set; }
         int? ParentId { get; set; }
         int? ProjectId { get; set; }

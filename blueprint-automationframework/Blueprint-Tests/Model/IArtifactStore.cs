@@ -355,10 +355,13 @@ namespace Model
         /// <param name="artifact">The artifact to move.</param>
         /// <param name="newParent">The new parent where this artifact will move to.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="artifactVersion">(optional) Artifact version.  By default it uses the current artifact version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
-        INovaArtifactDetails MoveArtifact(IArtifactBase artifact, IArtifactBase newParent, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactDetails MoveArtifact(
+            IArtifactBase artifact,
+            IArtifactBase newParent, 
+            IUser user = null, 
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Publishes an artifact.

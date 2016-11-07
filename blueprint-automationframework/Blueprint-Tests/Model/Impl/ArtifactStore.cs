@@ -552,7 +552,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return MoveArtifact(Address, artifact, newParent.Id, user);
+            return MoveArtifact(Address, artifact, newParent.Id, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>

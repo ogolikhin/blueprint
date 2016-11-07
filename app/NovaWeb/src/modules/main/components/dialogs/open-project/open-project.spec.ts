@@ -32,7 +32,7 @@ describe("OpenProjectController", () => {
         // Act
 
         // Assert
-        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(projectService, controller, {
+        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -89,7 +89,7 @@ describe("OpenProjectController", () => {
         it("innerRenderer, when project, calls ok on enter", () => {
             // Arrange
             const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-            const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
+            const vm = controller.factory.createInstanceItemNodeVM(model);
             const cell = document.createElement("div");
             const params: IColumnRendererParams = {
                 vm: vm,
@@ -120,7 +120,7 @@ describe("OpenProjectController", () => {
             type: AdminStoreModels.InstanceItemType.Project,
             hasChildren: true
         } as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
         // Act
         controller.onSelect(vm, true);
@@ -142,7 +142,7 @@ describe("OpenProjectController", () => {
     it("onSelect, when selected folder, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Folder} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
         // Act
         controller.onSelect(vm, true);
@@ -158,7 +158,7 @@ describe("OpenProjectController", () => {
     it("onDoubleClick, when project, sets selection and calls ok", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
         spyOn(controller, "ok");
 
         // Act

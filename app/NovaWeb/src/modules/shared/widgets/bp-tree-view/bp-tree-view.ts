@@ -79,7 +79,13 @@ export interface IColumn {
     isCheckboxSelection?: boolean;
     isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeViewNode) => string[];
-    innerRenderer?: (vm: ITreeViewNode, eGridCell: HTMLElement) => string;
+    innerRenderer?: (params: IColumnRendererParams) => string;
+}
+
+export interface IColumnRendererParams {
+    vm: ITreeViewNode;
+    eGridCell: HTMLElement;
+    $scope: ng.IScope;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -194,8 +200,19 @@ export class BPTreeViewController implements IBPTreeViewController {
     public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
-            this.options.rowDeselection = this.selectionMode !== "single";
+            this.options.rowDeselection = this.selectionMode !== "single";                                       
+                     
             this.options.api.setColumnDefs(this.columns.map(column => {
+                let columnInnerRenderer = undefined;
+                if (column.innerRenderer) {
+                    columnInnerRenderer = (params: any) => { 
+                                            const columnParams: IColumnRendererParams = {
+                                            vm: params.data,
+                                            $scope: params.$scope,
+                                            eGridCell: params.eGridCell
+                                        };
+                                        return column.innerRenderer(columnParams); };
+                }
                 return {
                     headerName: column.headerName ? column.headerName : "",
                     field: column.field,
@@ -205,8 +222,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
                                  (params: any) => (params.data as ITreeViewNode).isSelectable() : undefined,
-                        innerRenderer: column.innerRenderer ?
-                            (params: any) => column.innerRenderer(params.data as ITreeViewNode, params.eGridCell as HTMLElement) : undefined,
+                        innerRenderer: columnInnerRenderer,
                         padding: 20
                     } : undefined,
                     checkboxSelection: column.isCheckboxSelection,
@@ -214,7 +230,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                     suppressSorting: true,
                     headerCellRenderer: column.headerCellRenderer
                 } as agGrid.ColDef;
-            }));
+            }
+            ));
 
             let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {

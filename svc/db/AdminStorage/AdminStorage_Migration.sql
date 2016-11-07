@@ -1075,6 +1075,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Success_Me
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Create_New_Dialog_Header', 'en-US', N'New Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Create_New_Dialog_Artifact_Type', 'en-US', N'Artifact Type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Create_New_Dialog_Artifact_Name', 'en-US', N'Name of Artifact')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirm_Publish_Collection', 'en-US', N'Please publish your changes before entering the review. Would you like to proceed?')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Create_Rapid_Review', 'en-US', N'Create Rapid Review')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Term', 'en-US', N'Term')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Definition', 'en-US', N'Definition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Glossary_Empty', 'en-US', N'No terms have been defined.')

@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import * as _ from "lodash";
 import {Models, Enums} from "../../main";
-import {IColumn, ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode, IColumnRendererParams} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
@@ -112,6 +112,18 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
                 collectionArtifacts.push(addedTreeVM);
             }
+            else if (change.type === ChangeTypeEnum.Delete) {
+                let removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => {
+                    if (nodeVM.model.id === change.key) {
+                        return true;
+                     }
+                     return false;
+                });
+
+                if (removingNodeIndex > -1) {
+                    collectionArtifacts.splice(removingNodeIndex, 1);
+                }
+            }
         });
 
         this.rootNode = collectionArtifacts;
@@ -164,20 +176,22 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isGroup: true,
             isCheckboxHidden: true,
             cellClass: (vm: CollectionNodeVM) => vm.getCellClass(),
-            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
-                const prefix = Helper.escapeHTMLText(vm.model.prefix);
-                const icon = vm.getIcon();
-                const url = this.$state.href("main.item", { id: vm.model.id });
+            innerRenderer: (params: IColumnRendererParams) => {
+                const collectionNodeVM = <CollectionNodeVM>params.vm;
+                const prefix = Helper.escapeHTMLText(collectionNodeVM.model.prefix);
+                const icon = collectionNodeVM.getIcon();
+                const url = this.$state.href("main.item", { id: collectionNodeVM.model.id });
                 return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" class="collection__link"
-                            ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
+                            ng-click="$event.stopPropagation();">${prefix}${collectionNodeVM.model.id}</a></span>`;
             }
         },
         {
             headerName: this.localization.get("Label_Name"),
             isGroup: true,
             isCheckboxHidden: true,
-            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
-                const path = vm.model.artifactPath;
+            innerRenderer: (params: IColumnRendererParams) => {
+                const collectionNodeVM = <CollectionNodeVM>params.vm;
+                const path = collectionNodeVM.model.artifactPath;
 
                 let tooltipText = "";
                 path.map((collectionArtifact: string, index: number) => {
@@ -188,7 +202,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}` ;
                 });
 
-                return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">${vm.model.name}</div>` +
+                return `<div bp-tooltip="${collectionNodeVM.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
+                            `${collectionNodeVM.model.name}</div>` +
                             `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
@@ -196,10 +211,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             headerName: this.localization.get("Label_Description"),
             isGroup: true,
             isCheckboxHidden: true,
-            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
-                if (vm.model.description) {
-                    return `<div class="collection__description" bp-tooltip="${vm.model.description}" ` +
-                        `bp-tooltip-truncated="true">${vm.model.description}</div>`;
+            innerRenderer: (params: IColumnRendererParams) => {
+                const collectionNodeVM = <CollectionNodeVM>params.vm;
+                if (collectionNodeVM.model.description) {
+                    return `<div class="collection__description" bp-tooltip="${collectionNodeVM.model.description}" ` +
+                        `bp-tooltip-truncated="true">${collectionNodeVM.model.description}</div>`;
                 }
 
                 return "";
@@ -211,8 +227,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             width: 60,
             colWidth: 60,
             isCheckboxHidden: true,
-            innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
-                return `<i class="icon icon__normal icon__action fonticon-delete-filled"></i>`;
+            innerRenderer: (params: IColumnRendererParams) => {
+                params.$scope["removeArtifact"] = () => {
+                    const node = <CollectionNodeVM>params.vm;
+                    const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+                    collectionArtifact.removeArtifacts([node.model]);
+                };
+                return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact()"></i>`;
             }
         }];
 

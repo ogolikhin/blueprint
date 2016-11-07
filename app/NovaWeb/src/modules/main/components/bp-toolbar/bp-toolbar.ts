@@ -7,7 +7,7 @@ import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
-import {CreateNewArtifactController, ICreateNewArtifactDialogData} from "../dialogs/new-artifact";
+import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn} from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {Project} from "../../../managers/project-manager/project";
@@ -310,12 +310,17 @@ class BPToolbarController implements IBPToolbarController {
     };
 
     public get canCreateNew(): boolean {
+        const currArtifact =  this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return this._currentArtifact && !!this.projectManager.getSelectedProject() ? !this._currentArtifact.artifactState.readonly : false;
+        return currArtifact && !!this.projectManager.getSelectedProject() ?
+            (currArtifact.predefinedType === Enums.ItemTypePredefined.Project && currArtifact.id === currArtifact.projectId) ||
+            (!currArtifact.artifactState.readonly) : false;
     }
 
     private createNewArtifact() {
         const artifact = this._currentArtifact;
+        const projectId = artifact.projectId;
+        const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Create"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -324,12 +329,21 @@ class BPToolbarController implements IBPToolbarController {
                 css: "nova-new-artifact"
             },
             <ICreateNewArtifactDialogData>{
-                projectId: artifact.projectId,
-                parentId: artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId,
+                projectId: projectId,
+                parentId: parentId,
                 parentPredefinedType: artifact.predefinedType
             })
-            .then((result) => {
-                console.log(result);
+            .then((result: ICreateNewArtifactReturn) => {
+                const itemTypeId = result.artifactTypeId;
+                const name = result.artifactName;
+
+                this.artifactManager.create(name, projectId, parentId, itemTypeId)
+                    .then((data: Models.IArtifact) => {
+                        console.log(data);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
             });
     }
 }

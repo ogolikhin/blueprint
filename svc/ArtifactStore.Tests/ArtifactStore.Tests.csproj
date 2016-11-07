@@ -85,10 +85,8 @@
     <Compile Include="Controllers\ArtifactControllerTests.cs" />
     <Compile Include="Helpers\MentionHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repositories\ArtifactPermissionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactRelationshipsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepositoryTests.cs" />
-    <Compile Include="Repositories\SqlArtifactRepositoryTests.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepositoryTests.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepositoryTests.cs" />

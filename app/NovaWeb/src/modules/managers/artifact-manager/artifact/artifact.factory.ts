@@ -5,13 +5,17 @@ import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";
 import {IProcessShape} from "../../../editors/bp-process/models/process-models";
-import {Models} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/enums";
+import {IArtifact, ISubArtifact} from "../../../main/models/models";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IMetaDataService} from "../metadata";
 import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
 import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {IArtifactRelationshipsService} from "../relationships";
 import {IStatefulCollectionArtifact, StatefulCollectionArtifact} from "../../../editors/bp-collection/collection-artifact";
+import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editors/bp-glossary/glossary-artifact";
+import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editors/bp-diagram/diagram-artifact";
+import {StatefulUseCaseArtifact} from "../../../editors/bp-diagram/usecase-artifact";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
@@ -23,9 +27,9 @@ import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 
 export interface IStatefulArtifactFactory {
-    createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact;
+    createStatefulArtifact(artifact: IArtifact): IStatefulArtifact;
     createStatefulArtifactFromId(artifactId: number): ng.IPromise<IStatefulArtifact>;
-    createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact;
+    createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: ISubArtifact): IStatefulSubArtifact;
     createStatefulProcessSubArtifact(artifact: IStatefulArtifact, subArtifact: IProcessShape): StatefulProcessSubArtifact;
 }
 
@@ -81,7 +85,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
         return this.itemInfoService.get(artifactId).then((result: IItemInfoResult) => {
             if (this.itemInfoService.isArtifact(result)) {
-                const artifact: Models.IArtifact = {
+                const artifact: IArtifact = {
                     id: result.id,
                     projectId: result.projectId,
                     name: result.name,
@@ -99,22 +103,32 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         });
     }
 
-    public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
+    public createStatefulArtifact(artifact: IArtifact): IStatefulArtifact {
         if (!artifact) {
             throw Error("Argument 'artifact' should not be null or undefined");
         }
-        if (artifact.predefinedType === Models.ItemTypePredefined.Process) {
-            return this.createStatefulProcessArtifact(artifact);
+        switch (artifact.predefinedType) {
+            case ItemTypePredefined.GenericDiagram:
+            case ItemTypePredefined.BusinessProcess:
+            case ItemTypePredefined.DomainDiagram:
+            case ItemTypePredefined.Storyboard:
+            case ItemTypePredefined.UseCaseDiagram:
+            case ItemTypePredefined.UIMockup:
+                return this.createStatefulDiagramArtifact(artifact);
+            case ItemTypePredefined.UseCase:
+                return this.createStatefulUseCaseArtifact(artifact);
+            case ItemTypePredefined.Process:
+                return this.createStatefulProcessArtifact(artifact);
+            case ItemTypePredefined.ArtifactCollection:
+                return this.createStatefulCollectionArtifact(artifact);
+            case ItemTypePredefined.Glossary:
+                return this.createStatefulGlossaryArtifact(artifact);
+            default:
+                return new StatefulArtifact(artifact, this.services);
         }
-
-        if (artifact.predefinedType === Models.ItemTypePredefined.ArtifactCollection) {
-            return this.createStatefulCollectionArtifact(artifact);
-        }
-
-        return new StatefulArtifact(artifact, this.services);
     }
 
-    public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: Models.ISubArtifact): IStatefulSubArtifact {
+    public createStatefulSubArtifact(artifact: IStatefulArtifact, subArtifact: ISubArtifact): IStatefulSubArtifact {
         return new StatefulSubArtifact(artifact, subArtifact, this.services);
     }
 
@@ -122,11 +136,23 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         return new StatefulProcessSubArtifact(artifact, subArtifact, this.services);
     }
 
-    public createStatefulCollectionArtifact(artifact: Models.IArtifact): IStatefulCollectionArtifact {
+    public createStatefulCollectionArtifact(artifact: IArtifact): IStatefulCollectionArtifact {
         return new StatefulCollectionArtifact(artifact, this.services);
     }
 
-    private createStatefulProcessArtifact(artifact: Models.IArtifact): IStatefulArtifact {
+    public createStatefulGlossaryArtifact(artifact: IArtifact): IStatefulGlossaryArtifact {
+        return new StatefulGlossaryArtifact(artifact, this.services);
+    }
+    
+    public createStatefulDiagramArtifact(artifact: IArtifact): IStatefulDiagramArtifact {
+        return new StatefulDiagramArtifact(artifact, this.services);
+    }
+
+    public createStatefulUseCaseArtifact(artifact: IArtifact): IStatefulDiagramArtifact {
+        return new StatefulUseCaseArtifact(artifact, this.services);
+    }
+
+    private createStatefulProcessArtifact(artifact: IArtifact): IStatefulArtifact {
         let processServices: IStatefulProcessArtifactServices =
             new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
 

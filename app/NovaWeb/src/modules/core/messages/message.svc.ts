@@ -22,6 +22,7 @@ export interface IMessageService {
     addInfo(text: string, messageTimeout?: number): void;
     addInfoWithPar(text: string, par: any[]): void;    
     deleteMessageById(id: number): void;
+    clearMessages(): void;
     messages: Array<IMessage>;
     dispose(): void;
 }
@@ -89,7 +90,7 @@ export class MessageService implements IMessageService {
         return result;
     }
 
-    private clearMessages(): void {
+    public clearMessages(): void {
         if (this._messages) {
             for (let msg in this._messages) {
                 this.cancelTimer(msg["id"]);

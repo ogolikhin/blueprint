@@ -1,5 +1,4 @@
 ﻿import {Models, Enums} from "../../main";
-import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 import {IDialogService} from "../../shared";
 import {
     BpArtifactEditor,
@@ -29,7 +28,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         windowManager: IWindowManager,
         localization: ILocalizationService,
         private dialogService: IDialogService) {
-        super(messageService, artifactManager, windowManager, localization);       
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -100,5 +99,5 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             this.specificFields.push(field);
         }
-    }    
+    }
 }

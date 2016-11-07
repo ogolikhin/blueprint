@@ -1,17 +1,25 @@
 import * as angular from "angular";
-import {Models, AdminStoreModels} from "../../models";
-import {Helper} from "../../../shared/";
-import {ITreeViewNodeVM} from "../../../shared/widgets/bp-tree-view/";
-import {IArtifactManager} from "../../../managers";
-import {IProjectService} from "../../../managers/project-manager/project-service";
-import {IArtifactPickerOptions, IViewModel} from "./bp-artifact-picker";
+import {Models, AdminStoreModels} from "./";
+import {Helper} from "../../shared/";
+import {ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
+import {IArtifactManager} from "../../managers";
+import {IProjectService} from "../../managers/project-manager/project-service";
 
-export abstract class ArtifactPickerNodeVM<T> implements IViewModel<T>, ITreeViewNodeVM {
+export interface ITreeViewOptions {
+    selectableItemTypes?: Models.ItemTypePredefined[];
+    showSubArtifacts?: boolean;
+}
+
+export interface IViewModel<T> {
+    model: T;
+}
+
+export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeViewNode {
     constructor(public model: T,
                 public name: string,
                 public key: string,
                 public isExpandable: boolean,
-                public children: ArtifactPickerNodeVM<any>[],
+                public children: TreeViewNodeVM<any>[],
                 public isExpanded: boolean) {
     }
 
@@ -43,10 +51,10 @@ export abstract class ArtifactPickerNodeVM<T> implements IViewModel<T>, ITreeVie
     }
 }
 
-export class InstanceItemNodeVM extends ArtifactPickerNodeVM<AdminStoreModels.IInstanceItem> {
+export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanceItem> {
     constructor(private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
-                private options: IArtifactPickerOptions,
+                private options: ITreeViewOptions,
                 model: AdminStoreModels.IInstanceItem,
                 isExpanded: boolean = false) {
         super(model, model.name, String(model.id), model.hasChildren, [], isExpanded);
@@ -76,7 +84,7 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<AdminStoreModels.II
                 });
             case AdminStoreModels.InstanceItemType.Project:
                 return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
-                    children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
+                    children = TreeViewNodeVM.processChildArtifacts(children, this.model);
                     this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
                 });
             default:
@@ -85,10 +93,10 @@ export class InstanceItemNodeVM extends ArtifactPickerNodeVM<AdminStoreModels.II
     }
 }
 
-export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
+export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
     constructor(private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
-                private options: IArtifactPickerOptions,
+                private options: ITreeViewOptions,
                 model: Models.IArtifact) {
         super(model, `${model.prefix}${model.id} ${model.name}`, String(model.id),
             model.hasChildren || (Boolean(options.showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
@@ -104,15 +112,11 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
     }
 
     public getIcon(): string {
-        //TODO: for now it display custom icons just for already loaded projects
-        let statefulArtifact = this.artifactManager.get(this.model.id);
-        if (statefulArtifact) {
-            let artifactType = statefulArtifact.metadata.getItemTypeTemp();
-            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-            }
+        if (_.isFinite(this.model.itemTypeIconId)) {
+            return `<bp-item-type-icon item-type-id="${this.model.itemTypeId}" item-type-icon-id="${this.model.itemTypeIconId}"></bp-item-type-icon>`;
+        } else {
+            return super.getIcon();
         }
-        return super.getIcon();
     }
 
     public isSelectable(): boolean {
@@ -124,7 +128,7 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
-            children = ArtifactPickerNodeVM.processChildArtifacts(children, this.model);
+            children = TreeViewNodeVM.processChildArtifacts(children, this.model);
             this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
             if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
@@ -134,8 +138,8 @@ export class ArtifactNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
     }
 }
 
-export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArtifact> {
-    constructor(private projectService: IProjectService, private options: IArtifactPickerOptions, model: Models.IArtifact, name: string) {
+export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact> {
+    constructor(private projectService: IProjectService, private options: ITreeViewOptions, model: Models.IArtifact, name: string) {
         super(model, name, `${model.id} ${name}`, true, [], false);
     }
 
@@ -157,8 +161,8 @@ export class SubArtifactContainerNodeVM extends ArtifactPickerNodeVM<Models.IArt
     }
 }
 
-export class SubArtifactNodeVM extends ArtifactPickerNodeVM<Models.ISubArtifactNode> {
-    constructor(private options: IArtifactPickerOptions, model: Models.ISubArtifactNode) {
+export class SubArtifactNodeVM extends TreeViewNodeVM<Models.ISubArtifactNode> {
+    constructor(private options: ITreeViewOptions, model: Models.ISubArtifactNode) {
         super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren,
             model.children ? model.children.map(child => new SubArtifactNodeVM(options, child)) : [], false);
     }

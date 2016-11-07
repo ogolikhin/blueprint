@@ -66,7 +66,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this._subject;
     }
 
-    public initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
             this.artifactState.misplaced = true;
@@ -113,7 +113,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     
     public discardArtifact(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
-
+        this.services.messageService.clearMessages();
         this.services.dialogService.open(<IDialogSettings>{
             okButton: this.services.localizationService.get("App_Button_Discard"),
             cancelButton: this.services.localizationService.get("App_Button_Cancel"),
@@ -369,6 +369,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
+        this.services.messageService.clearMessages();
         const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
         if (saveCustomArtifact) {
             saveCustomArtifact.then(() => {

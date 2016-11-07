@@ -19,7 +19,7 @@ namespace SearchService.Controllers
     {
         public override string LogSource => "SearchService.ItemSearch";
         internal const int MaxResultCount = 101;
-        private const string ArtifactPathStub = "Selected Project > Selected Folder > Selected Artifact";
+        private const string DefaultSeparator = "/";
 
         internal readonly IItemSearchRepository _itemSearchRepository;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
@@ -105,37 +105,36 @@ namespace SearchService.Controllers
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
         /// <param name="pageSize">Page Size</param>
+        /// <param name="separatorString"></param>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost, NoCache, SessionRequired]
         [Route("name")]
-        public async Task<ItemNameSearchResultSet> SearchName([FromBody] ItemNameSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null)
+        public async Task<ItemNameSearchResultSet> SearchName(
+            [FromBody] ItemNameSearchCriteria searchCriteria, 
+            int? startOffset = null, 
+            int? pageSize = null,
+            string separatorString = DefaultSeparator)
         {
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
             ValidateItemNameCriteria(searchCriteria);
 
+            if (string.IsNullOrEmpty(separatorString))
+                separatorString = DefaultSeparator;
+
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize, MaxResultCount);
 
             int searchStartOffset = GetStartCounter(startOffset, 0, 0);
 
-            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
+            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize, separatorString);
 
             foreach (var searchItem in results.Items)
             {
                 searchItem.LockedByUser = searchItem.LockedByUserId.HasValue ? new UserGroup { Id = searchItem.LockedByUserId } : null;
-            }
-
-            if (searchCriteria.IncludeArtifactPath)
-            {
-                // TODO Get Search Artifact Path
-                foreach (var searchItem in results.Items)
-                {
-                    searchItem.Path = ArtifactPathStub;
-                }
             }
 
             return results;

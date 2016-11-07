@@ -15,8 +15,17 @@ export class ProjectExplorer implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class ProjectExplorerController {
-    public tree: IBPTreeController;
+export interface IProjectExplorerController {
+    // BpTree bindings
+    tree: IBPTreeController;
+    columns: any[];
+    propertyMap: {[key: string]: string};
+    doLoad: Function;
+    doSelect: Function;
+    doSync: Function;
+}
+
+export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
@@ -79,64 +88,9 @@ export class ProjectExplorerController {
             this.selectedArtifactSubscriber.dispose();
         }
         this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
-                        .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                        .distinctUntilChanged(changes => changes.item && changes.item.name)
                         .subscribeOnNext(this.onSelectedArtifactChange);
     }
-
-    // the object defines how data will map to ITreeNode
-    // key: data property names, value: ITreeNode property names
-    public propertyMap = {
-        id: "id",
-        itemTypeId: "itemTypeId",
-        name: "name",
-        hasChildren: "hasChildren",
-        parentNode: "parentNode",
-        children: "children",
-        loaded: "loaded",
-        open: "open"
-    };
-
-    public columns = [{
-        headerName: "",
-        field: "name",
-        cellClass: function (params) {
-            let css: string[] = [];
-
-            if (params.data.hasChildren) {
-                css.push("has-children");
-            }
-            let typeName: string;
-            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder && params.data.parentNode instanceof Project) {
-                typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
-            } else {
-                typeName = Models.ItemTypePredefined[params.data.predefinedType];
-            }
-            if (typeName) {
-                css.push("is-" + _.kebabCase(typeName));
-            }
-            return css;
-        },
-
-        cellRenderer: "group",
-        cellRendererParams: {
-            innerRenderer: (params) => {
-                let icon = "<i ng-drag-handle></i>";
-                let name = Helper.escapeHTMLText(params.data.name);
-                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemTypeTemp();
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                    icon = `<bp-item-type-icon
-                                item-type-id="${artifactType.id}"
-                                item-type-icon="${artifactType.iconImageId}"
-                                ng-drag-handle></bp-item-type-icon>`;
-                }
-                return `${icon}<span>${name}</span>`;
-            },
-            padding: 20
-        },
-        suppressMenu: true,
-        suppressSorting: true,
-        suppressFiltering: true
-    }];
 
     private onLoadProject = (projects: Project[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
@@ -187,7 +141,7 @@ export class ProjectExplorerController {
                     }
                 }
             }
-            
+
             this.numberOfProjectsOnLastLoad = projects.length;
 
             if (_.isFinite(navigateToId)) {
@@ -203,7 +157,7 @@ export class ProjectExplorerController {
         }
     };
 
-    public onSelectedArtifactChange = (changes: IItemChangeSet) => {
+    private onSelectedArtifactChange = (changes: IItemChangeSet) => {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item) {
@@ -212,7 +166,65 @@ export class ProjectExplorerController {
                 node.name = changes.item.name;
                 this.tree.refresh(node.id);
             }
-        } 
+        }
+    };
+
+    // BpTree bindings
+
+    public tree: IBPTreeController;
+    public columns = [{
+        headerName: "",
+        field: "name",
+        cellClass: function (params) {
+            let css: string[] = [];
+
+            if (params.data.hasChildren) {
+                css.push("has-children");
+            }
+            let typeName: string;
+            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder && params.data.parentNode instanceof Project) {
+                typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
+            } else {
+                typeName = Models.ItemTypePredefined[params.data.predefinedType];
+            }
+            if (typeName) {
+                css.push("is-" + _.kebabCase(typeName));
+            }
+            return css;
+        },
+
+        cellRenderer: "group",
+        cellRendererParams: {
+            innerRenderer: (params) => {
+                let icon = "<i ng-drag-handle></i>";
+                const name = Helper.escapeHTMLText(params.data.name);
+                const artifact = (params.data as IArtifactNode).artifact;
+                if (_.isFinite(artifact.itemTypeIconId)) {
+                    icon = `<bp-item-type-icon
+                                item-type-id="${artifact.itemTypeId}"
+                                item-type-icon-id="${artifact.itemTypeIconId}"
+                                ng-drag-handle></bp-item-type-icon>`;
+                }
+                return `${icon}<span>${name}</span>`;
+            },
+            padding: 20
+        },
+        suppressMenu: true,
+        suppressSorting: true,
+        suppressFiltering: true
+    }];
+
+    // the object defines how data will map to ITreeNode
+    // key: data property names, value: ITreeNode property names
+    public propertyMap: {[key: string]: string} = {
+        id: "id",
+        itemTypeId: "itemTypeId",
+        name: "name",
+        hasChildren: "hasChildren",
+        parentNode: "parentNode",
+        children: "children",
+        loaded: "loaded",
+        open: "open"
     };
 
     public doLoad = (prms: Models.IProject): any[] => {

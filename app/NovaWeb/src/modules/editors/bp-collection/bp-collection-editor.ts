@@ -1,12 +1,13 @@
 import * as angular from "angular";
 import * as _ from "lodash";
 import {Models, Enums} from "../../main";
-import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
 import {Helper} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
+import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
 import {
     ILocalizationService,
     IArtifactManager,
@@ -39,6 +40,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
+    private collectionSubscriber: Rx.IDisposable;
     public selectedVMs: any[] = [];
     //public showBulkActions: boolean;
     //public selectedVMsLength: number;
@@ -66,6 +68,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         return "";
     }
 
+    private subscribeOnCollectionChanges(collectionArtifact: IStatefulCollectionArtifact) {
+        if (this.collectionSubscriber) {
+            this.collectionSubscriber.dispose();
+            this.collectionSubscriber = null;
+        }
+        this.collectionSubscriber = collectionArtifact.collectionObservable().subscribe(this.onCollectionArtifactsChanged);
+    }
+
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
@@ -73,6 +83,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService);
                 });
+                this.subscribeOnCollectionChanges(collectionArtifact);
 
             }).catch((error: any) => {
                 //ignore authentication errors here
@@ -87,6 +98,23 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             super.onArtifactReady();
         }
     }
+
+    private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
+        if (!changes || changes.length === 0) {
+            return;
+        }
+
+        let collectionArtifacts = this.rootNode.slice();
+
+        changes.map((change: IChangeSet) => {
+            if (change.type === ChangeTypeEnum.Add) {
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
+                collectionArtifacts.push(addedTreeVM);
+            }
+        });
+
+        this.rootNode = collectionArtifacts;
+    };
 
     private headerCellRendererSelectAll(params) {
         let cb = document.createElement("i");
@@ -139,7 +167,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 const prefix = Helper.escapeHTMLText(vm.model.prefix);
                 const icon = vm.getIcon();
                 const url = this.$state.href("main.item", { id: vm.model.id });
-                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank">${prefix}${vm.model.id}</a></span>`;
+                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" 
+                            ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
             }
         },
         {
@@ -212,7 +241,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 }
 
-class CollectionNodeVM implements ITreeViewNodeVM {
+class CollectionNodeVM implements ITreeViewNode {
     public key: string;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
@@ -222,7 +251,7 @@ class CollectionNodeVM implements ITreeViewNodeVM {
     public getIcon(): string {
         let artifactType = this.metadataService.getArtifactItemTypeTemp(this.projectId, this.model.itemTypeId);
         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-            return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+            return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon-id="${artifactType.iconImageId}"></bp-item-type-icon>`;
         }
         return `<i></i>`;
     }

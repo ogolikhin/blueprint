@@ -113,25 +113,19 @@
     </Compile>
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
-    <Compile Include="Models\Artifact.cs" />
-    <Compile Include="Models\ArtifactBasicDetails.cs" />
     <Compile Include="Models\ArtifactHistoryResultSet.cs" />
     <Compile Include="Models\ArtifactDetailsResultSet.cs" />
     <Compile Include="Models\FilesInfo.cs" />
     <Compile Include="Models\DiscussionResultSet.cs" />
-    <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemType.cs" />
     <Compile Include="Models\ProjectTypes.cs" />
     <Compile Include="Models\PropertyPrimitiveType.cs" />
     <Compile Include="Models\PropertyType.cs" />
     <Compile Include="Models\PropertyTypePredefined.cs" />
     <Compile Include="Models\RelationshipResultSet.cs" />
-    <Compile Include="Models\SubArtifact.cs" />
     <Compile Include="Models\VersionControlArtifactInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\IRelationshipsRepository.cs" />
-    <Compile Include="Repositories\ISqlItemInfoRepository.cs" />
-    <Compile Include="Repositories\ISqlArtifactRepository.cs" />
     <Compile Include="Repositories\IAttachmentsRepository.cs" />
     <Compile Include="Repositories\IDiscussionsRepository.cs" />
     <Compile Include="Repositories\IArtifactVersionsRepository.cs" />
@@ -140,11 +134,9 @@
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomProperty.cs" />
     <Compile Include="Repositories\PropertyXml\Models\XmlCustomPropertyValidValue.cs" />
     <Compile Include="Repositories\PropertyXml\XmlModelSerializer.cs" />
-    <Compile Include="Repositories\SqlArtifactRepository.cs" />
     <Compile Include="Repositories\SqlAttachmentsRepository.cs" />
     <Compile Include="Repositories\SqlArtifactVersionsRepository.cs" />
     <Compile Include="Repositories\SqlDiscussionsRepository.cs" />
-    <Compile Include="Repositories\SqlItemInfoRepository.cs" />
     <Compile Include="Repositories\SqlProjectMetaRepository.cs" />
     <Compile Include="Repositories\SqlRelationshipsRepository.cs" />
   </ItemGroup>

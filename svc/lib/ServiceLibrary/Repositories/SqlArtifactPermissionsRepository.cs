@@ -86,8 +86,6 @@ namespace ServiceLibrary.Repositories
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
             prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
-            prm.Add("@revisionId", revisionId);
-            prm.Add("@addDrafts", addDrafts);
            return (await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
         }
 

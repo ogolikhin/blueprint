@@ -91,7 +91,7 @@ export interface IArtifact extends IItem {
     hasChildren?: boolean;
     subArtifacts?: ISubArtifact[];
 
-    hasCustomIcon?: boolean;
+    itemTypeIconId?: number;
     itemTypeName?: string;
 
     //for client use

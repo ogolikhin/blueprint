@@ -14,6 +14,7 @@ namespace ServiceLibrary.Models
         public ItemTypePredefined? ItemTypePredefined { get; set; }
         public int? ItemTypeId { get; set; }
         public string Prefix { get; set; }
+        public int? ItemTypeIconId { get; set; }
         public int? LockedByUserId { get; set; }
         public DateTime? LockedByUserTime { get; set; }
         public RolePermissions? DirectPermissions { get; set; }

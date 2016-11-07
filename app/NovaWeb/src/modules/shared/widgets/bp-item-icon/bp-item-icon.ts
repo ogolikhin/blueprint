@@ -3,7 +3,7 @@ import {Models} from "../../../main/models";
 
 export interface IBPItemTypeIconController {
     itemTypeId: number;
-    itemTypeVersionId?: number;
+    itemTypeIconId?: number;
     predefinedType?: number;
     getImageSource(): string;
     getIconClass(): string;
@@ -15,14 +15,14 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
     public bindings: any = {
         itemTypeId: "<",
-        itemTypeVersionId: "<",
+        itemTypeIconId: "<",
         predefinedType: "<"
     };
 }
 
 export class BPItemTypeIconController implements IBPItemTypeIconController {
     public itemTypeId: number;
-    public itemTypeVersionId: number;
+    public itemTypeIconId: number;
     public predefinedType: number;
     public showBasicIcon: boolean;
 
@@ -37,8 +37,8 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
         let imgUrl: string = "";
         if (_.isFinite(this.itemTypeId)) {
             imgUrl = `/shared/api/itemTypes/${this.itemTypeId}/icon`;
-            if (_.isFinite(this.itemTypeVersionId)) {
-                imgUrl += `?${this.itemTypeVersionId}`;
+            if (_.isFinite(this.itemTypeIconId)) {
+                imgUrl += `?id=${this.itemTypeIconId}`;
             }
         }
         return imgUrl;

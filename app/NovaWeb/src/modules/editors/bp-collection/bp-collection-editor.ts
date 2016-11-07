@@ -200,7 +200,7 @@ class CollectionNodeVM implements ITreeViewNode {
     public getIcon(): string {
         let artifactType = this.metadataService.getArtifactItemTypeTemp(this.projectId, this.model.itemTypeId);
         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-            return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
+            return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon-id="${artifactType.iconImageId}"></bp-item-type-icon>`;
         }
         return `<i></i>`;
     }

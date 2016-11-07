@@ -55,7 +55,7 @@ export class BpArtifactInfoController {
     public artifactType: string;
     public artifactClass: string;
     public artifactTypeId: number;
-    public artifactTypeVersionId: number;
+    public artifactTypeIconId: number;
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[];
@@ -130,7 +130,7 @@ export class BpArtifactInfoController {
         this.artifactName = null;
         this.artifactType = null;
         this.artifactTypeId = null;
-        this.artifactTypeVersionId = null;
+        this.artifactTypeIconId = null;
         this.artifactTypeDescription = null;
         this.isLegacy = false;
         this.isReadonly = false;
@@ -158,8 +158,8 @@ export class BpArtifactInfoController {
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
-        this.artifactTypeVersionId = artifact.itemTypeVersionId;
-        this.hasCustomIcon = artifact.hasCustomIcon;
+        this.artifactTypeIconId = artifact.itemTypeIconId;
+        this.hasCustomIcon = _.isFinite(artifact.itemTypeIconId);
 
         this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
             artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||

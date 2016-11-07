@@ -31,7 +31,7 @@ export class BPUtilityPanelController {
     public itemDisplayName: string;
     public itemClass: string;
     public itemTypeId: number;
-    public itemTypeVersionId: number;
+    public itemTypeIconId: number;
     public hasCustomIcon: boolean;
     public isAnyPanelVisible: boolean;
 
@@ -91,8 +91,8 @@ export class BPUtilityPanelController {
                 this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
             }
             if (item.predefinedType !== ItemTypePredefined.Project && item instanceof StatefulArtifact) {
-                this.hasCustomIcon = item.hasCustomIcon;
-                this.itemTypeVersionId = item.itemTypeVersionId;
+                this.hasCustomIcon = _.isFinite(item.itemTypeIconId);
+                this.itemTypeIconId = item.itemTypeIconId;
             }
         }
     } 

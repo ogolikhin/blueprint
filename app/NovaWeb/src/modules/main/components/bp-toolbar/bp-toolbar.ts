@@ -11,6 +11,7 @@ import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArt
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {Project} from "../../../managers/project-manager/project";
+import {error} from "util";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -334,15 +335,41 @@ class BPToolbarController implements IBPToolbarController {
                 parentPredefinedType: artifact.predefinedType
             })
             .then((result: ICreateNewArtifactReturn) => {
+                const createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
+
                 const itemTypeId = result.artifactTypeId;
                 const name = result.artifactName;
 
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         console.log(data);
+                        this.projectManager.refreshAll()
+                            .finally(() => {
+                                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                            });
                     })
                     .catch((error) => {
-                        console.log(error);
+                        if (error.statusCode === 400) {
+                            this.messageService.addError("Create_New_Artifact_Error_400");
+                        } else if (error.statusCode === 401) {
+                            this.messageService.addError("Create_New_Artifact_Error_401");
+                        } else if (error.statusCode === 403) {
+                            this.messageService.addError("Create_New_Artifact_Error_403");
+                        } else if (error.statusCode === 404) {
+                            this.projectManager.refreshAll()
+                                .then(() => {
+                                    this.messageService.addError("Create_New_Artifact_Error_404", true);
+                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                });
+                        } else if (error.statusCode === 409) {
+                            this.messageService.addError("Create_New_Artifact_Error_409");
+                        } else {
+                            this.messageService.addError("Create_New_Artifact_Error_Generic");
+                        }
+
+                        if (error.statusCode !== 404) {
+                            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                        }
                     });
             });
     }

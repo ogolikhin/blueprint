@@ -20,7 +20,6 @@ namespace Model.ArtifactModel.Impl
 
         public abstract int Id { get; set; }
         public abstract int? ItemTypeId { get; set; }
-        public abstract string ItemTypeName { get; set; }
         public abstract string Name { get; set; }
         public abstract int? ParentId { get; set; }
         public abstract int? ProjectId { get; set; }
@@ -122,8 +121,9 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
-        public override string ItemTypeName { get; set; }
+        public string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }
+        public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
@@ -272,7 +272,6 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
-        public override string ItemTypeName { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 
@@ -349,7 +348,6 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
-        public override string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
@@ -398,7 +396,6 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
-        public override string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
@@ -441,8 +438,8 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
-        public override string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }
+        public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();

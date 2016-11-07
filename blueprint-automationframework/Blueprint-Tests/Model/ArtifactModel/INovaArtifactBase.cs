@@ -11,7 +11,6 @@ namespace Model.ArtifactModel
 
         int Id { get; set; }
         int? ItemTypeId { get; set; }
-        string ItemTypeName { get; set; }
         string Name { get; set; }
         int? ParentId { get; set; }
         int? ProjectId { get; set; }
@@ -52,6 +51,8 @@ namespace Model.ArtifactModel
         Identification CreatedBy { get; set; }
         DateTime? CreatedOn { get; set; }
         string Description { get; set; }
+        string ItemTypeName { get; set; }
+        int? ItemTypeIconId { get; set; }
         int ItemTypeVersionId { get; set; }
         int Permissions { get; set; }
         double? OrderIndex { get; set; }

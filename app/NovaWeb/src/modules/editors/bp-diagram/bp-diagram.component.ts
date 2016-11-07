@@ -1,4 +1,3 @@
-import "angular";
 import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
 import {ILocalizationService} from "../../core";
@@ -12,12 +11,9 @@ import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
 import {ShapeExtensions} from "./impl/utils/helpers";
 import {ItemTypePredefined} from "./../../main/models/enums";
 import {IItem} from "./../../main/models/models";
+import {IArtifactManager, BpBaseEditor} from "../bp-base-editor";
+import {IMessageService} from "../../core/messages/message.svc";
 
-import {
-    IArtifactManager,
-    IMessageService,
-    BpBaseEditor
-} from "../bp-base-editor";
 
 export class BPDiagram implements ng.IComponentOptions {
     public template: string = require("./bp-diagram.html");
@@ -106,9 +102,9 @@ export class BPDiagramController extends BpBaseEditor {
         this.isIncompatible = false;
         this.cancelationToken = this.$q.defer();
         this.diagramService.getDiagram(this.artifact.id,
-                                       this.artifact.getEffectiveVersion(),
-                                       this.artifact.predefinedType,
-                                       this.cancelationToken.promise).then(diagram => {
+            this.artifact.getEffectiveVersion(),
+            this.artifact.predefinedType,
+            this.cancelationToken.promise).then(diagram => {
             // TODO: hotfix, remove later
             if (this.isDestroyed) {
                 return;

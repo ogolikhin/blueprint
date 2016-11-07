@@ -1,10 +1,11 @@
-﻿import {ILocalizationService, INavigationService} from "../../../core";
-import {AppConstants} from "../../../core/constants";
+﻿import {ILocalizationService} from "../../../core";
 import {Models} from "../../../main";
 import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {AppConstants} from "../../../core/constants/appConstants";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 
 interface ISortOptions {
     value: boolean;
@@ -81,7 +82,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             subscriber.dispose();
             return false;
         });
-        
+
         this.clearHistoryList();
 
         if (subArtifact) {

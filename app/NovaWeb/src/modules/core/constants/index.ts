@@ -1,7 +1,3 @@
-export interface IAppConstants {
-    draftVersion: number;
-}
-
-export class AppConstants implements IAppConstants {
-    public draftVersion: number = 2147483647;
-}
+import {AppConstants} from "./appConstants";
+angular.module("app.core")
+    .constant("appConstants", new AppConstants());

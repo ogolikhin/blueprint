@@ -1,10 +1,10 @@
-import "angular";
-import {ILocalizationService, IMessageService} from "../../../../core";
+import {ILocalizationService} from "../../../../core";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
@@ -70,7 +70,7 @@ export class BPFieldImageController extends BPFieldBaseController {
                         const currentModelVal = <Models.IActorImagePropertyValue>$scope.model[$scope.options["key"]] || <Models.IActorImagePropertyValue>{};
                         currentModelVal.imageSource = imageContent;
                         currentModelVal.guid = image.guid;
-                        $scope.model[$scope.options["key"]] = currentModelVal;                       
+                        $scope.model[$scope.options["key"]] = currentModelVal;
                         onChange(currentModelVal, getImageField(), $scope);
                     };
                 }

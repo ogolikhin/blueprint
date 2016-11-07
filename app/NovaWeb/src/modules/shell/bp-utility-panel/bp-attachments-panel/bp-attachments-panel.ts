@@ -1,5 +1,5 @@
-import {ILocalizationService, ISettingsService, IMessageService} from "../../../core";
-import {Models, Enums} from "../../../main";
+import {ILocalizationService} from "../../../core";
+import {Models} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
@@ -17,6 +17,8 @@ import {
     IStatefulSubArtifact,
     IArtifactAttachment
 } from "../../../managers/artifact-manager";
+import {ISettingsService} from "../../../core/configuration/settings";
+import {IMessageService} from "../../../core/messages/message.svc";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -57,7 +59,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 private dialogService: IDialogService,
                 private messageService: IMessageService,
                 public bpAccordionPanel: IBpAccordionPanelController) {
-
         super($q, artifactManager.selection, bpAccordionPanel);
 
         this.subscribers = [];

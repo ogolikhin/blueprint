@@ -1,20 +1,19 @@
-import * as angular from "angular";
 import * as _ from "lodash";
-import {Models, Enums} from "../../main";
+import {Models} from "../../main";
 import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
-import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
+import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
 import {Helper} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {
     ILocalizationService,
     IArtifactManager,
-    IMessageService,
     IWindowManager
 } from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -40,16 +39,15 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public isSystemPropertiesCollapsed: boolean = true;
 
     constructor(private $state: ng.ui.IStateService,
-        messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService,
-        dialogService: IDialogService,
-        private collectionService: ICollectionService,
-        private metadataService: IMetaDataService,
-        private $location: ng.ILocationService,
-        private $window: ng.IWindowService
-    ) {
+                messageService: IMessageService,
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService,
+                dialogService: IDialogService,
+                private collectionService: ICollectionService,
+                private metadataService: IMetaDataService,
+                private $location: ng.ILocationService,
+                private $window: ng.IWindowService) {
         super(messageService, artifactManager, windowManager, localization, dialogService);
     }
 
@@ -133,7 +131,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             innerRenderer: (vm: CollectionNodeVM, eGridCell: HTMLElement) => {
                 const prefix = Helper.escapeHTMLText(vm.model.prefix);
                 const icon = vm.getIcon();
-                const url = this.$state.href("main.item", { id: vm.model.id });
+                const url = this.$state.href("main.item", {id: vm.model.id});
                 return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank">${prefix}${vm.model.id}</a></span>`;
             }
         },
@@ -150,11 +148,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         tooltipText += " > ";
                     }
 
-                    tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}` ;
+                    tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
                 });
 
                 return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">${vm.model.name}</div>` +
-                            `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
+                    `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
         {

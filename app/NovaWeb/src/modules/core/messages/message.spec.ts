@@ -1,5 +1,4 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import {MessageService} from "./message.svc";
 import {MessageComponent} from "./message";
 import {SettingsService} from "../configuration";
@@ -27,7 +26,7 @@ describe("message directive", () => {
         scope.$digest();
         // Act
 
-        // Assert      
+        // Assert
         expect($(element.children(".container")[0]).attr("class")).toContain("error");
 
     })));

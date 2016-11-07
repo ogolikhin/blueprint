@@ -1,27 +1,24 @@
-import {ILocalizationService, Message} from "../../core";
+import {ILocalizationService} from "../../core";
 import {IWindowManager, IMainWindow} from "../../main";
-//import { Models, Enums } from "../../main";
 import {
     Models, Enums,
     IArtifactManager,
     IStatefulArtifact,
-    IMessageService,
     BpBaseEditor
 } from "../bp-base-editor";
 
 import {PropertyEditor} from "./bp-property-editor";
 import {PropertyContext} from "./bp-property-context";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export {
     ILocalizationService,
     IArtifactManager,
     IStatefulArtifact,
-    IMessageService,
     IWindowManager,
     PropertyContext,
     Models,
-    Enums,
-    Message
+    Enums
 }
 
 export class BpArtifactEditor extends BpBaseEditor {
@@ -60,7 +57,7 @@ export class BpArtifactEditor extends BpBaseEditor {
         this.fields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return (this.fields || []).length > 0;
 
     }
@@ -80,7 +77,7 @@ export class BpArtifactEditor extends BpBaseEditor {
     public onArtifactReady() {
         if (this.artifact) {
             this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                if (this.editor ) {
+                if (this.editor) {
                     const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields());
                     if (shouldCreateFields) {
                         this.clearFields();

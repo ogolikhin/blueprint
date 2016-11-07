@@ -3,10 +3,10 @@ import {
     BpArtifactEditor,
     PropertyContext,
     ILocalizationService,
-    IMessageService,
     IArtifactManager,
     IWindowManager
 } from "./bp-artifact-editor";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -47,9 +47,9 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
         this.noteFields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) +
-               (angular.isArray(this.noteFields) ? this.noteFields.length : 0)) > 0;
+            (angular.isArray(this.noteFields) ? this.noteFields.length : 0)) > 0;
 
     }
 

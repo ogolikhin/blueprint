@@ -1,5 +1,4 @@
-﻿import "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 
 import {LocalizationService, BPLocale} from "./";
 

@@ -5,9 +5,9 @@ import {
 } from "./models/";
 import {IProcessGraph} from "./models/";
 import {ProcessGraph} from "./process-graph";
-import {IMessageService} from "../../../../../../core/";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ShapesFactory} from "./shapes/shapes-factory";
+import {IMessageService} from "../../../../../../core/messages/message.svc";
 
 export class ProcessDeleteHelper {
 

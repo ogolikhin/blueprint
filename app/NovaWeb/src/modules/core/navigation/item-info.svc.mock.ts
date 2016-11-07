@@ -1,9 +1,10 @@
-import * as angular from "angular";
 import {IItemInfoService, IItemInfoResult} from "./item-info.svc";
 
 export class ItemInfoServiceMock implements IItemInfoService {
     public static $inject: [string] = ["$q"];
-    constructor(private $q: ng.IQService) {}
+
+    constructor(private $q: ng.IQService) {
+    }
 
     public get(id: number, timeout?: ng.IPromise<void>): ng.IPromise<IItemInfoResult> {
         const result = <IItemInfoResult>{

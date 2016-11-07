@@ -1,8 +1,9 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ILocalizationService, IMessageService} from "../../../../core";
+import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export class SaveAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
@@ -27,17 +28,17 @@ export class SaveAction extends BPButtonAction {
 
                 try {
                     artifact.save()
-                    .then(() => {
-                        messageService.addInfo("App_Save_Artifact_Error_200");
-                    })
-                    .catch((err) => {
-                        if (err) {
-                            messageService.addError(err);
-                        }
-                    })
-                    .finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
+                        .then(() => {
+                            messageService.addInfo("App_Save_Artifact_Error_200");
+                        })
+                        .catch((err) => {
+                            if (err) {
+                                messageService.addError(err);
+                            }
+                        })
+                        .finally(() => {
+                            loadingOverlayService.endLoading(overlayId);
+                        });
                 } catch (err) {
                     loadingOverlayService.endLoading(overlayId);
 

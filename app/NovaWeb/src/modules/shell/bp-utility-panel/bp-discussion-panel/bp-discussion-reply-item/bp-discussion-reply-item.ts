@@ -1,5 +1,6 @@
-﻿import {ILocalizationService, IMessageService} from "../../../../core";
+﻿import {ILocalizationService} from "../../../../core";
 import {IReply, IArtifactDiscussions} from "../artifact-discussions.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {
     public template: string = require("./bp-discussion-reply-item.html");

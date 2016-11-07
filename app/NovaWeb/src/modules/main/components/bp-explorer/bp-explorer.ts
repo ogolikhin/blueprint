@@ -120,7 +120,9 @@ export class ProjectExplorerController {
             innerRenderer: (params) => {
                 let icon = "<i ng-drag-handle></i>";
                 let name = Helper.escapeHTMLText(params.data.name);
+
                 let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemTypeTemp();
+
                 if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifactType.id}"
@@ -185,7 +187,7 @@ export class ProjectExplorerController {
                     }
                 }
             }
-            
+
             this.numberOfProjectsOnLastLoad = projects.length;
 
             if (_.isFinite(navigateToId)) {
@@ -203,7 +205,7 @@ export class ProjectExplorerController {
 
     public onSelectedArtifactChange = (artifact: IStatefulArtifact) => {
         //If the artifact's name changes (on refresh), we refresh specific node only .
-        //To prevent update treenode name while editing the artifact details, use it only for clean artifact. 
+        //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (artifact.name !== this.selectedArtifactNameBeforeChange && !artifact.artifactState.dirty) {
             let node = this.tree.getNodeData(artifact.id) as IArtifactNode;
             if (node) {

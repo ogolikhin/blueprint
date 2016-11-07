@@ -1,12 +1,11 @@
-﻿import * as angular from "angular";
-import {ILocalizationService, IMessageService} from "../../../../../../core/";
+﻿import {ILocalizationService} from "../../../../../../core/";
 import {IProcessGraph, ILayout} from "./models/";
 import {INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory, IUserTask} from "./models/";
 import {INextIdsProvider} from "./models/";
 import {IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement} from "./models/";
-import {IProcessShape, IProcessLink, IUserTaskShape} from "./models/";
+import {IProcessShape, IProcessLink} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType} from "./models/";
 import {NodeType, NodeChange} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
@@ -27,6 +26,7 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {ISelectionListener} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
+import {IMessageService} from "../../../../../../core/messages/message.svc";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;

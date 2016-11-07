@@ -1,5 +1,4 @@
-import * as angular from "angular";
-import {ILocalizationService, IMessageService, INavigationService, HttpStatusCode} from "../../core";
+import {ILocalizationService} from "../../core";
 import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {Project, ArtifactNode} from "./project";
@@ -8,7 +7,10 @@ import {Models, AdminStoreModels, Enums} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
-import {ILoadingOverlayService} from "../../core/loading-overlay";
+import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;

@@ -1,6 +1,6 @@
 ﻿import {Message, MessageType, IMessage} from "./message";
-import {ISettingsService} from "../configuration";
 import {ILocalizationService} from "../../core";
+import {ISettingsService} from "../configuration/settings";
 
 export interface IMessageService {
 
@@ -20,7 +20,7 @@ export interface IMessageService {
      * messageTimeout: Optional, default is set by Settings service. time to display message in ms. 0 = no timeout.
      */
     addInfo(text: string, messageTimeout?: number): void;
-    addInfoWithPar(text: string, par: any[]): void;    
+    addInfoWithPar(text: string, par: any[]): void;
     deleteMessageById(id: number): void;
     messages: Array<IMessage>;
     dispose(): void;
@@ -30,15 +30,21 @@ export class MessageService implements IMessageService {
     private timers: { [id: number]: ng.IPromise<any>; } = {};
     private id: number = 0;
 
-    public static $inject = ["$timeout", "settings", "localization"];
+    public static $inject = [
+        "$timeout",
+        "settings",
+        "localization"
+    ];
 
-    constructor(private $timeout: ng.ITimeoutService, private settings: ISettingsService, private localization: ILocalizationService) {
+    constructor(private $timeout: ng.ITimeoutService,
+                private settings: ISettingsService,
+                private localization: ILocalizationService) {
         this.initialize();
     }
 
     public initialize = () => {
         this._messages = new Array<IMessage>();
-    }
+    };
 
     public dispose(): void {
         this.clearMessages();
@@ -56,12 +62,12 @@ export class MessageService implements IMessageService {
             this.$timeout.cancel(this.timers[id]);
             this.timers[id] = null;
         }
-    }
+    };
 
     private clearMessageAfterInterval = (id: number) => {
         this.deleteMessageById(id);
         this.cancelTimer(id);
-    }
+    };
 
     private getMessageTimeout(messageType: MessageType): number {
         /**
@@ -131,12 +137,13 @@ export class MessageService implements IMessageService {
 
         this.addMessage(new Message(MessageType.Info, msg), messageTimeout);
     }
+
     public addInfoWithPar(msg: string, par: any[]): void {
         msg = this.localization.get(msg);
         for (let i: number = 0; i < par.length; i++) {
             msg = msg.replace("{" + i + "}", par[i]);
         }
-        
+
         this.addInfo(msg);
     }
 

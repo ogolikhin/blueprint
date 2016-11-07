@@ -1,10 +1,7 @@
-﻿import "angular";
-import {
-    ILocalizationService,
-    ISettingsService,
-    HttpStatusCode
-} from "../../core";
+﻿import {ILocalizationService} from "../../core";
 import {ISession} from "./session.svc";
+import {ISettingsService} from "../../core/configuration/settings";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 export class ILoginInfo {
     public userName: string;
@@ -74,9 +71,12 @@ export class LoginCtrl {
     public isLoginInProgress: boolean;
 
     static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "settings"];
-    /* tslint:disable */
-    constructor(private localization: ILocalizationService, private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance, private session: ISession, private $timeout: ng.ITimeoutService, private settings: ISettingsService) {
-        /* tslint:enable */
+
+    constructor(private localization: ILocalizationService,
+                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+                private session: ISession,
+                private $timeout: ng.ITimeoutService,
+                private settings: ISettingsService) {
         this.currentFormState = LoginState.LoginForm;
         this.errorMessage = session.getLoginMessage();
         this.novaUserName = session.forceUsername();

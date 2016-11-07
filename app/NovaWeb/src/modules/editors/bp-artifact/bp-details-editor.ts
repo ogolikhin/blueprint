@@ -1,14 +1,13 @@
 ﻿import {Models, Enums} from "../../main";
-import {IColumn, ITreeViewNodeVM} from "../../shared/widgets/bp-tree-view/";
 import {IDialogService} from "../../shared";
 import {
     BpArtifactEditor,
     ILocalizationService,
     IArtifactManager,
-    IMessageService,
     IWindowManager,
     PropertyContext
 } from "./bp-artifact-editor";
+import {IMessageService} from "../../core/messages/message.svc";
 
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
@@ -25,11 +24,11 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     ];
 
     constructor(messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService,
-        private dialogService: IDialogService) {
-        super(messageService, artifactManager, windowManager, localization);       
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService,
+                private dialogService: IDialogService) {
+        super(messageService, artifactManager, windowManager, localization);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -57,11 +56,11 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return ((this.systemFields || []).length +
-               (this.customFields || []).length +
-               (this.richTextFields || []).length +
-               (this.specificFields || []).length) > 0;
+            (this.customFields || []).length +
+            (this.richTextFields || []).length +
+            (this.specificFields || []).length) > 0;
     }
 
     protected onFieldUpdateFinished() {
@@ -100,5 +99,5 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         } else if (Enums.PropertyLookupEnum.Special === propertyContext.lookup) {
             this.specificFields.push(field);
         }
-    }    
+    }
 }

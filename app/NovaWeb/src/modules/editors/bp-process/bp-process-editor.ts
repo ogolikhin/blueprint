@@ -1,7 +1,6 @@
 ﻿// References to StorytellerDiagramDirective
-//import {BpBaseEditor} from "../bp-artifact/bp-base-editor";
 import {ICommunicationManager} from "./";
-import {ILocalizationService, IMessageService, INavigationService} from "../../core";
+import {ILocalizationService} from "../../core";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
@@ -10,6 +9,8 @@ import {IDialogService} from "../../shared";
 import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
+import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -39,24 +40,22 @@ export class BpProcessEditorController extends BpBaseEditor {
         "shapesFactory"
     ];
 
-    constructor(
-        messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        private windowManager: IWindowManager,
-        private $rootScope: ng.IRootScopeService,
-        private $scope: ng.IScope,
-        private $element: ng.IAugmentedJQuery,
-        private $q: ng.IQService,
-        private $log: ng.ILogService,
-        private $uibModal: ng.ui.bootstrap.IModalService,
-        private localization: ILocalizationService,
-        private $timeout: ng.ITimeoutService,
-        private communicationManager: ICommunicationManager,
-        private dialogService: IDialogService,
-        private navigationService: INavigationService,
-        private statefulArtifactFactory: IStatefulArtifactFactory,
-        private shapesFactory: ShapesFactory = null
-    ) {
+    constructor(messageService: IMessageService,
+                artifactManager: IArtifactManager,
+                private windowManager: IWindowManager,
+                private $rootScope: ng.IRootScopeService,
+                private $scope: ng.IScope,
+                private $element: ng.IAugmentedJQuery,
+                private $q: ng.IQService,
+                private $log: ng.ILogService,
+                private $uibModal: ng.ui.bootstrap.IModalService,
+                private localization: ILocalizationService,
+                private $timeout: ng.ITimeoutService,
+                private communicationManager: ICommunicationManager,
+                private dialogService: IDialogService,
+                private navigationService: INavigationService,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private shapesFactory: ShapesFactory = null) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -101,7 +100,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.processDiagram.destroy();
         } else {
             //When the process is navigated to from explorer, inline trace, manual trace etc. we want to reset the shapes factory.
-            //This allows the temp ids to be generated from -1, -2 again. Otherwise the temp ids will continue to decrease incrementally across processes 
+            //This allows the temp ids to be generated from -1, -2 again. Otherwise the temp ids will continue to decrease incrementally across processes
             this.shapesFactory.reset();
         }
 
@@ -111,7 +110,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.$timeout,
             this.$q,
             this.$log,
-            this.messageService,
+            <IMessageService>this.messageService,
             this.communicationManager,
             this.dialogService,
             this.localization,

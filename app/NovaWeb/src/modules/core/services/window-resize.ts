@@ -1,5 +1,4 @@
-﻿
-export interface IWindowResize {
+﻿export interface IWindowResize {
     isResizing: Rx.Observable<boolean>;
     width: Rx.Observable<number>;
     height: Rx.Observable<number>;

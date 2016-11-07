@@ -5,7 +5,7 @@ export enum ErrorCode {
     ConcurrentSessions = 104,
     ImpactAnalysisInvalidLevel = 105,
     ImpactAnalysisInvalidSourceId = 106,
-    // AcceptType is not supported
+        // AcceptType is not supported
     NotAcceptable = 107,
     Forbidden = 108,
     ItemTypeNotFound = 109,
@@ -17,9 +17,9 @@ export enum ErrorCode {
     UnexpectedLockException = 115,
     CannotSaveDueToReuseReadOnly = 116,
     ClientDataOutOfDate = 117,
-    //Configuration has not been defined for Service hook (example SMB)
+        //Configuration has not been defined for Service hook (example SMB)
     ConfigurationNotSetForServiceHook = 118,
-    //User story post processing failed for Service hook (example SMB)
+        //User story post processing failed for Service hook (example SMB)
     PostProcessingForServiceHookFailed = 119,
     CannotPublishOverDependencies = 120,
     CannotPublishOverValidationErrors = 121,

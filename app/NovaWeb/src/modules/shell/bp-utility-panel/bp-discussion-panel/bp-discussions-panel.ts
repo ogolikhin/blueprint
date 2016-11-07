@@ -1,9 +1,8 @@
-﻿import {ILocalizationService, IMessageService} from "../../../core";
+﻿import {ILocalizationService} from "../../../core";
 import {
     IArtifactManager,
     IStatefulArtifact,
-    IStatefulSubArtifact,
-    IStatefulItem
+    IStatefulSubArtifact
 } from "../../../managers/artifact-manager";
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 import {IDialogService} from "../../../shared";
@@ -11,6 +10,7 @@ import {IBpAccordionPanelController} from "../../../main/components/bp-accordion
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Message, MessageType} from "../../../core/messages/message";
 import {Helper} from "../../../shared/utils/helper";
+import {IMessageService} from "../../../core/messages/message.svc";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
@@ -106,7 +106,7 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
             if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
                 this.artifactId = artifact.id;
                 this.subArtifact = subArtifact;
-                //We always should artifact version 
+                //We always should artifact version
                 this.artifactEverPublished = artifact.version > 0;
                 return this.setDiscussions(timeout);
             }
@@ -240,18 +240,18 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
 
     public deleteReply(discussion: IDiscussion, reply: IReply) {
         this.dialogService.confirm(this.localization.get("Confirmation_Delete_Comment"))
-        .then(() => {
-            this.artifactDiscussions.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
-                this.getDiscussionReplies(discussion.discussionId)
-                    .then((updatedReplies: IReply[]) => {
-                        discussion.replies = updatedReplies;
-                        discussion.repliesCount = updatedReplies.length;
-                        discussion.expanded = true;
-                    });
-            }).catch((error) => {
-                this.messageService.addMessage(new Message(MessageType.Error, error.message));
+            .then(() => {
+                this.artifactDiscussions.deleteReply(reply.itemId, reply.replyId).then((result: boolean) => {
+                    this.getDiscussionReplies(discussion.discussionId)
+                        .then((updatedReplies: IReply[]) => {
+                            discussion.replies = updatedReplies;
+                            discussion.repliesCount = updatedReplies.length;
+                            discussion.expanded = true;
+                        });
+                }).catch((error) => {
+                    this.messageService.addMessage(new Message(MessageType.Error, error.message));
+                });
             });
-        });
     }
 
     public deleteCommentThread(discussion: IDiscussion) {

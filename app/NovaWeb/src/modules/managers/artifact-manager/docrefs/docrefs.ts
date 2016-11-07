@@ -2,7 +2,7 @@ import {IIStatefulItem} from "../item";
 import {IDispose} from "../../models";
 import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
 import {IArtifactAttachmentsResultSet, IArtifactDocRef} from "../attachments";
-import {IApplicationError} from "../../../core";
+import {IApplicationError} from "../../../core/error/applicationError";
 
 export interface IDocumentRefs extends IDispose {
     isLoading: boolean;

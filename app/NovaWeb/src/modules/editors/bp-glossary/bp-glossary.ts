@@ -1,8 +1,9 @@
 import {IGlossaryService} from "./glossary.svc";
-import {ILocalizationService, IMessageService} from "../../core";
+import {ILocalizationService} from "../../core";
 import {IArtifactManager, IStatefulSubArtifact, IStatefulArtifactFactory} from "../../managers/artifact-manager";
 import {Models} from "../../main/models";
 import {BpBaseEditor} from "../bp-base-editor";
+import {IMessageService} from "../../core/messages/message.svc";
 
 
 export class BpGlossary implements ng.IComponentOptions {

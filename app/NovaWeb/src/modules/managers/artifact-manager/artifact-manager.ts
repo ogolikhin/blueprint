@@ -1,8 +1,7 @@
 import * as _ from "lodash";
-import {IMessageService} from "../../core/messages";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IMetaDataService} from "./metadata";
-import {IStatefulArtifactFactory, IStatefulArtifact} from "./artifact";
+import {IStatefulArtifact} from "./artifact";
 import {IDispose} from "../models";
 
 export interface IArtifactManager extends IDispose {

@@ -1,10 +1,4 @@
-import * as angular from "angular";
 import * as moment from "moment";
-
-export interface ILocalizationService {
-    get: (name: string, defaultValue?: string) => string;
-    current: BPLocale;
-}
 
 export class BPLocale {
     private _locale: string;
@@ -168,7 +162,6 @@ export class BPLocale {
 
 }
 
-
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 localeConfig.$inject = ["$provide"];
 export function localeConfig($provide: ng.auto.IProvideService): void {
@@ -190,6 +183,10 @@ export function localeConfig($provide: ng.auto.IProvideService): void {
     $provide.decorator("$locale", ["$delegate", delegated]);
 }
 
+export interface ILocalizationService {
+    get: (name: string, defaultValue?: string) => string;
+    current: BPLocale;
+}
 
 export class LocalizationService implements ILocalizationService {
     public static $inject: [string] = ["$rootScope"];

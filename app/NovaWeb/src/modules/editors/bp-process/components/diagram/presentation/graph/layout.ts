@@ -1,4 +1,3 @@
-import {IMessageService} from "../../../../../../core/";
 import {IProcessShape, IProcessLink} from "../../../../models/process-models";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/process-models";
@@ -22,6 +21,7 @@ import {DiagramLink} from "./shapes/diagram-link";
 import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
+import {IMessageService} from "../../../../../../core/messages/message.svc";
 
 export let tempShapeId: number = 0;
 

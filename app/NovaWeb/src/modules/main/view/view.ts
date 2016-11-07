@@ -1,8 +1,8 @@
-﻿import * as angular from "angular";
-import {IMessageService, IWindowVisibility, ILocalizationService} from "../../core";
+﻿import {IWindowVisibility, ILocalizationService} from "../../core";
 import {IUser, ISession} from "../../shell";
 import {Models, Enums} from "../models";
 import {IProjectManager, IArtifactManager} from "../../managers";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");

@@ -1,10 +1,9 @@
 ﻿import {ILocalizationService} from "../../../../core";
-import { INavigationService } from "../../../../core/navigation";
 import {Helper, IDialogService} from "../../../../shared";
 import {Relationships} from "../../../../main";
 import {IArtifactManager} from "../../../../managers";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IRelationshipDetailsService} from "../../../";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");

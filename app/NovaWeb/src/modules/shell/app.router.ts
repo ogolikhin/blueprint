@@ -1,8 +1,6 @@
 import * as angular from "angular";
 import {ISession} from "./login/session.svc";
-import { IApplicationError, HttpStatusCode } from "../core";
-import { INavigationService } from "../core/navigation";
-import { IArtifactManager, IProjectManager } from "../managers";
+import { IArtifactManager } from "../managers";
 import { ILicenseService } from "./license/license.svc";
 
 export class AppRoutes {
@@ -16,7 +14,6 @@ export class AppRoutes {
     constructor($stateProvider: ng.ui.IStateProvider,
                 $urlRouterProvider: ng.ui.IUrlRouterProvider,
                 $urlMatcherFactoryProvider: any) {
-
         $urlMatcherFactoryProvider.caseInsensitive(true);
 
         // pass through / to main state

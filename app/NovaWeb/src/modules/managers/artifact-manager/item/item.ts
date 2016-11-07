@@ -9,7 +9,8 @@ import {IDocumentRefs, DocumentRefs} from "../docrefs";
 import {IStatefulArtifactServices} from "../services";
 import {IArtifactProperties} from "../properties";
 import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
-import {HttpStatusCode, IApplicationError} from "../../../core";
+import {IApplicationError} from "../../../core/error/applicationError";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -61,15 +62,15 @@ export abstract class StatefulItem implements IIStatefulItem {
         if (this.error) {
             this.error.onCompleted();
         }
-        delete this._error;        
+        delete this._error;
     }
 
     protected get error(): Rx.BehaviorSubject<IApplicationError> {
         if (!this._error) {
-            this._error = new Rx.BehaviorSubject<IApplicationError>(null);            
-        }    
-        return this._error;    
-    } 
+            this._error = new Rx.BehaviorSubject<IApplicationError>(null);
+        }
+        return this._error;
+    }
 
     public errorObservable(): Rx.Observable<IApplicationError> {
         return this.error.filter(it => !!it).distinctUntilChanged().asObservable();
@@ -81,7 +82,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public set id(value: number) {
         this.artifact.id = value;
-    }    
+    }
 
     public get projectId() {
         return this.artifact.projectId;
@@ -307,19 +308,19 @@ export abstract class StatefulItem implements IIStatefulItem {
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
         const deferred = this.services.getDeferred();
         this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
-                // load attachments
-                this.attachments.initialize(result.attachments);
+            // load attachments
+            this.attachments.initialize(result.attachments);
 
-                // load docRefs
-                this.docRefs.initialize(result.documentReferences);
+            // load docRefs
+            this.docRefs.initialize(result.documentReferences);
 
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.artifactState.deleted = true;
-                }
-                deferred.reject(error);
-            });
+            deferred.resolve(result);
+        }, (error) => {
+            if (error && error.statusCode === HttpStatusCode.NotFound) {
+                this.artifactState.deleted = true;
+            }
+            deferred.reject(error);
+        });
         return deferred.promise;
     }
 
@@ -328,13 +329,13 @@ export abstract class StatefulItem implements IIStatefulItem {
     public getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> {
         const deferred = this.services.getDeferred();
         this.getRelationshipsInternal().then((result: Relationships.IArtifactRelationshipsResultSet) => {
-                deferred.resolve(result);
-            }, (error) => {
-                if (error && error.statusCode === HttpStatusCode.NotFound) {
-                    this.artifactState.deleted = true;
-                }
-                deferred.reject(error);
-            });
+            deferred.resolve(result);
+        }, (error) => {
+            if (error && error.statusCode === HttpStatusCode.NotFound) {
+                this.artifactState.deleted = true;
+            }
+            deferred.reject(error);
+        });
 
         return deferred.promise;
     }

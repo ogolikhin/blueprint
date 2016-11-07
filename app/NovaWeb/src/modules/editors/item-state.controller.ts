@@ -1,13 +1,14 @@
-import * as angular from "angular";
-import { Models } from "../main/models";
-import { IArtifactManager } from "../managers";
-import { IStatefulArtifact } from "../managers/artifact-manager";
-import { IStatefulArtifactFactory } from "../managers/artifact-manager/artifact";
-import { IMessageService, Message, MessageType } from "../shell";
-import { IApplicationError, HttpStatusCode } from "../core";
-import { INavigationService } from "../core/navigation";
-import { ILocalizationService } from "../core/localization";
-import { IItemInfoService, IItemInfoResult } from "../core/navigation/item-info.svc";
+import {Models} from "../main/models";
+import {IArtifactManager} from "../managers";
+import {IStatefulArtifact} from "../managers/artifact-manager";
+import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact";
+import {ILocalizationService} from "../core/localization";
+import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
+import {IApplicationError} from "../core/error/applicationError";
+import {HttpStatusCode} from "../core/http/http-status-code";
+import {INavigationService} from "../core/navigation/navigation.svc";
+import {IMessageService} from "../core/messages/message.svc";
+import {MessageType, Message} from "../core/messages/message";
 
 export class ItemStateController {
 
@@ -21,15 +22,13 @@ export class ItemStateController {
         "statefulArtifactFactory"
     ];
 
-    constructor(
-        private $state: angular.ui.IStateService,
-        private artifactManager: IArtifactManager,
-        private messageService: IMessageService,
-        private localization: ILocalizationService,
-        private navigationService: INavigationService,
-        private itemInfoService: IItemInfoService,
-        private statefulArtifactFactory: IStatefulArtifactFactory
-    ) {
+    constructor(private $state: angular.ui.IStateService,
+                private artifactManager: IArtifactManager,
+                private messageService: IMessageService,
+                private localization: ILocalizationService,
+                private navigationService: INavigationService,
+                private itemInfoService: IItemInfoService,
+                private statefulArtifactFactory: IStatefulArtifactFactory) {
         const id: number = parseInt($state.params["id"], 10);
         const version = parseInt($state.params["version"], 10);
 
@@ -52,7 +51,7 @@ export class ItemStateController {
 
             if (this.itemInfoService.isSubArtifact(result)) {
                 // navigate to subartifact's artifact
-                this.navigationService.navigateTo({ id: result.id, redirect: true });
+                this.navigationService.navigateTo({id: result.id, redirect: true});
 
             } else if (this.itemInfoService.isProject(result)) {
                 // TODO: implement project navigation in the future US
@@ -77,9 +76,9 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (_.isFinite(version)) {
                     if (result.versionCount < version) {
-                         this.messageService.addError("The specified artifact version does not exist");
-                         this.navigationService.navigateToMain(true);
-                         return;
+                        this.messageService.addError("The specified artifact version does not exist");
+                        this.navigationService.navigateToMain(true);
+                        return;
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
@@ -159,7 +158,7 @@ export class ItemStateController {
             default:
                 stateName = "main.item.details";
         }
-        // since URL doesn't change between "main.item" and "main.item.*", 
+        // since URL doesn't change between "main.item" and "main.item.*",
         // must force reload on that exact state name
         const params = {
             id: artifact.id,
@@ -171,11 +170,11 @@ export class ItemStateController {
     private onArtifactError = (error: IApplicationError) => {
         if (error.statusCode === HttpStatusCode.NotFound) {
             this.navigationService.reloadParentState();
-            
-        } else if (error.statusCode === HttpStatusCode.Forbidden || 
+
+        } else if (error.statusCode === HttpStatusCode.Forbidden ||
             error.statusCode === HttpStatusCode.ServerError ||
             error.statusCode === HttpStatusCode.Unauthorized
-            ) {
+        ) {
             this.navigationService.navigateToMain();
         }
     }

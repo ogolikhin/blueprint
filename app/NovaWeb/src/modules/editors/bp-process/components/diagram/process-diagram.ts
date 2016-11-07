@@ -1,4 +1,4 @@
-import {ILocalizationService, IMessageService, Message, MessageType, INavigationService} from "../../../../core";
+import {ILocalizationService} from "../../../../core";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -10,6 +10,9 @@ import {IDialogService} from "../../../../shared";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {MessageType, Message} from "../../../../core/messages/message";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -23,20 +26,18 @@ export class ProcessDiagram {
 
     private selectionListeners: ISelectionListener[];
 
-    constructor(
-        private $rootScope: ng.IRootScopeService,
-        private $scope: ng.IScope,
-        private $timeout: ng.ITimeoutService,
-        private $q: ng.IQService,
-        private $log: ng.ILogService,
-        private messageService: IMessageService,
-        private communicationManager: ICommunicationManager,
-        private dialogService: IDialogService,
-        private localization: ILocalizationService,
-        private navigationService: INavigationService,
-        private statefulArtifactFactory: IStatefulArtifactFactory,
-        private shapesFactory: ShapesFactory
-    ) {
+    constructor(private $rootScope: ng.IRootScopeService,
+                private $scope: ng.IScope,
+                private $timeout: ng.ITimeoutService,
+                private $q: ng.IQService,
+                private $log: ng.ILogService,
+                private messageService: IMessageService,
+                private communicationManager: ICommunicationManager,
+                private dialogService: IDialogService,
+                private localization: ILocalizationService,
+                private navigationService: INavigationService,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private shapesFactory: ShapesFactory) {
         this.processModel = null;
         this.selectionListeners = [];
     }
@@ -56,7 +57,7 @@ export class ProcessDiagram {
         }
 
         if (htmlElement) {
-            // okay 
+            // okay
         } else {
             throw new Error("There is no html element for the diagram");
         }
@@ -138,11 +139,9 @@ export class ProcessDiagram {
         this.graph.onUserStoriesGenerated(userStories);
     }
 
-    private createProcessGraph(
-        processViewModel: IProcessViewModel,
-        useAutolayout: boolean = false,
-        selectedNodeId: number = undefined
-    ) {
+    private createProcessGraph(processViewModel: IProcessViewModel,
+                               useAutolayout: boolean = false,
+                               selectedNodeId: number = undefined) {
         try {
 
             this.graph = new ProcessGraph(
@@ -157,7 +156,7 @@ export class ProcessDiagram {
                 this.$log,
                 this.statefulArtifactFactory,
             );
-                
+
             this.registerSelectionListeners();
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);

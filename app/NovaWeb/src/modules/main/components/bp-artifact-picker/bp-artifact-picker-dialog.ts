@@ -1,5 +1,6 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {TreeViewModels} from "../../models";
+import {IArtifactPickerOptions} from "./";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
@@ -20,7 +21,7 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
 
     constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                public dialogData: TreeViewModels.ITreeViewOptions) {
+                public dialogData: IArtifactPickerOptions) {
         super($instance, dialogSettings);
     };
 

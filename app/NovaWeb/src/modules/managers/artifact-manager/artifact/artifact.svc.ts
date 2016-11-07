@@ -8,6 +8,7 @@ export interface IArtifactService {
     getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
+    create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
 }
 
 export class ArtifactService implements IArtifactService {
@@ -88,6 +89,31 @@ export class ArtifactService implements IArtifactService {
         const defer = this.$q.defer<Models.IArtifact>();
 
         this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
+            }
+        );
+        return defer.promise;
+    }
+
+
+    public create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        const defer = this.$q.defer<any>();
+
+        const request: ng.IRequestConfig = {
+            url: `/svc/bpartifactstore/artifacts/create`,
+            method: "POST",
+            data: {
+                name: name,
+                projectId: projectId,
+                parentId: parentId,
+                itemTypeId: itemTypeId,
+                orderIndex: orderIndex ? orderIndex : undefined
+            }
+        };
+
+        this.$http(request).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.reject(result.data);

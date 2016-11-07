@@ -2,7 +2,6 @@ import * as angular from "angular";
 import {Models, AdminStoreModels} from "./";
 import {Helper} from "../../shared/";
 import {ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
-import {IArtifactManager} from "../../managers";
 import {IProjectService} from "../../managers/project-manager/project-service";
 
 export interface ITreeViewOptions {
@@ -52,8 +51,7 @@ export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeViewNode 
 }
 
 export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanceItem> {
-    constructor(private artifactManager: IArtifactManager,
-                private projectService: IProjectService,
+    constructor(private projectService: IProjectService,
                 private options: ITreeViewOptions,
                 model: AdminStoreModels.IInstanceItem,
                 isExpanded: boolean = false) {
@@ -80,12 +78,12 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
         switch (this.model.type) {
             case AdminStoreModels.InstanceItemType.Folder:
                 return this.projectService.getFolders(this.model.id).then((children: AdminStoreModels.IInstanceItem[]) => {
-                    this.children = children.map(child => new InstanceItemNodeVM(this.artifactManager, this.projectService, this.options, child));
+                    this.children = children.map(child => new InstanceItemNodeVM(this.projectService, this.options, child));
                 });
             case AdminStoreModels.InstanceItemType.Project:
                 return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
                     children = TreeViewNodeVM.processChildArtifacts(children, this.model);
-                    this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
+                    this.children = children.map(child => new ArtifactNodeVM(this.projectService, this.options, child));
                 });
             default:
                 return;
@@ -94,8 +92,7 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
 }
 
 export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
-    constructor(private artifactManager: IArtifactManager,
-                private projectService: IProjectService,
+    constructor(private projectService: IProjectService,
                 private options: ITreeViewOptions,
                 model: Models.IArtifact) {
         super(model, `${model.prefix}${model.id} ${model.name}`, String(model.id),
@@ -129,7 +126,7 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
         this.loadChildrenAsync = undefined;
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
             children = TreeViewNodeVM.processChildArtifacts(children, this.model);
-            this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
+            this.children = children.map(child => new ArtifactNodeVM(this.projectService, this.options, child));
             if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
                 this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.options, this.model, name)); //TODO localize

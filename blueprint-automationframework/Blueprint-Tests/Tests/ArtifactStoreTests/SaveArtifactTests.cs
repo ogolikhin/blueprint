@@ -84,7 +84,7 @@ namespace ArtifactStoreTests
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            Assert.IsNotNull(artifactDetailsAfter.Description);
+            Assert.IsNotNull(artifactDetailsAfter.Description); 
             Assert.AreEqual("<html><head/>" + description + "</html>", artifactDetailsAfter.Description);
         }
 
@@ -102,7 +102,7 @@ namespace ArtifactStoreTests
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", "", author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", string.Empty, author);
 
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);

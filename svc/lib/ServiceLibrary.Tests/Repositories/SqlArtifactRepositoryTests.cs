@@ -1341,7 +1341,7 @@ namespace ServiceLibrary.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetArtifactsNavigationPathsAsync_InvalidArtifactIds()
+        public async Task GetArtifactsNavigationPathsAsync_InvalidArtifactIds_ThrowsException()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();

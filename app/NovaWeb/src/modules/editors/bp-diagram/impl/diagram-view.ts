@@ -83,7 +83,7 @@ export class DiagramView implements IDiagramView {
     }
 
     public setSelectedItem(id: number) {
-        let cell = this.createdVertices[id];
+        const cell = this.createdVertices[id];
         if (cell != null) {
             this.graph.setSelectionCell(cell);
         }
@@ -476,6 +476,7 @@ export class DiagramView implements IDiagramView {
             }
             edge.geometry.points = points;
         }
+        this.createdVertices[connection.id] = edge;
     }
 
     private createConnectionLabel(connection: IConnection, isSource: boolean): MxCell {

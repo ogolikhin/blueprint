@@ -39,9 +39,9 @@ export class BPDiagramController extends BpBaseEditor {
     ];
 
     public errorMsg: string;
-
     private diagramView: DiagramView;
     private diagram: IDiagram;
+    private selectedElementId: number;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -102,10 +102,10 @@ export class BPDiagramController extends BpBaseEditor {
             this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(this.diagram.diagramType, elements));
             this.stylizeSvg(this.$element, this.diagram.width, this.diagram.height);
             this.diagramView.drawDiagram(this.diagram);
-            const selectedSubArtifact = this.artifactManager.selection.getSubArtifact();
-            if (selectedSubArtifact) {
-                this.diagramView.setSelectedItem(selectedSubArtifact.id);
-            }
+            
+            // restore previous selection
+            this.diagramView.setSelectedItem(this.selectedElementId);
+            
         } else {
             this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
             this.$log.error(this.errorMsg);
@@ -128,6 +128,7 @@ export class BPDiagramController extends BpBaseEditor {
                         });
                     }
                 } else {
+                this.selectedElementId = element.id;
                     const subArtifact = this.artifact.subArtifactCollection.get(element.id);
                     this.artifactManager.selection.setSubArtifact(subArtifact);
                 }

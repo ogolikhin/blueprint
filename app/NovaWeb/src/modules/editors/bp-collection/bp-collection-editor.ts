@@ -231,11 +231,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         }];
 
-    public rootNode: CollectionNodeVM[] = [];
-
-    //public removeArtifact(vm: CollectionNodeVM) {
-    //    console.log("aaaa");
-    //}
+    public rootNode: CollectionNodeVM[] = [];    
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;

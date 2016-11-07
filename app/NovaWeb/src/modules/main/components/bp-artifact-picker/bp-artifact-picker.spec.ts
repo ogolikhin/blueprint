@@ -29,7 +29,8 @@ describe("BpArtifactPicker", () => {
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
         // Arrange
-        const element = `<bp-artifact-picker selectable-item-types="[1, 2]"
+        const element = `<bp-artifact-picker is-item-selectable="$ctrl.isItemSelectable()"
+                                             selectable-item-types="[1, 2]"
                                              selection-mode="'multiple'"
                                              show-sub-artifacts="true"
                                              on-selection-changed="$ctrl.onSelectionChanged(selectedItems)">`;
@@ -38,6 +39,7 @@ describe("BpArtifactPicker", () => {
         const controller = $compile(element)($rootScope.$new()).controller("bpArtifactPicker") as BpArtifactPickerController;
 
         // Assert
+        expect(angular.isFunction(controller.isItemSelectable)).toEqual(true);
         expect(controller.selectableItemTypes).toEqual([1, 2]);
         expect(controller.selectionMode).toEqual("multiple");
         expect(controller.showSubArtifacts).toEqual(true);
@@ -52,6 +54,7 @@ describe("BpArtifactPicker", () => {
         const controller = $compile(element)($rootScope.$new()).controller("bpArtifactPicker") as BpArtifactPickerController;
 
         // Assert
+        expect(controller.isItemSelectable).toBeUndefined();
         expect(controller.selectableItemTypes).toBeUndefined();
         expect(controller.selectionMode).toEqual("single");
         expect(controller.showSubArtifacts).toEqual(false);
@@ -220,7 +223,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3} as Models.IArtifact;
-        const vm = new TreeViewModels.ArtifactNodeVM(projectService, controller, model);
+        const vm = controller.factory.createArtifactNodeVM(model);
         controller.project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
@@ -235,7 +238,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when InstanceItemNodeVM of type Project, sets project", () => {
         // Arrange
         const model = {id: 11, name: "proj", type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = new TreeViewModels.InstanceItemNodeVM(projectService, controller, model);
+        const vm = controller.factory.createInstanceItemNodeVM(model);
 
         // Act
         controller.onSelect(vm, true);
@@ -275,7 +278,7 @@ describe("BpArtifactPickerController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBe(newProject);
-        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(projectService, controller, newProject, true));
+        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM(newProject, true));
     }));
 
     it("set project, when project is undefined, clears selection and project and sets root node", inject(($browser) => {
@@ -289,7 +292,7 @@ describe("BpArtifactPickerController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBeUndefined();
-        expect(controller.rootNode).toEqual(new TreeViewModels.InstanceItemNodeVM(projectService, controller, {
+        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",

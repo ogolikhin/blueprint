@@ -90,6 +90,7 @@ export interface IArtifactReference {
     typePrefix: string;
     projectName: string;
     baseItemTypePredefined: ItemTypePredefined;
+    version: number;
     link: string;
 }
 
@@ -100,6 +101,7 @@ export class ArtifactReference implements IArtifactReference {
     typePrefix: string;
     projectName: string;
     baseItemTypePredefined: ItemTypePredefined;
+    version: number;
     link: string;
 }
 

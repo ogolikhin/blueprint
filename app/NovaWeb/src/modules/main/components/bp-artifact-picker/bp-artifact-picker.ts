@@ -9,7 +9,8 @@ import {IProjectService} from "../../../managers/project-manager/project-service
 /**
  * Usage:
  *
- * <bp-artifact-picker selectable-item-types="$ctrl.selectableItemTypes"
+ * <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
+ *                     selectable-item-types="$ctrl.selectableItemTypes"
  *                     selection-mode="$ctrl.selectionMode"
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"
  *                     is-one-project-level="$ctrl.isOneProjectLevel"
@@ -21,6 +22,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactPickerController;
     public template: string = require("./bp-artifact-picker.html");
     public bindings: {[binding: string]: string} = {
+        isItemSelectable: "&?",
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
@@ -30,7 +32,8 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     };
 }
 
-export interface IArtifactPickerOptions extends TreeViewModels.ITreeViewOptions {
+export interface IArtifactPickerOptions {
+    isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
@@ -64,12 +67,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     private static readonly maxSearchResults = 100;
 
     // BpArtifactPicker bindings
+    public isItemSelectable: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
+
+    public factory: TreeViewModels.TreeNodeVMFactory;
 
     static $inject = [
         "$scope",
@@ -84,9 +90,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService) {
+        this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
         this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
+        this.factory = new TreeViewModels.TreeNodeVMFactory(this.projectService, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
     };
 
     public $onInit(): void {
@@ -130,7 +138,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectedVMs = [];
         this._project = project;
         this.currentSelectionMode = project ? this.selectionMode : "single";
-        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.projectService, this, project || {
+        this.rootNode = this.factory.createInstanceItemNodeVM(project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",

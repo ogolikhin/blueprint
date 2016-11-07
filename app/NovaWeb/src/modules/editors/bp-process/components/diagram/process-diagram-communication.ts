@@ -125,6 +125,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
             case ProcessEvents.NavigateToAssociatedArtifact: {
                     this.setNavigateToAssociatedArtifactSubject.notify({
                         id: eventPayload.id,
+                        version: eventPayload.version,
                         enableTracking: eventPayload.enableTracking
                     });
                 }

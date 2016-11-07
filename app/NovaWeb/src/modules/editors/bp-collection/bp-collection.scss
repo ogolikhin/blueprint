@@ -80,6 +80,13 @@
     background: $white;
 
     .ag-grid{
+        .ag-header-cell:last-child{
+            .ag-header-cell-label{
+                text-align: right;
+                padding-right: $padding-root;
+            }
+        }
+
         .ag-header-cell-label {
             overflow: visible;
         }
@@ -193,6 +200,13 @@
                 width: calc(100% - 10px);
                 padding-right: 0;
                 border-width: 0;
+            }
+
+            &:last-child{
+                .ag-group-value{
+                    text-align: right;
+                    padding-right: $padding-root;
+                }
             }
         }
 

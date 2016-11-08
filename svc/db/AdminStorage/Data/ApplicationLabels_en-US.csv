@@ -452,3 +452,5 @@ Search_Results_NoResults, "No Results Found"
 #Delete artifact
 "Delete_Artifact_Confirmation_All_Descendants", "If you delete the artifact, any child artifact (listed below) and its descendants will also need to be deleted.<br/>Please review and confirm:"
 "Delete_Artifact_Confirmation_Single", "Please confirm the deletion of this artifact."
+
+Search_Results_ResultsFound, "{0} Results found"

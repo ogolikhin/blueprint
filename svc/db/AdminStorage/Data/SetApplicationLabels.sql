@@ -417,6 +417,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_Sub
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_NoResults', 'en-US', N'No Results Found')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Confirmation_All_Descendants', 'en-US', N'If you delete the artifact, any child artifact (listed below) and its descendants will also need to be deleted.<br/>Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Confirmation_Single', 'en-US', N'Please confirm the deletion of this artifact.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_ResultsFound', 'en-US', N'{0} Results found')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

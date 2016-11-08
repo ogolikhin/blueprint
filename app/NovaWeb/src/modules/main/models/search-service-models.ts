@@ -13,6 +13,7 @@ export interface ISearchResult {
     itemId: number;
     name?: string;
     path?: string;
+    itemTypeIcon?: number;
 }
 
 export interface IProjectSearchResultSet extends ISearchResultSet<ISearchResult> {

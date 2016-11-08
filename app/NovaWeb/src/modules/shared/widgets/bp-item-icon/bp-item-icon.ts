@@ -29,7 +29,7 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
     private artifactTypeDescription: string;
 
     constructor() {
-        this.showBasicIcon = !_.isUndefined(this.predefinedType) && _.isNumber(this.predefinedType);
+        this.showBasicIcon = _.isFinite(this.predefinedType) && !_.isFinite(this.itemTypeIconId);
         this.artifactTypeDescription = Models.ItemTypePredefined[this.predefinedType] || "Document";
     }
 

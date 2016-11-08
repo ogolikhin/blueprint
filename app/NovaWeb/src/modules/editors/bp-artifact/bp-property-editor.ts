@@ -2,15 +2,15 @@ import * as angular from "angular";
 import * as _ from "lodash";
 import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
-import {PropertyContext} from "./bp-property-context";
 import {IStatefulItem} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
+import {IPropertyDescriptor} from "./../configuration/property-descriptor-builder";
 
 export class PropertyEditor {
 
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
-    public propertyContexts: PropertyContext[];
+    public propertyContexts: IPropertyDescriptor[];
     private locale: BPLocale;
     private itemid: number;
 
@@ -22,7 +22,7 @@ export class PropertyEditor {
         if (!field) {
             return null;
         }
-        let context = field.data as PropertyContext;
+        let context = field.data as IPropertyDescriptor;
         if (!context || angular.isUndefined($value)) {
             return null;
         }
@@ -71,7 +71,7 @@ export class PropertyEditor {
     }
 
     public convertToFieldValue(field: AngularFormly.IFieldConfigurationObject, $value: any): string | number | Date {
-        let context = field.data as PropertyContext;
+        const context = field.data as IPropertyDescriptor;
         if (!context || angular.isUndefined($value) || $value === null || angular.equals({}, $value)) {
             return null;
         }
@@ -111,22 +111,22 @@ export class PropertyEditor {
     }
 
 
-    public create(statefulItem: IStatefulItem, propertyContexts: PropertyContext[], force: boolean): boolean {
+    public create(statefulItem: IStatefulItem, propertyDescriptors: IPropertyDescriptor[], force: boolean): boolean {
 
         let fieldsupdated: boolean = false;
         this._model = {};
-        this.propertyContexts = propertyContexts;
+        this.propertyContexts = propertyDescriptors;
 
         //Check if fields changed (from metadata)
         let fieldNamesChanged = true;
         let namesChanged = true;
         if (this._fields) {
             const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
-            const previousFieldNames = this._fields.map((field) => (field.data as PropertyContext).fieldPropertyName);
+            const previousFieldNames = this._fields.map((field) => (field.data as IPropertyDescriptor).fieldPropertyName);
             fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
 
             const newNames = this.propertyContexts.map((prop) => prop.name);
-            const previousNames = this._fields.map((field) => (field.data as PropertyContext).name);
+            const previousNames = this._fields.map((field) => (field.data as IPropertyDescriptor).name);
             namesChanged = _.xor(newNames, previousNames).length > 0;
         }
 
@@ -135,7 +135,7 @@ export class PropertyEditor {
             this._fields = [];
         }
 
-        this.propertyContexts.forEach((propertyContext: PropertyContext) => {
+        this.propertyContexts.forEach((propertyContext: IPropertyDescriptor) => {
             if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                 let modelValue: any = null;
                 let isModelSet: boolean = false;
@@ -215,7 +215,7 @@ export class PropertyEditor {
         return this._model || {};
     }
 
-    private createPropertyField(context: PropertyContext, itemId: number, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
+    private createPropertyField(context: IPropertyDescriptor, itemId: number, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
 
         let field: AngularFormly.IFieldConfigurationObject = {
             key: context.fieldPropertyName,

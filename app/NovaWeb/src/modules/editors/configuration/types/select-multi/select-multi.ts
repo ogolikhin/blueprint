@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import "angular-formly";
 import {ILocalizationService} from "../../../../core";
-import {PropertyContext} from "../../../bp-artifact/bp-property-context";
 import {BPFieldBaseController} from "../base-controller";
+import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelectMulti";
@@ -76,7 +76,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
         let options = [];
         $scope.options["expressionProperties"] = {
             "templateOptions.options": () => {
-                const context: PropertyContext = $scope.options["data"];
+                const context: IPropertyDescriptor = $scope.options["data"];
                 if (context.isFresh) {
                     context.isFresh = false;
                     if (context.validValues && context.validValues.length) {

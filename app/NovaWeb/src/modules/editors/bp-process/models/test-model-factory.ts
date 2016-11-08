@@ -1,4 +1,5 @@
 ﻿import {ProcessShapeType, ProcessType} from "./enums";
+import {ItemTypePredefined} from "../../../main/models/enums";
 import {
     IProcess, 
     IProcessShape, 
@@ -27,6 +28,15 @@ export function createProcessModel(id: number = 1, type: ProcessType = ProcessTy
 export function createShapeModel(type: ProcessShapeType, id: number, x?: number, y?: number): IProcessShape {
     let shapeModel = new ProcessShapeModel(id);
     shapeModel.name = id.toString();
+    shapeModel.personaReference = {
+        id: 1,
+        projectId: 1,
+        name: "test persona",
+        typePrefix: "PRO",
+        baseItemTypePredefined: ItemTypePredefined.Actor,
+        projectName: "test project",
+        link: null
+    };
     shapeModel.propertyValues = {
         "clientType": {
             typeId: 0,
@@ -1617,14 +1627,32 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                 name: "Precondition",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 20,
                 name: "User Task 1",
                 shapeType: ProcessShapeType.UserTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 25,
@@ -1637,7 +1665,16 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                 name: "System Task 1",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 40,
@@ -1650,14 +1687,32 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                 name: "System Task 3",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 50,
                 name: "System Task 4",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 55,
@@ -1670,28 +1725,64 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                 name: "User Task 2",
                 shapeType: 2,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 65,
                 name: "System Task 5",
                 shapeType: 4,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 70,
                 name: "User Task 3",
                 shapeType: 2,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 75,
                 name: "System Task 6",
                 shapeType: 4,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 80,
@@ -1831,14 +1922,32 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                 name: "Precondition",
                 shapeType: ProcessShapeType.PreconditionSystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 20,
                 name: "User Task 1",
                 shapeType: ProcessShapeType.UserTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 25,
@@ -1851,7 +1960,16 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                 name: "System Task 1",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 40,
@@ -1864,14 +1982,32 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                 name: "System Task 3",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 50,
                 name: "System Task 4",
                 shapeType: ProcessShapeType.SystemTask,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 55,
@@ -1884,28 +2020,64 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                 name: "User Task 2",
                 shapeType: 2,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 65,
                 name: "System Task 5",
                 shapeType: 4,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 70,
                 name: "User Task 3",
                 shapeType: 2,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 75,
                 name: "System Task 6",
                 shapeType: 4,
                 flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 80,
@@ -2940,15 +3112,42 @@ export function createLargeTestModel() {
             },
             {
                 id: 15, name: "Precondition", shapeType: ProcessShapeType.PreconditionSystemTask, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 20, name: "UT1", shapeType: 2, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 25, name: "ST1", shapeType: 4, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 35, name: "UD", shapeType: 6, flags: {},
@@ -2956,19 +3155,55 @@ export function createLargeTestModel() {
             },
             {
                 id: 26, name: "UT2", shapeType: 2, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 27, name: "ST2", shapeType: 4, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 36, name: "UT3", shapeType: 2, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 37, name: "ST3", shapeType: 4, flags: {},
-                propertyValues: []
+                propertyValues: [],
+                personaReference: {
+                    id: 1,
+                    projectId: 1,
+                    name: "test persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null
+                }
             },
             {
                 id: 30, name: "End", shapeType: 3,
@@ -3006,7 +3241,7 @@ export function createLargeTestModel() {
     testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
-    testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
+    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "20"};
     testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};

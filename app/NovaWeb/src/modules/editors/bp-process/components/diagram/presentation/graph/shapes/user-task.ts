@@ -148,7 +148,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public get persona(): string {
-        return this.getPropertyValue("persona");
+        return this.model.personaReference.name;
     }
 
     public set persona(value: string) {

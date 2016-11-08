@@ -181,7 +181,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     }
 
     public get persona(): string {
-        return this.getPropertyValue("persona");
+        return this.model.personaReference.name;
     }
 
     public set persona(value: string) {

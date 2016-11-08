@@ -164,13 +164,23 @@ export class ShapesFactory {
     public createModelUserTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): IUserTaskShape {
         const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
 
+        const personaReference = {
+            id: 1,
+            projectId: 1,
+            name: "test persona",
+            typePrefix: "PRO",
+            baseItemTypePredefined: ItemTypePredefined.Actor,
+            projectName: "test project",
+            link: null
+        };
+
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultUserTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
         const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
         const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
-            ItemTypePredefined.PROShape);
+            ItemTypePredefined.PROShape, null, personaReference);
 
         let persona = this.NEW_USER_TASK_PERSONA;
         if (!!this.settings.getUserTaskPersona()) {
@@ -186,11 +196,21 @@ export class ShapesFactory {
     public createModelSystemTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): ISystemTaskShape {
         const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
 
+        const personaReference = {
+            id: 1,
+            projectId: 1,
+            name: "test persona",
+            typePrefix: "PRO",
+            baseItemTypePredefined: ItemTypePredefined.Actor,
+            projectName: "test project",
+            link: null
+        };
+
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
         const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
-        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape);
+        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, personaReference);
 
         let persona = this.NEW_SYSTEM_TASK_PERSONA;
         if (!!this.settings.getSystemTaskPersona()) {

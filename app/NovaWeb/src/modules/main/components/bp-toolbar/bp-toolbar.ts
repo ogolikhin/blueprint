@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService, MessageType, IApplicationError} from "../../../core";
+﻿import {ILocalizationService, IMessageService, MessageType, IApplicationError, INavigationService} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {Models, Enums} from "../../models";
@@ -35,6 +35,7 @@ class BPToolbarController implements IBPToolbarController {
         "artifactManager",
         "publishService",
         "messageService",
+        "navigationService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
@@ -48,6 +49,7 @@ class BPToolbarController implements IBPToolbarController {
         private artifactManager: IArtifactManager,
         private publishService: IPublishService,
         private messageService: IMessageService,
+        private navigationService: INavigationService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
@@ -341,15 +343,18 @@ class BPToolbarController implements IBPToolbarController {
 
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
-                        console.log(data);
+                        const newArtifactId = data.id;
                         this.projectManager.refreshAll()
                             .finally(() => {
-                                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                this.navigationService.navigateTo({ id: newArtifactId })
+                                    .finally(() => {
+                                        this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                    });
                             });
                     })
                     .catch((error: IApplicationError) => {
                         if (error.statusCode === 404) {
-                            this.projectManager.refreshAll()
+                            this.projectManager.refresh({ id: projectId })
                                 .then(() => {
                                     this.messageService.addError("Create_New_Artifact_Error_404", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);

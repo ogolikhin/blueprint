@@ -138,7 +138,7 @@ export class MessageService implements IMessageService {
             return;
         }
 
-        this.addMessage(new Message(MessageType.Info, msg), messageTimeout);
+        this.addMessage(new Message(MessageType.Info, msg, true), messageTimeout);
     }
 
     public addInfoWithPar(msg: string, par: any[]): void {

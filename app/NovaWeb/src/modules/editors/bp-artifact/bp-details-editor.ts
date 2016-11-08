@@ -1,10 +1,5 @@
 ﻿import {Models, Enums} from "../../main";
-import {IDialogService} from "../../shared";
-import {
-    BpArtifactEditor,
-    IArtifactManager,
-    IWindowManager
-} from "./bp-artifact-editor";
+import {BpArtifactEditor, IArtifactManager, IWindowManager} from "./bp-artifact-editor";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -27,7 +22,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
-        propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 

@@ -188,7 +188,8 @@ Publish_Failure_Message, "The artifact cannot be published."
 Publish_Failure_LockedByOtherUser_Message, "The artifact cannot be published because it is locked by another user."
 
 Discard_All_No_Unpublished_Changes,"There are no artifacts that can be discarded."
-Discard_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>All artifacts that have never been published will be deleted. Published artifacts will be restored to their previous versions."
+Discard_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions:"
+Discard_All_Many_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions.<br><br>Because you are discarding a large number of changes, this operation may take longer than usual."
 Discard_All_Success_Message,"Changes have been discarded for all artifacts ({0})."
 
 Discard_Single_Dialog_Message,"This artifact will be restored to its last published version. If it has never been published, it will be deleted."

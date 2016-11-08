@@ -27,6 +27,10 @@ class BPToolbarController implements IBPToolbarController {
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
 
+    private get discardAllManyThreshold(): number{
+        return 50;
+    }
+
     static $inject = [
         "$q",
         "localization",
@@ -169,7 +173,9 @@ class BPToolbarController implements IBPToolbarController {
         this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Discard_All"),
             cancelButton: this.localization.get("App_Button_Cancel"),
-            message: this.localization.get("Discard_All_Dialog_Message"),
+            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold 
+                ? this.localization.get("Discard_All_Many_Dialog_Message") 
+                : this.localization.get("Discard_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
             css: "modal-alert nova-publish",

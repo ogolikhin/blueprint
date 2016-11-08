@@ -1,11 +1,11 @@
 @font-face {
     font-family: 'bp-line-icons';
-    src: url('/assets/fonts/bp-line-icons.eot');
-    src: url('/assets/fonts/bp-line-icons.eot#iefix') format('embedded-opentype'),
-    url('/assets/fonts/bp-line-icons.woff2') format('woff2'),
-    url('/assets/fonts/bp-line-icons.woff') format('woff'),
-    url('/assets/fonts/bp-line-icons.ttf') format('truetype'),
-    url('/assets/fonts/bp-line-icons.svg#bp-line-icons') format('svg');
+    src: url('/fonts/bp-line-icons.eot');
+    src: url('/fonts/bp-line-icons.eot#iefix') format('embedded-opentype'),
+    url('/fonts/bp-line-icons.woff2') format('woff2'),
+    url('/fonts/bp-line-icons.woff') format('woff'),
+    url('/fonts/bp-line-icons.ttf') format('truetype'),
+    url('/fonts/bp-line-icons.svg#bp-line-icons') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -255,53 +255,53 @@ $icon-collections: '\e85d';
 }
 
 .ext-image {
-    background: url('/assets/images/filetypes/image.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/image.svg') center center no-repeat;
 }
 
 .ext-video {
-    background: url('/assets/images/filetypes/video.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/video.svg') center center no-repeat;
 }
 
 .ext-sound {
-    background: url('/assets/images/filetypes/sound.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/sound.svg') center center no-repeat;
 }
 
 .ext-archive {
-    background: url('/assets/images/filetypes/zip.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/zip.svg') center center no-repeat;
 }
 
 .ext-ms-word {
-    background: url('/assets/images/filetypes/ms-word.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/ms-word.svg') center center no-repeat;
 }
 
 .ext-document {
-    background: url('/assets/images/filetypes/document.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/document.svg') center center no-repeat;
 }
 
 .ext-code {
-    background: url('/assets/images/filetypes/code.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/code.svg') center center no-repeat;
 }
 
 .ext-ms-excel {
-    background: url('/assets/images/filetypes/ms-excel.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/ms-excel.svg') center center no-repeat;
 }
 
 .ext-ms-onenote {
-    background: url('/assets/images/filetypes/ms-onenote.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/ms-onenote.svg') center center no-repeat;
 }
 
 .ext-ms-powerpoint {
-    background: url('/assets/images/filetypes/ms-powerpoint.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/ms-powerpoint.svg') center center no-repeat;
 }
 
 .ext-ms-visio {
-    background: url('/assets/images/filetypes/ms-visio.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/ms-visio.svg') center center no-repeat;
 }
 
 .ext-pdf {
-    background: url('/assets/images/filetypes/pdf.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/pdf.svg') center center no-repeat;
 }
 
 .ext-web {
-    background: url('/assets/images/filetypes/web.svg') center center no-repeat;
+    background: url('/novaweb/assets/images/filetypes/web.svg') center center no-repeat;
 }

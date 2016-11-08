@@ -24,8 +24,7 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     plugins: [
-        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-
+        //new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',
@@ -36,7 +35,8 @@ module.exports = {
                 caseSensitive: true
             }
         }),
-        new ExtractTextPlugin("[name].css"),
+        new ExtractTextPlugin('[name].css', {allChunks: true}),
+
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,
@@ -46,22 +46,16 @@ module.exports = {
             //beautify: false,
             sourceMap: false
         }),
-
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: './web.config'},
-
-            {from: '**/*.view.html'},
-
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
             {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
+
             {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
-
-            {from: './unsupported-browser', to: './static'},
-
 
             {from: '../libs/mxClient/icons', to: './libs/mxClient/icons'},
             {from: '../libs/mxClient/images', to: './libs/mxClient/images'},
@@ -71,7 +65,13 @@ module.exports = {
             {from: '../libs/mxClient/js', to: './libs/mxClient/js'},
 
             {from: '../assets', to: './static'},
-            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'}
+            {from: './unsupported-browser', to: './static'},
+
+            {from: '../src/fonts', to: './static/fonts'},
+            {from: '../src/images', to: './static/images'},
+
+            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
+            {from: '../src/styles/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
             VERSION: JSON.stringify(require('../package.json').version),
@@ -111,5 +111,4 @@ module.exports = {
         }
     },
     devtool: 'source-map'
-
 };

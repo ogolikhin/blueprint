@@ -125,10 +125,10 @@ export class QuickSearchModalController {
 
     private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
         this.totalItems = result.totalCount;
+        this.page = 1;
         if (result.totalCount === 0) {
             this.results = [];
             this.isLoading = false;
-            this.page = 1;
         }
     }
     

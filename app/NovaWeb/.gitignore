@@ -2,10 +2,11 @@ node_modules/
 dist/
 reports/
 .idea/
+typings/
+
 .vscode
 .alm
 out
-typings/
 *.iml
 /*.sln
 npm-debug.*

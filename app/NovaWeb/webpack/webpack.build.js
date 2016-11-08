@@ -50,14 +50,18 @@ module.exports = {
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
         new CopyWebpackPlugin([
             // {output}/file.txt
-            {from: '**/*.view.html'},
             {from: './web.config'},
+
+            {from: '**/*.view.html'},
+
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
             {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
-            {from: './unsupported-browser', to: './static'},
             {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
+
+            {from: './unsupported-browser', to: './static'},
+
 
             {from: '../libs/mxClient/icons', to: './libs/mxClient/icons'},
             {from: '../libs/mxClient/images', to: './libs/mxClient/images'},
@@ -67,8 +71,7 @@ module.exports = {
             {from: '../libs/mxClient/js', to: './libs/mxClient/js'},
 
             {from: '../assets', to: './static'},
-            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
-            {from: '../src/styles/images/icons', to: './static/images/icons'}
+            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'}
         ]),
         new webpack.DefinePlugin({
             VERSION: JSON.stringify(require('../package.json').version),

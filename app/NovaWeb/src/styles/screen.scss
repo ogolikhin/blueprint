@@ -24,7 +24,7 @@ body {
 
 body {
     background-color: $body-bg-color;
-    background-image: url('images/logo-storyteller-gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background-image: url('/assets/images/logo-storyteller-gray.svg'), radial-gradient(ellipse 70% 50% at top, rgba(253, 253, 253, 0) 15%, #c4c4c4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     background-repeat: no-repeat, no-repeat;
     background-position: center 48%, top;
     background-size: 60%, 120%;

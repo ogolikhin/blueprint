@@ -39,12 +39,17 @@ class PageContentCtrl {
     }
 
     private onSelectionChanged = (selection: ISelection) => {
+        // When selection is empty we need to remove breascrumb
         if (!selection.artifact && !selection.subArtifact) {
             this.currentArtifact = null;
             this.breadcrumbLinks = [];
             return;
         }
         if (this.currentArtifact === selection.artifact) {
+            return;
+        }
+        // When the selected artifact is subartifact inside UseCase diagram
+        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact) {
             return;
         }
 

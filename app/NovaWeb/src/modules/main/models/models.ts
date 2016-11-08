@@ -146,8 +146,10 @@ export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
     propertyTypePredefined?: PropertyTypePredefined;
+    name?: string;
     isReuseReadOnly?: boolean;
     isRichText?: boolean;
+    primitiveType?: PrimitiveType;
     isMultipleAllowed?: boolean;
     value: any;
 }

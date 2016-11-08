@@ -89,11 +89,12 @@ export class DeleteAction extends BPButtonAction {
             }, <Models.IProject>project).then(() => {
                 const deeleteOverlayId = this.loadingOverlayService.beginLoading();
                 this.artifact.delete().then(() => {
-                    const project = this.projectManager.getProject(this.artifact.projectId);
-                    if (project) {
-                        this.projectManager.refresh(project);
-                    }
-                    this.messageService.addInfo("The artifact has been deleted");
+                    // const project = this.projectManager.getProject(this.artifact.projectId);
+                    // if (project) {
+                    this.artifact.refresh().finally(() => {
+                        this.messageService.addInfo("The artifact has been deleted");
+                    });
+//                    }
                 }).catch((error: IApplicationError) => {
                     if (!error.handled) {
                         this.messageService.addError(error);

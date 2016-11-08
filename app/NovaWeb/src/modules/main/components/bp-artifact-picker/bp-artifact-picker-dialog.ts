@@ -23,6 +23,11 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
                 dialogSettings: IDialogSettings,
                 public dialogData: IArtifactPickerOptions) {
         super($instance, dialogSettings);
+
+        // Binding an optional callback to undefined doesn't behave as expected.
+        if (!dialogData.isItemSelectable) {
+            dialogData.isItemSelectable = () => true;
+        }
     };
 
     public get returnValue(): any[] {

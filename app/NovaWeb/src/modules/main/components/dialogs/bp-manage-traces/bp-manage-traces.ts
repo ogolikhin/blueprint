@@ -1,13 +1,12 @@
 import * as _ from "lodash";
-import {ILocalizationService} from "../../../../core";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
 import {Relationships, Models, TreeViewModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {
     IStatefulItem,
-    IArtifactManager,
     IArtifactRelationships
 } from "../../../../managers/artifact-manager";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationshipView[];
@@ -15,7 +14,7 @@ export interface IArtifactSelectedArtifactMap {
 
 export class ManageTracesDialogController extends BaseDialogController {
     public static $inject = ["$uibModalInstance", "dialogSettings", "localization",
-        "artifactManager", "artifactRelationships", "dialogData", "dialogService", "$timeout"];
+        "artifactRelationships", "dialogData", "dialogService", "$timeout"];
 
     public traceDirection: Relationships.TraceDirection = 0;
     public direction: Relationships.TraceDirection = 0;
@@ -45,7 +44,6 @@ export class ManageTracesDialogController extends BaseDialogController {
     constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 public dialogSettings: IDialogSettings,
                 public localization: ILocalizationService,
-                public artifactManager: IArtifactManager,
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
                 private dialogService: IDialogService,
@@ -196,11 +194,11 @@ export class ManageTracesDialogController extends BaseDialogController {
             .replace("{0}", selectedTracesLength.toString());
 
         this.dialogService.confirm(confirmation)
-        .then(() => {
-            this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
-            this.clearSelected();
-            this.toggleSave();
-        });
+            .then(() => {
+                this.remove(this.selectedTraces[this.data.artifactId], this.data.manualTraces);
+                this.clearSelected();
+                this.toggleSave();
+            });
     }
 
     public deleteTrace(artifact: Relationships.IRelationship): void {
@@ -236,9 +234,9 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
 
         if (_.find(this.selectedVMs, (o) => {
-            return o.model.id === this.data.artifactId;
+                return o.model.id === this.data.artifactId;
 
-        })) {
+            })) {
             found = true;
         }
 
@@ -288,7 +286,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         return traces;
     }
 
-    public getDirectionIcon (direction: Relationships.TraceDirection) {
+    public getDirectionIcon(direction: Relationships.TraceDirection) {
         let icon = "fonticon2-relationship-";
 
         switch (direction) {

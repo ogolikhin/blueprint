@@ -3,9 +3,8 @@ import {IArtifactProperty, ItemIndicatorFlags} from "./";
 import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IMessageService} from "../../../../../../../core/";
 import {SourcesAndDestinations, IUserStory} from "../../../../../models/process-models";
+import {IMessageService} from "../../../../../../../core/messages/message.svc";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -120,7 +119,6 @@ export interface IProcessGraph {
     redraw(action: any);
     updateSizeChanges(width?: number, height?: number);
     addSelectionListener(listener: ISelectionListener);
-    clearSelection();
     destroy();
     setSystemTasksVisible(value: boolean);
     clearSelection();

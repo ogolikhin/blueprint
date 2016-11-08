@@ -13,6 +13,37 @@ export class ArtifactServiceMock implements IArtifactService {
         return defer.promise;
     }
 
+    public static createNewArtifact(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): any {
+        const now = new Date();
+
+        return new Models.Artifact({
+            projectId: projectId,
+            version: -1,
+            createdOn: null,
+            createdBy: {
+                id: 1,
+                displayName: "Default Instance Admin"
+            },
+            lastEditedOn: null,
+            lastEditedBy: null,
+            lastSavedOn: now.toISOString(),
+            permissions: 8159,
+            id: Math.round(Math.random() * 1000),
+            name: name,
+            description: "",
+            parentId: parentId,
+            orderIndex: orderIndex ? orderIndex : 1,
+            itemTypeId: itemTypeId,
+            itemTypeName: "Mock artifact",
+            itemTypeVersionId: 1,
+            itemTypeIconId: 1,
+            prefix: "MA",
+            customPropertyValues: [],
+            specificPropertyValues: [],
+            predefinedType: 4102
+        });
+    }
+
     public static createArtifact(id: number, properties?: number): any {
         return new Models.Artifact({
             id: id,
@@ -127,6 +158,13 @@ export class ArtifactServiceMock implements IArtifactService {
     }
 
 
+    public create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(ArtifactServiceMock.createNewArtifact(name, projectId, parentId, itemTypeId, orderIndex));
+        return deferred.promise;
+    }
+
+
     public getSubArtifact(artifactId: number, subArtifactId: number): ng.IPromise<Models.ISubArtifact> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createSubArtifacts(artifactId));
@@ -142,6 +180,12 @@ export class ArtifactServiceMock implements IArtifactService {
      public getArtifactModel<T extends Models.IArtifact>(url: string, id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<T> {
         const deferred = this.$q.defer<any>();
         deferred.resolve(ArtifactServiceMock.createArtifact(id));
+        return deferred.promise;
+     }
+
+     public getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
         return deferred.promise;
      }
 

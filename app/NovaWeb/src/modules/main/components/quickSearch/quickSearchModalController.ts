@@ -1,5 +1,5 @@
-import {ILocalizationService} from "../../../core/";
 import * as SearchModels from "./models/model";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IQuickSearchModalController {
     searchTerm: string;
@@ -49,8 +49,8 @@ export class QuickSearchModalController {
             this.results = results.items;
             this.isLoading = false;
         });
-    }    
-    
+    }
+
     clearSearch() {
         this.searchTerm = "";
         this.quickSearchService.searchTerm = "";
@@ -71,7 +71,7 @@ export class QuickSearchModalController {
         if (this.searchTerm.length) {
             this.search(this.searchTerm);
         }
-        
+
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
     }
 
@@ -87,7 +87,7 @@ export class QuickSearchModalController {
     closeModal() {
         this.$log.debug("close modal");
 
-        //unregister the listener 
+        //unregister the listener
         this.stateChangeStartListener();
 
         this.$uibModalInstance.dismiss("cancel");

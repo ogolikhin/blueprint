@@ -388,6 +388,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
             id: this.associatedArtifact.id,
+            version: this.associatedArtifact.version,
             enableTracking: true
         });
     }

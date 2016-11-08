@@ -5,7 +5,6 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var loaders = require("./loaders");
-var vendor_libs = require('./vendors');
 var proxy_config = require('./proxy.dev');
 
 var default_host = 'localhost';
@@ -38,7 +37,8 @@ module.exports = {
     context: _APP,
     entry: {
         app: ['webpack/hot/dev-server', './index.ts'],
-        vendor: vendor_libs
+        vendor: ['./../src/vendor.ts']
+
     },
     output: {
         publicPath: "/novaweb/",
@@ -96,7 +96,7 @@ module.exports = {
             BUILD_YEAR: new Date().getFullYear().toString()
         })
     ],
-    watch:false,
+    watch: false,
     resolve: {
         root: __dirname,
         extensions: ['', '.webpack.js', '.ts', '.js', '.json'],

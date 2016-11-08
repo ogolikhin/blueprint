@@ -8,13 +8,13 @@ import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {Models} from "../../../../../main/models";
 import {ProcessViewModel} from "./process-viewmodel";
 import * as TestModels from "../../../models/test-model-factory";
-import {ProcessShapeType, ProcessType} from "../../../models//enums";
 import {
     IStatefulProcessArtifactServices,
     StatefulArtifactServices,
     StatefulProcessArtifactServices
 } from "../../../../../managers/artifact-manager/services";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../../core/loading-overlay";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
+import {ProcessShapeType} from "../../../models/enums";
 
 describe("ProcessViewModel", () => {
     let services: IStatefulProcessArtifactServices;

@@ -1,10 +1,9 @@
-import {IDialogSettings, IDialogService} from "../../../../../shared";
-import {ILocalizationService} from "../../../../../core";
-import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
+import {IDialogService} from "../../../../../shared";
+import {IModalScope} from "../base-modal-dialog-controller";
 import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
-import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
-import {ICommunicationManager} from "../../../services/communication-manager";
+import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class UserTaskModalController extends TaskModalController<UserTaskDialogModel> {
     public actionPlaceHolderText: string;

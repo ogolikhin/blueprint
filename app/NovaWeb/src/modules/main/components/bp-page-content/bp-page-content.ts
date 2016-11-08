@@ -1,5 +1,10 @@
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {IArtifactManager, ISelection, IArtifactService} from "../../../managers/artifact-manager";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {Models} from "../../../main/models";
+import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -7,13 +12,55 @@ export class PageContent implements ng.IComponentOptions {
 }
 
 class PageContentCtrl {
-    private subscribers: Rx.IDisposable[];
+    private _subscribers: Rx.IDisposable[];
+    private currentArtifact: IStatefulArtifact;
+    public breadcrumbLinks: IBreadcrumbLink[];
 
     public static $inject: [string] = [
-        "dialogService"
+        "dialogService",
+        "artifactManager",
+        "artifactService",
+        "navigationService"
     ];
 
-    constructor(private dialogService: IDialogService) {
+    constructor(private dialogService: IDialogService,
+        private artifactManager: IArtifactManager,
+        private artifactService: IArtifactService,
+        protected navigationService: INavigationService) {
+        this.breadcrumbLinks = [];
+    }
+
+    public $onInit() {
+        const selectionObservable = this.artifactManager.selection.selectionObservable
+            .distinctUntilChanged()
+            .subscribe(this.onSelectionChanged);
+
+        this._subscribers = [selectionObservable];
+    }
+
+    private onSelectionChanged = (selection: ISelection) => {
+        if (!selection.artifact && !selection.subArtifact) {
+            this.currentArtifact = null;
+            this.breadcrumbLinks = [];
+            return;
+        }
+        if (this.currentArtifact === selection.artifact) {
+            return;
+        }
+
+        this.currentArtifact = selection.artifact;
+        this.artifactService.getArtifactNavigationPath(selection.artifact.id)
+            .then((result: Models.IArtifact[]) => {
+                this.breadcrumbLinks = [];
+                _.each(result, artifact => {
+                    const breadcrumbLink: IBreadcrumbLink = {
+                        id: artifact.id,
+                        name: artifact.name,
+                        isEnabled: !selection.artifact.artifactState.historical
+                    };
+                    this.breadcrumbLinks.push(breadcrumbLink);
+                });
+            });
     }
 
     public openArtifactPicker() {
@@ -31,5 +78,20 @@ class PageContentCtrl {
         };
 
         this.dialogService.open(dialogSettings, dialogData);
+    }
+
+    public $onDestroy() {
+        //dispose all subscribers
+        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
+            it.dispose();
+            return false;
+        });
+        delete this.breadcrumbLinks;
+    }
+
+    public navigateTo = (link: IBreadcrumbLink): void => {
+        if (!!link && link.isEnabled) {
+            this.navigationService.navigateTo({ id: link.id });
+        }
     }
 }

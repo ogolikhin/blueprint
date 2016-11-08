@@ -1,10 +1,9 @@
-import * as angular from "angular";
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
-import { INavigationService } from "../../../../core/navigation";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";

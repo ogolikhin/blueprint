@@ -1,12 +1,12 @@
 import {
     Models, Enums,
     BpArtifactEditor,
-    PropertyContext,
-    ILocalizationService,
-    IMessageService,
     IArtifactManager,
     IWindowManager
 } from "./bp-artifact-editor";
+import {IMessageService} from "../../core/messages/message.svc";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -14,13 +14,20 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 }
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
-    public static $inject: [string] = ["messageService", "artifactManager", "windowManager", "localization"];
+    public static $inject: [string] = [
+        "messageService",
+        "artifactManager",
+        "windowManager",
+        "localization",
+        "propertyDescriptorBuilder"
+    ];
 
     constructor(messageService: IMessageService,
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
-                localization: ILocalizationService) {
-        super(messageService, artifactManager, windowManager, localization);
+                localization: ILocalizationService,
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public activeTab: number;
@@ -41,20 +48,19 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
         return this.noteFields && this.noteFields.length > 0;
     }
 
-
     public clearFields() {
         this.systemFields = [];
         this.noteFields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return ((angular.isArray(this.systemFields) ? this.systemFields.length : 0) +
-               (angular.isArray(this.noteFields) ? this.noteFields.length : 0)) > 0;
+            (angular.isArray(this.noteFields) ? this.noteFields.length : 0)) > 0;
 
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        let propertyContext = field.data as PropertyContext;
+        const propertyContext = field.data as IPropertyDescriptor;
         if (!propertyContext) {
             return;
         }

@@ -1,16 +1,17 @@
-﻿import {IColumn} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
-import {ILocalizationService} from "../../../core";
-import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
+import {SearchResultVM, ArtifactSearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 /**
  * Usage:
  *
- * <bp-artifact-picker selectable-item-types="$ctrl.selectableItemTypes" ;
- *                     selection-mode="$ctrl.selectionMode" ;
+ * <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
+ *                     selectable-item-types="$ctrl.selectableItemTypes"
+ *                     selection-mode="$ctrl.selectionMode"
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"
  *                     is-one-project-level="$ctrl.isOneProjectLevel"
  *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
@@ -21,6 +22,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactPickerController;
     public template: string = require("./bp-artifact-picker.html");
     public bindings: {[binding: string]: string} = {
+        isItemSelectable: "&?",
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
@@ -30,17 +32,15 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     };
 }
 
-export interface IArtifactPickerOptions extends TreeViewModels.ITreeViewOptions {
+export interface IArtifactPickerController {
+    project: AdminStoreModels.IInstanceItem;
+
+    // BpArtifactPicker bindings
+    isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
     isOneProjectLevel?: boolean;
-}
-
-export interface IArtifactPickerController extends IArtifactPickerOptions {
-    project: AdminStoreModels.IInstanceItem;
-
-    // BpArtifactPicker bindings
     onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
@@ -64,12 +64,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     private static readonly maxSearchResults = 100;
 
     // BpArtifactPicker bindings
+    public isItemSelectable: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
+
+    public factory: SearchResultVMFactory;
 
     static $inject = [
         "$scope",
@@ -84,9 +87,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService) {
+        this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
         this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
+        this.factory = new SearchResultVMFactory(this.projectService, this.onSelect, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
     };
 
     public $onInit(): void {
@@ -130,7 +135,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectedVMs = [];
         this._project = project;
         this.currentSelectionMode = project ? this.selectionMode : "single";
-        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.artifactManager, this.projectService, this, project || {
+        this.rootNode = this.factory.createInstanceItemNodeVM(project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -164,7 +169,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public columns: IColumn[] = [{
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: TreeViewModels.TreeViewNodeVM<any>, eGridCell: HTMLElement) => {
+        innerRenderer: (params: IColumnRendererParams) => {
+            const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
             const icon = vm.getIcon();
             const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
@@ -208,7 +214,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     };
 
     public onDouble(vm: SearchResultVM<any>): void {
-        if (this.onDoubleClick && this.selectionMode === "single") {
+        if (this.onDoubleClick && this.selectionMode === "single" && vm.isSelectable) {
             this.onDoubleClick({vm: vm});
         }
     }
@@ -233,13 +239,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     includeArtifactPath: true
                 };
                 searchResults = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1)
-                    .then(result => result.items.map(r => new ArtifactSearchResultVM(r, this.onSelect)));
+                    .then(result => result.items.map(r => this.factory.createArtifactSearchResultVM(r)));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText
                 };
                 searchResults = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1)
-                    .then(result => result.items.map(r => new ProjectSearchResultVM(r, this.onSelect)));
+                    .then(result => result.items.map(r => this.factory.createProjectSearchResultVM(r)));
             }
             searchResults.then(items => {
                 this.searchResults = items.slice(0, BpArtifactPickerController.maxSearchResults);
@@ -250,6 +256,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 this.isSearching = false;
             });
         }
+    }
+
+    public hasCustomIcon = (searchResult: ArtifactSearchResultVM) => {
+        if (searchResult.model && _.isFinite(searchResult.model.itemTypeIconId)) {
+            return true;
+        }
+        return false;
     }
 
     public clearSearch(): void {

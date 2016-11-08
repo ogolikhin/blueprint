@@ -1,6 +1,5 @@
-import {IApplicationError, HttpStatusCode} from "./../../core";
 import {IItem} from "./../../main/models/models";
-import {IStatefulArtifact, IStatefulSubArtifact, IStatefulItem} from "./../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
 import {IDispose} from "./../../managers/models";
 
 
@@ -29,7 +28,7 @@ export interface ISelection {
 }
 
 export class SelectionManager implements ISelectionManager {
-    
+
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
@@ -86,7 +85,7 @@ export class SelectionManager implements ISelectionManager {
     }
 
     public setArtifact(artifact: IStatefulArtifact) {
-        
+
         const selection = <ISelection>{
             artifact: artifact,
             subArtifact: undefined
@@ -163,5 +162,5 @@ export class SelectionManager implements ISelectionManager {
         this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
     }
-    
+
 }

@@ -1,5 +1,4 @@
-import * as angular from "angular";
-import { IUserGroup } from "../../main/models/models";
+import {IUserGroup} from "../../main/models/models";
 
 export interface IItemInfoService {
     get(id: number): ng.IPromise<IItemInfoResult>;
@@ -9,24 +8,24 @@ export interface IItemInfoService {
 }
 
 export interface IItemInfoResult {
-  id: number;
-  subArtifactId?: number;
-  name: string;
-  projectId: number;
-  parentId: number;
-  itemTypeId: number;
-  prefix: string;
-  predefinedType: number;
-  version: number;
-  versionCount: number;
-  isDeleted: boolean;
-  hasChanges: boolean;
-  orderIndex: number;
-  permissions: number;
-  lockedByUser: IUserGroup;
-  lockedDateTime: Date;
-  deletedByUser: IUserGroup;
-  deletedDateTime: Date;
+    id: number;
+    subArtifactId?: number;
+    name: string;
+    projectId: number;
+    parentId: number;
+    itemTypeId: number;
+    prefix: string;
+    predefinedType: number;
+    version: number;
+    versionCount: number;
+    isDeleted: boolean;
+    hasChanges: boolean;
+    orderIndex: number;
+    permissions: number;
+    lockedByUser: IUserGroup;
+    lockedDateTime: Date;
+    deletedByUser: IUserGroup;
+    deletedDateTime: Date;
 }
 
 export class ItemInfoService implements IItemInfoService {

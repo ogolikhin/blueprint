@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import {ProcessService, IProcessService} from "./process.svc";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {HttpStatusCode} from "../../../core/http";
 import {createDefaultProcessModel} from "../models/test-model-factory";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 describe("Get process data model from the process model service", () => {
 
@@ -155,5 +155,5 @@ describe("Get process data model from the process model service", () => {
                 expect(failureSpy).toHaveBeenCalled();
             });
         });
-    });    
+    });
 });

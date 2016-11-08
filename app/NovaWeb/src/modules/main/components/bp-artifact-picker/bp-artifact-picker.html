@@ -23,11 +23,17 @@
             <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <div class="search-result"
                      ng-repeat="searchResult in $ctrl.searchResults"
-                     ng-class="{selected: searchResult.selected()}"
+                     ng-class="{selected: searchResult.selected(), selectable: searchResult.isSelectable}"
                      ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
                      ng-dblclick="$ctrl.onDouble(searchResult)">
                     <input class="checkbox" type="checkbox" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
-                    <i ng-class="searchResult.iconClass"></i>
+                    
+                    <i ng-if="!$ctrl.hasCustomIcon(searchResult)" ng-class="searchResult.iconClass"></i>
+                    <bp-item-type-icon ng-if="$ctrl.hasCustomIcon(searchResult)"
+                                       item-type-id="searchResult.model.itemTypeId"
+                                       item-type-icon-id="searchResult.model.itemTypeIconId">
+                    </bp-item-type-icon>
+
                     <div class="search-details">
                         <div bp-tooltip="{{searchResult.model.name}}" bp-tooltip-truncated="true">
                             {{searchResult.id}} <span ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText"></span>

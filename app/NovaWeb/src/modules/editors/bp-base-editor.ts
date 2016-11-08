@@ -1,9 +1,9 @@
-﻿import {IMessageService, IApplicationError, HttpStatusCode} from "../core";
-import {IArtifactManager, IProjectManager} from "../managers";
+﻿import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {Models, Enums} from "../main/models";
+import {IMessageService} from "../core/messages/message.svc";
 
-export {IArtifactManager, IProjectManager, IStatefulArtifact, IMessageService, Models, Enums}
+export {IArtifactManager, IProjectManager, IStatefulArtifact, Models, Enums}
 
 export class BpBaseEditor {
     protected subscribers: Rx.IDisposable[];
@@ -12,8 +12,7 @@ export class BpBaseEditor {
     public isLoading: boolean;
 
     constructor(public messageService: IMessageService,
-                public artifactManager: IArtifactManager
-                ) {
+                public artifactManager: IArtifactManager) {
         this.subscribers = [];
     }
 
@@ -40,7 +39,6 @@ export class BpBaseEditor {
     }
 
     protected onArtifactChanged = () => {
-        this.messageService.clearMessages();
         this.onArtifactReady();
     }
 

@@ -1,9 +1,9 @@
-﻿import { ISession } from "./login/session.svc";
-import { IUser } from "./login/auth.svc";
-import { ISettingsService } from "./../core";
-import { INavigationService } from "./../core/navigation";
-import { IProjectManager } from "./../managers/project-manager/";
-import { ISelectionManager } from "./../managers/selection-manager";
+﻿import {ISession} from "./login/session.svc";
+import {IUser} from "./login/auth.svc";
+import {IProjectManager} from "./../managers/project-manager/";
+import {ISelectionManager} from "./../managers/selection-manager";
+import {ISettingsService} from "../core/configuration/settings";
+import {INavigationService} from "../core/navigation/navigation.svc";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template

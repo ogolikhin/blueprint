@@ -1,5 +1,4 @@
-import {ILocalizationService} from  "../../../core/";
-
+import {ILocalizationService} from "../../../core/localization/localizationService";
 export class BpFilesizeFilter {
 
     public static $inject = [

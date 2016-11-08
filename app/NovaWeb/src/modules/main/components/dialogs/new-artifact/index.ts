@@ -1,4 +1,4 @@
 require("./new-artifact.scss");
 
-import { CreateNewArtifactController, ICreateNewArtifactDialogData } from "./new-artifact";
-export { CreateNewArtifactController, ICreateNewArtifactDialogData }
+import { CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn } from "./new-artifact";
+export { CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn }

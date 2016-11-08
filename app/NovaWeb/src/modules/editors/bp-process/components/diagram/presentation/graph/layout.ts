@@ -1,4 +1,3 @@
-import {IMessageService} from "../../../../../../core/";
 import {IProcessShape, IProcessLink} from "../../../../models/process-models";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {NewUserTaskInfo, SourcesAndDestinations, EdgeGeo} from "../../../../models/process-models";
@@ -22,6 +21,7 @@ import {DiagramLink} from "./shapes/diagram-link";
 import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
+import {IMessageService} from "../../../../../../core/messages/message.svc";
 
 export let tempShapeId: number = 0;
 
@@ -87,7 +87,7 @@ export class Layout implements ILayout {
         nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
         nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
         nodeFactorySettings.isDetailsButtonEnabled = this.viewModel.isSpa;
-        nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
+        nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isMockupButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isPreviewButtonEnabled = this.viewModel.isSpa && !this.viewModel.isHistorical;
         nodeFactorySettings.isDeleteShapeEnabled = !this.viewModel.isHistorical && !this.viewModel.isReadonly;

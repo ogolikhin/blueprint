@@ -1,18 +1,17 @@
 import {BPButtonAction} from "../../../shared";
-import {IStatefulArtifact} from "../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
-import {Enums, Models} from "../../../main/models";
+import {Models} from "../../../main/models";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class AddCollectionArtifactAction extends BPButtonAction {
     constructor(artifact: IStatefulCollectionArtifact,
         localization: ILocalizationService,
-        dialogService: IDialogService) {                   
+        dialogService: IDialogService) {
             super(
-            (): void => {               
+            (): void => {
                 if (!artifact ||
                     artifact.predefinedType !== ItemTypePredefined.ArtifactCollection ||
                     artifact.artifactState.readonly) {
@@ -23,22 +22,27 @@ export class AddCollectionArtifactAction extends BPButtonAction {
                     okButton: localization.get("App_Button_Open"),
                     template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
                     controller: ArtifactPickerDialogController,
-                    css: "nova-open-project",                    
+                    css: "nova-open-project",
                     header: localization.get("App_Properties_Actor_InheritancePicker_Title")
                 };
 
-                const dialogData: IArtifactPickerOptions = {                    
+                const dialogData: IArtifactPickerOptions = {
                     showSubArtifacts: false,
                     selectionMode: "checkbox",
-                    isOneProjectLevel: true
+                    isOneProjectLevel: true,
+                    isItemSelectable: (item: Models.IArtifact | Models.ISubArtifactNode) => {
+                        let excludedArtifacts = _.map(artifact.artifacts, (artifact) => artifact.id);
+                        return excludedArtifacts.indexOf(item.id) === -1;
+
+                    }
                 };
 
                 dialogService.open(dialogSettings, dialogData).then((artifacts: Models.IArtifact[]) => {
-                    if (artifacts && artifacts.length > 0) {                        
+                    if (artifacts && artifacts.length > 0) {
                             artifact.addArtifactsToCollection(artifacts);
                         }
                     });
-                },                            
+                },
             (): boolean => {
                 if (!artifact) {
                     return false;

@@ -1,7 +1,6 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
-import {HttpStatusCode} from "../../core/http";
+﻿import "angular-mocks";
 import {LicenseService, ILicenseService} from "./license.svc";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("License Service", () => {
 

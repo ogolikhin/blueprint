@@ -108,6 +108,7 @@ export class ShapeModelMock {
             projectId: 5,
             name: "123",
             baseItemTypePredefined: ItemTypePredefined.Process,
+            version: null,
             link: null,
             projectName: "projectName"
         };
@@ -159,6 +160,7 @@ export class ShapeModelMock {
             projectId: 5,
             name: "123",
             baseItemTypePredefined: ItemTypePredefined.Process,
+            version: null,
             link: null,
             projectName: "projectName"
         };

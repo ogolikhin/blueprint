@@ -5,6 +5,7 @@ import {IDispose} from "../../models";
 
 export interface IArtifactProperties extends IDispose {
     initialize(properties: Models.IPropertyValue[]);
+    list(): Models.IPropertyValue[];
     get(id: number): Models.IPropertyValue;
     set(id: number, value: any): Models.IPropertyValue;
     changes(): Models.IPropertyValue[];
@@ -22,6 +23,10 @@ export class ArtifactProperties implements IArtifactProperties {
         this.properties = properties || [];
         this.changeset = new ChangeSetCollector(statefulItem);
         this._isLoaded = false;
+    }
+    
+    public list() {
+        return this.properties;
     }
 
     public initialize(properties: Models.IPropertyValue[]) {

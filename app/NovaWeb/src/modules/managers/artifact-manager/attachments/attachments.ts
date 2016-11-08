@@ -2,7 +2,7 @@ import {IIStatefulItem} from "../item";
 import {IDispose} from "../../models";
 import {ChangeTypeEnum, IChangeCollector, IChangeSet, ChangeSetCollector} from "../changeset";
 import {IArtifactAttachmentsResultSet, IArtifactAttachment} from "./attachments.svc";
-import {IApplicationError} from "../../../core";
+import {IApplicationError} from "../../../core/error/applicationError";
 
 
 export interface IArtifactAttachments extends IDispose {

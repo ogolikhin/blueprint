@@ -1,9 +1,9 @@
 import * as _ from "lodash";
-import {IMessageService} from "../../core/messages";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IMetaDataService} from "./metadata";
-import {IStatefulArtifactFactory, IStatefulArtifact} from "./artifact";
+import {IStatefulArtifactFactory, IStatefulArtifact, IArtifactService} from "./artifact";
 import {IDispose} from "../models";
+import {Models} from "../../main/models";
 
 export interface IArtifactManager extends IDispose {
     collectionChangeObservable: Rx.Observable<IStatefulArtifact>;
@@ -13,6 +13,7 @@ export interface IArtifactManager extends IDispose {
     get(id: number): IStatefulArtifact;
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
+    create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
 }
 
 export class ArtifactManager implements IArtifactManager {
@@ -21,12 +22,16 @@ export class ArtifactManager implements IArtifactManager {
 
     public static $inject = [
         "$log",
+        "$q",
         "selectionManager",
+        "artifactService",
         "metadataService"
     ];
 
     constructor(private $log: ng.ILogService,
+                private $q: ng.IQService,
                 private selectionService: ISelectionManager,
+                private artifactService: IArtifactService,
                 private metadataService: IMetaDataService) {
         this.artifactDictionary = {};
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -86,5 +91,19 @@ export class ArtifactManager implements IArtifactManager {
         if (projectId) {
             this.metadataService.remove(projectId);
         }
+    }
+
+    public create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        const deferred = this.$q.defer<Models.IArtifact>();
+
+        this.artifactService.create(name, projectId, parentId, itemTypeId, orderIndex)
+            .then((artifact: Models.IArtifact) => {
+                deferred.resolve(artifact);
+            })
+            .catch((error) => {
+                deferred.reject(error);
+            });
+
+        return deferred.promise;
     }
 }

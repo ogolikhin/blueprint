@@ -1,10 +1,11 @@
-﻿import {ILocalizationService, INavigationService} from "../../../core";
-import {AppConstants} from "../../../core/constants";
-import {Models} from "../../../main";
+﻿import {Models} from "../../../main";
 import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {AppConstants} from "../../../core/constants/appConstants";
+import {INavigationService, INavigationParams} from "../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 interface ISortOptions {
     value: boolean;
@@ -34,7 +35,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     public artifactHistoryList: IArtifactHistoryVersion[] = [];
     public sortOptions: ISortOptions[];
     public sortAscending: boolean = false;
-    public selectedArtifactVersion: IArtifactHistoryVersion;
+    public selectedVersionId: number;
     public isLoading: boolean = false;
     private subscribers: Rx.IDisposable[];
 
@@ -81,7 +82,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
             subscriber.dispose();
             return false;
         });
-        
+
         this.clearHistoryList();
 
         if (subArtifact) {
@@ -143,11 +144,12 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     }
 
     public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
-        this.selectedArtifactVersion = artifactHistoryItem;
-        const versionId = artifactHistoryItem.versionId;
-        if (versionId > 0 && versionId !== new AppConstants().draftVersion) {
-            this.navigationService.navigateTo({ id: this.artifactId, version: artifactHistoryItem.versionId });
+        this.selectedVersionId = artifactHistoryItem.versionId;
+        const params = {id: this.artifactId} as INavigationParams;
+        if (_.isFinite(this.selectedVersionId) && this.selectedVersionId !== new AppConstants().draftVersion) {
+            params.version = this.selectedVersionId;
         }
+        this.navigationService.navigateTo(params);
     }
 
     private getHistoricalVersions(limit: number,

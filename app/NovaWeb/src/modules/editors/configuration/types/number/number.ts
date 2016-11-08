@@ -1,7 +1,6 @@
-import * as angular from "angular";
 import "angular-formly";
-import {ILocalizationService} from "../../../../core";
 import {BPFieldBaseController} from "../base-controller";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 //fixme: only one class per file
 export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldNumber";

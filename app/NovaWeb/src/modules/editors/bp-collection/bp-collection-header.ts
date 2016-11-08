@@ -1,13 +1,14 @@
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IMessageService, ILocalizationService} from "../../core";
 import {IDialogService} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
-import {IStatefulArtifact, IMetaDataService} from "../../managers/artifact-manager";
+import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
-import {ILoadingOverlayService} from "../../core/loading-overlay";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
+import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -65,7 +66,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization));
+        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
 
         this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
     }

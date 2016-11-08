@@ -1,27 +1,24 @@
 import * as angular from "angular";
 import "angular-mocks";
-require("script!mxClient");
 import "../../..";
-import { ModalServiceInstanceMock } from "../../../../../shell/login/mocks.spec";
-import { ILocalizationService } from "../../../../../core/localization";
-import { LocalizationServiceMock } from "../../../../../core/localization/localization.mock";
-import { IModalScope } from "../base-modal-dialog-controller";
-import { ProcessGraph } from "../../diagram/presentation/graph/process-graph";
-import { IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision } from "../../diagram/presentation/graph/models";
-import { ProcessEvents } from "../../diagram/process-diagram-communication";
-import { ProcessDeleteHelper } from "../../diagram/presentation/graph/process-delete-helper";
-import { IDialogSettings, IDialogService } from "../../../../../shared";
-import { SystemTaskDialogModel } from "./sub-artifact-dialog-model";
-import { SystemTaskModalController } from "./system-task-modal-controller";
-import { IArtifactReference, ArtifactReference, ProcessModel, ISystemTaskShape } from "../../../models/process-models";
-import { DiagramNodeElement, UserTask, SystemTask } from "../../diagram/presentation/graph/shapes/";
-import { ShapeModelMock } from "../../diagram/presentation/graph/shapes/shape-model.mock";
-import { ShapesFactory } from "../../diagram/presentation/graph/shapes/shapes-factory";
-import { Models } from "../../../../../main/models/";
-import { StatefulArtifactFactoryMock } from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import { ArtifactServiceMock } from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import { StatefulProcessSubArtifact } from "../../../process-subartifact";
-import { StatefulProcessArtifact } from "../../../process-artifact";
+import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {IModalScope} from "../base-modal-dialog-controller";
+import {NodeType} from "../../diagram/presentation/graph/models";
+import {IDialogService} from "../../../../../shared";
+import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
+import {SystemTaskModalController} from "./system-task-modal-controller";
+import {IArtifactReference, ArtifactReference, ProcessModel, ISystemTaskShape} from "../../../models/process-models";
+import {SystemTask} from "../../diagram/presentation/graph/shapes/";
+import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
+import {ShapesFactory} from "../../diagram/presentation/graph/shapes/shapes-factory";
+import {Models} from "../../../../../main/models/";
+import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {StatefulProcessSubArtifact} from "../../../process-subartifact";
+import {StatefulProcessArtifact} from "../../../process-artifact";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
+require("script!mxClient");
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -36,13 +33,11 @@ describe("SystemTaskModalController", () => {
         $provide.service("localization", LocalizationServiceMock);
     }));
 
-    beforeEach(inject((
-        _$rootScope_: ng.IRootScopeService,
-        _$timeout_: ng.ITimeoutService,
-        _$location_: ng.ILocationService,
-        _localization_: ILocalizationService,
-        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
-    ) => {
+    beforeEach(inject((_$rootScope_: ng.IRootScopeService,
+                       _$timeout_: ng.ITimeoutService,
+                       _$location_: ng.ILocationService,
+                       _localization_: ILocalizationService,
+                       _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance) => {
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
         localization = _localization_;
@@ -53,7 +48,7 @@ describe("SystemTaskModalController", () => {
 
     function createSystemTaskNode(): SystemTask {
         return <SystemTask>{
-            model: { id: 1 },
+            model: {id: 1},
             direction: null,
             action: null,
             label: null,
@@ -320,9 +315,11 @@ describe("SystemTaskModalController", () => {
                     name: "test actor",
                     projectId: 2,
                     projectName: "Test",
+                    version: null,
                     link: "",
                     typePrefix: ""
-                }
+                };
+
                 model.associatedArtifact = artifactReference;
 
                 controller.saveData();

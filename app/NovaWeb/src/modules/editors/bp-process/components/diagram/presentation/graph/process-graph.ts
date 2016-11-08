@@ -1,14 +1,26 @@
-﻿import * as angular from "angular";
-import {ILocalizationService, IMessageService} from "../../../../../../core/";
-import {IProcessGraph, ILayout} from "./models/";
-import {INotifyModelChanged, IConditionContext} from "./models/";
-import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory, IUserTask} from "./models/";
-import {INextIdsProvider} from "./models/";
-import {IOverlayHandler, IShapeInformation} from "./models/";
-import {IDiagramNode, IDiagramNodeElement} from "./models/";
-import {IProcessShape, IProcessLink, IUserTaskShape} from "./models/";
-import {SourcesAndDestinations, ProcessShapeType} from "./models/";
-import {NodeType, NodeChange} from "./models/";
+﻿import {
+    IProcessGraph,
+    ILayout,
+    INotifyModelChanged,
+    IConditionContext,
+    ICondition,
+    IScopeContext,
+    IStopTraversalCondition,
+    IUserStory,
+    IUserTask,
+    INextIdsProvider,
+    IOverlayHandler,
+    IShapeInformation,
+    IDiagramNode,
+    IDiagramNodeElement,
+    IProcessShape,
+    IProcessLink,
+    SourcesAndDestinations,
+    ProcessShapeType,
+    NodeType,
+    NodeChange,
+    ISelectionListener
+} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -24,9 +36,11 @@ import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager";
-import {ISelectionListener} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
+import {IMessageService} from "../../../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../../../core/localization/localizationService";
+
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -57,20 +71,18 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isUserToSystemProcess;
     }
 
-    constructor(
-        public rootScope: any,
-        private scope: any,
-        private htmlElement: HTMLElement,
-        // #TODO fix up references later
-        //private artifactVersionControlService: Shell.IArtifactVersionControlService,
-        public viewModel: IProcessViewModel,
-        private dialogService: IDialogService,
-        private localization: ILocalizationService,
-        private shapesFactory: ShapesFactory,
-        public messageService: IMessageService = null,
-        private $log: ng.ILogService = null,
-        private statefulArtifactFactory: IStatefulArtifactFactory = null,
-    ) {
+    constructor(public rootScope: any,
+                private scope: any,
+                private htmlElement: HTMLElement,
+                // #TODO fix up references later
+                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
+                public viewModel: IProcessViewModel,
+                private dialogService: IDialogService,
+                private localization: ILocalizationService,
+                private shapesFactory: ShapesFactory,
+                public messageService: IMessageService = null,
+                private $log: ng.ILogService = null,
+                private statefulArtifactFactory: IStatefulArtifactFactory = null) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -366,7 +378,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         // Dispose handlers
         if (this.dragDropHandler != null) {
-           this.dragDropHandler.dispose();
+            this.dragDropHandler.dispose();
         }
         if (this.nodeLabelEditor != null) {
             this.nodeLabelEditor.dispose();
@@ -432,6 +444,8 @@ export class ProcessGraph implements IProcessGraph {
                         if (state.shape != null) {
                             state.shape.apply(state);
                             state.shape.redraw();
+                            // Set vertices z-order on top in case some of them are overlaped by edges
+                            graph.orderCells(false, graph.getChildVertices(graph.getDefaultParent()));
                         }
                     }
                 },

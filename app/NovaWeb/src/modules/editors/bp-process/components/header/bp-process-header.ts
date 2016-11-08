@@ -1,18 +1,18 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IMessageService, ILocalizationService} from "../../../../core";
 import {IDialogService} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
-import {IToolbarCommunication} from "./toolbar-communication";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
 import {IArtifactReference, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -40,22 +40,20 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "userStoryService"
     ];
 
-    constructor(
-        $scope: ng.IScope,
-        $element: ng.IAugmentedJQuery,
-        artifactManager: IArtifactManager,
-        localization: ILocalizationService,
-        messageService: IMessageService,
-        dialogService: IDialogService,
-        windowManager: IWindowManager,
-        private communicationManager: ICommunicationManager,
-        loadingOverlayService: ILoadingOverlayService,
-        navigationService: INavigationService,
-        private breadcrumbService: IBreadcrumbService,
-        protected projectManager: IProjectManager,
-        protected metadataService: IMetaDataService,
-        private userStoryService: IUserStoryService
-    ) {
+    constructor($scope: ng.IScope,
+                $element: ng.IAugmentedJQuery,
+                artifactManager: IArtifactManager,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                dialogService: IDialogService,
+                windowManager: IWindowManager,
+                private communicationManager: ICommunicationManager,
+                loadingOverlayService: ILoadingOverlayService,
+                navigationService: INavigationService,
+                private breadcrumbService: IBreadcrumbService,
+                protected projectManager: IProjectManager,
+                protected metadataService: IMetaDataService,
+                private userStoryService: IUserStoryService) {
         super(
             $scope,
             $element,
@@ -82,6 +80,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                     const breadcrumbLink: IBreadcrumbLink = {
                         id: artifactReference.id,
                         name: artifactReference.name,
+                        version: artifactReference.version,
                         isEnabled: i !== result.length - 1 && !!artifactReference.link
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
@@ -134,18 +133,18 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         this.toolbarActions.push(
             new GenerateUserStoriesAction(
-                processArtifact, 
-                this.userStoryService, 
-                this.artifactManager.selection, 
-                this.messageService, 
+                processArtifact,
+                this.userStoryService,
+                this.artifactManager.selection,
+                this.messageService,
                 this.localization,
                 this.dialogService,
                 this.loadingOverlayService,
                 this.communicationManager.processDiagramCommunication
             ),
             new ToggleProcessTypeAction(
-                processArtifact, 
-                this.communicationManager.toolbarCommunicationManager, 
+                processArtifact,
+                this.communicationManager.toolbarCommunicationManager,
                 this.localization
             )
         );

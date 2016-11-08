@@ -1,21 +1,19 @@
-import * as _ from "lodash";
-import {IMessageService} from "../../core/messages";
 import {ISelectionManager} from "../selection-manager/selection-manager";
-import {IMetaDataService} from "./metadata";
-import {IStatefulArtifactFactory, IStatefulArtifact} from "./artifact";
+import {IStatefulArtifact} from "./artifact";
+import {ArtifactServiceMock} from "./artifact/artifact.svc.mock";
+import {Models} from "../../main/models";
 
 import {IArtifactManager} from "./artifact-manager";
 
 export class ArtifactManagerMock implements IArtifactManager {
-    public static $inject = [
-    ];
+    public static $inject = ["$q"];
 
-    constructor() {
-        ;
+    constructor(private $q: ng.IQService) {
+        //
     }
 
     public dispose() {
-        ;
+        //
     }
 
     public selection = {} as ISelectionManager;
@@ -33,7 +31,7 @@ export class ArtifactManagerMock implements IArtifactManager {
     }
 
     public add(artifact: IStatefulArtifact) {
-        ;
+        //
     }
 
     public remove(id: number): IStatefulArtifact {
@@ -41,6 +39,12 @@ export class ArtifactManagerMock implements IArtifactManager {
     }
 
     public removeAll(projectId?: number) {
-        ;
+        //
+    }
+
+    public create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(ArtifactServiceMock.createNewArtifact(name, projectId, parentId, itemTypeId, orderIndex));
+        return deferred.promise;
     }
 }

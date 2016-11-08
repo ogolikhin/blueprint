@@ -32,7 +32,6 @@ namespace Helper
 
         //Bad request
         public const int OutOfRangeParameter = 6000;
-        public const int CircularRelationship = 6001;
     }
 
     // This is the global error code being used for Blueprint-current/NoSilverlight project
@@ -78,7 +77,7 @@ namespace Helper
 
         public const int CannotSaveOverDependencies = 123;
 
-        public const int CircularRelationship = 124;
+        public const int CycleRelationship = 124;
 
         public const int CannotSaveConflictWithParent = 125;
 

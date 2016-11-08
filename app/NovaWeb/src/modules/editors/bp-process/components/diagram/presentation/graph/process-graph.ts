@@ -444,6 +444,8 @@ export class ProcessGraph implements IProcessGraph {
                         if (state.shape != null) {
                             state.shape.apply(state);
                             state.shape.redraw();
+                            // Set vertices z-order on top in case some of them are overlaped by edges
+                            graph.orderCells(false, graph.getChildVertices(graph.getDefaultParent()));
                         }
                     }
                 },

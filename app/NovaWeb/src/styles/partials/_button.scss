@@ -30,7 +30,6 @@
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
-
     &:hover,
     &:focus,
     &:active,
@@ -45,13 +44,16 @@
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
-
+    &:focus {
+        border: 1px solid $gray-light;
+        color: $gray-light;
+        outline: none;
+    }
     &:hover,
-    &:focus,
     &:active,
     &.active, {
         background-color: transparent;
-        border-color: $gray-lighter;
+        border: 1px solid $gray-lighter;
         color: $gray-lighter;
         outline: none;
     }

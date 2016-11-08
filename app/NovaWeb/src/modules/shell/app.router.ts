@@ -2,7 +2,7 @@ import * as angular from "angular";
 import {ISession} from "./login/session.svc";
 import { IArtifactManager } from "../managers";
 import { ILicenseService } from "./license/license.svc";
-import { IMessageService } from "../core";
+import {IMessageService} from "../core/messages/message.svc";
 
 export class AppRoutes {
 
@@ -80,7 +80,7 @@ export class MainStateController {
     }
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
-        // clear messages when the routing state changes 
+        // clear messages when the routing state changes
         this.messageService.clearMessages();
 
         this.$log.info(

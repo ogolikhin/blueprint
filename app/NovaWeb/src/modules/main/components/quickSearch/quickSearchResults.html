@@ -9,7 +9,7 @@
         <div class="quick-search__results--side-border" ng-class="{'quick-search__results':$ctrl.results.length===0}">
             <div class="quick-search__results--input-panel">
                 <form name="$ctrl.form"
-                      ng-submit="$ctrl.search($ctrl.searchTerm)"
+                      ng-submit="$ctrl.searchWithMetadata($ctrl.searchTerm)"
                       novalidate>
                     <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
                          <div class="input-group">
@@ -48,9 +48,18 @@
                         class="close"
                         ng-click="$ctrl.closeModal()">&times;</button>
             </div>
-            <div class="quick-search__results">
-                <ul class="list-unstyled quick-search__results--list" ng-if="$ctrl.results.length>0">
-                    <li class="quick-search__results--item"
+             
+            <div class="quick-search__results" >
+                <div>
+                    <div class="quick-search__total-results" ng-if="$ctrl.results">
+                        <span>{{$ctrl.getResultsFoundText}}</span>
+                    </div> 
+                </div>
+                    
+                <ul class="list-unstyled"       
+                    ng-if="$ctrl.results.length > 0"        
+                >
+                    <li class="quick-search__results--item" 
                         ng-repeat="item in $ctrl.results track by $index">
                         <div class="row small-gutter">
                             <div class="col-md-1 text-center">
@@ -105,7 +114,6 @@
                         </div>
                     </li>
                 </ul>
-
                 <div class="quick-search__response" ng-if="$ctrl.isLoading">
                     <div class="quick-serach__loading">
                         <div class="quick-serach__loading-overlay"></div>
@@ -117,6 +125,23 @@
                     <div class="center-item font-larger">
                         <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
                     </div>
+                </div>
+                <div class="quick-search__footer">
+                   <ul  uib-pagination 
+                        class="quick-search__pagination"
+                        total-items="$ctrl.totalItems" 
+                        ng-model="$ctrl.page"
+                        max-size="10" 
+                        boundary-links="true" 
+                        rotate="true" 
+                        force-ellipses="true"
+                        ng-change="$ctrl.search($ctrl.searchTerm)"
+                        previous-text="<"
+                        next-text=">"
+                        first-text="<<"
+                        last-text=">>"
+                        ng-if="$ctrl.results.length > 0 || $ctrl.page > 1"
+                     ></ul>
                 </div>
             </div>
         </div>

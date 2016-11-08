@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -399,14 +400,18 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            // Create a user without permission to the artifact.
+            // Create a user without permission to delete the artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
             IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
 
-            // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
                 "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         [TestRail(165844)]
@@ -420,14 +425,47 @@ namespace ArtifactStoreTests
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, parentArtifact);
 
-            // Create a user without permission to the child artifact.
+            // Create a user without permission to delete the child artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
             IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, childArtifact);
 
-            // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, userWithoutDeletePermission),
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, userWithoutDeletePermission),
                 "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", parentArtifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+        }
+
+        [TestRail(190967)]
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create and publish a Collection or Collection Folder artifact.  Attempt to delete the artifact with a user that does not have permission to delete. " +
+                     "Verify that HTTP 403 Forbidden exception is thrown.")]
+        public void DeleteArtifact_UserDoesNotHavePermissionToDeleteCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            // Create a user without permission to delete the artifact.
+            // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
+            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
+                "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         #endregion 403 Forbidden tests
@@ -446,9 +484,13 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => artifact.Delete(_user),
                 "Failed to delete a published artifact!");
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted!");
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestRail(165819)]
@@ -465,9 +507,69 @@ namespace ArtifactStoreTests
 
             artifact.Publish(_user);
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted and published!");
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
+        }
+
+        [TestRail(190971)]
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create and publish a Collection or Collection Folder artifact.  Delete the artifact.  Attempt to delete the same artifact again.  " +
+                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+        public void DeleteArtifact_DeletedCollectionOrCollectionFolderNotPublished_404NotFound(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "Failed to delete a published {0}!", artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 404 Not Found when trying to delete a {0} that has already been deleted!", artifactType);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
+        }
+
+        [TestRail(190972)]
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create and publish a Collection or Collection Folder artifact.  Delete the artifact and publish.  Attempt to delete the same artifact again.  " +
+                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+        public void DeleteArtifact_DeletedCollectionOrCollectionFolderPublished_404NotFound(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "Failed to delete a published {0}!", artifactType);
+
+            artifact.Publish(_user);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 404 Not Found when trying to delete a {0} that has already been deleted and published!", artifactType);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestRail(165820)]
@@ -483,9 +585,16 @@ namespace ArtifactStoreTests
             // Replace artifact Id with non-existent Id
             artifact.Id = nonExistentArtifactId;
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that does not exist!");
+
+            // Verify:
+            if (nonExistentArtifactId > 0)  // Id's <= 0 get the generic 404 HTML page from IIS.
+            {
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                    "You have attempted to access an artifact that does not exist or has been deleted.");
+            }
         }
 
         #endregion 404 Not Found tests
@@ -499,17 +608,20 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_UserTriesToDeleteArtifactLockedByAnotherUser_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser userWithLock = null;
-            userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
+            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, userWithLock, artifactType);
 
             // Lock artifact to prevent other users from deleting
             artifact.Lock(userWithLock);
 
-            // Execute & Verify:
-            Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 409 Conflict when a user tries to delete an artifact that another user has locked!");
+
+            // Verify:
+            string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == artifactType).Prefix;
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
         }
 
         [TestRail(165844)]
@@ -520,30 +632,98 @@ namespace ArtifactStoreTests
             BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
-            IUser userWithLock = null;
-            userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
-            var artifactChain = new List<IArtifact>();
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, parentArtifact);
 
-            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType));
-            artifactChain.Add(Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, artifactChain.First()));
-
-            artifactChain.Last().Lock(userWithLock);
+            childArtifact.Lock(userWithLock);
 
             try
             {
-                // Execute & Verify:
-                Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
+                // Execute:
+                var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
                     "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
+
+                // Verify:
+                string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == parentArtifactType).Prefix;
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, parentArtifact.Id);
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally
             {
                 // Delete & publish the locked artifact so the TearDown will succeed.
-                artifactChain.Last().Delete(userWithLock);
-                artifactChain.Last().Publish(userWithLock);
+                childArtifact.Delete(userWithLock);
+                childArtifact.Publish(userWithLock);
             }
         }
+        
+        [TestRail(190978)]
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create a Collection or Collection Folder artifact and publish.  Lock artifact.  Attempt to delete the artifact with another user " +
+                     "that does not have the lock on the artifact.  Verify that HTTP 409 Conflict exception is thrown.")]
+        public void DeleteArtifact_UserTriesToDeleteCollectionOrCollectionFolderLockedByAnotherUser_409Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+
+            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            // Lock artifact to prevent other users from deleting
+            artifact.Lock(userWithLock);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 409 Conflict when a user tries to delete a {0} that another user has locked!", artifactType);
+
+            // Verify:
+            string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == artifactType).Prefix;
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
+        }
+
+        [TestRail(190979)]
+        [TestCase]
+        [Description("Create a Collection Folder with child Collection and publish both artifacts.  Lock child with another user.  Attempt to delete the " +
+             "parent Collection Folder with the user that does not have the lock on the child Collection.  Verify that HTTP 409 Conflict exception is thrown.")]
+        public void DeleteArtifact_UserTriesToDeleteCollectionFolderWithChildLockedByAnotherUser_409Conflict()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var parentCollectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
+            var childCollection = Helper.CreateAndPublishCollection(_project, _user, parentCollectionFolder.Id);
+
+            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Another user locks the child collection.
+            childCollection.Lock(userWithLock);
+
+            try
+            {
+                // Execute:
+                var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(parentCollectionFolder, _user),
+                    "We should get a 409 Conflict when a user tries to delete a Collection Folder when it has a child locked by another user!");
+
+                // Verify:
+                string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.CollectionFolder).Prefix;
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, parentCollectionFolder.Id);
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
+            }
+            finally
+            {
+                // Delete & publish the locked artifact so the TearDown will succeed.
+                Helper.ArtifactStore.DeleteArtifact(childCollection, userWithLock);
+                childCollection.Publish(userWithLock);
+            }
+        }
+        
         #endregion 409 Conflict tests
 
         #region Private functions

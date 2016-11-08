@@ -179,8 +179,8 @@ class BPToolbarController implements IBPToolbarController {
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold 
-                ? this.localization.get("Discard_All_Many_Dialog_Message") 
+            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold
+                ? this.localization.get("Discard_All_Many_Dialog_Message")
                 : this.localization.get("Discard_All_Dialog_Message"),
                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                 controller: ConfirmPublishController,
@@ -327,7 +327,9 @@ class BPToolbarController implements IBPToolbarController {
     public get canCreateNew(): boolean {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return currArtifact && !!this.projectManager.getSelectedProject() ? !currArtifact.artifactState.readonly : false;
+        return currArtifact &&
+            !!this.projectManager.getSelectedProject()
+            && (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     }
 
     private createNewArtifact() {

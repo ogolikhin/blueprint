@@ -16,6 +16,7 @@ import {
 } from "../bp-artifact/bp-artifact-editor";
 
 import {IDialogService} from "../../shared";
+import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -29,7 +30,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "artifactManager",
         "windowManager",
         "localization",
-        "dialogService",
+        "propertyDescriptorBuilder",
         "collectionService",
         "metadataService",
         "$location",
@@ -46,13 +47,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        dialogService: IDialogService,
+        propertyDescriptorBuilder: IPropertyDescriptorBuilder,
         private collectionService: ICollectionService,
         private metadataService: IMetaDataService,
         private $location: ng.ILocationService,
         private $window: ng.IWindowService
     ) {
-        super(messageService, artifactManager, windowManager, localization, dialogService);
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public get reviewUrl(): string {

@@ -67,7 +67,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this._subject;
     }
 
-    public initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): IState {
         if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
             this.artifactState.misplaced = true;
@@ -111,15 +111,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super.discard();
         this.artifactState.dirty = false;
     }
-    
+
     public discardArtifact(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
-
+        this.services.messageService.clearMessages();
         this.services.dialogService.open(<IDialogSettings>{
             okButton: this.services.localizationService.get("App_Button_Discard"),
             cancelButton: this.services.localizationService.get("App_Button_Cancel"),
-            message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
-            type: DialogTypeEnum.Alert,
+            message: this.services.localizationService.get("Discard_Single_Dialog_Message"),
             header: this.services.localizationService.get("App_DialogTitle_Alert"),
             css: "modal-alert nova-messaging"
         })
@@ -187,7 +186,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
         });
     }
-    
+
     public canBeSaved(): boolean {
         if (this.isProject()) {
             return false;
@@ -370,6 +369,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
+        this.services.messageService.clearMessages();
         const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
         if (saveCustomArtifact) {
             saveCustomArtifact.then(() => {
@@ -524,7 +524,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             message: this.services.localizationService.get("Publish_Dependents_Dialog_Message"),
             template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish"
+            css: "nova-publish",
+            header: this.services.localizationService.get("App_DialogTitle_Confirmation")
         },
         <IConfirmPublishDialogData>{
             artifactList: dependents.artifacts,
@@ -567,7 +568,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         //History and Discussions are excluded from here.
         //They refresh independently, triggered by artifact's observable.
 
-        promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
+        //Disabled due to major performance concerns for large projects.
+        //This is normally done to refresh custom property type changes (property types added/removed to artifacts)
+        //Also see: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3338&fullScreen=false
+        //promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
         if (allowCustomRefresh) {
             // get promises for custom artifact refresh operations

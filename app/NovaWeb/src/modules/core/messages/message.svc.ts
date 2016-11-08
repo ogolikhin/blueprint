@@ -11,7 +11,7 @@ export interface IMessageService {
      */
     addMessage(msg: Message, messageTimeout?: number): void;
 
-    addError(text: string | Error | any): void;
+    addError(text: string | Error | any, persist?: boolean): void;
     addWarning(text: string): void;
 
     /**
@@ -20,9 +20,10 @@ export interface IMessageService {
      * messageTimeout: Optional, default is set by Settings service. time to display message in ms. 0 = no timeout.
      */
     addInfo(text: string, messageTimeout?: number): void;
-    addInfoWithPar(text: string, par: any[]): void;    
+    addInfoWithPar(text: string, par: any[]): void;
     deleteMessageById(id: number): void;
-    messages: Array<IMessage>;
+    clearMessages(): void;
+    messages: IMessage[];
     dispose(): void;
 }
 
@@ -37,31 +38,30 @@ export class MessageService implements IMessageService {
     }
 
     public initialize = () => {
-        this._messages = new Array<IMessage>();
-    }
+        this._messages = [];
+    };
 
     public dispose(): void {
         this.clearMessages();
     }
 
-    private _messages: Array<IMessage>;
+    private _messages: IMessage[];
 
-    public get messages(): Array<IMessage> {
-        return this._messages || (this._messages = new Array<IMessage>());
+    public get messages(): IMessage[] {
+        return this._messages || (this._messages = []);
     }
 
     private cancelTimer = (id: number) => {
-
         if (this.timers && this.timers[id]) {
             this.$timeout.cancel(this.timers[id]);
             this.timers[id] = null;
         }
-    }
+    };
 
     private clearMessageAfterInterval = (id: number) => {
         this.deleteMessageById(id);
         this.cancelTimer(id);
-    }
+    };
 
     private getMessageTimeout(messageType: MessageType): number {
         /**
@@ -89,12 +89,15 @@ export class MessageService implements IMessageService {
         return result;
     }
 
-    private clearMessages(): void {
+    public clearMessages(): void {
         if (this._messages) {
-            for (let msg in this._messages) {
-                this.cancelTimer(msg["id"]);
+            for (let index = this._messages.length - 1; index >= 0; index--) {
+                let msg: IMessage = this._messages[index];
+                if (!msg.persistent) {
+                    this.cancelTimer(msg.id);
+                    this._messages.splice(index, 1);
+                }
             }
-            this._messages.length = 0;
         }
     }
 
@@ -104,15 +107,15 @@ export class MessageService implements IMessageService {
         });
     }
 
-    public addError(error: string | Error | any): void {
+    public addError(error: string | Error | any, persist: boolean = false): void {
         if (!error) {
-            this.addMessage(new Message(MessageType.Error, "Undefined error."));
+            this.addMessage(new Message(MessageType.Error, "Undefined error.", persist));
         } else if (error instanceof Error) {
-            this.addMessage(new Message(MessageType.Error, (error as Error).message));
+            this.addMessage(new Message(MessageType.Error, (error as Error).message, persist));
         } else if (error.message) {
-            this.addMessage(new Message(MessageType.Error, error.message));
+            this.addMessage(new Message(MessageType.Error, error.message, persist));
         } else {
-            this.addMessage(new Message(MessageType.Error, String(error)));
+            this.addMessage(new Message(MessageType.Error, String(error), persist));
         }
     }
 
@@ -136,7 +139,7 @@ export class MessageService implements IMessageService {
         for (let i: number = 0; i < par.length; i++) {
             msg = msg.replace("{" + i + "}", par[i]);
         }
-        
+
         this.addInfo(msg);
     }
 

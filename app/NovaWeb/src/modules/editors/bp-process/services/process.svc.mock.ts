@@ -30,6 +30,7 @@ export class ProcessServiceMock implements IProcessService {
             typePrefix: source.TypePrefix || "PRO",
             name: source.name || "NoName",
             baseItemTypePredefined: source.baseItemTypePredefined || 4114,
+            version: null,
             link: source.link || ""
         };
         return reference;

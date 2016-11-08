@@ -1,9 +1,8 @@
 import * as angular from "angular";
 import {ILocalizationService} from "../../../../core";
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
-import {IColumn} from "../../../../shared/widgets/bp-tree-view/";
+import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
-import {IArtifactManager} from "../../../../managers";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 
 export interface IOpenProjectController {
@@ -25,17 +24,19 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     private _selectedItem: TreeViewModels.InstanceItemNodeVM;
     private _errorMessage: string;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "artifactManager", "projectService", "dialogSettings", "$sce"];
+    public factory: TreeViewModels.TreeNodeVMFactory;
+
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-                private artifactManager: IArtifactManager,
                 private projectService: IProjectService,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-        this.rootNode = new TreeViewModels.InstanceItemNodeVM(this.artifactManager, this.projectService, this, {
+        this.factory = new TreeViewModels.TreeNodeVMFactory(projectService);
+        this.rootNode = this.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
@@ -52,7 +53,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 name: model.name || "",
                 description: model.description || "",
                 itemTypeId: Enums.ItemTypePredefined.Project,
-                permissions: Enums.RolePermissions.Read // if the user can select it, it means he can read it
+                permissions: model.permissions || Enums.RolePermissions.Read // if the user can select it, it means he can read it
             } as Models.IProject;
         }
         return undefined;
@@ -111,16 +112,17 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         headerName: this.localization.get("App_Header_Name"),
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (vm: TreeViewModels.TreeViewNodeVM<any>, eGridCell: HTMLElement) => {
-            if (vm instanceof TreeViewModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+        innerRenderer: (params: IColumnRendererParams) => {
+            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
+            if (params.vm instanceof TreeViewModels.InstanceItemNodeVM && node.model.type === AdminStoreModels.InstanceItemType.Project) {
                 //TODO this listener is never removed
                 // Need to use a cellRenderer "Component" with a destroy method, not a function.
                 // See https://www.ag-grid.com/javascript-grid-cell-rendering/
                 // Also need to upgrade ag-grid as destroy wasn't being called until 6.3.0
                 // See https://www.ag-grid.com/change-log/changeLogIndex.php
-                eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
+                params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
-            const name = Helper.escapeHTMLText(vm.name);
+            const name = Helper.escapeHTMLText(node.name);
             return `<span class="ag-group-value-wrapper"><i></i><span>${name}</span></span>`;
         }
     }];

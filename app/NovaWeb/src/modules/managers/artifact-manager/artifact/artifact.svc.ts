@@ -9,6 +9,8 @@ export interface IArtifactService {
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
     deleteArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]>;
+    create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
+    getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]>;
 }
 
 export class ArtifactService implements IArtifactService {
@@ -117,5 +119,44 @@ export class ArtifactService implements IArtifactService {
         );
         return defer.promise;
     }
-    
+
+    public create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        const defer = this.$q.defer<any>();
+
+        const request: ng.IRequestConfig = {
+            url: `/svc/bpartifactstore/artifacts/create`,
+            method: "POST",
+            data: {
+                name: name,
+                projectId: projectId,
+                parentId: parentId,
+                itemTypeId: itemTypeId,
+                orderIndex: orderIndex ? orderIndex : undefined
+            }
+        };
+
+        this.$http(request).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                defer.reject(result.data);
+            }
+        );
+        return defer.promise;
+    }
+
+    public getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]> {
+        const deferred = this.$q.defer();
+
+            const url = `/svc/artifactstore/artifacts/${artifactId}/navigationPath`;
+
+            this.$http.get(url)
+                .then((result) => {
+                    deferred.resolve(result.data);
+                })
+                .catch((error) => {
+                    deferred.reject(error);
+                });
+
+        return deferred.promise;
+    }
 }

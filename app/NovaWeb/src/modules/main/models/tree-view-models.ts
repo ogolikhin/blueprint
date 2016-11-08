@@ -1,14 +1,9 @@
 import * as angular from "angular";
+import * as _ from "lodash";
 import {Models, AdminStoreModels} from "./";
 import {Helper} from "../../shared/";
 import {ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
-import {IArtifactManager} from "../../managers";
 import {IProjectService} from "../../managers/project-manager/project-service";
-
-export interface ITreeViewOptions {
-    selectableItemTypes?: Models.ItemTypePredefined[];
-    showSubArtifacts?: boolean;
-}
 
 export interface IViewModel<T> {
     model: T;
@@ -51,10 +46,37 @@ export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeViewNode 
     }
 }
 
+export class TreeNodeVMFactory {
+    constructor(public projectService: IProjectService,
+                public isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
+                public selectableItemTypes?: Models.ItemTypePredefined[],
+                public showSubArtifacts?: boolean) {
+    }
+
+    public createInstanceItemNodeVM(model: AdminStoreModels.IInstanceItem, isExpanded: boolean = false): InstanceItemNodeVM {
+        return new InstanceItemNodeVM(this, model, isExpanded);
+    }
+
+    public createArtifactNodeVM(model: Models.IArtifact): ArtifactNodeVM {
+        return new ArtifactNodeVM(this, model, this.isSelectable(model), this.showSubArtifacts);
+    }
+
+    public createSubArtifactContainerNodeVM(model: Models.IArtifact, name: string): SubArtifactContainerNodeVM {
+        return new SubArtifactContainerNodeVM(this, model, name);
+    }
+
+    public createSubArtifactNodeVM(model: Models.ISubArtifactNode): SubArtifactNodeVM {
+        return new SubArtifactNodeVM(this, model, this.isSelectable(model));
+    }
+
+    protected isSelectable(item: Models.IArtifact | Models.ISubArtifact) {
+        return (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+            (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1);
+    }
+}
+
 export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanceItem> {
-    constructor(private artifactManager: IArtifactManager,
-                private projectService: IProjectService,
-                private options: ITreeViewOptions,
+    constructor(private factory: TreeNodeVMFactory,
                 model: AdminStoreModels.IInstanceItem,
                 isExpanded: boolean = false) {
         super(model, model.name, String(model.id), model.hasChildren, [], isExpanded);
@@ -79,13 +101,13 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
         this.loadChildrenAsync = undefined;
         switch (this.model.type) {
             case AdminStoreModels.InstanceItemType.Folder:
-                return this.projectService.getFolders(this.model.id).then((children: AdminStoreModels.IInstanceItem[]) => {
-                    this.children = children.map(child => new InstanceItemNodeVM(this.artifactManager, this.projectService, this.options, child));
+                return this.factory.projectService.getFolders(this.model.id).then((children: AdminStoreModels.IInstanceItem[]) => {
+                    this.children = children.map(child => this.factory.createInstanceItemNodeVM(child));
                 });
             case AdminStoreModels.InstanceItemType.Project:
-                return this.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
+                return this.factory.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
                     children = TreeViewNodeVM.processChildArtifacts(children, this.model);
-                    this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
+                    this.children = children.map(child => this.factory.createArtifactNodeVM(child));
                 });
             default:
                 return;
@@ -94,12 +116,12 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
 }
 
 export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
-    constructor(private artifactManager: IArtifactManager,
-                private projectService: IProjectService,
-                private options: ITreeViewOptions,
-                model: Models.IArtifact) {
+    constructor(private factory: TreeNodeVMFactory,
+                model: Models.IArtifact,
+                private selectable: boolean,
+                private showSubArtifacts?: boolean) {
         super(model, `${model.prefix}${model.id} ${model.name}`, String(model.id),
-            model.hasChildren || (Boolean(options.showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
+            model.hasChildren || (Boolean(showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), [], false);
     }
 
     public getCellClass(): string[] {
@@ -112,38 +134,32 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
     }
 
     public getIcon(): string {
-        //TODO: for now it display custom icons just for already loaded projects
-        let statefulArtifact = this.artifactManager.get(this.model.id);
-        if (statefulArtifact) {
-            let artifactType = statefulArtifact.metadata.getItemTypeTemp();
-            if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
-                return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon="${artifactType.iconImageId}"></bp-item-type-icon>`;
-            }
+        if (_.isFinite(this.model.itemTypeIconId)) {
+            return `<bp-item-type-icon item-type-id="${this.model.itemTypeId}" item-type-icon-id="${this.model.itemTypeIconId}"></bp-item-type-icon>`;
+        } else {
+            return super.getIcon();
         }
-        return super.getIcon();
     }
 
     public isSelectable(): boolean {
-        return !(this.options &&
-        this.options.selectableItemTypes &&
-        this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
+        return this.selectable;
     }
 
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
-        return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
+        return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
             children = TreeViewNodeVM.processChildArtifacts(children, this.model);
-            this.children = children.map(child => new ArtifactNodeVM(this.artifactManager, this.projectService, this.options, child));
-            if (this.options.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
+            this.children = children.map(child => this.factory.createArtifactNodeVM(child));
+            if (this.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
-                this.children.unshift(new SubArtifactContainerNodeVM(this.projectService, this.options, this.model, name)); //TODO localize
+                this.children.unshift(this.factory.createSubArtifactContainerNodeVM(this.model, name)); //TODO localize
             }
         });
     }
 }
 
 export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact> {
-    constructor(private projectService: IProjectService, private options: ITreeViewOptions, model: Models.IArtifact, name: string) {
+    constructor(private factory: TreeNodeVMFactory, model: Models.IArtifact, name: string) {
         super(model, name, `${model.id} ${name}`, true, [], false);
     }
 
@@ -159,16 +175,16 @@ export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact>
 
     public loadChildrenAsync(): ng.IPromise<void> {
         this.loadChildrenAsync = undefined;
-        return this.projectService.getSubArtifactTree(this.model.id).then((children: Models.ISubArtifactNode[]) => {
-            this.children = children.map(child => new SubArtifactNodeVM(this.options, child));
+        return this.factory.projectService.getSubArtifactTree(this.model.id).then((children: Models.ISubArtifactNode[]) => {
+            this.children = children.map(child => this.factory.createSubArtifactNodeVM(child));
         });
     }
 }
 
 export class SubArtifactNodeVM extends TreeViewNodeVM<Models.ISubArtifactNode> {
-    constructor(private options: ITreeViewOptions, model: Models.ISubArtifactNode) {
+    constructor(private factory: TreeNodeVMFactory, model: Models.ISubArtifactNode, private selectable: boolean) {
         super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren,
-            model.children ? model.children.map(child => new SubArtifactNodeVM(options, child)) : [], false);
+            model.children ? model.children.map(child => this.factory.createSubArtifactNodeVM(child)) : [], false);
     }
 
     public getCellClass(): string[] {
@@ -178,8 +194,6 @@ export class SubArtifactNodeVM extends TreeViewNodeVM<Models.ISubArtifactNode> {
     }
 
     public isSelectable(): boolean {
-        return !(this.options &&
-        this.options.selectableItemTypes &&
-        this.options.selectableItemTypes.indexOf(this.model.predefinedType) === -1);
+        return this.selectable;
     }
 }

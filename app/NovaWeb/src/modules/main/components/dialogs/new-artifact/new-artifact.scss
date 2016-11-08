@@ -1,0 +1,54 @@
+@import '../../../../../styles/modules/variables';
+
+.new-artifact {
+    padding: 20px 32px;
+
+    .new-artifact__input {
+        color: $gray-dark;
+    }
+
+    .new-artifact__input--dropdown {
+        padding-right: 24px;
+
+        &.ng-empty {
+            background: url('./new-artifact-arrow.png') no-repeat center right 4px;
+        }
+    }
+
+    .new-artifact__input-group {
+        margin-bottom: 10px;
+    }
+
+    .new-artifact__input-group--first {
+        margin-bottom: 18px;
+    }
+
+    .new-artifact__clear {
+        color: $gray-light;
+        cursor: pointer;
+        position: absolute;
+        right: 4px;
+        top: 8px;
+    }
+
+    .new-artifact__focus-stealer {
+        float: left;
+        margin: -2000px 0 0 -2000px;
+    }
+
+    .dropdown-menu {
+        border: 0;
+        border-radius: 0;
+        width: 100%;
+
+        > li > a {
+            color: $gray;
+            padding: 3px 15px;
+        }
+
+        > .active > a {
+            background: $brand-secondary;
+            color: $white;
+        }
+    }
+}

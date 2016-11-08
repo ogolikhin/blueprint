@@ -5,6 +5,30 @@
     margin: $padding-root;
 }
 
+.collection__bulk__actions{
+    background: $gray-lightest;
+    font-size: $font-size-normal;
+    margin-bottom: -10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 8px;
+
+    .icon{
+        &::before{
+            color: $gray-light;
+            font-size: $font-size-normal;
+        }
+        &:hover{
+            cursor: pointer;
+
+            &::before{
+                color: $brand-secondary;
+
+            }
+        }
+    }
+}
+
 .collection__heading{
     font-size: $font-size-big;
     color: $gray-dark;
@@ -59,7 +83,18 @@
 
     .ag-grid{
 
-        .ag-row.ag-row-focus, .ag-row.ag-row-focus:hover{
+        .ag-header-cell:last-child{
+            .ag-header-cell-label{
+                text-align: right;
+                padding-right: $padding-root;
+            }
+        }
+
+        .ag-header-cell-label {
+            overflow: visible;
+        }
+
+        .ag-row.ag-row-focus, .ag-row.ag-row-no-focus, .ag-row.ag-row-focus:hover{
             .ag-cell:not(.not-selectable) span > span{
                 background: transparent;
                 *:not([class*="ag-checkbox-"])::before{
@@ -96,23 +131,49 @@
         .ag-row{
             border-bottom: 1px solid $gray-lightest;
 
+            .collection__link{
+                text-decoration: underline;
+
+                &:hover{
+                    text-decoration: none;
+                }
+            }
+
             &.ag-row-selected{
-                background: $brand-secondary;
+                background: $tree-hover-background;
             }
 
             &.ag-row.ag-row-level-0 .ag-cell > span{
                 margin-left: $padding-smallest;
             }
 
+            &.ag-row-selected:hover .ag-cell:not(.not-selectable) span > span{
+                background-color: transparent;
+            }
+
             &.ag-row-selected .ag-cell:not(.not-selectable).ag-cell-value{
                 background: transparent;
 
-                .path {
-                    color: $white;
+                .icon__normal::before{
+                    color: $brand-secondary;
                 }
 
-                a{
-                    color: $white;
+                .path, .ag-group-value  {
+                    color: $gray-dark;
+                    background: transparent;
+                }
+
+                .icon__action {
+
+                    &::before{
+                        color: $gray-light;
+                    }
+
+                    &:hover{
+                        &::before{
+                            color:$brand-secondary;
+                        }
+                    }
                 }
             }
 
@@ -143,6 +204,13 @@
                 padding-right: 0;
                 border-width: 0;
             }
+
+            &:last-child{
+                .ag-group-value{
+                    text-align: right;
+                    padding-right: $padding-root;
+                }
+            }
         }
 
         .path{
@@ -158,12 +226,15 @@
         .icon{
             color: $gray-light;
 
-            &:hover{
-                cursor: hand;
-            }
+            &.icon__action{
+                &:hover{
+                    color: $brand-secondary;
+                    cursor: pointer;
+                }
 
-            &.icon__normal:before{
-                font-size: $font-size-normal;
+                &::before{
+                    font-size: $font-size-normal;
+                }
             }
         }
     }

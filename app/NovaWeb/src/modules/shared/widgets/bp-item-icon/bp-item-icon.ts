@@ -1,9 +1,9 @@
 ﻿import * as angular from "angular";
 import {Models} from "../../../main/models";
-import {Helper} from "../../../shared";
+
 export interface IBPItemTypeIconController {
     itemTypeId: number;
-    itemTypeIcon?: number;
+    itemTypeIconId?: number;
     predefinedType?: number;
     getImageSource(): string;
     getIconClass(): string;
@@ -15,36 +15,32 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
     public bindings: any = {
         itemTypeId: "<",
-        itemTypeIcon: "<",
+        itemTypeIconId: "<",
         predefinedType: "<"
     };
 }
 
 export class BPItemTypeIconController implements IBPItemTypeIconController {
     public itemTypeId: number;
-    public itemTypeIcon: number;
+    public itemTypeIconId: number;
     public predefinedType: number;
     public showBasicIcon: boolean;
 
     private artifactTypeDescription: string;
 
     constructor() {
-        this.showBasicIcon = !_.isUndefined(this.predefinedType) && _.isNumber(this.predefinedType);
+        this.showBasicIcon = _.isFinite(this.predefinedType) && !_.isFinite(this.itemTypeIconId);
         this.artifactTypeDescription = Models.ItemTypePredefined[this.predefinedType] || "Document";
     }
 
     public getImageSource() {
-        let imgUrl: string;
-
-        if (this.itemTypeId && !isNaN(Number(this.itemTypeId))) {
-            imgUrl = "/shared/api/itemTypes/" + this.itemTypeId.toString() + "/icon";
-            if (this.itemTypeIcon && !isNaN(Number(this.itemTypeIcon))) {
-                imgUrl += "?" + this.itemTypeIcon.toString();
+        let imgUrl: string = "";
+        if (_.isFinite(this.itemTypeId)) {
+            imgUrl = `/shared/api/itemTypes/${this.itemTypeId}/icon`;
+            if (_.isFinite(this.itemTypeIconId)) {
+                imgUrl += `?id=${this.itemTypeIconId}`;
             }
-        } else {
-            imgUrl = "";
         }
-
         return imgUrl;
     }
 

@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {Models} from "../../models";
 import {ItemTypePredefined} from "../../models/enums";
-import {Helper, IBPTreeController} from "../../../shared";
+import {Helper, IBPTreeControllerApi} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {Project} from "../../../managers/project-manager";
 import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
@@ -17,7 +17,7 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export interface IProjectExplorerController {
     // BpTree bindings
-    tree: IBPTreeController;
+    tree: IBPTreeControllerApi;
     columns: any[];
     propertyMap: {[key: string]: string};
     doLoad: Function;
@@ -110,7 +110,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
                 if (this.tree.nodeExists(this.selected.id)) {
                     //if node exists in the tree
-                    if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId) {
+                    if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId()) {
                         this.tree.selectNode(this.selected.id);
                         navigateToId = this.selected.id;
                     }
@@ -171,7 +171,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     // BpTree bindings
 
-    public tree: IBPTreeController;
+    public tree: IBPTreeControllerApi;
     public columns = [{
         headerName: "",
         field: "name",
@@ -197,12 +197,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
         cellRendererParams: {
             innerRenderer: (params) => {
                 let icon = "<i ng-drag-handle></i>";
-                let name = Helper.escapeHTMLText(params.data.name);
-                let artifactType = (params.data as IArtifactNode).artifact.metadata.getItemTypeTemp();
-                if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
+                const name = Helper.escapeHTMLText(params.data.name);
+                const artifact = (params.data as IArtifactNode).artifact;
+                if (_.isFinite(artifact.itemTypeIconId)) {
                     icon = `<bp-item-type-icon
-                                item-type-id="${artifactType.id}"
-                                item-type-icon="${artifactType.iconImageId}"
+                                item-type-id="${artifact.itemTypeId}"
+                                item-type-icon-id="${artifact.itemTypeIconId}"
                                 ng-drag-handle></bp-item-type-icon>`;
                 }
                 return `${icon}<span>${name}</span>`;

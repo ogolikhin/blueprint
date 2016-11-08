@@ -3,6 +3,6 @@
     <span>Loading...</span>
 </div>
 
-<div ng-if="!$ctrl.isLoading && $ctrl.isIncompatible" class="error-broken-diagram">
+<div ng-if="!$ctrl.isLoading && !$ctrl.diagram.isCompatible" class="error-broken-diagram">
     <error message="{{::$ctrl.errorMsg }}"/>
 </div>

@@ -1,13 +1,13 @@
-﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
+﻿import {ILocalizationService, IMessageService, MessageType, IApplicationError, INavigationService} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {Models} from "../../models";
+import {Models, Enums} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
-import {CreateNewArtifactController, ICreateNewArtifactDialogData} from "../dialogs/new-artifact";
+import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn} from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {Project} from "../../../managers/project-manager/project";
@@ -27,6 +27,10 @@ class BPToolbarController implements IBPToolbarController {
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
 
+    private get discardAllManyThreshold(): number{
+        return 50;
+    }
+
     static $inject = [
         "$q",
         "localization",
@@ -35,6 +39,7 @@ class BPToolbarController implements IBPToolbarController {
         "artifactManager",
         "publishService",
         "messageService",
+        "navigationService",
         "$rootScope",
         "loadingOverlayService",
         "$timeout",
@@ -48,6 +53,7 @@ class BPToolbarController implements IBPToolbarController {
         private artifactManager: IArtifactManager,
         private publishService: IPublishService,
         private messageService: IMessageService,
+        private navigationService: INavigationService,
         private $rootScope: ng.IRootScopeService,
         private loadingOverlayService: ILoadingOverlayService,
         private $timeout: ng.ITimeoutService, //Used for testing, remove later
@@ -165,12 +171,14 @@ class BPToolbarController implements IBPToolbarController {
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("Discard_All_Ok_Button"),
-            cancelButton: this.localization.get("Discard_All_Cancel_Button"),
-            message: this.localization.get("Discard_All_Dialog_Message"),
+            okButton: this.localization.get("App_Button_Discard_All"),
+            cancelButton: this.localization.get("App_Button_Cancel"),
+            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold 
+                ? this.localization.get("Discard_All_Many_Dialog_Message") 
+                : this.localization.get("Discard_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish modal-alert",
+            css: "modal-alert nova-publish",
             header: this.localization.get("App_DialogTitle_Alert")
         },
         <IConfirmPublishDialogData>{
@@ -205,12 +213,13 @@ class BPToolbarController implements IBPToolbarController {
     private confirmPublishAll(data: Models.IPublishResultSet) {
         const selectedProject: Project = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Publish"),
+            okButton: this.localization.get("App_Button_Publish_All"),
             cancelButton: this.localization.get("App_Button_Cancel"),
             message: this.localization.get("Publish_All_Dialog_Message"),
             template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
             controller: ConfirmPublishController,
-            css: "nova-publish"
+            css: "nova-publish",
+            header: this.localization.get("App_DialogTitle_Confirmation")
         },
         <IConfirmPublishDialogData>{
             artifactList: data.artifacts,
@@ -310,27 +319,60 @@ class BPToolbarController implements IBPToolbarController {
     };
 
     public get canCreateNew(): boolean {
+        const currArtifact =  this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return this._currentArtifact && !!this.projectManager.getSelectedProject() ? !this._currentArtifact.artifactState.readonly : false;
+        return currArtifact && !!this.projectManager.getSelectedProject() ? !currArtifact.artifactState.readonly : false;
     }
 
     private createNewArtifact() {
         const artifact = this._currentArtifact;
+        const projectId = artifact.projectId;
+        const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Create"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-                message: this.localization.get("Create_New_Dialog_Message"),
                 template: require("../dialogs/new-artifact/new-artifact.html"),
                 controller: CreateNewArtifactController,
-                css: "nova-model" //temp
+                css: "nova-new-artifact"
             },
             <ICreateNewArtifactDialogData>{
-                projectId: artifact.projectId,
-                parentId: artifact.id,
+                projectId: projectId,
+                parentId: parentId,
                 parentPredefinedType: artifact.predefinedType
             })
-            .then(() => {
-                console.log(artifact);
+            .then((result: ICreateNewArtifactReturn) => {
+                const createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
+
+                const itemTypeId = result.artifactTypeId;
+                const name = result.artifactName;
+
+                this.artifactManager.create(name, projectId, parentId, itemTypeId)
+                    .then((data: Models.IArtifact) => {
+                        const newArtifactId = data.id;
+                        this.projectManager.refresh({ id: projectId })
+                            .finally(() => {
+                                this.projectManager.triggerProjectCollectionRefresh();
+                                this.navigationService.navigateTo({ id: newArtifactId })
+                                    .finally(() => {
+                                        this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                    });
+                            });
+                    })
+                    .catch((error: IApplicationError) => {
+                        if (error.statusCode === 404) {
+                            this.projectManager.refresh({ id: projectId })
+                                .then(() => {
+                                    this.messageService.addError("Create_New_Artifact_Error_404", true);
+                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                });
+                        } else if (!error.handled) {
+                            this.messageService.addError("Create_New_Artifact_Error_Generic");
+                        }
+
+                        if (error.statusCode !== 404) {
+                            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                        }
+                    });
             });
     }
 }

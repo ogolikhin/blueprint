@@ -120,8 +120,8 @@ export class ProcessGraph implements IProcessGraph {
         this.initializePopupMenu();
         if (!this.viewModel.isReadonly) {
             this.dragDropHandler = new DragDropHandler(this);
-            this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
+        this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
     }
 

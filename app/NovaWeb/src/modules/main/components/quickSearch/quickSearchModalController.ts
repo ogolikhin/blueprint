@@ -42,28 +42,39 @@ export class QuickSearchModalController {
         
     }
 
-    search(term: string, isNewSearch: boolean = true) {
+    private isFormInvalid(): boolean {
         if (this.form && this.form.$invalid) {
             this.$log.warn("invalid search");
+            return true;
+        }
+        return false;
+    }
+
+    searchWithMetadata(term: string) {
+        if (this.isFormInvalid()) {
+            return null;
+        }
+        this.quickSearchService.metadata(this.searchTerm).then((result) => {
+            this.updateMetadataInfo(result);
+            if (result.totalCount > 0) {
+                this.search(this.searchTerm);
+            }
+        });
+    }
+
+    search(term: string) {        
+        if (this.isFormInvalid()) {
             return null;
         }
         this.isLoading = true;
-        
-        if (isNewSearch) {
-            this.page = 1;
-        }
-        const metadataPromise = this.metadataSearch(isNewSearch);
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        metadataPromise.then((result) => {                           
-            this.updateMetadataInfo(result);
-            this.quickSearchService.search(term, this.page).then((results: SearchModels.ISearchResult) => {
-                //assign the results and display
-                //if results are greater than one
-                this.results = results.items;
-                this.isLoading = false;
-            });
+        this.quickSearchService.search(term, this.page).then((results: SearchModels.ISearchResult) => {
+            //assign the results and display
+            //if results are greater than one
+            this.results = results.items;
+            this.isLoading = false;
         });
     }    
     
@@ -88,7 +99,7 @@ export class QuickSearchModalController {
     $onInit() {
         this.page = 1;
         if (this.searchTerm.length) {
-            this.search(this.searchTerm);
+            this.searchWithMetadata(this.searchTerm);
         }
 
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
@@ -112,27 +123,13 @@ export class QuickSearchModalController {
         this.$uibModalInstance.dismiss("cancel");
     }
 
-    private metadataSearch(isNewSearch: boolean): ng.IPromise<SearchModels.ISearchMetadata> {
-        //const isSearchDifferent: boolean = !_.isEqual(this.quickSearchService.searchTerm, this.searchTerm);
-        if (isNewSearch) {
-            return this.quickSearchService.metadata(this.searchTerm);
-        }      
-
-        const deferred = this.$q.defer();
-        deferred.resolve();
-        return deferred.promise;
-    }
-
     private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
-        if (result) {
-            this.totalItems = result.totalCount;
-            if (result.totalCount === 0) {
-                this.results = [];
-                this.isLoading = false;
-                this.page = 1;
-                return;
-            }
-        } 
+        this.totalItems = result.totalCount;
+        if (result.totalCount === 0) {
+            this.results = [];
+            this.isLoading = false;
+            this.page = 1;
+        }
     }
     
     get getResultsFoundText() {

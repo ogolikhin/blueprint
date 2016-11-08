@@ -9,7 +9,7 @@
         <div class="quick-search__results--side-border" ng-class="{'quick-search__results':$ctrl.results.length===0}">
             <div class="quick-search__results--input-panel">
                 <form name="$ctrl.form"
-                      ng-submit="$ctrl.search($ctrl.searchTerm)"
+                      ng-submit="$ctrl.searchWithMetadata($ctrl.searchTerm)"
                       novalidate>
                     <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
                          <div class="input-group">
@@ -135,7 +135,7 @@
                         boundary-links="true" 
                         rotate="true" 
                         force-ellipses="true"
-                        ng-change="$ctrl.search($ctrl.searchTerm, false)"
+                        ng-change="$ctrl.search($ctrl.searchTerm)"
                         previous-text="<"
                         next-text=">"
                         first-text="<<"

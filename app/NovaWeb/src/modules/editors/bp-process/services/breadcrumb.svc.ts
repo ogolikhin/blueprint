@@ -1,5 +1,6 @@
-import {INavigationService, INavigationState} from "../../../core/navigation";
 import {ItemTypePredefined} from "../../../main/models/enums";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationState} from "../../../core/navigation/navigation-state";
 
 export interface IArtifactReference {
     id: number;

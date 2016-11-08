@@ -1,7 +1,6 @@
 import * as angular from "angular";
 import {IProcess, ProcessModel} from "../../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/";
 import {NodeType} from "../models/";
 import {NodePopupMenu} from "./node-popup-menu";
 import {BpMxGraphModel} from "../bp-mxgraph-model";
@@ -9,6 +8,7 @@ import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILayout} from "./../models/";
 import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/localizationService";
 
 describe("Popup Menu", () => {
     let mxgraph: MxGraph;

@@ -1,12 +1,19 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {TreeViewModels} from "../../models";
-import {IArtifactPickerOptions} from "./";
+import {Models, TreeViewModels} from "../../models";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
     onSelectionChanged(selectedVMs: TreeViewModels.IViewModel<any>[]): any;
     onDoubleClick(vm: TreeViewModels.IViewModel<any>): any;
     selectedVMs: TreeViewModels.IViewModel<any>[];
+}
+
+export interface IArtifactPickerOptions {
+    isItemSelectable?: (item: Models.IArtifact | Models.ISubArtifactNode) => boolean;
+    selectableItemTypes?: Models.ItemTypePredefined[];
+    selectionMode?: "single" | "multiple" | "checkbox";
+    showSubArtifacts?: boolean;
+    isOneProjectLevel?: boolean;
 }
 
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {

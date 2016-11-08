@@ -2,11 +2,11 @@
 import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
-import {ILocalizationService} from "../../../core";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 describe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])
@@ -163,7 +163,7 @@ describe("BpArtifactPickerController", () => {
     it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
         // Arrange
         const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
+        const vm = controller.factory.createArtifactSearchResultVM(model);
         controller.selectionMode = "single";
         controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
 
@@ -208,7 +208,7 @@ describe("BpArtifactPickerController", () => {
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
             const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };
@@ -250,7 +250,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when SearchResultVM, clears search and sets project", () => {
         // Arrange
         const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
+        const vm = controller.factory.createArtifactSearchResultVM(model);
         controller.clearSearch = jasmine.createSpy("clearSearch");
 
         // Act

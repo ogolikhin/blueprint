@@ -4,11 +4,8 @@ import "angular-sanitize";
 
 import "../main";
 import { Models } from "../main/models";
-import {ILocalizationService} from "../core/localization";
 import {LocalizationServiceMock} from "../core/localization/localization.mock";
-import {IMessageService, Message, MessageType} from "../core/messages";
 import {MessageServiceMock} from "../core/messages/message.mock";
-import {INavigationService} from "../core/navigation";
 import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {IItemInfoService} from "../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
@@ -18,6 +15,10 @@ import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./item-state.controller";
+import {IMessageService} from "../core/messages/message.svc";
+import {ILocalizationService} from "../core/localization/localizationService";
+import {INavigationService} from "../core/navigation/navigation.svc";
+import {MessageType, Message} from "../core/messages/message";
 
 describe("Item State Controller tests", () => {
     let $state: angular.ui.IStateService,
@@ -76,12 +77,12 @@ describe("Item State Controller tests", () => {
         $state.params["id"] = id;
 
         return new ItemStateController(
-            $state, 
-            artifactManager, 
-            messageService, 
-            localization, 
+            $state,
+            artifactManager,
+            messageService,
+            localization,
             navigationService,
-            itemInfoService, 
+            itemInfoService,
             statefulArtifactFactory);
     }
 
@@ -92,7 +93,7 @@ describe("Item State Controller tests", () => {
     it("respond to url", () => {
         expect($state.href("main.item", { id: 1 })).toEqual("#/main/1");
     });
-    
+
     it("clears locked messages", () => {
         // arrange
         const artifactId = 10;
@@ -152,7 +153,7 @@ describe("Item State Controller tests", () => {
                 expect(stateSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
-            
+
             it("glossary", () => {
                 // arrange
                 const expectedState = "main.item.glossary";
@@ -171,7 +172,7 @@ describe("Item State Controller tests", () => {
                 expect(stateSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
-            
+
             it("general", () => {
                 // arrange
                 const expectedState = "main.item.general";
@@ -190,7 +191,7 @@ describe("Item State Controller tests", () => {
                 expect(stateSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
-            
+
             it("collection", () => {
                 // arrange
                 const expectedState = "main.item.collection";
@@ -209,7 +210,7 @@ describe("Item State Controller tests", () => {
                 expect(stateSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
-            
+
             it("process", () => {
                 // arrange
                 const expectedState = "main.item.process";
@@ -228,7 +229,7 @@ describe("Item State Controller tests", () => {
                 expect(stateSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
             });
-            
+
             it("details", () => {
                 // arrange
                 const expectedState = "main.item.details";
@@ -270,7 +271,7 @@ describe("Item State Controller tests", () => {
                 expect(navigationSpy).toHaveBeenCalled();
                 expect(navigationSpy).toHaveBeenCalledWith({id: 10, redirect: true});
             });
-            
+
             it("should not navigate to a project, should navigate to Main", () => {
                 // arrange
                 const artifactId = 10;
@@ -360,9 +361,9 @@ describe("Item State Controller tests", () => {
 
     describe("when in artifact manager", () => {
         let artifactId: number,
-            statefulArtifact, 
+            statefulArtifact,
             artifactManagerSpy: jasmine.Spy;
-        
+
         beforeEach(() => {
             artifactId = 10;
             statefulArtifact = {

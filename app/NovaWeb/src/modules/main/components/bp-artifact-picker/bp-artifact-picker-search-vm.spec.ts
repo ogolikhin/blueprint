@@ -1,84 +1,110 @@
 import "angular";
 import "angular-mocks";
 import {Models, SearchServiceModels} from "../../models";
-import {ProjectSearchResultVM, ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
+import {SearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
+import {IProjectService} from "../../../managers/project-manager/";
 
-describe("ProjectSearchResultVM", () => {
-    it("select calls onSelect", () => {
-        // Arrange
-        const model = {} as SearchServiceModels.ISearchResult;
-        const onSelect = jasmine.createSpy("onSelect");
-        const searchResultVM = new ProjectSearchResultVM(model, onSelect);
-        const value = true;
+describe("SearchResultVMFactory", () => {
+    let projectService: IProjectService;
+    let onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean;
+    let factory: SearchResultVMFactory;
 
-        // Act
-        searchResultVM.selected(value);
-
-        // Assert
-        expect(onSelect).toHaveBeenCalledWith(searchResultVM, value);
+    beforeEach(() => {
+        projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
+        onSelect = jasmine.createSpy("onSelect");
+        factory = new SearchResultVMFactory(projectService, onSelect);
     });
 
-    it("id returns correct result", () => {
-        // Arrange
-        const model = {} as SearchServiceModels.ISearchResult;
-        const searchResultVM = new ProjectSearchResultVM(model, undefined);
+    describe("ProjectSearchResultVM", () => {
+        it("select calls onSelect", () => {
+            // Arrange
+            const model = {} as SearchServiceModels.ISearchResult;
+            const searchResultVM = factory.createProjectSearchResultVM(model);
+            const value = true;
 
-        // Act
-        const result = searchResultVM.id;
+            // Act
+            searchResultVM.selected(value);
 
-        // Assert
-        expect(result).toEqual("");
+            // Assert
+            expect(onSelect).toHaveBeenCalledWith(searchResultVM, value);
+        });
+
+        it("id returns correct result", () => {
+            // Arrange
+            const model = {} as SearchServiceModels.ISearchResult;
+            const searchResultVM = factory.createProjectSearchResultVM(model);
+
+            // Act
+            const result = searchResultVM.id;
+
+            // Assert
+            expect(result).toEqual("");
+        });
+
+        it("iconClass returns correct result", () => {
+            // Arrange
+            const model = {} as SearchServiceModels.ISearchResult;
+            const searchResultVM = factory.createProjectSearchResultVM(model);
+
+            // Act
+            const result = searchResultVM.iconClass;
+
+            // Assert
+            expect(result).toEqual("icon-project");
+        });
     });
 
-    it("iconClass returns correct result", () => {
-        // Arrange
-        const model = {} as SearchServiceModels.ISearchResult;
-        const searchResultVM = new ProjectSearchResultVM(model, undefined);
+    describe("ArtifactSearchResultVM", () => {
+        it("select, when selectable, calls onSelect", () => {
+            // Arrange
+            factory.isItemSelectable = () => true;
+            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const searchResultVM = factory.createArtifactSearchResultVM(model);
+            const value = true;
 
-        // Act
-        const result = searchResultVM.iconClass;
+            // Act
+            searchResultVM.selected(value);
 
-        // Assert
-        expect(result).toEqual("icon-project");
-    });
-});
+            // Assert
+            expect(onSelect).toHaveBeenCalledWith(searchResultVM, value);
+        });
 
-describe("ArtifactSearchResultVM", () => {
-    it("select calls onSelect", () => {
-        // Arrange
-        const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const onSelect = jasmine.createSpy("onSelect");
-        const searchResultVM = new ArtifactSearchResultVM(model, onSelect);
-        const value = true;
+        it("select, when not selectable, does not call onSelect", () => {
+            // Arrange
+            factory.isItemSelectable = () => false;
+            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const searchResultVM = factory.createArtifactSearchResultVM(model);
+            const value = true;
 
-        // Act
-        searchResultVM.selected(value);
+            // Act
+            searchResultVM.selected(value);
 
-        // Assert
-        expect(onSelect).toHaveBeenCalledWith(searchResultVM, value);
-    });
+            // Assert
+            expect(onSelect).not.toHaveBeenCalled();
+        });
 
-    it("id returns correct result", () => {
-        // Arrange
-        const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const searchResultVM = new ArtifactSearchResultVM(model, undefined);
+        it("id returns correct result", () => {
+            // Arrange
+            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const searchResultVM = factory.createArtifactSearchResultVM(model);
 
-        // Act
-        const result = searchResultVM.id;
+            // Act
+            const result = searchResultVM.id;
 
-        // Assert
-        expect(result).toEqual("AC123");
-    });
+            // Assert
+            expect(result).toEqual("AC123");
+        });
 
-    it("iconClass returns correct result", () => {
-        // Arrange
-        const model = {id: 123, itemId: 123, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const searchResultVM = new ArtifactSearchResultVM(model, undefined);
+        it("iconClass returns correct result", () => {
+            // Arrange
+            const model = {id: 123, itemId: 123, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const searchResultVM = factory.createArtifactSearchResultVM(model);
 
-        // Act
-        const result = searchResultVM.iconClass;
+            // Act
+            const result = searchResultVM.iconClass;
 
-        // Assert
-        expect(result).toEqual("icon-actor");
+            // Assert
+            expect(result).toEqual("icon-actor");
+        });
     });
 });

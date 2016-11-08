@@ -9,12 +9,12 @@ import {
     MetaDataService
 } from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay";
 import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("RefreshAction", () => {
     let $scope: ng.IScope;

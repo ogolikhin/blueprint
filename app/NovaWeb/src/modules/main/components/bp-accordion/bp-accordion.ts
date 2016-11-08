@@ -1,10 +1,9 @@
-import {ILocalizationService} from "../../../core";
 
 /*
- Sample template. The following parameters are optional: 
+ Sample template. The following parameters are optional:
  accordion-heading-height
  accordion-panel-id
- accordion-panel-class 
+ accordion-panel-class
  accordion-panel-heading-height
 
  <bp-accordion accordion-heading-height="33">
@@ -20,6 +19,7 @@ import {ILocalizationService} from "../../../core";
  </bp-accordion>
  */
 
+import {ILocalizationService} from "../../../core/localization/localizationService";
 export interface IBpAccordionController {
     accordionId?: string;
     accordionHeadingHeight?: number;

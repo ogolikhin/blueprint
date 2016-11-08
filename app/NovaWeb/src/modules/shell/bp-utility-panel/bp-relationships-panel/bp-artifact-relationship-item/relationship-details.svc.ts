@@ -1,5 +1,5 @@
-﻿import {ILocalizationService} from "../../../../core";
-import {Relationships} from "../../../../main";
+﻿import {Relationships} from "../../../../main";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export interface IRelationshipDetailsService {
     getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo>;

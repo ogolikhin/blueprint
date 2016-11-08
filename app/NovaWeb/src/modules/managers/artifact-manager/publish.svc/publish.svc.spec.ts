@@ -1,9 +1,9 @@
 import * as angular from "angular";
 import "angular-mocks";
-import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import { Models, Enums } from "../../../main/models";
+import {Models} from "../../../main/models";
 import {PublishService, IPublishService} from "./publish.svc";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 describe("Publish Service", () => {
 
@@ -112,7 +112,7 @@ describe("Publish Service", () => {
             $httpBackend.flush();
 
             // Assert
-             expect(error).not.toBeUndefined();
+            expect(error).not.toBeUndefined();
             expect(data).toBeUndefined();
             expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
             $httpBackend.verifyNoOutstandingExpectation();
@@ -154,7 +154,7 @@ describe("Publish Service", () => {
                 .respond(HttpStatusCode.Conflict, {
                     statusCode: HttpStatusCode.Conflict,
                     errorContent: <Models.IPublishResultSet>{
-                            artifacts: [<Models.IArtifact>{
+                        artifacts: [<Models.IArtifact>{
                             id: 2,
                             projectId: 1
                         }],

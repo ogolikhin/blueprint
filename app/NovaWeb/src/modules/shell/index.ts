@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
@@ -38,12 +37,11 @@ import {ILicenseService, LicenseService} from "./license/license.svc";
 
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";
-export {IMessageService, IMessage, MessageType, MessageService, Message} from "../core";
 export {ILicenseService, LicenseService} from "./license/license.svc";
 
 angular.module("app.shell",
     [
-        "app.core",
+        "bp.core",
         "ui.router",
         "ui.bootstrap",
         "ngSanitize",

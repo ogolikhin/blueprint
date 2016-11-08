@@ -1,8 +1,7 @@
-import * as angular from "angular";
 import "angular-formly";
-import {ILocalizationService} from "../../../../core";
 import {Enums, Models} from "../../../../main/models";
 import {BPFieldBaseController} from "../base-controller";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelect";

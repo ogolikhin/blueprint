@@ -1,11 +1,9 @@
 import { Models } from "../../main/models";
-import { ILocalizationService, IMessageService } from "../../core";
 import { Message, MessageType } from "../../core/messages/message";
 import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";
 import { IHashMapOfPropertyValues } from "./models/process-models";
 import { IVersionInfo, ItemTypePredefined } from "./models/process-models";
 import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IProcessUpdateResult } from "./services/process.svc";
@@ -27,10 +25,10 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
     }
-    
+
     public processOnUpdate() {
         this.artifactState.dirty = true;
-        this.lock(); 
+        this.lock();
     }
 
     public get baseItemTypePredefined(): ItemTypePredefined {
@@ -44,7 +42,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public getServices(): IStatefulProcessArtifactServices {
         return this.services;
     }
-   
+
     protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
         this.loadProcessPromise = this.loadProcess();
 
@@ -104,11 +102,11 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {
         if (tempIdMap && tempIdMap.length > 0) {
-            
+
             for (let counter = 0; counter < tempIdMap.length; counter++) {
 
                 //update decisionBranchDestinationLinks temporary ids
-                if (this.decisionBranchDestinationLinks) {    
+                if (this.decisionBranchDestinationLinks) {
                     this.decisionBranchDestinationLinks.forEach((link) => {
                         if (link.destinationId === tempIdMap[counter].key) {
                             link.destinationId = tempIdMap[counter].value;
@@ -123,9 +121,9 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                         const shape = this.shapes[sCounter];
                         if (shape.id <= 0 && shape.id === tempIdMap[counter].key) {
                             shape.id = tempIdMap[counter].value;
-                            break;                          
+                            break;
                         }
-                    }                    
+                    }
                 }
 
                 //Update links temporary ids
@@ -144,7 +142,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             //update sub artifact collection temporary ids
             this.subArtifactCollection.list().forEach(item => {
                 if (item.id <= 0) {
-                    // subartifact id is temporary 
+                    // subartifact id is temporary
                     for (let i = 0; i < tempIdMap.length; i++) {
                         if (item.id === tempIdMap[i].key) {
                             item.id = tempIdMap[i].value;
@@ -183,9 +181,9 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 this.services.localizationService.get("ST_View_OpenedInReadonly_Message"));
             this.services.messageService.addMessage(message);
             deferred.reject();
-        } 
-         
+        }
+
         return deferred.promise;
     }
- 
+
 }

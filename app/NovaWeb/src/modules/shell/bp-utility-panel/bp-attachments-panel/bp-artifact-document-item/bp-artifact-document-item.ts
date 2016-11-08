@@ -1,10 +1,11 @@
-﻿import {ILocalizationService, IMessageService} from "../../../../core";
-import {
+﻿import {
     IArtifactDocRef,
     IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "../../../../managers/artifact-manager";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPArtifactDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-document-item.html");
@@ -62,7 +63,8 @@ export class BPArtifactDocumentItemController implements IBPArtifactAttachmentIt
                 }
             });
     }
-    public navigateToDocumentReference (artifactId: number) {
-        this.navigationService.navigateTo({ id: artifactId });
+
+    public navigateToDocumentReference(artifactId: number) {
+        this.navigationService.navigateTo({id: artifactId});
     }
 }

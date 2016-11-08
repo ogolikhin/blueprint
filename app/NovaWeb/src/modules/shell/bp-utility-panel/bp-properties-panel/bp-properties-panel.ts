@@ -1,6 +1,4 @@
-import * as angular from "angular";
-import {ILocalizationService} from "../../../core";
-import {Models, Enums, IWindowManager} from "../../../main";
+import {Models} from "../../../main";
 import {
     ISelectionManager,
     IStatefulArtifact,
@@ -9,12 +7,13 @@ import {
 } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
-import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
-import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
+import {PropertyLookupEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 import * as ChangesetModels from "../../../managers/artifact-manager/changeset";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
@@ -32,7 +31,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "$q",
         "selectionManager",
         "messageService",
-        "localization"
+        "localization",
+        "propertyDescriptorBuilder"
     ];
 
     public form: angular.IFormController;
@@ -57,9 +57,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 protected selectionManager: ISelectionManager,
                 public messageService: IMessageService,
                 public localization: ILocalizationService,
+                protected propertyDescriptorBuilder: IPropertyDescriptorBuilder,
                 public bpAccordionPanel: IBpAccordionPanelController) {
-
-
         super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
     }
@@ -129,7 +128,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (this.artifactSubscriber) {
             this.artifactSubscriber.dispose();
         }
-
     };
 
     protected onSubArtifactChanged = (it) => {
@@ -137,15 +135,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (this.subArtifactSubscriber) {
             this.subArtifactSubscriber.dispose();
         }
-
     };
 
-    private hasFields(): boolean  {
+    private hasFields(): boolean {
         return ((this.systemFields || []).length +
-               (this.customFields || []).length +
-               (this.richTextFields || []).length +
-               (this.specificFields || []).length) > 0;
-
+            (this.customFields || []).length +
+            (this.richTextFields || []).length +
+            (this.specificFields || []).length) > 0;
     }
 
     private shouldRenewFields(item: IStatefulItem): boolean {
@@ -162,44 +158,48 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.richTextFields = [];
     }
 
-
     public onUpdate() {
         this.reset();
 
         if (!this.editor || !this.selectedArtifact) {
             return;
         }
-        
-        let propertyTypesPromise: ng.IPromise<Models.IPropertyType[]>;
+
+        let propertyDescriptorsPromise: ng.IPromise<IPropertyDescriptor[]>;
         let selectedItem: IStatefulItem;
 
         if (this.selectedSubArtifact) {
-            propertyTypesPromise = this.selectedSubArtifact.metadata.getSubArtifactPropertyTypes();
+            propertyDescriptorsPromise = this.propertyDescriptorBuilder.createSubArtifactPropertyDescriptors(this.selectedSubArtifact);
             selectedItem = this.selectedSubArtifact;
-            
+
         } else {
-            propertyTypesPromise = this.selectedArtifact.metadata.getArtifactPropertyTypes();
+            propertyDescriptorsPromise = this.propertyDescriptorBuilder.createArtifactPropertyDescriptors(this.selectedArtifact);
             selectedItem = this.selectedArtifact;
         }
 
-        propertyTypesPromise.then((propertyTypes) => {
-            const propertyEditorFilter = new PropertyEditorFilters(this.localization);
-            const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
+        propertyDescriptorsPromise.then((propertyDescriptors) => {
+            this.displayContent(selectedItem, propertyDescriptors);
+        });
+    }
 
-            const shouldCreateFields = this.editor.create(selectedItem, propertyTypes, this.shouldRenewFields(selectedItem));
+    private displayContent(selectedItem: IStatefulItem, propertyDescriptors: IPropertyDescriptor[]) {
+        const propertyEditorFilter = new PropertyEditorFilters(this.localization);
+        const propertyFilters = propertyEditorFilter.getPropertyEditorFilters(selectedItem.predefinedType);
 
-            if (shouldCreateFields) {
-                this.clearFields();
-                this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                    let propertyContext = field.data as PropertyContext;
-                    if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
-                        return;
-                    }
+        const shouldCreateFields = this.editor.create(selectedItem, propertyDescriptors, this.shouldRenewFields(selectedItem));
 
-                    //add property change handler to each field
-                    Object.assign(field.templateOptions, {
-                        onChange: this.onValueChange.bind(this)
-                    });
+        if (shouldCreateFields) {
+            this.clearFields();
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                let propertyContext = field.data as IPropertyDescriptor;
+                if (propertyContext && propertyFilters[propertyContext.propertyTypePredefined]) {
+                    return;
+                }
+
+                //add property change handler to each field
+                Object.assign(field.templateOptions, {
+                    onChange: this.onValueChange.bind(this)
+                });
 
                     const isReadOnly = selectedItem.artifactState.readonly;
                     if (isReadOnly) {
@@ -213,17 +213,16 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                         }
                     }
 
-                    this.onFieldUpdate(field);
+                this.onFieldUpdate(field);
 
-                });
-            }
-            this.model = this.editor.getModel();
-            this.isLoading = false;
-        });
+            });
+        }
+        this.model = this.editor.getModel();
+        this.isLoading = false;
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        let propertyContext = field.data as PropertyContext;
+        const propertyContext = field.data as IPropertyDescriptor;
         if (!propertyContext) {
             return;
         }
@@ -248,7 +247,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         //$scope.$applyAsync(() => {
         //here we need to update original model
-        let context = $field.data as PropertyContext;
+        const context = $field.data as IPropertyDescriptor;
         if (!context) {
             return;
         }
@@ -303,4 +302,3 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.richTextFields = [];
     }
 }
-

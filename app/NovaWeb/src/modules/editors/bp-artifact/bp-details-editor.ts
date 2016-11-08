@@ -1,14 +1,8 @@
 ﻿import {Models, Enums} from "../../main";
-import {IDialogService} from "../../shared";
-import {
-    BpArtifactEditor,
-    ILocalizationService,
-    IArtifactManager,
-    IMessageService,
-    IWindowManager,
-    PropertyContext
-} from "./bp-artifact-editor";
-
+import {BpArtifactEditor, IArtifactManager, IWindowManager} from "./bp-artifact-editor";
+import {IMessageService} from "../../core/messages/message.svc";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
@@ -20,15 +14,16 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "messageService",
         "artifactManager",
         "windowManager",
-        "localization"
+        "localization",
+        "propertyDescriptorBuilder"
     ];
 
     constructor(messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService,
-        private dialogService: IDialogService) {
-        super(messageService, artifactManager, windowManager, localization);
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService,
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -56,11 +51,11 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return ((this.systemFields || []).length +
-               (this.customFields || []).length +
-               (this.richTextFields || []).length +
-               (this.specificFields || []).length) > 0;
+            (this.customFields || []).length +
+            (this.richTextFields || []).length +
+            (this.specificFields || []).length) > 0;
     }
 
     protected onFieldUpdateFinished() {
@@ -82,7 +77,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        const propertyContext = field.data as PropertyContext;
+        const propertyContext = field.data as IPropertyDescriptor;
         if (!propertyContext) {
             return;
         }

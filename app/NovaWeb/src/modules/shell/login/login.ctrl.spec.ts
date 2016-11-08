@@ -1,10 +1,9 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import {SessionSvc} from "./session.svc";
 import {LoginCtrl, LoginState} from "./login.ctrl";
-import {HttpStatusCode} from "../../core/http";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("LoginCtrl", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

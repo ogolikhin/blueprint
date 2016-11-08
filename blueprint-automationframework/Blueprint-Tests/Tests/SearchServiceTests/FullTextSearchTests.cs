@@ -583,15 +583,14 @@ namespace SearchServiceTests
             // Setup: Create searchable artifact(s) with unique search term
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
-            IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
             // Execute: Execute FullTextSearch using the user with empty session token
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(userWithNoToken, searchCriteria),
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(user: null, searchCriteria: searchCriteria),
                 "POST {0} call should exit with 400 BadRequestException when using empty session!", FULLTEXTSEARCH_PATH);
 
             // Validation: Exception should contain expected message.
             const string expectedExceptionMessage = "Token is missing or malformed";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage), "{0} was not found in returned message of Nova FullTextSearch which has no session token.", expectedExceptionMessage);
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content, "{0} was not found in returned message of Nova FullTextSearch which has no session token.", expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request Tests

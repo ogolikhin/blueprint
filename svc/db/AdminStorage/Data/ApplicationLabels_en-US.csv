@@ -196,10 +196,17 @@ Discard_Single_Dialog_Message,"This artifact will be restored to its last publis
 Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:"
 Discard_Success_Message,"Changes have been discarded."
 
-#Create New Artifact modal popup
-Create_New_Dialog_Header,"New Artifact"
-Create_New_Dialog_Artifact_Type,"Artifact Type"
-Create_New_Dialog_Artifact_Name,"Name of Artifact"
+#Create New Artifact
+Create_New_Artifact_Dialog_Header,"New Artifact"
+Create_New_Artifact_Dialog_Artifact_Type,"Artifact Type"
+Create_New_Artifact_Dialog_Artifact_Name,"Name of Artifact"
+Create_New_Artifact_Error_400,"Create_New_Artifact_Error_400"
+Create_New_Artifact_Error_401,"Create_New_Artifact_Error_401"
+Create_New_Artifact_Error_403,"Create_New_Artifact_Error_403"
+Create_New_Artifact_Error_404,"Create_New_Artifact_Error_404"
+Create_New_Artifact_Error_409,"Create_New_Artifact_Error_409"
+Create_New_Artifact_Error_Generic,"Create_New_Artifact_Error_Generic"
+
 Confirm_Publish_Collection, "Please publish your changes before entering the review. Would you like to proceed?"
 Create_Rapid_Review, "Create Rapid Review"
 

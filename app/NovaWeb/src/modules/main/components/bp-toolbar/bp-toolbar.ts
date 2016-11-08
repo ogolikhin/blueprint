@@ -1,4 +1,4 @@
-﻿import {ILocalizationService, IMessageService, MessageType} from "../../../core";
+﻿import {ILocalizationService, IMessageService, MessageType, IApplicationError} from "../../../core";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {Models, Enums} from "../../models";
@@ -334,15 +334,33 @@ class BPToolbarController implements IBPToolbarController {
                 parentPredefinedType: artifact.predefinedType
             })
             .then((result: ICreateNewArtifactReturn) => {
+                const createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
+
                 const itemTypeId = result.artifactTypeId;
                 const name = result.artifactName;
 
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         console.log(data);
+                        this.projectManager.refreshAll()
+                            .finally(() => {
+                                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                            });
                     })
-                    .catch((error) => {
-                        console.log(error);
+                    .catch((error: IApplicationError) => {
+                        if (error.statusCode === 404) {
+                            this.projectManager.refreshAll()
+                                .then(() => {
+                                    this.messageService.addError("Create_New_Artifact_Error_404", true);
+                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                });
+                        } else if (!error.handled) {
+                            this.messageService.addError("Create_New_Artifact_Error_Generic");
+                        }
+
+                        if (error.statusCode !== 404) {
+                            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                        }
                     });
             });
     }

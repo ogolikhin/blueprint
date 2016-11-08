@@ -169,12 +169,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isCheckboxHidden: true,
             cellClass: (vm: CollectionNodeVM) => vm.getCellClass(),
             innerRenderer: (params: IColumnRendererParams) => {
-                const collectionNodeVM = <CollectionNodeVM>params.vm;
-                const prefix = Helper.escapeHTMLText(collectionNodeVM.model.prefix);
-                const icon = collectionNodeVM.getIcon();
-                const url = this.$state.href("main.item", {id: collectionNodeVM.model.id});
+                const vm = params.data as CollectionNodeVM;
+                const prefix = Helper.escapeHTMLText(vm.model.prefix);
+                const icon = vm.getIcon();
+                const url = this.$state.href("main.item", {id: vm.model.id});
                 return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" class="collection__link"
-                            ng-click="$event.stopPropagation();">${prefix}${collectionNodeVM.model.id}</a></span>`;
+                            ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
             }
         },
         {
@@ -182,8 +182,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isGroup: true,
             isCheckboxHidden: true,
             innerRenderer: (params: IColumnRendererParams) => {
-                const collectionNodeVM = <CollectionNodeVM>params.vm;
-                const path = collectionNodeVM.model.artifactPath;
+                const vm = params.data as CollectionNodeVM;
+                const path = vm.model.artifactPath;
 
                 let tooltipText = "";
                 path.map((collectionArtifact: string, index: number) => {
@@ -194,8 +194,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
                 });
 
-                return `<div bp-tooltip="${collectionNodeVM.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
-                    `${collectionNodeVM.model.name}</div>` +
+                return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
+                    `${vm.model.name}</div>` +
                     `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
@@ -204,10 +204,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             isGroup: true,
             isCheckboxHidden: true,
             innerRenderer: (params: IColumnRendererParams) => {
-                const collectionNodeVM = <CollectionNodeVM>params.vm;
-                if (collectionNodeVM.model.description) {
-                    return `<div class="collection__description" bp-tooltip="${collectionNodeVM.model.description}" ` +
-                        `bp-tooltip-truncated="true">${collectionNodeVM.model.description}</div>`;
+                const vm = params.data as CollectionNodeVM;
+                if (vm.model.description) {
+                    return `<div class="collection__description" bp-tooltip="${vm.model.description}" ` +
+                        `bp-tooltip-truncated="true">${vm.model.description}</div>`;
                 }
 
                 return "";
@@ -225,11 +225,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
                     this.dialogService.confirm(this.localization.get("Artifact_Collection_Confirmation_Delete_Item")).then(() => {
 
-                        const node = <CollectionNodeVM>params.vm;
+                        const vm = params.data as CollectionNodeVM;
                         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-                        collectionArtifact.removeArtifacts([node.model]);
+                        collectionArtifact.removeArtifacts([vm.model]);
 
-                        let index = _.findIndex(this.selectedVMs, (item) => item.model.id === node.model.id);
+                        let index = _.findIndex(this.selectedVMs, (item) => item.model.id === vm.model.id);
 
                         if (index > -1) {
                             this.selectedVMs.splice(index, 1);

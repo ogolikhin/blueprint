@@ -112,8 +112,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
         innerRenderer: (params: IColumnRendererParams) => {
-            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
-            if (params.vm instanceof TreeViewModels.InstanceItemNodeVM && node.model.type === AdminStoreModels.InstanceItemType.Project) {
+            const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
+            if (vm instanceof TreeViewModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 //TODO this listener is never removed
                 // Need to use a cellRenderer "Component" with a destroy method, not a function.
                 // See https://www.ag-grid.com/javascript-grid-cell-rendering/
@@ -121,7 +121,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 // See https://www.ag-grid.com/change-log/changeLogIndex.php
                 params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
-            const name = Helper.escapeHTMLText(node.name);
+            const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper"><i></i><span>${name}</span></span>`;
         }
     }];

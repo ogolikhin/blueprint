@@ -73,7 +73,7 @@ describe("OpenProjectController", () => {
             const cell = {} as HTMLElement;
 
              const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };
@@ -91,7 +91,7 @@ describe("OpenProjectController", () => {
             const vm = controller.factory.createInstanceItemNodeVM(model);
             const cell = document.createElement("div");
             const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };

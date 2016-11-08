@@ -170,9 +170,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
         innerRenderer: (params: IColumnRendererParams) => {
-            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
-            const icon = node.getIcon();
-            const name = Helper.escapeHTMLText(node.name);
+            const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
+            const icon = vm.getIcon();
+            const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
         }
     }];

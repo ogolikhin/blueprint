@@ -208,7 +208,7 @@ describe("BpArtifactPickerController", () => {
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
             const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };

@@ -1,25 +1,22 @@
-import {ILocalizationService, Message} from "../../core";
 import {IWindowManager, IMainWindow} from "../../main";
 import {
     Models, Enums,
     IArtifactManager,
     IStatefulArtifact,
-    IMessageService,
     BpBaseEditor
 } from "../bp-base-editor";
 
 import {PropertyEditor} from "./bp-property-editor";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export {
-    ILocalizationService,
     IArtifactManager,
     IStatefulArtifact,
-    IMessageService,
     IWindowManager,
     Models,
-    Enums,
-    Message
+    Enums
 }
 
 export abstract class BpArtifactEditor extends BpBaseEditor {
@@ -59,7 +56,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         this.fields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return (this.fields || []).length > 0;
     }
 

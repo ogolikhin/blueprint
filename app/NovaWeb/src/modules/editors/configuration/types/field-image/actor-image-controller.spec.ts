@@ -8,14 +8,14 @@ import "ui-select";
 import "angular-formly";
 import "tinymce";
 
-import {ILocalizationService} from "../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../core/messages";
 import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import {SettingsService, ISettingsService} from "../../../../core";
 import {BPFieldImageController} from "./field-image";
 import {ActorImagePickerDialogServiceMock} from "./actor-image-choose-window.mock";
+import {SettingsService, ISettingsService} from "../../../../core/configuration/settings";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 describe("Actor image controller tests", () => {
 

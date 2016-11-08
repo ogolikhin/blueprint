@@ -1,5 +1,5 @@
-﻿import * as angular from "angular";
-import {ILocalizationService, HttpStatusCode, IApplicationError} from "../../../core";
+﻿import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IArtifactDiscussions {
     getDiscussions(artifactId: number, subArtifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet>;
@@ -57,8 +57,8 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
     }
 
     public getDiscussions(artifactId: number,
-                                  subArtifactId?: number,
-                                  timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
+                          subArtifactId?: number,
+                          timeout?: ng.IPromise<void>): ng.IPromise<IDiscussionResultSet> {
 
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
@@ -72,11 +72,11 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IDiscussionResultSet>) => {
-                defer.resolve(result.data);
-            },
-            (result: ng.IHttpPromiseCallbackArg<any>) => {
-                defer.reject(result.data);
-            });
+                    defer.resolve(result.data);
+                },
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    defer.reject(result.data);
+                });
 
         return defer.promise;
     }
@@ -96,11 +96,11 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IReply[]>) => {
-                defer.resolve(result.data);
-            }, 
-            (result: ng.IHttpPromiseCallbackArg<any>) => {
-                defer.reject(result.data);
-            });
+                    defer.resolve(result.data);
+                },
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    defer.reject(result.data);
+                });
 
         return defer.promise;
     }
@@ -115,12 +115,12 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IDiscussion>) => {
-                defer.resolve(result.data);
+                    defer.resolve(result.data);
 
-            },
-            (result: ng.IHttpPromiseCallbackArg<any>) => {
-                defer.reject(result.data);
-            });
+                },
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    defer.reject(result.data);
+                });
 
         return defer.promise;
     }
@@ -135,11 +135,11 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IReply>) => {
-                defer.resolve(result.data);
-            }, 
-            (result: ng.IHttpPromiseCallbackArg<any>) => {
-                defer.reject(result.data);
-            });
+                    defer.resolve(result.data);
+                },
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    defer.reject(result.data);
+                });
 
         return defer.promise;
     }
@@ -173,12 +173,12 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
         this.$http(requestObj)
             .then((result: ng.IHttpPromiseCallbackArg<IReply>) => {
-                defer.resolve(result);
+                    defer.resolve(result);
 
-            },
-            (result: ng.IHttpPromiseCallbackArg<any>) => {
-                defer.reject(result.data);
-            });
+                },
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    defer.reject(result.data);
+                });
 
         return defer.promise;
     }
@@ -196,7 +196,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
                 if (result.status === HttpStatusCode.NotFound) {
                     result.data.message = this.localization.get("Error_Comment_Deleted", "Error");
-                } 
+                }
                 defer.reject(result.data);
             });
         return defer.promise;
@@ -215,7 +215,7 @@ export class ArtifactDiscussions implements IArtifactDiscussions {
 
                 if (result.status === HttpStatusCode.NotFound) {
                     result.data.message = this.localization.get("Error_Comment_Deleted", "Error");
-                } 
+                }
                 defer.reject(result.data);
             });
         return defer.promise;

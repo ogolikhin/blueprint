@@ -1,9 +1,7 @@
-import * as angular from "angular";
-import { PropertyTypePredefined, PropertyLookupEnum } from "../../main/models/enums";
-import { IPropertyType, IPropertyValue, IOption, PrimitiveType } from "../../main/models/models";
-import { ItemTypePredefined } from "../../main/models/enums";
-import { IStatefulArtifact, IStatefulSubArtifact } from "../../managers/artifact-manager";
-import { ILocalizationService } from "../../core";
+import {PropertyTypePredefined, PropertyLookupEnum, ItemTypePredefined} from "../../main/models/enums";
+import {IPropertyType, IPropertyValue, IOption, PrimitiveType} from "../../main/models/models";
+import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface IPropertyDescriptorBuilder {
     createArtifactPropertyDescriptors(artifact: IStatefulArtifact): ng.IPromise<IPropertyDescriptor[]>;
@@ -130,7 +128,7 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
 
     constructor(private $q: ng.IQService, private localization: ILocalizationService) {
     }
-    
+
     public createArtifactPropertyDescriptors(artifact: IStatefulArtifact): ng.IPromise<IPropertyDescriptor[]> {
         if (artifact.artifactState.historical) {
             const defered = this.$q.defer<IPropertyDescriptor[]>();
@@ -184,7 +182,7 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             isRequired: true
         });
 
-        const artifactTypes = [{ id: artifact.itemTypeId, value: artifact.itemTypeName}];
+        const artifactTypes = [{id: artifact.itemTypeId, value: artifact.itemTypeName}];
 
         properties.push(<IPropertyType>{
             name: this.localization.get("Label_Type"),

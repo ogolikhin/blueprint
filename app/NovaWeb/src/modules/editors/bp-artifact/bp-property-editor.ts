@@ -1,9 +1,8 @@
-import * as angular from "angular";
 import * as _ from "lodash";
-import {BPLocale, ILocalizationService} from "../../core";
 import {Enums, Models} from "../../main";
 import {IStatefulItem} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
+import {BPLocale, ILocalizationService} from "../../core/localization/localizationService";
 import {IPropertyDescriptor} from "./../configuration/property-descriptor-builder";
 
 export class PropertyEditor {

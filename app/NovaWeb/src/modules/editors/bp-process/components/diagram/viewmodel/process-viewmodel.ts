@@ -1,13 +1,14 @@
 import * as Models from "../../../../../main/models/models";
 import * as Enums from "../../../../../main/models/enums";
-import {IMessageService, Message, MessageType} from "../../../../../core/";
 import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 import {ProcessModels, ProcessEnums} from "../../../";
 import {ICommunicationManager} from "../../../";
-import { IStatefulArtifact } from "../../../../../managers/artifact-manager/";
-import { IStatefulProcessSubArtifact, StatefulProcessSubArtifact } from "../../../process-subartifact";
-import { IStatefulProcessArtifact, StatefulProcessArtifact } from "../../../process-artifact";
-import { ProcessEvents } from "../process-diagram-communication";
+import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
+import {IStatefulProcessSubArtifact, StatefulProcessSubArtifact} from "../../../process-subartifact";
+import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
+import {ProcessEvents} from "../process-diagram-communication";
+import {MessageType, Message} from "../../../../../core/messages/message";
+import {IMessageService} from "../../../../../core/messages/message.svc";
 
 export interface IProcessViewModel extends IProcessGraphModel {
     description: string;
@@ -45,14 +46,12 @@ export class ProcessViewModel implements IProcessViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _justCreatedShapeIds: number[] = [];
     private artifactUpdateHandler: string;
-  
-    constructor(
-        private process, 
-        public communicationManager: ICommunicationManager, 
-        rootScope?: any, 
-        scope?: any,
-        messageService?: IMessageService
-    ) {
+
+    constructor(private process,
+                public communicationManager: ICommunicationManager,
+                rootScope?: any,
+                scope?: any,
+                messageService?: IMessageService) {
         this.updateProcessGraphModel(process);
         this._rootScope = rootScope;
 
@@ -70,7 +69,7 @@ export class ProcessViewModel implements IProcessViewModel {
                 .register(ProcessEvents.ArtifactUpdate, this.artifactsOnUpdate);
         }
     }
-    
+
     private artifactsOnUpdate = () => {
         const statefulArtifact = this.getStatefulArtifact();
         statefulArtifact.processOnUpdate();

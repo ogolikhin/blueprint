@@ -1,10 +1,9 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import {LocalizationServiceMock} from "../localization/localization.mock";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
-import {SettingsService} from "../configuration";
 import {MessageContainerController, MessageContainerComponent} from "./message-container";
+import {SettingsService} from "../configuration/settings";
 
 
 describe("messages container directive", () => {
@@ -40,7 +39,7 @@ describe("messages container directive", () => {
         scope.$digest();
         controller = element.isolateScope()["messageContainterCntrl"];
 
-        // Assert       
+        // Assert
         expect(element.find("message").length).toEqual(5);
     })));
 });

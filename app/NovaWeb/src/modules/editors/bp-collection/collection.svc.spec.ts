@@ -1,12 +1,11 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../core//localization/localization.mock";
 import {ICollectionService, CollectionService} from "./collection.svc";
-//import {IArtifact} from "../../main/models/models";
-import {HttpStatusCode} from "../../core/http";
 import {Models} from "../../main";
-import {ICollection, ICollectionArtifact} from "./collection-artifact";
+import {ICollection} from "./collection-artifact";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("Collection Service", () => {
 
@@ -24,14 +23,14 @@ describe("Collection Service", () => {
                 .respond(HttpStatusCode.Success, {
                     "id": collectionId,
                     "subArtifacts": [
-                        {                            
+                        {
                             "id": 264,
                             "name": "fleek",
                             "description": "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">on point</p></div></body></html>",
                             "prefix": "TR",
                             "itemTypeId": 5,
                             "itemTypePredefined": Models.ItemTypePredefined.Actor,
-                            "artifactPath": "Path1"   
+                            "artifactPath": "Path1"
                         },
                         {
                             "id": 386,
@@ -40,7 +39,7 @@ describe("Collection Service", () => {
                             "prefix": "TR",
                             "itemTypeId": 5,
                             "itemTypePredefined": Models.ItemTypePredefined.Actor,
-                            "artifactPath": "Path1"  
+                            "artifactPath": "Path1"
                         }
                     ]
                 });

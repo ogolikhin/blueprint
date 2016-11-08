@@ -1,0 +1,22 @@
+import "angular";
+import "angular-ui-router";
+import "angular-ui-bootstrap";
+import "angular-ui-tinymce";
+import "angular-sanitize";
+import "angular-messages";
+import "angular-formly";
+import "angular-formly-templates-bootstrap";
+import "bootstrap/dist/css/bootstrap.css";
+import "ng-draggable";
+import "ag-grid";
+import "ag-grid-enterprise";
+import "ag-grid/dist/styles/ag-grid.css";
+import "rx/dist/rx.lite.js";
+import "tinymce";
+import "moment";
+import "lodash";
+// "mxClient"; TODO: now it"s duplicated/included into app.js"
+import "mxClientCss/common.css";
+import "mxClientCss/explorer.css";
+import "ui-select";
+import "es6-shim";

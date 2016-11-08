@@ -10,8 +10,8 @@ import "tinymce";
 import {Helper} from "../../../../shared";
 import {BpFieldTextRTFController} from "./text-rtf";
 import {createFormlyModule} from "../../formly-config.mock";
-import { INavigationService } from "../../../../core/navigation";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 describe("Formly Text RTF", () => {
     let fieldsDefinition = [

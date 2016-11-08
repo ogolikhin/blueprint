@@ -1,7 +1,6 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
-import {HttpStatusCode} from "../../core/http";
+﻿import "angular-mocks";
 import {ServerLoggerSvc} from "./server-logger.svc";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("ServerLoggerSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

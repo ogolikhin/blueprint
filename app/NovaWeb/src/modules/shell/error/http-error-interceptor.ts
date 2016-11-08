@@ -1,7 +1,10 @@
 ﻿import "angular";
 import {ISession} from "../login/session.svc";
 import {SessionTokenHelper} from "../login/session.token.helper";
-import {IMessageService, IHttpInterceptorConfig, HttpStatusCode, IApplicationError, ApplicationError} from "../../core";
+import {IApplicationError, ApplicationError} from "../../core/error/applicationError";
+import {IHttpInterceptorConfig} from "../../core/http/http-interceptor-config";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {IMessageService} from "../../core/messages/message.svc";
 
 export class HttpErrorInterceptor {
 
@@ -20,17 +23,17 @@ export class HttpErrorInterceptor {
         const deferred: ng.IDeferred<any> = $q.defer();
 
         let error: ApplicationError = this.createApplicationError(response);
-        
+
         if (config.ignoreInterceptor) {
             response.data = this.createApplicationError(response);
             deferred.reject(response);
         } else if (response.status === HttpStatusCode.Unavailable) {
             if (!this.canceledByUser(config)) {
                 $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
-                response.data = _.assign(error, { handled: true });
+                response.data = _.assign(error, {handled: true});
                 deferred.reject(response);
             } else {
-                response.data = _.assign(error, { statusCode: -1, errorCode: -1, message: "canceled", handled: true });
+                response.data = _.assign(error, {statusCode: -1, errorCode: -1, message: "canceled", handled: true});
                 deferred.reject(response);
             }
         } else if (response.status === HttpStatusCode.Unauthorized) {
@@ -108,9 +111,9 @@ export class HttpErrorInterceptor {
         if (!error.errorContent) {
             error.errorContent = response.data ? response.data.errorContent : undefined;
         }
-        return error;         
+        return error;
     }
-    
+
 
     private canceledByUser(config: IHttpInterceptorConfig): boolean {
         //handle edge-case for cancelled request

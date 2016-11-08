@@ -1,8 +1,9 @@
 //fixme: this file is js not TS. needs to be re-written properly
-/* tslint:disable */
+
 import {Shapes, ShapeProps, ArrowHeads, UIMockupShapes} from "./utils/constants";
 import {MxFactory, MathExtensions, DiagramHelper} from "./utils/helpers";
-import {HttpStatusCode} from "../../../core/http";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
+
 
 /*
  * Class: CalloutHelper

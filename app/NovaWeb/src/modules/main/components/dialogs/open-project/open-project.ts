@@ -1,8 +1,7 @@
-import * as angular from "angular";
-import {ILocalizationService} from "../../../../core";
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 
 export interface IOpenProjectController {
@@ -53,7 +52,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 name: model.name || "",
                 description: model.description || "",
                 itemTypeId: Enums.ItemTypePredefined.Project,
-                permissions: Enums.RolePermissions.Read // if the user can select it, it means he can read it
+                permissions: model.permissions || Enums.RolePermissions.Read // if the user can select it, it means he can read it
             } as Models.IProject;
         }
         return undefined;

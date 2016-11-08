@@ -1,16 +1,19 @@
 import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../../shared";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {IApplicationError, IMessageService, ILocalizationService, ErrorCode} from "../../../../../core";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
-import {IProcess, IUserStory} from "../../../models/process-models";
+import {IUserStory} from "../../../models/process-models";
 import {ProcessShapeType} from "../../../models/enums";
 import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {ILoadingOverlayService} from "../../../../../core/loading-overlay";
+import {IApplicationError} from "../../../../../core/error/applicationError";
+import {ErrorCode} from "../../../../../core/error/error-code";
+import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private userStoryService: IUserStoryService;
@@ -20,16 +23,14 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
     private loadingOverlayService: ILoadingOverlayService;
     private processDiagramManager: IProcessDiagramCommunication;
 
-    constructor(
-        process: StatefulProcessArtifact,
-        userStoryService: IUserStoryService,
-        selectionManager: ISelectionManager,
-        messageService: IMessageService,
-        localization: ILocalizationService,
-        dialogService: IDialogService,
-        loadingOverlayService: ILoadingOverlayService,
-        processDiagramManager: IProcessDiagramCommunication
-    ) {
+    constructor(process: StatefulProcessArtifact,
+                userStoryService: IUserStoryService,
+                selectionManager: ISelectionManager,
+                messageService: IMessageService,
+                localization: ILocalizationService,
+                dialogService: IDialogService,
+                loadingOverlayService: ILoadingOverlayService,
+                processDiagramManager: IProcessDiagramCommunication) {
         if (!userStoryService) {
             throw new Error("User story service is not provided or is null");
         }
@@ -65,7 +66,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             undefined,
             new BPDropdownItemAction(
                 localization.get("ST_US_Generate_From_UserTask_Label"),
-                () => this.executeGenerateFromTask(process, selectionManager.getSubArtifact()), 
+                () => this.executeGenerateFromTask(process, selectionManager.getSubArtifact()),
                 () => this.canExecuteGenerateFromTask(process, selectionManager.getSubArtifact()),
             ),
             new BPDropdownItemAction(
@@ -83,14 +84,12 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         this.processDiagramManager = processDiagramManager;
     }
 
-    private canExecuteGenerateFromTask(
-        process: StatefulProcessArtifact,
-        subArtifact: IStatefulSubArtifact
-    ): boolean {
+    private canExecuteGenerateFromTask(process: StatefulProcessArtifact,
+                                       subArtifact: IStatefulSubArtifact): boolean {
         if (!process || !process.artifactState) {
             return false;
         }
-        
+
         if (process.artifactState.readonly) {
             return false;
         }
@@ -113,14 +112,12 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         return true;
     }
 
-    private executeGenerateFromTask(
-        process: StatefulProcessArtifact,
-        subArtifact: IStatefulSubArtifact
-    ): void {
+    private executeGenerateFromTask(process: StatefulProcessArtifact,
+                                    subArtifact: IStatefulSubArtifact): void {
         if (!this.canExecuteGenerateFromTask(process, subArtifact)) {
             return;
         }
-        
+
         this.execute(process, subArtifact.id);
     }
 
@@ -194,10 +191,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             .then((userStories: IUserStory[]) => {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
 
-                const userStoriesGeneratedMessage = 
-                    userTaskId ? 
-                    this.localization.get("ST_US_Generate_From_UserTask_Success_Message") : 
-                    this.localization.get("ST_US_Generate_All_Success_Message");
+                const userStoriesGeneratedMessage =
+                    userTaskId ?
+                        this.localization.get("ST_US_Generate_From_UserTask_Success_Message") :
+                        this.localization.get("ST_US_Generate_All_Success_Message");
                 this.messageService.addInfo(userStoriesGeneratedMessage);
 
                 return process.refresh(false);

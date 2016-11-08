@@ -1,6 +1,4 @@
-import * as angular from "angular";
-import {ILocalizationService} from "../../../core";
-import {Models, Enums, IWindowManager} from "../../../main";
+import {Models} from "../../../main";
 import {
     ISelectionManager,
     IStatefulArtifact,
@@ -9,12 +7,13 @@ import {
 } from "../../../managers/artifact-manager";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {IMessageService} from "../../../core";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
-import {PropertyLookupEnum, LockedByEnum} from "../../../main/models/enums";
+import {PropertyLookupEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -137,11 +136,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         }
     };
 
-    private hasFields(): boolean  {
+    private hasFields(): boolean {
         return ((this.systemFields || []).length +
-               (this.customFields || []).length +
-               (this.richTextFields || []).length +
-               (this.specificFields || []).length) > 0;
+            (this.customFields || []).length +
+            (this.richTextFields || []).length +
+            (this.specificFields || []).length) > 0;
     }
 
     private shouldRenewFields(item: IStatefulItem): boolean {
@@ -164,14 +163,14 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (!this.editor || !this.selectedArtifact) {
             return;
         }
-        
+
         let propertyDescriptorsPromise: ng.IPromise<IPropertyDescriptor[]>;
         let selectedItem: IStatefulItem;
 
         if (this.selectedSubArtifact) {
             propertyDescriptorsPromise = this.propertyDescriptorBuilder.createSubArtifactPropertyDescriptors(this.selectedSubArtifact);
             selectedItem = this.selectedSubArtifact;
-            
+
         } else {
             propertyDescriptorsPromise = this.propertyDescriptorBuilder.createArtifactPropertyDescriptors(this.selectedArtifact);
             selectedItem = this.selectedArtifact;

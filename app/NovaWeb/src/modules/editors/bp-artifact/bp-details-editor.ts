@@ -1,13 +1,8 @@
 ﻿import {Models, Enums} from "../../main";
-import {IDialogService} from "../../shared";
-import {
-    BpArtifactEditor,
-    ILocalizationService,
-    IArtifactManager,
-    IMessageService,
-    IWindowManager
-} from "./bp-artifact-editor";
+import {BpArtifactEditor, IArtifactManager, IWindowManager} from "./bp-artifact-editor";
+import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
@@ -24,10 +19,10 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     ];
 
     constructor(messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService,
-        propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService,
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
@@ -56,11 +51,11 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         this.richTextFields = [];
     }
 
-    public hasFields(): boolean  {
+    public hasFields(): boolean {
         return ((this.systemFields || []).length +
-               (this.customFields || []).length +
-               (this.richTextFields || []).length +
-               (this.specificFields || []).length) > 0;
+            (this.customFields || []).length +
+            (this.richTextFields || []).length +
+            (this.specificFields || []).length) > 0;
     }
 
     protected onFieldUpdateFinished() {

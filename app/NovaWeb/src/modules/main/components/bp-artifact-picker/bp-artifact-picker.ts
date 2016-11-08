@@ -1,10 +1,10 @@
 ﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
-import {ILocalizationService} from "../../../core";
 import {SearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 /**
  * Usage:

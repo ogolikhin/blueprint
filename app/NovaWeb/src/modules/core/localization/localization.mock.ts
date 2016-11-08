@@ -1,5 +1,4 @@
-﻿import {LocalizationService, BPLocale} from "./";
-
+﻿import {LocalizationService, BPLocale} from "./localizationService";
 export class LocalizationServiceMock extends LocalizationService {
     private _current = new BPLocale("en");
 

@@ -1,7 +1,6 @@
-import * as angular from "angular";
-import { IFileResult, IFileUploadService } from "../../../../core/file-upload/";
 import { ISystemTask } from "../diagram/presentation/graph/models/";
-import { IMessageService } from "../../../../core/messages";
+import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export interface IUploadImageScope extends ng.IScope {
     uploadImage: () => void;
@@ -26,7 +25,6 @@ export class UploadImageDirective implements ng.IDirective {
         buttonsContainerEnabled: "="
     };
     public restrict = "E";
-    public defaultName = "default";
 
     constructor(private fileUploadService: IFileUploadService,
         private $window: ng.IWindowService,

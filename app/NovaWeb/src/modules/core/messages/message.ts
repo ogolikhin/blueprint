@@ -2,7 +2,8 @@
     Error = 1,
     Info = 2,
     Warning = 3,
-    Lock = 4
+    Lock = 4,
+    Deleted = 5
 }
 
 export interface IMessage {
@@ -25,19 +26,18 @@ export class Message implements IMessage {
 }
 
 export interface IMessageController {
-    messageType: MessageType;
-    closeAlert: Function;
+    messageType: string;
     onMessageClosed: Function;
 }
 
 export class MessageController implements IMessageController {
-    public messageType: MessageType;
-    public closeAlert: Function;
+    public messageType: string;
     public onMessageClosed: Function;
-}
-
-export interface IMessageScope extends ng.IScope {
-    messageCntrl: MessageController;
+    public canBeClosed: boolean; 
+    
+    constructor() {
+        this.canBeClosed = this.messageType === "error" || this.messageType === "warning";
+    }
 }
 
 export class MessageComponent implements ng.IComponentOptions {

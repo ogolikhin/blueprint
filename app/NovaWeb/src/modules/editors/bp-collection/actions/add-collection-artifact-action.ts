@@ -30,7 +30,12 @@ export class AddCollectionArtifactAction extends BPButtonAction {
                 const dialogData: IArtifactPickerOptions = {
                     showSubArtifacts: false,
                     selectionMode: "checkbox",
-                    isOneProjectLevel: true
+                    isOneProjectLevel: true,
+                    isItemSelectable: (item: Models.IArtifact | Models.ISubArtifactNode) => {
+                        let excludedArtifacts = _.map(artifact.artifacts, (artifact) => artifact.id);
+                        return excludedArtifacts.indexOf(item.id) === -1;
+
+                    }
                 };
 
                 dialogService.open(dialogSettings, dialogData).then((artifacts: Models.IArtifact[]) => {

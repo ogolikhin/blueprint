@@ -439,7 +439,6 @@ namespace Model.ArtifactModel.Impl
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public int ItemTypeVersionId { get; set; }
-        public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();

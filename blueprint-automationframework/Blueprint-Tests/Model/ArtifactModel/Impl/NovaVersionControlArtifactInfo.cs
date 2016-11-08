@@ -12,7 +12,6 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? ParentId { get; set; }
         public override int? ItemTypeId { get; set; }
-        public string ItemTypeName { get; set; }
         public string Prefix { get; set; }
         public int? PredefinedType { get; set; }
         public override int? Version { get; set; }

@@ -17,7 +17,7 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class MoveArtifactTests : TestBase
     {
-        private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.TO_id_;
+        private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_;
 
         private IUser _user = null;
         private IProject _project = null;
@@ -307,7 +307,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(190962)]
         [Description("Create & publish an artifact.  Move the artifact to be a child of itself. Verify returned code 400 Bad Request.")]
-        public void MoveArtifact_PublishArtifactsAndMoveToItself_BadRequest(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishArtifactsAndMoveToItself_400BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -316,18 +316,16 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifact, _user),
-                "'POST {0}' should return 400 Bad Request when artifact moved to one of its descendents", SVC_PATH);
+                "'POST {0}' should return 400 Bad Request when artifact moved to itself", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to itself", expectedExceptionMessage);
-        }
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "This move will result in a circular relationship between the artifact and its new parent.");
+       }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(190963)]
         [Description("Create & save an artifact.  Move the artifact to be a child of itself. Verify returned code 400 Bad Request.")]
-        public void MoveArtifact_SaveArtifactsAndMoveToItself_BadRequest(BaseArtifactType artifactType)
+        public void MoveArtifact_SaveArtifactsAndMoveToItself_400BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -336,12 +334,10 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifact, _user),
-                "'POST {0}' should return 400 Bad Request when artifact moved to one of its descendents", SVC_PATH);
+                "'POST {0}' should return 400 Bad Request when artifact moved to itself", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to itself", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
         #endregion 400 Bad Request
@@ -399,9 +395,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move artifact to a different project.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move artifact to a different project.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -424,9 +418,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move artifact to a different project.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to different project", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move artifact to a different project.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -446,9 +438,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move a folder artifact to non folder/project parent.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to make folder a child of regular artifact.", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -467,9 +457,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move a folder artifact to non folder/project parent.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to make folder a child of regular artifact.", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
         }
 
         #endregion 403 Forbidden tests
@@ -531,9 +519,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to artifact that does not exist", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process, int.MaxValue)]
@@ -549,9 +535,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to artifact that does not exist", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -572,9 +556,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to artifact that was removed", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -594,9 +576,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to artifact that was removed", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -615,16 +595,13 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to artifact that was removed", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182416)]
         [Description("Create & publish two artifacts. Move an artifact to be a child of the other one with user that does not have proper permissions to future child artifact.  Verify returned code 404 Not Found.")]
-        public void MoveArtifact_PublishedArtifactCannotBeMovedForUserWithoutProperPermissions_NotFound(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactCannotBeMovedForUserWithoutProperPermissions_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -637,27 +614,17 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact1);
 
             // Execute:
-            try
-            {
-                var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
-                    "'POST {0}' should return 404 Not Found when user tries to move artifact without proper permissions", SVC_PATH);
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, userWithoutPermissions),
+                "'POST {0}' should return 404 Not Found when user tries to move artifact without proper permissions", SVC_PATH);
 
-                // Verify:
-                string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-                Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                    "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
-            }
-            finally
-            {
-                Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.AuthorFullAccess, _project, artifact1);
-                artifact1.Delete(userWithoutPermissions);
-            }
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182463)]
         [Description("Create & save an artifact. Move an artifact to be a child of the other one with user that does not have proper permissions to future parent artifact.  Verify returned code 404 Not Found.")]
-        public void MoveArtifact_SavedArtifactCannotBeMovedForUserWithoutProperPermissions_NotFound(BaseArtifactType artifactType)
+        public void MoveArtifact_SavedArtifactCannotBeMovedForUserWithoutProperPermissions_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -672,15 +639,13 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not found when user tries to move artifact without proper permissions", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(182424)]
         [Description("Create & publish two artifacts. Move an artifact to be a child of the other one to which user does not have proper permissions.  Verify returned code 404 Not Found.")]
-        public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWhichUserDoesNotHaveProperPermissions_NotFound(BaseArtifactType artifactType)
+        public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWhichUserDoesNotHaveProperPermissions_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
             IArtifact artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -698,9 +663,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to an artifact to which user has no permissions", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact without proper permissions", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         #endregion 404 Not Found tests
@@ -721,9 +684,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when parent moved to its child and was not locked", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "Cannot move an artifact that has not been locked.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move parent artifact to its child without previously locking it", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, "Cannot move an artifact that has not been locked.");
         }
 
         [TestCase(BaseArtifactType.Process, 2)]
@@ -749,9 +710,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to one of its descendents", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CircularRelationship, "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
         [TestCase(BaseArtifactType.Process, 2)]
@@ -777,9 +736,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = "This move will result in a circular relationship between the artifact and its new parent.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to one of its descendents", expectedExceptionMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CircularRelationship, "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184

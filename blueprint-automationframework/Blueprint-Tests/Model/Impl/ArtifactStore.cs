@@ -544,7 +544,7 @@ namespace Model.Impl
             return artifactBaseInfo;
         }
 
-        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, List{HttpStatusCode})"/>
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
@@ -803,7 +803,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.TO_id_, artifact.Id, newParentId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifact.Id, newParentId);
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;

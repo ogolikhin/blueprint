@@ -15,7 +15,6 @@ namespace Model.ArtifactModel.Impl
         public bool HasChildren { get; set; }
         public override int Id { get; set; }
         public override int? ItemTypeId { get; set; }
-        public string ItemTypeName { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public override string Name { get; set; }

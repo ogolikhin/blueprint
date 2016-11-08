@@ -485,8 +485,12 @@ namespace ArtifactStoreTests
                 "Failed to delete a published artifact!");
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted!");
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestRail(165819)]
@@ -504,8 +508,70 @@ namespace ArtifactStoreTests
             artifact.Publish(_user);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted and published!");
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
+        }
+
+        [TestRail(190971)]
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/M5Bj4fdE  No errorCode is returned in JSON.
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create and publish a Collection or Collection Folder artifact.  Delete the artifact.  Attempt to delete the same artifact again.  " +
+                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+        public void DeleteArtifact_DeletedCollectionOrCollectionFolderNotPublished_404NotFound(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            Assert.DoesNotThrow(() => artifact.Delete(_user),
+                "Failed to delete a published artifact!");
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 404 Not Found when trying to delete a {0} that has already been deleted!");
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
+        }
+
+        [TestRail(190972)]
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/M5Bj4fdE  No errorCode is returned in JSON.
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create and publish a Collection or Collection Folder artifact.  Delete the artifact and publish.  Attempt to delete the same artifact again.  " +
+                     "Verify that HTTP 404 Not Found Exception is thrown.")]
+        public void DeleteArtifact_DeletedCollectionOrCollectionFolderPublished_404NotFound(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            Assert.DoesNotThrow(() => artifact.Delete(_user),
+                "Failed to delete a published artifact!");
+
+            artifact.Publish(_user);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+                "We should get a 404 Not Found when trying to delete a {0} that has already been deleted and published!");
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
         [TestRail(165820)]
@@ -522,8 +588,15 @@ namespace ArtifactStoreTests
             artifact.Id = nonExistentArtifactId;
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that does not exist!");
+
+            // Verify:
+            if (nonExistentArtifactId > 0)  // Id's <= 0 get the generic 404 HTML page from IIS.
+            {
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                    "You have attempted to access an artifact that does not exist or has been deleted.");
+            }
         }
 
         #endregion 404 Not Found tests

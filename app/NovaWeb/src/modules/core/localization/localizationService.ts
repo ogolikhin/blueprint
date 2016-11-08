@@ -1,8 +1,8 @@
 import * as moment from "moment";
 
 /*todo: Remove this entire service as its not needed. Replace it with Angular.translate as all these functions are to be
-* filters not static functions like this
-*/
+ * filters not static functions like this
+ */
 
 export class BPLocale {
     private _locale: string;

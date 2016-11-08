@@ -7,11 +7,11 @@ import {IDiagram, IShape, IDiagramElement} from "./impl/models";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
 import {ShapeExtensions} from "./impl/utils/helpers";
-import {ItemTypePredefined} from "./../../main/models/enums";
-import {IItem} from "./../../main/models/models";
 import {IStatefulDiagramArtifact} from "./diagram-artifact";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {BpBaseEditor} from "../bp-base-editor";
+import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 
 
 export class BPDiagram implements ng.IComponentOptions {
@@ -97,10 +97,10 @@ export class BPDiagramController extends BpBaseEditor {
             this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(this.diagram.diagramType, elements));
             this.stylizeSvg(this.$element, this.diagram.width, this.diagram.height);
             this.diagramView.drawDiagram(this.diagram);
-            
+
             // restore previous selection
             this.diagramView.setSelectedItem(this.selectedElementId);
-            
+
         } else {
             this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
             this.$log.error(this.errorMsg);

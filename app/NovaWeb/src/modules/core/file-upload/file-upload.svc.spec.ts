@@ -1,8 +1,7 @@
 import "angular-mocks";
-import {FileUploadService} from "./";
 import {Helper} from "../../shared";
-import {HttpStatusCode} from "../../core/http";
-import {IFileUploadService, IFileResult} from "./fileUploadService";
+import {HttpStatusCode} from "../http/http-status-code";
+import {IFileUploadService, IFileResult, FileUploadService} from "./fileUploadService";
 
 describe("File Upload", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

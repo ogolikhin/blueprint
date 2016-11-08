@@ -5,11 +5,10 @@ import "./messages";
 import "./navigation";
 import "./loading-overlay";
 
-angular.module("app.core", [
-    "bp.core.services",
-    "bp.core.messages",
-    "bp.core.navigation",
-    "bp.core.loadingOverlay"]);
+angular.module("bp.core", [
+    "ui.router",
+    "ui.bootstrap"
+    ]);
 
 export {
     IWindowResize,

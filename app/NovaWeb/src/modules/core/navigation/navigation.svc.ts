@@ -24,10 +24,8 @@ export class NavigationService implements INavigationService {
         "$state"
     ];
 
-    constructor(
-        private $q: ng.IQService,
-        private $state: ng.ui.IStateService
-    ) {
+    constructor(private $q: ng.IQService,
+                private $state: ng.ui.IStateService) {
     }
 
     public reloadParentState() {

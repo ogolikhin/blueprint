@@ -41,7 +41,7 @@ export {ILicenseService, LicenseService} from "./license/license.svc";
 
 angular.module("app.shell",
     [
-        "app.core",
+        "bp.core",
         "ui.router",
         "ui.bootstrap",
         "ngSanitize",

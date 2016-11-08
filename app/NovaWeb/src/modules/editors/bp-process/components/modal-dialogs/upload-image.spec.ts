@@ -1,15 +1,15 @@
 import * as angular from "angular";
-import { SystemTask } from "../diagram/presentation/graph/shapes/system-task";
-import { ShapesFactory } from "../diagram/presentation/graph/shapes/shapes-factory";
-import { ITaskFlags } from "../../models/process-models";
-import { ItemTypePredefined } from "../../../../main/models/enums";
-import { ISystemTaskShape } from "../diagram/presentation/graph/models/";
-import { IFileUploadService, FileUploadService } from "../../../../core/file-upload/";
-import { UploadImageDirective } from "./upload-image";
-import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
-import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import { IMessageService } from "../../../../core/messages";
-import { MessageServiceMock } from "../../../../core/messages/message.mock";
+import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
+import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
+import {ITaskFlags} from "../../models/process-models";
+import {ItemTypePredefined} from "../../../../main/models/enums";
+import {ISystemTaskShape} from "../diagram/presentation/graph/models/";
+import {UploadImageDirective} from "./upload-image";
+import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {IFileUploadService, FileUploadService} from "../../../../core/file-upload/fileUploadService";
 
 describe("UploadImage Directive", () => {
     let element: ng.IAugmentedJQuery;
@@ -45,11 +45,11 @@ describe("UploadImage Directive", () => {
 
     beforeEach(
         inject(($compile: ng.ICompileService,
-            $rootScope: ng.IRootScopeService,
-            $templateCache: ng.ITemplateCacheService,
-            $injector: ng.auto.IInjectorService,
-            statefulArtifactFactory: IStatefulArtifactFactory,
-            _messageService_: IMessageService) => {
+                $rootScope: ng.IRootScopeService,
+                $templateCache: ng.ITemplateCacheService,
+                $injector: ng.auto.IInjectorService,
+                statefulArtifactFactory: IStatefulArtifactFactory,
+                _messageService_: IMessageService) => {
             shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
             $templateCache.put("/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html", directiveTemplate);
             scope = $rootScope.$new();
@@ -83,15 +83,15 @@ describe("UploadImage Directive", () => {
         });
         //Act
         isolatedScope["downloadImage"]();
-        // Assert           
+        // Assert
         expect($window.open).toHaveBeenCalledWith(fakeUrl, "_blank");
     }));
     it("clearImage", inject(($injector: ng.auto.IInjectorService) => {
-        //Arange        
+        //Arange
         spyOn(imageUpload, "clearImageContainer");
         //Act
         isolatedScope["clearImage"]();
-        // Assert           
+        // Assert
         expect(imageUpload.clearImageContainer).toHaveBeenCalled();
     }));
 
@@ -110,7 +110,7 @@ describe("UploadImage Directive", () => {
                 imageUpload.createImage(scope, element, attr, image);
                 imageElement.trigger("onload");
 
-                // Assert                       
+                // Assert
                 setTimeout(function () {
                     expect(imageUpload.toggleButtons).toHaveBeenCalled();
                     done();
@@ -122,7 +122,7 @@ describe("UploadImage Directive", () => {
     xit("toggleButtons", inject(($injector: ng.auto.IInjectorService) => {
         //Act
         imageUpload.toggleButtons(scope, element, true);
-        // Assert     
+        // Assert
         expect(element.find("#upload-image-btn").text()).toEqual("Change");
     }));
 
@@ -132,7 +132,7 @@ describe("UploadImage Directive", () => {
         const spy = spyOn(imageBtn, "click");
         //Act
         isolatedScope["uploadImage"]();
-        // Assert           
+        // Assert
         expect(spy).toHaveBeenCalled();
     }));
 

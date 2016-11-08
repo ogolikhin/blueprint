@@ -1,11 +1,10 @@
 import * as angular from "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import { Models, Enums } from "../../../main/models";
+import {Models, Enums} from "../../../main/models";
 import {IPublishService} from "./../publish.svc/publish.svc";
 import {PublishServiceMock} from "./../publish.svc/publish.svc.mock";
 import {IStatefulArtifact} from "./artifact";
-import {ItemTypePredefined} from "../../../main/models/enums";
 import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactAttachmentsMock} from "./../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
@@ -13,7 +12,6 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {IMessageService, MessageType} from "../../../core/messages";
 import {IState} from "../../../managers/artifact-manager/state";
 import {
     ArtifactManager,
@@ -21,8 +19,10 @@ import {
     StatefulArtifactFactory,
     MetaDataService
 } from "../../../managers/artifact-manager";
-import {HttpStatusCode} from "../../../core/http";
-import {IApplicationError, ApplicationError} from "../../../core";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {MessageType} from "../../../core/messages/message";
+import {ApplicationError} from "../../../core/error/applicationError";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -66,7 +66,7 @@ describe("Artifact", () => {
             // act
             let result: boolean;
             result = artifact.canBeSaved();
-            
+
             // assert
             expect(result).toEqual(false);
         }));
@@ -84,7 +84,7 @@ describe("Artifact", () => {
             // act
             let result: boolean;
             result = artifact.canBeSaved();
-            
+
             // assert
             expect(result).toEqual(true);
         }));
@@ -98,7 +98,7 @@ describe("Artifact", () => {
             // act
             let result: boolean;
             result = artifact.canBePublished();
-            
+
             // assert
             expect(result).toEqual(false);
         }));
@@ -115,7 +115,7 @@ describe("Artifact", () => {
             // act
             let result: boolean;
             result = artifact.canBePublished();
-            
+
             // assert
             expect(result).toEqual(true);
         }));
@@ -131,7 +131,7 @@ describe("Artifact", () => {
                 returnedArtifact = result;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
@@ -148,7 +148,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_400_114");
         }));
@@ -170,7 +170,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_400_114");
         }));
@@ -191,7 +191,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_404");
         }));
@@ -213,7 +213,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_409_116");
         }));
@@ -235,7 +235,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_409_117");
         }));
@@ -257,7 +257,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_409_115");
         }));
@@ -279,7 +279,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_409_123");
         }));
@@ -300,7 +300,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_409");
         }));
@@ -321,7 +321,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
@@ -342,7 +342,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
@@ -356,7 +356,7 @@ describe("Artifact", () => {
             // act
             artifact.publish();
             $rootScope.$digest();
-            
+
             // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.None);
             expect(messageService.messages.length).toEqual(1);
@@ -365,14 +365,14 @@ describe("Artifact", () => {
 
         it("with failed save", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
             // arrange
-             let newState: IState = {
+            let newState: IState = {
                 lockDateTime: new Date(),
                 lockedBy: Enums.LockedByEnum.CurrentUser,
                 lockOwner: "Default Instance Admin",
                 dirty: true
             };
             artifact.artifactState.setState(newState, false);
-             spyOn(artifactService, "updateArtifact").and.callFake(() => {
+            spyOn(artifactService, "updateArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 deferred.reject({
                     statusCode: HttpStatusCode.Conflict
@@ -386,13 +386,13 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_409");
         }));
 
-        it("publish dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService, 
-        messageService: IMessageService, $q: ng.IQService) => {
+        it("publish dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+                                                 messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
                 let defer = $q.defer<Models.IPublishResultSet>();
@@ -413,7 +413,7 @@ describe("Artifact", () => {
                             ]
                         },
                         statusCode: HttpStatusCode.Conflict
-                        
+
                     });
                 } else if (artifactIds[0] === 2) {
                     defer.resolve();
@@ -426,15 +426,15 @@ describe("Artifact", () => {
             // act
             artifact.publish();
             $rootScope.$digest();
-            
+
             // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.None);
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("publish dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService, 
-        messageService: IMessageService, $q: ng.IQService) => {
+        it("publish dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+                                               messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
                 let defer = $q.defer<Models.IPublishResultSet>();
@@ -453,7 +453,7 @@ describe("Artifact", () => {
                         ]
                     },
                     statusCode: HttpStatusCode.Conflict
-                    
+
                 });
                 return defer.promise;
             });
@@ -461,7 +461,7 @@ describe("Artifact", () => {
             // act
             artifact.publish();
             $rootScope.$digest();
-            
+
             // assert
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
@@ -475,15 +475,15 @@ describe("Artifact", () => {
             // act
             artifact.discardArtifact();
             $rootScope.$digest();
-            
+
             // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.None);
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("discard dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService, 
-        messageService: IMessageService, $q: ng.IQService) => {
+        it("discard dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+                                                 messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {
                 let defer = $q.defer<Models.IPublishResultSet>();
@@ -504,7 +504,7 @@ describe("Artifact", () => {
                             ]
                         },
                         statusCode: HttpStatusCode.Conflict
-                        
+
                     });
                 } else if (artifactIds[0] === 2) {
                     defer.resolve();
@@ -517,15 +517,15 @@ describe("Artifact", () => {
             // act
             artifact.discardArtifact();
             $rootScope.$digest();
-            
+
             // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.None);
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("discard dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService, 
-        messageService: IMessageService, $q: ng.IQService) => {
+        it("discard dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+                                               messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {
                 let defer = $q.defer<Models.IPublishResultSet>();
@@ -544,7 +544,7 @@ describe("Artifact", () => {
                         ]
                     },
                     statusCode: HttpStatusCode.Conflict
-                    
+
                 });
                 return defer.promise;
             });
@@ -552,7 +552,7 @@ describe("Artifact", () => {
             // act
             artifact.discardArtifact();
             $rootScope.$digest();
-            
+
             // assert
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
@@ -566,13 +566,13 @@ describe("Artifact", () => {
             // act
             artifact.lock();
             $rootScope.$digest();
-            
+
             // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.CurrentUser);
         }));
 
-        it("wrong version failure", inject((statefulArtifactFactory: IStatefulArtifactFactory, 
-        $rootScope: ng.IRootScopeService, messageService: IMessageService) => {
+        it("wrong version failure", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                            $rootScope: ng.IRootScopeService, messageService: IMessageService) => {
             // arrange
             let artifactModel = {
                 id: 22,
@@ -587,7 +587,7 @@ describe("Artifact", () => {
             // act
             artifact.lock();
             $rootScope.$digest();
-            
+
             // assert
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
@@ -595,9 +595,9 @@ describe("Artifact", () => {
         }));
 
         it("service error already locked ignore failure", inject(($rootScope: ng.IRootScopeService,
-        artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+                                                                  artifactService: ArtifactServiceMock, $q: ng.IQService) => {
             // arrange
-           
+
             spyOn(artifactService, "lock").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 let data = {
@@ -616,15 +616,15 @@ describe("Artifact", () => {
                 returnedArtifact = item;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
 
         it("service error not found failure", inject(($rootScope: ng.IRootScopeService,
-        artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+                                                      artifactService: ArtifactServiceMock, $q: ng.IQService) => {
             // arrange
-           
+
             spyOn(artifactService, "lock").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 let data = {
@@ -643,7 +643,7 @@ describe("Artifact", () => {
                 returnedArtifact = item;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(returnedArtifact).toBeDefined();
             expect(returnedArtifact.artifactState.deleted).toEqual(true);
@@ -676,7 +676,7 @@ describe("Artifact", () => {
     });
 
     describe("Load", () => {
-    
+
         it("error is project", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
             spyOn(artifact, "isProject").and.returnValue(true);
@@ -687,7 +687,7 @@ describe("Artifact", () => {
                 statefulArtifact = result;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(statefulArtifact).toBeDefined();
         }));
@@ -704,7 +704,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
         }));
@@ -725,7 +725,7 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-            
+
             // assert
             expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
             expect(artifact.artifactState.deleted).toEqual(true);

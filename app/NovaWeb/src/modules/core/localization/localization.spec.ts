@@ -1,6 +1,5 @@
 ﻿import "angular-mocks";
-
-import {LocalizationService, BPLocale} from "./";
+import {LocalizationService, BPLocale} from "./localizationService";
 
 // Some of the following tests can be only run in interactive mode (i.e. with Chrome) as PhantomJS
 // doesn't properly support locale-aware functions. These tests are marked as /*NOT PHANTOMJS*/

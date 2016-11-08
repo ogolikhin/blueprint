@@ -5,13 +5,13 @@ import "../../..";
 import {DecisionEditorModel} from "./decision-editor-model";
 import {DecisionEditorController} from "./decision-editor-controller";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {ILocalizationService} from "../../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 describe("DecisionEditorController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -47,13 +47,13 @@ describe("DecisionEditorController", () => {
         const conditions: ICondition[] = [];
 
         for (let i: number = 0; i < howMany; i++) {
-            const condition = <ICondition>{ 
-                sourceId: 0, 
-                destinationId: i, 
+            const condition = <ICondition>{
+                sourceId: 0,
+                destinationId: i,
                 orderindex: i,
                 label: `Condition ${i + 1}`,
-                mergeNode: null, 
-                validMergeNodes: [] 
+                mergeNode: null,
+                validMergeNodes: []
             };
             conditions.push(condition);
         }
@@ -77,14 +77,14 @@ describe("DecisionEditorController", () => {
     }
 
     function createDiagramNode(nodeType: NodeType): IDiagramNode {
-        return <IDiagramNode>{ 
-            model: { id: 1 }, 
-            direction: null, 
-            action: null, 
-            label: null, 
-            row: null, 
-            column: null, 
-            newShapeColor: null, 
+        return <IDiagramNode>{
+            model: { id: 1 },
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
             getNodeType: () => nodeType
         };
     }
@@ -99,7 +99,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -122,7 +122,7 @@ describe("DecisionEditorController", () => {
 
             // act
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -140,7 +140,7 @@ describe("DecisionEditorController", () => {
 
             // act
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -158,7 +158,7 @@ describe("DecisionEditorController", () => {
 
             // act
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -173,7 +173,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -189,7 +189,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -207,7 +207,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -223,7 +223,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -242,7 +242,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -258,7 +258,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -274,7 +274,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -298,7 +298,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
 
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             controller.isReadonly = true;
@@ -317,14 +317,14 @@ describe("DecisionEditorController", () => {
             };
             const model = new DecisionEditorModel();
             model.originalDecision = decision;
-            model.graph = createMockGraph(); 
+            model.graph = createMockGraph();
             model.conditions = createConditions(ProcessGraph.MinConditions);
 
             spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
 
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -347,7 +347,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -365,7 +365,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -390,7 +390,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             controller.isReadonly = true;
@@ -409,7 +409,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -427,7 +427,7 @@ describe("DecisionEditorController", () => {
             const model = new DecisionEditorModel();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -454,7 +454,7 @@ describe("DecisionEditorController", () => {
 
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             controller.isReadonly = true;
@@ -473,12 +473,12 @@ describe("DecisionEditorController", () => {
 
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
             spyOn(controller, "refreshView").and.callFake(noop);
-            
+
             const condition = createConditions(1)[0];
 
             // act
@@ -495,7 +495,7 @@ describe("DecisionEditorController", () => {
 
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -517,7 +517,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -533,7 +533,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -554,7 +554,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.UserTask);
@@ -572,7 +572,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.UserDecision);
@@ -590,7 +590,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.ProcessEnd);
@@ -608,7 +608,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.SystemTask);
@@ -629,10 +629,10 @@ describe("DecisionEditorController", () => {
             const userTaskNode = createDiagramNode(NodeType.UserTask);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
-            
+
             // act
             const label = controller.getMergeNodeLabel(model.conditions[0]);
 
@@ -650,10 +650,10 @@ describe("DecisionEditorController", () => {
             model.conditions[1].mergeNode = createDiagramNode(NodeType.ProcessEnd);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
-            
+
             // act
             const label = controller.getMergeNodeLabel(model.conditions[0]);
 
@@ -669,7 +669,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -686,7 +686,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -703,7 +703,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -722,7 +722,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -751,7 +751,7 @@ describe("DecisionEditorController", () => {
             model.graph = createMockGraph();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
             const newValue = "Decision Label";
@@ -780,14 +780,14 @@ describe("DecisionEditorController", () => {
             model.graph = createMockGraph();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
             spyOn(controller, "updateExistingEdge").and.returnValue(true);
-            
+
             const modelUpdateSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
             const actionSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "action");
 
@@ -815,7 +815,7 @@ describe("DecisionEditorController", () => {
             model.graph = createMockGraph();
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -823,7 +823,7 @@ describe("DecisionEditorController", () => {
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
             spyOn(controller, "refreshView").and.callFake(noop);
             const deleteSpy = spyOn(ProcessDeleteHelper, "deleteDecisionBranches").and.callFake(noop);
-            
+
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
             controller.saveData();
@@ -848,7 +848,7 @@ describe("DecisionEditorController", () => {
             model.graph["addDecisionBranches"] = noop;
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll, 
+                $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
 
@@ -858,7 +858,7 @@ describe("DecisionEditorController", () => {
             spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
             spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
             const addSpy = spyOn(model.graph, "addDecisionBranches").and.callFake(noop);
-            
+
             // act
             controller.addCondition();
             const condition = model.conditions[model.conditions.length - 1];

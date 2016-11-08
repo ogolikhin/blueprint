@@ -4,11 +4,11 @@ import "../../../";
 import {DeleteAction} from "./delete-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {IDialogService, IDialogSettings} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("DeleteAction", () => {
     let $scope: ng.IScope;

@@ -1,4 +1,4 @@
-import {FileUploadService} from './fileUploadService';
+import {FileUploadService} from "./fileUploadService";
 
-angular.module("app.core")
+angular.module("bp.core")
     .service("fileUploadService", FileUploadService);

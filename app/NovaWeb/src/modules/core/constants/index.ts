@@ -1,3 +1,3 @@
 import {AppConstants} from "./appConstants";
-angular.module("app.core")
+angular.module("bp.core")
     .constant("appConstants", new AppConstants());

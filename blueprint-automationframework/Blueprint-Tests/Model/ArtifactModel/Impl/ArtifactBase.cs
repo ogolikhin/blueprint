@@ -71,7 +71,7 @@ namespace Model.ArtifactModel.Impl
         public Uri BlueprintUrl { get; set; }
         public int ArtifactTypeId { get; set; }
         public string ArtifactTypeName { get; set; }
-        public ArtifactStatus Status { get; set; }
+        public ArtifactStatus Status { get; set; } = new ArtifactStatus();
 
         //TODO  Check if we can remove the setters and get rid of these warnings
 

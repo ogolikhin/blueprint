@@ -154,14 +154,10 @@ $quick-search__item--focus-color: #E8F6FB;
 
 .quick-search__results {
     height: 100%;
-
+    padding: 1em; 
     .quick-search__results {
         height: calc(100% - 62px)
     }
-}
-
-.quick-search__results--list {
-    padding: .5em;
 }
 
 .quick-search__results--item {
@@ -256,4 +252,19 @@ $quick-search__item--focus-color: #E8F6FB;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 14px;
+}
+
+.quick-search__total-results {
+    text-align: right;    
+    font-size: 16px;
+    padding-top: 0.5em;
+    padding-bottom: 1em;
+}
+
+.quick-search__footer {
+    text-align: center;
+}
+
+.quick-search__pagination {
+    font-size: 16px;
 }

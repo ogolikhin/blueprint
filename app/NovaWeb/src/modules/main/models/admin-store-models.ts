@@ -1,3 +1,7 @@
+import {
+    RolePermissions
+} from "./enums";
+
 export enum InstanceItemType {
     Folder = 0,
     Project = 1
@@ -10,4 +14,5 @@ export interface IInstanceItem {
     description?: string;
     type: InstanceItemType;
     hasChildren: boolean;
+    permissions?: RolePermissions;
 }

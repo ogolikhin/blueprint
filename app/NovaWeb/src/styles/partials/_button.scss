@@ -41,7 +41,21 @@
         outline: none;
     }
 }
+.btn-cancel {
+    background-color: transparent;
+    border: 1px solid $gray-light;
+    color: $gray-light;
 
+    &:hover,
+    &:focus,
+    &:active,
+    &.active, {
+        background-color: transparent;
+        border-color: $gray-lighter;
+        color: $gray-lighter;
+        outline: none;
+    }
+}
 .btn-promoted-action {
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;

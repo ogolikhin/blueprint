@@ -40,7 +40,6 @@ export class BpBaseEditor {
     }
 
     protected onArtifactChanged = () => {
-        this.messageService.clearMessages();
         this.onArtifactReady();
     }
 

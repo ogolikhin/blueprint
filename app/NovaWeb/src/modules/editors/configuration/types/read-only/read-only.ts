@@ -3,7 +3,7 @@ import "angular-formly";
 import "angular-sanitize";
 import {ILocalizationService} from "../../../../core";
 import {Models, Enums} from "../../../../main/models";
-import {PropertyContext} from "../../../bp-artifact/bp-property-context";
+import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 import {Helper} from "../../../../shared";
 
 export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
@@ -36,7 +36,7 @@ export class BpFieldReadOnlyController {
         $scope.options["expressionProperties"] = {
             "templateOptions.options": () => {
                 let options = [];
-                const context: PropertyContext = $scope.options["data"];
+                const context: IPropertyDescriptor = $scope.options["data"];
                 if (context.primitiveType === Enums.PrimitiveType.Choice && context.validValues && context.validValues.length) {
                     options = context.validValues.map(function (it) {
                         return {value: it.id, name: it.value} as any;
@@ -45,7 +45,7 @@ export class BpFieldReadOnlyController {
                 return options;
             },
             "model": () => {
-                const context: PropertyContext = $scope.options["data"];
+                const context: IPropertyDescriptor = $scope.options["data"];
 
                 if (context.isFresh) { // format the data only if fresh
                     this.formatData();

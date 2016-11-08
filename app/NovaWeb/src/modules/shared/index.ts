@@ -11,7 +11,7 @@ angular.module("app.shared", [
     "bp.filters"]);
 
 export {
-    IBPTreeController,
+    IBPTreeControllerApi,
     ITreeNode,
     IDialogSettings,
     IDialogService,

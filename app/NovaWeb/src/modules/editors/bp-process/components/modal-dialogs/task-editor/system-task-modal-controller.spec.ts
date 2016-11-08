@@ -320,9 +320,11 @@ describe("SystemTaskModalController", () => {
                     name: "test actor",
                     projectId: 2,
                     projectName: "Test",
+                    version: null,
                     link: "",
                     typePrefix: ""
-                }
+                };
+
                 model.associatedArtifact = artifactReference;
 
                 controller.saveData();

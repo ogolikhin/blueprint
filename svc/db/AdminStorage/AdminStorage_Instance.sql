@@ -1331,6 +1331,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_Cre
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_LastEdited', 'en-US', N'Last Edited:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_SubartifactMessage', 'en-US', N'Opening this item displays the artifact that contains it.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_NoResults', 'en-US', N'No Results Found')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_ResultsFound', 'en-US', N'{0} Results found')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

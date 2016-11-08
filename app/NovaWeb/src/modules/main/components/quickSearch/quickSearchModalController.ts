@@ -134,4 +134,8 @@ export class QuickSearchModalController {
             }
         } 
     }
+    
+    get getResultsFoundText() {
+        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.totalItems.toString());        
+    } 
 }

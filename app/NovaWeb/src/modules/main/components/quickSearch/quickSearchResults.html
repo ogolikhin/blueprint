@@ -52,9 +52,9 @@
             <div class="quick-search__results" >
                 <div>
                     <div class="quick-search__total-results" ng-if="$ctrl.results">
-                        <span>{{$ctrl.totalItems}} Results found</span>
+                        <span>{{$ctrl.getResultsFoundText}}</span>
                     </div> 
-                <div>
+                </div>
                     
                 <ul class="list-unstyled"       
                     ng-if="$ctrl.results.length > 0"        

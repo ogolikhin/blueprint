@@ -197,7 +197,7 @@ export class ProjectManager implements IProjectManager {
         }
 
         //try with selected artifact
-        this.projectService.getProjectTree(project.id, expandToArtifact.id, selectedArtifactNode.open)
+        this.projectService.getProjectTree(project.id, expandToArtifact.id, selectedArtifactNode ? selectedArtifactNode.open : false)
             .then((data: Models.IArtifact[]) => {
                 this.ProcessProjectTree(project, data).then(() => {
                     defer.resolve();

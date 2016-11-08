@@ -1,6 +1,6 @@
 ﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
-import {SearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
+import {SearchResultVM, ArtifactSearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
@@ -258,7 +258,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    public hasCustomIcon(searchResult: ArtifactSearchResultVM): boolean {
+    public hasCustomIcon = (searchResult: ArtifactSearchResultVM) => {
         if (searchResult.model && _.isFinite(searchResult.model.itemTypeIconId)) {
             return true;
         }

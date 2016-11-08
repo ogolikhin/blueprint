@@ -1,6 +1,7 @@
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactManager, ISelection, IArtifactService} from "../../../managers/artifact-manager";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {Models} from "../../../main/models";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
@@ -12,6 +13,7 @@ export class PageContent implements ng.IComponentOptions {
 
 class PageContentCtrl {
     private _subscribers: Rx.IDisposable[];
+    private currentArtifact: IStatefulArtifact;
     public breadcrumbLinks: IBreadcrumbLink[];
 
     public static $inject: [string] = [
@@ -37,13 +39,16 @@ class PageContentCtrl {
     }
 
     private onSelectionChanged = (selection: ISelection) => {
-        if (selection.subArtifact) {
-            return;
-        }
         if (!selection.artifact && !selection.subArtifact) {
+            this.currentArtifact = null;
             this.breadcrumbLinks = [];
             return;
         }
+        if (this.currentArtifact === selection.artifact) {
+            return;
+        }
+
+        this.currentArtifact = selection.artifact;
         this.artifactService.getArtifactNavigationPath(selection.artifact.id)
             .then((result: Models.IArtifact[]) => {
                 this.breadcrumbLinks = [];

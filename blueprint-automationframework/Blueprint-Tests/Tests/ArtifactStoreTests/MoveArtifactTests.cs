@@ -681,7 +681,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(childArtifact, parentArtifact, _user),
-                "'POST {0}' should return 409 Conflict when parent moved to its child and was not locked", SVC_PATH);
+                "'POST {0}' should return 409 Conflict when user moves an unlocked artifact to be a child of another artifact.", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, "Cannot move an artifact that has not been locked.");

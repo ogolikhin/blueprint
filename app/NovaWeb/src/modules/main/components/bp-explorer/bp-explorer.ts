@@ -153,8 +153,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 } else if (navigateToId === currentSelection) {
                     this.navigationService.reloadParentState();
                 }
-            } else {
-                this.navigationService.navigateToMain();
             }
         }
     };

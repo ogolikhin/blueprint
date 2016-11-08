@@ -1,6 +1,9 @@
 <ul class="bp-artifact-list"
     ng-style="{'height': ($ctrl.initialRows * 20).toString() + 'px'}"
-    ng-class="{'bp-artifact-list--overflow': $ctrl.limitTo !== $ctrl.initialLimit}">
+    ng-class="{
+    'bp-artifact-list--overflow': $ctrl.limitTo !== $ctrl.initialLimit,
+    'bp-artifact-list--complete': $ctrl.sortedList.length <= $ctrl.limitTo
+    }">
     <li class="bp-artifact-list__item" ng-repeat="artifact in $ctrl.sortedList | limitTo: $ctrl.limitTo track by artifact.id">
         <div class="bp-artifact-list__project"
              ng-if="artifact.projectName && ($index === 0 || $ctrl.sortedList[$index].projectName !== $ctrl.sortedList[$index - 1].projectName)"
@@ -15,7 +18,7 @@
         </div>
     </li>
 </ul>
-<div class="bp-artifact-list__counter">
+<div class="bp-artifact-list__counter" ng-if="$ctrl.sortedList.length > $ctrl.limitTo">
     {{$root.config.labels["Artifact_List_Show_First_N_Results"] | bpFormat:$ctrl.limitTo}}<br/>
     <a class="bp-artifact-list__load-more" href="javascript://"
        ng-if="$ctrl.limitTo === $ctrl.initialLimit && $ctrl.sortedList.length > $ctrl.limitTo"

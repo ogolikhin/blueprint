@@ -199,12 +199,12 @@ export class BPTreeViewController implements IBPTreeViewController {
     public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
-            this.options.rowDeselection = this.selectionMode !== "single";                                       
-                     
+            this.options.rowDeselection = this.selectionMode !== "single";
+
             this.options.api.setColumnDefs(this.columns.map(column => {
                 let columnInnerRenderer = undefined;
                 if (column.innerRenderer) {
-                    columnInnerRenderer = (params: any) => { 
+                    columnInnerRenderer = (params: any) => {
                                             const columnParams: IColumnRendererParams = {
                                             vm: params.data,
                                             $scope: params.$scope,
@@ -261,7 +261,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     if (this.sizeColumnsToFit) {
                         this.timers[1] = this.$timeout(() => {
                             this.options.api.sizeColumnsToFit();
-                        }, 500);
+                        });
                     } else {
                         this.options.columnApi.autoSizeAllColumns();
                     }

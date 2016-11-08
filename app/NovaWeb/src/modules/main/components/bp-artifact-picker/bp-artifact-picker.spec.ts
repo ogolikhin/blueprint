@@ -163,7 +163,7 @@ describe("BpArtifactPickerController", () => {
     it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
         // Arrange
         const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
+        const vm = controller.factory.createArtifactSearchResultVM(model);
         controller.selectionMode = "single";
         controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
 
@@ -250,7 +250,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when SearchResultVM, clears search and sets project", () => {
         // Arrange
         const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const vm = new ArtifactSearchResultVM(model, controller.onSelect);
+        const vm = controller.factory.createArtifactSearchResultVM(model);
         controller.clearSearch = jasmine.createSpy("clearSearch");
 
         // Act

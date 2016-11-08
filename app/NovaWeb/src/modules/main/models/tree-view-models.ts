@@ -70,7 +70,7 @@ export class TreeNodeVMFactory {
     }
 
     protected isSelectable(item: Models.IArtifact | Models.ISubArtifact) {
-        return (!this.isItemSelectable || this.isItemSelectable({item})) &&
+        return (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
             (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1);
     }
 }

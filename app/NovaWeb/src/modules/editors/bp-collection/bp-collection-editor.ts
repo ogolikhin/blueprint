@@ -27,16 +27,22 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "windowManager",
         "localization",
         "propertyDescriptorBuilder",
+        "dialogService",
         "collectionService",
         "metadataService",
         "$location",
-        "$window"
+        "$window",
+        "$scope"
     ];
 
     public selectAll: boolean = false;
     public selectAllClass: string;
     public isSystemPropertiesCollapsed: boolean = true;
     private collectionSubscriber: Rx.IDisposable;
+    public selectedVMs: any[] = [];
+    public itemsSelected: string;
+    //public showBulkActions: boolean;
+    //public selectedVMsLength: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -45,10 +51,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 localization: ILocalizationService,
                 dialogService: IDialogService,
         propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+        private dialogService: IDialogService,
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
-                private $window: ng.IWindowService) {
+        private $window: ng.IWindowService,
+        private $scope: ng.IScope
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
@@ -104,12 +112,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 collectionArtifacts.push(addedTreeVM);
             }
             else if (change.type === ChangeTypeEnum.Delete) {
-                let removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => {
-                    if (nodeVM.model.id === change.key) {
-                        return true;
-                    }
-                    return false;
-                });
+                const removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => nodeVM.model.id === change.key);
 
                 if (removingNodeIndex > -1) {
                     collectionArtifacts.splice(removingNodeIndex, 1);
@@ -172,7 +175,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 const prefix = Helper.escapeHTMLText(collectionNodeVM.model.prefix);
                 const icon = collectionNodeVM.getIcon();
                 const url = this.$state.href("main.item", {id: collectionNodeVM.model.id});
-                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" 
+                return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" class="collection__link"
                             ng-click="$event.stopPropagation();">${prefix}${collectionNodeVM.model.id}</a></span>`;
             }
         },
@@ -219,12 +222,27 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             colWidth: 60,
             isCheckboxHidden: true,
             innerRenderer: (params: IColumnRendererParams) => {
-                params.$scope["removeArtifact"] = () => {
-                    const node = <CollectionNodeVM>params.vm;
-                    const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-                    collectionArtifact.removeArtifacts([node.model]);
+                params.$scope["removeArtifact"] = ($event) => {
+                    $event.stopPropagation();
+
+                    this.dialogService.confirm(this.localization.get("Artifact_Collection_Confirmation_Delete_Item")).then(() => {
+
+                        const node = <CollectionNodeVM>params.vm;
+                        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+                        collectionArtifact.removeArtifacts([node.model]);
+
+                        let index = _.findIndex(this.selectedVMs, (item) => item.model.id === node.model.id);
+
+                        if (index > -1) {
+                            this.selectedVMs.splice(index, 1);
+                            let item_selected = this.localization.get("Artifact_Collection_Items_Selected");
+                            this.itemsSelected = item_selected.replace("{0}", (this.selectedVMs.length).toString());
+                        }
+                    });
+
+
                 };
-                return `<i class="icon icon__normal fonticon-delete-filled" ng-click="removeArtifact()"></i>`;
+                return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact($event)"></i>`;
             }
         }];
 
@@ -233,6 +251,34 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public toggleAll(): void {
         this.selectAll = !this.selectAll;
         this.selectAllClass = this.selectAll ? "ag-checkbox-checked" : "ag-checkbox-unchecked";
+    }
+
+    public onSelect = (vm, isSelected: boolean) => {
+        if (isSelected) {
+            this.selectedVMs.push(vm);
+        } else {
+            let index = _.findIndex(this.selectedVMs, {key: vm.key});
+
+            if (index > -1) {
+                this.selectedVMs.splice(index, 1);
+            }
+        }
+
+        let item_selected = this.localization.get("Artifact_Collection_Items_Selected");
+        this.itemsSelected = item_selected.replace("{0}", (this.selectedVMs.length).toString());
+        this.$scope.$applyAsync();
+    }
+
+    public bulkDelete() {
+        let confirmation = this.localization.get("Artifact_Collection_Confirmation_Delete_Items")
+            .replace("{0}", this.selectedVMs.length.toString());
+
+        this.dialogService.confirm(confirmation).then(() => {
+            const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+            const artifactsToBeDeleted = _.map(this.selectedVMs, (node) => node.model);
+            collectionArtifact.removeArtifacts(artifactsToBeDeleted);
+            this.selectedVMs.length = 0;
+        });
     }
 }
 
@@ -248,7 +294,7 @@ class CollectionNodeVM implements ITreeViewNode {
         if (artifactType && artifactType.iconImageId && angular.isNumber(artifactType.iconImageId)) {
             return `<bp-item-type-icon item-type-id="${artifactType.id}" item-type-icon-id="${artifactType.iconImageId}"></bp-item-type-icon>`;
         }
-        return `<i></i>`;
+        return `<i class="icon__normal"></i>`;
     }
 
     public getCellClass(): string[] {

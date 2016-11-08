@@ -258,6 +258,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
+    public hasCustomIcon(searchResult: ArtifactSearchResultVM): boolean {
+        if (searchResult.model && _.isFinite(searchResult.model.itemTypeIconId)) {
+            return true;
+        }
+        return false;
+    }
+
     public clearSearch(): void {
         if (this.isSearching) {
             this.projectService.abort();

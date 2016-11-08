@@ -4,10 +4,9 @@ import {IColumn, ITreeViewNode, IColumnRendererParams} from "../../shared/widget
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
-import {Helper} from "../../shared";
+import {Helper, IDialogService} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {ChangeTypeEnum, IChangeSet} from "../../managers/artifact-manager/changeset";
-import {IDialogService} from "../../shared";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -49,14 +48,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
-                dialogService: IDialogService,
-        propertyDescriptorBuilder: IPropertyDescriptorBuilder,
-        private dialogService: IDialogService,
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                private dialogService: IDialogService,
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
-        private $window: ng.IWindowService,
-        private $scope: ng.IScope
+                private $window: ng.IWindowService,
+                private $scope: ng.IScope) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 

@@ -31,15 +31,14 @@ export class QuickSearchController {
         this.form.$setPristine();
     }
 
-    get showHide(): boolean {
-        return this.quickSearchService.searchTerm || this.form.$dirty;
+    showHide(): boolean {
+        return <boolean>(this.quickSearchService.searchTerm || this.form.$dirty);
     }
 
     hasError(): boolean {
-        return  this.form.$submitted &&
-                this.form.$invalid &&
-                this.form.$error &&
-                !this.form.$error.required;
+        return this.form.$submitted &&
+            this.form.$invalid &&
+            this.form.$error && !this.form.$error.required;
     }
 
     onKeyPress($event: KeyboardEvent) {

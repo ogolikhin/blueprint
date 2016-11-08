@@ -17,6 +17,7 @@ export class ConfirmPublishController extends BaseDialogController implements IC
     private _artifactList: Models.IArtifact[];
     private _projectList: Models.IItem[];
     private _selectedProject: number;
+    private _header: string;
 
     static $inject = [
         "$uibModalInstance",
@@ -32,6 +33,7 @@ export class ConfirmPublishController extends BaseDialogController implements IC
         this._artifactList = dialogData.artifactList;
         this._projectList = dialogData.projectList;
         this._selectedProject = dialogData.selectedProject;
+        this._header = dialogSettings.header;
     }
 
     public get hasError(): boolean {
@@ -48,6 +50,9 @@ export class ConfirmPublishController extends BaseDialogController implements IC
     }
     public get selectedProject(): number{
         return this._selectedProject;
+    }
+    public get header(): string{
+        return this._header;
     }
 
 

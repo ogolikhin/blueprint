@@ -5,7 +5,6 @@ import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcru
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IBreadcrumbService} from "../../services/breadcrumb.svc";
-import {INavigationService} from "../../../../core/navigation";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {WindowManager} from "../../../../main";
@@ -14,18 +13,18 @@ import {
     ArtifactManager,
     ArtifactService,
     MetaDataService,
-    StatefulArtifactFactory,
     ArtifactAttachmentsService,
     ArtifactRelationshipsService
 } from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LoadingOverlayService} from "../../../../core/loading-overlay";
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {SessionSvcMock} from "../../../../shell/login/mocks.spec";
 import {WindowResize} from "../../../../core/services/window-resize";
 import {ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectService} from "../../../../managers/project-manager/project-service";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {LoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;

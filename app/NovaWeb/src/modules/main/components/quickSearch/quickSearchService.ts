@@ -1,7 +1,6 @@
 import { IProjectManager } from "../../../managers/project-manager/project-manager";
 import { IMetaDataService } from "../../../managers/artifact-manager/metadata/metadata.svc";
 import { IItemType } from "../../models/models";
-import { Helper } from "../../../shared/utils/helper";
 import { Models } from "../../models";
 import * as SearchModels from "./models/model";
 
@@ -77,6 +76,7 @@ export class QuickSearchService implements IQuickSearchService {
 
         return deferred.promise;
     }
+
     private extendItem(item: SearchModels.ISearchItem, itemType: IItemType) {
         if (!itemType) {
             return item;

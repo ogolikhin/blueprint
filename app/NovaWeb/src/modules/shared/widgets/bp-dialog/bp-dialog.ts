@@ -1,6 +1,5 @@
-﻿import * as angular from "angular";
-import {ILocalizationService} from "../../../core";
-
+﻿
+import {ILocalizationService} from "../../../core/localization/localizationService";
 export enum DialogTypeEnum {
     Base,
     Alert,

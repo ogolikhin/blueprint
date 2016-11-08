@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { INavigationService } from "../../../core/navigation";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 
 export interface IBPGotoController {
     showSearch();
@@ -22,10 +22,8 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
         "navigationService"
     ];
 
-    constructor(
-        private $element: ng.IAugmentedJQuery,
-        private navigationService: INavigationService
-    ) {
+    constructor(private $element: ng.IAugmentedJQuery,
+                private navigationService: INavigationService) {
     }
 
     private focusInputField() {
@@ -62,7 +60,7 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
         if ($event.which === 13) {
             const parsedValue = _.parseInt(this.gotoValue);
             if (!_.isNaN(parsedValue)) {
-                this.navigationService.navigateTo({ id: parsedValue });
+                this.navigationService.navigateTo({id: parsedValue});
                 this.clearSearch();
                 this.hideSearch();
             }

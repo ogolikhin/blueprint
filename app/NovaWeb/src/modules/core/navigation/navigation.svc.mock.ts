@@ -1,5 +1,5 @@
-import {INavigationState, INavigationService, INavigationParams} from "./";
-
+import {INavigationService, INavigationParams} from "./navigation.svc";
+import {INavigationState} from "./navigation-state";
 export class NavigationServiceMock implements INavigationService {
     public static $inject: string[] = [
         "$q"

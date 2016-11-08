@@ -27,7 +27,6 @@ namespace Model.SearchServiceModel.Impl
         {
             Logger.WriteTrace("{0}.{1}", nameof(SearchService), nameof(FullTextSearch));
 
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
 
             var queryParams = new Dictionary<string, string>();
@@ -42,7 +41,7 @@ namespace Model.SearchServiceModel.Impl
                 queryParams.Add("pageSize", pageSize.ToString());
             }
 
-            var tokenValue = user.Token?.AccessControlToken;
+            var tokenValue = user?.Token?.AccessControlToken;
 
             var restApi = new RestApiFacade(Address, tokenValue);
 

@@ -1,7 +1,7 @@
 import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../../core";
 import {ItemTypePredefined} from "../../../../main/models/enums";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class DeleteAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,

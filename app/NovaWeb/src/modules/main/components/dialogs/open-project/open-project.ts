@@ -1,8 +1,7 @@
-import * as angular from "angular";
-import {ILocalizationService} from "../../../../core";
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 
 export interface IOpenProjectController {
@@ -53,7 +52,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 name: model.name || "",
                 description: model.description || "",
                 itemTypeId: Enums.ItemTypePredefined.Project,
-                permissions: Enums.RolePermissions.Read // if the user can select it, it means he can read it
+                permissions: model.permissions || Enums.RolePermissions.Read // if the user can select it, it means he can read it
             } as Models.IProject;
         }
         return undefined;
@@ -113,8 +112,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
         innerRenderer: (params: IColumnRendererParams) => {
-            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
-            if (params.vm instanceof TreeViewModels.InstanceItemNodeVM && node.model.type === AdminStoreModels.InstanceItemType.Project) {
+            const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
+            if (vm instanceof TreeViewModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 //TODO this listener is never removed
                 // Need to use a cellRenderer "Component" with a destroy method, not a function.
                 // See https://www.ag-grid.com/javascript-grid-cell-rendering/
@@ -122,7 +121,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 // See https://www.ag-grid.com/change-log/changeLogIndex.php
                 params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
-            const name = Helper.escapeHTMLText(node.name);
+            const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper"><i></i><span>${name}</span></span>`;
         }
     }];

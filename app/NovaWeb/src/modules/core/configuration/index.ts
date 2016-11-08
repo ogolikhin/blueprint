@@ -1,6 +1,4 @@
-﻿import {SettingsService, ISettingsService} from "./settings";
+﻿import {SettingsService} from "./settings";
 
-export {
-    SettingsService,
-    ISettingsService
-}
+angular.module("bp.core.configuration", [])
+    .service("settings", SettingsService);

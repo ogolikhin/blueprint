@@ -1,11 +1,9 @@
 ﻿import "../../../";
-import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
 import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
-import {HttpStatusCode} from "../../../../core/http";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
@@ -21,6 +19,7 @@ import {
     ArtifactService,
     ArtifactAttachmentsService
 } from "../../../../managers/artifact-manager";
+import {HttpStatusCode} from "../../../../core/http/http-status-code";
 
 describe("Component BPDiscussionReplyItem", () => {
 

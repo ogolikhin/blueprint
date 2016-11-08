@@ -1,9 +1,8 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {ISettingsService} from "../../core";
 import {IUser, IAuth} from "./auth.svc";
 import {ISession} from "./session.svc";
+import {ISettingsService} from "../../core/configuration/settings";
 
 
 export class SettingsMock implements ISettingsService {

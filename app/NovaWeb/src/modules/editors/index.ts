@@ -7,6 +7,11 @@ import "./bp-diagram";
 import "./bp-process";
 import "./bp-collection";
 import {ArtifactRoutes} from "./editors.router";
+import {
+    IPropertyDescriptor,
+    IPropertyDescriptorBuilder,
+    PropertyDescriptorBuilder
+} from "./configuration/property-descriptor-builder";
 
 angular.module("bp.editors", [
         "formly",
@@ -17,6 +22,8 @@ angular.module("bp.editors", [
         "bp.editors.process",
         "bp.editors.collection"
     ])
+    .service("propertyDescriptorBuilder", PropertyDescriptorBuilder)
     .config(ArtifactRoutes);
 
+export {IPropertyDescriptor, IPropertyDescriptorBuilder}
 export {formlyConfig} from "./configuration/formly-config";

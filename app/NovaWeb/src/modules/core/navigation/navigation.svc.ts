@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import {INavigationPathItem, INavigationState} from "./navigation-state";
 
 export interface INavigationService {
@@ -25,10 +24,8 @@ export class NavigationService implements INavigationService {
         "$state"
     ];
 
-    constructor(
-        private $q: ng.IQService,
-        private $state: ng.ui.IStateService
-    ) {
+    constructor(private $q: ng.IQService,
+                private $state: ng.ui.IStateService) {
     }
 
     public reloadParentState() {
@@ -129,7 +126,7 @@ export class NavigationService implements INavigationService {
     }
 
     private createRouterParams(params: INavigationParams, currentState: INavigationState) {
-        const parameters = { 
+        const parameters = {
             id: params.id
         };
 
@@ -187,7 +184,7 @@ export class NavigationService implements INavigationService {
     private navigateToArtifactInternal(parameters: any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {
         const state = "main.item";
         // Disables the inheritance of optional url parameters (such as "path")
-        const options: ng.ui.IStateOptions = stateOptions || { inherit: false };
+        const options: ng.ui.IStateOptions = stateOptions || {inherit: false};
 
         return this.$state.go(state, parameters, options);
     }

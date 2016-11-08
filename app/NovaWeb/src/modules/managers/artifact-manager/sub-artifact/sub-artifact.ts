@@ -1,10 +1,9 @@
-import {Models, Relationships} from "../../../main/models";
+import {Models} from "../../../main/models";
 import {IStatefulArtifactServices} from "../services";
 import {IStatefulArtifact} from "../artifact";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
 import {IArtifactAttachmentsResultSet} from "../attachments";
 import {MetaData} from "../metadata";
-import {HttpStatusCode} from "../../../core/http";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
 }
@@ -30,10 +29,10 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     protected get subject(): Rx.BehaviorSubject<IStatefulSubArtifact> {
         if (!this._subject) {
-            this._subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);            
-        }    
-        return this._subject;    
-    } 
+            this._subject = new Rx.BehaviorSubject<IStatefulSubArtifact>(null);
+        }
+        return this._subject;
+    }
 
 
     public get artifactState() {

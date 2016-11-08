@@ -3,7 +3,7 @@ import "angular-mocks";
 import {LocalizationServiceMock} from "../localization/localization.mock";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
-import {SettingsService} from "../configuration";
+import {SettingsService} from "../configuration/settings";
 
 describe("messageService", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

@@ -1,6 +1,6 @@
 ﻿import {IMessageService} from "./message.svc";
-import {ILocalizationService} from "../localization";
 import {IMessage, MessageType} from "./message";
+import {ILocalizationService} from "../localization/localizationService";
 
 export class MessageContainerComponent implements ng.IComponentOptions {
     public template: string = require("./message-container.html");

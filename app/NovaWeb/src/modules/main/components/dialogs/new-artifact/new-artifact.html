@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h3 class="modal-title">{{::$root.config.labels["Create_New_Dialog_Header"]}}</h3>
+    <h3 class="modal-title">{{::$root.config.labels["Create_New_Artifact_Dialog_Header"]}}</h3>
 </div>
 <div class="modal-body new-artifact">
     <input class="new-artifact__focus-stealer" type="text">
@@ -13,14 +13,16 @@
                    typeahead-template-url="artifactTypesDropdown.html"
                    typeahead-show-hint="true"
                    typeahead-select-on-exact="true"
-                   typeahead-min-length="0" /></span>
-        <label for="new-artifact-type" class="nova-label">{{::$root.config.labels["Create_New_Dialog_Artifact_Type"]}}</label>
+                   typeahead-min-length="0" />
+            <i class="fonticon2-error new-artifact__clear" ng-if="$ctrl.newArtifactType" ng-click="$ctrl.newArtifactType = ''"></i>
+        </span>
+        <label for="new-artifact-type" class="nova-label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Type"]}}</label>
     </div>
     <div class="nova-form-group nova-floating-label new-artifact__input-group">
         <input type="text" class="nova-form-control new-artifact__input"
                id="new-artifact-name" name="newArtifactName"
                ng-model="$ctrl.newArtifactName" autofocus="true" />
-        <label for="new-artifact-name" class="nova-label">{{::$root.config.labels["Create_New_Dialog_Artifact_Name"]}}</label>
+        <label for="new-artifact-name" class="nova-label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Name"]}}</label>
     </div>
 </div>
 <div class="modal-footer">

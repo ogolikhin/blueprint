@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {Models} from "../../main";
-import {IColumn, ITreeViewNode, IColumnRendererParams} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode, IColumnRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
@@ -40,6 +40,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private collectionSubscriber: Rx.IDisposable;
     public selectedVMs: any[] = [];
     public itemsSelected: string;
+    public api: IBPTreeViewControllerApi;
     //public showBulkActions: boolean;
     //public selectedVMsLength: number;
 
@@ -98,16 +99,20 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
-        if (!changes || changes.length === 0) {
+       if (!changes || changes.length === 0) {
             return;
         }
 
         let collectionArtifacts = this.rootNode.slice();
-
+        let scrollingArtifact: CollectionNodeVM; 
         changes.map((change: IChangeSet) => {
             if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);  
                 collectionArtifacts.push(addedTreeVM);
+                if (!scrollingArtifact) {
+                    scrollingArtifact = addedTreeVM;
+                }
+
             }
             else if (change.type === ChangeTypeEnum.Delete) {
                 const removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => nodeVM.model.id === change.key);
@@ -118,7 +123,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }
         });
 
-        this.rootNode = collectionArtifacts;
+        if (scrollingArtifact) {
+            this.api.scrollToNode(scrollingArtifact);
+        }
+        this.rootNode = collectionArtifacts;        
     };
 
     private headerCellRendererSelectAll(params) {

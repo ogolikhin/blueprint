@@ -33,6 +33,8 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         columns: "<",
         headerHeight: "<",
         sizeColumnsToFit: "<",
+        supportAddRemoveRows: "<",
+        api: "=?",
         // Output
         onSelect: "&?",
         onDoubleClick: "&?",
@@ -50,6 +52,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
+    api: IBPTreeViewControllerApi;
     onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     onError: (param: {reason: any}) => void;
@@ -87,6 +90,12 @@ export interface IColumnRendererParams {
     $scope: ng.IScope;
 }
 
+export interface IBPTreeViewControllerApi {
+    scrollToNode(node: ITreeViewNode): void;   
+    //addItems(newItems: ITreeViewNode[]): void;
+    //removeItems(indexes: number[]): void;
+}
+
 export class BPTreeViewController implements IBPTreeViewController {
     public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager"];
 
@@ -97,6 +106,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public rowHeight: number;
     public rootNode: ITreeViewNode | ITreeViewNode[];
     public rootNodeVisible: boolean;
+    public supportAddRemoveRows: boolean;
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
@@ -119,6 +129,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
+        this.supportAddRemoveRows = angular.isDefined(this.supportAddRemoveRows) ? this.supportAddRemoveRows : false;
 
         this.options = {
             angularCompileHeaders: true,
@@ -145,8 +156,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             headerHeight: this.headerHeight,
 
             // Callbacks
-            getBusinessKeyForNode: this.getBusinessKeyForNode,
-            getNodeChildDetails: this.getNodeChildDetails,
+            getBusinessKeyForNode: this.getBusinessKeyForNode,            
 
             // Event handlers
             onRowGroupOpened: this.onRowGroupOpened,
@@ -159,6 +169,9 @@ export class BPTreeViewController implements IBPTreeViewController {
             context: {}
         };
 
+        if (this.supportAddRemoveRows === false) {
+            this.options.getNodeChildDetails = this.getNodeChildDetails;
+        }
         this.options.context.allSelected = false;
         this.options.context.selectAllClass = new HeaderCell(this.options);
     }
@@ -192,9 +205,33 @@ export class BPTreeViewController implements IBPTreeViewController {
         _.each(this.timers, (timer) => {
             this.$timeout.cancel(timer);
         });
-
+        this.api = null;
         this.rootNode = null;
     }
+
+    private scrollNode: ITreeViewNode;
+
+    public api: IBPTreeViewControllerApi = {        
+        scrollToNode: (node: ITreeViewNode): void => {
+           this.scrollNode = node;          
+        }
+        
+        //addItems: (newItems: ITreeViewNode[]): void => {
+        //   this.options.api.addItems(newItems);
+        //},        
+
+        //removeItems: (indexes: number[]): void => {      
+        //    let model = this.options.api.getModel();
+        //    let rowsForDeletion: agGrid.RowNode[] = [];
+        //    indexes.map((index: number) => {
+        //        const row = model.getRow(index);
+        //        if (row) {
+        //            rowsForDeletion.push(row);
+        //        }
+        //    });
+        //    this.options.api.removeItems(rowsForDeletion);
+        //}        
+    };
 
     public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
         if (this.options.api) {
@@ -252,6 +289,11 @@ export class BPTreeViewController implements IBPTreeViewController {
                         });
                     } else {
                         this.options.columnApi.autoSizeAllColumns();
+                    }
+
+                    if (this.scrollNode) {                        
+                        this.options.api.ensureNodeVisible(this.scrollNode);
+                        this.scrollNode = undefined;
                     }
 
                     if (saveSelection) {

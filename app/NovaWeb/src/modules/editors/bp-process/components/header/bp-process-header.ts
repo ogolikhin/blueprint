@@ -82,6 +82,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                     const breadcrumbLink: IBreadcrumbLink = {
                         id: artifactReference.id,
                         name: artifactReference.name,
+                        version: artifactReference.version,
                         isEnabled: i !== result.length - 1 && !!artifactReference.link
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);

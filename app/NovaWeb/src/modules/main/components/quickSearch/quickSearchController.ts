@@ -1,5 +1,6 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IQuickSearchService} from "./quickSearchService";
 
 export interface IQuickSearchController {
     clearSearch();
@@ -19,7 +20,7 @@ export class QuickSearchController {
 
     constructor(private $log: ng.ILogService,
                 private $uibModal: ng.ui.bootstrap.IModalService,
-                private quickSearchService,
+                private quickSearchService: IQuickSearchService,
                 private localization: ILocalizationService) {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";

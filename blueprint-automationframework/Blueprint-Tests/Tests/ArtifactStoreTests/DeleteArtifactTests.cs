@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -399,14 +400,18 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            // Create a user without permission to the artifact.
+            // Create a user without permission to delete the artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
             IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
                 "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         [TestRail(165844)]
@@ -420,14 +425,47 @@ namespace ArtifactStoreTests
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, parentArtifact);
 
-            // Create a user without permission to the child artifact.
+            // Create a user without permission to delete the child artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
             IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, childArtifact);
 
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, userWithoutDeletePermission),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, userWithoutDeletePermission),
                 "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", parentArtifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+        }
+
+        [TestRail(190967)]
+        [TestCase(ItemTypePredefined.ArtifactCollection)]
+        [TestCase(ItemTypePredefined.CollectionFolder)]
+        [Description("Create and publish a Collection or Collection Folder artifact.  Attempt to delete the artifact with a user that does not have permission to delete. " +
+                     "Verify that HTTP 403 Forbidden exception is thrown.")]
+        public void DeleteArtifact_UserDoesNotHavePermissionToDeleteCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            artifact.Publish();
+
+            // Create a user without permission to delete the artifact.
+            // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
+            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
+                "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         #endregion 403 Forbidden tests

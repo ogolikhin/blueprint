@@ -405,7 +405,7 @@ namespace ArtifactStoreTests
             IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
                 "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
 
@@ -430,7 +430,7 @@ namespace ArtifactStoreTests
             IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, childArtifact);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(parentArtifact, userWithoutDeletePermission),
                 "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
 
@@ -484,7 +484,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => artifact.Delete(_user),
                 "Failed to delete a published artifact!");
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted!");
 
@@ -507,7 +507,7 @@ namespace ArtifactStoreTests
 
             artifact.Publish(_user);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted and published!");
 
@@ -563,7 +563,7 @@ namespace ArtifactStoreTests
 
             artifact.Publish(_user);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete a {0} that has already been deleted and published!", artifactType);
 
@@ -585,7 +585,7 @@ namespace ArtifactStoreTests
             // Replace artifact Id with non-existent Id
             artifact.Id = nonExistentArtifactId;
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "We should get a 404 Not Found when trying to delete an artifact that does not exist!");
 

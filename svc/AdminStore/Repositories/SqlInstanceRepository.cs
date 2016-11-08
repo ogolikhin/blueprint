@@ -90,6 +90,8 @@ namespace AdminStore.Repositories
             param.Add("@projectId", projectId);
 
             var projectPaths = (await ConnectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetProjectNavigationPath", param, commandType: CommandType.StoredProcedure)).ToList();
+            if (!includeProjectItself)
+                projectPaths.RemoveAll(p => p.Level == 0);
 
             return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }

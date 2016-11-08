@@ -5,6 +5,8 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {Models} from "../../../main/models";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {ItemTypePredefined} from "../../../main/models/enums";
+import {IProjectService} from "../../../managers/project-manager/project-service";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -20,13 +22,15 @@ class PageContentCtrl {
         "dialogService",
         "artifactManager",
         "artifactService",
-        "navigationService"
+        "navigationService",
+        "projectService"
     ];
 
     constructor(private dialogService: IDialogService,
         private artifactManager: IArtifactManager,
         private artifactService: IArtifactService,
-        protected navigationService: INavigationService) {
+        protected navigationService: INavigationService,
+        private projectService: IProjectService) {
         this.breadcrumbLinks = [];
     }
 
@@ -52,16 +56,40 @@ class PageContentCtrl {
         if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact) {
             return;
         }
-
         this.currentArtifact = selection.artifact;
-        this.artifactService.getArtifactNavigationPath(selection.artifact.id)
+
+        //For project we need to call GetProjectNavigationPath
+        if (selection.artifact.predefinedType === ItemTypePredefined.Project) {
+            this.setProjectBreadCrumb(selection.artifact.id);
+        } else {
+            this.setArtifactBreadCrumb(selection.artifact.id, selection.artifact.artifactState.historical);
+        }
+    }
+
+    private setProjectBreadCrumb = (projectId: number): void => {
+        this.projectService.getProjectNavigationPath(projectId, false)
+            .then((result: string[]) => {
+                this.breadcrumbLinks = [];
+                _.each(result, s => {
+                    const breadcrumbLink: IBreadcrumbLink = {
+                        id: 0,
+                        name: s,
+                        isEnabled: false
+                    };
+                    this.breadcrumbLinks.push(breadcrumbLink);
+                });
+            });
+    }
+
+    private setArtifactBreadCrumb = (artifactId: number, isHistorical: boolean): void => {
+        this.artifactService.getArtifactNavigationPath(artifactId)
             .then((result: Models.IArtifact[]) => {
                 this.breadcrumbLinks = [];
                 _.each(result, artifact => {
                     const breadcrumbLink: IBreadcrumbLink = {
                         id: artifact.id,
                         name: artifact.name,
-                        isEnabled: !selection.artifact.artifactState.historical
+                        isEnabled: !isHistorical
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
@@ -92,6 +120,7 @@ class PageContentCtrl {
             return false;
         });
         delete this.breadcrumbLinks;
+        delete this.currentArtifact;
     }
 
     public navigateTo = (link: IBreadcrumbLink): void => {

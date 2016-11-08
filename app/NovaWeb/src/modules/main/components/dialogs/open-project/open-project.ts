@@ -53,7 +53,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 name: model.name || "",
                 description: model.description || "",
                 itemTypeId: Enums.ItemTypePredefined.Project,
-                permissions: Enums.RolePermissions.Read // if the user can select it, it means he can read it
+                permissions: model.permissions || Enums.RolePermissions.Read // if the user can select it, it means he can read it
             } as Models.IProject;
         }
         return undefined;

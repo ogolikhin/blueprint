@@ -37,9 +37,13 @@
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"
                      ng-show="$ctrl.rootNode && $ctrl.rootNode.length > 0">
+                    <div class="collection__bulk__actions text-right" ng-show="$ctrl.selectedVMs.length">
+                        {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon-delete-filled" ng-click="$ctrl.bulkDelete()"
+                                                   bp-tooltip=" {{::$ctrl.localization.get('Artifact_Collection_Delete_Selected')}}"></i>
+                    </div>
                     <bp-tree-view
-                          grid-class="project-tree collections-list"      
-                          selection-mode="'checkbox'"                    
+                          grid-class="project-tree collections-list"
+                          selection-mode="'checkbox'"
                           row-height="53"
                           root-node="$ctrl.rootNode"
                           columns="$ctrl.columns"

@@ -12,12 +12,12 @@ import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact
 import {PublishServiceMock} from "./../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-//import { Models } from "../../../main/services/project-manager";
 import {Enums, Models} from "../../../main";
 import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {DialogService} from "../../../shared/widgets/bp-dialog";
-import {PropertyContext} from "../../../editors/bp-artifact/bp-property-context";
+import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
+import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -37,7 +37,6 @@ describe("Component BPPropertiesPanel", () => {
     };
 
     beforeEach(angular.mock.module("app.shell"));
-    //beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
@@ -52,6 +51,7 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", PublishServiceMock);
+        $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
     }));
 
     beforeEach(inject(() => {
@@ -120,7 +120,7 @@ describe("Component BPPropertiesPanel", () => {
                 predefinedType: Models.ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
 
-            let observerSpy1 = spyOn(artifactService, "getSubArtifact").and.callThrough();
+            const observerSpy1 = spyOn(artifactService, "getSubArtifact").and.callThrough();
 
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
@@ -145,7 +145,7 @@ describe("Component BPPropertiesPanel", () => {
                 prefix: "SA",
                 predefinedType: Models.ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
-            let observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();
+            const observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();
 
             // Act
             artifactManager.selection.setArtifact(undefined);
@@ -181,8 +181,9 @@ describe("Component BPPropertiesPanel", () => {
     it("on field update for plain text",
         inject(($rootScope: ng.IRootScopeService) => {
             //Arrange
-            let pt: Models.IPropertyType = {
-                id: 1,
+            const itemtypeId = 1;
+            const descriptor: IPropertyDescriptor = {
+                id: itemtypeId,
                 versionId: 1,
                 name: "",
                 primitiveType: undefined,
@@ -203,10 +204,12 @@ describe("Component BPPropertiesPanel", () => {
                 validValues: undefined,
                 defaultValidValueId: 0,
                 propertyTypePredefined: Enums.PropertyTypePredefined.Description,
-                disabled: false
+                disabled: false,
+                lookup: Enums.PropertyLookupEnum.System,
+                fieldPropertyName: `${Enums.PropertyLookupEnum[Enums.PropertyLookupEnum.System]}_${itemtypeId.toString()}`,
+                modelPropertyName: itemtypeId
             };
-            let pc: PropertyContext = new PropertyContext(pt);
-            let field: AngularFormly.IFieldConfigurationObject = {data: pc};
+            const field: AngularFormly.IFieldConfigurationObject = {data: descriptor};
             ctrl.systemFields = [];
 
             // Act
@@ -219,8 +222,9 @@ describe("Component BPPropertiesPanel", () => {
     it("on field update for rich text",
         inject(($rootScope: ng.IRootScopeService) => {
             //Arrange
-            let pt: Models.IPropertyType = {
-                id: 1,
+            const itemtypeId = 1;
+            const descriptor: IPropertyDescriptor = {
+                id: itemtypeId,
                 versionId: 1,
                 name: "",
                 primitiveType: undefined,
@@ -241,10 +245,13 @@ describe("Component BPPropertiesPanel", () => {
                 validValues: undefined,
                 defaultValidValueId: 0,
                 propertyTypePredefined: Enums.PropertyTypePredefined.Description,
-                disabled: false
+                disabled: false,
+                lookup: Enums.PropertyLookupEnum.Custom,
+                fieldPropertyName: `${Enums.PropertyLookupEnum[Enums.PropertyLookupEnum.Custom]}_${itemtypeId.toString()}`,
+                modelPropertyName: itemtypeId
             };
-            let pc: PropertyContext = new PropertyContext(pt);
-            let field: AngularFormly.IFieldConfigurationObject = {data: pc};
+
+            const field: AngularFormly.IFieldConfigurationObject = {data: descriptor};
             ctrl.richTextFields = [];
 
             // Act
@@ -300,7 +307,7 @@ describe("Component BPPropertiesPanel", () => {
             $rootScope.$digest();
 
             // Assert
-            const propertyContexts = ctrl.specificFields.map(a => a.data as PropertyContext);
+            const propertyContexts = ctrl.specificFields.map(a => a.data as IPropertyDescriptor);
 
             expect(propertyContexts.filter(a => a.name === "Label_X").length).toBe(1);
             expect(propertyContexts.filter(a => a.name === "Label_Y").length).toBe(1);
@@ -353,7 +360,7 @@ describe("Component BPPropertiesPanel", () => {
             metaDataServiceGetMethodSpy.and.returnValue(deferred.promise);
 
             spyOn(artifactService, "getSubArtifact").and.callFake((artifactId: number, subArtifactId: number) => {
-                    let model = {
+                    const model = {
                         predefinedType: Models.ItemTypePredefined.BPShape,
                         specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]
                     };
@@ -374,7 +381,7 @@ describe("Component BPPropertiesPanel", () => {
             $rootScope.$digest();
 
             // Assert
-            let model: any = ctrl.model;
+            const model: any = ctrl.model;
             expect(model.x).toBeDefined();
             expect(model.y).toBeDefined();
             expect(model.width).toBeDefined();
@@ -431,7 +438,7 @@ describe("Component BPPropertiesPanel", () => {
             metaDataServiceGetMethodSpy.and.returnValue(deferred.promise);
 
             spyOn(artifactService, "getSubArtifact").and.callFake((artifactId: number, subArtifactId: number) => {
-                    let model = {
+                    const model = {
                         predefinedType: Models.ItemTypePredefined.PROShape,
                         specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]
                     };
@@ -451,7 +458,7 @@ describe("Component BPPropertiesPanel", () => {
             $rootScope.$digest();
 
             // Assert
-            let propertyContexts: PropertyContext[] = ctrl.specificFields.map(a => a.data as PropertyContext);
+            const propertyContexts: IPropertyDescriptor[] = ctrl.specificFields.map(a => a.data as IPropertyDescriptor);
 
             expect(propertyContexts.filter(a => a.name === "Label_X").length).toBe(0);
             expect(propertyContexts.filter(a => a.name === "Label_Y").length).toBe(0);

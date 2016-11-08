@@ -6,7 +6,7 @@ import {RowNode} from "ag-grid/main";
 /**
  * Usage:
  *
- * <bp-tree bp-ref="$ctrl.tree"
+ * <bp-tree api="$ctrl.tree"
  *          grid-columns="$ctrl.columns"
  *          enable-editing-on="name"
  *          enable-dragndrop="true"
@@ -33,7 +33,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         gridColumns: "<",
         propertyMap: "<",
         //to set connection with parent
-        bpRef: "=?",
+        api: "=?",
         //events
         onLoad: "&?",
         onSelect: "&?",
@@ -56,15 +56,26 @@ export interface ITreeNode {
 }
 
 export interface IBPTreeController {
+    // BPTreeComponent bindings
+    gridClass: string;
+    enableEditingOn: string;
+    enableDragndrop: boolean;
+    rowBuffer: number;
+    rowHeight: number;
+    headerHeight: number;
+    gridColumns: any[];
+    propertyMap: any;
+    api: IBPTreeControllerApi;
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
     onSync?: Function;                //to be called on time of ag-grid row selection
     onRowClick?: Function;
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
+}
 
-    getSelectedNodeId: number;
-    isEmpty: boolean;
+export interface IBPTreeControllerApi {
+    getSelectedNodeId(): number;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
     clearSelection();
@@ -72,26 +83,21 @@ export interface IBPTreeController {
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
     reload(data?: any[], id?: number);
-    showLoading();
-    showNoRows();
-    hideOverlays();
     refresh(id?: number);
 }
 
 export class BPTreeController implements IBPTreeController {
     static $inject = ["localization", "$element"];
-    //properties
+
+    // BPTreeViewComponent bindings
     public gridClass: string;
     public enableEditingOn: string;
     public enableDragndrop: boolean;
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
-    //settings
     public gridColumns: any[];
     public propertyMap: any;
-
-    //events
     public onLoad: Function;
     public onSelect: Function;
     public onSync: Function;
@@ -99,9 +105,9 @@ export class BPTreeController implements IBPTreeController {
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
 
-    public bpRef: BPTreeController;
-
+    // ag-grid bindings
     public options: Grid.GridOptions;
+
     private editableColumns: string[] = [];
     private _datasource: any[] = [];
     private selectedRowNode: RowNode;
@@ -109,8 +115,6 @@ export class BPTreeController implements IBPTreeController {
     private _innerRenderer: Function;
 
     constructor(private localization: ILocalizationService, private $element?) {
-        this.bpRef = this;
-
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
         this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
@@ -166,7 +170,7 @@ export class BPTreeController implements IBPTreeController {
 
     public $onDestroy = () => {
         this.selectedRowNode = null;
-        this.bpRef = null;
+        this.api = null;
         //this.reload(null);
         this.options.api.destroy();
     };
@@ -197,13 +201,100 @@ export class BPTreeController implements IBPTreeController {
         return item;
     }
 
-    public get isEmpty(): boolean {
-        return !Boolean(this._datasource && this._datasource.length);
-    }
+    public api: IBPTreeControllerApi = {
+        getSelectedNodeId: () => {
+            return this.selectedRowNode ? this.selectedRowNode.data.id : null;
+        },
 
-    public get getSelectedNodeId(): number {
-        return this.selectedRowNode ? this.selectedRowNode.data.id : null;
-    }
+        //to select a tree node in ag grid
+        selectNode: (id: number) => {
+            this.options.api.getModel().forEachNode((it: RowNode) => {
+                if (it.data.id === id) {
+                    it.setSelected(true, true);
+                }
+            });
+            this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
+        },
+
+        clearSelection: () => {
+            const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
+            if (selectedNodes && selectedNodes.length) {
+                selectedNodes.map(node => {
+                    node.setSelected(false);
+                });
+                this.clearFocus();
+            }
+        },
+
+        nodeExists: (id: number) => {
+            let found: boolean = false;
+            this.options.api.getModel().forEachNode(function (it) {
+                if (it.data.id === id) {
+                    found = true;
+                }
+            });
+
+            return found;
+        },
+
+        getNodeData: (id: number) => {
+            let result: Object = null;
+            this.options.api.getModel().forEachNode(function (it) {
+                if (it.data.id === id) {
+                    result = it.data;
+                }
+            });
+            return result;
+        },
+
+        //sets a new datasource or add a datasource to specific node  children collection
+        reload: (data?: any[], nodeId?: number) => {
+            let nodes: ITreeNode[] = [];
+
+            this._datasource = this._datasource || [];
+            if (data) {
+                nodes = data.map(function (it) {
+                    return this.mapData(it, this.propertyMap);
+                }.bind(this)) as ITreeNode[];
+            }
+
+            if (nodeId) {
+                const node = this.getNode(nodeId, this._datasource);
+                if (node) {
+                    node.open = true;
+                    node.loaded = true;
+                    node.children = nodes;
+                }
+            } else {
+                this._datasource = nodes;
+            }
+
+            this.options.api.setRowData(this._datasource);
+
+            if (this.selectedRowNode) {
+                this.options.api.forEachNode((node) => {
+                    if (node.data.id === this.selectedRowNode.data.id) {
+                        node.setSelected(true, true);
+                        this.selectedRowNode = node;
+                    }
+                });
+            }
+        },
+
+        refresh: (id?: number) => {
+            if (id) {
+                let nodes = [];
+                this.options.api.getModel().forEachNode(function (node) {
+                    if (node.data.id === id) {
+                        nodes.push(node);
+                    }
+                });
+                this.options.api.refreshRows(nodes);
+            } else {
+                this.options.api.refreshView();
+            }
+        }
+    };
 
     private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
         let item: ITreeNode;
@@ -221,94 +312,11 @@ export class BPTreeController implements IBPTreeController {
         return item;
     };
 
-    //to select a tree node in ag grid
-    public selectNode(id: number) {
-        this.options.api.getModel().forEachNode((it: RowNode) => {
-            if (it.data.id === id) {
-                it.setSelected(true, true);
-            }
-        });
-        this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
-    }
-
-    public clearSelection() {
-        const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
-        if (selectedNodes && selectedNodes.length) {
-            selectedNodes.map(node => {
-                node.setSelected(false);
-            });
-            this.clearFocus();
-        }
-    }
-
     private clearFocus() {
         this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
     }
 
-    public nodeExists(id: number): boolean {
-        let found: boolean = false;
-        this.options.api.getModel().forEachNode(function (it) {
-            if (it.data.id === id) {
-                found = true;
-            }
-        });
-
-        return found;
-    }
-
-    public getNodeData(id: number): Object {
-        let result: Object = null;
-        this.options.api.getModel().forEachNode(function (it) {
-            if (it.data.id === id) {
-                result = it.data;
-            }
-        });
-        return result;
-    }
-
-    //sets a new datasource or add a datasource to specific node  children collection
-    public reload(data?: any[], nodeId?: number) {
-        let nodes: ITreeNode[] = [];
-
-        this._datasource = this._datasource || [];
-        if (data) {
-            nodes = data.map(function (it) {
-                return this.mapData(it, this.propertyMap);
-            }.bind(this)) as ITreeNode[];
-        }
-
-        if (nodeId) {
-            const node = this.getNode(nodeId, this._datasource);
-            if (node) {
-                node.open = true;
-                node.loaded = true;
-                node.children = nodes;
-            }
-        } else {
-            this._datasource = nodes;
-        }
-
-        this.options.api.setRowData(this._datasource);
-
-        if (this.selectedRowNode) {
-            this.options.api.forEachNode((node) => {
-                if (node.data.id === this.selectedRowNode.data.id) {
-                    node.setSelected(true, true);
-                    this.selectedRowNode = node;
-                }
-            });
-        }
-    }
-
-    public showLoading = () => {
-        this.options.api.showLoadingOverlay();
-    };
-
-    public showNoRows = () => {
-        this.options.api.showNoRowsOverlay();
-    };
-
-    public hideOverlays = () => {
+    private hideOverlays = () => {
         this.options.api.hideOverlay();
     };
 
@@ -348,6 +356,8 @@ export class BPTreeController implements IBPTreeController {
         return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
     };
 
+    // Callbacks
+
     private getNodeChildDetails(node: ITreeNode) {
         if (node.children) {
             return {
@@ -367,6 +377,8 @@ export class BPTreeController implements IBPTreeController {
         //return node.key; //it is initially undefined for non folder???
     };
 
+    // Event handlers
+
     private onGridReady = (params: any) => {
         if (params && params.api) {
             params.api.sizeColumnsToFit();
@@ -378,7 +390,7 @@ export class BPTreeController implements IBPTreeController {
             let nodes = this.onLoad({prms: null});
             if (_.isArray(nodes)) {
                 //this.addNode(nodes);
-                this.reload(nodes);
+                this.api.reload(nodes);
             }
         }
     };
@@ -402,7 +414,7 @@ export class BPTreeController implements IBPTreeController {
                 //this verifes and updates current node to inject children
                 //NOTE:: this method may uppdate grid datasource using setDataSource method
                 if (_.isArray(nodes)) {
-                    this.reload(nodes, node.data.id); // pass nothing to just reload
+                    this.api.reload(nodes, node.data.id); // pass nothing to just reload
                 }
             }
         }
@@ -414,7 +426,7 @@ export class BPTreeController implements IBPTreeController {
         }
     };
 
-    public rowSelected = (event: {node: RowNode}) => {
+    private rowSelected = (event: {node: RowNode}) => {
         const node = event.node;
         const isSelected = node.isSelected();
 
@@ -450,17 +462,4 @@ export class BPTreeController implements IBPTreeController {
             this.onRowPostCreate({prms: params});
         }
     };
-    public refresh = (id?: number) => {
-        if (id) {
-            let nodes = [];
-            this.options.api.getModel().forEachNode(function (node) {
-                if (node.data.id === id) {
-                    nodes.push(node);
-                }
-            });
-            this.options.api.refreshRows(nodes);
-        } else {
-            this.options.api.refreshView();
-        }
-    }    
 }

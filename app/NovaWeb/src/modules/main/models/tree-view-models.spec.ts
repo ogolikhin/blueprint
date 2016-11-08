@@ -1,7 +1,6 @@
 import "angular";
 import "angular-mocks";
 import {Models, AdminStoreModels, SearchServiceModels} from "./";
-import {IArtifactManager} from "../../managers/";
 import {IProjectService} from "../../managers/project-manager/";
 import {TreeNodeVMFactory} from "./tree-view-models";
 

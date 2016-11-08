@@ -5,10 +5,9 @@ import {
     ILocalizationService,
     IArtifactManager,
     IMessageService,
-    IWindowManager,
-    PropertyContext
+    IWindowManager
 } from "./bp-artifact-editor";
-
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
@@ -20,15 +19,16 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "messageService",
         "artifactManager",
         "windowManager",
-        "localization"
+        "localization",
+        "propertyDescriptorBuilder"
     ];
 
     constructor(messageService: IMessageService,
         artifactManager: IArtifactManager,
         windowManager: IWindowManager,
         localization: ILocalizationService,
-        private dialogService: IDialogService) {
-        super(messageService, artifactManager, windowManager, localization);
+        propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -82,7 +82,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     }
 
     public onFieldUpdate(field: AngularFormly.IFieldConfigurationObject) {
-        const propertyContext = field.data as PropertyContext;
+        const propertyContext = field.data as IPropertyDescriptor;
         if (!propertyContext) {
             return;
         }

@@ -1,7 +1,7 @@
 ﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {ILocalizationService} from "../../../core";
-import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./bp-artifact-picker-search-vm";
+import {SearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
@@ -32,18 +32,15 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     };
 }
 
-export interface IArtifactPickerOptions {
+export interface IArtifactPickerController {
+    project: AdminStoreModels.IInstanceItem;
+
+    // BpArtifactPicker bindings
     isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
     isOneProjectLevel?: boolean;
-}
-
-export interface IArtifactPickerController extends IArtifactPickerOptions {
-    project: AdminStoreModels.IInstanceItem;
-
-    // BpArtifactPicker bindings
     onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
@@ -75,7 +72,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
-    public factory: TreeViewModels.TreeNodeVMFactory;
+    public factory: SearchResultVMFactory;
 
     static $inject = [
         "$scope",
@@ -94,7 +91,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
         this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
-        this.factory = new TreeViewModels.TreeNodeVMFactory(this.projectService, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
+        this.factory = new SearchResultVMFactory(this.projectService, this.onSelect, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
     };
 
     public $onInit(): void {
@@ -217,7 +214,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     };
 
     public onDouble(vm: SearchResultVM<any>): void {
-        if (this.onDoubleClick && this.selectionMode === "single") {
+        if (this.onDoubleClick && this.selectionMode === "single" && vm.isSelectable) {
             this.onDoubleClick({vm: vm});
         }
     }
@@ -242,13 +239,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     includeArtifactPath: true
                 };
                 searchResults = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1)
-                    .then(result => result.items.map(r => new ArtifactSearchResultVM(r, this.onSelect)));
+                    .then(result => result.items.map(r => this.factory.createArtifactSearchResultVM(r)));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText
                 };
                 searchResults = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1)
-                    .then(result => result.items.map(r => new ProjectSearchResultVM(r, this.onSelect)));
+                    .then(result => result.items.map(r => this.factory.createProjectSearchResultVM(r)));
             }
             searchResults.then(items => {
                 this.searchResults = items.slice(0, BpArtifactPickerController.maxSearchResults);

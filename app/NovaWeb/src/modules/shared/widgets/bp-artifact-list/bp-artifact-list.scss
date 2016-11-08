@@ -12,7 +12,14 @@
     }
 
     &__icon {
+        display: inline-block;
         font-size: $font-size-big;
+        margin-right: 4px;
+        width: 20px;
+
+        img {
+            width: 20px
+        }
     }
 
     &__artifact,

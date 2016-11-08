@@ -1,6 +1,5 @@
 import {ILocalizationService, Message} from "../../core";
 import {IWindowManager, IMainWindow} from "../../main";
-//import { Models, Enums } from "../../main";
 import {
     Models, Enums,
     IArtifactManager,
@@ -10,7 +9,7 @@ import {
 } from "../bp-base-editor";
 
 import {PropertyEditor} from "./bp-property-editor";
-import {PropertyContext} from "./bp-property-context";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 
 export {
     ILocalizationService,
@@ -18,13 +17,12 @@ export {
     IStatefulArtifact,
     IMessageService,
     IWindowManager,
-    PropertyContext,
     Models,
     Enums,
     Message
 }
 
-export class BpArtifactEditor extends BpBaseEditor {
+export abstract class BpArtifactEditor extends BpBaseEditor {
 
     public form: angular.IFormController;
     public model = {};
@@ -35,7 +33,8 @@ export class BpArtifactEditor extends BpBaseEditor {
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
                 public windowManager: IWindowManager,
-                public localization: ILocalizationService) {
+                public localization: ILocalizationService,
+                public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager);
     }
 
@@ -62,7 +61,6 @@ export class BpArtifactEditor extends BpBaseEditor {
 
     public hasFields(): boolean  {
         return (this.fields || []).length > 0;
-
     }
 
     private shouldRenewFields(): boolean {
@@ -78,46 +76,45 @@ export class BpArtifactEditor extends BpBaseEditor {
     }
 
     public onArtifactReady() {
-        if (this.artifact) {
-            this.artifact.metadata.getArtifactPropertyTypes().then((propertyTypes) => {
-                if (this.editor ) {
-                    const shouldCreateFields = this.editor.create(this.artifact, propertyTypes, this.shouldRenewFields());
-                    if (shouldCreateFields) {
-                        this.clearFields();
-                        this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                            //add property change handler to each field
-                            Object.assign(field.templateOptions, {
-                                onChange: this.onValueChange.bind(this)
-                            });
+        if (this.isDestroyed) {
+            return;
+        }
+        this.propertyDescriptorBuilder.createArtifactPropertyDescriptors(this.artifact).then(propertyContexts => {
+            this.displayContent(propertyContexts);
+        });
+    }
 
-                            const isReadOnly = this.artifact.artifactState.readonly;
-                            field.templateOptions["isReadOnly"] = isReadOnly;
-                            if (isReadOnly) {
-                                if (field.type !== "bpDocumentFile" &&
-                                    field.type !== "bpFieldImage" &&
-                                    field.type !== "bpFieldInheritFrom") {
-                                    field.type = "bpFieldReadOnly";
-                                }
-                            }
-                            this.onFieldUpdate(field);
-                        });
-                    } else {
-                        this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
-                            field.data["isFresh"] = true;
-                        });
+    private displayContent(propertyContexts: IPropertyDescriptor[]) {
+        const shouldCreateFields = this.editor.create(this.artifact, propertyContexts, this.shouldRenewFields());
+        if (shouldCreateFields) {
+            this.clearFields();
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                //add property change handler to each field
+                Object.assign(field.templateOptions, {
+                    onChange: this.onValueChange.bind(this)
+                });
+
+                const isReadOnly = this.artifact.artifactState.readonly;
+                field.templateOptions["isReadOnly"] = isReadOnly;
+                if (isReadOnly) {
+                    if (field.type !== "bpDocumentFile" &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {
+                        field.type = "bpFieldReadOnly";
                     }
-                    this.model = this.editor.getModel();
-
-                    this.setArtifactEditorLabelsWidth();
-                    super.onArtifactReady();
-                    this.onFieldUpdateFinished();
                 }
-
+                this.onFieldUpdate(field);
             });
         } else {
-            this.setArtifactEditorLabelsWidth();
-            super.onArtifactReady();
+            this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
+                field.data["isFresh"] = true;
+            });
         }
+        this.model = this.editor.getModel();
+
+        this.setArtifactEditorLabelsWidth();
+        super.onArtifactReady();
+        this.onFieldUpdateFinished();
     }
 
     protected onFieldUpdateFinished() {
@@ -140,19 +137,18 @@ export class BpArtifactEditor extends BpBaseEditor {
         }
     };
 
-
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
         $scope.$applyAsync(() => {
             try {
                 //here we need to update original model
-                let context = $field.data as PropertyContext;
+                const context = $field.data as IPropertyDescriptor;
                 if (!context) {
                     return;
                 }
                 if (!this.editor) {
                     return;
                 }
-                let value = this.editor.convertToModelValue($field, $value);
+                const value = this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);
@@ -175,8 +171,4 @@ export class BpArtifactEditor extends BpBaseEditor {
             }
         });
     };
-
-
 }
-
-

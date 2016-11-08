@@ -155,17 +155,19 @@ export class ProjectManager implements IProjectManager {
     public refresh(project: Models.IProject): ng.IPromise<any> {
         let defer = this.$q.defer<any>();
 
+        let selectedArtifact = this.artifactManager.selection.getArtifact();
+
         let projectNode: Project;
         if (!project) {
-            throw new Error("Project_NotFound");
+            defer.reject();
+            return defer.promise;
         }
         projectNode = this.getProject(project.id);
         if (!projectNode) {
-            throw new Error("Project_NotFound");
+            defer.reject();
+            return defer.promise;
         }
-
-        let selectedArtifact = this.artifactManager.selection.getArtifact();
-
+        
         //if selected artifact is dirty and is in the project being refreshed - perform autosave
         let autosavePromise = this.$q.defer<any>();
         if (selectedArtifact.artifactState.dirty && selectedArtifact.projectId === project.id) {

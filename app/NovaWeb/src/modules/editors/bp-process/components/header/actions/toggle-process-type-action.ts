@@ -2,7 +2,7 @@ import {BPToggleAction, BPToggleItemAction} from "../../../../../shared";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessType} from "../../../models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
-import {ILocalizationService} from "../../../../../core";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
     constructor(

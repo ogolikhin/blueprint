@@ -1,22 +1,17 @@
-import * as angular from "angular";
 import * as _ from "lodash";
-import {Models, Enums} from "../../main";
+import {Models} from "../../main";
 import {IColumn, ITreeViewNode, IColumnRendererParams} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
-import {IStatefulCollectionArtifact, ICollection, ICollectionArtifact} from "./collection-artifact";
-import {Helper} from "../../shared";
+import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
+import {Helper, IDialogService} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
-import {
-    ILocalizationService,
-    IArtifactManager,
-    IMessageService,
-    IWindowManager
-} from "../bp-artifact/bp-artifact-editor";
-
-import {IDialogService} from "../../shared";
+import {ChangeTypeEnum, IChangeSet} from "../../managers/artifact-manager/changeset";
+import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {ILocalizationService} from "../../core/localization/localizationService";
+import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
+import {IWindowManager} from "../../main/services/window-manager";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -49,18 +44,17 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     //public selectedVMsLength: number;
 
     constructor(private $state: ng.ui.IStateService,
-        messageService: IMessageService,
-        artifactManager: IArtifactManager,
-        windowManager: IWindowManager,
-        localization: ILocalizationService,
-        propertyDescriptorBuilder: IPropertyDescriptorBuilder,
-        private dialogService: IDialogService,
-        private collectionService: ICollectionService,
-        private metadataService: IMetaDataService,
-        private $location: ng.ILocationService,
-        private $window: ng.IWindowService,
-        private $scope: ng.IScope
-    ) {
+                messageService: IMessageService,
+                artifactManager: IArtifactManager,
+                windowManager: IWindowManager,
+                localization: ILocalizationService,
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                private dialogService: IDialogService,
+                private collectionService: ICollectionService,
+                private metadataService: IMetaDataService,
+                private $location: ng.ILocationService,
+                private $window: ng.IWindowService,
+                private $scope: ng.IScope) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
@@ -178,7 +172,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 const collectionNodeVM = <CollectionNodeVM>params.vm;
                 const prefix = Helper.escapeHTMLText(collectionNodeVM.model.prefix);
                 const icon = collectionNodeVM.getIcon();
-                const url = this.$state.href("main.item", { id: collectionNodeVM.model.id });
+                const url = this.$state.href("main.item", {id: collectionNodeVM.model.id});
                 return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" class="collection__link"
                             ng-click="$event.stopPropagation();">${prefix}${collectionNodeVM.model.id}</a></span>`;
             }
@@ -197,12 +191,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         tooltipText += " > ";
                     }
 
-                    tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}` ;
+                    tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
                 });
 
                 return `<div bp-tooltip="${collectionNodeVM.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
-                            `${collectionNodeVM.model.name}</div>` +
-                            `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
+                    `${collectionNodeVM.model.name}</div>` +
+                    `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
             }
         },
         {

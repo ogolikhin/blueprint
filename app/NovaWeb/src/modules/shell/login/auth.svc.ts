@@ -1,8 +1,11 @@
-﻿import * as angular from "angular";
-import {SessionTokenHelper} from "./session.token.helper";
-import {ILocalizationService, ISettingsService, IHttpInterceptorConfig, HttpStatusCode, ApplicationError} from "../../core";
+﻿import {SessionTokenHelper} from "./session.token.helper";
 import {Helper} from "../../shared";
+import {ISettingsService} from "../../core/configuration/settings";
 import {LicenseTypeEnum} from "../../main/models/enums";
+import {ApplicationError} from "../../core/error/applicationError";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {IHttpInterceptorConfig} from "../../core/http/http-interceptor-config";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface IUser {
     id: number;

@@ -1,5 +1,3 @@
-import * as angular from "angular";
-import {ILocalizationService} from "../../../core";
 import {Relationships} from "../../../main";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {
@@ -14,6 +12,7 @@ import {IBpAccordionPanelController} from "../../../main/components/bp-accordion
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Helper} from "../../../shared/utils/helper";
 import {ManageTracesDialogController} from "../../../main/components/dialogs/bp-manage-traces";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 interface IOptions {
     value: string;

@@ -1,12 +1,13 @@
-import "angular";
 import {IArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "../../../../managers/artifact-manager";
 import {Helper} from "../../../../shared/utils/helper";
-import {ILocalizationService, IMessageService, ISettingsService} from "../../../../core";
 import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
 import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {BPFieldBaseController} from "../base-controller";
+import {ISettingsService} from "../../../../core/configuration/settings";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";
@@ -20,7 +21,15 @@ export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
 }
 
 export class BPFieldDocumentFileController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "artifactAttachments", "$window", "messageService", "dialogService", "settings"];
+    static $inject: [string] = [
+        "$scope",
+        "localization",
+        "artifactAttachments",
+        "$window",
+        "messageService",
+        "dialogService",
+        "settings"
+    ];
 
     constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
@@ -36,7 +45,6 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
 
-        let currentModelVal = this.$scope.model[this.$scope.options["key"]];
         let guid: number; //we use this to download newly added files (prior to saving).
 
         let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);

@@ -1,8 +1,7 @@
-import * as angular from "angular";
-import {ILocalizationService} from "../../../../core";
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 
 export interface IOpenProjectController {

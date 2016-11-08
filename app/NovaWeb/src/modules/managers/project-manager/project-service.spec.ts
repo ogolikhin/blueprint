@@ -1,9 +1,9 @@
 import * as angular from "angular";
 import "angular-mocks";
 import {Models, AdminStoreModels, SearchServiceModels} from "../../main/models";
-import {HttpStatusCode} from "../../core/http";
 import {IProjectService, ProjectService} from "./project-service";
 import {ProjectServiceMock} from "./project-service.mock";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("Project Repository", () => {
 

@@ -1,9 +1,10 @@
 import * as angular from "angular";
 import "angular-mocks";
-import { ApplicationError, HttpStatusCode} from "../../../core";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, IArtifactService, ArtifactService} from "./artifact.svc";
 import {ArtifactServiceMock} from "./artifact.svc.mock";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {ApplicationError} from "../../../core/error/applicationError";
 
 describe("Artifact Repository", () => {
 
@@ -41,7 +42,7 @@ describe("Artifact Repository", () => {
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/100")
                 .respond(HttpStatusCode.Unauthorized, new ApplicationError({
                         statusCode: HttpStatusCode.Unauthorized
-                    }) 
+                    })
                 );
 
             // Act

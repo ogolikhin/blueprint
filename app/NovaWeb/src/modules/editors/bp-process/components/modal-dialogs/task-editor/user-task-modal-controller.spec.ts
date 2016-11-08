@@ -1,20 +1,17 @@
 import * as angular from "angular";
 import "angular-mocks";
-require("script!mxClient");
 import "../../..";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {ILocalizationService} from "../../../../../core/localization";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
-import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
-import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
-import {IDialogSettings, IDialogService} from "../../../../../shared";
+import {NodeType} from "../../diagram/presentation/graph/models";
+import {IDialogService} from "../../../../../shared";
 import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
 import {UserTaskModalController} from "./user-task-modal-controller";
-import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
-import {DiagramNodeElement, UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
+import {IArtifactReference} from "../../../models/process-models";
+import {UserTask} from "../../diagram/presentation/graph/shapes/";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
+require("script!mxClient");
 
 describe("UserTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -29,13 +26,11 @@ describe("UserTaskModalController", () => {
         $provide.service("localization", LocalizationServiceMock);
     }));
 
-    beforeEach(inject((
-        _$rootScope_: ng.IRootScopeService,
-        _$timeout_: ng.ITimeoutService,
-        _$location_: ng.ILocationService,
-        _localization_: ILocalizationService,
-        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
-    ) => {
+    beforeEach(inject((_$rootScope_: ng.IRootScopeService,
+                       _$timeout_: ng.ITimeoutService,
+                       _$location_: ng.ILocationService,
+                       _localization_: ILocalizationService,
+                       _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance) => {
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
         localization = _localization_;
@@ -44,7 +39,7 @@ describe("UserTaskModalController", () => {
 
     function createUserTaskNode(): UserTask {
         return <UserTask>{
-            model: { id: 1 },
+            model: {id: 1},
             direction: null,
             action: null,
             label: null,

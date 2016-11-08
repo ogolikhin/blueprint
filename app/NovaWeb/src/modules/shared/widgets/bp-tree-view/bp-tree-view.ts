@@ -1,8 +1,7 @@
 import * as _ from "lodash";
-import * as angular from "angular";
 import * as agGrid from "ag-grid/main";
-import {ILocalizationService} from "../../../core";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 /**
  * Usage:

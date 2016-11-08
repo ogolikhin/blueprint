@@ -4,11 +4,12 @@ import "../../../";
 import {SaveAction} from "./save-action";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService, IMessageService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("SaveAction", () => {
     let $scope: ng.IScope;

@@ -4,11 +4,12 @@ import "../../../";
 import {PublishAction} from "./publish-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService, IMessageService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("PublishAction", () => {
     let $q: ng.IQService;

@@ -1,8 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
 import {GenerateUserStoriesAction} from "./generate-user-stories-action";
-import {IStatefulArtifact, StatefulArtifact} from "../../../../../managers/artifact-manager/artifact";
-import {IProcess} from "../../../models/process-models";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {UserStoryServiceMock} from "../../../services/user-story.svc.mock";
@@ -12,10 +10,10 @@ import {LocalizationServiceMock} from "../../../../../core/localization/localiza
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {CommunicationManager} from "../../../";
 import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
-import {ErrorCode} from "../../../../../core/error";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {LoadingOverlayService} from "../../../../../core/loading-overlay";
 import * as TestModels from "../../../models/test-model-factory";
+import {ErrorCode} from "../../../../../core/error/error-code";
+import {LoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
 
 describe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -70,13 +68,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    null, 
-                    selectionManager, 
-                    messageService, 
-                    localization, 
-                    dialogService, 
-                    loadingOverlayService, 
+                    process,
+                    null,
+                    selectionManager,
+                    messageService,
+                    localization,
+                    dialogService,
+                    loadingOverlayService,
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -96,13 +94,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    userStoryService, 
-                    null, 
-                    messageService, 
-                    localization, 
-                    dialogService, 
-                    loadingOverlayService, 
+                    process,
+                    userStoryService,
+                    null,
+                    messageService,
+                    localization,
+                    dialogService,
+                    loadingOverlayService,
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -122,13 +120,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    userStoryService, 
-                    selectionManager, 
-                    null, 
-                    localization, 
-                    dialogService, 
-                    loadingOverlayService, 
+                    process,
+                    userStoryService,
+                    selectionManager,
+                    null,
+                    localization,
+                    dialogService,
+                    loadingOverlayService,
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -148,13 +146,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    userStoryService, 
-                    selectionManager, 
-                    messageService, 
-                    null, 
-                    dialogService, 
-                    loadingOverlayService, 
+                    process,
+                    userStoryService,
+                    selectionManager,
+                    messageService,
+                    null,
+                    dialogService,
+                    loadingOverlayService,
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -174,13 +172,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    userStoryService, 
-                    selectionManager, 
-                    messageService, 
-                    localization, 
-                    null, 
-                    loadingOverlayService, 
+                    process,
+                    userStoryService,
+                    selectionManager,
+                    messageService,
+                    localization,
+                    null,
+                    loadingOverlayService,
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -200,13 +198,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    userStoryService, 
-                    selectionManager, 
-                    messageService, 
-                    localization, 
-                    dialogService, 
-                    null, 
+                    process,
+                    userStoryService,
+                    selectionManager,
+                    messageService,
+                    localization,
+                    dialogService,
+                    null,
                     communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
@@ -226,13 +224,13 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(
-                    process, 
-                    userStoryService, 
-                    selectionManager, 
-                    messageService, 
-                    localization, 
-                    dialogService, 
-                    loadingOverlayService, 
+                    process,
+                    userStoryService,
+                    selectionManager,
+                    messageService,
+                    localization,
+                    dialogService,
+                    loadingOverlayService,
                     null
                 );
             } catch (exception) {
@@ -249,16 +247,16 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process is null", () => {
             // arrange
             const process = null;
-            
+
             // act
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
 
@@ -270,13 +268,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
 
@@ -291,13 +289,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
 
@@ -313,16 +311,16 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process is null", () => {
             // arrange
             const process = null;
-            
+
             // act
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -335,20 +333,20 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
-            
+
             // act
             process["state"] = null;
-            
+
 
             // assert
             expect(generateFromTask.disabled).toBe(true);
@@ -358,13 +356,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -380,13 +378,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -402,13 +400,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -426,13 +424,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -450,13 +448,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -474,13 +472,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -498,13 +496,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -522,13 +520,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -546,13 +544,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -570,13 +568,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -594,13 +592,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -621,13 +619,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -649,13 +647,13 @@ describe("GenerateUserStoriesAction", () => {
             const version = -1; // unpublished draft
             const process = createStatefulProcessArtifact(version);
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -678,13 +676,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -708,13 +706,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -748,13 +746,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -798,13 +796,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -848,13 +846,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -896,13 +894,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -920,7 +918,7 @@ describe("GenerateUserStoriesAction", () => {
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
-            
+
             // act
             generateFromTask.execute();
             $rootScope.$digest();
@@ -935,13 +933,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateFromTask = action.actions[0];
@@ -974,13 +972,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const userStories = [ {} ];
@@ -1025,16 +1023,16 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process is null", () => {
             // arrange
             const process = null;
-            
+
             // act
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1047,13 +1045,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1069,13 +1067,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1091,13 +1089,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1113,13 +1111,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1137,13 +1135,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1161,13 +1159,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1197,13 +1195,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const generateAll = action.actions[1];
@@ -1233,13 +1231,13 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(
-                process, 
-                userStoryService, 
-                selectionManager, 
-                messageService, 
-                localization, 
-                dialogService, 
-                loadingOverlayService, 
+                process,
+                userStoryService,
+                selectionManager,
+                messageService,
+                localization,
+                dialogService,
+                loadingOverlayService,
                 communicationManager.processDiagramCommunication
             );
             const userStories = [ {}, {}, {} ];
@@ -1284,6 +1282,6 @@ function createStatefulProcessArtifact(version: number = 1): StatefulProcessArti
         permissions: RolePermissions.Edit,
         version: version
     };
-    
+
     return new StatefulProcessArtifact(artifactModel, null);
 }

@@ -1,9 +1,9 @@
-import { UserTask, SystemTask } from "../../diagram/presentation/graph/shapes/";
-import { UserStoryProperties } from "../../diagram/presentation/graph/shapes/user-task";
-import { IDiagramNode } from "../../diagram/presentation/graph/models";
-import { IArtifactManager } from "../../../../../managers";
-import { IStatefulArtifact, IStatefulArtifactFactory } from "../../../../../managers/artifact-manager";
-import { IMessageService, ILocalizationService } from "../../../../../core";
+import {UserStoryProperties} from "../../diagram/presentation/graph/shapes/user-task";
+import {IDiagramNode} from "../../diagram/presentation/graph/models";
+import {IArtifactManager} from "../../../../../managers";
+import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager";
+import {IMessageService} from "../../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -123,20 +123,19 @@ export class PreviewCenterController {
 
     public navigateToUserStory() {
         let artifactId = this.userStoryId;
-        const url = this.$state.href("main.item", { id: artifactId });
+        const url = this.$state.href("main.item", {id: artifactId});
         this.$window.open(url, "_blank");
     }
 
     constructor(private $window: ng.IWindowService,
-        private $scope: ng.IScope,
-        private $rootScope: ng.IRootScopeService,
-        private $sce: ng.ISCEService,
-        private artifactManager: IArtifactManager,
-        private $state: angular.ui.IStateService,
-        private statefulArtifactFactory: IStatefulArtifactFactory,
-        private messageService: IMessageService,
-        private localization: ILocalizationService
-    ) {
+                private $scope: ng.IScope,
+                private $rootScope: ng.IRootScopeService,
+                private $sce: ng.ISCEService,
+                private artifactManager: IArtifactManager,
+                private $state: angular.ui.IStateService,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private messageService: IMessageService,
+                private localization: ILocalizationService) {
 
         this.subscribers = [];
         this.isReadonly = $scope.$parent["vm"].isReadonly;
@@ -181,9 +180,9 @@ export class PreviewCenterController {
         if (userStoryId) {
             const artifact = this.artifactManager.get(userStoryId);
             if (artifact) {
-                this.statefulUserStoryArtifact = artifact;               
+                this.statefulUserStoryArtifact = artifact;
             } else {
-                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({ id: userStoryId });
+                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({id: userStoryId});
             }
             const stateObserver = this.statefulUserStoryArtifact.artifactState.onStateChange.debounce(100).subscribe(
                 (state) => {
@@ -212,7 +211,7 @@ export class PreviewCenterController {
                     this.title = propertyValue.value;
                 } else if (this.doesPropertyNameContain(propertyType.name, this.userStoryAcceptanceCriteria)) {
                     this.acceptanceCriteria = propertyValue.value;
-                } 
+                }
             });
         });
     }

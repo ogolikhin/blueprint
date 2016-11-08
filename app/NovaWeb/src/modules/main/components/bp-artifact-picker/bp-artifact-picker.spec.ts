@@ -2,11 +2,11 @@
 import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
-import {ILocalizationService} from "../../../core";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 describe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])

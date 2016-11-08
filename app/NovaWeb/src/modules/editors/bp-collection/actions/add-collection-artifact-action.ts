@@ -1,11 +1,10 @@
 import {BPButtonAction} from "../../../shared";
-import {IStatefulArtifact} from "../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../core";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
-import {Enums, Models} from "../../../main/models";
+import {Models} from "../../../main/models";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class AddCollectionArtifactAction extends BPButtonAction {
     constructor(artifact: IStatefulCollectionArtifact,

@@ -1,9 +1,9 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
-import {ILocalizationService, IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
+﻿import "angular-mocks";
+import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {ITinyMceMentionOptions, MentionService} from "./mention.svc";
 import {UsersAndGroupsServiceMock, UserOrGroupInfo} from "../../../../core/services/users-and-groups.svc.mock";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 /* tslint:disable:max-line-length */
 describe("Mention Service Test", () => {
@@ -12,17 +12,18 @@ describe("Mention Service Test", () => {
         $provide.service("userService", UsersAndGroupsServiceMock);
         $provide.service("localization", LocalizationServiceMock);
     }));
-    it("Mentions Service Test Render User Icon", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
-        mentions = new MentionService(userService, $rootScope, localization, $compile).create(true);
-        mentions["query"] = "test"; // emulating mention plugin internal query value
-        // Arrange
-        const person = new UserOrGroupInfo("test name", "a@a.com", false, false);
-        person.id = "id";
-        //Act
-        const result = mentions.render(person).innerHTML;
-        //Assert
-        expect(result.indexOf(`<bp-avatar icon="" name="test name"`) >= 0).toBeTruthy();
-    }));
+    it("Mentions Service Test Render User Icon",
+        inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
+            mentions = new MentionService(userService, $rootScope, localization, $compile).create(true);
+            mentions["query"] = "test"; // emulating mention plugin internal query value
+            // Arrange
+            const person = new UserOrGroupInfo("test name", "a@a.com", false, false);
+            person.id = "id";
+            //Act
+            const result = mentions.render(person).innerHTML;
+            //Assert
+            expect(result.indexOf(`<bp-avatar icon="" name="test name"`) >= 0).toBeTruthy();
+        }));
     it("Mentions Service Test Render User Unauthorize Icon", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
         mentions = new MentionService(userService, $rootScope, localization, $compile).create(true);
         // Arrange

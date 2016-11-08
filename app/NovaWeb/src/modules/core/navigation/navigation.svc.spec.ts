@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "angular-ui-router";
 import {INavigationService, NavigationService} from "./navigation.svc";
@@ -128,7 +127,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId });
+                navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -143,7 +142,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId });
+                navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -158,7 +157,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId, enableTracking: true });
+                navigationService.navigateTo({id: targetArtifactId, enableTracking: true});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -185,7 +184,7 @@ describe("NavigationService", () => {
                 const stateGoSpy = spyOn($state, "go");
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId })
+                navigationService.navigateTo({id: targetArtifactId})
                     .catch((error: any) => {
                         // assert
                         expect(stateGoSpy).not.toHaveBeenCalledWith();
@@ -220,7 +219,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId });
+                navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -235,7 +234,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId });
+                navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -250,7 +249,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId, enableTracking: true });
+                navigationService.navigateTo({id: targetArtifactId, enableTracking: true});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -286,7 +285,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId });
+                navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -301,7 +300,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId });
+                navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -316,7 +315,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
-                navigationService.navigateTo({ id: targetArtifactId, enableTracking: true });
+                navigationService.navigateTo({id: targetArtifactId, enableTracking: true});
 
                 // assert
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);

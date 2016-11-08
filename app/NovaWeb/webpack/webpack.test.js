@@ -6,18 +6,18 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
-      {
-          test: /^((?!\.(spec)|(mock)\.ts).)*.ts$/,
-          exclude: [/node_modules/, /bower_components/, /storyteller/],
-          loader: 'istanbul-instrumenter'
-      }
+    {
+        test: /^((?!\.(spec)|(mock)\.ts).)*.ts$/,
+        exclude: [/node_modules/, /bower_components/, /storyteller/],
+        loader: 'istanbul-instrumenter'
+    }
 ];
 var preLoaders = [
-      {
-          test: /\.ts$/,
-          loader: 'tslint-loader',
-          exclude: [/node_modules/, /storyteller/]
-      }
+    {
+        test: /\.ts$/,
+        loader: 'tslint-loader',
+        exclude: [/node_modules/, /storyteller/]
+    }
 ];
 function isDebug(argument) {
     return argument === '--debug';
@@ -31,45 +31,43 @@ if (process.argv.some(isDebug)) {
 }
 
 module.exports = {
-  entry: ['./src/index.ts'],
-  output: {
-    filename: 'build.js',
-    path: 'tmp'
-  },
-  resolve: {
-    root: __dirname,
-    extensions: ['', '.ts', '.js', '.json'],
-    alias: {
-        tinymce: 'tinymce/tinymce',
-        mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
-    }
-  },
-    tslint: {
-
+    entry: ['./src/index.ts'],
+    output: {
+        filename: 'build.js',
+        path: 'tmp'
     },
-  resolveLoader: {
-    modulesDirectories: ["node_modules"]
-  },
-  devtool: sourceMap,
-  bail: true,
-  plugins: [
-    FailPlugin,
-    new ExtractTextPlugin("[name].css"),
-    new webpack.ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery',
-      'window.jquery': 'jquery'
-    }),
-    new webpack.DefinePlugin({
-        VERSION: JSON.stringify(require('../package.json').version),
-        BUILD_YEAR: new Date().getFullYear().toString()
-    })
-  ],
-  module: {
-    loaders: loaders,
-    postLoaders: postLoaders,
-    preLoaders: preLoaders
-  }
+    resolve: {
+        root: __dirname,
+        extensions: ['', '.ts', '.js', '.json'],
+        alias: {
+            tinymce: 'tinymce/tinymce',
+            mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
+        }
+    },
+    tslint: {},
+    resolveLoader: {
+        modulesDirectories: ["node_modules"]
+    },
+    devtool: sourceMap,
+    bail: true,
+    plugins: [
+        FailPlugin,
+        new ExtractTextPlugin("[name].css"),
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+            'window.jQuery': 'jquery',
+            'window.jquery': 'jquery'
+        }),
+        new webpack.DefinePlugin({
+            VERSION: JSON.stringify(require('../package.json').version),
+            BUILD_YEAR: new Date().getFullYear().toString()
+        })
+    ],
+    module: {
+        loaders: loaders,
+        postLoaders: postLoaders,
+        preLoaders: preLoaders
+    }
 };
 

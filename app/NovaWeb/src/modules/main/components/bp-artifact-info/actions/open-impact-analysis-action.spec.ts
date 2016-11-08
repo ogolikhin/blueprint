@@ -4,9 +4,9 @@ import "../../../";
 import {OpenImpactAnalysisAction} from "./open-impact-analysis-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService} from "../../../../core";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("OpenImpactAnalysisAction", () => {
     beforeEach(angular.mock.module("app.main"));

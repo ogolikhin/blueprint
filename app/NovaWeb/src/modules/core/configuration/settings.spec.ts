@@ -1,6 +1,5 @@
 import "angular";
 import "angular-mocks";
-
 import {SettingsService, ISettingsService} from "./settings";
 
 describe("Settings", () => {

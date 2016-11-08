@@ -90,6 +90,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
                         .subscribeOnNext(this.onSelectedArtifactChange);
+
+
     }
 
     private onLoadProject = (projects: Project[]) => {

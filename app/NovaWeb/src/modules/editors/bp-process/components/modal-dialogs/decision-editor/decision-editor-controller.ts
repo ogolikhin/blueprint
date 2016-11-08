@@ -1,14 +1,12 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {DecisionEditorModel} from "./decision-editor-model";
-import {ArtifactUpdateType} from "../../../models/enums";
-import {IArtifactReference, IProcessLink} from "../../../models/process-models";
+import {IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {Condition} from "../../diagram/presentation/graph/shapes";
-import {NodeType, NodeChange, IDiagramNode, IDiagramLink, ICondition} from "../../diagram/presentation/graph/models";
-import {IProcessService} from "../../../services/process.svc";
-import {ILocalizationService} from "../../../../../core";
+import {NodeType, IDiagramNode, IDiagramLink, ICondition} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class DecisionEditorController extends BaseModalDialogController<DecisionEditorModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 40;
@@ -42,16 +40,14 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         "localization"
     ];
 
-    constructor(
-        $rootScope: ng.IRootScopeService,
-        $scope: IModalScope,
-        private $timeout: ng.ITimeoutService,
-        private $anchorScroll: ng.IAnchorScrollService,
-        private $location: ng.ILocationService,
-        private localization: ILocalizationService,
-        $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
-        dialogModel?: DecisionEditorModel
-    ) {
+    constructor($rootScope: ng.IRootScopeService,
+                $scope: IModalScope,
+                private $timeout: ng.ITimeoutService,
+                private $anchorScroll: ng.IAnchorScrollService,
+                private $location: ng.ILocationService,
+                private localization: ILocalizationService,
+                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+                dialogModel?: DecisionEditorModel) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
         this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
@@ -98,7 +94,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);
         const newCondition: ICondition = Condition.create(processLink, null, validMergeNodes);
-        
+
         this.dialogModel.conditions.push(newCondition);
         this.refreshView();
         this.scrollToBottomOfConditionList();
@@ -165,7 +161,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         const isMergeNodeUpdate = this.dialogModel.graph.updateMergeNode(this.dialogModel.originalDecision.model.id, conditionToUpdate);
 
         if (conditionToUpdate != null) {
-            link.label =  conditionToUpdate.label;
+            link.label = conditionToUpdate.label;
         }
 
         return isMergeNodeUpdate;
@@ -177,10 +173,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         let isMergeNodeUpdate: boolean = false;
         // update edges
         const outgoingLinks: IDiagramLink[] = this.dialogModel.originalDecision.getOutgoingLinks(this.dialogModel.graph.getMxGraphModel());
-        
+
         for (let outgoingLink of outgoingLinks) {
             if (this.updateExistingEdge(outgoingLink)) {
-                isMergeNodeUpdate = true ;
+                isMergeNodeUpdate = true;
             }
         }
 
@@ -194,7 +190,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         if (this.deletedConditions != null && this.deletedConditions.length > 0) {
             const targetIds: number[] = this.deletedConditions.map((condition: ICondition) => condition.destinationId);
             const decisionId = this.dialogModel.originalDecision.model.id;
-            
+
             ProcessDeleteHelper.deleteDecisionBranches(decisionId, targetIds, this.dialogModel.graph);
         }
     }
@@ -214,7 +210,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     public getMergeNodeLabel(condition: ICondition): string {
         return condition.mergeNode ? condition.mergeNode.label : this.defaultMergeNodeLabel;
     }
-    
+
     private areMergeNodesEmpty(): boolean {
         for (let i = 0; i < this.dialogModel.conditions.length; i++) {
             const condition = this.dialogModel.conditions[i];

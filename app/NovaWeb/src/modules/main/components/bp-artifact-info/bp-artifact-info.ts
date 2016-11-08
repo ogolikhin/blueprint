@@ -1,13 +1,9 @@
-import * as angular from "angular";
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {IMessageService, Message, MessageType, ILocalizationService, IApplicationError, HttpStatusCode } from "../../../core";
-import {ILoadingOverlayService} from "../../../core/loading-overlay";
 import {IArtifactManager, IStatefulArtifact, IMetaDataService, IItemChangeSet} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {
-    Helper,
     IDialogSettings,
     IDialogService,
     IBPAction,
@@ -21,6 +17,10 @@ import {
     DeleteAction,
     OpenImpactAnalysisAction
 } from "./actions";
+import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {Message, MessageType} from "../../../core/messages/message";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -60,19 +60,17 @@ export class BpArtifactInfoController {
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[];
 
-    constructor(
-        public $scope: ng.IScope,
-        private $element: ng.IAugmentedJQuery,
-        protected artifactManager: IArtifactManager,
-        protected localization: ILocalizationService,
-        protected messageService: IMessageService,
-        protected dialogService: IDialogService,
-        protected windowManager: IWindowManager,
-        protected loadingOverlayService: ILoadingOverlayService,
-        protected navigationService: INavigationService,
-        protected projectManager: IProjectManager,
-        protected metadataService: IMetaDataService
-    ) {
+    constructor(public $scope: ng.IScope,
+                private $element: ng.IAugmentedJQuery,
+                protected artifactManager: IArtifactManager,
+                protected localization: ILocalizationService,
+                protected messageService: IMessageService,
+                protected dialogService: IDialogService,
+                protected windowManager: IWindowManager,
+                protected loadingOverlayService: ILoadingOverlayService,
+                protected navigationService: INavigationService,
+                protected projectManager: IProjectManager,
+                protected metadataService: IMetaDataService) {
         this.initProperties();
         this.subscribers = [];
     }
@@ -97,8 +95,8 @@ export class BpArtifactInfoController {
         this.subscribers.forEach(subscriber => {
             subscriber.dispose();
         });
-        delete this.subscribers;
-        delete this.artifact;
+        delete this["subscribers"];
+        delete this["artifact"];
     }
 
     protected onArtifactChanged = () => {
@@ -106,7 +104,7 @@ export class BpArtifactInfoController {
             this.updateProperties(this.artifact);
             this.subscribeToStateChange(this.artifact);
         }
-    }
+    };
     protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
         if (this.artifact) {
             this.artifactName = change.item.name;

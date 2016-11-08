@@ -1,7 +1,5 @@
-import "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {ILocalizationService} from "../../core";
 import {
     BPFieldReadOnly,
     BPFieldText,
@@ -17,6 +15,7 @@ import {
     BPFieldImage,
     BPFieldInheritFrom
 } from "./types";
+import {ILocalizationService} from "../../core/localization/localizationService";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 export function formlyConfig(formlyConfig: AngularFormly.IFormlyConfig,

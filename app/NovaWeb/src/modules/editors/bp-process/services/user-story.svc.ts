@@ -1,5 +1,6 @@
 import {IUserStory} from "../models/process-models";
-import {ILocalizationService, IMessageService} from "../../../core";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IUserStoryService {
     generateUserStories(projectId: number, processId: number, userTaskId?: number): ng.IPromise<IUserStory[]>;
@@ -26,7 +27,7 @@ export class UserStoryService implements IUserStoryService {
      */
     public generateUserStories(projectId: number, processId: number, userTaskId?: number): ng.IPromise<IUserStory[]> {
         let restPath = `/svc/components/storyteller/projects/${projectId}/processes/${processId}/userstories`;
-        
+
         if (userTaskId) {
             restPath = `${restPath}?taskId=${userTaskId}`;
         }

@@ -282,7 +282,9 @@ export class Label implements ILabel {
 
     private setMouseoverStyle() {
         if (this.mode === divMode.VIEW) {
-            this.div.style.background = "url('/novaweb/static/bp-process/images/pencil.png') no-repeat top right";
+            if (!this.isReadOnly) {
+                this.div.style.background = "url('/novaweb/static/bp-process/images/pencil.png') no-repeat top right";
+            }
             this.div.style.borderStyle = "dashed";
             this.div.style.borderWidth = "thin";
             this.div.style.borderColor = "#666";
@@ -363,8 +365,6 @@ export class Label implements ILabel {
             //event handlers
             angular.element(this.div).on("labeldblclick", (e) => this.onEdit(e));
             this.div.addEventListener("blur", this.onBlur, true);
-            this.div.addEventListener("labelmouseover", this.onMouseover, true);
-            this.div.addEventListener("labelmouseout", this.onMouseout, true);
 
             angular.element(this.div).on("keydown", (e) => this.onKeyDown(e));
             angular.element(this.div).on("keyup", (e) => this.onKeyUp(e));
@@ -372,20 +372,22 @@ export class Label implements ILabel {
             angular.element(this.div).on("cut", (e) => this.onCut(e));
             angular.element(this.div).on("dispose", () => this.onDispose());
         }
+        this.div.addEventListener("labelmouseover", this.onMouseover, true);
+        this.div.addEventListener("labelmouseout", this.onMouseout, true);
     }
     public onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {
                 angular.element(this.div).off("labeldblclick", (e) => this.onEdit(e));
                 this.div.removeEventListener("blur", this.onBlur, true);
-                this.div.removeEventListener("labelmouseover", this.onMouseover, true);
-                this.div.removeEventListener("labelmouseout", this.onMouseout, true);
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));
                 angular.element(this.div).off("keyup", (e) => this.onKeyUp(e));
                 angular.element(this.div).off("paste", (e) => this.onPaste(e));
                 angular.element(this.div).off("cut", (e) => this.onCut(e));
                 angular.element(this.div).off("dispose", () => this.onDispose());
             }
+            this.div.removeEventListener("labelmouseover", this.onMouseover, true);
+            this.div.removeEventListener("labelmouseout", this.onMouseout, true);
             this.wrapperDiv.removeChild(this.div);
             this.container.removeChild(this.wrapperDiv);
         }

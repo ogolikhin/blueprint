@@ -261,6 +261,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
+    public hasCustomIcon(searchResult: any): boolean {
+        if (searchResult["model"]) {
+            if (searchResult["model"]["itemTypeIconId"]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public clearSearch(): void {
         if (this.isSearching) {
             this.projectService.abort();

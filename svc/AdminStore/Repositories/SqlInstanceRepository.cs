@@ -8,6 +8,7 @@ using ServiceLibrary.Helpers;
 using System.Data;
 using System.Linq;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -75,6 +76,22 @@ namespace AdminStore.Repositories
                 throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
             
             return project;
+        }
+
+        public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, int userId, bool includeProjectItself = true)
+        {
+            if (projectId < 1)
+                throw new ArgumentOutOfRangeException(nameof(projectId));
+            if (userId < 1)
+                throw new ArgumentOutOfRangeException(nameof(userId));
+
+            var param = new DynamicParameters();
+            param.Add("@userId", userId);
+            param.Add("@projectId", projectId);
+
+            var projectPaths = (await ConnectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetProjectNavigationPath", param, commandType: CommandType.StoredProcedure)).ToList();
+
+            return projectPaths.OrderByDescending(p => p.Level).Select(p => p.Name).ToList();
         }
     }
 }

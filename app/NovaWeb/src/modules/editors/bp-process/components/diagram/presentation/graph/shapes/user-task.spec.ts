@@ -282,7 +282,8 @@ describe("UserTask test", () => {
                 typePrefix: "PRO",
                 baseItemTypePredefined: ItemTypePredefined.Actor,
                 projectName: "test project",
-                link: null
+                link: null,
+                version: null
             };
             preconditionModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
             preconditionModel.propertyValues["clientType"].value = ProcessShapeType.PreconditionSystemTask;

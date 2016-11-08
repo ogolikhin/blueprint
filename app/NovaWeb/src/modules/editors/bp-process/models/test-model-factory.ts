@@ -35,7 +35,8 @@ export function createShapeModel(type: ProcessShapeType, id: number, x?: number,
         typePrefix: "PRO",
         baseItemTypePredefined: ItemTypePredefined.Actor,
         projectName: "test project",
-        link: null
+        link: null,
+        version: null
     };
     shapeModel.propertyValues = {
         "clientType": {
@@ -1635,7 +1636,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1651,7 +1653,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1673,7 +1676,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1695,7 +1699,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1711,7 +1716,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1733,7 +1739,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1749,7 +1756,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1765,7 +1773,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1781,7 +1790,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1930,7 +1940,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1946,7 +1957,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1968,7 +1980,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -1990,7 +2003,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -2006,7 +2020,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -2028,7 +2043,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -2044,7 +2060,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -2060,7 +2077,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -2076,7 +2094,8 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3120,7 +3139,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3133,7 +3153,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3146,7 +3167,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3163,7 +3185,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3176,7 +3199,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3189,7 +3213,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {
@@ -3202,7 +3227,8 @@ export function createLargeTestModel() {
                     typePrefix: "PRO",
                     baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
-                    link: null
+                    link: null,
+                    version: null
                 }
             },
             {

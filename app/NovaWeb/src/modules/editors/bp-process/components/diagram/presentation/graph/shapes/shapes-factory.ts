@@ -164,14 +164,15 @@ export class ShapesFactory {
     public createModelUserTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): IUserTaskShape {
         const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
 
-        const personaReference = {
+        const defaultUserPersonaReference = {
             id: 1,
             projectId: 1,
-            name: "test persona",
+            name: this.NEW_USER_TASK_PERSONA,
             typePrefix: "PRO",
             baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: "test project",
-            link: null
+            link: null,
+            version: 1
         };
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
@@ -179,15 +180,15 @@ export class ShapesFactory {
         // see https://trello.com/c/k6UpxuGi
 
         const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
-        const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
-            ItemTypePredefined.PROShape, null, personaReference);
 
-        let persona = this.NEW_USER_TASK_PERSONA;
         if (!!this.settings.getUserTaskPersona()) {
-            persona = this.settings.getUserTaskPersona();
+            defaultUserPersonaReference.name = this.settings.getUserTaskPersona();
         }
 
-        obj.propertyValues = this.createPropertyValuesForUserTaskShape(persona, [], "",
+        const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
+            ItemTypePredefined.PROShape, null, defaultUserPersonaReference);
+
+        obj.propertyValues = this.createPropertyValuesForUserTaskShape(defaultUserPersonaReference.name, [], "",
             "", x, y, -1, -1, "");
 
         return obj;
@@ -196,28 +197,28 @@ export class ShapesFactory {
     public createModelSystemTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): ISystemTaskShape {
         const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
 
-        const personaReference = {
+        const defaultSystemPersonaReference = {
             id: 1,
             projectId: 1,
-            name: "test persona",
+            name: this.NEW_SYSTEM_TASK_PERSONA,
             typePrefix: "PRO",
             baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: "test project",
-            link: null
-        };
+            link: null,
+            version: 1
+        };        
+
+        if (!!this.settings.getSystemTaskPersona()) {
+            defaultSystemPersonaReference.name = this.settings.getSystemTaskPersona();
+        }
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
         const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
-        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, personaReference);
+        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, defaultSystemPersonaReference);
 
-        let persona = this.NEW_SYSTEM_TASK_PERSONA;
-        if (!!this.settings.getSystemTaskPersona()) {
-            persona = this.settings.getSystemTaskPersona();
-        }
-
-        obj.propertyValues = this.createPropertyValuesForSystemTaskShape(persona, [], -1,
+        obj.propertyValues = this.createPropertyValuesForSystemTaskShape(defaultSystemPersonaReference.name, [], -1,
             null, "", "", x, y, -1, -1, "", null);
 
         return obj;

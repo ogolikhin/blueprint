@@ -41,7 +41,8 @@ export class ShapeModelMock {
                 typePrefix: "PRO",
                 baseItemTypePredefined: ItemTypePredefined.Actor,
                 projectName: "test project",
-                link: null
+                link: null,
+                version: null
             },
             parentId: 0,
             baseItemTypePredefined: ItemTypePredefined.PROShape,
@@ -132,7 +133,8 @@ export class ShapeModelMock {
                 typePrefix: "PRO",
                 baseItemTypePredefined: ItemTypePredefined.Actor,
                 projectName: "test project",
-                link: null
+                link: null,
+                version: null
             }
         };
 

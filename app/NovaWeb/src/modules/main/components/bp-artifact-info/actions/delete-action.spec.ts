@@ -192,6 +192,7 @@ describe("DeleteAction", () => {
         let deleteAction: DeleteAction;
         let beginLoadingSpy: jasmine.Spy;
         let deleteSpy: jasmine.Spy;
+        let refreshSpy: jasmine.Spy;
         let getDescendantsSpy: jasmine.Spy;
         let endLoadingSpy: jasmine.Spy;    
         let dialogOpenSpy: jasmine.Spy;    
@@ -216,6 +217,12 @@ describe("DeleteAction", () => {
                 beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
                 endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
                 dialogOpenSpy = spyOn(dialogService, "open");
+                deleteSpy = spyOn(artifact, "delete");
+                refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
+                    const deferred = $q_.defer();
+                    deferred.resolve(true);
+                    return deferred.promise;
+                });
                 getDescendantsSpy = spyOn(projectManager, "getDescendantsToBeDeleted").and.callFake(() => {
                     const deferred = $q_.defer();
                     deferred.resolve({
@@ -224,7 +231,6 @@ describe("DeleteAction", () => {
                     return deferred.promise;
                 });
                 
-                deleteSpy = spyOn(artifact, "delete");
             }));
 
              it("confirm and delete", () => {

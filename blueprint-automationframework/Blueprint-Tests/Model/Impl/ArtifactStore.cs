@@ -544,16 +544,15 @@ namespace Model.Impl
             return artifactBaseInfo;
         }
 
-        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, List{HttpStatusCode})"/>
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
-            int? artifactVersion = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return MoveArtifact(Address, artifact, newParent.Id, user, artifactVersion, expectedStatusCodes);
+            return MoveArtifact(Address, artifact, newParent.Id, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -793,28 +792,21 @@ namespace Model.Impl
         /// <param name="artifact">The artifact to move.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will move to.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactVersion">(optional) The version of the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         public static INovaArtifactDetails MoveArtifact(string address,
             IArtifactBase artifact,
             int newParentId,
             IUser user,
-            int? artifactVersion = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.TO_id_, artifact.Id, newParentId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifact.Id, newParentId);
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
-
-            if (artifactVersion != null)
-            {
-                queryParams = new Dictionary<string, string> { { "artifactVersion", artifactVersion.ToString() } };
-            }
 
             var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,

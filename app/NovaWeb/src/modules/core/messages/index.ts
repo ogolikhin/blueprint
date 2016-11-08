@@ -2,7 +2,7 @@
 import {MessageComponent} from "./message";
 import {MessageContainerComponent} from "./message-container";
 
-angular.module("bp.core", [])
+angular.module("bp.core.messages", [])
     .service("messageService", MessageService)
     .component("message", new MessageComponent())
     .component("messagesContainer", new MessageContainerComponent());

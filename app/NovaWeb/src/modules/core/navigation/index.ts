@@ -1,6 +1,6 @@
 import {NavigationService} from "./navigation.svc";
 import {ItemInfoService} from "./item-info.svc";
 
-angular.module("bp.core")
+angular.module("bp.core.navigation", [])
     .service("navigationService", NavigationService)
     .service("itemInfoService", ItemInfoService);

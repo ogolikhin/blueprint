@@ -2,7 +2,7 @@
 import {IWindowVisibility, WindowVisibility} from "./window-visibility";
 import {IUserOrGroupInfo, IUsersAndGroupsService, UsersAndGroupsService} from "./users-and-groups.svc";
 
-angular.module("bp.core")
+angular.module("bp.core.services", [])
     .service("windowResize", WindowResize)
     .service("windowVisibility", WindowVisibility);
 

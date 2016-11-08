@@ -187,10 +187,6 @@ describe("DeleteAction", () => {
             expect(deleteAction.disabled).toBe(false);
         }));
 
-    
-    
-    
-    
     describe("when executed", () => {
         let deleteAction: DeleteAction;
         let beginLoadingSpy: jasmine.Spy;
@@ -289,106 +285,4 @@ describe("DeleteAction", () => {
             });
 
         });
-            
-    
-    
-    
-    
-    // xit("opens dialog when executed", inject((
-    //         statefulArtifactFactory: IStatefulArtifactFactory,            
-    //         localization: ILocalizationService,
-    //         projectManager: IProjectManager,
-    //         messageService: IMessageService,
-    //         loadingOverlayService: ILoadingOverlayService,
-    //         dialogService: IDialogService            
-    //         ) => {
-    //         // arrange
-    //         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-    //             {
-    //                 id: 1,
-    //                 predefinedType: ItemTypePredefined.TextualRequirement,
-    //                 lockedByUser: null,
-    //                 lockedDateTime: null,
-    //                 permissions: RolePermissions.Edit
-    //             });
-    //         const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
-    //         const dialogOpenSpy = spyOn(dialogService, "open").and.callThrough();
-    //         const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
-
-    //         // act
-    //         deleteAction.execute();
-    //         $scope.$digest();
-
-    //         // assert
-    //         expect(dialogOpenSpy).toHaveBeenCalled();
-    //         expect(deleteArtifactSpy).toHaveBeenCalled();
-    //     }));
-
-    // xit("calls deleteArtifact when dialog is confirmed", inject((
-    //         $q: ng.IQService,
-    //         statefulArtifactFactory: IStatefulArtifactFactory,            
-    //         localization: ILocalizationService,
-    //         projectManager: IProjectManager,
-    //         messageService: IMessageService,
-    //         loadingOverlayService: ILoadingOverlayService,
-    //         dialogService: IDialogService     
-    //         ) => {       
-    //         // arrange
-    //         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-    //             {
-    //                 id: 1,
-    //                 predefinedType: ItemTypePredefined.TextualRequirement,
-    //                 lockedByUser: null,
-    //                 lockedDateTime: null,
-    //                 permissions: RolePermissions.Edit
-    //             });
-    //         const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
-    //         spyOn(dialogService, "open").and.callFake(() => {
-    //             const deferred = $q.defer();
-    //             deferred.resolve(true);
-    //             return deferred.promise;
-    //         });
-    //         const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
-
-    //         // act
-    //         deleteAction.execute();
-    //         $scope.$digest();
-
-    //         // assert
-    //         expect(deleteArtifactSpy).toHaveBeenCalled();
-    //     }));
-
-    // xit("doesn't call deleteArtifact when dialog is not confirmed", inject((
-    //         $q: ng.IQService,
-    //         statefulArtifactFactory: IStatefulArtifactFactory,            
-    //         localization: ILocalizationService,
-    //         projectManager: IProjectManager,
-    //         messageService: IMessageService,
-    //         loadingOverlayService: ILoadingOverlayService,
-    //         dialogService: IDialogService     
-    //         ) => {       
-    //         // arrange
-    //         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-    //             {
-    //                 id: 1,
-    //                 predefinedType: ItemTypePredefined.TextualRequirement,
-    //                 lockedByUser: null,
-    //                 lockedDateTime: null,
-    //                 permissions: RolePermissions.Edit
-    //             });
-    //         const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
-    //         spyOn(dialogService, "open").and.callFake(() => {
-    //             const deferred = $q.defer();
-    //             deferred.reject();
-    //             return deferred.promise;
-    //         });
-    //         const deleteArtifactSpy = spyOn(deleteAction, "deleteArtifact").and.callThrough();
-
-    //         // act
-    //         deleteAction.execute();
-    //         $scope.$digest();
-
-    //         // assert
-    //         expect(deleteArtifactSpy).not.toHaveBeenCalled();
-    //     }));
 });

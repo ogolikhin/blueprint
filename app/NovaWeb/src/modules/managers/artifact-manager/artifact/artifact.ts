@@ -604,8 +604,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.services.artifactService.deleteArtifact(this.id).then((it: Models.IArtifact[]) => {
             deferred.resolve(this);
 
-        }).catch((err) => {
-            deferred.reject(err);
+        }).catch((error: IApplicationError) => {
+            this.error.onNext(error);
+            deferred.reject(error);
         });
 
         return deferred.promise;

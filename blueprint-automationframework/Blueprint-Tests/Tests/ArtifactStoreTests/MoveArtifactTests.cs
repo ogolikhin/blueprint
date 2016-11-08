@@ -710,7 +710,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CircularRelationship, "This move will result in a circular relationship between the artifact and its new parent.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship, "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
         [TestCase(BaseArtifactType.Process, 2)]
@@ -736,7 +736,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CircularRelationship, "This move will result in a circular relationship between the artifact and its new parent.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship, "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184

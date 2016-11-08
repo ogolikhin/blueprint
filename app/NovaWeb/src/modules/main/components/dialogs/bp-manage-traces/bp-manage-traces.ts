@@ -18,7 +18,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public traceDirection: Relationships.TraceDirection = 0;
     public direction: Relationships.TraceDirection = 0;
-    private selectedVMs: TreeViewModels.TreeViewNodeVM<any>[];
+    private selectedVMs: any[];
 
     public item: IStatefulItem;
     public allTraces: Relationships.IRelationshipView[];
@@ -129,7 +129,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName || currentItemModel.itemLabel;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
-                currentItemModel.projectName = currentItem["options"] && currentItem["options"].project && currentItem["options"].project.name;
+                currentItemModel.projectName = currentItem.project && currentItem.project.name;
                 currentItemModel.hasAccess = true;
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;

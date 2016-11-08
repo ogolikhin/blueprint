@@ -37,7 +37,11 @@ class PageContentCtrl {
     }
 
     private onSelectionChanged = (selection: ISelection) => {
-        if (!selection.artifact || selection.subArtifact) {
+        if (selection.subArtifact) {
+            return;
+        }
+        if (!selection.artifact && !selection.subArtifact) {
+            this.breadcrumbLinks = [];
             return;
         }
         this.artifactService.getArtifactNavigationPath(selection.artifact.id)

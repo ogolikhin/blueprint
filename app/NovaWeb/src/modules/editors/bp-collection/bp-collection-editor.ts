@@ -225,9 +225,23 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             innerRenderer: (params: IColumnRendererParams) => {
                 params.$scope["removeArtifact"] = ($event) => {
                     $event.stopPropagation();
-                    const node = <CollectionNodeVM>params.vm;
-                    const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-                    collectionArtifact.removeArtifacts([node.model]);
+
+                    this.dialogService.confirm(this.localization.get("Artifact_Collection_Confirmation_Delete_Item")).then(() => {
+
+                        const node = <CollectionNodeVM>params.vm;
+                        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+                        collectionArtifact.removeArtifacts([node.model]);
+
+                        let index = _.findIndex(this.selectedVMs, (item) => item.model.id === node.model.id);
+
+                        if (index > -1) {
+                            this.selectedVMs.splice(index, 1);
+                            let item_selected = this.localization.get("Artifact_Collection_Items_Selected");
+                            this.itemsSelected = item_selected.replace("{0}", (this.selectedVMs.length).toString());
+                        }
+                    });
+
+
                 };
                 return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact($event)"></i>`;
             }

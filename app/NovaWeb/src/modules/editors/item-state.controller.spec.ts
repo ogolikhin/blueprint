@@ -98,7 +98,7 @@ describe("Item State Controller tests", () => {
         // arrange
         const artifactId = 10;
         const deleteMessageSpy = spyOn(messageService, "deleteMessageById");
-        const message = new Message(MessageType.Lock, "test");
+        const message = new Message(MessageType.Deleted, "test");
         message.id = 1;
         messageService.addMessage(message);
 

@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+﻿import * as _ from "lodash";
 import {ILocalizationService} from "../../../core";
 
 export enum DialogTypeEnum {
@@ -48,7 +48,7 @@ export class DialogService implements IDialogService {
     };
 
     private initialize(dialogSettings: IDialogSettings) {
-        this.dialogSettings = angular.extend({}, this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
@@ -63,7 +63,7 @@ export class DialogService implements IDialogService {
                 dialogData: () => this.dialogData
             }
         };
-        return this.$uibModal.open(angular.merge({}, dialogSettings, optsettings));
+        return this.$uibModal.open(_.assign({}, dialogSettings, optsettings));
     };
 
     public get type(): DialogTypeEnum {

@@ -21,6 +21,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     subArtifactCollection: ISubArtifactCollection;
     //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
+    delete(): ng.IPromise<IStatefulArtifact>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
@@ -589,6 +590,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
 
         return deferred.promise;
+    }
+
+    public delete(): ng.IPromise<IStatefulArtifact> {
+        let deferred = this.services.getDeferred<IStatefulArtifact>();
+
+        this.services.artifactService.deleteArtifact(this.id).then((it: Models.IArtifact[]) => {
+            deferred.resolve(this);
+
+        }).catch((err) => {
+            deferred.reject(err);
+        });
+
+        return deferred.promise;
+        
     }
 
     //Hook for subclasses to provide additional promises which should be run for obtaining data

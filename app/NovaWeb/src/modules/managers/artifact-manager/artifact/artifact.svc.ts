@@ -9,7 +9,6 @@ export interface IArtifactService {
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
     deleteArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]>;
-    getChilden(projectId: number, artifactId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]>;
 }
 
 export class ArtifactService implements IArtifactService {
@@ -104,26 +103,6 @@ export class ArtifactService implements IArtifactService {
         const requestObj: ng.IRequestConfig = {
             url: `svc/bpartifactstore/artifacts/${artifactId}`,
             method: "DELETE",
-            timeout: timeout
-        };
-
-        this.$http(requestObj).then(
-            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
-                defer.resolve(result.data);
-            },
-            (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = "Artifact_NotFound"; 
-                defer.reject(result.data);
-            }
-        );
-        return defer.promise;
-    }
-    public getChilden(projectId: number, artifactId?: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]> {
-        const defer = this.$q.defer<any>();
-
-        const requestObj: ng.IRequestConfig = {
-            url: `svc/artifactstore/projects/${projectId}/artifacts/${artifactId}/children`,
-            method: "GET",
             timeout: timeout
         };
 

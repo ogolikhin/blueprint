@@ -32,7 +32,7 @@ export class QuickSearchController {
     }
 
     showHide(): boolean {
-        return <boolean>(this.quickSearchService.searchTerm || this.form.$dirty);
+        return Boolean(this.quickSearchService.searchTerm || this.form.$dirty);
     }
 
     hasError(): boolean {

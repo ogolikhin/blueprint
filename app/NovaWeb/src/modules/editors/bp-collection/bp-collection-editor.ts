@@ -9,6 +9,7 @@ import {IMetaDataService} from "../../managers/artifact-manager";
 import {ChangeTypeEnum, IChangeSet} from "../../managers/artifact-manager/changeset";
 import {IDialogService} from "../../shared";
 import {IMessageService} from "../../core/messages/message.svc";
+import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
@@ -25,7 +26,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "artifactManager",
         "windowManager",
         "localization",
-        "dialogService",
+        "propertyDescriptorBuilder",
         "collectionService",
         "metadataService",
         "$location",
@@ -43,11 +44,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 dialogService: IDialogService,
+        propertyDescriptorBuilder: IPropertyDescriptorBuilder,
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService) {
-        super(messageService, artifactManager, windowManager, localization, dialogService);
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public get reviewUrl(): string {

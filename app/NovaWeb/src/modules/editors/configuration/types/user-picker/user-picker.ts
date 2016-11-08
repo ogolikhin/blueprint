@@ -1,7 +1,7 @@
 import "angular-formly";
 import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {Models} from "../../../../main/models";
-import {PropertyContext} from "../../../bp-artifact/bp-property-context";
+import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
@@ -86,7 +86,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
         let options: IUserPickerItem[] = [];
         $scope.options["expressionProperties"] = {
             "templateOptions.options": () => {
-                const context: PropertyContext = $scope.options["data"];
+                const context: IPropertyDescriptor = $scope.options["data"];
                 if (context.isFresh) {
                     const currentModelVal = $scope.model[$scope.options["key"]];
                     if (currentModelVal) {

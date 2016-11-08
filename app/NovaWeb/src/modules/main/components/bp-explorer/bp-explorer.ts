@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {Models} from "../../models";
 import {ItemTypePredefined} from "../../models/enums";
-import {Helper, IBPTreeController} from "../../../shared";
+import {Helper, IBPTreeControllerApi} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {Project} from "../../../managers/project-manager";
 import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
@@ -17,7 +17,7 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export interface IProjectExplorerController {
     // BpTree bindings
-    tree: IBPTreeController;
+    tree: IBPTreeControllerApi;
     columns: any[];
     propertyMap: {[key: string]: string};
     doLoad: Function;
@@ -112,7 +112,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
                 if (this.tree.nodeExists(this.selected.id)) {
                     //if node exists in the tree
-                    if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId) {
+                    if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId()) {
                         this.tree.selectNode(this.selected.id);
                         navigateToId = this.selected.id;
                     }
@@ -173,7 +173,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     // BpTree bindings
 
-    public tree: IBPTreeController;
+    public tree: IBPTreeControllerApi;
     public columns = [{
         headerName: "",
         field: "name",

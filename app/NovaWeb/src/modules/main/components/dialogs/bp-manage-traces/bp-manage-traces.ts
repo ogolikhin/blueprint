@@ -4,7 +4,6 @@ import {Relationships, Models, TreeViewModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {
     IStatefulItem,
-    IArtifactManager,
     IArtifactRelationships
 } from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
@@ -15,7 +14,7 @@ export interface IArtifactSelectedArtifactMap {
 
 export class ManageTracesDialogController extends BaseDialogController {
     public static $inject = ["$uibModalInstance", "dialogSettings", "localization",
-        "artifactManager", "artifactRelationships", "dialogData", "dialogService", "$timeout"];
+        "artifactRelationships", "dialogData", "dialogService", "$timeout"];
 
     public traceDirection: Relationships.TraceDirection = 0;
     public direction: Relationships.TraceDirection = 0;
@@ -45,7 +44,6 @@ export class ManageTracesDialogController extends BaseDialogController {
     constructor($uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 public dialogSettings: IDialogSettings,
                 public localization: ILocalizationService,
-                public artifactManager: IArtifactManager,
                 public artifactRelationships: IArtifactRelationships,
                 public data: IDialogRelationshipItem,
                 private dialogService: IDialogService,

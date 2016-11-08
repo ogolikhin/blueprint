@@ -163,9 +163,7 @@ export class MetaDataService implements IMetaDataService {
     }
 
     private getArtifactSystemPropertyTypes(projectMeta: ProjectMetaData, itemType: IItemType): IPropertyType[] {
-        // artifactType: IItemType,
-        // projectMeta: IProjectMeta): IPropertyType[] {
-        let properties: IPropertyType[] = [];
+        const properties: IPropertyType[] = [];
 
         //add system properties
         properties.push(<IPropertyType>{
@@ -174,8 +172,6 @@ export class MetaDataService implements IMetaDataService {
             primitiveType: PrimitiveType.Text,
             isRequired: true
         });
-
-
         properties.push(<IPropertyType>{
             name: this.localization.get("Label_Type"),
             propertyTypePredefined: PropertyTypePredefined.ItemTypeId,
@@ -222,7 +218,6 @@ export class MetaDataService implements IMetaDataService {
             dateDefaultValue: "",
             disabled: true
         });
-
         properties.push(<IPropertyType>{
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
@@ -345,9 +340,10 @@ export class MetaDataService implements IMetaDataService {
     private getCustomPropertyTypes(projectMeta: ProjectMetaData, itemType: IItemType): IPropertyType[] {
         let properties: IPropertyType[] = [];
         if (projectMeta && projectMeta.data) {
-            projectMeta.data.propertyTypes.forEach((it: IPropertyType) => {
-                if (itemType.customPropertyTypeIds.indexOf(it.id) >= 0) {
-                    properties.push(it);
+            projectMeta.data.propertyTypes.forEach(propertyType => {
+                if (itemType.customPropertyTypeIds.indexOf(propertyType.id) >= 0) {
+                    propertyType.propertyTypePredefined = PropertyTypePredefined.CustomGroup;
+                    properties.push(propertyType);
                 }
             });
         }

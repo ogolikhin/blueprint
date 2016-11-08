@@ -1,7 +1,7 @@
 import * as _ from "lodash";
-import {ILocalizationService} from "../../../../core";
 import {IDialogService} from "../../../../shared";
 import {Relationships} from "../../../models";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 
 export class BPManageTracesItem implements ng.IComponentOptions {

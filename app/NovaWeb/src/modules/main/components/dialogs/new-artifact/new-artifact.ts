@@ -1,8 +1,9 @@
-import { IDialogSettings, BaseDialogController, IDialogData } from "../../../../shared";
-import { IMetaDataService } from "../../../../managers/artifact-manager";
-import { ItemTypePredefined } from "../../../../main/models/enums";
-import { IProjectMeta, IItemType } from "../../../../main/models/models";
-import { IMessageService, ILocalizationService } from "../../../../core";
+import {IDialogSettings, BaseDialogController, IDialogData} from "../../../../shared";
+import {IMetaDataService} from "../../../../managers/artifact-manager";
+import {ItemTypePredefined} from "../../../../main/models/enums";
+import {IProjectMeta, IItemType} from "../../../../main/models/models";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export interface ICreateNewArtifactDialogData extends IDialogData {
     projectId: number;
@@ -34,14 +35,12 @@ export class CreateNewArtifactController extends BaseDialogController {
         "metadataService"
     ];
 
-    constructor (
-        $instance: ng.ui.bootstrap.IModalServiceInstance,
-        dialogSettings: IDialogSettings,
-        public dialogData: ICreateNewArtifactDialogData,
-        private localization: ILocalizationService,
-        private messageService: IMessageService,
-        private metadataService: IMetaDataService
-    ) {
+    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
+                dialogSettings: IDialogSettings,
+                public dialogData: ICreateNewArtifactDialogData,
+                private localization: ILocalizationService,
+                private messageService: IMessageService,
+                private metadataService: IMetaDataService) {
         super($instance, dialogSettings);
 
         if (!dialogData) {
@@ -80,9 +79,9 @@ export class CreateNewArtifactController extends BaseDialogController {
     //Dialog return value
     public get returnValue(): ICreateNewArtifactReturn {
         return {
-                artifactTypeId: this.newArtifactType.id,
-                artifactName: this.newArtifactName
-            };
+            artifactTypeId: this.newArtifactType.id,
+            artifactName: this.newArtifactName
+        };
     };
 
     public filterItemTypePredefinedByParent = (): ItemTypePredefined[] => {
@@ -128,6 +127,6 @@ export class CreateNewArtifactController extends BaseDialogController {
 
     public get isCreateButtonDisabled(): boolean {
         return _.isUndefined(this.newArtifactName) || !_.isString(this.newArtifactName) || this.newArtifactName.length === 0 ||
-            _.isUndefined(this.newArtifactType) || _.isNull(this.newArtifactType);
+            _.isUndefined(this.newArtifactType) || _.isNull(this.newArtifactType) || this.newArtifactType.toString().length === 0;
     }
 }

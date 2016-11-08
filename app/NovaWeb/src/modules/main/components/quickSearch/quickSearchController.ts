@@ -1,5 +1,6 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
-import {ILocalizationService} from "../../../core/";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IQuickSearchService} from "./quickSearchService";
 
 export interface IQuickSearchController {
     clearSearch();
@@ -19,7 +20,7 @@ export class QuickSearchController {
 
     constructor(private $log: ng.ILogService,
                 private $uibModal: ng.ui.bootstrap.IModalService,
-                private quickSearchService, 
+                private quickSearchService: IQuickSearchService,
                 private localization: ILocalizationService) {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";
@@ -30,15 +31,14 @@ export class QuickSearchController {
         this.form.$setPristine();
     }
 
-    get showHide(): boolean {
-        return this.quickSearchService.searchTerm || this.form.$dirty;
+    showHide(): boolean {
+        return Boolean(this.quickSearchService.searchTerm || this.form.$dirty);
     }
 
     hasError(): boolean {
-        return  this.form.$submitted &&
-                this.form.$invalid &&
-                this.form.$error &&
-                !this.form.$error.required;
+        return this.form.$submitted &&
+            this.form.$invalid &&
+            this.form.$error && !this.form.$error.required;
     }
 
     onKeyPress($event: KeyboardEvent) {

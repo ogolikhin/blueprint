@@ -16,7 +16,7 @@ import {IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {UserTaskDialogModel, SystemTaskDialogModel} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
-import {ILocalizationService} from "../../../../core";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class SubArtifactEditorModalOpener {
     private graph: IProcessGraph;
@@ -238,7 +238,7 @@ export class SubArtifactEditorModalOpener {
 
         const userTask = <UserTask>node;
         const model: UserStoryDialogModel = new UserStoryDialogModel();
-        
+
         model.artifactId = graph.viewModel.id;
         model.subArtifactId = shapeId;
         model.previousSystemTasks = userTask.getPreviousSystemTasks(graph) as SystemTask[];

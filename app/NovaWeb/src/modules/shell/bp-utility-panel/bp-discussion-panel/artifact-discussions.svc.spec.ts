@@ -1,6 +1,5 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import {HttpStatusCode} from "../../../core/http";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {
     IArtifactDiscussions,
@@ -9,6 +8,7 @@ import {
     IReply,
     IDiscussion
 } from "./artifact-discussions.svc";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 describe("Artifact Discussion Service", () => {
 

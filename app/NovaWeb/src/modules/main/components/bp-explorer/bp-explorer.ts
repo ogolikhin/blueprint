@@ -90,6 +90,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
                         .subscribeOnNext(this.onSelectedArtifactChange);
+
+
     }
 
     private onLoadProject = (projects: Project[]) => {
@@ -151,8 +153,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 } else if (navigateToId === currentSelection) {
                     this.navigationService.reloadParentState();
                 }
-            } else {
-                this.navigationService.navigateToMain();
             }
         }
     };

@@ -1,10 +1,12 @@
-import {ILocalizationService, IMessageService, IApplicationError} from "../../../../core";
+import {IApplicationError} from "../../../../core/error/applicationerror";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMessageService} from "../../../../core/messages/message.svc";
 import {Models} from "../../../../main/models";
 import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {ConfirmDeleteController} from "../../../../main/components/dialogs/bp-confirm-delete";
 
 

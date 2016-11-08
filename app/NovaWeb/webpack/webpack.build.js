@@ -6,7 +6,6 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var loaders = require("./loaders");
-var vendor_libs = require('./vendors');
 var _DIST = path.resolve('./dist');
 var _APP = path.join(__dirname, './../src');
 
@@ -17,7 +16,7 @@ module.exports = {
     context: _APP,
     entry: {
         app: './index.ts',
-        vendor: vendor_libs
+        vendor: ['./../src/vendor.ts']
     },
     output: {
         publicPath: "/novaweb/",

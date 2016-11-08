@@ -1,5 +1,5 @@
-import {ILocalizationService} from "../../../core";
 
+import {ILocalizationService} from "../../../core/localization/localizationService";
 export interface IArtifactAttachmentsService {
     getArtifactAttachments(artifactId: number,
                            subArtifactId?: number,

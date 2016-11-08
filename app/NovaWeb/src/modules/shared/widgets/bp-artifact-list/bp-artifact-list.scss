@@ -34,16 +34,25 @@
     }
 
     &__counter {
+        border: solid 1px $gray-light;
         font-size: $font-size-small;
+        padding: 8px 0;
+        text-align: center;
     }
 
     &__load-more {
-        font-size: $font-size-small;
-        text-align: right;
+        color: $brand-secondary;
+        text-decoration: none;
+
+        &:hover,
+        &:active,
+        &:focus {
+            color: $brand-secondary;
+            text-decoration: underline;
+        }
     }
 }
 
 .bp-artifact-list--overflow {
-    max-height: 220px; // optimistic: only 1 project was initially shown
     overflow: auto;
 }

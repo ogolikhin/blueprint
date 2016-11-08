@@ -1,10 +1,8 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ILocalizationService, IMessageService} from "../../../../core";
-import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay";
-import {Enums} from "../../../../main/models";
-
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class PublishAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
@@ -14,7 +12,7 @@ export class PublishAction extends BPButtonAction {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
-        
+
         super(
             (): void => {
                 let overlayId: number = loadingOverlayService.beginLoading();

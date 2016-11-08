@@ -1,5 +1,4 @@
 ﻿export interface ILoadingOverlayService {
-
     /**
      * Display the loading overlay
      * @return {number} The id to pass to endLoading()

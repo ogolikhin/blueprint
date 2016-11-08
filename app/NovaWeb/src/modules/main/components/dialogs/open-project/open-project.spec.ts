@@ -1,11 +1,11 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import {OpenProjectController} from "./open-project";
-import {ILocalizationService} from "../../../../core";
 import {IDialogSettings} from "../../../../shared";
-import {Models, Enums, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../../models";
+import { Enums, AdminStoreModels, TreeViewModels} from "../../../models";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("OpenProjectController", () => {
     let localization: ILocalizationService;
@@ -73,7 +73,7 @@ describe("OpenProjectController", () => {
             const cell = {} as HTMLElement;
 
              const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };
@@ -91,7 +91,7 @@ describe("OpenProjectController", () => {
             const vm = controller.factory.createInstanceItemNodeVM(model);
             const cell = document.createElement("div");
             const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };

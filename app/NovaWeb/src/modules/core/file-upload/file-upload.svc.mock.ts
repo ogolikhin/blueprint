@@ -1,5 +1,4 @@
-import {IFileUploadService, IFileResult} from "./";
-
+import {IFileUploadService, IFileResult} from "./fileUploadService";
 export class FileUploadService implements IFileUploadService {
     public static $inject = [
         "$q",

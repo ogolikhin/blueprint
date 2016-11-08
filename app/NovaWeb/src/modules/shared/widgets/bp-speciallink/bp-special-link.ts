@@ -1,6 +1,4 @@
-import * as angular from "angular";
-import { INavigationService } from "./../../../core/navigation";
-
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 export interface IBpLinksHelper {
     hasExternalLink($element: ng.IAugmentedJQuery): boolean;
     hasBlueprintLink($element: ng.IAugmentedJQuery): boolean;
@@ -64,14 +62,14 @@ export class BpSpecialLinkContainer implements ng.IDirective {
             //navigate to internal link
             if (this.bpLinksHelper.isRichTextMentionLink($anchor)) {
                 const id = this.bpLinksHelper.getItemId($anchor);
-                this.navigationService.navigateTo({ id: id });
+                this.navigationService.navigateTo({id: id});
             }
             return;
         }
 
         if (this.bpLinksHelper.hasExternalLink($anchor)) {
-           $anchor.attr("target", "_blank");
-           return;
+            $anchor.attr("target", "_blank");
+            return;
         }
     }
 

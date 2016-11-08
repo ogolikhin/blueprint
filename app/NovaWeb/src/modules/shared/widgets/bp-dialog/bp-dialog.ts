@@ -1,6 +1,5 @@
-﻿import * as _ from "lodash";
-import {ILocalizationService} from "../../../core";
-
+import * as _ from "lodash";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 export enum DialogTypeEnum {
     Base,
     Alert,

@@ -4,14 +4,15 @@ import "../../../";
 import {DeleteAction} from "./delete-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService, IMessageService } from "../../../../core";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMessageService} from "../../../../core/messages/message.svc";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IDialogService, IDialogSettings} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 
 describe("DeleteAction", () => {
     let $q_: ng.IQService;

@@ -35,7 +35,6 @@ export class MessageContainerController implements IMessageContainerController {
     }
 
     public getText(text: string) {
-
         return this.$sce.trustAsHtml(this.localization.get(text));
     }
 }

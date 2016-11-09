@@ -11,5 +11,7 @@ namespace AdminStore.Repositories
         Task<List<InstanceItem>> GetInstanceFolderChildrenAsync(int folderId, int userId);
 
         Task<InstanceItem> GetInstanceProjectAsync(int projectId, int userId);
+
+        Task<List<string>> GetProjectNavigationPathAsync(int userId, int projectId, bool includeProjectItself);
     }
 }

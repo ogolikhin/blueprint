@@ -1,5 +1,5 @@
 <ul class="bp-artifact-list"
-    ng-style="{'height': ($ctrl.initialRows * 20).toString() + 'px'}"
+    ng-style="{'height': ($ctrl.initialRows * 21).toString() + 'px'}"
     ng-class="{
     'bp-artifact-list--overflow': $ctrl.limitTo !== $ctrl.initialLimit,
     'bp-artifact-list--complete': $ctrl.sortedList.length <= $ctrl.limitTo
@@ -8,7 +8,7 @@
         <div class="bp-artifact-list__project"
              ng-if="artifact.projectName && ($index === 0 || $ctrl.sortedList[$index].projectName !== $ctrl.sortedList[$index - 1].projectName)"
              bp-tooltip="{{::artifact.projectName}}" bp-tooltip-truncated="true">
-            <i class="bp-artifact-list__icon icon icon-project"></i>{{::artifact.projectName}}
+            <span class="bp-artifact-list__icon"><i class="bp-artifact-list__icon icon icon-project"></i></span>{{::artifact.projectName}}
         </div>
         <div class="bp-artifact-list__artifact" bp-tooltip="{{::$ctrl.itemLabel(artifact)}}" bp-tooltip-truncated="true">
             <bp-item-type-icon

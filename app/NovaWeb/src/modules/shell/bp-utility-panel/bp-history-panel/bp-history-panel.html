@@ -20,7 +20,7 @@
             class="utility-panel-artifact-item"
             artifact-info="artifactHistoryItem"
             ng-click="$ctrl.selectArtifactVersion(artifactHistoryItem)"
-            ng-class="{ 'selected': $ctrl.selectedArtifactVersion === artifactHistoryItem }">
+            ng-class="{ 'selected': $ctrl.selectedVersionId === artifactHistoryItem.versionId }">
         </bp-artifact-history-item>
     </div>
 </div>

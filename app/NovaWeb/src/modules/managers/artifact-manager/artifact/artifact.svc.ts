@@ -8,6 +8,7 @@ export interface IArtifactService {
     getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
     updateArtifact(artifact: Models.IArtifact);
+    deleteArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]>;
     create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
     getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]>;
 }
@@ -98,6 +99,26 @@ export class ArtifactService implements IArtifactService {
         return defer.promise;
     }
 
+    public deleteArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]> {
+        const defer = this.$q.defer<any>();
+
+        const requestObj: ng.IRequestConfig = {
+            url: `svc/bpartifactstore/artifacts/${artifactId}`,
+            method: "DELETE",
+            timeout: timeout
+        };
+
+        this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
+                defer.resolve(result.data);
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                result.data.message = "Artifact_NotFound"; 
+                defer.reject(result.data);
+            }
+        );
+        return defer.promise;
+    }
 
     public create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
         const defer = this.$q.defer<any>();

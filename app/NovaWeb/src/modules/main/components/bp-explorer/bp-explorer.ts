@@ -3,7 +3,6 @@ import {Models} from "../../models";
 import {ItemTypePredefined} from "../../models/enums";
 import {Helper, IBPTreeControllerApi} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
-import {Project} from "../../../managers/project-manager";
 import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
@@ -94,7 +93,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     }
 
-    private onLoadProject = (projects: Project[]) => {
+    private onLoadProject = (projects: IArtifactNode[]) => {
         //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
         // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant)
         // so, just need to do an extra check if the component has created
@@ -182,7 +181,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 css.push("has-children");
             }
             let typeName: string;
-            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder && params.data.parentNode instanceof Project) {
+            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
+                params.data.parentNode.predefinedType === Models.ItemTypePredefined.Project) {
                 typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
             } else {
                 typeName = Models.ItemTypePredefined[params.data.predefinedType];
@@ -227,7 +227,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         open: "open"
     };
 
-    public doLoad = (prms: Models.IProject): any[] => {
+    public doLoad = (prms: IArtifactNode): any[] => {
         //the explorer must be empty on a first load
         if (prms) {
             //notify the repository to load the node children

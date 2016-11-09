@@ -120,7 +120,8 @@ describe("Component BPRelationshipsPanel", () => {
                 baseItemTypePredefined: null,
                 typePrefix: "PROS",
                 propertyValues: {},
-                associatedArtifact: null
+                associatedArtifact: null,
+                personaReference: null
 
             };
             const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);

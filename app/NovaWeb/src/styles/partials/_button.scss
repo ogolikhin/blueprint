@@ -30,7 +30,6 @@
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
-
     &:hover,
     &:focus,
     &:active,
@@ -41,7 +40,24 @@
         outline: none;
     }
 }
-
+.btn-cancel {
+    background-color: transparent;
+    border: 1px solid $gray-light;
+    color: $gray-light;
+    &:focus {
+        border: 1px solid $gray-light;
+        color: $gray-light;
+        outline: none;
+    }
+    &:hover,
+    &:active,
+    &.active, {
+        background-color: transparent;
+        border: 1px solid $gray-lighter;
+        color: $gray-lighter;
+        outline: none;
+    }
+}
 .btn-promoted-action {
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;

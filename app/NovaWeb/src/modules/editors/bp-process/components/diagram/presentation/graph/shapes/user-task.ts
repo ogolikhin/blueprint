@@ -148,7 +148,11 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public get persona(): string {
-        return this.getPropertyValue("persona");
+        if (this.model.personaReference) {
+            return this.model.personaReference.name;
+        } else {
+            return undefined;
+        }
     }
 
     public set persona(value: string) {
@@ -323,7 +327,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            true);
 
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");

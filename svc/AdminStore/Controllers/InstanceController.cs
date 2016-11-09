@@ -97,5 +97,23 @@ namespace AdminStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await _instanceRepository.GetInstanceProjectAsync(id, session.UserId);
         }
+
+        /// <summary>
+        /// Get Project Navigation Paths
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <param name="includeProjectItself"></param>
+        /// <returns> List of string for the navigation path of specified project id</returns>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("projects/{projectId:int:min(1)}/navigationPath"), SessionRequired]
+        [ActionName("GetProjectNavigationPath")]
+        public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, bool includeProjectItself = true)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            return await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+        }
     }
 }

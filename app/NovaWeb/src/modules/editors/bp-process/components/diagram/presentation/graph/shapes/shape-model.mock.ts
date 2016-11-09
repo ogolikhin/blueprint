@@ -34,6 +34,16 @@ export class ShapeModelMock {
             projectId: 0,
             name: "User Task 1",
             associatedArtifact: null,
+            personaReference: {
+                id: 1,
+                projectId: 1,
+                name: "test persona",
+                typePrefix: "PRO",
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: "test project",
+                link: null,
+                version: null
+            },
             parentId: 0,
             baseItemTypePredefined: ItemTypePredefined.PROShape,
             typePrefix: "PRO",
@@ -115,7 +125,17 @@ export class ShapeModelMock {
             baseItemTypePredefined: ItemTypePredefined.PROShape,
             typePrefix: "PRO",
             flags: <ITaskFlags>{},
-            associatedArtifact: null
+            associatedArtifact: null,
+            personaReference: {
+                id: 1,
+                projectId: 1,
+                name: "test persona",
+                typePrefix: "PRO",
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: "test project",
+                link: null,
+                version: null
+            }
         };
 
         this.sampleSystemTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.SystemTask);

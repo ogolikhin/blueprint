@@ -8,7 +8,7 @@
             <input type="text" class="nova-form-control new-artifact__input new-artifact__input--dropdown"
                    id="new-artifact-type" name="newArtifactType"
                    ng-model="$ctrl.newArtifactType" ng-focus="fakeFocus=true" ng-blur="fakeFocus=false"
-                   uib-typeahead="artifact as artifact.name for artifact in $ctrl.availableItemTypes() | filter:{name:$viewValue} | limitTo: 10"
+                   uib-typeahead="artifact as artifact.name for artifact in $ctrl.availableItemTypes() | filter:{name:$viewValue}"
                    typeahead-editable="false"
                    typeahead-template-url="artifactTypesDropdown.html"
                    typeahead-show-hint="true"
@@ -20,7 +20,8 @@
     <div class="nova-form-group nova-floating-label new-artifact__input-group">
         <input type="text" class="nova-form-control new-artifact__input"
                id="new-artifact-name" name="newArtifactName"
-               ng-model="$ctrl.newArtifactName" autofocus="true" />
+               ng-model="$ctrl.newArtifactName"
+               ng-keyup="$ctrl.onKeyUp($event)" />
         <label for="new-artifact-name" class="nova-label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Name"]}}</label>
     </div>
 </div>

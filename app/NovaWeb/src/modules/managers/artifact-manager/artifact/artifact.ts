@@ -137,12 +137,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict) {
-                    this.discardDependents(err.errorContent)
-                    .then(() => {
-                        deffered.resolve();
-                    }).catch(() => {
-                        deffered.reject();
-                    });
+                    deffered.promise = this.discardDependents(err.errorContent);
                 } else {
                     if (err && err.errorCode === 114) {
                         this.services.messageService.addInfo("Artifact_Lock_Refresh");

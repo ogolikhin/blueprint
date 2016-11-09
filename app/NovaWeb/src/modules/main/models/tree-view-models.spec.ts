@@ -132,10 +132,10 @@ describe("TreeNodeVMFactory", () => {
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                     // Arrange
 
-                    const children = <any>[{id: 1234}, {
+                    const children = [{id: 1234}, {
                         id: 5678,
                         predefinedType: Models.ItemTypePredefined.CollectionFolder
-                    }];
+                    }]  as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
                         type: AdminStoreModels.InstanceItemType.Project

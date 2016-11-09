@@ -171,7 +171,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 let discardOverlayId = this.services.loadingOverlayService.beginLoading();
                 this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id))
                     .then(() => {
-                        this.services.messageService.addInfoWithPar("Discard__All_Success_Message", [dependents.artifacts.length]);
+                        this.services.messageService.addInfoWithPar("Discard_All_Success_Message", [dependents.artifacts.length]);
                         this.refresh();
                     })
                     .catch((err) => {

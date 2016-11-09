@@ -68,7 +68,7 @@ class PageContentCtrl {
                 }));
         } else {
             this._subscribers.push(
-                selection.artifact.getObservable().distinctUntilChanged().subscribe((artifact) => {
+                selection.artifact.getObservable().subscribe((artifact) => {
                     this.setArtifactBreadCrumb(artifact.id, artifact.artifactState.historical);
                 }));
         }

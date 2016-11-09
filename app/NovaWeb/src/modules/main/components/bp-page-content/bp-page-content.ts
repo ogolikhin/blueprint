@@ -7,6 +7,7 @@ import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -49,9 +50,13 @@ class PageContentCtrl {
             this.breadcrumbLinks = [];
             return;
         }
+        if (this.currentArtifact === selection.artifact) {
+            return;
+        }
         // When the selected artifact is subartifact inside UseCase diagram
-        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact ||
-            this.currentArtifact === selection.artifact) {
+        const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        if (explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
+            explorerArtifact !== selection.artifact) {
             return;
         }
         this.currentArtifact = selection.artifact;
@@ -97,6 +102,10 @@ class PageContentCtrl {
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
+            }, (reason: ng.IHttpPromiseCallbackArg<any>) => {
+                if (reason.status === HttpStatusCode.NotFound) {
+                    this.breadcrumbLinks = [];
+                }
             });
     }
 

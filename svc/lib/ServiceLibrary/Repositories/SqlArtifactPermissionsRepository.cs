@@ -71,22 +71,20 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        private async Task<bool> IsInstanceAdmin(IEnumerable<int> itemIds, bool contextUser, int sessionUserId)
+        private async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
         {
-            var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
             var prm = new DynamicParameters();
             prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
-            return (await ConnectionWrapper.QueryAsync<bool>("NOVAIsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            return (await ConnectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
 
-        private async Task<Tuple<IEnumerable<bool>, IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, bool contextUser, int revisionId, bool addDrafts)
+        private async Task<Tuple<IEnumerable<ProjectsArtifactsItem>, IEnumerable<VersionProjectInfo>>> GetArtifactsProjects(IEnumerable<int> itemIds, int sessionUserId, int revisionId, bool addDrafts)
         {
             var prm = new DynamicParameters();
-            prm.Add("@contextUser", contextUser);
             prm.Add("@userId", sessionUserId);
             prm.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
-           return (await ConnectionWrapper.QueryMultipleAsync<bool, ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
+           return (await ConnectionWrapper.QueryMultipleAsync<ProjectsArtifactsItem, VersionProjectInfo>("GetArtifactsProjects", prm, commandType: CommandType.StoredProcedure));
         }
 
         public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInChunks(List<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
@@ -114,7 +112,7 @@ namespace ServiceLibrary.Repositories
             {
                 throw new ArgumentOutOfRangeException("Cannot get artifact permissions for this many artifacts");
             }
-            var isInstanceAdmin = await IsInstanceAdmin(itemIds, contextUser, sessionUserId);
+            var isInstanceAdmin = await IsInstanceAdmin(contextUser, sessionUserId);
             if (isInstanceAdmin)
             {
                 var allPermissions = GetAllPermissions();
@@ -122,9 +120,9 @@ namespace ServiceLibrary.Repositories
             }
             else
             {
-                var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, contextUser, revisionId, addDrafts);
-                var projectsArtifactsItems = multipleResult.Item2.ToList();//???Do we need always do it
-                var versionProjectInfos = multipleResult.Item3;
+                var multipleResult = await GetArtifactsProjects(itemIds, sessionUserId, revisionId, addDrafts);
+                var projectsArtifactsItems = multipleResult.Item1.ToList();//???Do we need always do it
+                var versionProjectInfos = multipleResult.Item2;
 
                 var projectIds = new HashSet<int>(projectsArtifactsItems.Select(i => i.VersionProjectId));
                 Dictionary<int, RolePermissions> itemIdsPermissions = new Dictionary<int, RolePermissions>(projectsArtifactsItems.Count);

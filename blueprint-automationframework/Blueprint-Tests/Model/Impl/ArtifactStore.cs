@@ -544,15 +544,16 @@ namespace Model.Impl
             return artifactBaseInfo;
         }
 
-        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.MoveArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
         public INovaArtifactDetails MoveArtifact(IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
+            double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return MoveArtifact(Address, artifact, newParent.Id, user, expectedStatusCodes);
+            return MoveArtifact(Address, artifact, newParent.Id, user, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.PublishArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -792,12 +793,15 @@ namespace Model.Impl
         /// <param name="artifact">The artifact to move.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will move to.</param>
         /// <param name="user">The user to authenticate with.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         public static INovaArtifactDetails MoveArtifact(string address,
             IArtifactBase artifact,
             int newParentId,
             IUser user,
+            double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -807,6 +811,11 @@ namespace Model.Impl
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
+
+            if (orderIndex != null)
+            {
+                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
+            }
 
             var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,

@@ -59,7 +59,7 @@ export class DeleteAction extends BPButtonAction {
             ItemTypePredefined.Collections
         ];
 
-        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
+        if (invalidTypes.indexOf(this.artifact.itemTypeId) >= 0) {
             return false;
         }
 

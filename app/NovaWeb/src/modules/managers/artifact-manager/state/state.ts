@@ -29,7 +29,7 @@ export interface IArtifactState extends IState, IDispose {
 export class ArtifactState implements IArtifactState {
 
     constructor(private artifact: IIStatefulArtifact) {
-        this.subject = new Rx.BehaviorSubject<IState>(this.currentState);
+        this.subject = new Rx.BehaviorSubject<IState>(null);
         this.initialize(artifact);
     }
 

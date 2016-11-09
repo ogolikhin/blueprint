@@ -89,7 +89,7 @@ export class BpArtifactInfoController {
 
         if (this.artifact) {
             this.subscribers.push(this.artifact.getObservable()
-                                                .subscribeOnNext(this.onArtifactChanged));
+                                                .subscribeOnNext(this.onArtifactLoaded));
             this.subscribers.push(this.artifact.artifactState.onStateChange
                                                             .debounce(100)
                                                             .subscribe(this.onArtifactStateChanged));
@@ -101,24 +101,28 @@ export class BpArtifactInfoController {
 
     public $onDestroy() {
         this.initProperties();
+
         this.subscribers.forEach(subscriber => {
             subscriber.dispose();
         });
+
         delete this["subscribers"];
         delete this["artifact"];
     }
 
-    protected onArtifactChanged = () => {
+    protected onArtifactLoaded = () => {
         if (this.artifact) {
             this.updateProperties(this.artifact);
         }
     };
 
     protected onArtifactStateChanged = (state: IArtifactState) => {
-        this.initStateProperties();
-        this.updateStateProperties(state);
+        if (state) {
+            this.initStateProperties();
+            this.updateStateProperties(state);
 
-        this.$scope.$applyAsync();
+            this.$scope.$applyAsync();
+        }
     }
 
     protected onArtifactPropertyChanged = (change: IItemChangeSet) => {

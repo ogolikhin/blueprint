@@ -50,6 +50,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     public selectedArtifact: IStatefulArtifact;
     private selectedSubArtifact: IStatefulSubArtifact;
+
     protected artifactSubscriber: Rx.IDisposable;
     protected subArtifactSubscriber: Rx.IDisposable;
 
@@ -168,7 +169,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         let propertyDescriptorsPromise: ng.IPromise<IPropertyDescriptor[]>;
         let selectedItem: IStatefulItem;
 
-        if (this.selectedSubArtifact) {
+        if (this.isSubartifactSelected()) {
             propertyDescriptorsPromise = this.propertyDescriptorBuilder.createSubArtifactPropertyDescriptors(this.selectedSubArtifact);
             selectedItem = this.selectedSubArtifact;
 
@@ -203,9 +204,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
                     const isReadOnly = selectedItem.artifactState.readonly;
                     if (isReadOnly) {
-                        field.templateOptions.disabled = true;
-                    }
-                    if (isReadOnly) {
+                        field.templateOptions.disabled = true;                    
                         if (field.key !== "documentFile" &&
                             field.type !== "bpFieldImage" &&
                             field.type !== "bpFieldInheritFrom") {
@@ -254,39 +253,33 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         let value = this.editor.convertToModelValue($field, $value);
         switch (context.lookup) {
             case PropertyLookupEnum.Custom:
-                if (this.selectedSubArtifact) {
-                    this.selectedSubArtifact.customProperties.set(context.modelPropertyName as number, value);
-                } else {
-                    this.selectedArtifact.customProperties.set(context.modelPropertyName as number, value);                            
-                }
-                
+                this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);
                 break;
             case PropertyLookupEnum.Special:
-                if (this.selectedSubArtifact) {
-                    this.selectedSubArtifact.specialProperties.set(context.modelPropertyName as number, value);
-                } else {
-                    this.selectedArtifact.specialProperties.set(context.modelPropertyName as number, value);                            
-                }
-                
+                this.getSelectedItem().specialProperties.set(context.modelPropertyName as number, value);
                 break;
             default:
-                if (this.selectedSubArtifact) {
-                    this.selectedSubArtifact[context.modelPropertyName] = value;
-                } else {
-                    this.selectedArtifact[context.modelPropertyName] = value;                            
-                }                
+                this.getSelectedItem()[context.modelPropertyName] = value;
                 break;
             }
         context.isFresh = false;
         //});
     };
 
+    private getSelectedItem(): IStatefulItem {
+        return this.isSubartifactSelected() ? this.selectedSubArtifact : this.selectedArtifact;
+    }
+
+    private isSubartifactSelected(): boolean {
+        return !!this.selectedSubArtifact;
+    }
+
     public get specificPropertiesHeading(): string {
         if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
         } else if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
-        } else if (this.selectedSubArtifact) {
+        } else if (this.isSubartifactSelected()) {
             return this.localization.get("Property_SubArtifact_Section_Name", "Sub-Artifact Properties");
         } else {
             return this.localization.get("Property_Artifact_Section_Name", "Artifact Properties");

@@ -36,7 +36,8 @@ export interface IProjectManager extends IDispose {
     add(project: AdminStoreModels.IInstanceItem);
     remove(): void;
     removeAll(): void;
-    refresh(id?: number): ng.IPromise<any>;
+    refresh(id: number): ng.IPromise<any>;
+    refreshCurrent();
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
@@ -89,7 +90,7 @@ export class ProjectManager implements IProjectManager {
     private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
         if (artifact.artifactState.misplaced) {
             const refreshOverlayId = this.loadingOverlayService.beginLoading();
-            this.refresh().finally(() => {
+            this.refreshCurrent().finally(() => {
                 this.triggerProjectCollectionRefresh();
                 this.loadingOverlayService.endLoading(refreshOverlayId);
             });
@@ -153,16 +154,19 @@ export class ProjectManager implements IProjectManager {
         return defered.promise;
     }
 
-    public refresh(projectId?: number): ng.IPromise<any> {
-        const projectNode = projectId ? this.getProject(projectId) : this.getSelectedProject();
+    public refresh(projectId: number): ng.IPromise<any> {
+        return this.refreshProject(this.getProject(projectId));
+    }
+
+    public refreshCurrent(): ng.IPromise<any> {
+        return this.refreshProject(this.getSelectedProject());
+    }
+
+    private refreshProject(projectNode: Project): ng.IPromise<any> {
         if (!projectNode) {
             return this.$q.reject();
         }
 
-        return this.refreshProject(projectNode);
-    }
-
-    private refreshProject(projectNode: Project): ng.IPromise<any> {
         let defer = this.$q.defer<any>();
 
         let selectedArtifact = this.artifactManager.selection.getArtifact();

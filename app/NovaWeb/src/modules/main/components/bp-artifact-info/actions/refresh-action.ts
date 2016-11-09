@@ -36,7 +36,7 @@ export class RefreshAction extends BPButtonAction {
                 const overlayId = loadingOverlayService.beginLoading();
 
                 if (artifact.predefinedType === ItemTypePredefined.Project) {
-                    projectManager.refresh().finally(() => {
+                    projectManager.refreshCurrent().finally(() => {
                         projectManager.triggerProjectCollectionRefresh();
                         loadingOverlayService.endLoading(overlayId);
                     });

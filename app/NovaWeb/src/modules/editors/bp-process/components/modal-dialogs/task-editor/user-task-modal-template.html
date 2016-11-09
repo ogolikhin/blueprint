@@ -18,7 +18,7 @@
         <div class="nova-form-group nova-floating-label">
             <input type="text"
                     ng-class='dialogModel.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                    id="storyteller-user" ng-model='dialogModel.persona' ng-disabled="$ctrl.isReadonly"
+                    id="storyteller-user" ng-model='dialogModel.persona' ng-disabled="true"
                     autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon2-process-persona"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>

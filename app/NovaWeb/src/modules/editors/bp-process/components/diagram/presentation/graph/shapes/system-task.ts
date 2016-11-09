@@ -183,7 +183,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     }
 
     public get persona(): string {
-        return this.getPropertyValue("persona");
+        if (this.model.personaReference) {
+            return this.model.personaReference.name;
+        } else {
+            return undefined;
+        }
     }
 
     public set persona(value: string) {
@@ -325,7 +329,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            true);
 
         let cell = mxGraph.addCell(this.header, this.callout);
 

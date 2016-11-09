@@ -67,7 +67,7 @@ module.exports = {
             {from: '../assets', to: './static'},
             {from: './unsupported-browser', to: './static'},
 
-            {from: '../src/fonts', to: './static/fonts'},
+            {from: '../src/fonts', to: './fonts'},
             {from: '../src/images', to: './static/images'},
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},

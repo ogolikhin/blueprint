@@ -4,7 +4,7 @@ import {QuickSearchComponent} from "./quickSearchComponent";
 import {QuickSearchService, IQuickSearchService} from "./quickSearchService";
 import {QuickSearchModalController, IQuickSearchModalController} from "./quickSearchModalController";
 
-angular.module("bp.components.quickSearch", [])
+angular.module("bp.components.quickSearch", ["bp.components.pagination"])
     .controller("quickSearchController", QuickSearchController)
     .controller("quickSearchModalController", QuickSearchModalController)
     .component("quickSearch", new QuickSearchComponent())

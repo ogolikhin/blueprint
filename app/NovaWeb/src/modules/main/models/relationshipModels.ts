@@ -23,6 +23,12 @@ export interface IRelationshipView extends IRelationship {
     cssClass?: string;
     directionIcon?: string;
     traceIcon?: string;
+    id?: number;
+    parentId?: number;
+    predefinedType?: number;
+    name?: string;
+    displayName?: string;
+    prefix?: string;
 }
 
 export interface IDialogRelationshipItem {

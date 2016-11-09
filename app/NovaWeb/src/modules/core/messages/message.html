@@ -1,7 +1,7 @@
 ﻿<div class="container"
      ng-class="{'error':'error', 'warning':'warning', 'info':'info', 'lock': 'lock', 'deleted':'deleted'}[$ctrl.messageType]">
     <span class="icon"
-          ng-class="{'error':'fonticon-error', 'warning':'fonticon-warning', 'info':'fonticon-information','lock':'fonticon-lock', 'deleted': 'fonticon2-artifact-deleted'}[$ctrl.messageType]"></span>
+          ng-class="{'error':'fonticon2-error', 'warning':'fonticon2-warning', 'info':'fonticon2-information','lock':'fonticon2-lock', 'deleted': 'fonticon2-artifact-deleted'}[$ctrl.messageType]"></span>
     <div class="text" ng-transclude></div>
     <a class="fonticon-close" dismiss="alert-msg-box"
        ng-if="$ctrl.canBeClosed" ng-click="$ctrl.onMessageClosed()"></a>

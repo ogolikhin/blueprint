@@ -1076,3 +1076,25 @@ $fonticon-suspect-centre-stack: '\e862';
     margin-right: 0;
     z-index: 200;
 }
+
+
+.pagination-first {
+    a::before {
+     content: $fonticon-information; 
+    }
+}
+.pagination-prev {
+    a::before {
+     content: $fonticon-information; 
+    }
+}
+.pagination-next {
+    a::before {
+     content: $fonticon-information; 
+    }
+}
+.pagination-last {
+    a::before {
+     content: $fonticon-information; 
+    }
+}

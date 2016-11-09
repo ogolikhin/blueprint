@@ -34,7 +34,7 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
-        sizeColumnsToFit: "<",        
+        sizeColumnsToFit: "<",
         api: "=?",
         // Output
         onSelect: "&?",
@@ -93,7 +93,7 @@ export interface IColumnRendererParams {
 }
 
 export interface IBPTreeViewControllerApi {
-    ensureNodeVisible(node: ITreeViewNode): void;      
+    ensureNodeVisible(node: ITreeViewNode): void;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -105,7 +105,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
     public rootNode: ITreeViewNode | ITreeViewNode[];
-    public rootNodeVisible: boolean;    
+    public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
@@ -128,7 +128,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.rootNodeVisible = angular.isDefined(this.rootNodeVisible) ? this.rootNodeVisible : false;
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
-        this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;        
+        this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
 
         this.options = {
             angularCompileHeaders: true,
@@ -155,8 +155,8 @@ export class BPTreeViewController implements IBPTreeViewController {
             headerHeight: this.headerHeight,
 
             // Callbacks
-            getBusinessKeyForNode: this.getBusinessKeyForNode,   
-            getNodeChildDetails: this.getNodeChildDetails,         
+            getBusinessKeyForNode: this.getBusinessKeyForNode,
+            getNodeChildDetails: this.getNodeChildDetails,
 
             // Event handlers
             onRowGroupOpened: this.onRowGroupOpened,
@@ -168,7 +168,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             onModelUpdated: this.onModelUpdated,
             context: {}
         };
-       
+
         this.options.context.allSelected = false;
         this.options.context.selectAllClass = new HeaderCell(this.options);
     }
@@ -181,7 +181,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
         if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
-            this.resetGridAsync(false);
+            this.resetGridAsync(false, 0);
         }
     }
 
@@ -206,15 +206,15 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.rootNode = null;
     }
 
-    public api: IBPTreeViewControllerApi = {        
+    public api: IBPTreeViewControllerApi = {
         ensureNodeVisible: (node: ITreeViewNode): void => {
             if (node) {
                 this.options.api.ensureNodeVisible(node);
-            }          
-        }                     
+            }
+        }
     };
 
-    public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
+    public resetGridAsync(saveSelection: boolean, fitColumnDelay: number = 500): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
             this.options.rowDeselection = this.selectionMode !== "single";
@@ -267,10 +267,10 @@ export class BPTreeViewController implements IBPTreeViewController {
                     if (this.sizeColumnsToFit) {
                         this.timers[1] = this.$timeout(() => {
                             this.options.api.sizeColumnsToFit();
-                        });
+                        }, fitColumnDelay);
                     } else {
                         this.options.columnApi.autoSizeAllColumns();
-                    }                    
+                    }
 
                     if (saveSelection) {
                         // Restore selection (don't raise selection events)

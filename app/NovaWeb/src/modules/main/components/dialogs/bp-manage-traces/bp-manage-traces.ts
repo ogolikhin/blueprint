@@ -107,10 +107,9 @@ export class ManageTracesDialogController extends BaseDialogController {
         for (let i = 0; i < selectedVMsLength; i++) {
 
             let currentItem = selectedVMs[i],
-                currentItemModel = currentItem.model;
+                currentItemModel = (currentItem.model) as Relationships.IRelationshipView;
 
             currentItemModel.itemId = currentItemModel.id;
-
             currentItemModel.artifactId = currentItem instanceof TreeViewModels.ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
 
             let res = _.find(this.data.manualTraces, {itemId: currentItemModel.itemId});
@@ -129,7 +128,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName || currentItemModel.itemLabel;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
-                currentItemModel.projectName = currentItem["options"] && currentItem["options"].project && currentItem["options"].project.name;
+                currentItemModel.projectName = currentItem["project"] && currentItem["project"].name;
                 currentItemModel.hasAccess = true;
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;

@@ -253,7 +253,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         }
         let value = this.editor.convertToModelValue($field, $value);
         switch (context.lookup) {
-            case Enums.PropertyLookupEnum.Custom:
+            case PropertyLookupEnum.Custom:
                 if (this.selectedSubArtifact) {
                     this.selectedSubArtifact.customProperties.set(context.modelPropertyName as number, value);
                 } else {
@@ -261,7 +261,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 }
                 
                 break;
-            case Enums.PropertyLookupEnum.Special:
+            case PropertyLookupEnum.Special:
                 if (this.selectedSubArtifact) {
                     this.selectedSubArtifact.specialProperties.set(context.modelPropertyName as number, value);
                 } else {

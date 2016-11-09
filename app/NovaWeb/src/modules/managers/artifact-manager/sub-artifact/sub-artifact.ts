@@ -4,7 +4,6 @@ import {IStatefulArtifact} from "../artifact";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
 import {IArtifactAttachmentsResultSet} from "../attachments";
 import {MetaData} from "../metadata";
-import {HttpStatusCode} from "../../../core/http";
 import {IChangeSet} from "../changeset";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {

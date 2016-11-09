@@ -151,7 +151,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.model.personaReference) {
             return this.model.personaReference.name;
         } else {
-            return null;
+            return undefined;
         }
     }
 

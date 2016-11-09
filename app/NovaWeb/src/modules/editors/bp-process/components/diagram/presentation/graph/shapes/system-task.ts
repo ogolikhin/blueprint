@@ -186,7 +186,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         if (this.model.personaReference) {
             return this.model.personaReference.name;
         } else {
-            return null;
+            return undefined;
         }
     }
 

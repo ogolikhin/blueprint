@@ -165,14 +165,14 @@ export class ShapesFactory {
         const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
 
         const defaultUserPersonaReference = {
-            id: 1,
-            projectId: 1,
+            id: this._idGenerator.getUserPeronaId(),
+            projectId: null,
             name: this.NEW_USER_TASK_PERSONA,
-            typePrefix: "PRO",
+            typePrefix: null,
             baseItemTypePredefined: ItemTypePredefined.Actor,
-            projectName: "test project",
+            projectName: null,
             link: null,
-            version: 1
+            version: null
         };
 
         // hard coded strings, if change, please search above chars and replace the other place on server side
@@ -198,14 +198,14 @@ export class ShapesFactory {
         const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
 
         const defaultSystemPersonaReference = {
-            id: 1,
-            projectId: 1,
+            id: this._idGenerator.getSystemPeronaId(),
+            projectId: null,
             name: this.NEW_SYSTEM_TASK_PERSONA,
-            typePrefix: "PRO",
+            typePrefix: null,
             baseItemTypePredefined: ItemTypePredefined.Actor,
-            projectName: "test project",
+            projectName: null,
             link: null,
-            version: 1
+            version: null
         };        
 
         if (!!this.settings.getSystemTaskPersona()) {

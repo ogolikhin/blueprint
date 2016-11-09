@@ -6,5 +6,4 @@ angular.module("bp.managers.project", [])
     .service("projectService", ProjectService)
     .service("projectManager", ProjectManager);
 
-export {Project} from "./project"
 export {IProjectManager, IProjectService, IArtifactNode}

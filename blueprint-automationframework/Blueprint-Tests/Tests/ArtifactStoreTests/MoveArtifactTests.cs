@@ -343,6 +343,54 @@ namespace ArtifactStoreTests
                 "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
+        [TestCase(-1.1)]
+        [TestCase(0)]
+        [TestRail(191035)]
+        [Description("Create & save an artifact.  Move the artifact and specify an OrderIndex <= 0.  Verify 400 Bad Request is returned.")]
+        public void MoveArtifactWithOrderIndex_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => 
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "Parameter orderIndex cannot be equal to or less than 0.");
+        }
+
+        [TestCase(ItemTypePredefined.ArtifactCollection, -0.0001)]
+        [TestCase(ItemTypePredefined.CollectionFolder, 0)]
+        [TestRail(191036)]
+        [Description("Create & save a Collection or Collection Folder artifact.  Move the artifact and specify an OrderIndex <= 0.  " +
+            "Verify 400 Bad Request is returned.")]
+        public void MoveArtifactWithOrderIndex_SavedCollectionOrCollectionFolder_NotPositiveOrderIndex_400BadRequest(
+            ItemTypePredefined artifactType, double orderIndex)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, collectionFolder.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "Parameter orderIndex cannot be equal to or less than 0.");
+        }
+
         #endregion 400 Bad Request
 
         #region 401 Unauthorized tests

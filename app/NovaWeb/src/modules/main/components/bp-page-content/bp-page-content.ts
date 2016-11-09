@@ -7,6 +7,7 @@ import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -101,6 +102,10 @@ class PageContentCtrl {
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
+            }, (reason: ng.IHttpPromiseCallbackArg<any>) => {
+                if (reason.status === HttpStatusCode.NotFound) {
+                    this.breadcrumbLinks = [];
+                }
             });
     }
 

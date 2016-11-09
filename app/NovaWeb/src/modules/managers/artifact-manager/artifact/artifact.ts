@@ -502,8 +502,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     private doPublish(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
 
-        this.services.messageService.clearMessages();
-
         this.services.publishService.publishArtifacts([this.id])
             .then(() => {
                 this.services.messageService.addInfo("Publish_Success_Message");

@@ -359,7 +359,7 @@ class BPToolbarController implements IBPToolbarController {
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         const newArtifactId = data.id;
-                        this.projectManager.refresh(projectId)
+                        this.projectManager.refresh(projectId, true)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
                                 this.navigationService.navigateTo({id: newArtifactId})

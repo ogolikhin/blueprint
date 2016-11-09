@@ -96,23 +96,6 @@ class PageContentCtrl {
             });
     }
 
-    public openArtifactPicker() {
-        const dialogSettings = <IDialogSettings>{
-            okButton: "Open",
-            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
-            controller: ArtifactPickerDialogController,
-            css: "nova-open-project",
-            header: "Single project Artifact picker"
-        };
-
-        const dialogData: IArtifactPickerOptions = {
-            showSubArtifacts: false,
-            isOneProjectLevel: true
-        };
-
-        this.dialogService.open(dialogSettings, dialogData);
-    }
-
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {

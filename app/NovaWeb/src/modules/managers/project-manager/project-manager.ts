@@ -36,7 +36,7 @@ export interface IProjectManager extends IDispose {
     add(project: AdminStoreModels.IInstanceItem);
     remove(): void;
     removeAll(): void;
-    refresh(id: number): ng.IPromise<any>;
+    refresh(id: number, forceOpen?: boolean): ng.IPromise<any>;
     refreshCurrent();
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
@@ -154,15 +154,15 @@ export class ProjectManager implements IProjectManager {
         return defered.promise;
     }
 
-    public refresh(projectId: number): ng.IPromise<any> {
-        return this.refreshProject(this.getProject(projectId));
+    public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<any> {
+        return this.refreshProject(this.getProject(projectId), forceOpen);
     }
 
     public refreshCurrent(): ng.IPromise<any> {
         return this.refreshProject(this.getSelectedProject());
     }
 
-    private refreshProject(projectNode: Project): ng.IPromise<any> {
+    private refreshProject(projectNode: Project, forceOpen?: boolean): ng.IPromise<any> {
         if (!projectNode) {
             return this.$q.reject();
         }
@@ -180,12 +180,12 @@ export class ProjectManager implements IProjectManager {
         }
 
         autosavePromise.promise.then(() => {
-            this.doRefresh(projectNode, selectedArtifact, defer);
+            this.doRefresh(projectNode, selectedArtifact, defer, forceOpen);
         }).catch(() => {
             //something went wrong - ask user if they want to force refresh
             this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"))
                 .then(() => {
-                    this.doRefresh(projectNode, selectedArtifact, defer);
+                    this.doRefresh(projectNode, selectedArtifact, defer, forceOpen);
                 })
                 .catch(() => {
                     defer.reject();
@@ -195,7 +195,7 @@ export class ProjectManager implements IProjectManager {
         return defer.promise;
     }
 
-    private doRefresh(project: Project, expandToArtifact: IStatefulArtifact, defer: any) {
+    private doRefresh(project: Project, expandToArtifact: IStatefulArtifact, defer: any, forceOpen?: boolean) {
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact.id);
 
         //if the artifact provided is not in the current project - just expand project node
@@ -204,7 +204,7 @@ export class ProjectManager implements IProjectManager {
         }
 
         //try with selected artifact
-        this.projectService.getProjectTree(project.id, expandToArtifact.id, selectedArtifactNode ? selectedArtifactNode.open : false)
+        this.projectService.getProjectTree(project.id, expandToArtifact.id, forceOpen || (selectedArtifactNode ? selectedArtifactNode.open : false))
             .then((data: Models.IArtifact[]) => {
                 this.ProcessProjectTree(project, data).then(() => {
                     defer.resolve();

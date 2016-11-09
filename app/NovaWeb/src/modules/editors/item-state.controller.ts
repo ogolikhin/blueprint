@@ -88,7 +88,7 @@ export class ItemStateController {
                     statefulArtifact.artifactState.historical = true;
                     
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
+                    const deletedMessage = `Deleted by user ${result.deletedByUser.displayName} on ${localizedDate}`;
                     this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 

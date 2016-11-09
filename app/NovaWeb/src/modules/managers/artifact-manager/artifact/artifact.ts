@@ -141,11 +141,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 } else {
                     if (err && err.errorCode === 114) {
                         this.services.messageService.addInfo("Artifact_Lock_Refresh");
-                        this.refresh();
+                        deffered.resolve();
                     } else {
                         this.services.messageService.addError(err);
+                        deffered.reject();
                     }
-                    deffered.reject();
+                    
                 }
             }).finally(() => {
                 this.services.loadingOverlayService.endLoading(overlayId);
@@ -183,11 +184,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             .catch((err) => {
                 if (err && err.errorCode === 114) {
                     this.services.messageService.addInfo("Artifact_Lock_Refresh");
-                    this.refresh();
+                    deffered.resolve();
                 } else {
                     this.services.messageService.addError(err);
+                    deffered.reject();
                 }
-                deffered.reject();
+                
             }).finally(() => {
                 this.services.loadingOverlayService.endLoading(discardOverlayId);
             });

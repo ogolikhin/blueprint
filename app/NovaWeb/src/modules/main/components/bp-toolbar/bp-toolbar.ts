@@ -11,7 +11,7 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {Project} from "../../../managers/project-manager/project";
+import {IArtifactNode} from "../../../managers/project-manager";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
@@ -175,7 +175,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
-        const selectedProject: Project = this.projectManager.getSelectedProject();
+        const selectedProject: IArtifactNode = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -202,12 +202,8 @@ class BPToolbarController implements IBPToolbarController {
         //perform publish all
         this.publishService.discardAll()
             .then(() => {
-                //remove lock on current artifact
-                const selectedArtifact = this.artifactManager.selection.getArtifact();
-                if (selectedArtifact) {
-                    selectedArtifact.artifactState.unlock();
-                    selectedArtifact.refresh();
-                }
+                //refresh all after discard all finishes
+                this.projectManager.refreshAll();
 
                 this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
             })
@@ -217,7 +213,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private confirmPublishAll(data: Models.IPublishResultSet) {
-        const selectedProject: Project = this.projectManager.getSelectedProject();
+        const selectedProject: IArtifactNode = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Publish_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -263,7 +259,7 @@ class BPToolbarController implements IBPToolbarController {
         const savePromises = [];
         const selectedArtifact = this.artifactManager.selection.getArtifact();
         artifactsToSave.forEach((artifactModel) => {
-            let artifact = this.projectManager.getArtifact(artifactModel.id);
+            let artifact = this.artifactManager.get(artifactModel.id);
             if (!artifact) {
                 if (selectedArtifact && selectedArtifact.id === artifactModel.id) {
                     artifact = selectedArtifact;
@@ -359,7 +355,7 @@ class BPToolbarController implements IBPToolbarController {
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         const newArtifactId = data.id;
-                        this.projectManager.refresh(projectId)
+                        this.projectManager.refresh(projectId, true)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
                                 this.navigationService.navigateTo({id: newArtifactId})

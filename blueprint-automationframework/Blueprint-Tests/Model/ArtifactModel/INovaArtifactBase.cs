@@ -81,6 +81,7 @@ namespace Model.ArtifactModel
         Identification CreatedBy { get; set; }
         DateTime? CreatedOn { get; set; }
         string Description { get; set; }
+        int? ItemTypeIconId { get; set; }
         Identification LastEditedBy { get; set; }
         DateTime? LastEditedOn { get; set; }
         double OrderIndex { get; set; }

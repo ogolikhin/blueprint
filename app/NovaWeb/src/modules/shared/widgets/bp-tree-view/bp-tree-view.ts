@@ -112,7 +112,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
-    public onGridReset: () => void;
+    public onGridReset: () => void;   
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -129,7 +129,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;        
-
+        
         this.options = {
             angularCompileHeaders: true,
             suppressRowClickSelection: true,
@@ -172,7 +172,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.options.context.allSelected = false;
         this.options.context.selectAllClass = new HeaderCell(this.options);
     }
-
+    
     public $onInit() {
         if (this.sizeColumnsToFit) {
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
@@ -240,13 +240,13 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {
-                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
-                    rowDataAsync = angular.isArray(this.rootNode) ? this.rootNode : [this.rootNode];
-                } else if (angular.isFunction(this.rootNode.loadChildrenAsync)) {
-                    const rootNode = this.rootNode;
+                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {                    
+                    rowDataAsync = angular.isArray(this.rootNode) ? <ITreeViewNode[]>this.rootNode : [<ITreeViewNode>this.rootNode];
+                } else if (angular.isFunction((<ITreeViewNode>this.rootNode).loadChildrenAsync)) {
+                    const rootNode = <ITreeViewNode>this.rootNode;
                     rowDataAsync = rootNode.loadChildrenAsync().then(() => rootNode.children);
                 } else {
-                    rowDataAsync = this.rootNode.children;
+                    rowDataAsync = (<ITreeViewNode>this.rootNode).children;
                 }
             } else {
                 rowDataAsync = [];

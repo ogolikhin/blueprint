@@ -372,6 +372,7 @@ class BPToolbarController implements IBPToolbarController {
                         if (error.statusCode === 404) {
                             this.projectManager.refresh({id: projectId})
                                 .then(() => {
+                                    this.projectManager.triggerProjectCollectionRefresh();
                                     this.messageService.addError("Create_New_Artifact_Error_404", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });

@@ -49,9 +49,13 @@ class PageContentCtrl {
             this.breadcrumbLinks = [];
             return;
         }
+        if (this.currentArtifact === selection.artifact) {
+            return;
+        }
         // When the selected artifact is subartifact inside UseCase diagram
-        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact ||
-            this.currentArtifact === selection.artifact) {
+        const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        if (explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
+            explorerArtifact !== selection.artifact) {
             return;
         }
         this.currentArtifact = selection.artifact;
@@ -63,7 +67,7 @@ class PageContentCtrl {
                 }));
         } else {
             this._subscribers.push(
-                selection.artifact.getObservable().subscribe((artifact) => {
+                selection.artifact.getObservable().distinctUntilChanged().subscribe((artifact) => {
                     this.setArtifactBreadCrumb(artifact.id, artifact.artifactState.historical);
                 }));
         }

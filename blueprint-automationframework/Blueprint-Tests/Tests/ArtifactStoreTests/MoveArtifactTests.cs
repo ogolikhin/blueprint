@@ -265,7 +265,6 @@ namespace ArtifactStoreTests
         [TestRail(190011)]
         [Description("Create an artifact of collection artifact type & collection folder.  Move this artifact to be a child of the collection folder.  " +
             "Verify the moved artifact is returned with the updated Parent ID.")]
-
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToCollectionFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -276,7 +275,6 @@ namespace ArtifactStoreTests
             IArtifact collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-
             IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
 
             childArtifact.Lock(_user);

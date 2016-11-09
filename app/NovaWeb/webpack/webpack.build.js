@@ -24,7 +24,7 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     plugins: [
-        //new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+        new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',

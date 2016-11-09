@@ -84,11 +84,11 @@ export class ItemStateController {
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
-                    
+
                 } else if (result.isDeleted) {
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
-                    
+
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Deleted by user ${result.deletedByUser.displayName} on ${localizedDate}`;
                     this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
@@ -100,7 +100,7 @@ export class ItemStateController {
             }
         }).catch(error => {
             if (projectId) {
-                this.projectManager.refresh(this.projectManager.getProject(projectId))
+                this.projectManager.refresh(projectId)
                 .then(() => {
                     this.projectManager.triggerProjectCollectionRefresh();
                 });
@@ -111,7 +111,7 @@ export class ItemStateController {
                     this.messageService.addError("HttpError_NotFound", true);
                 }
             }
-            
+
         });
     }
 
@@ -139,7 +139,7 @@ export class ItemStateController {
         if (!this.$state.params["path"]) {
             this.artifactManager.selection.setExplorerArtifact(artifact);
         }
-        
+
         this.artifactManager.selection.setArtifact(artifact);
         artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }

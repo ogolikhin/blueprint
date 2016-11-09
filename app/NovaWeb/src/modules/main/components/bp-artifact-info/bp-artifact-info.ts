@@ -179,26 +179,25 @@ export class BpArtifactInfoController {
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
 
-        if (artifact.version === -1) { // this is to show the lock icon for newly created artifacts
-            this.selfLocked = true;
-        } else {
-            switch (artifact.artifactState.lockedBy) {
-                case Enums.LockedByEnum.CurrentUser:
+        switch (artifact.artifactState.lockedBy) {
+            case Enums.LockedByEnum.CurrentUser:
+                this.selfLocked = true;
+                break;
+
+            case Enums.LockedByEnum.OtherUser:
+                let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
+                if (artifact.artifactState.lockDateTime) {
+                    msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                }
+                msg += ".";
+                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
+                break;
+
+            default:
+                if (artifact.version === -1) { // this is to show the lock icon for newly created artifacts
                     this.selfLocked = true;
-                    break;
-
-                case Enums.LockedByEnum.OtherUser:
-                    let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
-                    if (artifact.artifactState.lockDateTime) {
-                        msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
-                    }
-                    msg += ".";
-                    this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
-                    break;
-
-                default:
-                    break;
-            }
+                }
+                break;
         }
     }
 

@@ -29,3 +29,10 @@ export interface ISearchItem {
     predefinedType: number;
     artifactClass: string;
 }
+
+export interface ISearchMetadata {
+    totalCount: number;
+    totalPages: number;
+    pageSize: number;
+    items: any[];
+}

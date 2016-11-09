@@ -27,7 +27,7 @@ describe("BPTreeViewComponent", () => {
                                        row-height="20"
                                        root-node="{key: 'root'}"
                                        root-node-visible="true"
-                                       columns="[{field: 'key'}]"
+                                       columns="[{isGroup: true}]"
                                        header-height="20"
                                        on-select="onSelect()" />`;
 
@@ -42,7 +42,7 @@ describe("BPTreeViewComponent", () => {
         expect(controller.rowHeight).toEqual(20);
         expect(controller.rootNode).toEqual({key: "root"});
         expect(controller.rootNodeVisible).toEqual(true);
-        expect(controller.columns).toEqual([{field: "key"}]);
+        expect(controller.columns).toEqual([{isGroup: true}]);
         expect(controller.headerHeight).toEqual(20);
         expect(angular.isFunction(controller.onSelect)).toEqual(true);
     }));
@@ -130,7 +130,7 @@ describe("BPTreeViewController", () => {
             controller.$onChanges({selectionMode: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
-            expect(controller.resetGridAsync).toHaveBeenCalledWith(false);
+            expect(controller.resetGridAsync).toHaveBeenCalledWith(false, 0);
         });
 
         it("$onChanges, when rootNode changes, calls resetGridAsync correctly", () => {
@@ -141,7 +141,7 @@ describe("BPTreeViewController", () => {
             controller.$onChanges({rootNode: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
-            expect(controller.resetGridAsync).toHaveBeenCalledWith(false);
+            expect(controller.resetGridAsync).toHaveBeenCalledWith(false, 0);
         });
 
         it("$onChanges, when rootNodeVisible changes, calls resetGridAsync correctly", () => {
@@ -152,7 +152,7 @@ describe("BPTreeViewController", () => {
             controller.$onChanges({rootNodeVisible: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
-            expect(controller.resetGridAsync).toHaveBeenCalledWith(false);
+            expect(controller.resetGridAsync).toHaveBeenCalledWith(false, 0);
         });
 
         it("$onChanges, when columns changes, calls resetGridAsync correctly", () => {
@@ -163,7 +163,7 @@ describe("BPTreeViewController", () => {
             controller.$onChanges({columns: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
-            expect(controller.resetGridAsync).toHaveBeenCalledWith(false);
+            expect(controller.resetGridAsync).toHaveBeenCalledWith(false, 0);
         });
 
         it("$onDestroy calls setRowData", () => {

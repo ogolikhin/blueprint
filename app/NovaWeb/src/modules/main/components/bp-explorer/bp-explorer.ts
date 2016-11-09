@@ -153,8 +153,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 } else if (navigateToId === currentSelection) {
                     this.navigationService.reloadParentState();
                 }
-            } else {
-                this.navigationService.navigateToMain();
             }
         }
     };
@@ -229,7 +227,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         open: "open"
     };
 
-    public doLoad = (prms: Models.IProject): any[] => {
+    public doLoad = (prms: IArtifactNode): any[] => {
         //the explorer must be empty on a first load
         if (prms) {
             //notify the repository to load the node children

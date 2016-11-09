@@ -120,8 +120,8 @@ export class ProcessGraph implements IProcessGraph {
         this.initializePopupMenu();
         if (!this.viewModel.isReadonly) {
             this.dragDropHandler = new DragDropHandler(this);
-            this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         }
+        this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
     }
 
@@ -444,6 +444,8 @@ export class ProcessGraph implements IProcessGraph {
                         if (state.shape != null) {
                             state.shape.apply(state);
                             state.shape.redraw();
+                            // Set vertices z-order on top in case some of them are overlaped by edges
+                            graph.orderCells(false, graph.getChildVertices(graph.getDefaultParent()));
                         }
                     }
                 },

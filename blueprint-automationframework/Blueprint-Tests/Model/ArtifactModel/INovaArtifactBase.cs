@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 using Model.ArtifactModel.Impl;
 using System.Diagnostics.CodeAnalysis;
 
@@ -52,6 +51,8 @@ namespace Model.ArtifactModel
         Identification CreatedBy { get; set; }
         DateTime? CreatedOn { get; set; }
         string Description { get; set; }
+        string ItemTypeName { get; set; }
+        int? ItemTypeIconId { get; set; }
         int ItemTypeVersionId { get; set; }
         int Permissions { get; set; }
         double? OrderIndex { get; set; }
@@ -80,6 +81,7 @@ namespace Model.ArtifactModel
         Identification CreatedBy { get; set; }
         DateTime? CreatedOn { get; set; }
         string Description { get; set; }
+        int? ItemTypeIconId { get; set; }
         Identification LastEditedBy { get; set; }
         DateTime? LastEditedOn { get; set; }
         double OrderIndex { get; set; }

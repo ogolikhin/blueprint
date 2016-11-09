@@ -69,7 +69,7 @@ export class QuickSearchController {
             controllerAs: "$ctrl",
             size: this.modalSize
         };
-
+        
         return this.modalInstance = this.$uibModal.open(settings);
     }
 

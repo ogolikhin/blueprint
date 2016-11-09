@@ -125,6 +125,14 @@ export class CreateNewArtifactController extends BaseDialogController {
         return _availableItemTypes;
     };
 
+    public onKeyUp = (event: KeyboardEvent) => {
+        if (event.keyCode === 13) { // ENTER
+            if (!this.isCreateButtonDisabled) {
+                this.ok();
+            }
+        }
+    };
+
     public get isCreateButtonDisabled(): boolean {
         return _.isUndefined(this.newArtifactName) || !_.isString(this.newArtifactName) || this.newArtifactName.length === 0 ||
             _.isUndefined(this.newArtifactType) || _.isNull(this.newArtifactType) || this.newArtifactType.toString().length === 0;

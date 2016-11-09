@@ -73,7 +73,7 @@ describe("OpenProjectController", () => {
             const cell = {} as HTMLElement;
 
              const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };
@@ -91,7 +91,7 @@ describe("OpenProjectController", () => {
             const vm = controller.factory.createInstanceItemNodeVM(model);
             const cell = document.createElement("div");
             const params: IColumnRendererParams = {
-                vm: vm,
+                data: vm,
                 $scope: $scope,
                 eGridCell: cell
             };
@@ -129,13 +129,7 @@ describe("OpenProjectController", () => {
         expect(controller.isProjectSelected).toEqual(true);
         expect(controller.selectedItem).toEqual(vm);
         expect($sce.getTrustedHtml(controller.selectedDescription)).toEqual("abc");
-        expect(controller.returnValue).toEqual({
-            id: 3,
-            name: "name",
-            description: "abc",
-            itemTypeId: Enums.ItemTypePredefined.Project,
-            permissions: Enums.RolePermissions.Read
-        });
+        expect(controller.returnValue).toEqual(model);
     }));
 
     it("onSelect, when selected folder, sets selection", inject(($browser) => {

@@ -1,6 +1,6 @@
 ﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
-import {SearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
+import {SearchResultVM, ArtifactSearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
@@ -170,9 +170,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
         innerRenderer: (params: IColumnRendererParams) => {
-            const node = <TreeViewModels.TreeViewNodeVM<any>>params.vm;
-            const icon = node.getIcon();
-            const name = Helper.escapeHTMLText(node.name);
+            const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
+            const icon = vm.getIcon();
+            const name = Helper.escapeHTMLText(vm.name);
             return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
         }
     }];
@@ -256,6 +256,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 this.isSearching = false;
             });
         }
+    }
+
+    public hasCustomIcon = (searchResult: ArtifactSearchResultVM) => {
+        if (searchResult.model && _.isFinite(searchResult.model.itemTypeIconId)) {
+            return true;
+        }
+        return false;
     }
 
     public clearSearch(): void {

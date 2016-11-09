@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {Project, ArtifactNode} from "./project";
@@ -32,10 +33,11 @@ export interface IProjectManager extends IDispose {
 
     // eventManager
     initialize();
-    add(project: Models.IProject);
+    add(project: AdminStoreModels.IInstanceItem);
     remove(): void;
     removeAll(): void;
-    refresh(project: Models.IProject): ng.IPromise<any>;
+    refresh(id: number): ng.IPromise<any>;
+    refreshCurrent();
     refreshAll(): ng.IPromise<any>;
     loadArtifact(id: number): void;
     loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
@@ -44,8 +46,8 @@ export interface IProjectManager extends IDispose {
     getArtifact(id: number): IStatefulArtifact;
     getSelectedProject(): Project;
     triggerProjectCollectionRefresh();
+    getDescendantsToBeDeleted(artifact: IStatefulArtifact):  ng.IPromise<Models.IArtifactWithProject[]>;
 }
-
 
 export class ProjectManager implements IProjectManager {
 
@@ -88,7 +90,7 @@ export class ProjectManager implements IProjectManager {
     private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
         if (artifact.artifactState.misplaced) {
             const refreshOverlayId = this.loadingOverlayService.beginLoading();
-            this.refresh(this.getSelectedProject()).finally(() => {
+            this.refreshCurrent().finally(() => {
                 this.triggerProjectCollectionRefresh();
                 this.loadingOverlayService.endLoading(refreshOverlayId);
             });
@@ -132,43 +134,46 @@ export class ProjectManager implements IProjectManager {
     }
 
     public refreshAll(): ng.IPromise<any> {
-        let defer = this.$q.defer<any>();
+        let defered = this.$q.defer<any>();
 
         let refreshQueue = [];
 
         this.projectCollection.getValue().forEach((project) => {
-            refreshQueue.push(this.refresh(project));
+            refreshQueue.push(this.refreshProject(project));
         });
 
         this.$q.all(refreshQueue).then(() => {
-            defer.resolve();
+            defered.resolve();
         }).catch(() => {
-            defer.reject();
+            defered.reject();
         }).finally(() => {
 
             this.triggerProjectCollectionRefresh();
         });
 
-        return defer.promise;
+        return defered.promise;
     }
 
-    public refresh(project: Models.IProject): ng.IPromise<any> {
-        let defer = this.$q.defer<any>();
+    public refresh(projectId: number): ng.IPromise<any> {
+        return this.refreshProject(this.getProject(projectId));
+    }
 
-        let projectNode: Project;
-        if (!project) {
-            throw new Error("Project_NotFound");
-        }
-        projectNode = this.getProject(project.id);
+    public refreshCurrent(): ng.IPromise<any> {
+        return this.refreshProject(this.getSelectedProject());
+    }
+
+    private refreshProject(projectNode: Project): ng.IPromise<any> {
         if (!projectNode) {
-            throw new Error("Project_NotFound");
+            return this.$q.reject();
         }
+
+        let defer = this.$q.defer<any>();
 
         let selectedArtifact = this.artifactManager.selection.getArtifact();
 
         //if selected artifact is dirty and is in the project being refreshed - perform autosave
         let autosavePromise = this.$q.defer<any>();
-        if (selectedArtifact.artifactState.dirty && selectedArtifact.projectId === project.id) {
+        if (selectedArtifact.artifactState.dirty && selectedArtifact.projectId === projectNode.id) {
             autosavePromise.promise = selectedArtifact.autosave();
         } else {
             autosavePromise.resolve();
@@ -262,7 +267,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     private ProcessProjectTree(project: Project, data: Models.IArtifact[]): ng.IPromise<any> {
-        let defer = this.$q.defer<any>();
+        let defered = this.$q.defer<any>();
 
         const oldProjectId: number = project.id;
         const oldProjectPermissions: number = project.permissions;
@@ -305,15 +310,15 @@ export class ProjectManager implements IProjectManager {
                 this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
                 oldProject.dispose();
 
-                defer.resolve();
+                defered.resolve();
             }).catch(() => {
-                defer.reject();
+                defered.reject();
             });
         }).catch(() => {
-            defer.reject();
+            defered.reject();
         });
 
-        return defer.promise;
+        return defered.promise;
     }
 
     private ClearProject(project: Project) {
@@ -325,7 +330,7 @@ export class ProjectManager implements IProjectManager {
 
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {
         //go through each node
-        angular.forEach(childrenNodes, (node) => {
+        _.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(function (it) {
                 return it.id === node.id;
             });
@@ -345,7 +350,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    public add(project: Models.IProject): ng.IPromise<any> {
+    public add(project: AdminStoreModels.IInstanceItem): ng.IPromise<any> {
         const defer = this.$q.defer<any>();
 
         if (!project) {
@@ -424,7 +429,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     public loadArtifact(id: number): ng.IPromise<any> {
-        const defer = this.$q.defer<any>();
+        const deferred = this.$q.defer<any>();
 
         let node: IArtifactNode = this.getArtifactNode(id);
         if (node) {
@@ -438,26 +443,26 @@ export class ProjectManager implements IProjectManager {
                 node.open = true;
 
                 this.projectCollection.onNext(this.projectCollection.getValue());
-                defer.resolve();
+                deferred.resolve();
             }).catch((error: any) => {
                 //ignore authentication errors here
                 if (error) {
                     this.messageService.addError(error["message"] || "Artifact_NotFound");
-                    defer.reject();
+                    deferred.reject();
                 } else {
                     node.children = [];
                     node.loaded = false;
                     node.open = false;
                     //node.hasChildren = false;
                     this.projectCollection.onNext(this.projectCollection.getValue());
-                    defer.resolve();
+                    deferred.resolve();
                 }
             });
         } else {
             throw new Error("Artifact_NotFound"); // need to throw an error as mainView may not be active yet
         }
 
-        return defer.promise;
+        return deferred.promise;
     }
 
     public loadFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]> {
@@ -507,4 +512,13 @@ export class ProjectManager implements IProjectManager {
         return foundArtifact;
     };
 
+    public getDescendantsToBeDeleted(artifact: IStatefulArtifact):  ng.IPromise<Models.IArtifactWithProject[]> {
+        let projectName: string;
+        return this.projectService.getProject(artifact.projectId).then((project: AdminStoreModels.IInstanceItem) => {
+            projectName = project.name;
+            return this.projectService.getArtifacts(project.id, artifact.id);
+        }).then((data: Models.IArtifact[]) => {
+            return data.map(a => _.assign({projectName: projectName}, a) as Models.IArtifactWithProject);
+        });
+    }
 }

@@ -5,7 +5,8 @@ import { Models } from "../../models";
 import * as SearchModels from "./models/model";
 
 export interface IQuickSearchService {
-    search(term: string): ng.IPromise<SearchModels.ISearchResult>;
+    search(term: string, page?: number, pageSize?: number): ng.IPromise<SearchModels.ISearchResult>;
+    metadata(term: string, page?: number, pageSize?: number): ng.IPromise<SearchModels.ISearchMetadata>;
     searchTerm: string;
     canSearch(): boolean;
 }
@@ -34,8 +35,54 @@ export class QuickSearchService implements IQuickSearchService {
     canSearch(): boolean {
         return !(this.projectManager.projectCollection.getValue().map(project => project.id).length > 0);
     }
+    private appendParameters(url: string, page: number, pageSize: number): string {
+        if (page) {
+            url = url + `?page=${page}`;
+            if (pageSize) {
+                url = url + `&pageSize=${pageSize}`;
+            }
+        } else if (pageSize) {            
+            url = url + `?pageSize=${pageSize}`;
+        }
+        return url;
+    }
 
-    search(term: string): ng.IPromise<SearchModels.ISearchResult> {
+    private getSearchUrl(page: number, pageSize: number): string {
+        const url = `/svc/searchservice/itemsearch/fulltext/`;        
+        return this.appendParameters(url, page, pageSize);
+    }
+    
+    private getMetadataUrl(page: number, pageSize: number): string {
+        const url = `/svc/searchservice/itemsearch/fulltextmetadata/`;        
+        return this.appendParameters(url, page, pageSize);
+    }
+
+    metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<SearchModels.ISearchMetadata> {
+
+        const deferred = this.$q.defer();
+        const request: ng.IRequestConfig = {
+            method: "POST",
+            url: this.getMetadataUrl(page, pageSize),
+            params: {},
+            data: {
+                "Query": term,
+                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.id)
+            }
+        };
+
+        this.$http(request).then(
+            (result) => {           
+                deferred.resolve(result.data);
+            },
+            (error) => {
+                deferred.reject(error);
+            }
+        );
+
+        return deferred.promise;
+    }
+
+    search(term: string, page: number = null, pageSize: number = null): ng.IPromise<SearchModels.ISearchResult> {
         this.$log.debug(`searching server for "${term}"`);
 
         //const MOCK_RESULTS = require("./quickSearch.mock.ts");
@@ -43,7 +90,7 @@ export class QuickSearchService implements IQuickSearchService {
         const deferred = this.$q.defer();
         const request: ng.IRequestConfig = {
             method: "POST",
-            url: `/svc/searchservice/itemsearch/fulltext`,
+            url: this.getSearchUrl(page, pageSize),
             params: {},
             data: {
                 "Query": term,

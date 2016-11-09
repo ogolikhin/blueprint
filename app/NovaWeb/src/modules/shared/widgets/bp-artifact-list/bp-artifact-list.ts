@@ -11,10 +11,6 @@ export class BPArtifactListComponent implements ng.IComponentOptions {
     };
 }
 
-interface IArtifactWithProject extends Models.IArtifact {
-    projectName?: string;
-}
-
 export interface IBPArtifactListController {
     artifactList: Models.IArtifact[];
     projectList?: Models.IItem[];
@@ -28,8 +24,9 @@ export class BPArtifactListController implements IBPArtifactListController {
     public selectedProject: number;
     public limit: number;
     public limitTo: number;
+    public initialRows: number;
 
-    private _sortedList: IArtifactWithProject[];
+    private _sortedList: Models.IArtifactWithProject[];
     private initialLimit: number;
 
     public $onInit = () => {
@@ -42,7 +39,7 @@ export class BPArtifactListController implements IBPArtifactListController {
 
         this._sortedList = [];
         this.artifactList.forEach((artifact) => {
-            let item = artifact as IArtifactWithProject;
+            let item = artifact as Models.IArtifactWithProject;
             if (this.projectList) {
                 item.projectName = this.projectList.filter((project) => {
                     return project.id === artifact.projectId;
@@ -51,9 +48,19 @@ export class BPArtifactListController implements IBPArtifactListController {
             this._sortedList.push(item);
         });
         this._sortedList.sort(this.sortList);
+
+        let projectId: number;
+        let numberOfProject = 0;
+        for (let index = 0; index < this._sortedList.length && index < this.initialLimit; index++) {
+            if (projectId !== this._sortedList[index].projectId) {
+                numberOfProject++;
+                projectId = this._sortedList[index].projectId;
+            }
+        }
+        this.initialRows = numberOfProject + (this._sortedList.length < this.initialLimit ? this._sortedList.length : this.initialLimit);
     };
 
-    public get sortedList(): IArtifactWithProject[]{
+    public get sortedList(): Models.IArtifactWithProject[]{
         return this._sortedList;
     }
 
@@ -61,7 +68,7 @@ export class BPArtifactListController implements IBPArtifactListController {
         this.limitTo = this.limit;
     };
 
-    public itemLabel = (artifact: IArtifactWithProject): string => {
+    public itemLabel = (artifact: Models.IArtifactWithProject): string => {
         return artifact.prefix + artifact.id + " - " + artifact.name;
     };
 

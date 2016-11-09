@@ -29,7 +29,7 @@ export interface IArtifactState extends IState, IDispose {
 export class ArtifactState implements IArtifactState {
 
     constructor(private artifact: IIStatefulArtifact) {
-        this.subject = new Rx.BehaviorSubject<IState>(null);
+        this.subject = new Rx.BehaviorSubject<IState>(undefined);
         this.initialize(artifact);
     }
 
@@ -67,7 +67,7 @@ export class ArtifactState implements IArtifactState {
     public get onStateChange(): Rx.Observable<IState> {
         // returns the subject as an observable that can be subscribed to
         // subscribers will get notified when the state changes
-        return this.subject.asObservable();
+        return this.subject.filter(state => !!state).asObservable();
     }
 
     public get(): IState {

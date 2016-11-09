@@ -20,7 +20,8 @@
     <div class="nova-form-group nova-floating-label new-artifact__input-group">
         <input type="text" class="nova-form-control new-artifact__input"
                id="new-artifact-name" name="newArtifactName"
-               ng-model="$ctrl.newArtifactName" autofocus="true" />
+               ng-model="$ctrl.newArtifactName"
+               ng-keyup="$ctrl.onKeyUp($event)" />
         <label for="new-artifact-name" class="nova-label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Name"]}}</label>
     </div>
 </div>

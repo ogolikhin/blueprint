@@ -1,5 +1,5 @@
 ﻿import {IDialogSettings, IDialogService} from "../../../shared";
-import {Models, Enums} from "../../models";
+import {Models, Enums, AdminStoreModels} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
@@ -90,7 +90,7 @@ class BPToolbarController implements IBPToolbarController {
                     template: require("../dialogs/open-project/open-project.template.html"),
                     controller: OpenProjectController,
                     css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-                }).then((project: Models.IProject) => {
+                }).then((project: AdminStoreModels.IInstanceItem) => {
                     if (project) {
                         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 
@@ -179,8 +179,8 @@ class BPToolbarController implements IBPToolbarController {
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold 
-                ? this.localization.get("Discard_All_Many_Dialog_Message") 
+            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold
+                ? this.localization.get("Discard_All_Many_Dialog_Message")
                 : this.localization.get("Discard_All_Dialog_Message"),
                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                 controller: ConfirmPublishController,
@@ -355,7 +355,7 @@ class BPToolbarController implements IBPToolbarController {
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         const newArtifactId = data.id;
-                        this.projectManager.refresh({ id: projectId })
+                        this.projectManager.refresh(projectId)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
                                 this.navigationService.navigateTo({id: newArtifactId})
@@ -366,7 +366,7 @@ class BPToolbarController implements IBPToolbarController {
                     })
                     .catch((error: IApplicationError) => {
                         if (error.statusCode === 404) {
-                            this.projectManager.refresh({id: projectId})
+                            this.projectManager.refresh(projectId)
                                 .then(() => {
                                     this.messageService.addError("Create_New_Artifact_Error_404", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);

@@ -8,8 +8,7 @@ export interface IConfirmDeleteController {
 
 export class ConfirmDeleteController extends BaseDialogController implements IConfirmDeleteController {
     private _errorMessage: string;
-    private _artifactList: Models.IArtifact[];
-    private _projectList: Models.IItem[];
+    private _artifactList: Models.IArtifactWithProject[];
     private _selectedProject: number;
 
     static $inject = [
@@ -21,10 +20,9 @@ export class ConfirmDeleteController extends BaseDialogController implements ICo
     constructor(
         $instance: ng.ui.bootstrap.IModalServiceInstance,
         dialogSettings: IDialogSettings,
-        public dialogData: Models.IProject) {
+        public dialogData: Models.IArtifactWithProject[]) {
         super($instance, dialogSettings);
-        this._projectList = [dialogData];
-        this._artifactList = dialogData.children;
+        this._artifactList = dialogData;
     }
 
     public get hasError(): boolean {
@@ -34,12 +32,8 @@ export class ConfirmDeleteController extends BaseDialogController implements ICo
     public get errorMessage(): string {
         return this._errorMessage;
     }
-    public get artifactList(): Models.IArtifact[]{
+
+    public get artifactList(): Models.IArtifactWithProject[]{
         return this._artifactList;
     }
-    public get projectList(): Models.IItem[]{
-        return this._projectList;
-    }
-
-
 }

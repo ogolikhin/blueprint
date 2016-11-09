@@ -272,6 +272,7 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
+        public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 

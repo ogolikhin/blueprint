@@ -12,6 +12,7 @@
 
         &.ng-empty {
             background: url('./new-artifact-arrow.png') no-repeat center right 4px;
+            cursor: pointer;
         }
     }
 
@@ -39,6 +40,8 @@
     .dropdown-menu {
         border: 0;
         border-radius: 0;
+        max-height: 260px; // enough for 10 options in the dropdown
+        overflow: auto;
         width: 100%;
 
         > li > a {

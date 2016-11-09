@@ -179,7 +179,7 @@ export class BpArtifactInfoController {
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
 
-        if (artifact.version === -1) {
+        if (artifact.version === -1) { // this is to show the lock icon for newly created artifacts
             this.selfLocked = true;
         } else {
             switch (artifact.artifactState.lockedBy) {

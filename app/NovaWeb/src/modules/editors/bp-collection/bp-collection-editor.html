@@ -50,7 +50,8 @@
                           columns="$ctrl.columns"
                           header-height="30"
                           size-columns-to-fit="'true'"
-                          on-select="$ctrl.onSelect(vm, isSelected)">
+                          on-select="$ctrl.onSelect(vm, isSelected)"
+                          on-grid-reset="$ctrl.onGridReset()"/>
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"

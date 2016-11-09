@@ -98,19 +98,28 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
+    private visibleArtifact: CollectionNodeVM;
+
+    public onGridReset(): void {
+     if (this.visibleArtifact) {
+         this.api.ensureNodeVisible(this.visibleArtifact);
+         this.visibleArtifact = undefined; 
+        }
+    }
+
     private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
        if (!changes || changes.length === 0) {
             return;
         }
 
         let collectionArtifacts = this.rootNode.slice();
-        let scrollingArtifact: CollectionNodeVM; 
+        this.visibleArtifact = undefined; 
         changes.map((change: IChangeSet) => {
             if (change.type === ChangeTypeEnum.Add) {
                 let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);  
                 collectionArtifacts.push(addedTreeVM);
-                if (!scrollingArtifact) {
-                    scrollingArtifact = addedTreeVM;
+                if (!this.visibleArtifact) {
+                    this.visibleArtifact = addedTreeVM;
                 }
 
             }
@@ -122,10 +131,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 }
             }
         });
-
-        if (scrollingArtifact) {
-            this.api.scrollToNode(scrollingArtifact);
-        }
+       
         this.rootNode = collectionArtifacts;        
     };
 

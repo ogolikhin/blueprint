@@ -13,10 +13,12 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *               root-node="$ctrl.rootNode"
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
+ *               api="$ctrl.api"
  *               header-height="20"
  *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
- *               on-error="$ctrl.onError(reason)">
+ *               on-error="$ctrl.onError(reason)"
+ *               on-grid-reset="$ctrl.onGridReset()">
  * </bp-tree-view>
  */
 export class BPTreeViewComponent implements ng.IComponentOptions {
@@ -32,13 +34,13 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
-        sizeColumnsToFit: "<",
-        supportAddRemoveRows: "<",
+        sizeColumnsToFit: "<",        
         api: "=?",
         // Output
         onSelect: "&?",
         onDoubleClick: "&?",
-        onError: "&?"
+        onError: "&?",
+        onGridReset: "&?"
     };
 }
 
@@ -91,9 +93,7 @@ export interface IColumnRendererParams {
 }
 
 export interface IBPTreeViewControllerApi {
-    scrollToNode(node: ITreeViewNode): void;   
-    //addItems(newItems: ITreeViewNode[]): void;
-    //removeItems(indexes: number[]): void;
+    ensureNodeVisible(node: ITreeViewNode): void;      
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -105,14 +105,14 @@ export class BPTreeViewController implements IBPTreeViewController {
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
     public rootNode: ITreeViewNode | ITreeViewNode[];
-    public rootNodeVisible: boolean;
-    public supportAddRemoveRows: boolean;
+    public rootNodeVisible: boolean;    
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
     public onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
+    public onGridReset: () => void;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -128,8 +128,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.rootNodeVisible = angular.isDefined(this.rootNodeVisible) ? this.rootNodeVisible : false;
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
-        this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
-        this.supportAddRemoveRows = angular.isDefined(this.supportAddRemoveRows) ? this.supportAddRemoveRows : false;
+        this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;        
 
         this.options = {
             angularCompileHeaders: true,
@@ -156,7 +155,8 @@ export class BPTreeViewController implements IBPTreeViewController {
             headerHeight: this.headerHeight,
 
             // Callbacks
-            getBusinessKeyForNode: this.getBusinessKeyForNode,            
+            getBusinessKeyForNode: this.getBusinessKeyForNode,   
+            getNodeChildDetails: this.getNodeChildDetails,         
 
             // Event handlers
             onRowGroupOpened: this.onRowGroupOpened,
@@ -168,10 +168,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             onModelUpdated: this.onModelUpdated,
             context: {}
         };
-
-        if (this.supportAddRemoveRows === false) {
-            this.options.getNodeChildDetails = this.getNodeChildDetails;
-        }
+       
         this.options.context.allSelected = false;
         this.options.context.selectAllClass = new HeaderCell(this.options);
     }
@@ -209,28 +206,12 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.rootNode = null;
     }
 
-    private scrollNode: ITreeViewNode;
-
     public api: IBPTreeViewControllerApi = {        
-        scrollToNode: (node: ITreeViewNode): void => {
-           this.scrollNode = node;          
-        }
-        
-        //addItems: (newItems: ITreeViewNode[]): void => {
-        //   this.options.api.addItems(newItems);
-        //},        
-
-        //removeItems: (indexes: number[]): void => {      
-        //    let model = this.options.api.getModel();
-        //    let rowsForDeletion: agGrid.RowNode[] = [];
-        //    indexes.map((index: number) => {
-        //        const row = model.getRow(index);
-        //        if (row) {
-        //            rowsForDeletion.push(row);
-        //        }
-        //    });
-        //    this.options.api.removeItems(rowsForDeletion);
-        //}        
+        ensureNodeVisible: (node: ITreeViewNode): void => {
+            if (node) {
+                this.options.api.ensureNodeVisible(node);
+            }          
+        }                     
     };
 
     public resetGridAsync(saveSelection: boolean): ng.IPromise<void> {
@@ -289,12 +270,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                         });
                     } else {
                         this.options.columnApi.autoSizeAllColumns();
-                    }
-
-                    if (this.scrollNode) {                        
-                        this.options.api.ensureNodeVisible(this.scrollNode);
-                        this.scrollNode = undefined;
-                    }
+                    }                    
 
                     if (saveSelection) {
                         // Restore selection (don't raise selection events)
@@ -317,6 +293,9 @@ export class BPTreeViewController implements IBPTreeViewController {
                     if (this.options.api.getModel().getRowCount() === 0) {
                         this.options.api.showNoRowsOverlay();
                     }
+                }
+                if (this.onGridReset) {
+                    this.onGridReset();
                 }
             });
         }

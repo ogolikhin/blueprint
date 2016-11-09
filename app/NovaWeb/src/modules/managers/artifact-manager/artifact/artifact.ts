@@ -128,30 +128,34 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             header: this.services.localizationService.get("App_DialogTitle_Alert"),
             css: "modal-alert nova-messaging"
         })
+        .then(() => {
+            let overlayId: number = this.services.loadingOverlayService.beginLoading();
+            this.services.publishService.discardArtifacts([this.id])
             .then(() => {
-                let overlayId: number = this.services.loadingOverlayService.beginLoading();
-                this.services.publishService.discardArtifacts([this.id])
+                this.services.messageService.addInfo("Discard_Success_Message");
+                deffered.resolve();
+            })
+            .catch((err) => {
+                if (err && err.statusCode === HttpStatusCode.Conflict) {
+                    this.discardDependents(err.errorContent)
                     .then(() => {
-                        this.services.messageService.addInfo("Discard_Success_Message");
-                        this.refresh();
                         deffered.resolve();
-                    })
-                    .catch((err) => {
-                        if (err && err.statusCode === HttpStatusCode.Conflict) {
-                            this.discardDependents(err.errorContent);
-                        } else {
+                    }).catch(() => {
+                        deffered.reject();
+                    });
+                } else {
                     if (err && err.errorCode === 114) {
                         this.services.messageService.addInfo("Artifact_Lock_Refresh");
                         this.refresh();
                     } else {
                         this.services.messageService.addError(err);
                     }
+                    deffered.reject();
                 }
-                        deffered.reject();
-                    }).finally(() => {
-                    this.services.loadingOverlayService.endLoading(overlayId);
-                });
-            }).catch(() => {
+            }).finally(() => {
+                this.services.loadingOverlayService.endLoading(overlayId);
+            });
+        }).catch(() => {
             deffered.reject();
         });
 
@@ -159,38 +163,43 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     private discardDependents(dependents: Models.IPublishResultSet) {
+        let deffered = this.services.getDeferred<void>();
         this.services.dialogService.open(<IDialogSettings>{
-                okButton: this.services.localizationService.get("App_Button_Discard"),
-                cancelButton: this.services.localizationService.get("App_Button_Cancel"),
-                message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
-                template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
-                controller: ConfirmPublishController,
-                css: "nova-publish modal-alert",
-                header: this.services.localizationService.get("App_DialogTitle_Alert")
-            },
-            <IConfirmPublishDialogData>{
-                artifactList: dependents.artifacts,
-                projectList: dependents.projects,
-                selectedProject: this.projectId
-            })
+            okButton: this.services.localizationService.get("App_Button_Discard"),
+            cancelButton: this.services.localizationService.get("App_Button_Cancel"),
+            message: this.services.localizationService.get("Discard_Dependents_Dialog_Message"),
+            template: require("../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+            controller: ConfirmPublishController,
+            css: "nova-publish modal-alert",
+            header: this.services.localizationService.get("App_DialogTitle_Alert")
+        },
+        <IConfirmPublishDialogData>{
+            artifactList: dependents.artifacts,
+            projectList: dependents.projects,
+            selectedProject: this.projectId
+        })
+        .then(() => {
+            let discardOverlayId = this.services.loadingOverlayService.beginLoading();
+            this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id))
             .then(() => {
-                let discardOverlayId = this.services.loadingOverlayService.beginLoading();
-                this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id))
-                    .then(() => {
-                        this.services.messageService.addInfoWithPar("Discard_All_Success_Message", [dependents.artifacts.length]);
-                        this.refresh();
-                    })
-                    .catch((err) => {
+                this.services.messageService.addInfoWithPar("Discard_All_Success_Message", [dependents.artifacts.length]);
+                deffered.resolve();
+            })
+            .catch((err) => {
                 if (err && err.errorCode === 114) {
                     this.services.messageService.addInfo("Artifact_Lock_Refresh");
                     this.refresh();
                 } else {
                     this.services.messageService.addError(err);
                 }
-                    }).finally(() => {
-                    this.services.loadingOverlayService.endLoading(discardOverlayId);
-                });
+                deffered.reject();
+            }).finally(() => {
+                this.services.loadingOverlayService.endLoading(discardOverlayId);
             });
+        }).catch(() => {
+            deffered.reject();
+        });
+        return deffered.promise;
     }
 
     public canBeSaved(): boolean {

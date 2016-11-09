@@ -187,7 +187,6 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
-
         }
 
         [TestCase]
@@ -546,7 +545,61 @@ namespace ArtifactStoreTests
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non collection section.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection or a collection folder to non collection section.");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(191040)]
+        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the collection artifact. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MoveToCollectionArtifact_403Forbidden(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact collection = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            IArtifact collectionArtifact = Helper.CreateAndPublishCollection(_project, author);
+
+            collection.Lock(author);
+             
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, collection, collectionArtifact.Id, author),
+                   "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to another collection", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non folder parent.");
+        }
+
+        [TestCase]
+        [TestRail(0)]
+        [Description("Create a collection folder. Move default Collections folder to be a child of the collection folder. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_DefaultCollectionsFolder_MoveToCollectionFolder_403Forbidden()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var collection = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Process, collection.Id);  // Don't use Helper because this isn't a real artifact, it's just wrapping the sub-artifact ID.
+
+            IArtifact collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
+
+            fakeArtifact.Lock(author);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, fakeArtifact, collectionFolder.Id, author),
+                   "'POST {0}' should return 403 Forbidden when user tries to move default Collections folder to another collection collection folder", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move baselines, reviews or root folders for collections, baselines, reviews.");
         }
 
         #endregion 403 Forbidden tests

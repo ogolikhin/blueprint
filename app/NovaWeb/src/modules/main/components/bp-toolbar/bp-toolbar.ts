@@ -202,12 +202,8 @@ class BPToolbarController implements IBPToolbarController {
         //perform publish all
         this.publishService.discardAll()
             .then(() => {
-                //remove lock on current artifact
-                const selectedArtifact = this.artifactManager.selection.getArtifact();
-                if (selectedArtifact) {
-                    selectedArtifact.artifactState.unlock();
-                    selectedArtifact.refresh();
-                }
+                //refresh all after discard all finishes
+                this.projectManager.refreshAll();
 
                 this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
             })

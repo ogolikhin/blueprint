@@ -14,7 +14,6 @@ import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import * as ChangesetModels from "../../../managers/artifact-manager/changeset";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -244,7 +243,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-        //$scope.$applyAsync(() => {
+        
         //here we need to update original model
         const context = $field.data as IPropertyDescriptor;
         if (!context) {
@@ -263,7 +262,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 break;
             }
         context.isFresh = false;
-        //});
+        
     };
 
     private getSelectedItem(): IStatefulItem {

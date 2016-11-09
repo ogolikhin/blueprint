@@ -1,6 +1,12 @@
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {IArtifactManager, IStatefulArtifact, IMetaDataService, IItemChangeSet} from "../../../managers/artifact-manager";
+import {
+    IArtifactState, 
+    IArtifactManager, 
+    IStatefulArtifact, 
+    IMetaDataService, 
+    IItemChangeSet
+} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {
@@ -76,16 +82,19 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-
-        const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        this.subscribers.push(windowSub);
+        this.subscribers.push(this.windowManager.mainWindow
+                                                .subscribeOnNext(this.onWidthResized, this));
 
         this.artifact = this.artifactManager.selection.getArtifact();
+
         if (this.artifact) {
             this.subscribers.push(this.artifact.getObservable()
                                                 .subscribeOnNext(this.onArtifactChanged));
+            this.subscribers.push(this.artifact.artifactState.onStateChange
+                                                            .debounce(100)
+                                                            .subscribe(this.onArtifactStateChanged));
             this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
                                                 .subscribeOnNext(this.onArtifactPropertyChanged));
         }
     }
@@ -102,42 +111,41 @@ export class BpArtifactInfoController {
     protected onArtifactChanged = () => {
         if (this.artifact) {
             this.updateProperties(this.artifact);
-            this.subscribeToStateChange(this.artifact);
         }
     };
+
+    protected onArtifactStateChanged = (state: IArtifactState) => {
+        this.initStateProperties();
+        this.updateStateProperties(state);
+
+        this.$scope.$applyAsync();
+    }
+
     protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
     }
 
-    protected subscribeToStateChange(artifact) {
-        // watch for state changes (dirty, locked etc) and update header
-        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
-            (state) => {
-                this.updateProperties(this.artifact);
-            },
-            (err) => {
-                throw new Error(err);
-            });
-
-        this.subscribers.push(stateObserver);
-    }
-
     private initProperties() {
+        this.toolbarActions = [];
+
         this.artifactName = null;
         this.artifactType = null;
         this.artifactTypeId = null;
         this.artifactTypeIconId = null;
         this.artifactTypeDescription = null;
+        this.artifactClass = null;
         this.isLegacy = false;
+
+        this.initStateProperties();
+    }
+
+    private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
         this.isLocked = false;
         this.selfLocked = false;
-        this.isLegacy = false;
-        this.artifactClass = null;
-        this.toolbarActions = [];
 
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -145,7 +153,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected updateProperties(artifact: IStatefulArtifact) {
+    protected updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
 
         if (!artifact) {
@@ -173,21 +181,26 @@ export class BpArtifactInfoController {
         } else {
             this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[artifact.predefinedType]);
         }
+
         this.artifactType = artifact.itemTypeName;
         this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-        this.isReadonly = artifact.artifactState.readonly;
-        this.isChanged = artifact.artifactState.dirty;
+        this.updateStateProperties(artifact.artifactState);
+    }
 
-        switch (artifact.artifactState.lockedBy) {
+    protected updateStateProperties(state: IArtifactState): void {
+        this.isReadonly = state.readonly;
+        this.isChanged = state.dirty;
+
+        switch (state.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
 
             case Enums.LockedByEnum.OtherUser:
-                let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
-                if (artifact.artifactState.lockDateTime) {
-                    msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                let msg = state.lockOwner ? "Locked by " + state.lockOwner : "Locked ";
+                if (state.lockDateTime) {
+                    msg += " on " + this.localization.current.formatShortDateTime(state.lockDateTime);
                 }
                 msg += ".";
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));

@@ -21,7 +21,6 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     public breadcrumbLinks: IBreadcrumbLink[];
-    public isDeleteButtonEnabled: boolean;
 
     static $inject: [string] = [
         "$scope",
@@ -69,7 +68,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         );
 
         this.breadcrumbLinks = [];
-        this.isDeleteButtonEnabled = false;
     }
 
     public $onInit() {
@@ -92,24 +90,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onDestroy() {
         super.$onDestroy();
-    }
-
-    protected onArtifactChanged = () => {
-        this.updateProperties(this.artifact);
-        this.subscribeToStateChange(this.artifact);
-    }
-
-    protected subscribeToStateChange(artifact) {
-        // watch for state changes (dirty, locked etc) and update header
-        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
-            (state) => {
-                this.updateProperties(this.artifact);
-            },
-            (err) => {
-                throw new Error(err);
-            });
-
-        this.subscribers.push(stateObserver);
     }
 
     public navigateTo = (link: IBreadcrumbLink): void => {

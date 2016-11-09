@@ -329,7 +329,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly,
+            "center",
+            false);
 
         let cell = mxGraph.addCell(this.header, this.callout);
 

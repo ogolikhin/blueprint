@@ -21,6 +21,7 @@ import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
 import { StatefulProcessArtifact } from "../../../../../process-artifact";
 import { Models } from "../../../../../../../main/models/";
 import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ItemTypePredefined} from "../../../../../../../main/models/enums";
 
 describe("UserTask test", () => {
     const LABEL_EDIT_MAXLENGTH = 40;
@@ -274,6 +275,16 @@ describe("UserTask test", () => {
             startModel.propertyValues["clientType"].value = ProcessShapeType.Start;
             startModel.propertyValues["x"].value = 0;
             const preconditionModel = new ProcessShapeModel(22);
+            preconditionModel.personaReference = {
+                id: 1,
+                projectId: 1,
+                name: "test persona",
+                typePrefix: "PRO",
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: "test project",
+                link: null,
+                version: null
+            };
             preconditionModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
             preconditionModel.propertyValues["clientType"].value = ProcessShapeType.PreconditionSystemTask;
             preconditionModel.propertyValues["x"].value = 1;
@@ -392,7 +403,7 @@ describe("UserTask test", () => {
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
-            statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);           
+            statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
 
             node = new UserTask(<IUserTaskShape>statefulArtifact.shapes[0], rootScope, null, shapesFactory);
 

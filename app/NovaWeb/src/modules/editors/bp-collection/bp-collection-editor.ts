@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {Models} from "../../main";
-import {IColumn, ITreeViewNode, IColumnRendererParams} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode, IColumnRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
@@ -40,6 +40,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private collectionSubscriber: Rx.IDisposable;
     public selectedVMs: any[] = [];
     public itemsSelected: string;
+    public api: IBPTreeViewControllerApi;
     //public showBulkActions: boolean;
     //public selectedVMsLength: number;
 
@@ -97,17 +98,30 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
+    private visibleArtifact: CollectionNodeVM;
+
+    public onGridReset(): void {
+     if (this.visibleArtifact) {
+         this.api.ensureNodeVisible(this.visibleArtifact);
+         this.visibleArtifact = undefined; 
+        }
+    }
+
     private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
-        if (!changes || changes.length === 0) {
+       if (!changes || changes.length === 0) {
             return;
         }
 
         let collectionArtifacts = this.rootNode.slice();
-
+        this.visibleArtifact = undefined; 
         changes.map((change: IChangeSet) => {
             if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);  
                 collectionArtifacts.push(addedTreeVM);
+                if (!this.visibleArtifact) {
+                    this.visibleArtifact = addedTreeVM;
+                }
+
             }
             else if (change.type === ChangeTypeEnum.Delete) {
                 const removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => nodeVM.model.id === change.key);
@@ -117,8 +131,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 }
             }
         });
-
-        this.rootNode = collectionArtifacts;
+       
+        this.rootNode = collectionArtifacts;        
     };
 
     private headerCellRendererSelectAll(params) {

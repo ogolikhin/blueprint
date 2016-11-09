@@ -10,7 +10,9 @@ export class IdGenerator implements IIdGenerator {
     constructor(private userTaskNewNodeCounter: number = 0,
                 private systemTaskNewNodeCounter: number = 0,
                 private userDecisionNewNodeCounter: number = 0,
-                private systemDecisionNewNodeCounter: number = 0) {
+                private systemDecisionNewNodeCounter: number = 0,
+                private userPersonaNewNodeCounter: number = 0,
+                private systemPersonaNewNodeCounter: number = 0) {
     }
 
     public getId(processShapeType: ProcessShapeType): number {
@@ -27,13 +29,22 @@ export class IdGenerator implements IIdGenerator {
             return ++this.systemDecisionNewNodeCounter;
         }
         return ++this.tempId;
+    }
 
+    public getUserPeronaId(): number {
+        return --this.userPersonaNewNodeCounter;
+    }
+
+    public getSystemPeronaId(): number {
+        return --this.systemPersonaNewNodeCounter;
     }
 
     public reset() {
         this.systemDecisionNewNodeCounter = 0;
         this.systemTaskNewNodeCounter = 0;
+        this.systemPersonaNewNodeCounter = 0;
         this.userDecisionNewNodeCounter = 0;
         this.userTaskNewNodeCounter = 0;
+        this.userPersonaNewNodeCounter = 0;
     }
 }

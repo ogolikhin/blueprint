@@ -14,11 +14,12 @@ export interface IProjectService {
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
     getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
     searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
-                   resultCount?: number,
-                   separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
+        resultCount?: number,
+        separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
     searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
-                    startOffset?: number,
-                    pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
+        startOffset?: number,
+        pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
+    getProjectNavigationPath(projectId: number, includeProjectItself: boolean): ng.IPromise<string[]>;
 }
 
 export class ProjectService implements IProjectService {
@@ -27,7 +28,7 @@ export class ProjectService implements IProjectService {
     private canceler: ng.IDeferred<any>;
 
     constructor(private $q: ng.IQService,
-                private $http: ng.IHttpService) {
+        private $http: ng.IHttpService) {
     }
 
     public abort(): void {
@@ -179,8 +180,8 @@ export class ProjectService implements IProjectService {
     }
 
     public searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
-                          resultCount: number = 100,
-                          separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
+        resultCount: number = 100,
+        separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
@@ -205,9 +206,9 @@ export class ProjectService implements IProjectService {
     }
 
     public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
-                           startOffset: number = 0,
-                           pageSize: number = 100,
-                           separatorString: string = " > "): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
+        startOffset: number = 0,
+        pageSize: number = 100,
+        separatorString: string = " > "): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
@@ -229,5 +230,21 @@ export class ProjectService implements IProjectService {
                 } : undefined);
             }
         );
+    }
+
+    public getProjectNavigationPath(projectId: number, includeProjectItself: boolean): ng.IPromise<string[]> {
+        const deferred = this.$q.defer();
+
+        const url = `/svc/adminstore/instance/projects/${projectId}/navigationPath?includeProjectItself=${includeProjectItself}`;
+
+        this.$http.get(url)
+            .then((result) => {
+                deferred.resolve(result.data);
+            })
+            .catch((error) => {
+                deferred.reject(error);
+            });
+
+        return deferred.promise;
     }
 }

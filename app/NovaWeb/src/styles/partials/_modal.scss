@@ -72,10 +72,21 @@ $modal-side-clearance: 8px;
 
         .modal-title .fonticon-modal::before {
             content: $fonticon-warning;
-    }
+        }
     }
 
     /* Note: '.modal-alert .btn-promoted-action' is defined in _button.scss */
+
+
+    .bp-artifact-list__load-more {
+        color: $brand-warning;
+
+        &:hover,
+        &:active,
+        &:focus {
+            color: $brand-warning;
+        }
+    }
 }
 
 $modal-open-project-height: 450px;
@@ -371,7 +382,7 @@ $modal-open-project-height: 450px;
             }
     }
     .modal-body {
-        padding: 20px 56px;
+        padding: 20px 56px 0;
 
         .nova-message {
             box-sizing: content-box;
@@ -379,6 +390,10 @@ $modal-open-project-height: 450px;
             min-height: 3em;
             padding-bottom: 5px;
         }
+    }
+
+    .bp-artifact-list--complete {
+        margin-bottom: 20px;
     }
 }
 

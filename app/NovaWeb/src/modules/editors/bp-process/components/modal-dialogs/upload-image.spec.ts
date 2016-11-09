@@ -24,7 +24,7 @@ describe("UploadImage Directive", () => {
     const sampleSystemTask: ISystemTaskShape = {
         id: 1, name: "", projectId: 1, typePrefix: "", parentId: 2,
         baseItemTypePredefined: ItemTypePredefined.PROShape,
-        propertyValues: {}, associatedArtifact: null, flags: <ITaskFlags>{}
+        propertyValues: {}, associatedArtifact: null, personaReference: null, flags: <ITaskFlags>{}
     };
     const fakeRootScope = {
         config: {

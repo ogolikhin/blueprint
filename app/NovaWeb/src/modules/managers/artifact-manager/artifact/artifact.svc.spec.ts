@@ -109,4 +109,78 @@ describe("Artifact Repository", () => {
         }));
     });
 
+
+    describe("Delete Artifact:", () => {
+
+        it("Single -> successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            
+            $httpBackend.expectDELETE("svc/bpartifactstore/artifacts/100")
+                .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(99, 1));
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.deleteArtifact(100).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toEqual(jasmine.any(Array));
+            expect(data.length).toEqual(1);
+            expect(data[0].id).toEqual(100);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+        it("Single -> unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            $httpBackend.expectDELETE("svc/bpartifactstore/artifacts/100")
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.deleteArtifact(100).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+        
+
+        it("5 artifact -> successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            
+            $httpBackend.expectDELETE("svc/bpartifactstore/artifacts/200")
+                .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(200, 5));
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.deleteArtifact(200).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toEqual(jasmine.any(Array));
+            expect(data.length).toEqual(5);
+            expect(data[0].id).toEqual(201);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
+
+
 });

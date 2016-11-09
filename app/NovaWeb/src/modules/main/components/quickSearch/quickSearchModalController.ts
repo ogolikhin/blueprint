@@ -27,7 +27,7 @@ export class QuickSearchModalController {
         "$uibModalInstance",
         "localization",
         "$q",
-        "$window"
+        "$document"
     ];
 
     private stateChangeStartListener: Function;
@@ -38,7 +38,7 @@ export class QuickSearchModalController {
                 private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 private localization: ILocalizationService,
                 private $q: ng.IQService,
-                private $window: ng.IWindowService) {
+                private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
         
@@ -62,7 +62,7 @@ export class QuickSearchModalController {
                 this.search(this.searchTerm);
             }
         }).finally(() => {            
-            const modalDialog = this.$window.document.getElementsByClassName("modal-dialog");
+            const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
                 outerModalDialog.focus();

@@ -72,21 +72,21 @@ export class DeleteAction extends BPButtonAction {
     }
 
     private deleteArtifact() {
-        const overlayId: number = this.loadingOverlayService.beginLoading();            
+        const overlayId: number = this.loadingOverlayService.beginLoading();
 
-        this.projectManager.getDescendantsToBeDeleted(this.artifact).then((project: Models.IProject) => {
+        this.projectManager.getDescendantsToBeDeleted(this.artifact).then((descendants: Models.IArtifactWithProject[]) => {
             this.loadingOverlayService.endLoading(overlayId);
 
             this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Delete"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-                message: this.localization.get(project.children && project.children.length ?
+                message: this.localization.get(descendants.length ?
                         "Delete_Artifact_Confirmation_All_Descendants" : "Delete_Artifact_Confirmation_Single"),
                 template: require("../../../../main/components/dialogs/bp-confirm-delete/bp-confirm-delete.html"),
                 controller: ConfirmDeleteController,
                 css: "nova-publish modal-alert",
                 header: this.localization.get("App_DialogTitle_Alert")
-            }, <Models.IProject>project).then(() => {
+            }, descendants).then(() => {
                 const deeleteOverlayId = this.loadingOverlayService.beginLoading();
                 this.artifact.delete().then(() => {
                     // const project = this.projectManager.getProject(this.artifact.projectId);
@@ -111,7 +111,7 @@ export class DeleteAction extends BPButtonAction {
         });
     };
 
-    
+
 
 
 }

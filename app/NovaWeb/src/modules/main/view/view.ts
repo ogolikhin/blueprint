@@ -2,6 +2,7 @@
 import {IUser, ISession} from "../../shell";
 import {Models, Enums} from "../models";
 import {IProjectManager, IArtifactManager} from "../../managers";
+import {Project} from "../../managers/project-manager";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
@@ -60,7 +61,7 @@ export class MainViewController {
         document.body.classList.add(isHidden ? "is-hidden" : "is-visible");
     };
 
-    private onProjectCollectionChanged = (projects: Models.IProject[]) => {
+    private onProjectCollectionChanged = (projects: Project[]) => {
         this.isActive = Boolean(projects.length);
         this.toggle(Enums.ILayoutPanel.Left, Boolean(projects.length));
         this.toggle(Enums.ILayoutPanel.Right, Boolean(projects.length));

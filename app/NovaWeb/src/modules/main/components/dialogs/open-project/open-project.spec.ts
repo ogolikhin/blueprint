@@ -129,13 +129,7 @@ describe("OpenProjectController", () => {
         expect(controller.isProjectSelected).toEqual(true);
         expect(controller.selectedItem).toEqual(vm);
         expect($sce.getTrustedHtml(controller.selectedDescription)).toEqual("abc");
-        expect(controller.returnValue).toEqual({
-            id: 3,
-            name: "name",
-            description: "abc",
-            itemTypeId: Enums.ItemTypePredefined.Project,
-            permissions: Enums.RolePermissions.Read
-        });
+        expect(controller.returnValue).toEqual(model);
     }));
 
     it("onSelect, when selected folder, sets selection", inject(($browser) => {

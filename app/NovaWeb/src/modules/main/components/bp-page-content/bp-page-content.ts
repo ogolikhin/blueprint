@@ -7,6 +7,7 @@ import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IProjectService} from "../../../managers/project-manager/project-service";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -53,16 +54,23 @@ class PageContentCtrl {
             return;
         }
         // When the selected artifact is subartifact inside UseCase diagram
-        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact) {
+        const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        if (explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
+            explorerArtifact !== selection.artifact) {
             return;
         }
         this.currentArtifact = selection.artifact;
-
         //For project we need to call GetProjectNavigationPath
         if (selection.artifact.predefinedType === ItemTypePredefined.Project) {
-            this.setProjectBreadCrumb(selection.artifact.id);
+            this._subscribers.push(
+                selection.artifact.getObservable().distinctUntilChanged().subscribe((project) => {
+                    this.setProjectBreadCrumb(project.id);
+                }));
         } else {
-            this.setArtifactBreadCrumb(selection.artifact.id, selection.artifact.artifactState.historical);
+            this._subscribers.push(
+                selection.artifact.getObservable().subscribe((artifact) => {
+                    this.setArtifactBreadCrumb(artifact.id, artifact.artifactState.historical);
+                }));
         }
     }
 
@@ -72,6 +80,7 @@ class PageContentCtrl {
                 this.breadcrumbLinks = [];
                 _.each(result, s => {
                     const breadcrumbLink: IBreadcrumbLink = {
+                        // We do not need to navigate to Instance Folder
                         id: 0,
                         name: s,
                         isEnabled: false
@@ -93,24 +102,11 @@ class PageContentCtrl {
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
+            }, (reason: ng.IHttpPromiseCallbackArg<any>) => {
+                if (reason.status === HttpStatusCode.NotFound) {
+                    this.breadcrumbLinks = [];
+                }
             });
-    }
-
-    public openArtifactPicker() {
-        const dialogSettings = <IDialogSettings>{
-            okButton: "Open",
-            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
-            controller: ArtifactPickerDialogController,
-            css: "nova-open-project",
-            header: "Single project Artifact picker"
-        };
-
-        const dialogData: IArtifactPickerOptions = {
-            showSubArtifacts: false,
-            isOneProjectLevel: true
-        };
-
-        this.dialogService.open(dialogSettings, dialogData);
     }
 
     public $onDestroy() {

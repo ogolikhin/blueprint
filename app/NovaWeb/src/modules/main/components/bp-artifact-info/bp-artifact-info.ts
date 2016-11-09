@@ -85,7 +85,7 @@ export class BpArtifactInfoController {
             this.subscribers.push(this.artifact.getObservable()
                                                 .subscribeOnNext(this.onArtifactChanged));
             this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
                                                 .subscribeOnNext(this.onArtifactPropertyChanged));
         }
     }
@@ -194,6 +194,9 @@ export class BpArtifactInfoController {
                 break;
 
             default:
+                if (artifact.version === -1) { // this is to show the lock icon for newly created artifacts
+                    this.selfLocked = true;
+                }
                 break;
         }
     }

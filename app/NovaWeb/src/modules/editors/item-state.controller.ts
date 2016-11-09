@@ -1,5 +1,5 @@
 import {Models} from "../main/models";
-import {IArtifactManager} from "../managers";
+import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact";
 import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
@@ -15,6 +15,7 @@ export class ItemStateController {
     public static $inject = [
         "$state",
         "artifactManager",
+        "projectManager",
         "messageService",
         "localization",
         "navigationService",
@@ -24,6 +25,7 @@ export class ItemStateController {
 
     constructor(private $state: angular.ui.IStateService,
                 private artifactManager: IArtifactManager,
+                private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
@@ -41,12 +43,12 @@ export class ItemStateController {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
             } else {
-                this.getItemInfo(id, version);
+                this.getItemInfo(id, version, artifact ? artifact.projectId : undefined);
             }
         }
     }
 
-    private getItemInfo(id: number, version: number) {
+    private getItemInfo(id: number, version: number, projectId: number) {
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
@@ -82,13 +84,13 @@ export class ItemStateController {
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
-                    
+
                 } else if (result.isDeleted) {
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
-                    
+
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
+                    const deletedMessage = `Deleted by user ${result.deletedByUser.displayName} on ${localizedDate}`;
                     this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 
@@ -97,11 +99,19 @@ export class ItemStateController {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
             }
         }).catch(error => {
-            this.navigationService.navigateToMain(true);
-            // Forbidden and ServerError responces are handled in http-error-interceptor.ts
-            if (error.statusCode === HttpStatusCode.NotFound) {
-                this.messageService.addError("HttpError_NotFound", true);
+            if (projectId) {
+                this.projectManager.refresh(projectId)
+                .then(() => {
+                    this.projectManager.triggerProjectCollectionRefresh();
+                });
+            } else {
+                this.navigationService.navigateToMain(true);
+                // Forbidden and ServerError responces are handled in http-error-interceptor.ts
+                if (error.statusCode === HttpStatusCode.NotFound) {
+                    this.messageService.addError("HttpError_NotFound", true);
+                }
             }
+
         });
     }
 
@@ -129,7 +139,7 @@ export class ItemStateController {
         if (!this.$state.params["path"]) {
             this.artifactManager.selection.setExplorerArtifact(artifact);
         }
-        
+
         this.artifactManager.selection.setArtifact(artifact);
         artifact.errorObservable().subscribeOnNext(this.onArtifactError);
     }

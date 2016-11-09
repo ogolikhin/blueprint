@@ -108,7 +108,7 @@
 //         };
 
 //         // Act
-//         projectManager.projectCollection.onNext([{ id: 1, name: "Project 1", artifacts: [] } as Models.IProject]);
+//         projectManager.projectCollection.onNext([{ id: 1, name: "Project 1", artifacts: [] } as Project]);
 
 //         projectManager.closeProject();
 

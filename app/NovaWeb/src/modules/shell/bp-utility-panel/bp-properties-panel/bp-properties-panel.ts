@@ -49,6 +49,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     public selectedArtifact: IStatefulArtifact;
     private selectedSubArtifact: IStatefulSubArtifact;
+
     protected artifactSubscriber: Rx.IDisposable;
     protected subArtifactSubscriber: Rx.IDisposable;
 
@@ -167,7 +168,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         let propertyDescriptorsPromise: ng.IPromise<IPropertyDescriptor[]>;
         let selectedItem: IStatefulItem;
 
-        if (this.selectedSubArtifact) {
+        if (this.isSubartifactSelected()) {
             propertyDescriptorsPromise = this.propertyDescriptorBuilder.createSubArtifactPropertyDescriptors(this.selectedSubArtifact);
             selectedItem = this.selectedSubArtifact;
 
@@ -200,17 +201,15 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                const isReadOnly = selectedItem.artifactState.readonly;
-                if (isReadOnly) {
-                    field.templateOptions.disabled = true;
-                }
-                //if (isReadOnly) {
-                if (field.key !== "documentFile" &&
-                    field.type !== "bpFieldImage" &&
-                    field.type !== "bpFieldInheritFrom") {
-                    field.type = "bpFieldReadOnly";
-                }
-                //}
+                    const isReadOnly = selectedItem.artifactState.readonly;
+                    if (isReadOnly) {
+                        field.templateOptions.disabled = true;                    
+                        if (field.key !== "documentFile" &&
+                            field.type !== "bpFieldImage" &&
+                            field.type !== "bpFieldInheritFrom") {
+                            field.type = "bpFieldReadOnly";
+                        }
+                    }
 
                 this.onFieldUpdate(field);
 
@@ -244,31 +243,42 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
+        
         //here we need to update original model
         const context = $field.data as IPropertyDescriptor;
         if (!context) {
             return;
         }
-        //let value = this.editor.convertToModelValue($field, $value);
-        // let changeSet: IPropertyChangeSet = {
-        //     lookup: context.lookup,
-        //     id: context.modelPropertyName,
-        //     value: value
-        // };
-
-        // if (this.selectedSubArtifact) {
-        //     this.addSubArtifactChangeset(this.selectedArtifact, this.selectedSubArtifact, changeSet);
-        // } else {
-        //     this.stateManager.addChange(this.selectedArtifact, changeSet);
-        // }
+        let value = this.editor.convertToModelValue($field, $value);
+        switch (context.lookup) {
+            case PropertyLookupEnum.Custom:
+                this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);
+                break;
+            case PropertyLookupEnum.Special:
+                this.getSelectedItem().specialProperties.set(context.modelPropertyName as number, value);
+                break;
+            default:
+                this.getSelectedItem()[context.modelPropertyName] = value;
+                break;
+            }
+        context.isFresh = false;
+        
     };
+
+    private getSelectedItem(): IStatefulItem {
+        return this.isSubartifactSelected() ? this.selectedSubArtifact : this.selectedArtifact;
+    }
+
+    private isSubartifactSelected(): boolean {
+        return !!this.selectedSubArtifact;
+    }
 
     public get specificPropertiesHeading(): string {
         if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
         } else if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
-        } else if (this.selectedSubArtifact) {
+        } else if (this.isSubartifactSelected()) {
             return this.localization.get("Property_SubArtifact_Section_Name", "Sub-Artifact Properties");
         } else {
             return this.localization.get("Property_Artifact_Section_Name", "Artifact Properties");

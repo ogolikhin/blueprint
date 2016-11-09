@@ -311,7 +311,8 @@ namespace Helper
         /// <param name="project">The project where the Nova artifact should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
-        /// <param name="parentId">(optional) The parent of this Nova artifact.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
         /// <param name="orderIndex">(optional) The order index of this Nova artifact.
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
@@ -340,7 +341,8 @@ namespace Helper
         /// <param name="project">The project where the Nova artifact should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
-        /// <param name="parentId">(optional) The parent of this Nova artifact.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
         /// <param name="orderIndex">(optional) The order index of this Nova artifact.
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.

@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h3 class="modal-title"><i class="fonticon-modal"></i><span>{{$ctrl.dialogSettings.header}}</span></h3>
+</div>
+<div class="modal-body">
+    <div class="project-wrapper">
+        <div class="nova-message" ng-bind-html="$ctrl.dialogSettings.message"></div>
+        <bp-artifact-list class="bp-artifact-list"
+            artifact-list="$ctrl.artifactList"
+            project-list="$ctrl.projectList"
+        ></bp-artifact-list>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="nova-form-group nova-form-buttons">
+        <button class="btn btn-primary" ng-click="$ctrl.cancel()">
+            <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
+        </button>
+        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()">
+            <span ng-bind="$ctrl.dialogSettings.okButton"></span>
+        </button>
+    </div>
+</div>

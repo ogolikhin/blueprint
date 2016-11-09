@@ -55,7 +55,7 @@ export class ItemStateController {
 
             } else if (this.itemInfoService.isProject(result)) {
                 // TODO: implement project navigation in the future US
-                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
+                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
                 this.navigationService.navigateToMain();
 
             } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {
@@ -76,29 +76,31 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (_.isFinite(version)) {
                     if (result.versionCount < version) {
-                        this.messageService.addError("The specified artifact version does not exist");
+                        this.messageService.addError("The specified artifact version does not exist", true);
                         this.navigationService.navigateToMain(true);
                         return;
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
+                    
                 } else if (result.isDeleted) {
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
+                    
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Deleted by user '${result.deletedByUser.displayName}' on '${localizedDate}'`;
-                    this.messageService.addMessage(new Message(MessageType.Lock, deletedMessage));
+                    const deletedMessage = `Deleted by user ${result.deletedByUser.displayName} on ${localizedDate}`;
+                    this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 
                 this.navigateToSubRoute(statefulArtifact, version);
             } else {
-                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.");
+                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
             }
         }).catch(error => {
             this.navigationService.navigateToMain(true);
             // Forbidden and ServerError responces are handled in http-error-interceptor.ts
             if (error.statusCode === HttpStatusCode.NotFound) {
-                this.messageService.addError("HttpError_NotFound");
+                this.messageService.addError("HttpError_NotFound", true);
             }
         });
     }
@@ -116,7 +118,7 @@ export class ItemStateController {
 
     private clearLockedMessages() {
         this.messageService.messages.forEach(message => {
-            if (message.messageType === MessageType.Lock) {
+            if (message.messageType === MessageType.Deleted) {
                 this.messageService.deleteMessageById(message.id);
             }
         });

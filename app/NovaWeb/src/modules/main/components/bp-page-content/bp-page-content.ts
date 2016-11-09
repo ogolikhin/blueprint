@@ -5,6 +5,8 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {Models} from "../../../main/models";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {ItemTypePredefined} from "../../../main/models/enums";
+import {IProjectService} from "../../../managers/project-manager/project-service";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -20,13 +22,15 @@ class PageContentCtrl {
         "dialogService",
         "artifactManager",
         "artifactService",
-        "navigationService"
+        "navigationService",
+        "projectService"
     ];
 
     constructor(private dialogService: IDialogService,
         private artifactManager: IArtifactManager,
         private artifactService: IArtifactService,
-        protected navigationService: INavigationService) {
+        protected navigationService: INavigationService,
+        private projectService: IProjectService) {
         this.breadcrumbLinks = [];
     }
 
@@ -39,45 +43,61 @@ class PageContentCtrl {
     }
 
     private onSelectionChanged = (selection: ISelection) => {
+        // When selection is empty we need to remove breascrumb
         if (!selection.artifact && !selection.subArtifact) {
             this.currentArtifact = null;
             this.breadcrumbLinks = [];
             return;
         }
-        if (this.currentArtifact === selection.artifact) {
+        // When the selected artifact is subartifact inside UseCase diagram
+        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact ||
+            this.currentArtifact === selection.artifact) {
             return;
         }
-
         this.currentArtifact = selection.artifact;
-        this.artifactService.getArtifactNavigationPath(selection.artifact.id)
-            .then((result: Models.IArtifact[]) => {
+        //For project we need to call GetProjectNavigationPath
+        if (selection.artifact.predefinedType === ItemTypePredefined.Project) {
+            this._subscribers.push(
+                selection.artifact.getObservable().distinctUntilChanged().subscribe((project) => {
+                    this.setProjectBreadCrumb(project.id);
+                }));
+        } else {
+            this._subscribers.push(
+                selection.artifact.getObservable().subscribe((artifact) => {
+                    this.setArtifactBreadCrumb(artifact.id, artifact.artifactState.historical);
+                }));
+        }
+    }
+
+    private setProjectBreadCrumb = (projectId: number): void => {
+        this.projectService.getProjectNavigationPath(projectId, false)
+            .then((result: string[]) => {
                 this.breadcrumbLinks = [];
-                _.each(result, artifact => {
+                _.each(result, s => {
                     const breadcrumbLink: IBreadcrumbLink = {
-                        id: artifact.id,
-                        name: artifact.name,
-                        isEnabled: !selection.artifact.artifactState.historical
+                        // We do not need to navigate to Instance Folder
+                        id: 0,
+                        name: s,
+                        isEnabled: false
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
             });
     }
 
-    public openArtifactPicker() {
-        const dialogSettings = <IDialogSettings>{
-            okButton: "Open",
-            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
-            controller: ArtifactPickerDialogController,
-            css: "nova-open-project",
-            header: "Single project Artifact picker"
-        };
-
-        const dialogData: IArtifactPickerOptions = {
-            showSubArtifacts: false,
-            isOneProjectLevel: true
-        };
-
-        this.dialogService.open(dialogSettings, dialogData);
+    private setArtifactBreadCrumb = (artifactId: number, isHistorical: boolean): void => {
+        this.artifactService.getArtifactNavigationPath(artifactId)
+            .then((result: Models.IArtifact[]) => {
+                this.breadcrumbLinks = [];
+                _.each(result, artifact => {
+                    const breadcrumbLink: IBreadcrumbLink = {
+                        id: artifact.id,
+                        name: artifact.name,
+                        isEnabled: !isHistorical
+                    };
+                    this.breadcrumbLinks.push(breadcrumbLink);
+                });
+            });
     }
 
     public $onDestroy() {
@@ -87,6 +107,7 @@ class PageContentCtrl {
             return false;
         });
         delete this.breadcrumbLinks;
+        delete this.currentArtifact;
     }
 
     public navigateTo = (link: IBreadcrumbLink): void => {

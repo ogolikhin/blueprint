@@ -1,0 +1,66 @@
+@import '../../../styles/modules/variables';
+
+messages-container {
+    display: block;
+    flex: none;
+}
+
+message {
+    display: block;
+
+    .container {
+        color: $white;
+        margin: -2px 0 5px;
+        padding: 10px;
+        position: relative;
+        width: 100%;
+
+        .icon {
+            display: inline-block;
+            text-align: center;
+
+            &::before {
+                font-size: 2.5rem;
+                margin: 0 10px;
+            }
+        }
+
+        .text {
+            display: inline-block;
+            font-size: $font-size-big;
+        }
+
+        .fonticon-close {
+            color: $white;
+            cursor: pointer;
+            position: absolute;
+            right: 3px;
+            text-decoration: none;
+            top: 6px;
+
+            &::before {
+                font-size: 1.6rem;
+            }
+        }
+
+        &.error {
+            background-color: $messages-bg-error;
+        }
+
+        &.warning {
+            background-color: $messages-bg-warning;
+        }
+
+        &.info {
+            background-color: $messages-bg-info;
+        }
+
+        &.lock {
+            background-color: $messages-bg-warning;
+        }
+
+        &.deleted {
+            background-color: $messages-bg-warning;
+        }
+    }
+}

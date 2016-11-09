@@ -69,8 +69,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return [loadProcessPromise];
     }
 
-    protected isFullArtifactLoadedOrLoading() {
-        return super.isFullArtifactLoadedOrLoading() || this.loadProcessPromise;
+    protected isFullArtifactLoadedOrLoading(): boolean {
+        return super.isFullArtifactLoadedOrLoading() || !!this.loadProcessPromise;
     }
 
     private loadProcess(): ng.IPromise<IStatefulArtifact> {

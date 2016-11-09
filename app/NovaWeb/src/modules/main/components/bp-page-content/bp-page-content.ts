@@ -49,20 +49,23 @@ class PageContentCtrl {
             this.breadcrumbLinks = [];
             return;
         }
-        if (this.currentArtifact === selection.artifact) {
-            return;
-        }
         // When the selected artifact is subartifact inside UseCase diagram
-        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact) {
+        if (this.artifactManager.selection.getExplorerArtifact() !== selection.artifact ||
+            this.currentArtifact === selection.artifact) {
             return;
         }
         this.currentArtifact = selection.artifact;
-
         //For project we need to call GetProjectNavigationPath
         if (selection.artifact.predefinedType === ItemTypePredefined.Project) {
-            this.setProjectBreadCrumb(selection.artifact.id);
+            this._subscribers.push(
+                selection.artifact.getObservable().distinctUntilChanged().subscribe((project) => {
+                    this.setProjectBreadCrumb(project.id);
+                }));
         } else {
-            this.setArtifactBreadCrumb(selection.artifact.id, selection.artifact.artifactState.historical);
+            this._subscribers.push(
+                selection.artifact.getObservable().subscribe((artifact) => {
+                    this.setArtifactBreadCrumb(artifact.id, artifact.artifactState.historical);
+                }));
         }
     }
 
@@ -72,6 +75,7 @@ class PageContentCtrl {
                 this.breadcrumbLinks = [];
                 _.each(result, s => {
                     const breadcrumbLink: IBreadcrumbLink = {
+                        // We do not need to navigate to Instance Folder
                         id: 0,
                         name: s,
                         isEnabled: false
@@ -94,23 +98,6 @@ class PageContentCtrl {
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
             });
-    }
-
-    public openArtifactPicker() {
-        const dialogSettings = <IDialogSettings>{
-            okButton: "Open",
-            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
-            controller: ArtifactPickerDialogController,
-            css: "nova-open-project",
-            header: "Single project Artifact picker"
-        };
-
-        const dialogData: IArtifactPickerOptions = {
-            showSubArtifacts: false,
-            isOneProjectLevel: true
-        };
-
-        this.dialogService.open(dialogSettings, dialogData);
     }
 
     public $onDestroy() {

@@ -278,7 +278,7 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            return CreateAndWrapNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            return CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            return CreateAndWrapNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            return CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
         }
 
         /// <summary>
@@ -311,14 +311,15 @@ namespace Helper
         /// <param name="project">The project where the Nova artifact should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="itemType">The Nova base ItemType to create.</param>
-        /// <param name="parentId">(optional) The parent of this Nova artifact.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
         /// <param name="orderIndex">(optional) The order index of this Nova artifact.
         ///     By default the order index should be after the last artifact.</param>
         /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
         ///     By default the ItemTypePredefined is converted into its equivalent BaseArtifactType.</param>
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        public IArtifact CreateAndWrapNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
+        public IArtifact CreateWrapAndSaveNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
@@ -332,6 +333,28 @@ namespace Helper
                 itemType, name, project, parentId, orderIndex);
 
             return WrapNovaArtifact(collection, project, user, baseType);
+        }
+
+        /// <summary>
+        /// Creates and publishes a new Nova artifact (wrapped inside an IArtifact object).
+        /// </summary>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
+        ///     By default the ItemTypePredefined is converted into its equivalent BaseArtifactType.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
+        public IArtifact CreateWrapAndPublishNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
+            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null)
+        {
+            var artifact = CreateWrapAndSaveNovaArtifact(project, user, itemType, parentId, orderIndex, baseType, name);
+            ArtifactStore.PublishArtifact(artifact, user);
+            return artifact;
         }
 
         /// <summary>
@@ -409,7 +432,7 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            var artifact = CreateAndWrapNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            var artifact = CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
             artifact.Publish();
             return artifact;
         }
@@ -435,7 +458,7 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            var artifact = CreateAndWrapNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            var artifact = CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.CollectionFolder, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
             artifact.Publish();
             return artifact;
         }

@@ -156,7 +156,7 @@ export class ProjectManager implements IProjectManager {
     public refresh(projectId?: number): ng.IPromise<any> {
         const projectNode = projectId ? this.getProject(projectId) : this.getSelectedProject();
         if (!projectNode) {
-            throw new Error("Project_NotFound");
+            return this.$q.reject();
         }
 
         return this.refreshProject(projectNode);

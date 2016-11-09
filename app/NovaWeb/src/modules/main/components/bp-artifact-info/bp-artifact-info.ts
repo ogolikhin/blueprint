@@ -194,9 +194,6 @@ export class BpArtifactInfoController {
                 break;
 
             default:
-                if (artifact.version === -1) { // this is to show the lock icon for newly created artifacts
-                    this.selfLocked = true;
-                }
                 break;
         }
     }

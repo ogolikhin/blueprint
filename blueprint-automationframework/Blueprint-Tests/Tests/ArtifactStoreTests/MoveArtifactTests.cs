@@ -288,7 +288,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, collectionFolder.Id, author);
-            }, "'POST {0}' should return 200 OK when called with current version!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
@@ -299,7 +299,8 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(191030)]
-        [Description("Create an artifact of collection artifact type or collection folder. Move this artifact to be a child of the root Collections folder. Verify the moved artifact is returned with the updated Parent ID.")]
+        [Description("Create an artifact of collection artifact type or collection folder. Move this artifact to be a child of the root Collections folder. " + 
+            "Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultCollectionsFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -322,7 +323,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, defaultCollectionFolder.Id, author);
-            }, "'POST {0}' should return 200 OK when called with current version!", SVC_PATH);
+            }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);

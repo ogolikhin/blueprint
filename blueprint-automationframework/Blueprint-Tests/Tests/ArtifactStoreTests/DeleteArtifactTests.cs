@@ -75,8 +75,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
@@ -451,8 +450,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Create a user without permission to delete the artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
@@ -528,8 +526,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "Failed to delete a published {0}!", artifactType);
@@ -555,8 +552,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "Failed to delete a published {0}!", artifactType);
@@ -672,8 +668,7 @@ namespace ArtifactStoreTests
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
 
             IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Lock artifact to prevent other users from deleting
             artifact.Lock(userWithLock);

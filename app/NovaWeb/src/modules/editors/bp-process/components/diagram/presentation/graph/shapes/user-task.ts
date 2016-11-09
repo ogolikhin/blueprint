@@ -327,7 +327,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly,
+            "center",
+            false);
 
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");

@@ -139,7 +139,8 @@ export class Label implements ILabel {
                 private maxTextLength: number,
                 private maxVisibleTextLength: number,
                 private isReadOnly: boolean,
-                private textAlign: string = "center") {
+                private textAlign: string = "center",
+                private _isEnabled: boolean = true) {
         if (!_text) {
             this._text = "";
         }
@@ -282,7 +283,7 @@ export class Label implements ILabel {
 
     private setMouseoverStyle() {
         if (this.mode === divMode.VIEW) {
-            if (!this.isReadOnly) {
+            if (!this.isReadOnly && this._isEnabled) {
                 this.div.style.background = "url('/novaweb/static/bp-process/images/pencil.png') no-repeat top right";
             }
             this.div.style.borderStyle = "dashed";
@@ -361,7 +362,7 @@ export class Label implements ILabel {
         this.container.appendChild(this.wrapperDiv);
         this.wrapperDiv.appendChild(this.div);
 
-        if (!this.isReadOnly) {
+        if (!this.isReadOnly && this._isEnabled) {
             //event handlers
             angular.element(this.div).on("labeldblclick", (e) => this.onEdit(e));
             this.div.addEventListener("blur", this.onBlur, true);
@@ -377,7 +378,7 @@ export class Label implements ILabel {
     }
     public onDispose = () => {
         if (this.div) {
-            if (!this.isReadOnly) {
+            if (!this.isReadOnly && this._isEnabled) {
                 angular.element(this.div).off("labeldblclick", (e) => this.onEdit(e));
                 this.div.removeEventListener("blur", this.onBlur, true);
                 angular.element(this.div).off("keydown", (e) => this.onKeyDown(e));

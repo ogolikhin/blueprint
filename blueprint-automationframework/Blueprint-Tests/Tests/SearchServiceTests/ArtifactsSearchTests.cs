@@ -135,7 +135,7 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: "+>+"); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -269,6 +269,61 @@ namespace SearchServiceTests
             }
         }
 
+        [TestCase]
+        [TestRail(1)]
+        [Description("Search published artifact by full name within 2 projects, verify search item has expected version.")]
+        public void SearchArtifactByFullName_2Projects_VerifyVersionInfo()
+        {
+            // Setup:
+            int numberOfVersions = 3;
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Document,
+                numberOfVersions: numberOfVersions);
+
+            artifact.Save(_authorUser);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+
+            Assert.AreEqual(numberOfVersions, results.Items[0].Version, "Version should have expected value.");
+        }
+
+        [TestCase]
+        [TestRail(1)]
+        [Description("Search published artifact by full name within 2 projects, verify search item has expected version.")]
+        public void SearchArtifactByFullName_2Projects_VerifyPath()
+        {
+            // Setup:
+            var parentFolder = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.PrimitiveFolder);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase, parentFolder);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Actor, parentArtifact);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                results = Helper.SearchService.SearchItems(_authorUser, searchCriteria,
+                separatorString: "+>+"); }, "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+        }
+
         /// <summary>
         /// Returns true if SearchItem contains information about Artifact and false otherwise
         /// </summary>
@@ -279,7 +334,7 @@ namespace SearchServiceTests
             return ((searchItem.Id == artifact.Id) &&
             (searchItem.Name == artifact.Name) &&
             (searchItem.ProjectId == artifact.ProjectId) &&
-            //(searchItem.TypeName == artifact.ArtifactTypeName) &&
+            //(searchItem.Version == artifact.Version) &&
             (searchItem.ItemTypeId == artifact.ArtifactTypeId));
         }
     }

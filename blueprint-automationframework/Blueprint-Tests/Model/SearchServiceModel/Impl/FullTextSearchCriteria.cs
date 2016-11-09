@@ -21,6 +21,11 @@ namespace Model.SearchServiceModel.Impl
         /// </summary>
         public IEnumerable<int> ItemTypeIds { get; set; }
 
+        /// <summary>
+        /// Should return Project Path for the results.
+        /// </summary>
+        public bool IncludeArtifactPath { get; set; }
+
         #endregion JSON serialized properties
 
         public FullTextSearchCriteria()
@@ -33,6 +38,7 @@ namespace Model.SearchServiceModel.Impl
             this.Query = query;
             this.ProjectIds = projectIds;
             this.ItemTypeIds = itemTypeIds;
+            this.IncludeArtifactPath = true;
         }
 
         public FullTextSearchCriteria(string query, int projectId, IEnumerable<int> itemTypeIds = null) :

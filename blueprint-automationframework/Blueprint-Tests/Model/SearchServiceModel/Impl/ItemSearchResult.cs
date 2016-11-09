@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Model.ArtifactModel.Impl;
 
 namespace Model.SearchServiceModel.Impl
 {
@@ -11,58 +14,34 @@ namespace Model.SearchServiceModel.Impl
 
     public class SearchItem
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int Id { get; set; }
-
-        public bool ShouldSerializeId()
-        {
-            return (Id != 0);
-        }
 
         public int? ProjectId { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int ParentId { get; set; }
 
-        public bool ShouldSerializeParentId()
-        {
-            return (ParentId != 0);
-        }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int ItemTypeId { get; set; }
-
-        public bool ShouldSerializeItemTypeId()
-        {
-            return (ItemTypeId != 0);
-        }
 
         public string Prefix { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int PredefinedType { get; set; }
 
-        public bool ShouldSerializePredefinedType()
-        {
-            return (PredefinedType != 0);
-        }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int Version { get; set; }
 
-        public bool ShouldSerializeVersion()
-        {
-            return (Version != 0);
-        }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double OrderIndex { get; set; }
 
-        public bool ShouldSerializeOrderIndex()
-        {
-            return (OrderIndex != 0);
-        }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int Permissions { get; set; }
+        
+        public Identification LockedByUser { get; set; }
 
-        public bool ShouldSerializePermissions()
-        {
-            return (Permissions != 0);
-        }
+        public DateTime? LockedDateTime { get; set; }
 
         public int ItemId { get; set; }
 

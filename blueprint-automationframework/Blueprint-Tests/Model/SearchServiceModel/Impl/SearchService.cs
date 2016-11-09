@@ -121,7 +121,8 @@ namespace Model.SearchServiceModel.Impl
         }
 
         /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, List{HttpStatusCode})"/>
-        public ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? startOffset = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? startOffset = null,
+            int? pageSize = null, string separatorString = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
@@ -141,8 +142,15 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
+            string url = RestPaths.Svc.SearchService.ITEMNAMESEARCH;
+
+            if (separatorString != null)
+            {
+                url = string.Concat(url, "?separatorString=", separatorString);
+            }
+
             var itemSearchResult = restApi.SendRequestAndDeserializeObject<ItemSearchResult, FullTextSearchCriteria>(
-                RestPaths.Svc.SearchService.ITEMNAMESEARCH,
+                url,
                 RestRequestMethod.POST,
                 searchCriteria,
                 queryParameters: queryParams,

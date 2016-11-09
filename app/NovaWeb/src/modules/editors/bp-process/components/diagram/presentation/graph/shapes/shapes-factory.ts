@@ -216,7 +216,8 @@ export class ShapesFactory {
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
         const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
-        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, defaultSystemPersonaReference);
+        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, 
+        ItemTypePredefined.PROShape, null, defaultSystemPersonaReference);
 
         obj.propertyValues = this.createPropertyValuesForSystemTaskShape(defaultSystemPersonaReference.name, [], -1,
             null, "", "", x, y, -1, -1, "", null);

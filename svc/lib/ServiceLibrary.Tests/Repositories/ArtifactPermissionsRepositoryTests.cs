@@ -49,7 +49,6 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
-            var mockBoolResult = new List<bool> { true }.AsEnumerable();
             var mockProjectsArtifactsItemsResult = new List<ProjectsArtifactsItem>
             {
                 new ProjectsArtifactsItem
@@ -67,7 +66,7 @@ namespace ServiceLibrary.Repositories
                     Permissions = (long)RolePermissions.Edit
                 }
             }.AsEnumerable();
-            MockQueryMultipleAsync(itemIds, cxn, mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
+            MockQueryMultipleAsync(itemIds, cxn, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
 
             // Act
             var result = await repository.GetArtifactPermissions(itemIds, 0);
@@ -84,7 +83,6 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
-            var mockBoolResult = new List<bool> { true }.AsEnumerable();
             var mockProjectsArtifactsItemsResult = new List<ProjectsArtifactsItem>
             {
                 new ProjectsArtifactsItem
@@ -102,7 +100,7 @@ namespace ServiceLibrary.Repositories
                     Permissions = (long)RolePermissions.CanReport
                 }
             }.AsEnumerable();
-            MockQueryMultipleAsync(itemIds, cxn, mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
+            MockQueryMultipleAsync(itemIds, cxn, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
             var mockOpenArtifactPermissionsResult = new List<OpenArtifactPermission>()
             {
                 new OpenArtifactPermission
@@ -129,7 +127,6 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
-            var mockBoolResult = new List<bool> { true }.AsEnumerable();
             var mockProjectsArtifactsItemsResult = new List<ProjectsArtifactsItem>
             {
                 new ProjectsArtifactsItem
@@ -147,7 +144,7 @@ namespace ServiceLibrary.Repositories
                     Permissions = (long)RolePermissions.Edit
                 }
             }.AsEnumerable();
-            MockQueryMultipleAsync(itemIds, cxn, mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult, revisionId);
+            MockQueryMultipleAsync(itemIds, cxn, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult, revisionId);
             var mockOpenArtifactPermissionsResult = new List<OpenArtifactPermission>()
             {
                 new OpenArtifactPermission
@@ -174,7 +171,6 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
-            var mockBoolResult = new List<bool> { true }.AsEnumerable();
             var mockProjectsArtifactsItemsResult = new List<ProjectsArtifactsItem>
             {
                 new ProjectsArtifactsItem
@@ -198,7 +194,7 @@ namespace ServiceLibrary.Repositories
                     Permissions = (long)RolePermissions.Delete
                 }
             }.AsEnumerable();
-            MockQueryMultipleAsync(itemIds, cxn, mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult, revisionId);
+            MockQueryMultipleAsync(itemIds, cxn, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult, revisionId);
             var mockOpenArtifactPermissionsResult = new List<OpenArtifactPermission>()
             {
                 new OpenArtifactPermission
@@ -225,7 +221,6 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactPermissionsRepository(cxn.Object);
             MockToReturnInstanceAdmin(false, cxn);
             var itemIds = new List<int> { 1 };
-            var mockBoolResult = new List<bool> { true }.AsEnumerable();
             var mockProjectsArtifactsItemsResult = new List<ProjectsArtifactsItem>
             {
                 new ProjectsArtifactsItem
@@ -253,7 +248,7 @@ namespace ServiceLibrary.Repositories
                     ProjectId = 3
                 }
             }.AsEnumerable();
-            MockQueryMultipleAsync(itemIds, cxn, mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult, revisionId);
+            MockQueryMultipleAsync(itemIds, cxn, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult, revisionId);
             var mockOpenArtifactPermissionsResult = new List<OpenArtifactPermission>()
             {
                 new OpenArtifactPermission
@@ -276,7 +271,7 @@ namespace ServiceLibrary.Repositories
         private void MockToReturnInstanceAdmin(bool isInstanceAdmin, SqlConnectionWrapperMock cxn)
         {
             var result = new List<bool> { isInstanceAdmin };
-            cxn.SetupQueryAsync("NOVAIsInstanceAdmin",
+            cxn.SetupQueryAsync("IsInstanceAdmin",
                 new Dictionary<string, object> { { "contextUser", false }, { "userId", 0 } }, result);
         }
 
@@ -294,7 +289,6 @@ namespace ServiceLibrary.Repositories
         private void MockQueryMultipleAsync(
             IEnumerable<int> itemIds,
             SqlConnectionWrapperMock cxn,
-            IEnumerable<bool> mockBoolResult,
             IEnumerable<ProjectsArtifactsItem> mockProjectsArtifactsItemsResult,
             IEnumerable<VersionProjectInfo> mockVersionProjectInfoResult,
             int revisionId = int.MaxValue,
@@ -303,11 +297,10 @@ namespace ServiceLibrary.Repositories
         {
             var tvp = SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value");
 
-            var result = Tuple.Create(mockBoolResult, mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
+            var result = Tuple.Create(mockProjectsArtifactsItemsResult, mockVersionProjectInfoResult);
             cxn.SetupQueryMultipleAsync("GetArtifactsProjects",
                 new Dictionary<string, object>
                 {
-                    {"contextUser", false},
                     {"userId", 0},
                     {"itemIds", tvp}
                 }, result);

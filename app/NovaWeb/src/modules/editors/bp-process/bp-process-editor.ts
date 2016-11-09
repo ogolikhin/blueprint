@@ -1,13 +1,14 @@
-﻿// References to StorytellerDiagramDirective
-import {ICommunicationManager} from "./";
-import {ProcessDiagram} from "./components/diagram/process-diagram";
-import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
-import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
-import {IDialogService} from "../../shared";
-import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
-import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
-import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
+﻿import { ICommunicationManager } from "./";
+import { ILocalizationService, IMessageService, INavigationService } from "../../core";
+import { ProcessDiagram } from "./components/diagram/process-diagram";
+import { SubArtifactEditorModalOpener } from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
+import { IWindowManager, IMainWindow, ResizeCause } from "../../main";
+import { BpBaseEditor, IArtifactManager } from "../bp-base-editor";
+import { IDialogService } from "../../shared";
+import { IDiagramNode } from "./components/diagram/presentation/graph/models/";
+import { ISelection, IStatefulArtifactFactory, IStatefulSubArtifact } from "../../managers/artifact-manager";
+import { IStatefulProcessSubArtifact } from "./process-subartifact";
+import { ShapesFactory } from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -175,7 +176,12 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {
         if (elements.length > 0) {
-            this.artifactManager.selection.setSubArtifact(this.artifact.subArtifactCollection.get(elements[0].model.id));
+            const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(elements[0].model.id);
+            if (subArtifact) {             
+                subArtifact.loadProperties().then((loadedSubArtifact: IStatefulSubArtifact) => {
+                    this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
+                });
+            }
         } else {
             this.artifactManager.selection.setArtifact(this.artifact);
         }

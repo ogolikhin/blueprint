@@ -8,6 +8,7 @@ using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ArtifactModel.Impl;
 using TestCommon;
 using Utilities;
 
@@ -299,6 +300,80 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, childArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(parentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
+        }
+
+        [TestCase(BaseArtifactType.Actor, 5, 0, 2.5)]           // Move 1st artifact between 2nd & 3rd artifacts.
+        [TestCase(BaseArtifactType.Document, 5, 2, 0.5)]        // Move 3rd artifact before first artifact.
+        [TestCase(BaseArtifactType.Glossary, 5, 2, 5.0)]        // Move 3rd artifact after last artifact.
+        [TestCase(BaseArtifactType.PrimitiveFolder, 5, 4, 2.5)] // Move last artifact between 2nd & 3rd artifacts.
+        [TestCase(BaseArtifactType.Process, 5, 4, 1.0)]         // Move last artifact to same OrderIndex as first artifact.
+        [TestCase(BaseArtifactType.UseCase, 5, 0, 1.0)]         // Move first artifact to same location.
+        [TestRail(191038)]
+        [Description("Create & publish several artifacts.  Move an artifact to the same location but specify an OrderIndex.  " +
+            "Verify the OrderIndex of the artifact was updated.")]
+        public void MoveArtifactWithOrderIndex_PublishedArtifact_InsideFolder_VerifyOrderIndexUpdated(
+            BaseArtifactType artifactType, int numberOfArtifacts, int whichArtifact, double orderIndex)
+        {
+            // Setup:
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts, parentFolder);
+
+            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _user);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _user, orderIndex);
+            }, "'POST {0}?orderIndex={1}' should return 200 OK when called with a valid token!", SVC_PATH, orderIndex);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifacts[whichArtifact].Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(parentFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact should not be changed!");
+            Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
+        }
+
+        [TestCase(ItemTypePredefined.ArtifactCollection, 5, 0, 2.5)]    // Move 1st artifact between 2nd & 3rd artifacts.
+        [TestCase(ItemTypePredefined.ArtifactCollection, 5, 2, 0.5)]    // Move 3rd artifact before first artifact.
+        [TestCase(ItemTypePredefined.ArtifactCollection, 5, 2, 5.0)]    // Move 3rd artifact after last artifact.
+        [TestCase(ItemTypePredefined.CollectionFolder, 5, 4, 2.5)]      // Move last artifact between 2nd & 3rd artifacts.
+        [TestCase(ItemTypePredefined.CollectionFolder, 5, 4, 1.0)]      // Move last artifact to same OrderIndex as first artifact.
+        [TestCase(ItemTypePredefined.CollectionFolder, 5, 0, 1.0)]      // Move first artifact to same location.
+        [TestRail(191039)]
+        [Description("Create & publish several Collection or Collection Folder artifacts.  Move an artifact to the same location but specify an OrderIndex.  " +
+            "Verify the OrderIndex of the artifact was updated.")]
+        public void MoveArtifactWithOrderIndex_PublishedCollectionOrCollectionFolder_InsideCollectionFolder_VerifyOrderIndexUpdated(
+            ItemTypePredefined artifactType, int numberOfArtifacts, int whichArtifact, double orderIndex)
+        {
+            // Setup:
+            INovaArtifactDetails movedArtifactDetails = null;
+            List<IArtifactBase> artifacts = new List<IArtifactBase>();
+
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var parentFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                artifacts.Add(Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, parentFolder.Id, baseType: fakeBaseType));
+            }
+
+            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _user);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _user, orderIndex);
+            }, "'POST {0}?orderIndex={1}' should return 200 OK when called with a valid token!", SVC_PATH, orderIndex);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifacts[whichArtifact].Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(parentFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact should not be changed!");
+            Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
         }
 
         #endregion 200 OK tests

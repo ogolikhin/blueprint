@@ -16,14 +16,13 @@
     .icon{
         &::before{
             color: $gray-light;
-            font-size: $font-size-normal;
+            font-size: $font-size-big;
         }
         &:hover{
             cursor: pointer;
 
             &::before{
                 color: $brand-secondary;
-
             }
         }
     }
@@ -233,7 +232,7 @@
                 }
 
                 &::before{
-                    font-size: $font-size-normal;
+                    font-size: $font-size-big;
                 }
             }
         }

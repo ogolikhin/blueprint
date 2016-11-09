@@ -1,5 +1,6 @@
 import * as SearchModels from "./models/model";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import { ILocalizationService } from "../../../core/localization/localizationService";
+import { IQuickSearchService } from "./quickSearchService";
 
 export interface IQuickSearchModalController {
     searchTerm: string;
@@ -15,47 +16,75 @@ export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;
-    results: {};
+    results: SearchModels.ISearchItem[];
+    private page: number;
+    private totalItems: number;
+
     static $inject = [
         "$rootScope",
         "quickSearchService",
         "$log",
         "$uibModalInstance",
-        "localization"
+        "localization",
+        "$q"
     ];
 
     private stateChangeStartListener: Function;
 
     constructor(private $rootScope: ng.IRootScopeService,
-                private quickSearchService,
+                private quickSearchService: IQuickSearchService,
                 private $log: ng.ILogService,
                 private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-                private localization: ILocalizationService) {
+                private localization: ILocalizationService,
+                private $q: ng.IQService) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
+        
     }
 
-    search(term) {
+    private isFormInvalid(): boolean {
         if (this.form && this.form.$invalid) {
             this.$log.warn("invalid search");
+            return true;
+        }
+        return false;
+    }
+
+    searchWithMetadata(term: string) {
+        if (this.isFormInvalid()) {
+            return null;
+        }
+        this.quickSearchService.metadata(this.searchTerm).then((result) => {
+            this.updateMetadataInfo(result);
+            if (result.totalCount > 0) {
+                this.search(this.searchTerm);
+            }
+        });
+    }
+
+    search(term: string) {        
+        if (this.isFormInvalid()) {
             return null;
         }
         this.isLoading = true;
+
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term).then((results: SearchModels.ISearchResult) => {
+        this.quickSearchService.search(term, this.page).then((results: SearchModels.ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
             this.isLoading = false;
         });
-    }
-
+    }    
+    
     clearSearch() {
         this.searchTerm = "";
         this.quickSearchService.searchTerm = "";
         this.form.$setPristine();
         this.results = [];
+        this.totalItems = 0;
+        this.page = 1;
     }
 
     get showHide(): boolean {
@@ -68,8 +97,9 @@ export class QuickSearchModalController {
     }
 
     $onInit() {
+        this.page = 1;
         if (this.searchTerm.length) {
-            this.search(this.searchTerm);
+            this.searchWithMetadata(this.searchTerm);
         }
 
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
@@ -92,4 +122,17 @@ export class QuickSearchModalController {
 
         this.$uibModalInstance.dismiss("cancel");
     }
+
+    private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
+        this.totalItems = result.totalCount;
+        this.page = 1;
+        if (result.totalCount === 0) {
+            this.results = [];
+            this.isLoading = false;
+        }
+    }
+    
+    get getResultsFoundText() {
+        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.totalItems.toString());        
+    } 
 }

@@ -236,7 +236,7 @@ export class BpArtifactInfoController {
                 new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new DiscardAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
                 new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
-                new DeleteAction(artifact, this.localization, this.dialogService, deleteDialogSettings)
+                new DeleteAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService, this.dialogService)
             ),
             new OpenImpactAnalysisAction(artifact, this.localization)
         );

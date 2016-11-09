@@ -223,8 +223,8 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3} as Models.IArtifact;
-        const vm = controller.factory.createArtifactNodeVM(model);
         controller.project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
+        const vm = controller.factory.createArtifactNodeVM(controller.project, model);
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
         // Act

@@ -7,10 +7,12 @@ import {TreeNodeVMFactory} from "./tree-view-models";
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;
     let factory: TreeNodeVMFactory;
+    let project: AdminStoreModels.IInstanceItem;
 
     beforeEach(() => {
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
         factory = new TreeNodeVMFactory(projectService);
+        project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
     });
 
     describe("InstanceItemNodeVM", () => {
@@ -129,10 +131,11 @@ describe("TreeNodeVMFactory", () => {
         it("loadChildrenAsync, when a project, loads artifacts except collection folder", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                     // Arrange
-                    const children = [{id: 1234}, {
+
+                    const children = <any>[{id: 1234}, {
                         id: 5678,
                         predefinedType: Models.ItemTypePredefined.CollectionFolder
-                    }] as Models.IArtifact[];
+                    }];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
                         type: AdminStoreModels.InstanceItemType.Project
@@ -141,11 +144,10 @@ describe("TreeNodeVMFactory", () => {
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
-
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
                         expect(vm.children).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
-                            .map(child => factory.createArtifactNodeVM(child)));
+                            .map(child => factory.createArtifactNodeVM(model, child)));
                         expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
                         done();
                     }).catch(done.fail);
@@ -166,7 +168,7 @@ describe("TreeNodeVMFactory", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = factory.createArtifactNodeVM(model);
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -189,7 +191,7 @@ describe("TreeNodeVMFactory", () => {
             } as Models.IArtifact;
 
             // Act
-            const vm = factory.createArtifactNodeVM(model);
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -207,7 +209,8 @@ describe("TreeNodeVMFactory", () => {
                 predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
                 hasChildren: true
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -223,7 +226,8 @@ describe("TreeNodeVMFactory", () => {
                 predefinedType: Models.ItemTypePredefined.Project,
                 hasChildren: true
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -239,7 +243,8 @@ describe("TreeNodeVMFactory", () => {
                 predefinedType: Models.ItemTypePredefined.UseCase,
                 hasChildren: true
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -254,7 +259,8 @@ describe("TreeNodeVMFactory", () => {
                 id: 456,
                 predefinedType: -999
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -270,7 +276,8 @@ describe("TreeNodeVMFactory", () => {
                 id: 100,
                 predefinedType: Models.ItemTypePredefined.DomainDiagram
             } as Models.ISubArtifactNode;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -286,7 +293,8 @@ describe("TreeNodeVMFactory", () => {
                 itemTypeIconId: 456,
                 itemTypeId: 123
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getIcon();
@@ -298,7 +306,8 @@ describe("TreeNodeVMFactory", () => {
         it("getIcon, when no custom icon, returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getIcon();
@@ -310,7 +319,8 @@ describe("TreeNodeVMFactory", () => {
         it("isSelectable, when isItemSelectable and selectableItemTypes not defined, returns true", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();
@@ -323,7 +333,8 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             factory.isItemSelectable = () => false;
             const model = {} as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();
@@ -339,7 +350,8 @@ describe("TreeNodeVMFactory", () => {
                 id: 700,
                 predefinedType: Models.ItemTypePredefined.Storyboard
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();
@@ -355,7 +367,8 @@ describe("TreeNodeVMFactory", () => {
                 id: 700,
                 predefinedType: Models.ItemTypePredefined.Document
             } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(model);
+
+            const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();
@@ -373,14 +386,15 @@ describe("TreeNodeVMFactory", () => {
                         id: 123,
                         predefinedType: Models.ItemTypePredefined.GenericDiagram
                     } as Models.IArtifact;
-                    const vm = factory.createArtifactNodeVM(model);
+
+                    const vm = factory.createArtifactNodeVM(project, model);
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
 
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
-                        expect(vm.children).toEqual(children.map(child => factory.createArtifactNodeVM(child)));
+                        expect(vm.children).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
                         expect(vm.children.reduce((result, child) => result && child.model.parent === model, true)).toEqual(true);
                         done();
                     }).catch(done.fail);
@@ -398,15 +412,16 @@ describe("TreeNodeVMFactory", () => {
                         id: 123,
                         predefinedType: Models.ItemTypePredefined.BusinessProcess
                     } as Models.IArtifact;
-                    const vm = factory.createArtifactNodeVM(model);
+
+                    const vm = factory.createArtifactNodeVM(project, model);
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
 
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
-                        expect(vm.children[0]).toEqual(factory.createSubArtifactContainerNodeVM(model, "Shapes"));
-                        expect(vm.children.slice(1)).toEqual(children.map(child => factory.createArtifactNodeVM(child)));
+                        expect(vm.children[0]).toEqual(factory.createSubArtifactContainerNodeVM(project, model, "Shapes"));
+                        expect(vm.children.slice(1)).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
                         done();
                     }).catch(done.fail);
                     $rootScope.$digest(); // Resolves promises
@@ -422,8 +437,9 @@ describe("TreeNodeVMFactory", () => {
                 name: "name"
             } as Models.IArtifact;
 
+
             // Act
-            const vm = factory.createSubArtifactContainerNodeVM(model, "Terms");
+            const vm = factory.createSubArtifactContainerNodeVM(project, model, "Terms");
 
             // Assert
             expect(vm.model).toBe(model);
@@ -437,7 +453,8 @@ describe("TreeNodeVMFactory", () => {
         it("getCellClass returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = factory.createSubArtifactContainerNodeVM(model, "");
+
+            const vm = factory.createSubArtifactContainerNodeVM(project, model, "");
 
             // Act
             const result = vm.getCellClass();
@@ -449,7 +466,8 @@ describe("TreeNodeVMFactory", () => {
         it("getIcon returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = factory.createSubArtifactContainerNodeVM(model, "");
+
+            const vm = factory.createSubArtifactContainerNodeVM(project, model, "");
 
             // Act
             const result = vm.getIcon();
@@ -461,7 +479,8 @@ describe("TreeNodeVMFactory", () => {
         it("isSelectable returns correct result", () => {
             // Arrange
             const model = {} as Models.IArtifact;
-            const vm = factory.createSubArtifactContainerNodeVM(model, "");
+
+            const vm = factory.createSubArtifactContainerNodeVM(project, model, "");
 
             // Act
             const result = vm.isSelectable();
@@ -476,14 +495,15 @@ describe("TreeNodeVMFactory", () => {
                     const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
                     (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {} as Models.IArtifact;
-                    const vm = factory.createSubArtifactContainerNodeVM(model, "");
+
+                    const vm = factory.createSubArtifactContainerNodeVM(project, model, "");
 
                     // Act
                     vm.loadChildrenAsync().then(() => {
 
                         // Assert
                         expect(vm.loadChildrenAsync).toBeUndefined();
-                        expect(vm.children).toEqual(children.map(child => factory.createSubArtifactNodeVM(child)));
+                        expect(vm.children).toEqual(children.map(child => factory.createSubArtifactNodeVM(project, child)));
                         done();
                     }).catch(done.fail);
                     $rootScope.$digest(); // Resolves promises
@@ -502,7 +522,7 @@ describe("TreeNodeVMFactory", () => {
             } as Models.ISubArtifactNode;
 
             // Act
-            const vm = factory.createSubArtifactNodeVM(model);
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -519,7 +539,8 @@ describe("TreeNodeVMFactory", () => {
                 id: 100,
                 hasChildren: true
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(model);
+
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -535,7 +556,8 @@ describe("TreeNodeVMFactory", () => {
                 id: 100,
                 predefinedType: Models.ItemTypePredefined.GDShape
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(model);
+
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getCellClass();
@@ -547,7 +569,8 @@ describe("TreeNodeVMFactory", () => {
         it("getIcon returns correct result", () => {
             // Arrange
             const model = {} as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(model);
+
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Act
             const result = vm.getIcon();
@@ -559,7 +582,8 @@ describe("TreeNodeVMFactory", () => {
         it("isSelectable, when selectableItemTypes not defined, returns true", () => {
             // Arrange
             const model = {} as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(model);
+
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();
@@ -574,7 +598,8 @@ describe("TreeNodeVMFactory", () => {
             const model = {
                 predefinedType: Models.ItemTypePredefined.BPConnector
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(model);
+
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();
@@ -589,7 +614,8 @@ describe("TreeNodeVMFactory", () => {
             const model = {
                 predefinedType: Models.ItemTypePredefined.GDShape
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(model);
+
+            const vm = factory.createSubArtifactNodeVM(project, model);
 
             // Act
             const result = vm.isSelectable();

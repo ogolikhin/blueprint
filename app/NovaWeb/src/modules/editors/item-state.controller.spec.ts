@@ -334,6 +334,64 @@ describe("Item State Controller tests", () => {
                 expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
 
+            it("should redirect to a Main state if deleted artifact is an Artifact Collection", () => {
+                // arrange
+                const artifactId = 10;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({
+                        id: artifactId,
+                        predefinedType: Models.ItemTypePredefined.ArtifactCollection,
+                        isDeleted: true,
+                        deletedByUser: {}
+                    });
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
+                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(stateSpy).not.toHaveBeenCalled();
+                expect(navigationSpy).toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+                expect(selectionSpy).not.toHaveBeenCalled();
+            });
+
+            it("should redirect to a Main state if deleted artifact is a Collection Folder", () => {
+                // arrange
+                const artifactId = 10;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({
+                        id: artifactId,
+                        predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                        isDeleted: true,
+                        deletedByUser: {}
+                    });
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
+                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(stateSpy).not.toHaveBeenCalled();
+                expect(navigationSpy).toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+                expect(selectionSpy).not.toHaveBeenCalled();
+            });
+
         });
 
         describe("artifact is not found", () => {

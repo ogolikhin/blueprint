@@ -68,13 +68,19 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     protected initialize(artifact: Models.IArtifact): IState {
+        let isMisplaced: boolean;
         if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
-            this.artifactState.misplaced = true;
-        } else {
-            this.artifactState.initialize(artifact);
-            super.initialize(artifact);
+            isMisplaced = true;
         }
+
+        this.artifactState.initialize(artifact);
+        super.initialize(artifact);
+
+        if (isMisplaced) {
+            this.artifactState.misplaced = true;
+        }
+
         return this.artifactState.get();
     }
 
@@ -171,7 +177,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 let discardOverlayId = this.services.loadingOverlayService.beginLoading();
                 this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id))
                     .then(() => {
-                        this.services.messageService.addInfoWithPar("Discard__All_Success_Message", [dependents.artifacts.length]);
+                        this.services.messageService.addInfoWithPar("Discard_All_Success_Message", [dependents.artifacts.length]);
                         this.refresh();
                     })
                     .catch((err) => {
@@ -211,8 +217,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (this.isProject()) {
             return false;
         } else if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            return false;
-        } else if (this.artifactState.misplaced) {
             return false;
         }
         return true;

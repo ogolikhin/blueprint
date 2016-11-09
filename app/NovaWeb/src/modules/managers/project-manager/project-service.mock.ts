@@ -116,6 +116,13 @@ export class ProjectServiceMock implements IProjectService {
         return deferred.promise;
     }
 
+    public getProjectNavigationPath(projectId: number, includeProjectItself: boolean): ng.IPromise<string[]> {
+        const deferred = this.$q.defer<string[]>();
+        const result = {} as string[];
+        deferred.resolve(result);
+        return deferred.promise;
+    }
+
     public static createArtifact(artifactId: number, projectId?: number, children?: number): Models.IArtifact {
         let artifact = {
             id: artifactId,

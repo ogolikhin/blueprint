@@ -85,7 +85,7 @@ export class BpArtifactInfoController {
             this.subscribers.push(this.artifact.getObservable()
                                                 .subscribeOnNext(this.onArtifactChanged));
             this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)                            
+                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
                                                 .subscribeOnNext(this.onArtifactPropertyChanged));
         }
     }
@@ -179,22 +179,26 @@ export class BpArtifactInfoController {
         this.isReadonly = artifact.artifactState.readonly;
         this.isChanged = artifact.artifactState.dirty;
 
-        switch (artifact.artifactState.lockedBy) {
-            case Enums.LockedByEnum.CurrentUser:
-                this.selfLocked = true;
-                break;
+        if (artifact.version === -1) {
+            this.selfLocked = true;
+        } else {
+            switch (artifact.artifactState.lockedBy) {
+                case Enums.LockedByEnum.CurrentUser:
+                    this.selfLocked = true;
+                    break;
 
-            case Enums.LockedByEnum.OtherUser:
-                let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
-                if (artifact.artifactState.lockDateTime) {
-                    msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
-                }
-                msg += ".";
-                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
-                break;
+                case Enums.LockedByEnum.OtherUser:
+                    let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
+                    if (artifact.artifactState.lockDateTime) {
+                        msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                    }
+                    msg += ".";
+                    this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
     }
 

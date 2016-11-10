@@ -64,7 +64,7 @@ export class BpArtifactInfoController {
     public artifactTypeIconId: number;
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
-    public toolbarActions: IBPAction[];
+    public toolbarActions: IBPAction[] = [];
 
     constructor(public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
@@ -97,6 +97,9 @@ export class BpArtifactInfoController {
                                                 .distinctUntilChanged(changes => changes.item && changes.item.name)
                                                 .subscribeOnNext(this.onArtifactPropertyChanged));
         }
+
+        this.updateToolbarOptions(this.artifact);
+
     }
 
     public $onDestroy() {
@@ -150,6 +153,8 @@ export class BpArtifactInfoController {
         this.isChanged = false;
         this.isLocked = false;
         this.selfLocked = false;
+        this.isLegacy = false;
+        this.artifactClass = null;
 
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -164,7 +169,6 @@ export class BpArtifactInfoController {
             return;
         }
 
-        this.updateToolbarOptions(artifact);
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
@@ -240,23 +244,27 @@ export class BpArtifactInfoController {
     }
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        const deleteDialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
-            header: this.localization.get("App_DialogTitle_Alert"),
-            message: "Are you sure you would like to delete the artifact?"
-        };
+        this.toolbarActions = [];
+        if (artifact) {
+            this.toolbarActions.push(
+                new BPButtonGroupAction(
+                    new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
+                    new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
+                    new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
+                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
+                    new DeleteAction(
+                        this.artifact, 
+                        this.localization, 
+                        this.messageService,
+                        this.artifactManager, 
+                        this.projectManager, 
+                        this.loadingOverlayService, 
+                        this.dialogService)
+                ),
+                new OpenImpactAnalysisAction(this.artifact, this.localization)
+            );
+        }
 
-        this.toolbarActions.push(
-            new BPButtonGroupAction(
-                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-                new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
-                new DeleteAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService, this.dialogService)
-            ),
-            new OpenImpactAnalysisAction(artifact, this.localization)
-        );
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

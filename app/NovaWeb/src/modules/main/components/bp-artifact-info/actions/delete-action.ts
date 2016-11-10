@@ -3,7 +3,7 @@ import {ILocalizationService} from "../../../../core/localization/localizationSe
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {Models} from "../../../../main/models";
 import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {IStatefulArtifact, IArtifactManager} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
@@ -14,6 +14,7 @@ export class DeleteAction extends BPButtonAction {
     constructor(private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
+                private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private loadingOverlayService: ILoadingOverlayService,
                 private dialogService: IDialogService
@@ -59,7 +60,7 @@ export class DeleteAction extends BPButtonAction {
             ItemTypePredefined.Collections
         ];
 
-        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
+        if (invalidTypes.indexOf(this.artifact.itemTypeId) >= 0) {
             return false;
         }
 
@@ -89,12 +90,12 @@ export class DeleteAction extends BPButtonAction {
             }, descendants).then(() => {
                 const deeleteOverlayId = this.loadingOverlayService.beginLoading();
                 this.artifact.delete().then(() => {
-                    // const project = this.projectManager.getProject(this.artifact.projectId);
-                    // if (project) {
-                    this.artifact.refresh().finally(() => {
-                        this.messageService.addInfo("The artifact has been deleted");
+                    const artifact = this.artifactManager.get(this.artifact.parentId); 
+                    this.artifactManager.selection.setArtifact(artifact);
+                    this.projectManager.refresh(this.artifact.projectId, true).then(() => {
+                        this.projectManager.triggerProjectCollectionRefresh();
                     });
-//                    }
+                    this.messageService.addInfo("The artifact has been deleted");
                 }).catch((error: IApplicationError) => {
                     if (!error.handled) {
                         this.messageService.addError(error);
@@ -102,6 +103,7 @@ export class DeleteAction extends BPButtonAction {
                 }).finally(() => {
                     this.loadingOverlayService.endLoading(deeleteOverlayId);
                 });
+
             });
         }).catch((error: IApplicationError) => {
             this.loadingOverlayService.endLoading(overlayId);

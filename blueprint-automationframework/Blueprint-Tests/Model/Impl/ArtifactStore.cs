@@ -649,7 +649,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="artifact">The artifact to copy.</param>
-        /// <param name="newParentId">The ID of the new parent where this artifact will copy to.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be copied to.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
@@ -847,7 +847,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="artifact">The artifact to move.</param>
-        /// <param name="newParentId">The ID of the new parent where this artifact will move to.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>

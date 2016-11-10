@@ -10,7 +10,6 @@ import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {IItemInfoService} from "../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
 import {IArtifactManager} from "../managers/artifact-manager/artifact-manager";
-import {IProjectManager} from "../managers/project-manager/project-manager";
 import {IStatefulArtifact} from "../managers/artifact-manager/artifact";
 import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
@@ -26,7 +25,6 @@ describe("Item State Controller tests", () => {
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         artifactManager: IArtifactManager,
-        projectManager: IProjectManager,
         localization,
         messageService: IMessageService,
         navigationService,
@@ -52,7 +50,6 @@ describe("Item State Controller tests", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _artifactManager_: IArtifactManager,
-        _projectManager_: IProjectManager,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
@@ -63,7 +60,6 @@ describe("Item State Controller tests", () => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         artifactManager = _artifactManager_;
-        projectManager = _projectManager_;
         localization = _localization_;
         messageService = _messageService_;
         navigationService = _navigationService_;
@@ -83,7 +79,6 @@ describe("Item State Controller tests", () => {
         return new ItemStateController(
             $state,
             artifactManager,
-            projectManager,
             messageService,
             localization,
             navigationService,

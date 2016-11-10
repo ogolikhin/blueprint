@@ -69,8 +69,17 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (this.tree.nodeExists(artifact.id)) {
             this.tree.selectNode(artifact.id);
+
+            if (this.selected.id !== artifact.id) {
+                let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifact.id);
+                if (selectedObjectInTree) {
+                    this.selected = selectedObjectInTree;
+                }
+            }
         } else {
             this.tree.clearSelection();
+
+            this.selected = null;
         }
     }
 
@@ -81,16 +90,19 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     private set selected(value: IArtifactNode) {
         this._selected = value;
-        this.selectedArtifactNameBeforeChange = value.name;
+
         //Dispose of old subscriber and subscribe to new artifact.
         if (this.selectedArtifactSubscriber) {
             this.selectedArtifactSubscriber.dispose();
         }
-        this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
+
+        if (value) {
+            this.selectedArtifactNameBeforeChange = value.name;
+
+            this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
                         .subscribeOnNext(this.onSelectedArtifactChange);
-
-
+        }
     }
 
     private onLoadProject = (projects: IArtifactNode[]) => {

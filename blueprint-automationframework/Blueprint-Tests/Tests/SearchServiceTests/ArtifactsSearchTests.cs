@@ -135,8 +135,11 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, _firstProject.Id);
             ItemSearchResult results = null;
 
+            string separatorString = " > ";
+            var encodedSeparatorString = HttpUtility.UrlEncode(separatorString);
+
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: "+>+"); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: encodedSeparatorString); },
                 "SearchItems should throw no errors.");
 
             // Verify:

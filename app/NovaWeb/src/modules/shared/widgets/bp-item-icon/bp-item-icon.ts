@@ -1,13 +1,4 @@
-﻿import * as angular from "angular";
-import {Models} from "../../../main/models";
-
-export interface IBPItemTypeIconController {
-    itemTypeId: number;
-    itemTypeIconId?: number;
-    predefinedType?: number;
-    getImageSource(): string;
-    getIconClass(): string;
-}
+﻿import {Models} from "../../../main/models";
 
 export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public template: string = require("./bp-item-icon.html");
@@ -20,20 +11,27 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     };
 }
 
-export class BPItemTypeIconController implements IBPItemTypeIconController {
+export class BPItemTypeIconController {
     public itemTypeId: number;
     public itemTypeIconId: number;
     public predefinedType: number;
+
+    public iconClass: string;
+    public imageSource: string;
+    public altText: string;
     public showBasicIcon: boolean;
 
     private artifactTypeDescription: string;
 
-    constructor() {
+    public $onChanges = () => {
         this.showBasicIcon = _.isFinite(this.predefinedType) && !_.isFinite(this.itemTypeIconId);
         this.artifactTypeDescription = Models.ItemTypePredefined[this.predefinedType] || "Document";
-    }
+        this.iconClass = "icon-" + (_.kebabCase(this.artifactTypeDescription));
+        this.altText = _.startCase(this.artifactTypeDescription);
+        this.imageSource = this.getImageSource();
+    };
 
-    public getImageSource() {
+    private getImageSource() {
         let imgUrl: string = "";
         if (_.isFinite(this.itemTypeId)) {
             imgUrl = `/shared/api/itemTypes/${this.itemTypeId}/icon`;
@@ -42,13 +40,5 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
             }
         }
         return imgUrl;
-    }
-
-    public getIconClass() {
-        return "icon-" + (_.kebabCase(this.artifactTypeDescription));
-    }
-
-    public getAltText() {
-        return _.startCase(this.artifactTypeDescription);
     }
 }

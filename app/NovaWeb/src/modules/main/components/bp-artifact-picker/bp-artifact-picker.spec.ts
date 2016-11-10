@@ -202,8 +202,11 @@ describe("BpArtifactPickerController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {
-                name: "name", getIcon() {
+                getIcon() {
                     return "icon";
+                },
+                getLabel() {
+                    return "name";
                 }
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
@@ -212,6 +215,7 @@ describe("BpArtifactPickerController", () => {
                 $scope: $scope,
                 eGridCell: cell
             };
+
             // Act
             const result = controller.columns[0].innerRenderer(params);
 

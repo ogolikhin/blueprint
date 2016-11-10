@@ -103,7 +103,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public onGridReset(): void {
      if (this.visibleArtifact) {
          this.api.ensureNodeVisible(this.visibleArtifact);
-         this.visibleArtifact = undefined; 
+         this.visibleArtifact = undefined;
         }
     }
 
@@ -113,10 +113,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
 
         let collectionArtifacts = this.rootNode.slice();
-        this.visibleArtifact = undefined; 
+        this.visibleArtifact = undefined;
         changes.map((change: IChangeSet) => {
             if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);  
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
                 collectionArtifacts.push(addedTreeVM);
                 if (!this.visibleArtifact) {
                     this.visibleArtifact = addedTreeVM;
@@ -131,8 +131,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 }
             }
         });
-       
-        this.rootNode = collectionArtifacts;        
+
+        this.rootNode = collectionArtifacts;
     };
 
     private headerCellRendererSelectAll(params) {
@@ -296,6 +296,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
 class CollectionNodeVM implements ITreeViewNode {
     public key: string;
+    public isSelectable: boolean = true;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
         this.key = String(model.id);
@@ -316,9 +317,5 @@ class CollectionNodeVM implements ITreeViewNode {
             result.push("is-" + _.kebabCase(typeName));
         }
         return result;
-    }
-
-    public isSelectable(): boolean {
-        return true;
     }
 }

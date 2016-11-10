@@ -111,8 +111,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 // See https://www.ag-grid.com/change-log/changeLogIndex.php
                 params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
-            const name = Helper.escapeHTMLText(vm.name);
-            return `<span class="ag-group-value-wrapper"><i></i><span>${name}</span></span>`;
+            const label = Helper.escapeHTMLText(vm.getLabel());
+            return `<span class="ag-group-value-wrapper"><i></i><span>${label}</span></span>`;
         }
     }];
 

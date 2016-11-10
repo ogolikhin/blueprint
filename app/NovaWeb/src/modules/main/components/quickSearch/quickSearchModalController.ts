@@ -17,8 +17,9 @@ export class QuickSearchModalController {
     form: ng.IFormController;
     isLoading: boolean;
     results: SearchModels.ISearchItem[];
+    metadata: SearchModels.ISearchMetadata;
+    
     private page: number;
-    private totalItems: number;
 
     static $inject = [
         "$rootScope",
@@ -91,8 +92,8 @@ export class QuickSearchModalController {
         this.quickSearchService.searchTerm = "";
         this.form.$setPristine();
         this.results = [];
-        this.totalItems = 0;
         this.page = 1;
+        this.resetMetadata();
     }
 
     get showHide(): boolean {
@@ -105,6 +106,7 @@ export class QuickSearchModalController {
     }
 
     $onInit() {
+        this.resetMetadata();
         this.page = 1;
         if (this.searchTerm.length) {
             this.searchWithMetadata(this.searchTerm);
@@ -131,8 +133,12 @@ export class QuickSearchModalController {
         this.$uibModalInstance.dismiss("cancel");
     }
 
+    private resetMetadata() {
+        this.metadata = { totalCount: 0, pageSize: 10, items: [], totalPages: 0 };
+    }
+
     private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
-        this.totalItems = result.totalCount;
+        this.metadata = result;
         this.page = 1;
         if (result.totalCount === 0) {
             this.results = [];
@@ -141,6 +147,6 @@ export class QuickSearchModalController {
     }
     
     get getResultsFoundText() {
-        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.totalItems.toString());        
+        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());        
     } 
 }

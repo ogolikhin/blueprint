@@ -129,7 +129,8 @@
                 <div class="quick-search__footer">
                    <ul  uib-pagination 
                         class="quick-search__pagination"
-                        total-items="$ctrl.totalItems" 
+                        total-items="$ctrl.metadata.totalCount" 
+                        items-per-page="$ctrl.metadata.pageSize"
                         ng-model="$ctrl.page"
                         max-size="10" 
                         boundary-links="true" 

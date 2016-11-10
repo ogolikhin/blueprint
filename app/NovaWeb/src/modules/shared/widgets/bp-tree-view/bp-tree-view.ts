@@ -68,7 +68,7 @@ export interface ITreeViewNode {
     isExpandable?: boolean;
     children?: ITreeViewNode[];
     isExpanded?: boolean;
-    isSelectable(): boolean;
+    isSelectable: boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
 
@@ -112,7 +112,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
-    public onGridReset: () => void;   
+    public onGridReset: () => void;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -172,7 +172,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.options.context.allSelected = false;
         this.options.context.selectAllClass = new HeaderCell(this.options);
     }
-    
+
     public $onInit() {
         if (this.sizeColumnsToFit) {
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
@@ -218,7 +218,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
             this.options.rowDeselection = this.selectionMode !== "single";
-            
+
             this.options.api.setColumnDefs(this.columns.map(column => ({
                    headerName: column.headerName ? column.headerName : "",
                    field: column.field,
@@ -227,7 +227,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                    cellRenderer: column.isGroup ? "group" : undefined,
                    cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
-                            (params: any) => (params.data as ITreeViewNode).isSelectable() : undefined,
+                            (params: any) => (params.data as ITreeViewNode).isSelectable : undefined,
                         innerRenderer: column.innerRenderer ?
                             (params: any) => column.innerRenderer(params as IColumnRendererParams) : undefined,
                         padding: 20
@@ -240,7 +240,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {
-                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {                    
+                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
                     rowDataAsync = angular.isArray(this.rootNode) ? <ITreeViewNode[]>this.rootNode : [<ITreeViewNode>this.rootNode];
                 } else if (angular.isFunction((<ITreeViewNode>this.rootNode).loadChildrenAsync)) {
                     const rootNode = <ITreeViewNode>this.rootNode;
@@ -390,7 +390,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             } else {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
-        } else if (vm.isSelectable()) {
+        } else if (vm.isSelectable) {
             node.setSelectedParams({
                 newValue: true,
                 clearSelection: !multiSelectKeyPressed,
@@ -403,7 +403,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const isSelected = node.isSelected();
         const vm = node.data as ITreeViewNode;
-        if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
+        if (isSelected && (!vm.isSelectable || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
             this.onSelect({vm: vm, isSelected: isSelected});
@@ -421,7 +421,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public onRowDoubleClicked = (event: {data: ITreeViewNode}) => {
         const vm = event.data;
-        if (this.onDoubleClick && vm.isSelectable() && !vm.isExpandable) {
+        if (this.onDoubleClick && vm.isSelectable && !vm.isExpandable) {
             this.onDoubleClick({vm: vm});
         }
     };

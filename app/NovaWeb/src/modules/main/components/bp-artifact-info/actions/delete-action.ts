@@ -96,7 +96,7 @@ export class DeleteAction extends BPButtonAction {
                         this.projectManager.triggerProjectCollectionRefresh();
                     });
                     if (descendants.length) {
-                        this.messageService.addInfoWithPar("Delete_Artifact_All_Success_Message", [descendants.length]);
+                        this.messageService.addInfoWithPar("Delete_Artifact_All_Success_Message", [descendants.length + 1]);
                     } else {
                         this.messageService.addInfo("Delete_Artifact_Single_Success_Message");
 

@@ -172,8 +172,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         innerRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
             const icon = vm.getIcon();
-            const name = Helper.escapeHTMLText(vm.name);
-            return `<span class="ag-group-value-wrapper">${icon}<span>${name}</span></span>`;
+            const label = Helper.escapeHTMLText(vm.getLabel());
+            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
         }
     }];
 

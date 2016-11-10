@@ -20,7 +20,7 @@ export class DeleteAction extends BPButtonAction {
                 private dialogService: IDialogService
                 ) {
         super();
-
+        
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -95,7 +95,12 @@ export class DeleteAction extends BPButtonAction {
                     this.projectManager.refresh(this.artifact.projectId, true).then(() => {
                         this.projectManager.triggerProjectCollectionRefresh();
                     });
-                    this.messageService.addInfo("The artifact has been deleted");
+                    if (descendants.length) {
+                        this.messageService.addInfoWithPar("Delete_Artifact_All_Success_Message", [descendants.length]);
+                    } else {
+                        this.messageService.addInfo("Delete_Artifact_Single_Success_Message");
+
+                    }
                 }).catch((error: IApplicationError) => {
                     if (!error.handled) {
                         this.messageService.addError(error);

@@ -141,7 +141,7 @@ describe("BPTreeViewController", () => {
             controller.$onChanges({rootNode: {} as ng.IChangesObject<any>} as ng.IOnChangesObject);
 
             // Assert
-            expect(controller.resetGridAsync).toHaveBeenCalledWith(false, 0, false);
+            expect(controller.resetGridAsync).toHaveBeenCalledWith(false, 0);
         });
 
         it("$onChanges, when rootNodeVisible changes, calls resetGridAsync correctly", () => {

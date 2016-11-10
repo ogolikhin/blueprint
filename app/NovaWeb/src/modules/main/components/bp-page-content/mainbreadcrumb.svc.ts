@@ -15,8 +15,6 @@ export class MainBreadcrumbService implements IMainBreadcrumbService {
 
     public breadcrumbLinks: IBreadcrumbLink[];
 
-    private promises: { [id: string]: ng.IPromise<any> } = {};
-
     public static $inject = [
         "artifactService",
         "projectService"

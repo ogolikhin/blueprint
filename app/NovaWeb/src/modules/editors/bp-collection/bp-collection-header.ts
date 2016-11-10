@@ -9,6 +9,7 @@ import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -28,7 +29,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "projectManager",
-        "metadataService"
+        "metadataService",
+        "mainbreadcrumbService"
     ];
 
     constructor($scope: ng.IScope,
@@ -41,7 +43,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
                 projectManager: IProjectManager,
-                metadataService: IMetaDataService) {
+                metadataService: IMetaDataService,
+                mainBreadcrumbService: IMainBreadcrumbService) {
         super(
             $scope,
             $element,
@@ -53,7 +56,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             loadingOverlayService,
             navigationService,
             projectManager,
-            metadataService
+            metadataService,
+            mainBreadcrumbService
         );
     }
 

@@ -4,9 +4,9 @@ export class QuickSearchServiceMock {
     static $inject = [
         "$q"
     ];
-    metadataReturnedTotalCount: number;
+    metadataReturned: SearchModels.ISearchMetadata;
     constructor(private $q: ng.IQService) {
-        this.metadataReturnedTotalCount = 0;
+        this.metadataReturned = { items: [], pageSize: 10, totalCount: 0, totalPages: 0 };
     }
 
     searchTerm;
@@ -24,7 +24,7 @@ export class QuickSearchServiceMock {
 
     metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<SearchModels.ISearchMetadata> {
         const deferred = this.$q.defer();
-        deferred.resolve({totalCount: this.metadataReturnedTotalCount});
+        deferred.resolve(this.metadataReturned);
         return deferred.promise;
     }
 }

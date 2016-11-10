@@ -148,12 +148,13 @@ namespace Model
                 public static class Artifacts_id_
                 {
                     public const string ATTACHMENT                  = "svc/artifactstore/artifacts/{0}/attachment";
+                    public const string COPY_TO_id_                 = "svc/bpartifactstore/artifacts/{0}/copyTo/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string DISCUSSIONS                 = "svc/artifactstore/artifacts/{0}/discussions";
+                    public const string MOVE_TO_id_                 = "svc/bpartifactstore/artifacts/{0}/moveTo/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string RELATIONSHIPS               = "svc/artifactstore/artifacts/{0}/relationships";
                     public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
                     public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
                     public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
-                    public const string MOVE_TO_id_                 = "svc/bpartifactstore/artifacts/{0}/moveTo/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string SUBARTIFACTS_id_            = "svc/bpartifactstore/artifacts/{0}/subartifacts/{1}";
                     public const string NAVIGATION_PATH             = "svc/artifactstore/artifacts/{0}/navigationPath";
 

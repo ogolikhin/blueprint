@@ -68,11 +68,13 @@ describe("OpenProjectController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {
-                name: "name"
+                getLabel() {
+                    return "name";
+                }
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
 
-             const params: IColumnRendererParams = {
+            const params: IColumnRendererParams = {
                 data: vm,
                 $scope: $scope,
                 eGridCell: cell

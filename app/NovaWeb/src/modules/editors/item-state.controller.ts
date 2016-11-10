@@ -10,6 +10,7 @@ import {IMessageService} from "../core/messages/message.svc";
 import {MessageType, Message} from "../core/messages/message";
 import {ILocalizationService} from "../core/localization/localizationService";
 import {ItemTypePredefined} from "../main/models/enums";
+import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
 
 export class ItemStateController {
 
@@ -21,6 +22,7 @@ export class ItemStateController {
         "localization",
         "navigationService",
         "itemInfoService",
+        "loadingOverlayService",
         "statefulArtifactFactory"
     ];
 
@@ -31,6 +33,7 @@ export class ItemStateController {
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService,
+                private loadingOverlayService: ILoadingOverlayService,
                 private statefulArtifactFactory: IStatefulArtifactFactory) {
         const id: number = parseInt($state.params["id"], 10);
         const version = parseInt($state.params["version"], 10);
@@ -50,6 +53,7 @@ export class ItemStateController {
     }
 
     private getItemInfo(id: number, version: number, projectId: number) {
+        const loadingGetItemInfoId = this.loadingOverlayService.beginLoading();
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
             if (this.itemInfoService.isSubArtifact(result)) {
@@ -119,6 +123,8 @@ export class ItemStateController {
                 }
             }
 
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(loadingGetItemInfoId);
         });
     }
 

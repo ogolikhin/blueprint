@@ -179,19 +179,19 @@ describe("ManageTracesController", () => {
 
             //Arrange
             let selectedVM = {
-                name: "published",
                 key: "19",
                 isExpandable: true,
                 isExpanded: false,
                 children: [],
-                isSelectable: () => {
-                    return true;
-                },
+                isSelectable: true,
                 getCellClass: () => {
                     return ["test"];
                 },
                 getIcon: () => {
                     return "<i></i>";
+                },
+                getLabel: () => {
+                    return "published";
                 },
                 model: {
                     "id": 19,

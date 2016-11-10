@@ -1,3 +1,24 @@
+//font
+$font-family-base: 'Open Sans', Arial, Helvetica, sans-serif;
+
+$font-size-root: 10px;
+
+$font-size-normal: 1.2rem;
+$font-size-small: 1.1rem;
+$font-size-smaller: 1.0rem;
+$font-size-smallest: 0.9rem;
+$font-size-tiny: 0.8rem;
+$font-size-big: 1.4rem;
+$font-size-bigger: 1.6rem;
+$font-size-biggest: 1.8rem;
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+
 @font-face {
     font-family: 'Open Sans';
     src: local('Open Sans Light'), local('OpenSans-Light'),

@@ -1,10 +1,10 @@
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
-    IArtifactState, 
-    IArtifactManager, 
-    IStatefulArtifact, 
-    IMetaDataService, 
+    IArtifactState,
+    IArtifactManager,
+    IStatefulArtifact,
+    IMetaDataService,
     IItemChangeSet
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
@@ -247,25 +247,25 @@ export class BpArtifactInfoController {
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
         if (artifact) {
-        this.toolbarActions.push(
-            new BPButtonGroupAction(
+            this.toolbarActions.push(
+                new BPButtonGroupAction(
                     new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-                new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
-                    this.mainBreadcrumbService),
+                    new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
+                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
+                        this.mainBreadcrumbService),
                     new DeleteAction(
-                        this.artifact, 
-                        this.localization, 
+                        this.artifact,
+                        this.localization,
                         this.messageService,
-                        this.artifactManager, 
-                        this.projectManager, 
-                        this.loadingOverlayService, 
+                        this.artifactManager,
+                        this.projectManager,
+                        this.loadingOverlayService,
                         this.dialogService)
-            ),
+                ),
                 new OpenImpactAnalysisAction(this.artifact, this.localization)
-        );
-    }
+            );
+        }
 
     }
 

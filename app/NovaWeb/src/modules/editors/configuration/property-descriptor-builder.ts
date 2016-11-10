@@ -78,14 +78,13 @@ export class PropertyDescriptor implements IPropertyDescriptor {
         const propertyContext = new PropertyDescriptor();
         propertyContext.id = propertyValue.propertyTypeId;
         propertyContext.propertyTypePredefined = propertyValue.propertyTypePredefined;
-        propertyContext.name = propertyValue["name"];
-        propertyContext.primitiveType = propertyValue["primitiveType"];
+        propertyContext.name = propertyValue.name;
+        propertyContext.primitiveType = propertyValue.primitiveType;
         propertyContext.isMultipleAllowed = propertyValue.isMultipleAllowed;
         if (propertyContext.primitiveType === PrimitiveType.Text) {
             propertyContext.isRichText = propertyValue.isRichText;
         }
         else if (propertyContext.primitiveType === PrimitiveType.Choice && propertyValue.value) {
-            propertyContext.isMultipleAllowed = propertyValue.value["isMultipleAllowed"];
             if (propertyValue.value["validValues"]) {
                 propertyContext.validValues = propertyValue.value["validValues"];
             }

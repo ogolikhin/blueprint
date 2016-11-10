@@ -366,7 +366,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected abstract getRelationshipsInternal(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> ;
 
     public changes(): Models.IArtifact {
-        let delta: Models.IArtifact = {} as Models.Artifact;
+        const delta = {} as Models.IArtifact;
 
         delta.id = this.id;
         delta.projectId = this.projectId;

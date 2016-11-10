@@ -180,8 +180,12 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
+        if (onChangesObj["selectionMode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
             this.resetGridAsync(false, 0);
+        } else if (onChangesObj["rootNode"]) {
+            // Do not update grid columns definitions if rootNode was changed
+            // Trello: https://trello.com/c/290mKXFg fix
+            this.resetGridAsync(false, 0, false);
         }
     }
 
@@ -214,29 +218,31 @@ export class BPTreeViewController implements IBPTreeViewController {
         }
     };
 
-    public resetGridAsync(saveSelection: boolean, fitColumnDelay: number = 500): ng.IPromise<void> {
+    public resetGridAsync(saveSelection: boolean, fitColumnDelay: number = 500, updateColumnsDefs: boolean = true): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
             this.options.rowDeselection = this.selectionMode !== "single";
 
-            this.options.api.setColumnDefs(this.columns.map(column => ({
-                headerName: column.headerName ? column.headerName : "",
-                field: column.field,
-                width: column.width,
-                cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNode) : undefined,
-                cellRenderer: column.isGroup ? "group" : undefined,
-                cellRendererParams: column.isGroup ? {
-                    checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
-                        (params: any) => (params.data as ITreeViewNode).isSelectable() : undefined,
-                    innerRenderer: column.innerRenderer ?
-                        (params: any) => column.innerRenderer(params as IColumnRendererParams) : undefined,
-                    padding: 20
-                } : undefined,
-                checkboxSelection: column.isCheckboxSelection,
-                suppressMenu: true,
-                suppressSorting: true,
-                headerCellRenderer: column.headerCellRenderer
-            } as agGrid.ColDef)));
+            if (updateColumnsDefs) {
+                this.options.api.setColumnDefs(this.columns.map(column => ({
+                   headerName: column.headerName ? column.headerName : "",
+                   field: column.field,
+                   width: column.width,
+                   cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNode) : undefined,
+                   cellRenderer: column.isGroup ? "group" : undefined,
+                   cellRendererParams: column.isGroup ? {
+                        checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
+                            (params: any) => (params.data as ITreeViewNode).isSelectable() : undefined,
+                        innerRenderer: column.innerRenderer ?
+                            (params: any) => column.innerRenderer(params as IColumnRendererParams) : undefined,
+                        padding: 20
+                    } : undefined,
+                    checkboxSelection: column.isCheckboxSelection,
+                    suppressMenu: true,
+                    suppressSorting: true,
+                    headerCellRenderer: column.headerCellRenderer
+                } as agGrid.ColDef)));
+            }
 
             let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {

@@ -142,14 +142,22 @@ export interface IPropertyType {
     propertyTypePredefined?: PropertyTypePredefined;
     disabled?: boolean;
 }
+
 export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
     propertyTypePredefined?: PropertyTypePredefined;
+    name?: string;
     isReuseReadOnly?: boolean;
     isRichText?: boolean;
+    primitiveType?: PrimitiveType;
     isMultipleAllowed?: boolean;
     value: any;
+}
+
+export interface IChoicePropertyValue {
+    validValues?: IOption[];
+    customValue?: string;
 }
 
 export interface IActorInheritancePropertyValue {

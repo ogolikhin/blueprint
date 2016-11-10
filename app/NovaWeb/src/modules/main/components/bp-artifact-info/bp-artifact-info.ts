@@ -1,6 +1,12 @@
 import {Models, Enums} from "../../models";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {IArtifactManager, IStatefulArtifact, IMetaDataService, IItemChangeSet} from "../../../managers/artifact-manager";
+import {
+    IArtifactState, 
+    IArtifactManager, 
+    IStatefulArtifact, 
+    IMetaDataService, 
+    IItemChangeSet
+} from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {
@@ -58,7 +64,7 @@ export class BpArtifactInfoController {
     public artifactTypeIconId: number;
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
-    public toolbarActions: IBPAction[];
+    public toolbarActions: IBPAction[] = [];
 
     constructor(public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
@@ -76,52 +82,56 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-
-        const windowSub = this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
-        this.subscribers.push(windowSub);
+        this.subscribers.push(this.windowManager.mainWindow
+                                                .subscribeOnNext(this.onWidthResized, this));
 
         this.artifact = this.artifactManager.selection.getArtifact();
+
         if (this.artifact) {
             this.subscribers.push(this.artifact.getObservable()
-                                                .subscribeOnNext(this.onArtifactChanged));
+                                                .subscribeOnNext(this.onArtifactLoaded));
+            this.subscribers.push(this.artifact.artifactState.onStateChange
+                                                            .debounce(100)
+                                                            .subscribe(this.onArtifactStateChanged));
             this.subscribers.push(this.artifact.getProperyObservable()
                                                 .distinctUntilChanged(changes => changes.item && changes.item.name)
                                                 .subscribeOnNext(this.onArtifactPropertyChanged));
         }
+
+        this.updateToolbarOptions(this.artifact);
+
     }
 
     public $onDestroy() {
         this.initProperties();
+
         this.subscribers.forEach(subscriber => {
             subscriber.dispose();
         });
+
         delete this["subscribers"];
         delete this["artifact"];
     }
 
-    protected onArtifactChanged = () => {
+    protected onArtifactLoaded = () => {
         if (this.artifact) {
             this.updateProperties(this.artifact);
-            this.subscribeToStateChange(this.artifact);
         }
     };
+
+    protected onArtifactStateChanged = (state: IArtifactState) => {
+        if (state) {
+            this.initStateProperties();
+            this.updateStateProperties(state);
+
+            this.$scope.$applyAsync();
+        }
+    }
+
     protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
-    }
-
-    protected subscribeToStateChange(artifact) {
-        // watch for state changes (dirty, locked etc) and update header
-        const stateObserver = artifact.artifactState.onStateChange.debounce(100).subscribe(
-            (state) => {
-                this.updateProperties(this.artifact);
-            },
-            (err) => {
-                throw new Error(err);
-            });
-
-        this.subscribers.push(stateObserver);
     }
 
     private initProperties() {
@@ -130,14 +140,19 @@ export class BpArtifactInfoController {
         this.artifactTypeId = null;
         this.artifactTypeIconId = null;
         this.artifactTypeDescription = null;
+        this.artifactClass = null;
         this.isLegacy = false;
+
+        this.initStateProperties();
+    }
+
+    private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
         this.isLocked = false;
         this.selfLocked = false;
         this.isLegacy = false;
         this.artifactClass = null;
-        this.toolbarActions = [];
 
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -145,14 +160,13 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected updateProperties(artifact: IStatefulArtifact) {
+    protected updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
 
         if (!artifact) {
             return;
         }
 
-        this.updateToolbarOptions(artifact);
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
@@ -173,30 +187,32 @@ export class BpArtifactInfoController {
         } else {
             this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[artifact.predefinedType]);
         }
+
         this.artifactType = artifact.itemTypeName;
         this.artifactTypeDescription = `${this.artifactType} - ${(artifact.prefix || "")}${artifact.id}`;
 
-        this.isReadonly = artifact.artifactState.readonly;
-        this.isChanged = artifact.artifactState.dirty;
+        this.updateStateProperties(artifact.artifactState);
+    }
 
-        switch (artifact.artifactState.lockedBy) {
+    protected updateStateProperties(state: IArtifactState): void {
+        this.isReadonly = state.readonly;
+        this.isChanged = state.dirty;
+
+        switch (state.lockedBy) {
             case Enums.LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
 
             case Enums.LockedByEnum.OtherUser:
-                let msg = artifact.artifactState.lockOwner ? "Locked by " + artifact.artifactState.lockOwner : "Locked ";
-                if (artifact.artifactState.lockDateTime) {
-                    msg += " on " + this.localization.current.formatShortDateTime(artifact.artifactState.lockDateTime);
+                let msg = state.lockOwner ? "Locked by " + state.lockOwner : "Locked ";
+                if (state.lockDateTime) {
+                    msg += " on " + this.localization.current.formatShortDateTime(state.lockDateTime);
                 }
                 msg += ".";
                 this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
                 break;
 
             default:
-                if (artifact.version === -1) { // this is to show the lock icon for newly created artifacts
-                    this.selfLocked = true;
-                }
                 break;
         }
     }
@@ -226,23 +242,27 @@ export class BpArtifactInfoController {
     }
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        const deleteDialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../../../shared/widgets/bp-dialog/bp-dialog.html"),
-            header: this.localization.get("App_DialogTitle_Alert"),
-            message: "Are you sure you would like to delete the artifact?"
-        };
+        this.toolbarActions = [];
+        if (artifact) {
+            this.toolbarActions.push(
+                new BPButtonGroupAction(
+                    new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
+                    new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
+                    new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
+                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
+                    new DeleteAction(
+                        this.artifact, 
+                        this.localization, 
+                        this.messageService,
+                        this.artifactManager, 
+                        this.projectManager, 
+                        this.loadingOverlayService, 
+                        this.dialogService)
+                ),
+                new OpenImpactAnalysisAction(this.artifact, this.localization)
+            );
+        }
 
-        this.toolbarActions.push(
-            new BPButtonGroupAction(
-                new SaveAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new PublishAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new DiscardAction(artifact, this.localization, this.messageService, this.loadingOverlayService),
-                new RefreshAction(artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
-                new DeleteAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService, this.dialogService)
-            ),
-            new OpenImpactAnalysisAction(artifact, this.localization)
-        );
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

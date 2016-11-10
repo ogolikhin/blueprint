@@ -462,7 +462,7 @@ namespace Model.ArtifactModel.Impl
 
     public class CustomProperty
     {
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
         public int PropertyTypeId { get; set; }

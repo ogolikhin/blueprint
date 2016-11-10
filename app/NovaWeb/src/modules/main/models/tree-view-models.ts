@@ -190,7 +190,7 @@ export class SubArtifactNodeVM extends TreeViewNodeVM<Models.ISubArtifactNode> {
                 model: Models.ISubArtifactNode,
                 private selectable: boolean) {
         super(model, `${model.prefix}${model.id} ${model.displayName}`, String(model.id), model.hasChildren,
-            model.children ? model.children.map(child => this.factory.createSubArtifactNodeVM(this.project, child)) : [], false);
+            model.children ? model.children.map(child => factory.createSubArtifactNodeVM(project, child)) : [], false);
     }
 
     public getCellClass(): string[] {

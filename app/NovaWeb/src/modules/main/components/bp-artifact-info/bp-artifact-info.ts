@@ -27,6 +27,7 @@ import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-over
 import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -46,7 +47,8 @@ export class BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "projectManager",
-        "metadataService"
+        "metadataService",
+        "mainbreadcrumbService"
     ];
 
     protected subscribers: Rx.IDisposable[];
@@ -76,7 +78,8 @@ export class BpArtifactInfoController {
                 protected loadingOverlayService: ILoadingOverlayService,
                 protected navigationService: INavigationService,
                 protected projectManager: IProjectManager,
-                protected metadataService: IMetaDataService) {
+                protected metadataService: IMetaDataService,
+                protected mainBreadcrumbService: IMainBreadcrumbService) {
         this.initProperties();
         this.subscribers = [];
     }
@@ -244,12 +247,13 @@ export class BpArtifactInfoController {
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
         if (artifact) {
-            this.toolbarActions.push(
-                new BPButtonGroupAction(
+        this.toolbarActions.push(
+            new BPButtonGroupAction(
                     new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
+                new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
+                new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
+                    this.mainBreadcrumbService),
                     new DeleteAction(
                         this.artifact, 
                         this.localization, 
@@ -258,10 +262,10 @@ export class BpArtifactInfoController {
                         this.projectManager, 
                         this.loadingOverlayService, 
                         this.dialogService)
-                ),
+            ),
                 new OpenImpactAnalysisAction(this.artifact, this.localization)
-            );
-        }
+        );
+    }
 
     }
 

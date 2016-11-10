@@ -15,6 +15,7 @@ import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums
 import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
 import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {MainBreadcrumbServiceMock} from "../../bp-page-content/mainbreadcrumb.svc.mock";
 
 describe("RefreshAction", () => {
     let $scope: ng.IScope;
@@ -30,6 +31,7 @@ describe("RefreshAction", () => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("metaDataService", MetaDataService);
         $provide.service("$log", LogMock);
+        $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService) => {
@@ -49,14 +51,15 @@ describe("RefreshAction", () => {
         inject((projectManager: IProjectManager,
                 statefulArtifactFactory: IStatefulArtifactFactory,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             const localization: ILocalizationService = null;
             let error: Error = null;
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
             } catch (exception) {
                 error = exception;
             }
@@ -70,14 +73,15 @@ describe("RefreshAction", () => {
         inject((localization: ILocalizationService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             const projectManager: IProjectManager = null;
             let error: Error = null;
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
             } catch (exception) {
                 error = exception;
             }
@@ -91,14 +95,15 @@ describe("RefreshAction", () => {
         inject((localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             artifact = null;
             let error: Error = null;
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
             } catch (exception) {
                 error = exception;
             }
@@ -111,14 +116,15 @@ describe("RefreshAction", () => {
     it("throws exception when loadingOverlayService is null",
         inject((localization: ILocalizationService,
                 projectManager: IProjectManager,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             const loadingOverlayService: ILoadingOverlayService = null;
             let error: Error = null;
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
             } catch (exception) {
                 error = exception;
             }
@@ -131,14 +137,15 @@ describe("RefreshAction", () => {
     it("throws exception when metaDataService is null",
         inject((localization: ILocalizationService,
                 projectManager: IProjectManager,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             const metaDataService: IMetaDataService = null;
             let error: Error = null;
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+                new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
             } catch (exception) {
                 error = exception;
             }
@@ -153,7 +160,8 @@ describe("RefreshAction", () => {
                 localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -166,7 +174,7 @@ describe("RefreshAction", () => {
             artifact.artifactState.dirty = true;
 
             // act
-            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
 
             // assert
             expect(refreshAction.disabled).toBe(true);
@@ -177,7 +185,8 @@ describe("RefreshAction", () => {
                 localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -186,7 +195,7 @@ describe("RefreshAction", () => {
                 });
 
             // act
-            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
 
             // assert
             expect(refreshAction.disabled).toBe(false);
@@ -197,7 +206,8 @@ describe("RefreshAction", () => {
                 localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -206,7 +216,7 @@ describe("RefreshAction", () => {
                 });
 
             // act
-            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
 
             // assert
             expect(refreshAction.disabled).toBe(true);
@@ -217,7 +227,8 @@ describe("RefreshAction", () => {
                 localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) => {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -229,7 +240,7 @@ describe("RefreshAction", () => {
                 });
 
             // act
-            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
 
             // assert
             expect(refreshAction.disabled).toBe(false);
@@ -246,7 +257,8 @@ describe("RefreshAction", () => {
                            localization: ILocalizationService,
                            projectManager: IProjectManager,
                            loadingOverlayService: ILoadingOverlayService,
-                           metaDataService: IMetaDataService) => {
+                           metaDataService: IMetaDataService,
+                mainBreadcrumbServiceMock: MainBreadcrumbServiceMock) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -256,7 +268,7 @@ describe("RefreshAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService);
+            refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbServiceMock);
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
             refreshSpy = spyOn(artifact, "refresh");
             projectRefreshSpy = spyOn(projectManager, "refresh").and.callThrough();

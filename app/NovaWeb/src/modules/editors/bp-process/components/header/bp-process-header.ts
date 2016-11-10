@@ -13,6 +13,7 @@ import {StatefulProcessArtifact} from "../../process-artifact";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -36,7 +37,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "breadcrumbService",
         "projectManager",
         "metadataService",
-        "userStoryService"
+        "userStoryService",
+        "mainbreadcrumbService"
     ];
 
     constructor($scope: ng.IScope,
@@ -52,7 +54,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 private breadcrumbService: IBreadcrumbService,
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
-                private userStoryService: IUserStoryService) {
+                private userStoryService: IUserStoryService,
+                mainBreadcrumbService: IMainBreadcrumbService) {
         super(
             $scope,
             $element,
@@ -64,7 +67,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             loadingOverlayService,
             navigationService,
             projectManager,
-            metadataService
+            metadataService,
+            mainBreadcrumbService
         );
 
         this.breadcrumbLinks = [];

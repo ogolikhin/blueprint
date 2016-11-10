@@ -25,6 +25,7 @@ import {ProjectManager} from "../../../../managers/project-manager/project-manag
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {LoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -54,6 +55,7 @@ describe("BpProcessHeader", () => {
         $provide.service("artifactRelationships", ArtifactRelationshipsService);
         $provide.service("projectManager", ProjectManager);
         $provide.service("projectService", ProjectService);
+        $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,

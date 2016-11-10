@@ -4,12 +4,13 @@
 <div class="modal-body new-artifact">
     <input class="new-artifact__focus-stealer" type="text">
     <div class="nova-form-group nova-floating-label new-artifact__input-group new-artifact__input-group--first">
-        <span class="nova-form-control" ng-class="{'ng-not-empty': $ctrl.newArtifactType, 'fake-focus': fakeFocus}">
+        <span class="nova-form-control" ng-class="{'ng-not-empty': $ctrl.newArtifactType, 'fake-focus': fakeFocus || isOpen}">
             <input type="text" class="nova-form-control new-artifact__input new-artifact__input--dropdown"
                    id="new-artifact-type" name="newArtifactType"
                    ng-model="$ctrl.newArtifactType" ng-focus="fakeFocus=true" ng-blur="fakeFocus=false"
                    uib-typeahead="artifact as artifact.name for artifact in $ctrl.availableItemTypes() | filter:{name:$viewValue}"
                    typeahead-editable="false"
+                   typeahead-is-open="isOpen"
                    typeahead-template-url="artifactTypesDropdown.html"
                    typeahead-show-hint="true"
                    typeahead-min-length="0" />
@@ -38,7 +39,10 @@
 
 <script type="text/ng-template" id="artifactTypesDropdown.html">
     <a>
-        <bp-item-type-icon predefined-type="match.model.predefinedType"></bp-item-type-icon>
-        <span ng-bind-html="match.label | bpEscapeAndHighlight:query"></span>
+        <span class="new-artifact__icon"><bp-item-type-icon
+            item-type-id="match.model.id"
+            item-type-icon-id="match.model.iconImageId"
+            predefined-type="match.model.predefinedType"></bp-item-type-icon></span>
+        <span ng-bind-html="match.model.name | bpEscapeAndHighlight:query"></span>
     </a>
 </script>

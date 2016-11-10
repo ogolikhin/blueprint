@@ -142,6 +142,7 @@ export interface IPropertyType {
     propertyTypePredefined?: PropertyTypePredefined;
     disabled?: boolean;
 }
+
 export interface IPropertyValue {
     propertyTypeId: number;
     propertyTypeVersionId?: number;
@@ -152,6 +153,11 @@ export interface IPropertyValue {
     primitiveType?: PrimitiveType;
     isMultipleAllowed?: boolean;
     value: any;
+}
+
+export interface IChoicePropertyValue {
+    validValues?: IOption[];
+    customValue?: string;
 }
 
 export interface IActorInheritancePropertyValue {

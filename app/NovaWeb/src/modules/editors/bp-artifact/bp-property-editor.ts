@@ -36,18 +36,18 @@ export class PropertyEditor {
             case Models.PrimitiveType.Choice:
                 if (angular.isArray($value)) {
                     return {
-                        validValueIds: $value.map((it) => {
-                            return this.locale.toNumber(it);
+                        validValues: $value.map((it) => {
+                            return {id: this.locale.toNumber(it)} as Models.IOption;
                         })
-                    };
+                    } as Models.IChoicePropertyValue;
                 } else if (angular.isObject(($value))) {
-                    return {customValue: $value.customValue};
+                    return {customValue: $value.customValue} as Models.IChoicePropertyValue;
                 } else if (context.propertyTypePredefined < 0) {
                     return this.locale.toNumber($value);
                 }
                 return {
-                    validValueIds: [this.locale.toNumber($value)]
-                };
+                    validValues: [{id: this.locale.toNumber($value)} as Models.IOption]
+                } as Models.IChoicePropertyValue;
 
             case Models.PrimitiveType.User:
                 if (angular.isArray($value)) {
@@ -83,9 +83,9 @@ export class PropertyEditor {
             return this.locale.toDate($value);
 
         } else if (context.primitiveType === Models.PrimitiveType.Choice) {
-            if (angular.isArray($value.validValueIds)) {
-                let values = $value.validValueIds.map((v: number) => {
-                    return v;
+            if (angular.isArray($value.validValues)) {
+                const values = $value.validValues.map((v: Models.IOption) => {
+                    return v.id;
                 });
                 return context.isMultipleAllowed ? values : values[0];
                 //} else if (angular.isString($value.customValue)) {

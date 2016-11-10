@@ -66,12 +66,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
-    private setSelectedNode(artifact: IStatefulArtifact) {
-        if (this.tree.nodeExists(artifact.id)) {
-            this.tree.selectNode(artifact.id);
+    private setSelectedNode(artifactId: number) {
+        if (this.tree.nodeExists(artifactId)) {
+            this.tree.selectNode(artifactId);
 
-            if (!this.selected || this.selected.id !== artifact.id) {
-                let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifact.id);
+            if (!this.selected || this.selected.id !== artifactId) {
+                let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifactId);
                 if (selectedObjectInTree) {
                     this.selected = selectedObjectInTree;
                 }
@@ -117,7 +117,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
             let navigateToId: number;
             if (projects && projects.length > 0) {
                 if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
-                    this.setSelectedNode(projects[0].artifact);
+                    this.setSelectedNode(projects[0].artifact.id);
                     navigateToId = this.selected.id;
                 }
 
@@ -130,10 +130,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                     this.isFullReLoad = true;
 
                     //replace with a new object from tree, since the selected object may be stale after refresh
-                    let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.id);
-                    if (selectedObjectInTree) {
-                        this.setSelectedNode(selectedObjectInTree.artifact);
-                    }
+                    this.setSelectedNode(this.selected.id);
                 } else {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
@@ -141,10 +138,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                         navigateToId = this.selected.parentNode.id;
 
                         //replace with a new object from tree, since the selected object may be stale after refresh
-                        let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(this.selected.parentNode.id);
-                        if (selectedObjectInTree) {
-                            this.setSelectedNode(selectedObjectInTree.artifact);
-                        }
+                        this.setSelectedNode(this.selected.parentNode.id);
                     } else {
                         //otherwise, try with project node
                         if (this.tree.nodeExists(this.selected.projectId)) {

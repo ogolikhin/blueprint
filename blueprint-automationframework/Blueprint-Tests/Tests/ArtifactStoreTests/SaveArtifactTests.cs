@@ -487,7 +487,7 @@ namespace ArtifactStoreTests
         private const string UserValueIncorrectFormat = "The value for the property CU-User Required is invalid.";
 
         [Category(Categories.CustomData)]
-        [TestCase("validValueIds\":[27]", "validValueIds\":[0]", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
+        [TestCase("validValues\":[{\"id\":27", "validValues\":[{\"id\":0", ChoiceValueIncorrectFormat)]           // Insert non-existant choice.
         [TestCase("usersGroups\":[{\"id\":1", "usersGroups\":[{\"id\":0", UserValueIncorrectFormat)]    // Insert non-existant User ID.
         [TestRail(190804)]
         [Description("Try to update an artifact properties with a improper value types. Verify 400 Bad Request is returned.")]

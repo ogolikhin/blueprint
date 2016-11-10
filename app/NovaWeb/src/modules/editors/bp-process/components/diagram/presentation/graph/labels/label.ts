@@ -5,7 +5,13 @@ export interface ILabel {
     render(): void;
     text: string;
     setVisible(value: boolean);
+    labelType: LabelType;
     onDispose(): void;
+}
+
+export enum LabelType {
+    Text = 0,
+    Persona = 1
 }
 
 enum divMode {
@@ -105,6 +111,32 @@ export class Label implements ILabel {
     private executionEnvironmentDetector: any;
     private beforeEditText: string;
 
+    constructor(private callback: any,
+        private container: HTMLElement,
+        private parentId: string,
+        private id: string,
+        private _text: string,
+        private style: LabelStyle,
+        private maxTextLength: number,
+        private maxVisibleTextLength: number,
+        private isReadOnly: boolean,
+        private textAlign: string = "center",
+        private _labelType: LabelType = LabelType.Text) {
+        if (!_text) {
+            this._text = "";
+        }
+        this.beforeEditText = "";
+        // This is temporary code. It will be replaced with
+        // a class that wraps this global functionality.
+        let w: any = window;
+        this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
+        this.mode = divMode.VIEW;
+    }
+
+    public get labelType(): LabelType {
+        return this._labelType;
+    }
+   
     public get text() {
         return this._text;
     }
@@ -129,28 +161,7 @@ export class Label implements ILabel {
         let ver = parseInt(myBrowser.version, 10);
         return (myBrowser.msie && (ver === 11));
     }
-
-    constructor(private callback: any,
-                private container: HTMLElement,
-                private parentId: string,
-                private id: string,
-                private _text: string,
-                private style: LabelStyle,
-                private maxTextLength: number,
-                private maxVisibleTextLength: number,
-                private isReadOnly: boolean,
-                private textAlign: string = "center") {
-        if (!_text) {
-            this._text = "";
-        }
-        this.beforeEditText = "";
-        // This is temporary code. It will be replaced with
-        // a class that wraps this global functionality.
-        let w: any = window;
-        this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
-        this.mode = divMode.VIEW;
-    }
-
+    
     private onEdit = (e) => {
         if (this.mode === divMode.VIEW) {
             this.setEditMode();
@@ -361,8 +372,17 @@ export class Label implements ILabel {
         this.container.appendChild(this.wrapperDiv);
         this.wrapperDiv.appendChild(this.div);
 
+        // wire up event handlers for the type of label - text or persona
+
+        if (this.labelType === LabelType.Text) {
+            this.setEventListenersForTextLabel();
+        } else if (this.labelType === LabelType.Persona) {
+            this.setEventListenersForPersonaLabel();
+        } 
+    }
+
+    private setEventListenersForTextLabel() {
         if (!this.isReadOnly) {
-            //event handlers
             angular.element(this.div).on("labeldblclick", (e) => this.onEdit(e));
             this.div.addEventListener("blur", this.onBlur, true);
 
@@ -375,6 +395,16 @@ export class Label implements ILabel {
         this.div.addEventListener("labelmouseover", this.onMouseover, true);
         this.div.addEventListener("labelmouseout", this.onMouseout, true);
     }
+
+    private setEventListenersForPersonaLabel() {
+       
+        angular.element(this.div).on("labeldblclick", (e) => {
+            // show modal dialog so user can edit persona
+            // #debug
+            alert("Persona label double click");
+        });
+    }
+
     public onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {
@@ -396,6 +426,8 @@ export class Label implements ILabel {
     private numberToPx(val: number): string {
         return `${val}px`;
     }
+
+   
 
     //#UNUSED
     //private numberToPt(val: number): string {

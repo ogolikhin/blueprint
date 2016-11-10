@@ -20,7 +20,7 @@ import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
-import {Label, LabelStyle} from "../labels/label";
+import {Label, LabelStyle, LabelType} from "../labels/label";
 import {SystemDecision} from "./";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
@@ -301,7 +301,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly,
+            "center",
+            LabelType.Text);
 
         //header
         mxGraph.addCell(this.header, this);
@@ -327,7 +329,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            true);
+            true, // readonly
+            "center",
+            LabelType.Persona);
 
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");

@@ -15,7 +15,7 @@ import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
-import {Label, LabelStyle} from "../labels/label";
+import {Label, LabelStyle, LabelType} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
@@ -329,7 +329,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            true);
+            true, // readonly
+            "center",
+            LabelType.Persona);
 
         let cell = mxGraph.addCell(this.header, this.callout);
 
@@ -357,7 +359,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly,
+            "center",
+            LabelType.Text);
 
         cell = mxGraph.addCell(this.bodyCell, this.callout);
 

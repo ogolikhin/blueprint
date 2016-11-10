@@ -347,7 +347,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return null;
         }
 
-        let delta: Models.IArtifact = {} as Models.Artifact;
+        const delta = {} as Models.IArtifact;
 
         delta.id = this.id;
         delta.projectId = this.projectId;

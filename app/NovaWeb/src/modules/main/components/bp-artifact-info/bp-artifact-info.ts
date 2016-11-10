@@ -135,8 +135,6 @@ export class BpArtifactInfoController {
     }
 
     private initProperties() {
-        this.toolbarActions = [];
-
         this.artifactName = null;
         this.artifactType = null;
         this.artifactTypeId = null;

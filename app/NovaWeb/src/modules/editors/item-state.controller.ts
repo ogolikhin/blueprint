@@ -59,7 +59,7 @@ export class ItemStateController {
             } else if (this.itemInfoService.isProject(result)) {
                 // TODO: implement project navigation in the future US
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
-                this.navigationService.navigateToMain();
+                this.navigationService.navigateToMain(true);
 
             } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {
                 const artifact: Models.IArtifact = {
@@ -90,7 +90,7 @@ export class ItemStateController {
 
                     if (this.isCollection(result.predefinedType)) {
                         this.messageService.addError("HttpError_NotFound", true);
-                        this.navigationService.navigateToMain();
+                        this.navigationService.navigateToMain(true);
                         return;
                     }
                     statefulArtifact.artifactState.deleted = true;

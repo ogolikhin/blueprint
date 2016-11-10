@@ -297,6 +297,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
             });
         });
@@ -348,7 +349,7 @@ describe("Item State Controller tests", () => {
                     });
                     return deferred.promise;
                 });
-                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
@@ -358,7 +359,8 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(stateSpy).not.toHaveBeenCalled();
-                expect(navigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
                 expect(selectionSpy).not.toHaveBeenCalled();
             });
@@ -377,7 +379,7 @@ describe("Item State Controller tests", () => {
                     });
                     return deferred.promise;
                 });
-                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
@@ -387,7 +389,8 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(stateSpy).not.toHaveBeenCalled();
-                expect(navigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
                 expect(selectionSpy).not.toHaveBeenCalled();
             });
@@ -406,7 +409,7 @@ describe("Item State Controller tests", () => {
                     });
                     return deferred.promise;
                 });
-                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addError").and.callFake(message => void(0));
 
                 // act
@@ -414,7 +417,8 @@ describe("Item State Controller tests", () => {
                 $rootScope.$digest();
 
                 // assert
-                expect(navigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
             });
 

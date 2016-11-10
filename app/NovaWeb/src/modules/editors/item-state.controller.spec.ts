@@ -20,6 +20,7 @@ import {IMessageService} from "../core/messages/message.svc";
 import {ILocalizationService} from "../core/localization/localizationService";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {MessageType, Message} from "../core/messages/message";
+import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
 
 describe("Item State Controller tests", () => {
     let $state: angular.ui.IStateService,
@@ -27,13 +28,23 @@ describe("Item State Controller tests", () => {
         $q: ng.IQService,
         artifactManager: IArtifactManager,
         projectManager: IProjectManager,
-        localization,
+        localization: ILocalizationService,
         messageService: IMessageService,
-        navigationService,
-        itemInfoService,
-        statefulArtifactFactory,
+        navigationService: INavigationService,
+        itemInfoService: IItemInfoService,
+        loadingOverlayService: ILoadingOverlayService,
+        statefulArtifactFactory: IStatefulArtifactFactory,
         ctrl: ItemStateController,
         stateSpy;
+
+    class LoadingOverlayServiceMock {
+        beginLoading() {
+            //
+        };
+        endLoading(id: number) {
+            //
+        };
+    }
 
     beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("app.main"));
@@ -44,6 +55,7 @@ describe("Item State Controller tests", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
@@ -57,6 +69,7 @@ describe("Item State Controller tests", () => {
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
         _itemInfoService_: IItemInfoService,
+        _loadingOverlayService_: ILoadingOverlayService,
         _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         $state = _$state_;
@@ -68,6 +81,7 @@ describe("Item State Controller tests", () => {
         messageService = _messageService_;
         navigationService = _navigationService_;
         itemInfoService = _itemInfoService_;
+        loadingOverlayService = _loadingOverlayService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
     }));
 
@@ -88,6 +102,7 @@ describe("Item State Controller tests", () => {
             localization,
             navigationService,
             itemInfoService,
+            loadingOverlayService,
             statefulArtifactFactory);
     }
 
@@ -138,6 +153,26 @@ describe("Item State Controller tests", () => {
 
             afterEach(() => {
                 isArtifactSpy = undefined;
+            });
+
+            it("loading overlay is called", () => {
+                // arrange
+                const beginLoadingOverlaySpy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(1);
+                const endLoadingOverlaySpy = spyOn(loadingOverlayService, "endLoading");
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId});
+                    return deferred.promise;
+                });
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(beginLoadingOverlaySpy).toHaveBeenCalled();
+                expect(endLoadingOverlaySpy).toHaveBeenCalled();
+                expect(endLoadingOverlaySpy).toHaveBeenCalledWith(1);
             });
 
             it("diagram", () => {

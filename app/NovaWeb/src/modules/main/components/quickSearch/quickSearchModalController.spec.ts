@@ -43,6 +43,7 @@ describe("Controller: Quick Search Modal", () => {
                 // do nothing
             }
         };
+        controller.metadata = {};
         $rootScope = _$rootScope_;
         quickSearchService = _quickSearchService_;
     }));
@@ -79,14 +80,14 @@ describe("Controller: Quick Search Modal", () => {
 
     it("clearSearch - clears out page items", () => {
         // arrange
-        controller.totalItems = 2;
+        controller.metadata = {totalCount: 2};
         controller.page = 2;
 
         // act
         controller.clearSearch();
 
         // assert
-        expect(controller.totalItems).toBe(0);
+        expect(controller.metadata.totalCount).toBe(0);
         expect(controller.page).toBe(1);
     });
     
@@ -102,11 +103,11 @@ describe("Controller: Quick Search Modal", () => {
         expect(searchSpy).not.toHaveBeenCalled();
     });
 
-    it("searchMetadata - greater than 1 result, does search", () => {
+    it("searchMetadata - greater than 0 result, does search", () => {
 
         // arrange
         const searchSpy = spyOn(controller, "search");
-        quickSearchService.metadataReturnedTotalCount = 1;
+        quickSearchService.metadataReturned.totalCount = 1;
 
         // act
         controller.searchWithMetadata("abc");
@@ -121,14 +122,28 @@ describe("Controller: Quick Search Modal", () => {
 
         // arrange
         const searchSpy = spyOn(controller, "search");
-        quickSearchService.metadataReturnedTotalCount = 10;
+        quickSearchService.metadataReturned.totalCount = 10;
         
         // act
         controller.searchWithMetadata("abc");
         $rootScope.$apply();
 
         // assert
-        expect(controller.totalItems).toBe(quickSearchService.metadataReturnedTotalCount);
+        expect(controller.metadata.totalCount).toBe(quickSearchService.metadataReturned.totalCount);
+    });
+
+    it("searchMetadata - updates pageSize", () => {
+
+        // arrange
+        const searchSpy = spyOn(controller, "search");
+        quickSearchService.metadataReturned.pageSize = 5;
+        
+        // act
+        controller.searchWithMetadata("abc");
+        $rootScope.$apply();
+
+        // assert
+        expect(controller.metadata.pageSize).toBe(quickSearchService.metadataReturned.pageSize);
     });
 
     it("closeModal - unregisters state change listener", () => {

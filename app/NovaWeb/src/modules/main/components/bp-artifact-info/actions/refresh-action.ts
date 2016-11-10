@@ -4,13 +4,16 @@ import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 
 export class RefreshAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
                 localization: ILocalizationService,
                 projectManager: IProjectManager,
                 loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService) {
+                metaDataService: IMetaDataService,
+                mainBreadcrumbService: IMainBreadcrumbService
+                ) {
         if (!artifact) {
             throw new Error("Artifact not provided or is null");
         }
@@ -45,6 +48,7 @@ export class RefreshAction extends BPButtonAction {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 }
+                mainBreadcrumbService.reloadBreadcrumbs(artifact);
             },
             (): boolean => {
 

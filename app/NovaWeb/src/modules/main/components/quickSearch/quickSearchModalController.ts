@@ -79,7 +79,7 @@ export class QuickSearchModalController {
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term, this.page).then((results: SearchModels.ISearchResult) => {
+        this.quickSearchService.search(term, this.page, this.metadata.pageSize).then((results: SearchModels.ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
@@ -134,7 +134,7 @@ export class QuickSearchModalController {
     }
 
     private resetMetadata() {
-        this.metadata = { totalCount: 0, pageSize: 10, items: [], totalPages: 0 };
+        this.metadata = { totalCount: 0, pageSize: null, items: [], totalPages: 0 };
     }
 
     private updateMetadataInfo(result: SearchModels.ISearchMetadata) {

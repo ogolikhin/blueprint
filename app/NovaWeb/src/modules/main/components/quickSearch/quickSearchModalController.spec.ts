@@ -43,6 +43,7 @@ describe("Controller: Quick Search Modal", () => {
                 // do nothing
             }
         };
+        controller.metadata = {};
         $rootScope = _$rootScope_;
         quickSearchService = _quickSearchService_;
     }));

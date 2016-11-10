@@ -478,6 +478,12 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty("PropertyTypePredefined")]
         public PropertyTypePredefined PropertyType { get; set; }
 
+        public bool? isMultipleAllowed { get; set; }
+
+        public bool? isRichText { get; set; }
+
+        public int? primitiveType { get; set; }
+
         [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
         public object CustomPropertyValue { get; set; }
 

@@ -28,7 +28,7 @@ export class ProjectManagerMock implements IProjectManager {
 
     initialize() { /*do nothing*/ }
     removeAll(): void { /*do nothing*/ }
-    refresh(id: number): ng.IPromise<void> { return null; }
+    refresh(id: number, forceOpen?: boolean): ng.IPromise<void> { return null; }
     refreshCurrent(): ng.IPromise<void> { return null; }
     refreshAll(): ng.IPromise<void> { return null; }
     loadArtifact(id: number): void { /*do nothing*/ }

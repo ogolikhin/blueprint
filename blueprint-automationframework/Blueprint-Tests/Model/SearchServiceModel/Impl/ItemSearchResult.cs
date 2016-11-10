@@ -15,29 +15,29 @@ namespace Model.SearchServiceModel.Impl
     public class SearchItem
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         public int? ProjectId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int ParentId { get; set; }
+        public int? ParentId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int ItemTypeId { get; set; }
+        public int? ItemTypeId { get; set; }
 
         public string Prefix { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int PredefinedType { get; set; }
+        public int? PredefinedType { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int Version { get; set; }
+        public int? Version { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public double OrderIndex { get; set; }
+        public double? OrderIndex { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int Permissions { get; set; }
+        public int? Permissions { get; set; }
         
         public Identification LockedByUser { get; set; }
 

@@ -232,7 +232,14 @@ export class BpArtifactInfoController {
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new DiscardAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService),
-                    new DeleteAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService, this.dialogService)
+                    new DeleteAction(
+                        this.artifact, 
+                        this.localization, 
+                        this.messageService,
+                        this.artifactManager, 
+                        this.projectManager, 
+                        this.loadingOverlayService, 
+                        this.dialogService)
                 ),
                 new OpenImpactAnalysisAction(this.artifact, this.localization)
             );

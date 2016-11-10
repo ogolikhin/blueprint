@@ -520,6 +520,7 @@ describe("TreeNodeVMFactory", () => {
                 displayName: "label",
                 hasChildren: true
             } as Models.ISubArtifactNode;
+            model.children = [{id: 123}, {id: 456, children: [{id: 789}]}] as Models.ISubArtifactNode[];
 
             // Act
             const vm = factory.createSubArtifactNodeVM(project, model);
@@ -529,7 +530,7 @@ describe("TreeNodeVMFactory", () => {
             expect(vm.name).toEqual("SHP100 label");
             expect(vm.key).toEqual("100");
             expect(vm.isExpandable).toEqual(true);
-            expect(vm.children).toEqual([]);
+            expect(vm.children).toEqual(model.children.map(child => factory.createSubArtifactNodeVM(project, child)));
             expect(vm.isExpanded).toEqual(false);
         });
 

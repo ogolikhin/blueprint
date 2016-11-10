@@ -8,13 +8,19 @@ export class ArtifactNode implements IArtifactNode {
     public children: IArtifactNode[];
     public parentNode: IArtifactNode;
 
-    constructor(artifact: IStatefulArtifact, parentNode: IArtifactNode) {
+    constructor(artifact: IStatefulArtifact, parentNode?: IArtifactNode) {
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
-        this.hasChildren = artifact.hasChildren;
         this.parentNode = parentNode;
+        if (parentNode) {
+            this.hasChildren = artifact.hasChildren;
+        } else {
+            // for projects
+            this.hasChildren = true;
+            this.open = true;
+        }
     };
 
     public dispose() {
@@ -58,30 +64,6 @@ export class ArtifactNode implements IArtifactNode {
     public loaded: boolean;
     public open: boolean;
 
-}
-
-
-export class Project extends ArtifactNode {
-
-    public meta: Models.IProjectMeta;
-
-    public constructor(artifact: IStatefulArtifact) {
-        super(artifact, null);
-        this.open = true;
-        this.hasChildren = true;
-
-    }
-
-    public dispose() {
-        super.dispose();
-        delete this.meta;
-
-    }
-
-    public get description(): string {
-        return this.artifact.description;
-    }
-
     public getNode(id: number, item?: IArtifactNode): IArtifactNode {
         let found: IArtifactNode;
         if (!item) {
@@ -97,49 +79,4 @@ export class Project extends ArtifactNode {
         }
         return found;
     };
-
-
-    public getArtifactTypes(id?: number): Models.IItemType[] {
-
-        let itemTypes: Models.IItemType[] = [];
-
-        if (this.meta && this.meta.artifactTypes) {
-            itemTypes = this.meta.artifactTypes.filter((it) => {
-                return !angular.isNumber(id) || it.id === id;
-            });
-        }
-
-        return itemTypes;
-    }
-
-
-    public getPropertyTypes(id?: number): Models.IPropertyType[] {
-
-        let propertyTypes: Models.IPropertyType[] = [];
-
-        if (this.meta && this.meta.propertyTypes) {
-            propertyTypes = this.meta.propertyTypes.filter((it) => {
-                return !angular.isNumber(id) || it.id === id;
-            });
-        }
-        return propertyTypes;
-    }
-
-    public getArtifactType(id: number): Models.IItemType {
-        if (!id) {
-            throw new Error("Artifact_NotFound");
-        }
-        if (!this.meta) {
-            throw new Error("Project_MetaDataNotFound");
-        }
-        let node = this.getNode(id);
-
-        let artifactType: Models.IItemType = this.meta.artifactTypes.filter((it: Models.IItemType) => {
-            return it.id === node.artifact.itemTypeId;
-        })[0];
-
-        return artifactType;
-
-    }
-
 }

@@ -11,7 +11,7 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {Project} from "../../../managers/project-manager/project";
+import {IArtifactNode} from "../../../managers/project-manager";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
@@ -175,7 +175,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
-        const selectedProject: Project = this.projectManager.getSelectedProject();
+        const selectedProject: IArtifactNode = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -213,7 +213,7 @@ class BPToolbarController implements IBPToolbarController {
     }
 
     private confirmPublishAll(data: Models.IPublishResultSet) {
-        const selectedProject: Project = this.projectManager.getSelectedProject();
+        const selectedProject: IArtifactNode = this.projectManager.getSelectedProject();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Publish_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -259,7 +259,7 @@ class BPToolbarController implements IBPToolbarController {
         const savePromises = [];
         const selectedArtifact = this.artifactManager.selection.getArtifact();
         artifactsToSave.forEach((artifactModel) => {
-            let artifact = this.projectManager.getArtifact(artifactModel.id);
+            let artifact = this.artifactManager.get(artifactModel.id);
             if (!artifact) {
                 if (selectedArtifact && selectedArtifact.id === artifactModel.id) {
                     artifact = selectedArtifact;

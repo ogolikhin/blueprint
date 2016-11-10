@@ -470,14 +470,19 @@ namespace Helper
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactType">The type of artifacts to create.</param>
         /// <param name="numberOfArtifacts">The number of artifacts to create.</param>
+        /// <param name="parent">(optional) The parent of these artifacts.  Defaults to project root.</param>
         /// <returns>The list of artifacts.</returns>
-        public List<IArtifactBase> CreateAndPublishMultipleArtifacts(IProject project, IUser user, BaseArtifactType artifactType, int numberOfArtifacts)
+        public List<IArtifactBase> CreateAndPublishMultipleArtifacts(IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            int numberOfArtifacts,
+            IArtifactBase parent = null)
         {
             var artifactList = new List<IArtifactBase>();
 
             for (int i = 0; i < numberOfArtifacts; ++i)
             {
-                IArtifact artifact = CreateAndPublishArtifact(project, user, artifactType);
+                IArtifact artifact = CreateAndPublishArtifact(project, user, artifactType, parent);
                 artifactList.Add(artifact);
             }
 

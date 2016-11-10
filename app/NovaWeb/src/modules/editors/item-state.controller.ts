@@ -9,6 +9,7 @@ import {INavigationService} from "../core/navigation/navigation.svc";
 import {IMessageService} from "../core/messages/message.svc";
 import {MessageType, Message} from "../core/messages/message";
 import {ILocalizationService} from "../core/localization/localizationService";
+import {ItemTypePredefined} from "../main/models/enums";
 
 export class ItemStateController {
 
@@ -86,11 +87,17 @@ export class ItemStateController {
                     statefulArtifact.artifactState.historical = true;
 
                 } else if (result.isDeleted) {
+
+                    if (this.isCollection(result.predefinedType)) {
+                        this.messageService.addError("HttpError_NotFound", true);
+                        this.navigationService.navigateToMain();
+                        return;
+                    }
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
 
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Deleted by user ${result.deletedByUser.displayName} on ${localizedDate}`;
+                    const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
                     this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 
@@ -113,6 +120,10 @@ export class ItemStateController {
             }
 
         });
+    }
+
+    private isCollection(itemType: Models.ItemTypePredefined): boolean {
+        return itemType === ItemTypePredefined.CollectionFolder || itemType === ItemTypePredefined.ArtifactCollection;
     }
 
     private isBaselineOrReview(itemType: Models.ItemTypePredefined) {

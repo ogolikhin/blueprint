@@ -8,6 +8,7 @@ using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ArtifactModel.Impl;
 using TestCommon;
 using Utilities;
 
@@ -187,7 +188,6 @@ namespace ArtifactStoreTests
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
-
         }
 
         [TestCase]
@@ -227,22 +227,15 @@ namespace ArtifactStoreTests
             IArtifact folder2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            try
+            Assert.DoesNotThrow(() =>
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(folder1, folder2, _user);
-                }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(folder1, folder2, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
-                // Verify:
-                INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
-                ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
-                Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
-            }
-            finally
-            {
-                folder1.Delete();
-            }
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -267,7 +260,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190011)]
@@ -280,25 +272,136 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            IArtifact collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.ArtifactCollection, collectionFolder.Id, baseType: fakeBaseType);
-            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
 
             childArtifact.Lock(author);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author);
-            }, "'POST {0}' should return 200 OK when called with current version!", SVC_PATH);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, collectionFolder.Id, author);
+            }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, childArtifact.Id);
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
-            Assert.AreEqual(parentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
+            Assert.AreEqual(collectionFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(191030)]
+        [Description("Create an artifact of collection artifact type or collection folder. Move this artifact to be a child of the root Collections folder. " + 
+            "Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultCollectionsFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            IArtifact collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            childArtifact.Lock(author);
+
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, defaultCollectionFolder.Id, author);
+            }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(defaultCollectionFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
+        }
+
+        [TestCase(BaseArtifactType.Actor, 5, 0, 2.5)]           // Move 1st artifact between 2nd & 3rd artifacts.
+        [TestCase(BaseArtifactType.Document, 5, 2, 0.5)]        // Move 3rd artifact before first artifact.
+        [TestCase(BaseArtifactType.Glossary, 5, 2, 5.0)]        // Move 3rd artifact after last artifact.
+        [TestCase(BaseArtifactType.PrimitiveFolder, 5, 4, 2.5)] // Move last artifact between 2nd & 3rd artifacts.
+        [TestCase(BaseArtifactType.Process, 5, 4, 1.0)]         // Move last artifact to same OrderIndex as first artifact.
+        [TestCase(BaseArtifactType.UseCase, 5, 0, 1.0)]         // Move first artifact to same location.
+        [TestRail(191038)]
+        [Description("Create & publish several artifacts.  Move an artifact to the same location but specify an OrderIndex.  " +
+            "Verify the OrderIndex of the artifact was updated.")]
+        public void MoveArtifactWithOrderIndex_PublishedArtifact_InsideFolder_VerifyOrderIndexUpdated(
+            BaseArtifactType artifactType, int numberOfArtifacts, int whichArtifact, double orderIndex)
+        {
+            // Setup:
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts, parentFolder);
+
+            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _user);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _user, orderIndex);
+            }, "'POST {0}?orderIndex={1}' should return 200 OK when called with a valid token!", SVC_PATH, orderIndex);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifacts[whichArtifact].Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(parentFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact should not be changed!");
+            Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
+        }
+
+        [TestCase(ItemTypePredefined.ArtifactCollection, 5, 0, 2.5)]    // Move 1st artifact between 2nd & 3rd artifacts.
+        [TestCase(ItemTypePredefined.ArtifactCollection, 5, 2, 0.5)]    // Move 3rd artifact before first artifact.
+        [TestCase(ItemTypePredefined.ArtifactCollection, 5, 2, 5.0)]    // Move 3rd artifact after last artifact.
+        [TestCase(ItemTypePredefined.CollectionFolder, 5, 4, 2.5)]      // Move last artifact between 2nd & 3rd artifacts.
+        [TestCase(ItemTypePredefined.CollectionFolder, 5, 4, 1.0)]      // Move last artifact to same OrderIndex as first artifact.
+        [TestCase(ItemTypePredefined.CollectionFolder, 5, 0, 1.0)]      // Move first artifact to same location.
+        [TestRail(191039)]
+        [Description("Create & publish several Collection or Collection Folder artifacts.  Move an artifact to the same location but specify an OrderIndex.  " +
+            "Verify the OrderIndex of the artifact was updated.")]
+        public void MoveArtifactWithOrderIndex_PublishedCollectionOrCollectionFolder_InsideCollectionFolder_VerifyOrderIndexUpdated(
+            ItemTypePredefined artifactType, int numberOfArtifacts, int whichArtifact, double orderIndex)
+        {
+            // Setup:
+            INovaArtifactDetails movedArtifactDetails = null;
+            List<IArtifactBase> artifacts = new List<IArtifactBase>();
+
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var parentFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                artifacts.Add(Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, parentFolder.Id, baseType: fakeBaseType));
+            }
+
+            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _user);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _user, orderIndex);
+            }, "'POST {0}?orderIndex={1}' should return 200 OK when called with a valid token!", SVC_PATH, orderIndex);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifacts[whichArtifact].Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(parentFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact should not be changed!");
+            Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
         }
 
         #endregion 200 OK tests
@@ -341,6 +444,54 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "This move will result in a circular relationship between the artifact and its new parent.");
+        }
+
+        [TestCase(-1.1)]
+        [TestCase(0)]
+        [TestRail(191035)]
+        [Description("Create & save an artifact.  Move the artifact and specify an OrderIndex <= 0.  Verify 400 Bad Request is returned.")]
+        public void MoveArtifactWithOrderIndex_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => 
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "Parameter orderIndex cannot be equal to or less than 0.");
+        }
+
+        [TestCase(ItemTypePredefined.ArtifactCollection, -0.0001)]
+        [TestCase(ItemTypePredefined.CollectionFolder, 0)]
+        [TestRail(191036)]
+        [Description("Create & save a Collection or Collection Folder artifact.  Move the artifact and specify an OrderIndex <= 0.  " +
+            "Verify 400 Bad Request is returned.")]
+        public void MoveArtifactWithOrderIndex_SavedCollectionOrCollectionFolder_NotPositiveOrderIndex_400BadRequest(
+            ItemTypePredefined artifactType, double orderIndex)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            artifact.Lock();
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, collectionFolder.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "Parameter orderIndex cannot be equal to or less than 0.");
         }
 
         #endregion 400 Bad Request
@@ -463,6 +614,90 @@ namespace ArtifactStoreTests
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(182408)]
+        [Description("Create collection or collection folder. Move regular artifact to be a child of the collection or collection folder. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_PublishedArtifact_MoveToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            artifact.Lock(author);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, parentArtifact.Id, author),
+               "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move an artifact to non project section.");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(190010)]
+        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the regular artifact. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MoveToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
+
+            childArtifact.Lock(author);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author),
+                   "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to be a child of a regular artifact", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non collection section.");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(191040)]
+        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the collection artifact. Verify returned code 403 Forbidden.")]
+        public void MoveArtifact_CollectionOrCollectionFolder_MoveToCollectionArtifact_403Forbidden(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact collection = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            IArtifact collectionArtifact = Helper.CreateAndPublishCollection(_project, author);
+
+            collection.Lock(author);
+             
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, collection, collectionArtifact.Id, author),
+                   "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to collection artifact", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non folder parent.");
         }
 
         #endregion 403 Forbidden tests
@@ -761,64 +996,6 @@ namespace ArtifactStoreTests
                 "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
-        [TestRail(182408)]
-        [Description("Create collection or collection folder. Move regular artifact to be a child of the collection or collection folder. Verify returned code 409 Conflict.")]
-        public void MoveArtifact_PublishedArtifact_MoveToCollectionOrCollectionFolder_409Conflict(ItemTypePredefined artifactType)
-        {
-            // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
-
-            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            artifact.Lock(author);
-
-            // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, parentArtifact.Id, author),
-               "'POST {0}' should return 409 Conflict when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to collection or collection folder", expectedExceptionMessage);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)] //US 3184
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
-        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
-        [TestRail(190010)]
-        [Description("Create a collection or collection folder. Move collection or collection folder to be a child of the regular artifact. Verify returned code 409 Conflict.")]
-        public void MoveArtifact_CollectionOrCollectionFolder_MoveToRegularArtifact_409Conflict(ItemTypePredefined artifactType)
-        {
-            // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
-
-            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            IArtifact parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            childArtifact.Lock(author);
-
-            var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author),
-                   "'POST {0}' should return 409 Conflict when user tries to move collection or collection folder to artifact", SVC_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = "Cannot move baselines, collections or reviews.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                    "{0} when user tries to move collection or collection folder to artifact", expectedExceptionMessage);
-        }
         #endregion 409 Conflict tests
 
         #region private call

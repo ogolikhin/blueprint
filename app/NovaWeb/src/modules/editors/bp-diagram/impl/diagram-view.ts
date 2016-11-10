@@ -9,6 +9,7 @@ import {DiagramLibraryManager} from "./diagram-library-manager";
 export interface IDiagramView {
     drawDiagram(diagram: IDiagram);
     addSelectionListener(listener: ISelectionListener);
+    onDoubleClick: (element: IDiagramElement) => void;
     setSelectedItems(selectedItems: Array<IDiagramElement>);
     setSelectedItem(id: number);
     getSelectedItems(): Array<IDiagramElement>;
@@ -24,6 +25,8 @@ export interface ISelectionListener {
 }
 export class DiagramView implements IDiagramView {
 
+    public onDoubleClick: (element: IDiagramElement) => void;
+    
     private graph: MxGraph;
 
     private selectionListeners: Array<ISelectionListener> = [];
@@ -108,6 +111,7 @@ export class DiagramView implements IDiagramView {
     }
 
     public destroy() {
+        delete this.graph.dblClick;
         this.graph.destroy();
         delete this.createdVertices;
         delete this.selectionListeners;
@@ -198,6 +202,13 @@ export class DiagramView implements IDiagramView {
             });
             evt.consume();
         });
+        this.graph.dblClick = this.onDoubleClickInternal;
+    }
+
+    private onDoubleClickInternal = (evt, cell: MxCell) => {
+        if (this.onDoubleClick) {
+            this.onDoubleClick(this.getDiagramElement(cell));
+        }
     }
 
     private getLastSelectedCell() {

@@ -23,7 +23,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-picker.html");
     public bindings: {[binding: string]: string} = {
         isItemSelectable: "&?",
-        treeApi: "=?",
+        api: "=?",
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
@@ -47,7 +47,7 @@ export interface IArtifactPickerController {
     showSubArtifacts?: boolean;
     isOneProjectLevel?: boolean;
     onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
-    treeApi: ITreeApi;
+    api: ITreeApi;
     onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
     // BpTreeView bindings
@@ -78,7 +78,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
     public factory: SearchResultVMFactory;
-    public api: IBPTreeViewControllerApi;
+    public treeApi: IBPTreeViewControllerApi;
 
     static $inject = [
         "$scope",
@@ -121,9 +121,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    public treeApi: any = {
+    public api: any = {
         clearSelected: () => {
-            this.api.clearSelected(this.rootNode);
+            this.treeApi.clearSelected(this.rootNode);
         }
     };
 

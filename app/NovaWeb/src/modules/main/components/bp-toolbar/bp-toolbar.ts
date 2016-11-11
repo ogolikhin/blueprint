@@ -365,11 +365,17 @@ class BPToolbarController implements IBPToolbarController {
                             });
                     })
                     .catch((error: IApplicationError) => {
-                        if (error.statusCode === 404) {
+                        if (error.statusCode === 404 && error.errorCode === 102) { //Project not found
+                            this.projectManager.refreshAll()
+                                .then(() => {
+                                    this.messageService.addError("Create_New_Artifact_Error_404_102", true);
+                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                });
+                        } else if (error.statusCode === 404) { //Parent or artifact type not found
                             this.projectManager.refresh(projectId)
                                 .then(() => {
                                     this.projectManager.triggerProjectCollectionRefresh();
-                                    this.messageService.addError("Create_New_Artifact_Error_404", true);
+                                    this.messageService.addError(`Create_New_Artifact_Error_404_${error.errorCode.toString()}`, true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
                         } else if (!error.handled) {

@@ -58,8 +58,7 @@ export class ArtifactNode implements IArtifactNode {
         if (item.id === id) {
             found = item;
         } else if (item.children) {
-            /* tslint:disable:whitespace */
-            for (let i = 0, it: IArtifactNode; !found && (it = item.children[i++]);) {
+            for (let i = 0, it: IArtifactNode; !found && (it = item.children[i++]); ) {
                 found = this.getNode(id, it);
             }
         }

@@ -28,7 +28,6 @@
     <DBServerLocation>localhost</DBServerLocation>
     <DBName>Blueprint</DBName>
     <IsWindowsAuthentication>true</IsWindowsAuthentication>
-	<DBAdminUserName>WIN-NT2N2CHOOM4\bpadmin</DBAdminUserName>
   </BlueprintDatabaseInfo>
   <AdminStorageDatabaseInfo>
     <IsWindowsAuthentication>false</IsWindowsAuthentication>

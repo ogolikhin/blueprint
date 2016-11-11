@@ -167,12 +167,13 @@ export class ProjectManager implements IProjectManager {
             autosave = this.$q.resolve();
         }
 
-        return autosave.then(() => {
-            return this.doRefresh(projectNode, selectedArtifact, forceOpen);
-        }).catch(() => {
+        return autosave.catch(() => {
             //something went wrong - ask user if they want to force refresh
             return this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"));
-       });
+        }).then(() => {
+            return this.doRefresh(projectNode, selectedArtifact, forceOpen);
+        });
+
     }
 
     private doRefresh(project: IArtifactNode, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {

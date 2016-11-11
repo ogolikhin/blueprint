@@ -94,6 +94,7 @@ export interface IColumnRendererParams {
 
 export interface IBPTreeViewControllerApi {
     ensureNodeVisible(node: ITreeViewNode): void;
+    clearSelected(): void;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -211,6 +212,9 @@ export class BPTreeViewController implements IBPTreeViewController {
             if (node) {
                 this.options.api.ensureNodeVisible(node);
             }
+        },
+        clearSelected: (): void => {
+            this.options.api.deselectAll();
         }
     };
 

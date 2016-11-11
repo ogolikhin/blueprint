@@ -99,14 +99,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private visibleArtifact: CollectionNodeVM;
 
     public onGridReset(): void {
-     if (this.visibleArtifact) {
-         this.api.ensureNodeVisible(this.visibleArtifact);
-         this.visibleArtifact = undefined;
+        if (this.visibleArtifact) {
+            this.api.ensureNodeVisible(this.visibleArtifact);
+            this.visibleArtifact = undefined;
         }
     }
 
     private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
-       if (!changes || changes.length === 0) {
+        if (!changes || changes.length === 0) {
             return;
         }
 

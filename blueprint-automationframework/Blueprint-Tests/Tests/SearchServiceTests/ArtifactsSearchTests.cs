@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using TestCommon;
 using Common;
 using Utilities.Factories;
+using Model.ArtifactModel.Enums;
 
 namespace SearchServiceTests
 {
@@ -27,7 +28,7 @@ namespace SearchServiceTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
+            _projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2, shouldRetrievePropertyTypes: true);
 
             Assert.IsTrue(_projects.Count >= 2, "These tests expect that Blueprint server has at least 2 projects.");
 
@@ -239,9 +240,8 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
 
             // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
-            List<int> actorTypeIds = (artifacts.FindAll(a => a.BaseArtifactType == BaseArtifactType.Actor)).ConvertAll(a =>a.ArtifactTypeId);
             var nameSearchCriteria       = new FullTextSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
-            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, actorTypeIds);  // Search by name and TypeId across all projects.
+            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, (int)ItemTypePredefined.Actor);  // Search by name and TypeId across all projects.
 
             ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,

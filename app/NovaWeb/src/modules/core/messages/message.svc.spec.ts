@@ -1,13 +1,12 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../localization/localization.mock";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
 import {SettingsService} from "../configuration/settings";
 
 describe("messageService", () => {
+    
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageService);
         $provide.service("settings", SettingsService);
     }));
@@ -23,11 +22,11 @@ describe("messageService", () => {
     it("addError, returns the message",
         inject((messageService: IMessageService) => {
             // Arrange
-            var message = "test1";
+            const message = "test1";
             messageService.addError(message);
 
             // Act
-            var result = messageService.messages;
+            const result = messageService.messages;
 
             // Assert
             expect(result.length).toEqual(1);
@@ -35,32 +34,84 @@ describe("messageService", () => {
             expect(result[0].messageType).toEqual(MessageType.Error);
         }));
 
-    it("addInfoWithPar, returns the message",
+    it("addInfo with parameters returns the message",
         inject((messageService: IMessageService) => {
             // Arrange
             let message = "show {0} items of type {1}";
             let par1 = 3;
             let par2 = "variable";
-            let expectedMessage = "show 3 items of type variable";
-            messageService.addInfoWithPar(message, [par1, par2]);
+            messageService.addInfo(message, par1, par2);
 
             // Act
             let result = messageService.messages;
 
             // Assert
             expect(result.length).toEqual(1);
-            expect(result[0].messageText).toEqual(expectedMessage);
+            expect(result[0].messageText).toEqual(message);
             expect(result[0].messageType).toEqual(MessageType.Info);
+            expect(result[0].parameters).toEqual(jasmine.any(Array));
+            expect(result[0].parameters.length).toEqual(2);
         }));
+
+    it("addInfo without parameters returns the message",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            let message = "show {0} items of type {1}";
+            messageService.addInfo(message);
+
+            // Act
+            let result = messageService.messages;
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0].messageText).toEqual(message);
+            expect(result[0].messageType).toEqual(MessageType.Info);
+            expect(result[0].parameters).toBeUndefined();
+        }));
+
+    it("addWarning without parameters",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            let message = "show items of type";
+            messageService.addWarning(message);
+
+            // Act
+            let result = messageService.messages;
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0].messageText).toEqual(message);
+            expect(result[0].messageType).toEqual(MessageType.Warning);
+            expect(result[0].parameters).toBeUndefined();
+        }));
+    
+    it("addWarning with parameters",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            let message = "show items of type";
+            messageService.addWarning(message, 1, 2, 3);
+
+            // Act
+            let result = messageService.messages;
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0].messageText).toEqual(message);
+            expect(result[0].messageType).toEqual(MessageType.Warning);
+            expect(result[0].parameters).toEqual(jasmine.any(Array));
+            expect(result[0].parameters.length).toEqual(3);
+            expect(result[0].parameters.toString()).toEqual("1,2,3");
+        }));
+
 
     it("addError as an Error, returns the message",
         inject((messageService: IMessageService) => {
             // Arrange
-            var error = new Error("test1");
+            const error = new Error("test1");
             messageService.addError(error);
 
             // Act
-            var result = messageService.messages;
+            const result = messageService.messages;
 
             // Assert
             expect(result.length).toEqual(1);
@@ -72,16 +123,17 @@ describe("messageService", () => {
     it("addMessage, returns the message",
         inject((messageService: IMessageService) => {
             // Arrange
-            var message = new Message(MessageType.Info, "someText");
+            const message = new Message(MessageType.Info, "someText");
             messageService.addMessage(message);
 
             // Act
-            var result = messageService.messages;
+            const result = messageService.messages;
 
             // Assert
             expect(result.length).toEqual(1);
             expect(result[0]).toBe(message);
         }));
+
 
     it("don't add a message if it already exists in the list",
         inject((messageService: IMessageService) => {
@@ -102,7 +154,7 @@ describe("messageService", () => {
         beforeEach(inject((messageService: IMessageService) => {
             messageService.addError("test1");
             messageService.addError("test2");
-            var message = new Message(MessageType.Info, "someText");
+            const message = new Message(MessageType.Info, "someText");
             messageService.addMessage(message);
         }));
 

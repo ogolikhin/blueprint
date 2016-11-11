@@ -11,7 +11,7 @@ export class MessageContainerComponent implements ng.IComponentOptions {
 export interface IMessageContainerController {
     closeMessage(id: number);
     getType(type: number);
-    getText(text: string);
+    getText(message: IMessage);
 }
 
 export class MessageContainerController implements IMessageContainerController {
@@ -34,7 +34,14 @@ export class MessageContainerController implements IMessageContainerController {
         return MessageType[type].toLowerCase();
     }
 
-    public getText(text: string) {
-        return this.$sce.trustAsHtml(this.localization.get(text));
+    public getText(message: IMessage) {
+        let text: string = this.localization.get(message.messageText);
+        if (message.parameters && message.parameters.length) {
+            for (let i: number = 0; i < message.parameters.length; i++) {
+                text = text.replace("{" + i + "}", message.parameters[i]);
+            }
+        }
+        
+        return this.$sce.trustAsHtml(text);
     }
 }

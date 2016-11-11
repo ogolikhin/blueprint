@@ -12,16 +12,20 @@ export interface IMessage {
     messageType: MessageType;
     messageText: string;
     persistent?: boolean;
+    timeout?: number;
+    parameters?: any[];
 }
 
 export class Message implements IMessage {
     public onMessageAction: (actionName: string) => void;
     public id: number;
+    public timeout: number;
+    public parameters: any[];
 
-    constructor(public messageType: MessageType, public messageText: string, public persistent: boolean = false) {
-        this.messageText = messageText;
-        this.messageType = messageType;
-        this.persistent = persistent;
+    constructor(public messageType: MessageType, public messageText: string, public persistent: boolean = false, ...params: any[]) {
+        if (params.length) {
+            this.parameters = params;    
+        }
     }
 }
 

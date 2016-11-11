@@ -121,7 +121,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    public api: any = {
+    public api: ITreeApi = {
         clearSelected: () => {
             this.treeApi.clearSelected(this.rootNode);
         }

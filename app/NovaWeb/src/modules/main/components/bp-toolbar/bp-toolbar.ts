@@ -225,7 +225,7 @@ export class BPToolbarController implements IBPToolbarController {
                 //refresh all after discard all finishes
                 this.projectManager.refreshAll();
 
-                this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
+                this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })
             .finally(() => {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
@@ -266,7 +266,7 @@ export class BPToolbarController implements IBPToolbarController {
                         selectedArtifact.refresh();
                     }
 
-                    this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
+                    this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
                 })
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);

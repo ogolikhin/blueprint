@@ -323,7 +323,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to perform this action.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to edit the artifact (ID: 1)");
         }
 
         [TestCase]
@@ -392,7 +392,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the ItemType ID doesn't exist!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Artifact type not found.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemTypeNotFound, "Artifact type not found.");
         }
 
         [TestCase(int.MaxValue)]

@@ -1,6 +1,5 @@
 ﻿using System.Configuration;
 using System.Web.Http;
-using ServiceLibrary.Helpers;
 
 namespace SearchService
 {
@@ -17,17 +16,10 @@ namespace SearchService
 
         public static string BlueprintConnectionString = ConfigurationManager.ConnectionStrings["Blueprint"].ConnectionString;
 
-        public static string AccessControl = AppSettingsHelper.TryGetConfigurationValue<string>("AccessControl");
+        public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
 
-        public static string ConfigControl = AppSettingsHelper.TryGetConfigurationValue<string>("ConfigControl");
+        public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
-        public static string StatusCheckPreauthorizedKey = AppSettingsHelper.TryGetConfigurationValue<string>("StatusCheckPreauthorizedKey");
-
-        /// <summary>
-        /// Search Sql Timeout in seconds. Default is 120 seconds. 
-        /// </summary>
-        public static int SearchTimeout = AppSettingsHelper.TryGetConfigurationValue("SearchTimeout", 120);
-
-        
+        public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];
     }
 }

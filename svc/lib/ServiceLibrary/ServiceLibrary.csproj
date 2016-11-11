@@ -92,7 +92,6 @@
     <Compile Include="Exceptions\BadRequestException.cs" />
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
-    <Compile Include="Helpers\AppSettingsHelper.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
     <Compile Include="Helpers\LoggableApiController.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />

@@ -208,7 +208,7 @@ export class ProjectManager implements IProjectManager {
 
                 //try with selected artifact's parent
                 return this.projectService.getProjectTree(project.id, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
-                    this.messageService.addWarning("Refresh_Artifact_Deleted");
+                    this.messageService.addInfo("Refresh_Artifact_Deleted");
                     return this.processProjectTree(project, data).catch(() => {
                         this.clearProject(project);
                         return this.$q.reject();
@@ -217,7 +217,7 @@ export class ProjectManager implements IProjectManager {
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
                         return this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            this.messageService.addWarning("Refresh_Artifact_Deleted");
+                            this.messageService.addInfo("Refresh_Artifact_Deleted");
                             return this.processProjectTree(project, data).catch(() => {
                                 this.clearProject(project);
                                 return this.$q.reject();

@@ -584,7 +584,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             // Setup:
-            /// Create and publish artifacts
+            // Create and publish artifacts
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes);
 
             for (int i = 1; i < artifactTypes.Length; i++)

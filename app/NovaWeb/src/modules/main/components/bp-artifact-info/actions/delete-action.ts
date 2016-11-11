@@ -1,6 +1,7 @@
 import {IApplicationError} from "../../../../core/error/applicationerror";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {Message, MessageType} from "../../../../core/messages/message";
 import {Models} from "../../../../main/models";
 import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
 import {IStatefulArtifact, IArtifactManager} from "../../../../managers/artifact-manager";
@@ -88,25 +89,15 @@ export class DeleteAction extends BPButtonAction {
                 css: "nova-publish modal-alert",
                 header: this.localization.get("App_DialogTitle_Alert")
             }, descendants).then(() => {
-                const deeleteOverlayId = this.loadingOverlayService.beginLoading();
-                this.artifact.delete().then(() => {
-                    const artifact = this.artifactManager.get(this.artifact.parentId); 
-                    this.artifactManager.selection.setArtifact(artifact);
-                    this.projectManager.refresh(this.artifact.projectId, true).then(() => {
-                        this.projectManager.triggerProjectCollectionRefresh();
-                    });
-                    if (descendants.length) {
-                        this.messageService.addInfoWithPar("Delete_Artifact_All_Success_Message", [descendants.length + 1]);
-                    } else {
-                        this.messageService.addInfo("Delete_Artifact_Single_Success_Message");
-
-                    }
+                const deleteOverlayId = this.loadingOverlayService.beginLoading();
+                this.artifact.delete().then((deletedArtifacts: Models.IArtifact[]) => {
+                    this.complete(deletedArtifacts);
                 }).catch((error: IApplicationError) => {
                     if (!error.handled) {
                         this.messageService.addError(error);
                     }
                 }).finally(() => {
-                    this.loadingOverlayService.endLoading(deeleteOverlayId);
+                    this.loadingOverlayService.endLoading(deleteOverlayId);
                 });
 
             });
@@ -119,6 +110,20 @@ export class DeleteAction extends BPButtonAction {
     };
 
 
+    private complete(deletedArtifacts: Models.IArtifact[]) {
+        const artifact = this.artifactManager.get(this.artifact.parentId); 
+        this.artifactManager.selection.setArtifact(artifact);
+        this.projectManager.refresh(this.artifact.projectId, true).then(() => {
+            this.projectManager.triggerProjectCollectionRefresh();
+        });
+        const message = new Message(
+                MessageType.Info, 
+                deletedArtifacts.length > 1 ? "Delete_Artifact_All_Success_Message" : "Delete_Artifact_Single_Success_Message", 
+                true, 
+                deletedArtifacts.length);
+        message.timeout = 6000;
+        this.messageService.addMessage(message);
 
+    }
 
 }

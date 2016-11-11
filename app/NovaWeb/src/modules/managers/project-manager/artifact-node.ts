@@ -42,24 +42,8 @@ export class ArtifactNode implements IArtifactNode {
         return !this._artifact ? null : this._artifact.id;
     }
 
-    public get itemTypeId(): number {
-        return !this._artifact ? null : this._artifact.itemTypeId;
-    }
-
-    public get projectId() {
-        return !this._artifact ? null : this._artifact.projectId;
-    }
-
     public get parentId(): number {
         return !this._artifact ? null : this._artifact.parentId;
-    }
-
-    public get permissions(): Enums.RolePermissions {
-        return !this._artifact ? null : this._artifact.permissions;
-    }
-
-    public get predefinedType(): Models.ItemTypePredefined {
-        return !this._artifact ? null : this._artifact.predefinedType;
     }
 
     public hasChildren: boolean;

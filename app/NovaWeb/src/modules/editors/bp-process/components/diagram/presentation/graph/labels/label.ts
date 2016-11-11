@@ -6,10 +6,12 @@ export interface ILabel {
     text: string;
     setVisible(value: boolean);
     labelType: LabelType;
+    dispose();
     // hook up event listeners
     onTextChange;
     onClick;
     onDblClick; 
+    
 }
 
 export enum LabelType {
@@ -456,7 +458,11 @@ export class Label implements ILabel {
         }
     }
 
-    public onDispose = () => {
+    public dispose() {
+        this.onDispose();
+    }
+
+    private onDispose = () => {
         if (this.div) {
             if (!this.isReadOnly) {
                 angular.element(this.div).off("labeldblclick", (e) => this.onEdit(e));

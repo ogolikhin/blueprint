@@ -6,7 +6,10 @@ export interface ILabel {
     text: string;
     setVisible(value: boolean);
     labelType: LabelType;
-    onDispose(): void;
+    // hook up event listeners
+    onTextChange;
+    onClick;
+    onDblClick; 
 }
 
 export enum LabelType {
@@ -111,19 +114,25 @@ export class Label implements ILabel {
     private executionEnvironmentDetector: any;
     private beforeEditText: string;
 
-    constructor(private callback: any,
+    // event listeners 
+    private textChangeListeners: Array<any> = [];
+    private clickEventListeners: Array<any> = [];
+    private dblClickEventListeners: Array<any> = [];
+
+    constructor(
+        private _labelType: LabelType, 
         private container: HTMLElement,
         private parentId: string,
         private id: string,
-        private _text: string,
+        private _labelText: string,
         private style: LabelStyle,
         private maxTextLength: number,
         private maxVisibleTextLength: number,
         private isReadOnly: boolean,
-        private textAlign: string = "center",
-        private _labelType: LabelType = LabelType.Text) {
-        if (!_text) {
-            this._text = "";
+        private textAlign: string = "center") {
+
+        if (!_labelText) {
+            this._labelText = "";
         }
         this.beforeEditText = "";
         // This is temporary code. It will be replaced with
@@ -138,12 +147,12 @@ export class Label implements ILabel {
     }
    
     public get text() {
-        return this._text;
+        return this._labelText;
     }
 
     public set text(value) {
-        if (this._text !== value) {
-            this._text = value;
+        if (this._labelText !== value) {
+            this._labelText = value;
             this.setShortText();
         }
     }
@@ -170,8 +179,8 @@ export class Label implements ILabel {
         this.cancelDefaultAction(e);
     }
     private undo() {
-        this._text = this.beforeEditText;
-        this.callback(this.beforeEditText);
+        this._labelText = this.beforeEditText;
+        this.raiseTextChangeEvent(this.beforeEditText);
         this.setViewMode();
     }
 
@@ -203,13 +212,12 @@ export class Label implements ILabel {
     private callbackIfTextChanged() {
         const innerText = this.div.innerText.replace(/\n/g, "");
         if (this.isTextChanged(innerText)) {
-            this._text = innerText;
-            this.callback(innerText);
+            this._labelText = innerText;
+            this.raiseTextChangeEvent(innerText);
         }
     }
     private isTextChanged(newText: string): boolean {
-        return this._text !== newText;
-        
+        return this._labelText !== newText;
     }
     private onCut = (e) => {
         this.callbackIfTextChanged();
@@ -239,15 +247,16 @@ export class Label implements ILabel {
     private update() {
         if (this.mode === divMode.EDIT) {
             const innerText = this.div.innerText.replace(/\n/g, "");
-            this._text = innerText;
-            this.callback(innerText);
+            this._labelText = innerText;
+            this.raiseTextChangeEvent(innerText);
+             
             //window.console.log("update() ");
             this.setViewMode();
         }
     }
 
     private setShortText() {
-        this.div.innerText = Helper.limitChars(this._text, this.maxVisibleTextLength);
+        this.div.innerText = Helper.limitChars(this._labelText, this.maxVisibleTextLength);
     }
 
     private setEditMode() {
@@ -256,13 +265,13 @@ export class Label implements ILabel {
         window.focus();
         this.mode = divMode.EDIT;
         this.setMouseoverStyle();
-        this.div.innerText = this._text;
+        this.div.innerText = this._labelText;
         this.div.setAttribute("contenteditable", "true");
         this.div.focus();
         this.wrapperDiv.style.pointerEvents = "auto";
         //window.console.log("setEditMode this.mode = " + this.mode);
         this.selectText();
-        this.beforeEditText = this._text;
+        this.beforeEditText = this._labelText;
 
         setTimeout(this.addDeferedListener, 300, this.div);
     }
@@ -301,7 +310,7 @@ export class Label implements ILabel {
             this.div.style.borderColor = "#666";
             this.div.style.backgroundColor = "#c7edf8";
             this.div.style.color = this.style.highlitedTextColor;
-            this.div.innerText = this._text;
+            this.div.innerText = this._labelText;
         } else {
             this.setMouseoutStyle();
         }
@@ -399,10 +408,52 @@ export class Label implements ILabel {
     private setEventListenersForPersonaLabel() {
        
         angular.element(this.div).on("labeldblclick", (e) => {
-            // show modal dialog so user can edit persona
-            // #debug
-            alert("Persona label double click");
+            this.raiseDblClickEvent();
         });
+    }
+
+    // using this event interface we can wire up 
+    // external handlers for label events 
+
+    public set onTextChange(listener) {
+        if (listener) {
+            this.textChangeListeners.push(listener);
+        }
+    }
+    private raiseTextChangeEvent(newValue: string) {
+        if (this.textChangeListeners.length > 0) {
+            this.textChangeListeners.forEach(listener => {
+                listener(newValue);
+            });
+        }
+    }
+
+    public set onClick(listener) {
+        if (listener) {
+            this.clickEventListeners.push(listener);
+        }
+    }
+
+    private raiseClickEvent() {
+        if (this.clickEventListeners.length > 0) {
+            this.clickEventListeners.forEach(listener => {
+                listener();
+            });
+        }
+    }
+
+    public set onDblClick(listener) {
+        if (listener) {
+            this.dblClickEventListeners.push(listener);
+        }
+    }
+
+    private raiseDblClickEvent() {
+        if (this.dblClickEventListeners.length > 0) {
+            this.dblClickEventListeners.forEach(listener => {
+                listener();
+            });
+        }
     }
 
     public onDispose = () => {
@@ -421,14 +472,22 @@ export class Label implements ILabel {
             this.wrapperDiv.removeChild(this.div);
             this.container.removeChild(this.wrapperDiv);
         }
+        // remove event listeners
+        this.textChangeListeners.length = 0;
+        delete this.textChangeListeners;
+
+        this.clickEventListeners.length = 0;
+        delete this.clickEventListeners;
+
+        this.dblClickEventListeners.length = 0;
+        delete this.dblClickEventListeners;
+        
     }
 
     private numberToPx(val: number): string {
         return `${val}px`;
     }
-
-   
-
+    
     //#UNUSED
     //private numberToPt(val: number): string {
     //    return `${val}pt`;

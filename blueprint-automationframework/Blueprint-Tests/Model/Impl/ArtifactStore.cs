@@ -29,7 +29,7 @@ namespace Model.Impl
         #region Members inherited from IArtifactStore
 
         /// <seealso cref="IArtifactStore.CopyArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
-        public INovaArtifactDetails CopyArtifact(
+        public CopyNovaArtifactResultSet CopyArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
@@ -653,9 +653,9 @@ namespace Model.Impl
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The details of the artifact that we copied.</returns>
-        public static INovaArtifactDetails CopyArtifact(string address,
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
+        public static CopyNovaArtifactResultSet CopyArtifact(string address,
             IArtifactBase artifact,
             int newParentId,
             IUser user = null,
@@ -675,7 +675,10 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
             }
 
-            var copiedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
+            var copiedArtifact = restApi.SendRequestAndDeserializeObject<CopyNovaArtifactResultSet>(
                 path,
                 RestRequestMethod.POST,
                 queryParameters: queryParams,

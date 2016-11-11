@@ -256,7 +256,6 @@ export class ProjectManager implements IProjectManager {
                 projectId: oldProjectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
-                permissions: result.permissions,
                 predefinedType: Enums.ItemTypePredefined.Project,
                 hasChildren: true
             });

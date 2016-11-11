@@ -22,7 +22,7 @@
   </ALMInfo>
   <JobExecutorInfo>
     <AccountType>User</AccountType>
-    <JobServiceUserName>bpadmin</JobServiceUserName>
+    <JobServiceUserName>WIN-NT2N2CHOOM4\bpadmin</JobServiceUserName>
   </JobExecutorInfo>
   <BlueprintDatabaseInfo>
     <DBServerLocation>localhost</DBServerLocation>

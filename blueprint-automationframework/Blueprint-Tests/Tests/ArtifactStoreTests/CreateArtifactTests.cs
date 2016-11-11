@@ -429,7 +429,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Project not found.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ProjectNotFound, "Project not found.");
         }
 
         [TestCase(ItemTypePredefined.Actor)]

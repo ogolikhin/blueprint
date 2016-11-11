@@ -242,7 +242,6 @@ export class ProjectManager implements IProjectManager {
 
     private processProjectTree(project: IArtifactNode, data: Models.IArtifact[]): ng.IPromise<void> {
         const oldProjectId: number = project.id;
-        const oldProjectPermissions: number = project.permissions;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
 
@@ -257,7 +256,7 @@ export class ProjectManager implements IProjectManager {
                 projectId: oldProjectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
-                permissions: oldProjectPermissions,
+                permissions: result.permissions,
                 predefinedType: Enums.ItemTypePredefined.Project,
                 hasChildren: true
             });

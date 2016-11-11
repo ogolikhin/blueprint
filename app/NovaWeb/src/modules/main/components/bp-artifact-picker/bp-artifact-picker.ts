@@ -1,4 +1,4 @@
-﻿import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
+﻿import {IColumn, IColumnRendererParams, IBPTreeViewControllerApi} from "../../../shared/widgets/bp-tree-view/";
 import {Helper} from "../../../shared/";
 import {SearchResultVM, ArtifactSearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
@@ -23,6 +23,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-picker.html");
     public bindings: {[binding: string]: string} = {
         isItemSelectable: "&?",
+        treeApi: "=?",
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
@@ -30,6 +31,10 @@ export class BpArtifactPicker implements ng.IComponentOptions {
         onSelectionChanged: "&?",
         onDoubleClick: "&?"
     };
+}
+
+export interface ITreeApi {
+    clearSelected(): void;
 }
 
 export interface IArtifactPickerController {
@@ -42,6 +47,7 @@ export interface IArtifactPickerController {
     showSubArtifacts?: boolean;
     isOneProjectLevel?: boolean;
     onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
+    treeApi: ITreeApi;
     onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
     // BpTreeView bindings
@@ -71,8 +77,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public isOneProjectLevel: boolean;
     public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
-
     public factory: SearchResultVMFactory;
+    public api: IBPTreeViewControllerApi;
 
     static $inject = [
         "$scope",
@@ -114,6 +120,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.project = undefined;
         }
     }
+
+    public treeApi: any = {
+        clearSelected: () => {
+            this.api.clearSelected(this.rootNode);
+        }
+    };
 
     public $onDestroy(): void {
         if (this.columns) {

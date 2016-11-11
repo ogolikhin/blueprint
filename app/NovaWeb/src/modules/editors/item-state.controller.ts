@@ -1,5 +1,5 @@
 import {Models} from "../main/models";
-import {IArtifactManager, IProjectManager} from "../managers";
+import {IArtifactManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact";
 import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
@@ -17,7 +17,6 @@ export class ItemStateController {
     public static $inject = [
         "$state",
         "artifactManager",
-        "projectManager",
         "messageService",
         "localization",
         "navigationService",
@@ -28,7 +27,6 @@ export class ItemStateController {
 
     constructor(private $state: angular.ui.IStateService,
                 private artifactManager: IArtifactManager,
-                private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
@@ -47,12 +45,12 @@ export class ItemStateController {
                 artifact.unload();
                 this.navigateToSubRoute(artifact);
             } else {
-                this.getItemInfo(id, version, artifact ? artifact.projectId : undefined);
+                this.getItemInfo(id, version);
             }
         }
     }
 
-    private getItemInfo(id: number, version: number, projectId: number) {
+    private getItemInfo(id: number, version: number) {
         const loadingGetItemInfoId = this.loadingOverlayService.beginLoading();
         this.itemInfoService.get(id).then((result: IItemInfoResult) => {
 
@@ -110,19 +108,11 @@ export class ItemStateController {
                 this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
             }
         }).catch(error => {
-            if (projectId) {
-                this.projectManager.refresh(projectId)
-                .then(() => {
-                    this.projectManager.triggerProjectCollectionRefresh();
-                });
-            } else {
-                this.navigationService.navigateToMain(true);
-                // Forbidden and ServerError responces are handled in http-error-interceptor.ts
-                if (error.statusCode === HttpStatusCode.NotFound) {
-                    this.messageService.addError("HttpError_NotFound", true);
-                }
+            this.navigationService.navigateToMain(true);
+            // Forbidden and ServerError responces are handled in http-error-interceptor.ts
+            if (error.statusCode === HttpStatusCode.NotFound) {
+                this.messageService.addError("HttpError_NotFound", true);
             }
-
         }).finally(() => {
             this.loadingOverlayService.endLoading(loadingGetItemInfoId);
         });

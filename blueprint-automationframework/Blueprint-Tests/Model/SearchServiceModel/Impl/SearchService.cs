@@ -4,6 +4,7 @@ using Common;
 using Model.Impl;
 using Utilities;
 using Utilities.Facades;
+using System.Web;
 
 namespace Model.SearchServiceModel.Impl
 {
@@ -45,7 +46,7 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.PredefinedTypeIds, searchCriteria.Query);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FULLTEXTSEARCH,
@@ -74,7 +75,7 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.ItemTypeIds, searchCriteria?.Query, pageSize);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.PredefinedTypeIds, searchCriteria?.Query, pageSize);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchMetaDataResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FullTextSearch.METADATA,
@@ -120,7 +121,7 @@ namespace Model.SearchServiceModel.Impl
             return projectSearchResult.Items;
         }
 
-        /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, string, List{HttpStatusCode})"/>
         public ItemSearchResult SearchItems(IUser user, FullTextSearchCriteria searchCriteria, int? startOffset = null,
             int? pageSize = null, string separatorString = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -146,7 +147,7 @@ namespace Model.SearchServiceModel.Impl
 
             if (separatorString != null)
             {
-                url = string.Concat(url, "?separatorString=", separatorString);
+                url = string.Concat(url, "?separatorString=", HttpUtility.UrlEncode(separatorString));
             }
 
             var itemSearchResult = restApi.SendRequestAndDeserializeObject<ItemSearchResult, FullTextSearchCriteria>(

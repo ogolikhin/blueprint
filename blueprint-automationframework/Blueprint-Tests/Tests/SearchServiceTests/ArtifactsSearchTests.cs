@@ -1,5 +1,4 @@
-﻿using System.Web;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -136,10 +135,9 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             string separatorString = " > ";
-            var encodedSeparatorString = HttpUtility.UrlEncode(separatorString);
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: encodedSeparatorString); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: separatorString); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -320,12 +318,11 @@ namespace SearchServiceTests
             string separatorString = " > ";
             string expectedPath = string.Concat(_firstProject.Name, separatorString, parentFolder.Name, separatorString,
                 parentArtifact.Name);
-            var encodedSeparatorString = HttpUtility.UrlEncode(separatorString);
 
             // Execute:
             Assert.DoesNotThrow(() => {
                 results = Helper.SearchService.SearchItems(_authorUser, searchCriteria,
-                separatorString: encodedSeparatorString); }, "SearchItems should throw no errors.");
+                separatorString: separatorString); }, "SearchItems should throw no errors.");
 
             // Verify:
             Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
@@ -336,7 +333,7 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(191045)]
-        [Description("Search published artifact by full name in 2 projects, verify that PageItemCount is 10.")]
+        [Description("Create and publish 11 artifacts, search published artifact by full name in all projects, verify that PageItemCount is 10.")]
         public void SearchArtifactByName_2Projects_VerifyPageSizeDefaultValue10()
         {
             // Setup:
@@ -346,14 +343,13 @@ namespace SearchServiceTests
             {
                 Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
             }
-            //var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria, pageSize: 10); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -385,6 +381,31 @@ namespace SearchServiceTests
             // Verify:
             Assert.AreEqual(pageSize, results.PageItemCount, "Default value of PageItemCount should be {0}.", pageSize);
             Assert.AreEqual(pageSize, results.Items.Count, "When expected number of search results is more than PageItemCount, number of returned items should be PageItemCount.");
+        }
+
+        [TestCase]
+        [TestRail(191054)]
+        [Description("Search published artifact by full name within all available projects with IncludeArtifactPath = false, verify search item has Path with null value.")]
+        public void SearchArtifactByFullName_IncludeArtifactPathFalse_VerifyPathIsNull()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = false;
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                results = Helper.SearchService.SearchItems(_authorUser, searchCriteria);
+            }, "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.IsNull(results.Items[0].Path, "Path should be null when IncludeArtifactPath is false");
         }
 
         /// <summary>

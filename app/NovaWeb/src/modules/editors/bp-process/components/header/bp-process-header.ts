@@ -6,7 +6,7 @@ import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact
 import {ICommunicationManager} from "../../";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
-import {IArtifactReference, IBreadcrumbService} from "../../services/breadcrumb.svc";
+import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
@@ -76,7 +76,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onInit() {
         this.breadcrumbService.getReferences()
-            .then((result: any[]) => {
+            .then((result: IPathItem[]) => {
                 for (let i: number = 0; i < result.length; i++) {
                     const pathItem = result[i];
                     const breadcrumbLink: IBreadcrumbLink = {

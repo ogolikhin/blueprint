@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
-import {BreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
+import {BreadcrumbService, IPathItem} from "./breadcrumb.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
@@ -41,7 +41,7 @@ describe("BreadcrumbService", () => {
         // act
         service.getReferences()
             .then(
-                (promiseValue: IArtifactReference[]) => {
+                (promiseValue: IPathItem[]) => {
                     done.fail("Expected getReferences to fail");
                 },
                 (reason: any) => {
@@ -67,7 +67,7 @@ describe("BreadcrumbService", () => {
         // act
         service.getReferences()
             .then(
-                (promiseValue: IArtifactReference[]) => {
+                (promiseValue: IPathItem[]) => {
                     done.fail("Expected getReferences to fail");
                 },
                 (reason: any) => {
@@ -101,7 +101,7 @@ describe("BreadcrumbService", () => {
         // act
         service.getReferences()
             .then(
-                (promiseValue: IArtifactReference[]) => {
+                (promiseValue: IPathItem[]) => {
                     // assert
                     expect(postSpy).toHaveBeenCalledWith("svc/bpartifactstore/process/breadcrumb", expectedPathItems);
                     done();
@@ -128,7 +128,7 @@ describe("BreadcrumbService", () => {
         // act
         service.getReferences()
             .then(
-                (promiseValue: IArtifactReference[]) => {
+                (promiseValue: IPathItem[]) => {
                     // assert
                     done.fail("Expected getReferences to fail");
                 },
@@ -172,7 +172,7 @@ describe("BreadcrumbService", () => {
         // act
         service.getReferences()
             .then(
-                (promiseValue: IArtifactReference[]) => {
+                (promiseValue: IPathItem[]) => {
                     // assert
                     expect(promiseValue).toEqual(expectedResult);
                     done();

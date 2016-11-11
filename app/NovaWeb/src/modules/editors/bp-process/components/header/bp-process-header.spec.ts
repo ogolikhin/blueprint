@@ -89,34 +89,35 @@ describe("BpProcessHeader", () => {
 
         // should have isEnabled = false since no link
         const link0 = <IBreadcrumbLink>{
-            id: 0, 
-            name: localization.get("ST_Breadcrumb_InaccessibleArtifact"), 
-            version: undefined, 
+            id: 0,
+            name: localization.get("ST_Breadcrumb_InaccessibleArtifact"),
+            version: undefined,
             isEnabled: false
         };
         const link1 = <IBreadcrumbLink>{
-            id: 1, 
-            name: "link1", 
-            version: undefined, 
+            id: 1,
+            name: "link1",
+            version: undefined,
             isEnabled: true
         };
         // should have isEnabled = false since last link
-        const link2 = <IBreadcrumbLink>{
-            id: 2, 
-            name: "link2", 
-            version: undefined, 
-            isEnabled: false
-        };
+        // const link2 = <IBreadcrumbLink>{
+        //     id: 2,
+        //     name: "link2",
+        //     version: undefined,
+        //     isEnabled: false
+        // };
 
         // act
         $rootScope.$digest();
 
         // assert
         expect(controller.breadcrumbLinks).not.toBeNull();
-        expect(controller.breadcrumbLinks.length).toBe(3);
+        expect(controller.breadcrumbLinks.length).toBe(2);
         expect(controller.breadcrumbLinks[0]).toEqual(link0);
         expect(controller.breadcrumbLinks[1]).toEqual(link1);
-        expect(controller.breadcrumbLinks[2]).toEqual(link2);
+        //The process name has been removed from breadcrumb
+        // expect(controller.breadcrumbLinks[2]).toEqual(link2);
     });
 
     describe("navigateTo method", () => {

@@ -48,7 +48,7 @@ class PageContentCtrl {
         }
         // When the selected artifact is subartifact inside UseCase diagram
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
-        if (!!explorerArtifact &&
+        if (explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
             explorerArtifact !== selection.artifact) {
             return;

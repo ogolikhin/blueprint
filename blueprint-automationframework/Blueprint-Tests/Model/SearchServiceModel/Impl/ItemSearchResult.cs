@@ -45,8 +45,6 @@ namespace Model.SearchServiceModel.Impl
 
         public int ItemId { get; set; }
 
-        public string TypePrefix { get; set; }
-
         public string Name { get; set; }
 
         public string Path { get; set; }

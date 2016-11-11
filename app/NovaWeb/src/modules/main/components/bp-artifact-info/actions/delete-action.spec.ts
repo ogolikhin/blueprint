@@ -27,7 +27,7 @@ describe("DeleteAction", () => {
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("artifactManager", ArtifactManager); 
         $provide.service("projectManager", ProjectManager); 
-        $provide.service("loadingOverlayService", LoadingOverlayService);       
+        $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -209,6 +209,8 @@ describe("DeleteAction", () => {
         let getDescendantsSpy: jasmine.Spy;
         let endLoadingSpy: jasmine.Spy;    
         let dialogOpenSpy: jasmine.Spy;    
+        let completeDeleteSpy: jasmine.Spy;    
+        let error: any;
 
         beforeEach(inject((
             statefulArtifactFactory: IStatefulArtifactFactory,            
@@ -217,7 +219,7 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService,
             ) => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -233,6 +235,12 @@ describe("DeleteAction", () => {
                 endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
                 dialogOpenSpy = spyOn(dialogService, "open");
                 deleteSpy = spyOn(artifact, "delete");
+                completeDeleteSpy = spyOn(deleteAction, "complete").and.callFake(() => {
+                    return true;
+                });
+                spyOn(messageService, "addError").and.callFake((err) => {
+                    error = err;
+                });
                 refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
                     const deferred = $q_.defer();
                     deferred.resolve(true);
@@ -304,6 +312,28 @@ describe("DeleteAction", () => {
                  
 
                 expect(deleteSpy).not.toHaveBeenCalled();
+            });
+            it("failed delete", () => {
+                // assert
+                dialogOpenSpy.and.callFake(() => {
+                    const deferred = $q_.defer();
+                    deferred.resolve(true);
+                    return deferred.promise;
+                });
+                deleteSpy.and.callFake(() => {
+                    const deferred = $q_.defer();
+                    deferred.reject({});
+                    return deferred.promise;
+                });
+
+
+                deleteAction.execute();
+                $scope.$digest();
+                 
+
+                expect(completeDeleteSpy).not.toHaveBeenCalled();
+                expect(error).toBeDefined();
+                
             });
 
         });

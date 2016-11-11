@@ -162,10 +162,10 @@ export class BPToolbarController implements IBPToolbarController {
 
     /**
      * Closes the selected project.
-     * 
+     *
      * If there is no opened projects, navigates to main state
      * Otherwise navigates to next project in project list
-     * 
+     *
      */
     private closeProject() {
         const artifact = this.artifactManager.selection.getArtifact();
@@ -385,13 +385,13 @@ export class BPToolbarController implements IBPToolbarController {
                             });
                     })
                     .catch((error: IApplicationError) => {
-                        if (error.statusCode === 404 && error.errorCode === 102) { //Project not found
+                        if (error.statusCode === 404 && error.errorCode === 102) { // project not found, we refresh all
                             this.projectManager.refreshAll()
                                 .then(() => {
                                     this.messageService.addError("Create_New_Artifact_Error_404_102", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
-                        } else if (error.statusCode === 404) { //Parent or artifact type not found
+                        } else if (error.statusCode === 404) { // parent or artifact type not found, we refresh the single project
                             this.projectManager.refresh(projectId)
                                 .then(() => {
                                     this.projectManager.triggerProjectCollectionRefresh();

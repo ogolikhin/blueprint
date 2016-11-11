@@ -32,6 +32,7 @@ describe("BpProcessHeader", () => {
     let $q: ng.IQService;
     let $compile: ng.ICompileService;
     let controller: BpProcessHeaderController;
+    let localization: LocalizationServiceMock;
     let breadcrumbService: IBreadcrumbService;
     let navigationService: INavigationService;
 
@@ -61,24 +62,24 @@ describe("BpProcessHeader", () => {
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$compile_: ng.ICompileService,
                        _$q_: ng.IQService,
+                       _localization_: LocalizationServiceMock,
                        _breadcrumbService_: IBreadcrumbService,
                        _navigationService_: INavigationService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         $compile = _$compile_;
+        localization = _localization_;
         breadcrumbService = _breadcrumbService_;
         navigationService = _navigationService_;
     }));
 
-    xit("correctly initializes breadcrumb", () => {
+    it("correctly initializes breadcrumb", () => {
         // arrange
         const deferred = $q.defer();
         deferred.resolve([
-            // should have isEnabled = false since no link
-            {id: 0, name: "link0"},
-            {id: 1, name: "link1", link: "http//link1"},
-            // should have isEnabled = false since last link
-            {id: 2, name: "link2", link: "http://link2"}
+            {id: 0, name: "link0", version: undefined, accessible: false},
+            {id: 1, name: "link1", version: undefined, accessible: true},
+            {id: 2, name: "link2", version: undefined, accessible: true}
         ]);
         spyOn(breadcrumbService, "getReferences").and.returnValue(deferred.promise);
 
@@ -86,9 +87,26 @@ describe("BpProcessHeader", () => {
         const element = $compile(template)($rootScope.$new());
         controller = element.controller("bpProcessHeader");
 
-        const link0 = <IBreadcrumbLink>{id: 0, name: "link0", isEnabled: false};
-        const link1 = <IBreadcrumbLink>{id: 1, name: "link1", isEnabled: true};
-        const link2 = <IBreadcrumbLink>{id: 2, name: "link2", isEnabled: false};
+        // should have isEnabled = false since no link
+        const link0 = <IBreadcrumbLink>{
+            id: 0, 
+            name: localization.get("ST_Breadcrumb_InaccessibleArtifact"), 
+            version: undefined, 
+            isEnabled: false
+        };
+        const link1 = <IBreadcrumbLink>{
+            id: 1, 
+            name: "link1", 
+            version: undefined, 
+            isEnabled: true
+        };
+        // should have isEnabled = false since last link
+        const link2 = <IBreadcrumbLink>{
+            id: 2, 
+            name: "link2", 
+            version: undefined, 
+            isEnabled: false
+        };
 
         // act
         $rootScope.$digest();

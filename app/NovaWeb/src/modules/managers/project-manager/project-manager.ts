@@ -35,7 +35,7 @@ export interface IProjectManager extends IDispose {
     // eventManager
     initialize();
     add(project: AdminStoreModels.IInstanceItem);
-    remove(): void;
+    remove(projectId: number): void;
     removeAll(): void;
     refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
@@ -358,21 +358,17 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-    public remove() {
-        const artifact = this.artifactManager.selection.getArtifact();
-        if (artifact) {
-            const projectId = artifact.projectId;
-            this.artifactManager.removeAll(projectId);
-            const projects = this.projectCollection.getValue().filter((project) => {
-                if (project.projectId === projectId) {
-                    project.dispose();
-                    return false;
-                }
-                return true;
-            });
+    public remove(projectId: number) {
+        this.artifactManager.removeAll(projectId);
+        const projects = this.projectCollection.getValue().filter((project) => {
+            if (project.projectId === projectId) {
+                project.dispose();
+                return false;
+            }
+            return true;
+        });
 
-            this.projectCollection.onNext(projects);
-        }
+        this.projectCollection.onNext(projects);
     }
 
     public removeAll() {

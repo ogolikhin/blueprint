@@ -308,10 +308,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.refresh();
                 this.services.messageService.addInfo("Artifact_Lock_Refresh", 6000);
             } else {
-                if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {
-                    this.artifactState.misplaced = true;
+                if (lock.info.parentId !== this.parentId || lock.info.orderIndex !== this.orderIndex) {                 
+                    this.artifactState.misplaced = true;                    
                 }
-                this.subject.onNext(this);
             }
         } else {
             if (lock.result === Enums.LockResultEnum.AlreadyLocked) {

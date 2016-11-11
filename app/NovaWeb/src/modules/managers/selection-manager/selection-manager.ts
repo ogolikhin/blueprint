@@ -5,7 +5,7 @@ import {IDispose} from "./../../managers/models";
 
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
-    explorerArtifactObservable: Rx.Observable<IStatefulArtifact>;
+    explorerArtifactObservable: Rx.Observable<number>;
     subArtifactObservable: Rx.Observable<IStatefulSubArtifact>;
     currentlySelectedArtifactObservable: Rx.Observable<IStatefulArtifact>;
     selectionObservable: Rx.Observable<ISelection>;
@@ -55,7 +55,9 @@ export class SelectionManager implements ISelectionManager {
     public get explorerArtifactObservable() {
         return this.explorerArtifactSelectionSubject
             .filter(s => s != null)
-            .distinctUntilChanged(this.distinctById).asObservable();
+            .distinctUntilChanged(this.distinctById)
+            .map((s) => s.id)
+            .asObservable();
     }
 
     public get subArtifactObservable() {

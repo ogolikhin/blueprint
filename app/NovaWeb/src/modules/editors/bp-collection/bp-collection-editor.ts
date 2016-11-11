@@ -41,8 +41,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectedVMs: any[] = [];
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
-    //public showBulkActions: boolean;
-    //public selectedVMsLength: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,

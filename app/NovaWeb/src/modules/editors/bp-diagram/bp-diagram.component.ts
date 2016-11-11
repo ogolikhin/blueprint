@@ -12,6 +12,7 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {BpBaseEditor} from "../bp-base-editor";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
+import {INavigationService, INavigationParams} from "../../core/navigation/navigation.svc";
 
 
 export class BPDiagram implements ng.IComponentOptions {
@@ -30,7 +31,8 @@ export class BPDiagramController extends BpBaseEditor {
         "localization",
         "$rootScope",
         "$log",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "navigationService"
     ];
 
     public errorMsg: string;
@@ -46,7 +48,8 @@ export class BPDiagramController extends BpBaseEditor {
                 private localization: ILocalizationService,
                 private $rootScope: ng.IRootScopeService,
                 private $log: ng.ILogService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private navigationService: INavigationService) {
         super(messageService, artifactManager);
         new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
@@ -95,6 +98,7 @@ export class BPDiagramController extends BpBaseEditor {
         if (this.diagram.isCompatible) {
             this.diagramView = new DiagramView(this.$element[0], this.stencilService);
             this.diagramView.addSelectionListener((elements) => this.onSelectionChanged(this.diagram.diagramType, elements));
+            this.diagramView.onDoubleClick = this.onDoubleClick;
             this.stylizeSvg(this.$element, this.diagram.width, this.diagram.height);
             this.diagramView.drawDiagram(this.diagram);
 
@@ -104,6 +108,18 @@ export class BPDiagramController extends BpBaseEditor {
         } else {
             this.errorMsg = this.localization.get("Diagram_OldFormat_Message");
             this.$log.error(this.errorMsg);
+        }
+    }
+
+    private onDoubleClick = (element: IDiagramElement) => {
+        if (element && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
+            const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
+            if (artifactPromise) {
+                artifactPromise.then((artifact) => {
+                    let navigationParams = {id: artifact.id};
+                    this.navigationService.navigateTo(navigationParams);
+                });
+            }
         }
     }
 

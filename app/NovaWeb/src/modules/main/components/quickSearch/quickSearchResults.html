@@ -137,7 +137,7 @@
                         rotate="true" 
                         force-ellipses="true"
                         ng-change="$ctrl.search($ctrl.searchTerm)"
-                        ng-if="$ctrl.results.length > 0 || $ctrl.page > 1"
+                        ng-if="$ctrl.showPagination()"
                      ></ul>
                 </div>
             </div>

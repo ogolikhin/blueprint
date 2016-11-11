@@ -83,13 +83,53 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
 
     public changes(): IArtifact {
         let artifactChanges = super.changes();
+
         const changesets = this.changesets.get();
         if (changesets.length > 0) {
-            let collectionContentProperty = <Models.IPropertyValue>{
-                name: "CollectionContent",
-                primitiveType: PropertyTypePredefined.
-            };
-            artifactChanges.specificPropertyValues.push();
+
+            let addedArtifactIds: number[] = [];
+            let removedArtifactIds: number[] = [];
+            changesets.map((changeset: IChangeSet) => {
+                if (changeset.type === ChangeTypeEnum.Add) {
+                    const id = changeset.key as number;
+                    const index = removedArtifactIds.indexOf(id);
+                    if (index > -1) {
+                        removedArtifactIds.splice(index);
+                    } else {
+                        addedArtifactIds.push(changeset.key as number);
+                    }
+                }
+                else if (changeset.type === ChangeTypeEnum.Delete) {
+                    const id = changeset.key as number;
+                    const index = addedArtifactIds.indexOf(id);
+                    if (index > -1) {
+                        addedArtifactIds.splice(index);
+                    } else {
+                        removedArtifactIds.push(changeset.key as number);
+                    }
+                }
+            });
+
+            if (addedArtifactIds.length > 0 || removedArtifactIds.length > 0) {
+
+                let collectionContent = <Models.ICollectionContentPropertyValue>{
+                    addedArtifacts: addedArtifactIds,
+                    removedArtifacts: removedArtifactIds
+                };
+
+                let collectionContentProperty = <Models.IPropertyValue>{
+                    name: "CollectionContent",
+                    primitiveType: Models.PrimitiveType.Text,
+                    propertyTypeId: -1,
+                    propertyTypePredefined: PropertyTypePredefined.CollectionContent,
+                    isRichText: false,
+                    isMultipleAllowed: false,
+                    isReuseReadOnly: false,
+                    propertyTypeVersionId: -1,
+                    value: collectionContent
+                };
+                artifactChanges.specificPropertyValues.push(collectionContentProperty);
+            }
         }
         return artifactChanges;
     }

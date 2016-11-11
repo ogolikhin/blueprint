@@ -88,7 +88,7 @@ namespace ServiceLibrary.Repositories
 
                         // Add the orphan with children
                         dicUserArtifactVersions.Add(userOrphanVersion.ItemId, userOrphanVersion);
-                        foreach (var userOrphanChildVersion in dicUserOrphanVersions.Values.Where(v => v.ParentId == userOrphanVersion.ItemId))
+                        foreach (var userOrphanChildVersion in dicUserOrphanVersions.Values.Where(v => v?.ParentId == userOrphanVersion.ItemId))
                         {
                             if (dicUserArtifactVersions.ContainsKey(userOrphanChildVersion.ItemId))
                                 continue;

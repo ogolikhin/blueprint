@@ -36,7 +36,8 @@
     color: $gray-dark;
 }
 
-.new-artifact__input--dropdown {
+.new-artifact__dropdown {
+    color: $gray-dark;
     padding-right: 24px;
 
     &.ng-empty {
@@ -45,11 +46,11 @@
     }
 }
 
-.new-artifact__input-group {
+.new-artifact__group {
     margin-bottom: 10px;
 }
 
-.new-artifact__input-group--first {
+.new-artifact__group--first {
     margin-bottom: 18px;
 }
 

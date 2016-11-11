@@ -9,7 +9,6 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *          grid-columns="$ctrl.columns"
  *          enable-editing-on="name"
  *          enable-dragndrop="true"
- *          property-map="$ctrl.propertyMap"
  *          data-source="$ctrl.datasource"
  *          on-load="$ctrl.doLoad(prms)"
  *          on-select="$ctrl.doSelect(item)"
@@ -30,7 +29,6 @@ export class BPTreeComponent implements ng.IComponentOptions {
         headerHeight: "<",
         //settings
         gridColumns: "<",
-        propertyMap: "<",
         //to set connection with parent
         api: "=?",
         //events
@@ -63,7 +61,6 @@ export interface IBPTreeController {
     rowHeight: number;
     headerHeight: number;
     gridColumns: any[];
-    propertyMap: any;
     api: IBPTreeControllerApi;
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
@@ -96,7 +93,6 @@ export class BPTreeController implements IBPTreeController {
     public rowHeight: number;
     public headerHeight: number;
     public gridColumns: any[];
-    public propertyMap: any;
     public onLoad: Function;
     public onSelect: Function;
     public onSync: Function;
@@ -174,32 +170,6 @@ export class BPTreeController implements IBPTreeController {
         this.options.api.destroy();
     };
 
-    private mapData(data: any, propertyMap?: any): ITreeNode {
-        propertyMap = propertyMap || this.propertyMap;
-
-        if (!propertyMap) {
-            return data;
-        }
-
-        let item = {} as ITreeNode;
-
-        for (let property in data) {
-            item[propertyMap[property] ? propertyMap[property] : property] = data[property];
-        }
-
-        if (item.hasChildren) {
-            if (angular.isArray(item.children) && item.children.length) {
-                item.children = item.children.map(function (it) {
-                    return this.mapData(it, propertyMap);
-                }.bind(this)) as ITreeNode[];
-            } else {
-                item.children = [];
-            }
-        }
-
-        return item;
-    }
-
     public api: IBPTreeControllerApi = {
         getSelectedNodeId: () => {
             return this.selectedRowNode ? this.selectedRowNode.data.id : null;
@@ -247,25 +217,18 @@ export class BPTreeController implements IBPTreeController {
         },
 
         //sets a new datasource or add a datasource to specific node  children collection
-        reload: (data?: any[], nodeId?: number) => {
-            let nodes: ITreeNode[] = [];
-
+        reload: (data?: ITreeNode[], nodeId?: number) => {
             this._datasource = this._datasource || [];
-            if (data) {
-                nodes = data.map(function (it) {
-                    return this.mapData(it, this.propertyMap);
-                }.bind(this)) as ITreeNode[];
-            }
 
             if (nodeId) {
                 const node = this.getNode(nodeId, this._datasource);
                 if (node) {
                     node.open = true;
                     node.loaded = true;
-                    node.children = nodes;
+                    node.children = data;
                 }
             } else {
-                this._datasource = nodes;
+                this._datasource = data;
             }
 
             this.options.api.setRowData(this._datasource);
@@ -358,11 +321,11 @@ export class BPTreeController implements IBPTreeController {
     // Callbacks
 
     private getNodeChildDetails(node: ITreeNode) {
-        if (node.children) {
+        if (node.hasChildren) {
             return {
                 group: true,
                 expanded: node.open,
-                children: node.children,
+                children: node.children || [],
                 field: "name",
                 key: node.id // the key is used by the default group cellRenderer
             };

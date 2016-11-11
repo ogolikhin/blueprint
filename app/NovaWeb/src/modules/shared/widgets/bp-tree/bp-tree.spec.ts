@@ -63,7 +63,7 @@ describe("Embedded ag-grid events", () => {
     it("getNodeChildDetails", () => {
         // Arrange
         const rowItemMock = {
-            children: true,
+            hasChildren: true,
             open: true,
             id: 1
         };
@@ -103,58 +103,6 @@ describe("Embedded ag-grid events", () => {
         expect(cellRenderer).toEqual("artifact");
         expect(cellRendererFolder).toEqual(undefined);
     });
-
-    it("add nodes with property map", inject(($q: ng.IQService) => {
-        // Arrange
-        let dataFromCall: ITreeNode[];
-        gridApi.setRowData = function (data) {
-            dataFromCall = data as ITreeNode[];
-        };
-
-        controller.options.api = gridApi;
-        $scope.$apply();
-        controller.propertyMap = {
-            itemId: "id",
-            TheName: "name"
-        };
-        // Act
-        controller.api.reload([{itemId: 1, TheName: `Name 1`}]);
-        // Assert
-        //let data = controller.options.api.getRenderedNodes();
-        expect(dataFromCall).toEqual(jasmine.any(Array));
-        expect(dataFromCall.length).toBe(1);
-        expect(dataFromCall[0].id).toBe(1);
-        expect(dataFromCall[0].name).toBe("Name 1");
-
-    }));
-
-    it("add nodes with property map with not matched properties", inject(($q: ng.IQService) => {
-        // Arrange
-        let dataFromCall: ITreeNode[];
-        gridApi.setRowData = function (data) {
-            dataFromCall = data as ITreeNode[];
-        };
-
-        // Act
-        controller.options.api = gridApi;
-        controller.propertyMap = {
-            id: "id",
-            name: "name"
-        };
-        $scope.$apply();
-
-        controller.api.reload([{itemId: 1, TheName: `Name 1`}]);
-        // Assert
-        //let data = controller.options.api.getRenderedNodes();
-        expect(dataFromCall).toEqual(jasmine.any(Array));
-        expect(dataFromCall.length).toBe(1);
-        expect(dataFromCall[0].id).toBeUndefined();
-        expect(dataFromCall[0].name).toBeUndefined();
-        expect(dataFromCall[0]["itemId"]).toBeDefined();
-        expect(dataFromCall[0]["TheName"]).toBeDefined();
-
-    }));
-
 
     it("add nodes", inject(($q: ng.IQService) => {
         // Arrange

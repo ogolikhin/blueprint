@@ -5,6 +5,7 @@ import {IArtifactNode} from "../project-manager";
 
 export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;
+    public name: string;
     public children: IArtifactNode[];
     public parentNode: IArtifactNode;
 
@@ -13,6 +14,7 @@ export class ArtifactNode implements IArtifactNode {
             throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
+        this.name = artifact ? artifact.name : null;
         this.parentNode = parentNode;
         if (parentNode) {
             this.hasChildren = artifact.hasChildren;
@@ -40,8 +42,8 @@ export class ArtifactNode implements IArtifactNode {
         return !this._artifact ? null : this._artifact.id;
     }
 
-    public get name(): string {
-        return !this._artifact ? null : this._artifact.name;
+    public get itemTypeId(): number {
+        return !this._artifact ? null : this._artifact.itemTypeId;
     }
 
     public get projectId() {

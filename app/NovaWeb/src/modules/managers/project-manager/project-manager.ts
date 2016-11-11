@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {IDialogService} from "../../shared";
+import {IDialogService, ITreeNode} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {ArtifactNode} from "./artifact-node";
 import {IDispose} from "../models";
@@ -13,19 +13,13 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
-export interface IArtifactNode extends IDispose {
+export interface IArtifactNode extends ITreeNode, IDispose {
     artifact: IStatefulArtifact;
     children?: IArtifactNode[];
     parentNode: IArtifactNode;
-    id: number;
-    name: string;
     projectId: number;
-    //parentId: number;
     permissions: Enums.RolePermissions;
     predefinedType: Enums.ItemTypePredefined;
-    hasChildren?: boolean;
-    loaded?: boolean;
-    open?: boolean;
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
 }
 

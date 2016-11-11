@@ -1,8 +1,9 @@
 import { IStatefulArtifact, StatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IArtifact } from "../../main/models/models";
-import { ItemTypePredefined } from "../../main/models/enums";
+import {IArtifact} from "../../main/models/models";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../main/models/enums";
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
 import {Helper} from "../../shared/utils/helper";
+import {Models} from "../../main/models";
 
 export interface ICollection extends IArtifact {
     reviewName: string;
@@ -79,6 +80,19 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
         }
         return undefined;
     }   
+
+    public changes(): IArtifact {
+        let artifactChanges = super.changes();
+        const changesets = this.changesets.get();
+        if (changesets.length > 0) {
+            let collectionContentProperty = <Models.IPropertyValue>{
+                name: "CollectionContent",
+                primitiveType: PropertyTypePredefined.
+            };
+            artifactChanges.specificPropertyValues.push();
+        }
+        return artifactChanges;
+    }
 
     public addArtifactsToCollection(artifacts: IArtifact[]) {
 

@@ -82,12 +82,20 @@ describe("BreadcrumbService", () => {
 
     it("getReferences makes an http call if navigation history exists", (done: DoneFn) => {
         // arrange
-        const navigationState = {id: 1, path: [{id: 2}, {id: 3}]};
+        const path = [
+            {id: 2}, 
+            {id: 3}
+        ];
+        const navigationState = {id: 1, path: path};
         const service = new BreadcrumbService($q, $http, navigationService);
-
+        const expectedPathItems = [
+            {id: 2, version: undefined}, 
+            {id: 3, version: undefined}, 
+            {id: 1, version: undefined}
+        ];
         const deferred = $q.defer();
         deferred.resolve([]);
-        const getSpy = spyOn($http, "get").and.returnValue(deferred.promise);
+        const postSpy = spyOn($http, "post").and.returnValue(deferred.promise);
         spyOn(navigationService, "getNavigationState").and.returnValues(navigationState);
 
         // act
@@ -95,7 +103,7 @@ describe("BreadcrumbService", () => {
             .then(
                 (promiseValue: IArtifactReference[]) => {
                     // assert
-                    expect(getSpy).toHaveBeenCalledWith("/svc/shared/navigation/2/3/1");
+                    expect(postSpy).toHaveBeenCalledWith("svc/bpartifactstore/process/breadcrumb", expectedPathItems);
                     done();
                 },
                 (reason: any) => {
@@ -108,12 +116,13 @@ describe("BreadcrumbService", () => {
 
     it("getReferences fails if http call fails", (done: DoneFn) => {
         // arrange
-        const navigationState = {id: 1, path: [2, 3]};
+        const path = [{id: 2}, {id: 3}];
+        const navigationState = {id: 1, path: path};
         const service = new BreadcrumbService($q, $http, navigationService);
 
         const deferred = $q.defer();
         deferred.reject("Error");
-        spyOn($http, "get").and.returnValue(deferred.promise);
+        spyOn($http, "post").and.returnValue(deferred.promise);
         spyOn(navigationService, "getNavigationState").and.returnValues(navigationState);
 
         // act
@@ -122,7 +131,6 @@ describe("BreadcrumbService", () => {
                 (promiseValue: IArtifactReference[]) => {
                     // assert
                     done.fail("Expected getReferences to fail");
-
                 },
                 (reason: any) => {
                     expect(reason).toEqual("Error");
@@ -135,21 +143,30 @@ describe("BreadcrumbService", () => {
 
     it("getReferences succeeds if http call succeeds", (done: DoneFn) => {
         // arrange
-        const navigationState = {id: 1, path: [2, 3]};
+        const path = [{id: 2, version: undefined}, {id: 3, version: undefined}];
+        const navigationState = {id: 1, path: path};
         const service = new BreadcrumbService($q, $http, navigationService);
-        const references = [{
-            id: 1,
-            projectId: 67,
-            name: "test",
-            typePrefix: "TST",
-            projectName: "Test Project",
-            baseItemTypePredefined: ItemTypePredefined.Process,
-            link: "http://test"
-        }];
+        const expectedResult = [
+            {
+                id: 2,
+                name: "2",
+                isEnabled: true
+            },
+            {
+                id: 3,
+                name: "3",
+                isEnabled: true
+            },
+            {
+                id: 1,
+                name: "1",
+                isEnabled: false
+            }
+        ];
 
         const deferred = $q.defer();
-        deferred.resolve({data: references});
-        spyOn($http, "get").and.returnValue(deferred.promise);
+        deferred.resolve({data: expectedResult});
+        spyOn($http, "post").and.returnValue(deferred.promise);
         spyOn(navigationService, "getNavigationState").and.returnValues(navigationState);
 
         // act
@@ -157,7 +174,7 @@ describe("BreadcrumbService", () => {
             .then(
                 (promiseValue: IArtifactReference[]) => {
                     // assert
-                    expect(promiseValue).toEqual(references);
+                    expect(promiseValue).toEqual(expectedResult);
                     done();
                 },
                 (reason: any) => {

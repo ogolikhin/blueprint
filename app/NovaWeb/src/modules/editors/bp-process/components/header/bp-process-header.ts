@@ -76,14 +76,14 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onInit() {
         this.breadcrumbService.getReferences()
-            .then((result: IArtifactReference[]) => {
+            .then((result: any[]) => {
                 for (let i: number = 0; i < result.length; i++) {
-                    const artifactReference = result[i];
+                    const pathItem = result[i];
                     const breadcrumbLink: IBreadcrumbLink = {
-                        id: artifactReference.id,
-                        name: artifactReference.name,
-                        version: artifactReference.version,
-                        isEnabled: i !== result.length - 1 && !!artifactReference.link
+                        id: pathItem.id,
+                        name: pathItem.accessible ? pathItem.name : this.localization.get("ST_Breadcrumb_InaccessibleArtifact"),
+                        version: pathItem.version,
+                        isEnabled: pathItem.accessible ? i !== result.length - 1 : false
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 }

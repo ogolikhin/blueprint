@@ -38,13 +38,13 @@ export class BreadcrumbService implements IBreadcrumbService {
         if (!navigationState.path || navigationState.path.length === 0) {
             deferred.reject();
         } else {
-            let url = `/svc/shared/navigation/${navigationState.path.map(item => item.id).join("/")}/${navigationState.id}`;
+            let url = `svc/bpartifactstore/process/breadcrumb`;
+            
+            let pathItems = [];
+            navigationState.path.forEach(item => pathItems.push({ id: item.id, version: item.version }));
+            pathItems.push({ id: navigationState.id, version: navigationState.version });
 
-            if (navigationState.version) {
-                url = `${url}?versionId=${navigationState.version}`;
-            }
-
-            this.$http.get(url)
+            this.$http.post(url, pathItems)
                 .then((result) => {
                     deferred.resolve(result.data);
                 })

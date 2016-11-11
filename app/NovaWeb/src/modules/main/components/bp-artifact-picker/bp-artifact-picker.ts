@@ -33,7 +33,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     };
 }
 
-export interface ITreeApi {
+export interface IArtifactPickerAPI {
     clearSelected(): void;
 }
 
@@ -47,7 +47,7 @@ export interface IArtifactPickerController {
     showSubArtifacts?: boolean;
     isOneProjectLevel?: boolean;
     onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
-    api: ITreeApi;
+    api: IArtifactPickerAPI;
     onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
     // BpTreeView bindings
@@ -121,9 +121,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    public api: ITreeApi = {
+    public api: IArtifactPickerAPI = {
         clearSelected: () => {
-            this.treeApi.clearSelected(this.rootNode);
+            this.treeApi.clearSelected();
         }
     };
 

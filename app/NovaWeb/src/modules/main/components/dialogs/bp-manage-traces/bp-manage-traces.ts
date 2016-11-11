@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
-import {ITreeApi} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
+import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
 import {Relationships, Models, TreeViewModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {
@@ -35,7 +35,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     public isChanged: boolean = false;
     public disabledSave: boolean = true;
     public initialArray: any[];
-    public api: ITreeApi;
+    public api: IArtifactPickerAPI;
 
     public options = [
         {value: "1", label: this.localization.get("App_UP_Relationships_To")},

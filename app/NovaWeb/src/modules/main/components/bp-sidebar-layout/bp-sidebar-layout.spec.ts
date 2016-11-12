@@ -10,8 +10,8 @@ describe("Component BpSidebarLayout", () => {
 
     beforeEach(angular.mock.module("app.main"));
 
-    var directiveTest: ComponentTest<BpSidebarLayoutCtrl>;
-    var layout = `
+    let directiveTest: ComponentTest<BpSidebarLayoutCtrl>;
+    const layout = `
         <bp-sidebar-layout left-panel-title="My Left Panel Title" right-panel-title="My Right Panel Title">
             <bp-sidebar-layout-content-left>My Left Panel Content</bp-sidebar-layout-content-left>
             <bp-sidebar-layout-content-center>My Center Content</bp-sidebar-layout-content-center>
@@ -27,7 +27,7 @@ describe("Component BpSidebarLayout", () => {
         it("should be hidden by default", () => {
 
             //Arrange
-            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            const vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
 
             //Assert
             expect(vm.isLeftToggled).toBe(false);
@@ -38,11 +38,11 @@ describe("Component BpSidebarLayout", () => {
         it("should toggle the left side correctly", () => {
 
             //Arrange
-            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            const vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
             vm.togglePanel = () => {
                 vm.isLeftToggled = !vm.isLeftToggled;
             };
-            var event = directiveTest.scope.$broadcast("dummyEvent");
+            const event = directiveTest.scope.$broadcast("dummyEvent");
 
             //Act
             vm.toggleLeft(event);
@@ -58,12 +58,12 @@ describe("Component BpSidebarLayout", () => {
         it("should toggle the right side correctly", () => {
 
             //Arrange
-            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            const vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
             vm.togglePanel = () => {
                 vm.isRightToggled = !vm.isRightToggled;
             };
 
-            var event = directiveTest.scope.$broadcast("dummyEvent");
+            const event = directiveTest.scope.$broadcast("dummyEvent");
 
             //Act
             vm.toggleRight(event);
@@ -79,7 +79,7 @@ describe("Component BpSidebarLayout", () => {
         it("should toggle the both sides correctly", () => {
 
             //Arrange
-            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            const vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
             vm.togglePanel = (arg) => {
                 if (arg.id === Enums.ILayoutPanel.Left) {
                     vm.isLeftToggled = !vm.isLeftToggled;
@@ -104,7 +104,7 @@ describe("Component BpSidebarLayout", () => {
         it("should double toggle the left side correctly", () => {
 
             //Arrange
-            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            const vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
             vm.togglePanel = () => {
                 vm.isLeftToggled = !vm.isLeftToggled;
             };
@@ -124,7 +124,7 @@ describe("Component BpSidebarLayout", () => {
         it("should double-toggle the both sides correctly", () => {
 
             //Arrange
-            var vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
+            const vm: BpSidebarLayoutCtrl = directiveTest.createComponent({});
             vm.togglePanel = (arg) => {
                 if (arg.id === Enums.ILayoutPanel.Left) {
                     vm.isLeftToggled = !vm.isLeftToggled;

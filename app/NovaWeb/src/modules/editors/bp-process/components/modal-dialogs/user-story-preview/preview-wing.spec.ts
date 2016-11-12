@@ -5,22 +5,22 @@ import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-mode
 
 describe("PreviewWing Directive", () => {
 
-    var element: ng.IAugmentedJQuery;
-    var scope: ng.IScope;
-    var directiveWrapper: string;
+    let element: ng.IAugmentedJQuery;
+    let scope: ng.IScope;
+    let directiveWrapper: string;
 
     it("constructor, cloneModel",
         inject(($controller: ng.IControllerService, $rootScope: ng.IRootScopeService) => {
             // Arrange
-            var o = {};
+            const o = {};
             o["isLeftWing"] = "true";
             o["systemTaskModel"] = {};
-            var controllerScope = $rootScope.$new();
+            const controllerScope = $rootScope.$new();
             (controllerScope.$parent)["dialogModel"] = new UserStoryDialogModel();
             controllerScope["wingCtrl"] = o;
 
             // Act
-            var controller: PreviewWingController = $controller(PreviewWingController, {
+            const controller: PreviewWingController = $controller(PreviewWingController, {
                 $scope: controllerScope,
                 $rootScope
             });

@@ -70,7 +70,7 @@ function Build-Nova-Html{
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
         [Parameter(Mandatory=$true)][string]$visualStudioVersion,
         [Parameter(Mandatory=$false)][bool] $RunTests = $true,
-        [Parameter(Mandatory=$false)][bool] $Debug = $false,
+        [Parameter(Mandatory=$false)][bool] $BuildDebug = $false,
 
         #Unused, for splatting the same hashtable into multiple methods without error.
         [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -91,7 +91,7 @@ function Build-Nova-Html{
         Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
 
         # Build Nova Application
-        if($Debug) {
+        if($BuildDebug) {
             Invoke-MyExpression "npm" "run build -- --debug"
         } else {
             Invoke-MyExpression "npm" "run build"

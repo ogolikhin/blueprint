@@ -15,8 +15,8 @@ param(
     [Parameter(Mandatory=$true)][string] $blueprintVersion,
     [Parameter(Mandatory=$false)][string] $msBuildVerbosity = "m", #q[uiet], m[inimal], n[ormal], d[etailed], and diag[nostic].
     [Parameter(Mandatory=$false)][bool] $removeFiles = $true,
-    [Parameter(Mandatory=$false)][bool] $buildNovaWeb = $false, #Currently not part of release; remove parameter once it is
     [Parameter(Mandatory=$false)][bool] $RunTests = $true,
+    [Parameter(Mandatory=$false)][bool] $Debug = $false,
 
     #Unused, for splatting the same hashtable into multiple methods without error.
     [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -36,6 +36,7 @@ $buildParams = @{
     msBuildVerbosity = $msBuildVerbosity
     msBuildPath = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
     visualStudioVersion = "14.0"
+    Debug = $debug
 }
 
 Setup-Environment @buildParams -removeFiles $removeFiles
@@ -46,6 +47,4 @@ if($RunTests)
     Run-Nova-Unit-Tests @buildParams
 }
 
-if($buildNovaWeb){
-    Build-Nova-Html @buildParams -RunTests $RunTests
-}
+Build-Nova-Html @buildParams -RunTests $RunTests

@@ -7,7 +7,7 @@
 // import { Models } from "../../../../main/services/project-manager";
 // import { SelectionManager, SelectionSource } from "../../../../main/services/selection-manager";
 
-// describe("Component BP Artifact Attachment Item", () => {
+xdescribe("Component BP Artifact Attachment Item", () => {
 
 
 //     beforeEach(angular.mock.module("app.shell"));
@@ -19,14 +19,14 @@
 
 //     let componentTest: ComponentTest<BPArtifactAttachmentItemController>;
 //     let template = `
-//         <bp-artifact-attachment-item 
+//         <bp-artifact-attachment-item
 //             attachment-info="attachment">
 //         </bp-artifact-attachment-item>
 //     `;
 //     let vm: BPArtifactAttachmentItemController;
 
 //     beforeEach(inject(() => {
-//         let bindings: any = { 
+//         let bindings: any = {
 //             attachment: {
 //                 userId: 1,
 //                 userName: "admin",
@@ -39,15 +39,15 @@
 //         vm = componentTest.createComponent(bindings);
 //     }));
 
-//     it("should be visible by default", () => {
+    it("should be visible by default", () => {
 //         //Assert
 //         expect(componentTest.element.find(".author").length).toBe(1);
 //         expect(componentTest.element.find(".button-bar").length).toBe(1);
 //         expect(componentTest.element.find("h6").length).toBe(1);
 //         expect(componentTest.element.find(".ext-image").length).toBe(1);
-//     });
+    });
 
-//     it("should try to download an attachment", 
+    it("should try to download an attachment", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService, selectionManager: SelectionManager) => {
 
 //             //Arrange
@@ -65,10 +65,10 @@
 //             //Assert
 //             expect($window.open).toHaveBeenCalled();
 //             expect($window.open).toHaveBeenCalledWith("/svc/components/RapidReview/artifacts/22/files/1093?includeDraft=true", "_blank");
-//     }));
+    }));
 
-//     it("should try to delete an attachment", 
-//         inject(($window: ng.IWindowService) => {
+    it("should try to delete an attachment",
+        inject(($window: ng.IWindowService) => {
 
 //         // Arrange
 //         spyOn($window, "alert").and.callFake(() => true);
@@ -78,5 +78,5 @@
 
 //         //Assert
 //         expect($window.alert).toHaveBeenCalled();
-//     }));
-// });
+    }));
+});

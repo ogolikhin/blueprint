@@ -9,10 +9,10 @@
 // import { IMessageService } from "../../../../shell";
 
 
-// describe("Component BP Artifact Document Item", () => {
+xdescribe("Component BP Artifact Document Item", () => {
 //     let directiveTest: ComponentTest<BPArtifactDocumentItemController>;
 //     let template = `
-//         <bp-artifact-document-item 
+//         <bp-artifact-document-item
 //             doc-ref-info="document">
 //         </bp-artifact-document-item>
 //     `;
@@ -26,7 +26,7 @@
 //     }));
 
 //     beforeEach(inject(() => {
-//         let bindings: any = { 
+//         let bindings: any = {
 //             document: {
 //                 artifactName: "doc",
 //                 artifactId: 357,
@@ -40,17 +40,17 @@
 //         vm = directiveTest.createComponent(bindings);
 //     }));
 
-//     it("should be visible by default", () => {
+    it("should be visible by default", () => {
 //         //Assert
 //         expect(directiveTest.element.find(".author").length).toBe(1);
 //         expect(directiveTest.element.find(".button-bar").length).toBe(1);
 //         expect(directiveTest.element.find("h6").length).toBe(1);
-//     });
+    });
 
-//     it("should try to download a document which has an attachment", 
-//         inject((
-//             $httpBackend: ng.IHttpBackendService, 
-//             $window: ng.IWindowService) => {
+    it("should try to download a document which has an attachment",
+        inject((
+            $httpBackend: ng.IHttpBackendService,
+            $window: ng.IWindowService) => {
 
 //         // Arrange
 //         spyOn($window, "open").and.callFake(function() {
@@ -80,11 +80,11 @@
 //         //Assert
 //         expect($window.open).toHaveBeenCalled();
 //         expect($window.open).toHaveBeenCalledWith("/svc/components/RapidReview/artifacts/357/files/1102?includeDraft=true", "_blank");
-//     }));
+    }));
 
-//     it("should try to download a document which has no attachment", 
+    it("should try to download a document which has no attachment", (() => {//
 //         inject((
-//             $httpBackend: ng.IHttpBackendService, 
+//             $httpBackend: ng.IHttpBackendService,
 //             $window: ng.IWindowService,
 //             messageService: IMessageService) => {
 
@@ -107,10 +107,10 @@
 //         //Assert
 //         expect($window.open).not.toHaveBeenCalled();
 //         expect(messageService.addError).toHaveBeenCalled();
-//     }));
+    }));
 
-//     it("should try to delete an item", 
-//         inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService) => {
+    it("should try to delete an item",
+        inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService) => {
 
 //         // Arrange
 //         spyOn($window, "alert").and.callFake(() => true);
@@ -120,5 +120,5 @@
 
 //         //Assert
 //         expect($window.alert).toHaveBeenCalled();
-//     }));
-// });
+    }));
+});

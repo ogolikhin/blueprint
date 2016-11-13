@@ -57,7 +57,7 @@ describe("Drag-drop test", () => {
         model.subArtifactCollection = new StatefulSubArtifactCollection(model, null);
         model.changeset = new ChangeSetCollector(model);
         model.artifactState = {dirty: false};
-        model.lock = function (){};
+        model.lock = function (){ return; };
         const processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };
@@ -116,7 +116,7 @@ describe("Drag-drop test", () => {
         // Arrange
         let testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-        
+
         const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
 
         // Act

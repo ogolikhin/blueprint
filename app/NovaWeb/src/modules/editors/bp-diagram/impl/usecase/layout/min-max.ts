@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Describes structure wich keeps min and max values
  */
 export class MinMax {

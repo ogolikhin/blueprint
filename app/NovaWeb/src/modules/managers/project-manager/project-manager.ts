@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {IDialogService} from "../../shared";
+import {IDialogService, ITreeNode} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {ArtifactNode} from "./artifact-node";
 import {IDispose} from "../models";
@@ -13,19 +13,13 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
-export interface IArtifactNode extends IDispose {
+export interface IArtifactNode extends ITreeNode, IDispose {
     artifact: IStatefulArtifact;
     children?: IArtifactNode[];
     parentNode: IArtifactNode;
-    id: number;
-    name: string;
     projectId: number;
-    //parentId: number;
     permissions: Enums.RolePermissions;
     predefinedType: Enums.ItemTypePredefined;
-    hasChildren?: boolean;
-    loaded?: boolean;
-    open?: boolean;
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
 }
 
@@ -35,7 +29,7 @@ export interface IProjectManager extends IDispose {
     // eventManager
     initialize();
     add(project: AdminStoreModels.IInstanceItem);
-    remove(): void;
+    remove(projectId: number): void;
     removeAll(): void;
     refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
@@ -167,14 +161,13 @@ export class ProjectManager implements IProjectManager {
             autosave = this.$q.resolve();
         }
 
-        return autosave.then(() => {
-            this.doRefresh(projectNode, selectedArtifact, forceOpen);
-        }).catch(() => {
+        return autosave.catch(() => {
             //something went wrong - ask user if they want to force refresh
             return this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"));
         }).then(() => {
             return this.doRefresh(projectNode, selectedArtifact, forceOpen);
         });
+
     }
 
     private doRefresh(project: IArtifactNode, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
@@ -208,7 +201,7 @@ export class ProjectManager implements IProjectManager {
 
                 //try with selected artifact's parent
                 return this.projectService.getProjectTree(project.id, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
-                    this.messageService.addWarning("Refresh_Artifact_Deleted");
+                    this.messageService.addInfo("Refresh_Artifact_Deleted");
                     return this.processProjectTree(project, data).catch(() => {
                         this.clearProject(project);
                         return this.$q.reject();
@@ -217,7 +210,7 @@ export class ProjectManager implements IProjectManager {
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
                         return this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            this.messageService.addWarning("Refresh_Artifact_Deleted");
+                            this.messageService.addInfo("Refresh_Artifact_Deleted");
                             return this.processProjectTree(project, data).catch(() => {
                                 this.clearProject(project);
                                 return this.$q.reject();
@@ -243,7 +236,6 @@ export class ProjectManager implements IProjectManager {
 
     private processProjectTree(project: IArtifactNode, data: Models.IArtifact[]): ng.IPromise<void> {
         const oldProjectId: number = project.id;
-        const oldProjectPermissions: number = project.permissions;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
 
@@ -258,7 +250,6 @@ export class ProjectManager implements IProjectManager {
                 projectId: oldProjectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
-                permissions: oldProjectPermissions,
                 predefinedType: Enums.ItemTypePredefined.Project,
                 hasChildren: true
             });
@@ -358,21 +349,17 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-    public remove() {
-        const artifact = this.artifactManager.selection.getArtifact();
-        if (artifact) {
-            const projectId = artifact.projectId;
-            this.artifactManager.removeAll(projectId);
-            const projects = this.projectCollection.getValue().filter((project) => {
-                if (project.projectId === projectId) {
-                    project.dispose();
-                    return false;
-                }
-                return true;
-            });
+    public remove(projectId: number) {
+        this.artifactManager.removeAll(projectId);
+        const projects = this.projectCollection.getValue().filter((project) => {
+            if (project.projectId === projectId) {
+                project.dispose();
+                return false;
+            }
+            return true;
+        });
 
-            this.projectCollection.onNext(projects);
-        }
+        this.projectCollection.onNext(projects);
     }
 
     public removeAll() {

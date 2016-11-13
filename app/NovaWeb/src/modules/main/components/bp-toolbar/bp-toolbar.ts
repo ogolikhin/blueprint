@@ -29,7 +29,7 @@ export class BPToolbar implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarController;
 }
 
-class BPToolbarController implements IBPToolbarController {
+export class BPToolbarController implements IBPToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
@@ -47,10 +47,8 @@ class BPToolbarController implements IBPToolbarController {
         "publishService",
         "messageService",
         "navigationService",
-        "$rootScope",
-        "loadingOverlayService",
-        "$timeout",
-        "$http"];
+        "loadingOverlayService"
+    ];
 
     constructor(private $q: ng.IQService,
                 private localization: ILocalizationService,
@@ -60,11 +58,7 @@ class BPToolbarController implements IBPToolbarController {
                 private publishService: IPublishService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
-                private $rootScope: ng.IRootScopeService,
-                private loadingOverlayService: ILoadingOverlayService,
-                private $timeout: ng.ITimeoutService, //Used for testing, remove later
-                private $http: ng.IHttpService //Used for testing, remove later
-    ) {
+                private loadingOverlayService: ILoadingOverlayService) {
     }
 
     public execute(evt: any): void {
@@ -75,14 +69,13 @@ class BPToolbarController implements IBPToolbarController {
         const element = evt.currentTarget;
         switch (element.id.toLowerCase()) {
             case `projectclose`:
-                this.projectManager.remove();
-                this.artifactManager.selection.clearAll();
-                this.clearLockedMessages();
+                this.closeProject();
                 break;
             case `projectcloseall`:
                 this.projectManager.removeAll();
                 this.artifactManager.selection.clearAll();
                 this.clearLockedMessages();
+                this.navigationService.navigateToMain();
                 break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
@@ -166,6 +159,33 @@ class BPToolbarController implements IBPToolbarController {
         }
     }
 
+
+    /**
+     * Closes the selected project.
+     *
+     * If there is no opened projects, navigates to main state
+     * Otherwise navigates to next project in project list
+     *
+     */
+    private closeProject() {
+        const artifact = this.artifactManager.selection.getArtifact();
+        if (artifact) {
+            const projectId = artifact.projectId;
+            const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.id !== projectId);
+            if (isOpened) {
+                this.projectManager.remove(artifact.projectId);
+            }
+            const nextProject = _.first(this.projectManager.projectCollection.getValue());
+            if (nextProject) {
+                this.artifactManager.selection.clearAll();
+                this.navigationService.navigateTo({id: nextProject.id});
+            } else {
+                this.navigationService.navigateToMain();
+            }
+            this.clearLockedMessages();
+        }
+    }
+
     private clearLockedMessages() {
         this.messageService.messages.forEach(message => {
             if (message.messageType === MessageType.Lock) {
@@ -205,7 +225,7 @@ class BPToolbarController implements IBPToolbarController {
                 //refresh all after discard all finishes
                 this.projectManager.refreshAll();
 
-                this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
+                this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })
             .finally(() => {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
@@ -246,7 +266,7 @@ class BPToolbarController implements IBPToolbarController {
                         selectedArtifact.refresh();
                     }
 
-                    this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
+                    this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
                 })
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
@@ -292,14 +312,14 @@ class BPToolbarController implements IBPToolbarController {
 
     public $onInit() {
         const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
-            .map(selection => {
-                if (!selection) {
+            .map(selectedArtifact => {
+                if (!selectedArtifact) {
                     this._currentArtifact = null;
                 }
-                return selection;
+                return selectedArtifact;
             })
-            .filter(selection => !!selection)
-            .flatMap(selection => selection.getObservable())
+            .filter(selectedArtifact => !!selectedArtifact)
+            .flatMap(selectedArtifact => selectedArtifact.getObservable())
             .subscribe(this.setCurrentArtifact);
 
         this._subscribers = [artifactStateSubscriber];
@@ -365,11 +385,17 @@ class BPToolbarController implements IBPToolbarController {
                             });
                     })
                     .catch((error: IApplicationError) => {
-                        if (error.statusCode === 404) {
+                        if (error.statusCode === 404 && error.errorCode === 102) { // project not found, we refresh all
+                            this.projectManager.refreshAll()
+                                .then(() => {
+                                    this.messageService.addError("Create_New_Artifact_Error_404_102", true);
+                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                });
+                        } else if (error.statusCode === 404) { // parent or artifact type not found, we refresh the single project
                             this.projectManager.refresh(projectId)
                                 .then(() => {
                                     this.projectManager.triggerProjectCollectionRefresh();
-                                    this.messageService.addError("Create_New_Artifact_Error_404", true);
+                                    this.messageService.addError(`Create_New_Artifact_Error_404_${error.errorCode.toString()}`, true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
                         } else if (!error.handled) {

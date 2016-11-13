@@ -3,27 +3,28 @@
 </div>
 <div class="modal-body new-artifact">
     <input class="new-artifact__focus-stealer" type="text">
-    <div class="nova-form-group nova-floating-label new-artifact__input-group new-artifact__input-group--first">
-        <span class="nova-form-control" ng-class="{'ng-not-empty': $ctrl.newArtifactType, 'fake-focus': fakeFocus || isOpen}">
-            <input type="text" class="nova-form-control new-artifact__input new-artifact__input--dropdown"
+    <div class="nova-form-group nova-floating-label new-artifact__group new-artifact__group--first">
+        <span class="nova-form-control" ng-class="{'ng-not-empty': $ctrl.newArtifactType, 'fake-focus': $ctrl.hasFocus || $ctrl.isDropdownOpen}">
+            <input type="text" class="nova-form-control new-artifact__dropdown"
                    id="new-artifact-type" name="newArtifactType"
-                   ng-model="$ctrl.newArtifactType" ng-focus="fakeFocus=true" ng-blur="fakeFocus=false"
+                   ng-model="$ctrl.newArtifactType" ng-focus="$ctrl.setFocus()" ng-blur="$ctrl.setFocus(false)"
                    uib-typeahead="artifact as artifact.name for artifact in $ctrl.availableItemTypes() | filter:{name:$viewValue}"
                    typeahead-editable="false"
-                   typeahead-is-open="isOpen"
+                   typeahead-is-open="$ctrl.isDropdownOpen"
                    typeahead-template-url="artifactTypesDropdown.html"
                    typeahead-show-hint="true"
                    typeahead-min-length="0" />
-            <i class="fonticon2-error new-artifact__clear" ng-if="$ctrl.newArtifactType" ng-click="$ctrl.newArtifactType = ''"></i>
+            <i class="fonticon2-error new-artifact__clear" ng-if="$ctrl.newArtifactType" ng-click="$ctrl.refreshView(); $ctrl.newArtifactType = ''"></i>
         </span>
-        <label for="new-artifact-type" class="nova-label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Type"]}}</label>
+        <label for="new-artifact-type" class="nova-label new-artifact__label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Type"]}}</label>
     </div>
-    <div class="nova-form-group nova-floating-label new-artifact__input-group">
+    <div class="nova-form-group nova-floating-label new-artifact__group">
         <input type="text" class="nova-form-control new-artifact__input"
                id="new-artifact-name" name="newArtifactName"
                ng-model="$ctrl.newArtifactName"
-               ng-keyup="$ctrl.onKeyUp($event)" />
-        <label for="new-artifact-name" class="nova-label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Name"]}}</label>
+               ng-keyup="$ctrl.onKeyUp($event)"
+               ng-focus="$ctrl.refreshView()" ng-blur="$ctrl.refreshView()" />
+        <label for="new-artifact-name" class="nova-label new-artifact__label">{{::$root.config.labels["Create_New_Artifact_Dialog_Artifact_Name"]}}</label>
     </div>
 </div>
 <div class="modal-footer">

@@ -7,7 +7,6 @@ using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Model.ArtifactModel.Enums;
 using TestCommon;
 using Utilities;
 using Common;
@@ -48,10 +47,12 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -65,12 +66,14 @@ namespace ArtifactStoreTests
         public void ArtifactNavigation_SavedArtifact_ReturnsProjectInfo(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            var artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(author, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -79,17 +82,19 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(183598)]
-        [Description("Create & publish an artifact and its child.  Verify get artifact navigation path call returns project parent and project information.")]
+        [Description("Create & publish an artifact and its child.  Verify get artifact navigation path call returns parent artifact and project information.")]
         public void ArtifactNavigation_PublishedArtifactWithAChild_ReturnsParentArtifactAndProjectInfo(BaseArtifactType artifactType)
         {
             // Setup:
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
-             
+
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, childArtifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, childArtifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -103,8 +108,10 @@ namespace ArtifactStoreTests
         {
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, _project.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, _project.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
             
             // Verify:
@@ -123,8 +130,10 @@ namespace ArtifactStoreTests
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -143,10 +152,12 @@ namespace ArtifactStoreTests
             List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, subArtifacts.First().Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, subArtifacts.First().Id),
                                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
@@ -155,21 +166,24 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183630)]
-        [Description("Create & publish a collection artifact. Verify get artifact navigation path call for collection returns Collections folder and project information.")]
+        [Description("Create & save a collection artifact in collection folder. Verify get artifact navigation path call for collection returns Collections folder and project information.")]
         public void ArtifactNavigation_CollectionInCollectionFolder_ReturnsCollectionFolderAndProjectInfo()
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, _user);
-            var collection = Helper.CreateAndSaveCollection(_project, _user, collectionFolder.Id);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+           
+            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author);
+            var collection = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, collection.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(author, collection.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
-            VerifyAncestorsInformation(basicArtifactInfoList, collection.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, collection.ParentId, author);
         }
 
         [Ignore(IgnoreReasons.UnderDevelopment)] //Artifacts for Baseline and Review need to be added to Custom Data project
@@ -182,12 +196,14 @@ namespace ArtifactStoreTests
             // Setup:
             var basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, id);
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             Assert.IsNotNull(basicArtifactInfo, "Cannot navigate to artifact which id is null!");
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, basicArtifactInfo.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, basicArtifactInfo.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -216,10 +232,12 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifactChain.Last().Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, artifactChain.Last().Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -246,22 +264,24 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypeChain);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            var artifactChain = Helper.CreateSavedArtifactChain(_project, author, artifactTypeChain);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, artifactChain.Last().Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(author, artifactChain.Last().Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyAncestorsInformation(basicArtifactInfoList, artifactChain.Last().ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, artifactChain.Last().ParentId, author);
         }
 
         [TestCase(BaseArtifactType.UseCase, 5, BaseArtifactType.Process)]
         [TestRail(184484)]
         [Description("Create & publish an artifact with sub-artifacts and chains of 5 child artifacts and 5 folders.  Move chain of artifacts to one folder before the last.  " +
-            "Verify get artifact navigation path call for artifacts and folders in a chain returns information about all ancestor artifacts and project.")]
+            "Verify get artifact navigation path call for sub-artifact in an artifact returns information about an artifact, all ancestor artifacts, ancestor folders and a project.")]
         public void ArtifactNavigation_SubArtifactInAChainOfPublishedArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(
             BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
         {
@@ -269,25 +289,27 @@ namespace ArtifactStoreTests
             List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
             List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
-            var artifacts = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
-            var folders = Helper.CreatePublishedArtifactChain(_project, _user, folderTypes.ToArray());
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            artifacts.First().Lock(_user);
-            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], _user);
+            var artifacts = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
+            var folders = Helper.CreatePublishedArtifactChain(_project, author, folderTypes.ToArray());
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, artifacts.Last());
+            artifacts.First().Lock(author);
+            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], author);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType, artifacts.Last());
+
+            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(_user, subArtifacts.Last().Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(author, subArtifacts.Last().Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyAncestorsInformation(basicArtifactInfoList, subArtifacts.Last().ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, subArtifacts.Last().ParentId, author);
         }
 
         [TestCase(BaseArtifactType.Actor, 2)]
@@ -298,15 +320,14 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            artifact.Delete(_user);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
-            artifact.Delete(_user);
-
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(anotherUser, artifact.Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, artifact.Id),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -356,13 +377,13 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(183633)]
         [Description("Get an artifact navigation path using the user without permission to the project. Execute GetArtifactNagivationPath - Must return 403 Forbidden.")]
-        public void ArtifactNavigationPath_WithoutPermissionToViewArtifact_403Forbidden()
+        public void ArtifactNavigationPath_WithoutPermissionToViewProject_403Forbidden()
         {
             // Setup: Create user with no permission on the project
-            var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, project: _project);
+            var userWithNoPermissionOnProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, project: _project);
 
             // Execute: Execute GetNavigationPath using the user without view permission to the artifact
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithNoPermissionOnAnyProject, itemId: _project.Id),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithNoPermissionOnProject, itemId: _project.Id),
                 "Calling GET {0} using the user without view permission should return 403 Forbidden!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
@@ -497,15 +518,18 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="basicArtifactInfo">List of artifact basic information about ancestors artifact.</param>
         /// <param name="id">Id of artifact or sub-artifact.</param>
-        private void VerifyAncestorsInformation(List<INovaVersionControlArtifactInfo> basicArtifactInfo, int? id)
+        private void VerifyAncestorsInformation(List<INovaVersionControlArtifactInfo> basicArtifactInfo, int? id, IUser user = null)
         {
             basicArtifactInfo.Reverse();
+
+            if (user == null)
+                user = _user;
 
             foreach (var artifactinfo in basicArtifactInfo)
             {
                 Assert.IsNotNull(id, "Cannot verify values of artifact with id value null!");
 
-                var parentArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, (int)id);
+                var parentArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(user, (int)id);
 
                 Assert.NotNull(parentArtifactInfo, "GetVersionControlInfo() returned null for ID: {0}!", id);
                 Assert.AreEqual(parentArtifactInfo.ItemTypeId, artifactinfo.ItemTypeId, "The item type is not item type of a parent!");

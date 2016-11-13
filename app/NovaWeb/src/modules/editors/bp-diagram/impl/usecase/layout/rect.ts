@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Declares a structure that is used to describe the Size of an object.
  */
 export interface ISize {

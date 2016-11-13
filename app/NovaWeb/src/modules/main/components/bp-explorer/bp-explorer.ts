@@ -18,7 +18,6 @@ export interface IProjectExplorerController {
     // BpTree bindings
     tree: IBPTreeControllerApi;
     columns: any[];
-    propertyMap: {[key: string]: string};
     doLoad: Function;
     doSelect: Function;
     doSync: Function;
@@ -219,19 +218,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         suppressSorting: true,
         suppressFiltering: true
     }];
-
-    // the object defines how data will map to ITreeNode
-    // key: data property names, value: ITreeNode property names
-    public propertyMap: {[key: string]: string} = {
-        id: "id",
-        itemTypeId: "itemTypeId",
-        name: "name",
-        hasChildren: "hasChildren",
-        parentNode: "parentNode",
-        children: "children",
-        loaded: "loaded",
-        open: "open"
-    };
 
     public doLoad = (prms: IArtifactNode): any[] => {
         //the explorer must be empty on a first load

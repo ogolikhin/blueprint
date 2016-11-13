@@ -44,7 +44,7 @@ module.exports = {
             },
             //mangle: true,
             //beautify: false,
-            sourceMap: false
+            sourceMap: true
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
         new CopyWebpackPlugin([

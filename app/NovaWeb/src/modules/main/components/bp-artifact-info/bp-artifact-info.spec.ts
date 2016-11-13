@@ -12,7 +12,7 @@
 // import { BpArtifactInfoController} from "./bp-artifact-info";
 
 
-// describe("Component BpArtifactInfo", () => {
+xdescribe("Component BpArtifactInfo", () => {
 
 //     let componentTest: ComponentTest<BpArtifactInfoController>;
 //     let template = `<bp-artifact-info context="context"></bp-artifact-info>`;
@@ -40,7 +40,7 @@
 //         }
 //     });
 
-//     it("initial state", () => {
+    it("initial state", () => {
 
 //         //Assert
 //         expect(componentTest.element.find(".icon").length).toBe(1);
@@ -56,9 +56,9 @@
 //         expect(vm.isReadonly).toBeFalsy();
 //         expect(vm.isLocked).toBeFalsy();
 //         expect(vm.isLegacy).toBeFalsy();
-//     });
+    });
 
-//     it("Artifact with no type description", inject((stateManager: StateManager) => {
+    it("Artifact with no type description", (() => {//inject((stateManager: StateManager) => {
 
 //         const artifact = {
 //             id: 1,
@@ -75,8 +75,8 @@
 //         expect(vm.artifactClass).toBe("icon-textual-requirement");
 //         expect(vm.artifactTypeDescription).toBe("TextualRequirement - 1");
 
-//     }));
-//     it("Legacy Artifact", inject((stateManager: StateManager) => {
+    }));
+    it("Legacy Artifact", (() => {//inject((stateManager: StateManager) => {
 
 //         const artifact = {
 //             id: 1,
@@ -96,10 +96,10 @@
 //         expect(vm.artifactTypeDescription).toBe("Storyboard - SB_1");
 
 
-//     }));
+    }));
 
 
-//     it("Artifact with no type description, with prefix", inject((stateManager: StateManager) => {
+    it("Artifact with no type description, with prefix", (() => {//inject((stateManager: StateManager) => {
 
 //         const artifact = {
 //             id: 1,
@@ -117,10 +117,10 @@
 //         expect(vm.artifactClass).toBe("icon-textual-requirement");
 //         expect(vm.artifactTypeDescription).toBe("TextualRequirement - TR_1");
 
-//     }));
+    }));
 
 
-//     it("Artifact with  type description, with prefix", inject((stateManager: StateManager) => {
+    it("Artifact with  type description, with prefix", (() => {//inject((stateManager: StateManager) => {
 //         const artifact = {
 //             id: 1,
 //             name: "Simple",
@@ -142,9 +142,9 @@
 //         expect(vm.artifactClass).toBe("icon-textual-requirement");
 //         expect(vm.artifactTypeDescription).toBe("Textual Requirement - TR_1");
 
-//     }));
+    }));
 
-//     it("Artifact state: locked by current user ", inject((stateManager: StateManager) => {
+    it("Artifact state: locked by current user ", (() => {//inject((stateManager: StateManager) => {
 //         const artifact = {
 //             id: 1,
 //             name: "Simple",
@@ -164,9 +164,9 @@
 //         expect(vm.isReadonly).toBeFalsy();
 //         expect(vm.selfLocked).toBeTruthy();
 
-//     }));
+    }));
 
-//     it("Artifact state:locked by other user ", inject((stateManager: StateManager) => {
+    it("Artifact state:locked by other user ", (() => {//inject((stateManager: StateManager) => {
 //         const artifact = {
 //             id: 1,
 //             name: "Simple",
@@ -187,9 +187,9 @@
 //         expect(vm.lockMessage).toBeDefined();
 //         expect(vm.selfLocked).toBeFalsy();
 
-//     }));
+    }));
 
-//     it("Artifact state: changed ", inject((stateManager: StateManager) => {
+    it("Artifact state: changed ", (() => {//inject((stateManager: StateManager) => {
 //         const artifact = {
 //             id: 1,
 //             name: "Simple",
@@ -215,7 +215,7 @@
 //         expect(vm.selfLocked).toBeTruthy();
 
 
-//     }));
+    }));
 
 
-// });
+});

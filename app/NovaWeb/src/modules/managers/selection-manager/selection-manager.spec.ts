@@ -4,14 +4,14 @@
 // import { IArtifact, ISubArtifact } from "./../models/models";
 // import { SelectionManager, SelectionSource } from "./selection-manager";
 
-// describe("Selection Manager", () => {
+xdescribe("Selection Manager", () => {
 
 //     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
 //         $provide.service("selectionManager", SelectionManager);
 //     }));
 
-//     describe("selectedArtifactObservable", () => {
-//         it("notify subscriber when artifact changed", inject((selectionManager: SelectionManager) => {
+    describe("selectedArtifactObservable", () => {
+        it("notify subscriber when artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Arrange
 //             const artifact = { id: 1 };
 //             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
@@ -30,12 +30,12 @@
 //             setTimeout(function() {
 //                 expect(selectedArtifact).toEqual(artifact2);
 //                 subscriber.dispose();
-//             });          
-//         }));
-//     });
+//             });
+        }));
+    });
 
-//     describe("selectedSubArtifactObservable", () => {
-//         it("notify subscriber when sub-artifact changed", inject((selectionManager: SelectionManager) => {
+    describe("selectedSubArtifactObservable", () => {
+        it("notify subscriber when sub-artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Arrange
 //             const artifact = { id: 1 };
 //             const subArtifact = { id: 11 };
@@ -55,12 +55,12 @@
 //             setTimeout(function() {
 //                 expect(selectedSubArtifact).toEqual(subArtifact2);
 //                 subscriber.dispose();
-//             });          
-//         }));
-//     });
+//             });
+        }));
+    });
 
-//     describe("selectedItembservable", () => {
-//         it("notify subscriber when sub-artifact changed", inject((selectionManager: SelectionManager) => {
+    describe("selectedItembservable", () => {
+        it("notify subscriber when sub-artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Arrange
 //              const artifact = { id: 1 };
 //             // const subArtifact = { id: 11 };
@@ -80,12 +80,12 @@
 //             setTimeout(function() {
 //                 expect(selectedSubArtifact).toEqual(subArtifact2);
 //                 subscriber.dispose();
-//             });          
-//         }));
-//     });
+//             });
+        }));
+    });
 
-//     describe("clearSelection", () => {
-//         it("artifact = null, subArtifact = null, source = None", inject((selectionManager: SelectionManager) => {
+    describe("clearSelection", () => {
+        it("artifact = null, subArtifact = null, source = None", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Act
 //             selectionManager.clearSelection();
 
@@ -94,13 +94,13 @@
 //             expect(selectionManager.selection.artifact).toBeNull();
 //             expect(selectionManager.selection.subArtifact).not.toBeDefined();
 //             expect(selectionManager.selection.source).toEqual(SelectionSource.None);
-//         }));
-//     });
+        }));
+    });
 
-//     describe("Null Selection", () => {
-//         it("Returns null", inject((selectionManager: SelectionManager) => {
+    describe("Null Selection", () => {
+        it("Returns null", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Assert
 //             expect(selectionManager.selection).toBeNull();
-//         }));
-//     });
-// });
+        }));
+    });
+});

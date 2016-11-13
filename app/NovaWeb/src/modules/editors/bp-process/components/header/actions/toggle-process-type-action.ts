@@ -5,6 +5,9 @@ import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
+    private subscribers: Rx.IDisposable[];
+    private loaded: boolean;
+
     constructor(
         process: StatefulProcessArtifact,
         toolbarCommunication: IToolbarCommunication,
@@ -22,14 +25,12 @@ export class ToggleProcessTypeAction extends BPToggleAction {
             throw new Error("Localization service is not provided or is null");
         }
 
-        const processType: ProcessType = process.propertyValues["clientType"].value;
-
         super(
-            processType,
+            ProcessType.None,
             (value: ProcessType) => {
                 toolbarCommunication.toggleProcessType(value);
             },
-            () => process && process.artifactState && !process.artifactState.readonly,
+            () => this.loaded && process && process.artifactState && !process.artifactState.readonly,
             new BPToggleItemAction(
                 "fonticon fonticon2-user-user",
                 ProcessType.BusinessProcess,
@@ -43,5 +44,34 @@ export class ToggleProcessTypeAction extends BPToggleAction {
                 localization.get("ST_ProcessType_UserToSystemProcess_Label")
             )
         );
+
+        this.subscribers = [];
+        this.subscribers.push(
+            process.getObservable().subscribeOnNext(
+                (process: StatefulProcessArtifact) => {
+                    if (process) {
+                        // case when artifact is loaded
+                        this._currentValue = process.propertyValues["clientType"].value;
+                        this.loaded = true;
+                    } else {
+                        // case when artifact is unloaded
+                        this._currentValue = ProcessType.None;
+                        this.loaded = false;
+                    }
+                }
+            )
+        );
+    }
+
+    public dispose(): void {
+        if (this.subscribers) {
+            this.subscribers.forEach(
+                (subscriber: Rx.IDisposable) => {
+                    subscriber.dispose();
+                }
+            );
+
+            delete this["subscribers"];
+        }
     }
 }

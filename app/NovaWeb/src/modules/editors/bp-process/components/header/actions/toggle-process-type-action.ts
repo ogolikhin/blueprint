@@ -6,6 +6,7 @@ import {ILocalizationService} from "../../../../../core/localization/localizatio
 
 export class ToggleProcessTypeAction extends BPToggleAction {
     private subscribers: Rx.IDisposable[];
+    private loaded: boolean;
 
     constructor(
         process: StatefulProcessArtifact,
@@ -29,7 +30,7 @@ export class ToggleProcessTypeAction extends BPToggleAction {
             (value: ProcessType) => {
                 toolbarCommunication.toggleProcessType(value);
             },
-            () => process && process.artifactState && !process.artifactState.readonly,
+            () => this.loaded && process && process.artifactState && !process.artifactState.readonly,
             new BPToggleItemAction(
                 "fonticon fonticon2-user-user",
                 ProcessType.BusinessProcess,
@@ -48,7 +49,15 @@ export class ToggleProcessTypeAction extends BPToggleAction {
         this.subscribers.push(
             process.getObservable().subscribeOnNext(
                 (process: StatefulProcessArtifact) => {
-                    this._currentValue = process.propertyValues["clientType"].value;
+                    if (process) {
+                        // case when artifact is loaded
+                        this._currentValue = process.propertyValues["clientType"].value;
+                        this.loaded = true;
+                    } else {
+                        // case when artifact is unloaded
+                        this._currentValue = ProcessType.None;
+                        this.loaded = false;
+                    }
                 }
             )
         );

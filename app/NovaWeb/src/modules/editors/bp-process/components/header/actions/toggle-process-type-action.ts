@@ -48,7 +48,7 @@ export class ToggleProcessTypeAction extends BPToggleAction {
         this.subscribers.push(
             process.getObservable().subscribeOnNext(
                 (process: StatefulProcessArtifact) => {
-                    this.currentValue = process.propertyValues["clientType"].value;
+                    this._currentValue = process.propertyValues["clientType"].value;
                 }
             )
         );

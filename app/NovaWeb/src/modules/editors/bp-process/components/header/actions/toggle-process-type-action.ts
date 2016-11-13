@@ -5,6 +5,8 @@ import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
+    private subscribers: Rx.IDisposable[];
+
     constructor(
         process: StatefulProcessArtifact,
         toolbarCommunication: IToolbarCommunication,
@@ -22,10 +24,8 @@ export class ToggleProcessTypeAction extends BPToggleAction {
             throw new Error("Localization service is not provided or is null");
         }
 
-        const processType: ProcessType = process.propertyValues["clientType"].value;
-
         super(
-            processType,
+            ProcessType.None,
             (value: ProcessType) => {
                 toolbarCommunication.toggleProcessType(value);
             },
@@ -43,5 +43,26 @@ export class ToggleProcessTypeAction extends BPToggleAction {
                 localization.get("ST_ProcessType_UserToSystemProcess_Label")
             )
         );
+
+        this.subscribers = [];
+        this.subscribers.push(
+            process.getObservable().subscribeOnNext(
+                (process: StatefulProcessArtifact) => {
+                    this.currentValue = process.propertyValues["clientType"].value;
+                }
+            )
+        );
+    }
+
+    public dispose(): void {
+        if (this.subscribers) {
+            this.subscribers.forEach(
+                (subscriber: Rx.IDisposable) => {
+                    subscriber.dispose();
+                }
+            );
+
+            delete this["subscribers"];
+        }
     }
 }

@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
+import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
 import {Relationships, Models, TreeViewModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {
@@ -34,6 +35,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     public isChanged: boolean = false;
     public disabledSave: boolean = true;
     public initialArray: any[];
+    public api: IArtifactPickerAPI;
 
     public options = [
         {value: "1", label: this.localization.get("App_UP_Relationships_To")},
@@ -143,6 +145,8 @@ export class ManageTracesDialogController extends BaseDialogController {
             this.scroller.scrollTop = this.scroller.scrollHeight;
         });
 
+
+        this.api.clearSelected();
         this.disableTrace();
         this.toggleSave();
     }

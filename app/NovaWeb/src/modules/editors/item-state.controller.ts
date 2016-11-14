@@ -91,7 +91,7 @@ export class ItemStateController {
                 } else if (result.isDeleted) {
 
                     if (this.isCollection(result.predefinedType)) {
-                        this.messageService.addError("HttpError_NotFound", true);
+                        this.messageService.addError("HttpError_Collection_NotFound", true);
                         this.navigationService.navigateToMain(true);
                         return;
                     }

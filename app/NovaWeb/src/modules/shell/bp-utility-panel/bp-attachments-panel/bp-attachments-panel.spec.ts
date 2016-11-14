@@ -13,7 +13,7 @@
 // import { DialogService } from "../../../shared/widgets/bp-dialog";
 // import { SessionSvcMock } from "../../login/mocks.spec";
 
-// describe("Component BP Attachments Panel", () => {
+xdescribe("Component BP Attachments Panel", () => {
 
 //     let componentTest: ComponentTest<BPAttachmentsPanelController>;
 //     let template = `<bp-attachments-panel></bp-attachments-panel>`;
@@ -41,12 +41,12 @@
 //         vm = null;
 //     });
 
-//     it("should be visible by default", () => {
+    it("should be visible by default", () => {
 //         //Assert
 //         expect(componentTest.element.find(".empty-state").length).toBe(1);
-//     });
+    });
 
-//     it("should load data and display it for a selected artifact",
+    it("should load data and display it for a selected artifact", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
@@ -65,9 +65,9 @@
 //             expect(componentTest.element.find("bp-artifact-attachment-item").length).toBe(7);
 //             expect(componentTest.element.find("bp-artifact-document-item").length).toBe(3);
 //             expect(componentTest.element.find(".empty-state").length).toBe(0);
-//         }));
+        }));
 
-//     it("should not load data for artifact without Prefix",
+    it("should not load data for artifact without Prefix", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
@@ -81,9 +81,9 @@
 //             //Assert
 //             expect(selectedArtifact).toBeDefined();
 //             expect(vm.artifactAttachmentsList).toBe(null);
-//         }));
+        }));
 
-//     it("addDocRef should add new document reference to the list",
+    it("addDocRef should add new document reference to the list", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
 //             //Arrange
 //             const artifact = { id: 22, name: "TestDocument", prefix: "PRO" } as Models.IArtifact;
@@ -105,9 +105,9 @@
 //             expect(vm.artifactAttachmentsList.documentReferences
 //                 .filter((doc: IArtifactDocRef) => { return doc.artifactName === artifact.name; }).length)
 //                 .toBeGreaterThan(0);
-//         }));
+        }));
 
-//     it("the list should be empty when service throwing exception",
+    it("the list should be empty when service throwing exception", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
 
 //             //Arrange
@@ -131,5 +131,5 @@
 //             //Assert
 //             expect(vm.artifactAttachmentsList).toBe(null);
 //             expect(vm.canAddNewFile()).toBe(false);
-//         }));
-// });
+        }));
+});

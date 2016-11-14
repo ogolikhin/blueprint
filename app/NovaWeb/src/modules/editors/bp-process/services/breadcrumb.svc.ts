@@ -2,19 +2,15 @@ import {ItemTypePredefined} from "../../../main/models/enums";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {INavigationState} from "../../../core/navigation/navigation-state";
 
-export interface IArtifactReference {
+export interface IPathItem {
     id: number;
-    projectId: number;
-    name: string;
-    typePrefix: string;
-    projectName: string;
-    baseItemTypePredefined: ItemTypePredefined;
+    name?: string;
     version?: number;
-    link: string;
+    accessible?: boolean;
 }
 
 export interface IBreadcrumbService {
-    getReferences(): ng.IPromise<IArtifactReference[]>;
+    getReferences(): ng.IPromise<IPathItem[]>;
 }
 
 export class BreadcrumbService implements IBreadcrumbService {
@@ -31,20 +27,20 @@ export class BreadcrumbService implements IBreadcrumbService {
     ) {
     }
 
-    public getReferences(): ng.IPromise<IArtifactReference[]> {
+    public getReferences(): ng.IPromise<IPathItem[]> {
         const deferred = this.$q.defer();
         const navigationState: INavigationState = this.navigationService.getNavigationState();
 
         if (!navigationState.path || navigationState.path.length === 0) {
             deferred.reject();
         } else {
-            let url = `/svc/shared/navigation/${navigationState.path.map(item => item.id).join("/")}/${navigationState.id}`;
+            let url = `svc/bpartifactstore/process/breadcrumb`;
+            
+            let pathItems: IPathItem[] = [];
+            navigationState.path.forEach(item => pathItems.push({ id: item.id, version: item.version }));
+            pathItems.push({ id: navigationState.id, version: navigationState.version });
 
-            if (navigationState.version) {
-                url = `${url}?versionId=${navigationState.version}`;
-            }
-
-            this.$http.get(url)
+            this.$http.post(url, pathItems)
                 .then((result) => {
                     deferred.resolve(result.data);
                 })

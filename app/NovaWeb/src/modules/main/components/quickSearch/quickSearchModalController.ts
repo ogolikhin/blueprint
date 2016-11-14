@@ -132,6 +132,10 @@ export class QuickSearchModalController {
 
         this.$uibModalInstance.dismiss("cancel");
     }
+    
+    showPagination(): boolean {
+        return this.metadata.totalCount > 0 && this.metadata.totalPages > 1;
+    }
 
     private resetMetadata() {
         this.metadata = { totalCount: 0, pageSize: null, items: [], totalPages: 0 };

@@ -15,17 +15,15 @@ import {ILocalizationService} from "../../core/localization/localizationService"
 
 export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
-    children?: IArtifactNode[];
-    parentNode: IArtifactNode;
+
     id: number;
     name: string;
-    projectId: number;
-    //parentId: number;
-    permissions: Enums.RolePermissions;
-    predefinedType: Enums.ItemTypePredefined;
-    hasChildren?: boolean;
+    hasChildren: boolean;
+    parentNode?: IArtifactNode;
+    children?: IArtifactNode[];
     loaded?: boolean;
     open?: boolean;
+
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
 }
 
@@ -167,14 +165,13 @@ export class ProjectManager implements IProjectManager {
             autosave = this.$q.resolve();
         }
 
-        return autosave.then(() => {
-            this.doRefresh(projectNode, selectedArtifact, forceOpen);
-        }).catch(() => {
+        return autosave.catch(() => {
             //something went wrong - ask user if they want to force refresh
             return this.dialogService.confirm(this.localization.get("Confirmation_Continue_Refresh"));
         }).then(() => {
             return this.doRefresh(projectNode, selectedArtifact, forceOpen);
         });
+
     }
 
     private doRefresh(project: IArtifactNode, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
@@ -208,7 +205,7 @@ export class ProjectManager implements IProjectManager {
 
                 //try with selected artifact's parent
                 return this.projectService.getProjectTree(project.id, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
-                    this.messageService.addWarning("Refresh_Artifact_Deleted");
+                    this.messageService.addInfo("Refresh_Artifact_Deleted");
                     return this.processProjectTree(project, data).catch(() => {
                         this.clearProject(project);
                         return this.$q.reject();
@@ -217,7 +214,7 @@ export class ProjectManager implements IProjectManager {
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
                         return this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
-                            this.messageService.addWarning("Refresh_Artifact_Deleted");
+                            this.messageService.addInfo("Refresh_Artifact_Deleted");
                             return this.processProjectTree(project, data).catch(() => {
                                 this.clearProject(project);
                                 return this.$q.reject();
@@ -243,7 +240,6 @@ export class ProjectManager implements IProjectManager {
 
     private processProjectTree(project: IArtifactNode, data: Models.IArtifact[]): ng.IPromise<void> {
         const oldProjectId: number = project.id;
-        const oldProjectPermissions: number = project.permissions;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
 
@@ -258,7 +254,6 @@ export class ProjectManager implements IProjectManager {
                 projectId: oldProjectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
-                permissions: oldProjectPermissions,
                 predefinedType: Enums.ItemTypePredefined.Project,
                 hasChildren: true
             });
@@ -361,7 +356,7 @@ export class ProjectManager implements IProjectManager {
     public remove(projectId: number) {
         this.artifactManager.removeAll(projectId);
         const projects = this.projectCollection.getValue().filter((project) => {
-            if (project.projectId === projectId) {
+            if (project.artifact.projectId === projectId) {
                 project.dispose();
                 return false;
             }
@@ -373,7 +368,7 @@ export class ProjectManager implements IProjectManager {
 
     public removeAll() {
         this.projectCollection.getValue().forEach((project) => {
-            this.artifactManager.removeAll(project.projectId);
+            this.artifactManager.removeAll(project.artifact.projectId);
             project.dispose();
         });
         this.projectCollection.onNext([]);
@@ -382,7 +377,7 @@ export class ProjectManager implements IProjectManager {
     public loadArtifact(id: number): ng.IPromise<any> {
         let node: IArtifactNode = this.getArtifactNode(id);
         if (node) {
-            return this.projectService.getArtifacts(node.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
+            return this.projectService.getArtifacts(node.artifact.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
                 node.children = data.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);

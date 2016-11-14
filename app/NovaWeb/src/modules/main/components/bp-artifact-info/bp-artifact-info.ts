@@ -102,7 +102,6 @@ export class BpArtifactInfoController {
         }
 
         this.updateToolbarOptions(this.artifact);
-
     }
 
     public $onDestroy() {
@@ -154,8 +153,6 @@ export class BpArtifactInfoController {
         this.isChanged = false;
         this.isLocked = false;
         this.selfLocked = false;
-        this.isLegacy = false;
-        this.artifactClass = null;
 
         if (this.lockMessage) {
             this.messageService.deleteMessageById(this.lockMessage.id);
@@ -169,7 +166,6 @@ export class BpArtifactInfoController {
         if (!artifact) {
             return;
         }
-
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
@@ -266,7 +262,6 @@ export class BpArtifactInfoController {
                 new OpenImpactAnalysisAction(this.artifact, this.localization)
             );
         }
-
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

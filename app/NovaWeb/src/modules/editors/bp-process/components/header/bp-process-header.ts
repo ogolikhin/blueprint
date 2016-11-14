@@ -6,7 +6,7 @@ import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact
 import {ICommunicationManager} from "../../";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
-import {IArtifactReference, IBreadcrumbService} from "../../services/breadcrumb.svc";
+import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
@@ -76,14 +76,14 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onInit() {
         this.breadcrumbService.getReferences()
-            .then((result: IArtifactReference[]) => {
-                for (let i: number = 0; i < result.length; i++) {
-                    const artifactReference = result[i];
+            .then((result: IPathItem[]) => {
+                for (let i: number = 0; i < result.length - 1; i++) {
+                    const pathItem = result[i];
                     const breadcrumbLink: IBreadcrumbLink = {
-                        id: artifactReference.id,
-                        name: artifactReference.name,
-                        version: artifactReference.version,
-                        isEnabled: i !== result.length - 1 && !!artifactReference.link
+                        id: pathItem.id,
+                        name: pathItem.accessible ? pathItem.name : this.localization.get("ST_Breadcrumb_InaccessibleArtifact"),
+                        version: pathItem.version,
+                        isEnabled: pathItem.accessible ? i !== result.length - 1 : false
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 }
@@ -93,6 +93,14 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onDestroy() {
+        if (this.toolbarActions) {
+            const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
+            
+            if (toggleAction) {
+                toggleAction.dispose();
+            }
+        }
+
         super.$onDestroy();
     }
 

@@ -308,7 +308,6 @@ namespace ArtifactStoreTests
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug:  3208  Gets a 500 error when deleting the parent.
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(190725)]
         [Description("Create & publish a grand-parent, parent & child artifact then move the parent to be under the project.  " +
@@ -337,20 +336,19 @@ namespace ArtifactStoreTests
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            Helper.ArtifactStore.PublishArtifacts(artifactChain.ConvertAll(a => (IArtifactBase) a), _user);
+            Helper.ArtifactStore.PublishArtifacts(artifacts: null, user: _user, all: true);
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-            
+
             // Verify:
-            int expectedArtifactCount = artifactChain.Count;
+            var parentAndChild = artifactChain.GetRange(1, 2);
+            int expectedArtifactCount = parentAndChild.Count;
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
-            var parentAndChild = artifactChain.GetRange(1, 2);
             VerifyDeletedArtifactAndChildrenWereReturned(parentAndChild, deletedArtifacts);
             VerifyArtifactsAreDeleted(parentAndChild);
-            
         }
 
         #endregion 200 OK tests

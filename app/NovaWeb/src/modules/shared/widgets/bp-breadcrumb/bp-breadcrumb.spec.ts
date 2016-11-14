@@ -52,6 +52,7 @@ describe("BPBreadcrumbComponent", () => {
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
         controller.links = [];
         controller.onNavigate = (parameter) => {
+            return;
         };
 
         // act
@@ -71,6 +72,7 @@ describe("BPBreadcrumbComponent", () => {
 
         $scope["links"] = [disabledLink];
         $scope["navigateTo"] = (link: IBreadcrumbLink) => {
+            return;
         };
         $scope.$digest();
 
@@ -94,6 +96,7 @@ describe("BPBreadcrumbComponent", () => {
 
         $scope["links"] = [enabledLink];
         $scope["navigateTo"] = (link: IBreadcrumbLink) => {
+            return;
         };
         $scope.$digest();
 

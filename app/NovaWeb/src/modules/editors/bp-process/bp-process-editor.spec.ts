@@ -13,7 +13,7 @@
 // import { DialogServiceMock } from "../../shared/widgets/bp-dialog/bp-dialog";
 // import { ArtifactServiceMock } from "../../main/services/artifact.svc.mock";
 
-// describe("BpProcessEditorController Tests", () => {
+xdescribe("BpProcessEditorController Tests", () => {
 //     beforeEach(angular.mock.module("bp.editors.process"));
 
 //     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -57,7 +57,7 @@
 //         httpBackend.verifyNoOutstandingRequest();
 //     });
 
-//     it("Initilize bp-process-editor successfully", () => {
+    it("Initilize bp-process-editor successfully", () => {
 //         // arrange
 //         let model = TestModels.createDefaultProcessModel();
 //         httpBackend.expectGET("/svc/components/storyteller/processes/1")
@@ -70,5 +70,5 @@
 //         // assert
 //         expect(vm.subArtifactEditorModalOpener).not.toBeNull();
 //         expect(vm.processDiagram).not.toBeNull();
-//     });
-// });
+    });
+});

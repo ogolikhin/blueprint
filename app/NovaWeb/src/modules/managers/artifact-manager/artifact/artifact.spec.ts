@@ -562,13 +562,24 @@ describe("Artifact", () => {
     describe("Lock", () => {
         it("success", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
-
             // act
             artifact.lock();
             $rootScope.$digest();
 
             // assert
             expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.CurrentUser);
+        }));
+
+        it("success - does not call subscriber's onNext to notify artifact change", inject(($rootScope: ng.IRootScopeService) => {
+            // arrange
+            const spyOnNext = spyOn((<any>artifact).subject, "onNext");
+
+            // act
+            artifact.lock();
+            $rootScope.$digest();
+
+            // assert
+            expect(spyOnNext).not.toHaveBeenCalled();
         }));
 
         it("wrong version failure", inject((statefulArtifactFactory: IStatefulArtifactFactory,
@@ -592,6 +603,31 @@ describe("Artifact", () => {
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
             expect(messageService.messages[0].messageText).toEqual("Artifact_Lock_Refresh");
+        }));
+        
+        it("wrong version failure - calls subscriber's onNext to notify artifact change", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                            $rootScope: ng.IRootScopeService, messageService: IMessageService) => {
+            // arrange
+            let artifactModel = {
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                lockedByUser: Enums.LockedByEnum.None, //Enums.LockedByEnum.CurrentUser,
+                predefinedType: Models.ItemTypePredefined.Actor,
+                version: 1
+            } as Models.IArtifact;
+
+            artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+
+            const spyOnNext = spyOn((<any>artifact).subject, "onNext");
+            
+            // act
+            artifact.lock();
+            $rootScope.$digest();
+
+            // assert
+            expect(spyOnNext).toHaveBeenCalled();
+            expect(spyOnNext).toHaveBeenCalledTimes(1);
         }));
 
         it("service error already locked ignore failure", inject(($rootScope: ng.IRootScopeService,

@@ -6,14 +6,14 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 /**
  * Usage:
  *
- * <bp-tree-view grid-class="project-tree"
+ * <bp-tree-view api="$ctrl.api"
+ *               grid-class="project-tree"
  *               row-buffer="200"
  *               selection-mode="'single'"
  *               row-height="20"
  *               root-node="$ctrl.rootNode"
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
- *               api="$ctrl.api"
  *               header-height="20"
  *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
@@ -25,6 +25,8 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeViewController;
     public template: string = require("./bp-tree-view.html");
     public bindings: {[binding: string]: string} = {
+        // Two-way
+        api: "=?",
         // Input
         gridClass: "@",
         rowBuffer: "<",
@@ -35,7 +37,6 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         columns: "<",
         headerHeight: "<",
         sizeColumnsToFit: "<",
-        api: "=?",
         // Output
         onSelect: "&?",
         onDoubleClick: "&?",
@@ -46,6 +47,7 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
 
 export interface IBPTreeViewController extends ng.IComponentController {
     // BPTreeViewComponent bindings
+    api: IBPTreeViewControllerApi;
     gridClass: string;
     rowBuffer: number;
     selectionMode: "single" | "multiple" | "checkbox";
@@ -54,7 +56,6 @@ export interface IBPTreeViewController extends ng.IComponentController {
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
-    api: IBPTreeViewControllerApi;
     onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     onError: (param: {reason: any}) => void;
@@ -68,7 +69,7 @@ export interface ITreeViewNode {
     isExpandable?: boolean;
     children?: ITreeViewNode[];
     isExpanded?: boolean;
-    isSelectable(): boolean;
+    isSelectable: boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
 
@@ -94,6 +95,7 @@ export interface IColumnRendererParams {
 
 export interface IBPTreeViewControllerApi {
     ensureNodeVisible(node: ITreeViewNode): void;
+    deselectAll(): void;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -112,7 +114,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onSelect: (param: {vm: ITreeViewNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
-    public onGridReset: () => void;   
+    public onGridReset: () => void;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -131,7 +133,6 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
 
         this.options = {
-            angularCompileHeaders: true,
             suppressRowClickSelection: true,
             rowBuffer: this.rowBuffer,
             icons: {
@@ -142,10 +143,12 @@ export class BPTreeViewController implements IBPTreeViewController {
                 checkboxIndeterminate: `<i class="ag-checkbox-indeterminate" />`
             },
             angularCompileRows: true, // this is needed to compile directives (dynamically added) on the rows
+            angularCompileHeaders: true,
             suppressContextMenu: true,
             suppressMenuMainPanel: true,
             suppressMenuColumnPanel: true,
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue),
+            context: {},
             rowSelection: this.selectionMode === "single" ? "single" : "multiple",
             rowDeselection: this.selectionMode !== "single",
             rowHeight: this.rowHeight,
@@ -165,14 +168,13 @@ export class BPTreeViewController implements IBPTreeViewController {
             onRowSelected: this.onRowSelected,
             onRowDoubleClicked: this.onRowDoubleClicked,
             onGridReady: this.onGridReady,
-            onModelUpdated: this.onModelUpdated,
-            context: {}
+            onModelUpdated: this.onModelUpdated
         };
 
         this.options.context.allSelected = false;
         this.options.context.selectAllClass = new HeaderCell(this.options);
     }
-    
+
     public $onInit() {
         if (this.sizeColumnsToFit) {
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
@@ -180,12 +182,8 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["selectionMode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
+        if (onChangesObj["selectionMode"] || onChangesObj["rootNode"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
             this.resetGridAsync(false, 0);
-        } else if (onChangesObj["rootNode"]) {
-            // Do not update grid columns definitions if rootNode was changed
-            // Trello: https://trello.com/c/290mKXFg fix
-            this.resetGridAsync(false, 0, false);
         }
     }
 
@@ -215,16 +213,18 @@ export class BPTreeViewController implements IBPTreeViewController {
             if (node) {
                 this.options.api.ensureNodeVisible(node);
             }
+        },
+        deselectAll: (): void => {
+            this.options.api.deselectAll();
         }
     };
 
-    public resetGridAsync(saveSelection: boolean, fitColumnDelay: number = 500, updateColumnsDefs: boolean = true): ng.IPromise<void> {
+    public resetGridAsync(saveSelection: boolean, fitColumnDelay: number = 500): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
             this.options.rowDeselection = this.selectionMode !== "single";
 
-            if (updateColumnsDefs) {
-                this.options.api.setColumnDefs(this.columns.map(column => ({
+            this.options.api.setColumnDefs(this.columns.map(column => ({
                    headerName: column.headerName ? column.headerName : "",
                    field: column.field,
                    width: column.width,
@@ -232,7 +232,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                    cellRenderer: column.isGroup ? "group" : undefined,
                    cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
-                            (params: any) => (params.data as ITreeViewNode).isSelectable() : undefined,
+                            (params: any) => (params.data as ITreeViewNode).isSelectable : undefined,
                         innerRenderer: column.innerRenderer ?
                             (params: any) => column.innerRenderer(params as IColumnRendererParams) : undefined,
                         padding: 20
@@ -242,11 +242,10 @@ export class BPTreeViewController implements IBPTreeViewController {
                     suppressSorting: true,
                     headerCellRenderer: column.headerCellRenderer
                 } as agGrid.ColDef)));
-            }
 
             let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {
-                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {                    
+                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
                     rowDataAsync = angular.isArray(this.rootNode) ? <ITreeViewNode[]>this.rootNode : [<ITreeViewNode>this.rootNode];
                 } else if (angular.isFunction((<ITreeViewNode>this.rootNode).loadChildrenAsync)) {
                     const rootNode = <ITreeViewNode>this.rootNode;
@@ -396,7 +395,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             } else {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
-        } else if (vm.isSelectable()) {
+        } else if (vm.isSelectable) {
             node.setSelectedParams({
                 newValue: true,
                 clearSelection: !multiSelectKeyPressed,
@@ -409,7 +408,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const isSelected = node.isSelected();
         const vm = node.data as ITreeViewNode;
-        if (isSelected && (!vm.isSelectable() || !this.isVisible(node))) {
+        if (isSelected && (!vm.isSelectable || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (this.onSelect) {
             this.onSelect({vm: vm, isSelected: isSelected});
@@ -427,7 +426,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public onRowDoubleClicked = (event: {data: ITreeViewNode}) => {
         const vm = event.data;
-        if (this.onDoubleClick && vm.isSelectable() && !vm.isExpandable) {
+        if (this.onDoubleClick && vm.isSelectable && !vm.isExpandable) {
             this.onDoubleClick({vm: vm});
         }
     };

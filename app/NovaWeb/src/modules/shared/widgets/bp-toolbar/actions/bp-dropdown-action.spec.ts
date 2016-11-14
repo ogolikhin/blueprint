@@ -4,6 +4,7 @@ describe("BPDropdownItemAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const execute = () => {
+            return;
         };
         const canExecute = () => false;
         const label = "label1";
@@ -27,9 +28,11 @@ describe("BPDropdownAction", () => {
         const tooltip = "test0";
         const label = "test0";
         const item1 = new BPDropdownItemAction("test1", () => {
+            return;
         }, () => true);
         const item2 = new BPDropdownItemAction("test2", () => {
-        }, () => false,);
+            return;
+        }, () => false);
 
         // act
         const dropdownAction = new BPDropdownAction(canExecute, icon, tooltip, label, item1, item2);

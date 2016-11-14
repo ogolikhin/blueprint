@@ -36,6 +36,7 @@ export class RapidReviewAction extends BPButtonAction {
                     || artifact.predefinedType !== ItemTypePredefined.ArtifactCollection
                     || artifact.artifactState.readonly 
                     || artifact.rapidReviewCreated
+                    || !artifact.artifacts
                     || artifact.artifacts.length === 0
                     ) {
                         return false;

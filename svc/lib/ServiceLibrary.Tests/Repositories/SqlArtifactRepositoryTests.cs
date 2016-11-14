@@ -401,6 +401,7 @@ namespace ServiceLibrary.Repositories
             input[1].HasDraft = false;
             input[0].ItemId = projectId;
             input[0].ParentId = null;
+            input[0].ItemTypePredefined = ItemTypePredefined.Project;
             input[1].ParentId = projectId;
 
             //NOTE:: Temporary filter Review and BaseLines ou from the list
@@ -499,6 +500,7 @@ namespace ServiceLibrary.Repositories
             input[1].HasDraft = false;
             input[0].ItemId = projectId;
             input[0].ParentId = null;
+            input[0].ItemTypePredefined = ItemTypePredefined.Project;
             input[1].ParentId = projectId;
 
             var inputOrphans = new List<ArtifactVersion>();
@@ -528,7 +530,7 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanPublished()
+        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Project_OrphanArtifact_IncludeOrphan()
         {
             // Arrange
             var projectId = 1;
@@ -540,6 +542,7 @@ namespace ServiceLibrary.Repositories
             input.RemoveAt(1);
             input[0].ItemId = projectId;
             input[0].ParentId = null;
+            input[0].ItemTypePredefined = ItemTypePredefined.Project;
 
             var inputOrphans = CreateChildrenArtifactVersions();
             inputOrphans.RemoveAt(2);
@@ -573,6 +576,116 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Project_OrphanCollection_DoNotIncludeOrphan()
+        {
+            // Arrange
+            var projectId = 1;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(3);
+            input.RemoveAt(2);
+            input.RemoveAt(1);
+            input[0].ItemId = projectId;
+            input[0].ParentId = null;
+            input[0].ItemTypePredefined = ItemTypePredefined.Project;
+
+            var inputOrphans = CreateChildrenArtifactVersions();
+            inputOrphans.RemoveAt(3);
+            inputOrphans.RemoveAt(2);
+            inputOrphans.RemoveAt(0);
+            inputOrphans[0].ParentId = projectId;
+            inputOrphans[0].HasDraft = false;
+            inputOrphans[0].Name = "orphan";
+            inputOrphans[0].ItemTypePredefined = ItemTypePredefined.ArtifactCollection;
+
+            var expected = new List<Artifact>();
+            
+            // Act and Assert
+            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Collections_OrphanCollection_IncludeOrphan()
+        {
+            // Arrange
+            var projectId = 1;
+            var collectionsId = 2;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(3);
+            input.RemoveAt(2);
+            input.RemoveAt(1);
+            input[0].ItemId = collectionsId;
+            input[0].ParentId = projectId;
+            input[0].ItemTypePredefined = ItemTypePredefined.CollectionFolder;
+
+            var inputOrphans = CreateChildrenArtifactVersions();
+            inputOrphans.RemoveAt(3);
+            inputOrphans.RemoveAt(2);
+            inputOrphans.RemoveAt(0);
+            inputOrphans[0].ParentId = projectId;
+            inputOrphans[0].HasDraft = false;
+            inputOrphans[0].Name = "orphan";
+            inputOrphans[0].ItemTypePredefined = ItemTypePredefined.ArtifactCollection;
+
+            var expected = new List<Artifact>
+            {
+                new Artifact
+                {
+                    PredefinedType = inputOrphans[0].ItemTypePredefined.GetValueOrDefault(),
+                    OrderIndex = inputOrphans[0].OrderIndex,
+                    ParentId = collectionsId,
+                    Id = inputOrphans[0].ItemId,
+                    HasChildren = false,
+                    Name = inputOrphans[0].Name,
+                    Permissions = inputOrphans[0].DirectPermissions,
+                    LockedDateTime = inputOrphans[0].LockedByUserTime,
+                    ItemTypeId = inputOrphans[0].ItemTypeId,
+                    LockedByUser = new UserGroup { Id = inputOrphans[0].LockedByUserId },
+                    Version = inputOrphans[0].VersionsCount,
+                    ProjectId = inputOrphans[0].VersionProjectId,
+                    Prefix = inputOrphans[0].Prefix
+                }
+            };
+
+            // Act and Assert
+            await GetProjectOrGetChildrenBaseTest(projectId, collectionsId, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
+        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Collections_OrphanArtifact_DoNotIncludeOrphan()
+        {
+            // Arrange
+            var projectId = 1;
+            var collectionsId = 2;
+            var userId = 1;
+
+            var input = CreateChildrenArtifactVersions();
+            input.RemoveAt(3);
+            input.RemoveAt(2);
+            input.RemoveAt(1);
+            input[0].ItemId = collectionsId;
+            input[0].ParentId = projectId;
+            input[0].ItemTypePredefined = ItemTypePredefined.CollectionFolder;
+
+            var inputOrphans = CreateChildrenArtifactVersions();
+            inputOrphans.RemoveAt(3);
+            inputOrphans.RemoveAt(2);
+            inputOrphans.RemoveAt(0);
+            inputOrphans[0].ParentId = projectId;
+            inputOrphans[0].HasDraft = false;
+            inputOrphans[0].Name = "orphan";
+            inputOrphans[0].ItemTypePredefined = ItemTypePredefined.Actor;
+
+            var expected = new List<Artifact>();
+
+            // Act and Assert
+            await GetProjectOrGetChildrenBaseTest(projectId, collectionsId, userId, input, expected, inputOrphans);
+        }
+
+        [TestMethod]
         public async Task GetProjectOrGetChildrenAsync_OrphanDraft()
         {
             // Arrange
@@ -585,6 +698,7 @@ namespace ServiceLibrary.Repositories
             input.RemoveAt(1);
             input[0].ItemId = projectId;
             input[0].ParentId = null;
+            input[0].ItemTypePredefined = ItemTypePredefined.Project;
 
             var inputOrphans = CreateChildrenArtifactVersions();
             inputOrphans.RemoveAt(0);
@@ -628,6 +742,7 @@ namespace ServiceLibrary.Repositories
             input.RemoveAt(3);
             input[0].ItemId = projectId;
             input[0].ParentId = null;
+            input[0].ItemTypePredefined = ItemTypePredefined.Project;
             input[1].LockedByUserId = input[2].LockedByUserId;
             input[1].LockedByUserTime = input[2].LockedByUserTime;
             input[1].ParentId = 90;
@@ -672,7 +787,7 @@ namespace ServiceLibrary.Repositories
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
             cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId ?? projectId }, { "userId", userId } }, input);
-            if (artifactId == null)
+            if (artifactId == null || inputOrphans != null)
                 cxn.SetupQueryAsync("GetProjectOrphans", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, inputOrphans);
             // Act
             var actual = await repository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId);
@@ -1090,6 +1205,8 @@ namespace ServiceLibrary.Repositories
 
         #endregion
 
+        #region GetSubArtifactTreeAsync
+
         [TestMethod]
         public async Task GetSubArtifactTreeAsync_SingleSubArtifact_Success()
         {
@@ -1098,7 +1215,7 @@ namespace ServiceLibrary.Repositories
             const int userId = 99;
             var subArtifacts = new List<SubArtifact> { new SubArtifact { Id = 1111, ParentId = artifactId } };
             var cxn = new SqlConnectionWrapperMock();
-            cxn.SetupQueryAsync("GetSubArtifacts", 
+            cxn.SetupQueryAsync("GetSubArtifacts",
                 new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "revisionId", int.MaxValue }, { "includeDrafts", true } }, subArtifacts);
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
             // Act
@@ -1119,7 +1236,7 @@ namespace ServiceLibrary.Repositories
             var subArtifacts = new List<SubArtifact>();
             subArtifacts.Add( new SubArtifact { Id = 1111, ParentId = artifactId });
             subArtifacts.Add(new SubArtifact { Id = 2222, ParentId = 1111 });
-           var cxn = new SqlConnectionWrapperMock();
+            var cxn = new SqlConnectionWrapperMock();
             cxn.SetupQueryAsync("GetSubArtifacts",
                 new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "revisionId", int.MaxValue }, { "includeDrafts", true } }, subArtifacts);
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
@@ -1166,6 +1283,8 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual(2222, result[1].Id);
             Assert.AreEqual("Postcondition", result[1].DisplayName);
         }
+
+        #endregion
 
         #region GetArtifactNavigatioPathAsync
 

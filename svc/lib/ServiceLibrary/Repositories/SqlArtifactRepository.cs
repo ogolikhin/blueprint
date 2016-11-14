@@ -8,6 +8,7 @@ using ServiceLibrary.Helpers;
 using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 
 namespace ServiceLibrary.Repositories
 {
@@ -66,8 +67,12 @@ namespace ServiceLibrary.Repositories
 
             var dicUserArtifactVersions = artifactVersions.GroupBy(v => v.ItemId).ToDictionary(g => g.Key, g => GetUserArtifactVersion(g.ToList()));
 
-            // For projects only, get orphan artifacts
-            if (artifactId == null)
+            // For the project and the roots of collections and baselines/reviews only, get orphan artifacts
+            ArtifactVersion av;
+            ProjectSection? projectSection;
+            dicUserArtifactVersions.TryGetValue(artifactId ?? projectId, out av);
+
+            if (av != null && TryGetProjectSectionFromRoot(av, out projectSection))
             {
                 prm = new DynamicParameters();
                 prm.Add("@projectId", projectId);
@@ -86,14 +91,20 @@ namespace ServiceLibrary.Repositories
                         if (dicUserArtifactVersions.ContainsKey(userOrphanVersion.ItemId))
                             dicUserArtifactVersions.Remove(userOrphanVersion.ItemId);
 
-                        // Add the orphan with children
-                        dicUserArtifactVersions.Add(userOrphanVersion.ItemId, userOrphanVersion);
-                        foreach (var userOrphanChildVersion in dicUserOrphanVersions.Values.Where(v => v.ParentId == userOrphanVersion.ItemId))
+                        // Add the orphan with children belonging to the respective project section
+                        if (BelongsToProjectSection(userOrphanVersion, projectSection.GetValueOrDefault()))
                         {
-                            if (dicUserArtifactVersions.ContainsKey(userOrphanChildVersion.ItemId))
-                                continue;
+                            userOrphanVersion.ParentId = av.ItemId;
+                            dicUserArtifactVersions.Add(userOrphanVersion.ItemId, userOrphanVersion);
+                            foreach (
+                                var userOrphanChildVersion in
+                                    dicUserOrphanVersions.Values.Where(v => v?.ParentId == userOrphanVersion.ItemId))
+                            {
+                                if (dicUserArtifactVersions.ContainsKey(userOrphanChildVersion.ItemId))
+                                    continue;
 
-                            dicUserArtifactVersions.Add(userOrphanChildVersion.ItemId, userOrphanChildVersion);
+                                dicUserArtifactVersions.Add(userOrphanChildVersion.ItemId, userOrphanChildVersion);
+                            }
                         }
                     }
                 }
@@ -172,6 +183,51 @@ namespace ServiceLibrary.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
+        }
+
+        private bool BelongsToProjectSection(ArtifactVersion artifactVersion, ProjectSection projectSection)
+        {
+            var itp = artifactVersion.ItemTypePredefined.GetValueOrDefault();
+            switch (projectSection)
+            {
+                case ProjectSection.Artifacts:
+                    return itp.IsRegularArtifactType();
+                case ProjectSection.Collections:
+                    return itp.IsCollectionsGroupType();
+                case ProjectSection.BaselinesAndReviews:
+                    return itp.IsBaselinesAndReviewsGroupType();
+                default:
+                    return false;
+            }
+        }
+
+        private bool TryGetProjectSectionFromRoot(ArtifactVersion artifactVersion, out ProjectSection? projectSection)
+        {
+            projectSection = null;
+            if (artifactVersion == null)
+                return false;
+
+            if (artifactVersion.ItemTypePredefined == ItemTypePredefined.Project)
+            {
+                projectSection = ProjectSection.Artifacts;
+                return true;
+            }
+            
+            // Collections and Baselines/Reviews roots are under the project
+            if (artifactVersion.ParentId != artifactVersion.VersionProjectId)
+                return false;
+            if (artifactVersion.ItemTypePredefined == ItemTypePredefined.CollectionFolder)
+            {
+                projectSection = ProjectSection.Collections;
+                return true;
+            }
+            if (artifactVersion.ItemTypePredefined == ItemTypePredefined.BaselineFolder)
+            {
+                projectSection = ProjectSection.BaselinesAndReviews;
+                return true;
+            }
+
+            return false;
         }
 
         // Returns stub ItemTypeId for Collections and Baselines and Reviews folders under the project.

@@ -12,7 +12,6 @@ angular.module("app.shared", [
 
 export {
     IBPTreeControllerApi,
-    ITreeNode,
     IDialogSettings,
     IDialogService,
     IDialogData,

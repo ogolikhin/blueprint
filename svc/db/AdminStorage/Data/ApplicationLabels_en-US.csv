@@ -203,8 +203,10 @@ Discard_Success_Message,"Changes have been discarded."
 Create_New_Artifact_Dialog_Header,"New Artifact"
 Create_New_Artifact_Dialog_Artifact_Type,"Artifact Type"
 Create_New_Artifact_Dialog_Artifact_Name,"Name of Artifact"
-Create_New_Artifact_Error_404,"Create_New_Artifact_Error_404"
-Create_New_Artifact_Error_Generic,"Create_New_Artifact_Error_Generic"
+Create_New_Artifact_Error_404_101,"The artifact could not be created. Its parent artifact has likely been deleted or moved. The parent artifact's parent or project is now being displayed."
+Create_New_Artifact_Error_404_102,"The artifact could not be created. Its project has likely been deleted or moved. The Explorer has been refreshed."
+Create_New_Artifact_Error_404_109,"The artifact could not be created. Its type has likely been removed by an administrator."
+Create_New_Artifact_Error_Generic,"Sorry, but an error has occurred and the artifact cannot be created. Please contact an administrator."
 
 Confirm_Publish_Collection, "Please publish your changes before entering the review. Would you like to proceed?"
 Create_Rapid_Review, "Create Rapid Review"
@@ -348,6 +350,7 @@ Property_UserPicker_Display_Top_N_Results,"Displaying first {0} results"
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
 HttpError_Forbidden, "The artifact cannot be opened. It is no longer accessible by you."
 HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been deleted or moved."
+HttpError_Collection_NotFound, "The Collection has been deleted."
 HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
 
 Project_NoProjectsAvailable,"Either no projects are available or you do not have the required permissions to access them."
@@ -428,6 +431,9 @@ ST_Publish_User_Story, "Publish User Story"
 ST_Search_Project_Scope_Mentions, "#mention artifacts from the current project only"
 ST_ProcessType_BusinessProcess_Label, "Business Process mode"
 ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
+
+# Breadcrumb
+ST_Breadcrumb_InaccessibleArtifact, "<Inaccessible>"
 
 # User Story Generation
 ST_US_Generate_Dropdown_Tooltip, "User Stories"

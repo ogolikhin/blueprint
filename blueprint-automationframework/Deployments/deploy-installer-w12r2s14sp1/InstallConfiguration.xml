@@ -1,28 +1,25 @@
 <?xml version="1.0"?>
 <OutputSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GeneralInfo>
-    <InstallationPath>C:\Web\Blueprint</InstallationPath>
+    <InstallationPath>C:\BlueprintInstallation</InstallationPath>
     <IsDistributedInstallation>false</IsDistributedInstallation>
   </GeneralInfo>
   <BlueprintWebInfo>
     <SiteName>Blueprint</SiteName>
-    <SitePort>80</SitePort>
-    <SiteAuxiliaryPort>83</SiteAuxiliaryPort>
-    <SiteHostName>deploy-installer-w12r2s14sp1.blueprintsys.net</SiteHostName>
-    <EnableHTTPSBinding>false</EnableHTTPSBinding>
+    <SitePort>441</SitePort>
+    <SiteAuxiliaryPort>9101</SiteAuxiliaryPort>
+    <IsHTTP>false</IsHTTP>
     <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
-    <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
-    <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
-    <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>
+    <PhoneHomeSendUsageInfo>false</PhoneHomeSendUsageInfo>
+    <PhoneHomeSendSystemInfo>false</PhoneHomeSendSystemInfo>
     <ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
   </BlueprintWebInfo>
   <ALMInfo>
-    <IsALMEnabled>true</IsALMEnabled>
-    <ALMSiteName>Blueprint_ALMLegacyConnector</ALMSiteName>
-    <ALMPort>85</ALMPort>
+    <IsALMEnabled>false</IsALMEnabled>
+    <ALMPort xsi:nil="true" />
   </ALMInfo>
   <JobExecutorInfo>
-    <AccountType>LocalSystem</AccountType>
+    <AccountType>NetworkService</AccountType>
   </JobExecutorInfo>
   <BlueprintDatabaseInfo>
     <DBServerLocation>localhost\sqlserver2014</DBServerLocation>

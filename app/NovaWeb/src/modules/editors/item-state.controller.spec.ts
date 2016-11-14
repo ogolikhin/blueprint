@@ -10,7 +10,6 @@ import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {IItemInfoService} from "../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
 import {IArtifactManager} from "../managers/artifact-manager/artifact-manager";
-import {IProjectManager} from "../managers/project-manager/project-manager";
 import {IStatefulArtifact} from "../managers/artifact-manager/artifact";
 import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
@@ -20,20 +19,30 @@ import {IMessageService} from "../core/messages/message.svc";
 import {ILocalizationService} from "../core/localization/localizationService";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {MessageType, Message} from "../core/messages/message";
+import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
 
 describe("Item State Controller tests", () => {
     let $state: angular.ui.IStateService,
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         artifactManager: IArtifactManager,
-        projectManager: IProjectManager,
-        localization,
+        localization: ILocalizationService,
         messageService: IMessageService,
-        navigationService,
-        itemInfoService,
-        statefulArtifactFactory,
+        navigationService: INavigationService,
+        itemInfoService: IItemInfoService,
+        loadingOverlayService: ILoadingOverlayService,
+        statefulArtifactFactory: IStatefulArtifactFactory,
         ctrl: ItemStateController,
         stateSpy;
+
+    class LoadingOverlayServiceMock {
+        beginLoading() {
+            //
+        };
+        endLoading(id: number) {
+            //
+        };
+    }
 
     beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("app.main"));
@@ -44,6 +53,7 @@ describe("Item State Controller tests", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
@@ -52,22 +62,22 @@ describe("Item State Controller tests", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _artifactManager_: IArtifactManager,
-        _projectManager_: IProjectManager,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
         _itemInfoService_: IItemInfoService,
+        _loadingOverlayService_: ILoadingOverlayService,
         _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         $state = _$state_;
         $rootScope = _$rootScope_;
         $q = _$q_;
         artifactManager = _artifactManager_;
-        projectManager = _projectManager_;
         localization = _localization_;
         messageService = _messageService_;
         navigationService = _navigationService_;
         itemInfoService = _itemInfoService_;
+        loadingOverlayService = _loadingOverlayService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
     }));
 
@@ -83,11 +93,11 @@ describe("Item State Controller tests", () => {
         return new ItemStateController(
             $state,
             artifactManager,
-            projectManager,
             messageService,
             localization,
             navigationService,
             itemInfoService,
+            loadingOverlayService,
             statefulArtifactFactory);
     }
 
@@ -138,6 +148,26 @@ describe("Item State Controller tests", () => {
 
             afterEach(() => {
                 isArtifactSpy = undefined;
+            });
+
+            it("loading overlay is called", () => {
+                // arrange
+                const beginLoadingOverlaySpy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(1);
+                const endLoadingOverlaySpy = spyOn(loadingOverlayService, "endLoading");
+                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({id: artifactId});
+                    return deferred.promise;
+                });
+
+                // act
+                ctrl = getItemStateController(artifactId.toString());
+                $rootScope.$digest();
+
+                // assert
+                expect(beginLoadingOverlaySpy).toHaveBeenCalled();
+                expect(endLoadingOverlaySpy).toHaveBeenCalled();
+                expect(endLoadingOverlaySpy).toHaveBeenCalledWith(1);
             });
 
             it("diagram", () => {
@@ -297,6 +327,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
             });
         });
@@ -348,7 +379,7 @@ describe("Item State Controller tests", () => {
                     });
                     return deferred.promise;
                 });
-                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
@@ -358,7 +389,8 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(stateSpy).not.toHaveBeenCalled();
-                expect(navigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
                 expect(selectionSpy).not.toHaveBeenCalled();
             });
@@ -377,7 +409,7 @@ describe("Item State Controller tests", () => {
                     });
                     return deferred.promise;
                 });
-                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
@@ -387,7 +419,8 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(stateSpy).not.toHaveBeenCalled();
-                expect(navigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
                 expect(selectionSpy).not.toHaveBeenCalled();
             });
@@ -406,7 +439,7 @@ describe("Item State Controller tests", () => {
                     });
                     return deferred.promise;
                 });
-                const navigationSpy = spyOn(navigationService, "navigateToMain");
+                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addError").and.callFake(message => void(0));
 
                 // act
@@ -414,7 +447,8 @@ describe("Item State Controller tests", () => {
                 $rootScope.$digest();
 
                 // assert
-                expect(navigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalled();
+                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
                 expect(messageSpy).toHaveBeenCalled();
             });
 

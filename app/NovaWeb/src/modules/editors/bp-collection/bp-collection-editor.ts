@@ -41,8 +41,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public selectedVMs: any[] = [];
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
-    //public showBulkActions: boolean;
-    //public selectedVMsLength: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -101,22 +99,22 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private visibleArtifact: CollectionNodeVM;
 
     public onGridReset(): void {
-     if (this.visibleArtifact) {
-         this.api.ensureNodeVisible(this.visibleArtifact);
-         this.visibleArtifact = undefined; 
+        if (this.visibleArtifact) {
+            this.api.ensureNodeVisible(this.visibleArtifact);
+            this.visibleArtifact = undefined;
         }
     }
 
     private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
-       if (!changes || changes.length === 0) {
+        if (!changes || changes.length === 0) {
             return;
         }
 
         let collectionArtifacts = this.rootNode.slice();
-        this.visibleArtifact = undefined; 
+        this.visibleArtifact = undefined;
         changes.map((change: IChangeSet) => {
             if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);  
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
                 collectionArtifacts.push(addedTreeVM);
                 if (!this.visibleArtifact) {
                     this.visibleArtifact = addedTreeVM;
@@ -131,8 +129,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 }
             }
         });
-       
-        this.rootNode = collectionArtifacts;        
+
+        this.rootNode = collectionArtifacts;
     };
 
     private headerCellRendererSelectAll(params) {
@@ -296,6 +294,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
 class CollectionNodeVM implements ITreeViewNode {
     public key: string;
+    public isSelectable: boolean = true;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
         this.key = String(model.id);
@@ -316,9 +315,5 @@ class CollectionNodeVM implements ITreeViewNode {
             result.push("is-" + _.kebabCase(typeName));
         }
         return result;
-    }
-
-    public isSelectable(): boolean {
-        return true;
     }
 }

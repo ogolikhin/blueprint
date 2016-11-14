@@ -8,6 +8,7 @@ import {ManageTracesDialogController} from "./bp-manage-traces";
 import {DialogServiceMock, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {DataMock, DialogSettingsMock} from "./bp-manage-traces.mock";
 import {ModalServiceInstanceMock, ModalServiceMock} from "../../../../shell/login/mocks.spec";
+import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
 
 
 describe("ManageTracesController", () => {
@@ -28,6 +29,10 @@ describe("ManageTracesController", () => {
     beforeEach(inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
 
         ctrl.data.artifactId = 15;
+
+        ctrl.api = {
+            deselectAll: () => { return; }
+        } as IArtifactPickerAPI;
 
         ctrl.data.manualTraces = <Relationships.IRelationship[]>[{
             "artifactId": 1,
@@ -179,19 +184,19 @@ describe("ManageTracesController", () => {
 
             //Arrange
             let selectedVM = {
-                name: "published",
                 key: "19",
                 isExpandable: true,
                 isExpanded: false,
                 children: [],
-                isSelectable: () => {
-                    return true;
-                },
+                isSelectable: true,
                 getCellClass: () => {
                     return ["test"];
                 },
                 getIcon: () => {
                     return "<i></i>";
+                },
+                getLabel: () => {
+                    return "published";
                 },
                 model: {
                     "id": 19,

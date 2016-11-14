@@ -41,7 +41,7 @@ export class ProjectManagerMock implements IProjectManager {
         return null;
     }
 
-    remove(): void {
+    remove(projectId: number): void {
         return null;
     }
 

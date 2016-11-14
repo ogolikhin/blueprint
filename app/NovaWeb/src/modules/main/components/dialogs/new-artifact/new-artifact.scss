@@ -3,40 +3,6 @@
 .new-artifact {
     padding: 20px 32px;
 
-    .new-artifact__input {
-        color: $gray-dark;
-    }
-
-    .new-artifact__input--dropdown {
-        padding-right: 24px;
-
-        &.ng-empty {
-            background: url('./new-artifact-arrow.png') no-repeat center right 4px;
-            cursor: pointer;
-        }
-    }
-
-    .new-artifact__input-group {
-        margin-bottom: 10px;
-    }
-
-    .new-artifact__input-group--first {
-        margin-bottom: 18px;
-    }
-
-    .new-artifact__clear {
-        color: $gray-light;
-        cursor: pointer;
-        position: absolute;
-        right: 4px;
-        top: 8px;
-    }
-
-    .new-artifact__focus-stealer {
-        float: left;
-        margin: -2000px 0 0 -2000px;
-    }
-
     .dropdown-menu {
         border: 0;
         border-radius: 0;
@@ -54,4 +20,49 @@
             color: $white;
         }
     }
+}
+
+.new-artifact__icon {
+    display: inline-block;
+    margin-right: 4px;
+    width: 20px;
+
+    img {
+        width: 100%;
+    }
+}
+
+.new-artifact__input {
+    color: $gray-dark;
+}
+
+.new-artifact__dropdown {
+    color: $gray-dark;
+    padding-right: 24px;
+
+    &.ng-empty {
+        background: url('./new-artifact-arrow.png') no-repeat center right 4px;
+        cursor: pointer;
+    }
+}
+
+.new-artifact__group {
+    margin-bottom: 10px;
+}
+
+.new-artifact__group--first {
+    margin-bottom: 18px;
+}
+
+.new-artifact__clear {
+    color: $gray-light;
+    cursor: pointer;
+    position: absolute;
+    right: 4px;
+    top: 8px;
+}
+
+.new-artifact__focus-stealer {
+    float: left;
+    margin: -2000px 0 0 -2000px;
 }

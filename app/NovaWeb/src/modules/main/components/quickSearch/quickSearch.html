@@ -24,7 +24,7 @@
                 ng-model="quickSearch.quickSearchService.searchTerm">
             <button type="button" 
                     class="btn btn-default btn__icon btn--absolute-right" 
-                    ng-if="quickSearch.showHide" 
+                    ng-if="quickSearch.showHide()" 
                     ng-click="quickSearch.clearSearch()">
                 <i class="fonticon-error fonticon-gray"></i>
             </button>

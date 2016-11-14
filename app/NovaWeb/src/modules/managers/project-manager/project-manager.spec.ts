@@ -8,7 +8,7 @@
 // import { ProjectManager, Models } from "../";
 
 
-// describe("Project Manager Test", () => {
+xdescribe("Project Manager Test", () => {
 
 //     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
 //         $provide.service("localization", LocalizationServiceMock);
@@ -27,8 +27,8 @@
 //         projectManager.initialize();
 //     }));
 
-//     describe("Load projects: ", () => {
-//         it("Single project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+    describe("Load projects: ", () => {
+        it("Single project", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 //             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 //             $rootScope.$digest();
@@ -39,9 +39,9 @@
 //             expect(project).toBeDefined();
 //             expect(project.id).toEqual(1);
 //             expect(project.name).toEqual("Project 1");
-//         }));
+        }));
 
-//         it("Multiple projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+        it("Multiple projects", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 //             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 //             projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
@@ -55,9 +55,9 @@
 //             expect(projects).toEqual(jasmine.any(Array));
 //             expect(projects.length).toEqual(2);
 //             expect(current).toEqual(projects[0]);
-//         }));
+        }));
 
-//         it("Load project children", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+        it("Load project children", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 
 //             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
@@ -74,8 +74,8 @@
 //             expect(artifact.artifacts).toEqual(jasmine.any(Array));
 //             expect(artifact.artifacts.length).toEqual(5);
 //             expect(artifact.artifacts[0].id).toEqual(1000);
-//         }));
-//         it("Load project children. Null. Project not found", inject(($rootScope: ng.IRootScopeService,
+        }));
+        it("Load project children. Null. Project not found", (() => {//inject(($rootScope: ng.IRootScopeService,
 //             projectManager: ProjectManager, messageService: MessageService) => {
 //             // Arrange
 //             //let error;
@@ -90,8 +90,8 @@
 //             expect(messages.length).toBe(1);
 //             expect(messages[0].messageText).toBe("Project_NotFound");
 
-//         }));
-//         it("Load project children. undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+        }));
+        it("Load project children. undefined. Artifact not found", (() => {//inject(($rootScope: ng.IRootScopeService,
 //             projectManager: ProjectManager, messageService: MessageService) => {
 //             // Arrange
 //             projectManager.loadProject({ id: 1, name: "Project 1" } as Models.Project);
@@ -106,8 +106,8 @@
 //             expect(messages.length).toBe(1);
 //             expect(messages[0].messageText).toBe("Artifact_NotFound");
 
-//         }));
-//         it("Load project children. Null. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+        }));
+        it("Load project children. Null. Artifact not found", (() => {//inject(($rootScope: ng.IRootScopeService,
 //             projectManager: ProjectManager, messageService: MessageService) => {
 //             // Arrange
 //             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
@@ -121,8 +121,8 @@
 //             expect(messages).toEqual(jasmine.any(Array));
 //             expect(messages.length).toBe(0);
 
-//         }));
-//         it("Load project children. Undefined. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+        }));
+        it("Load project children. Undefined. Artifact not found", (() => {//inject(($rootScope: ng.IRootScopeService,
 //             projectManager: ProjectManager, messageService: MessageService) => {
 //             // Arrange
 //             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
@@ -137,8 +137,8 @@
 //             expect(messages.length).toBe(1);
 //             expect(messages[0].messageText).toBe("Artifact_NotFound");
 
-//         }));
-//         it("Load project children. Project not found", inject(($rootScope: ng.IRootScopeService,
+        }));
+        it("Load project children. Project not found", (() => {//inject(($rootScope: ng.IRootScopeService,
 //             projectManager: ProjectManager, messageService: MessageService) => {
 //             // Arrange
 //             //let error;
@@ -155,8 +155,8 @@
 //             //expect(messages.length).toBe(1);
 //             //expect(messages[0].messageText).toBe("Artifact_NotFound");
 
-//         }));
-//         it("Load project children. Artifact not found", inject(($rootScope: ng.IRootScopeService,
+        }));
+        it("Load project children. Artifact not found", (() => {//inject(($rootScope: ng.IRootScopeService,
 //             projectManager: ProjectManager, messageService: MessageService) => {
 //             // Arrange
 //             //let error;
@@ -172,14 +172,15 @@
 //             expect(messages).toEqual(jasmine.any(Array));
 //             //expect(messages.length).toBe(1);
 //             //expect(messages[0].messageText).toBe("Artifact_NotFound");
-//         }));
+        }));
 
-//     });
+    });
 
-//     describe("Current Artifact: ", () => {
+    describe("Current Artifact: ", () => {
 
 
-//         it("Current artifact has changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+        it("Current artifact has changed", (() => {//
+//             inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 //             let changedArtifact: Models.IArtifact[] = [];
 
@@ -201,10 +202,9 @@
 //             expect(changedArtifact[0].id).toEqual(1);
 //             expect(changedArtifact[1].id).toEqual(10);
 
-//         }));
-/* tslint:disable:max-line-length */
-//         it("Current artifact hasn't changed", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {/
-/* tslint:enable:max-line-length */
+        }));
+        it("Current artifact hasn't changed", (() => {//
+//             inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 //             let changedArtifact: Models.IArtifact[] = [];
 
@@ -230,11 +230,12 @@
 //             expect(changedArtifact.length).toBe(1);
 //             expect(changedArtifact[0].name).toBe("Project 1");
 
-//         }));
-//     });
+        }));
+    });
 
-//     describe("Delete Project: ", () => {
-//         it("Delete current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+    describe("Delete Project: ", () => {
+        it("Delete current project", (() => {//
+//             inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 //             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 //             $rootScope.$digest();
@@ -255,8 +256,8 @@
 //             expect(projects.length).toBe(2);
 //             expect(first.id).toBe(3);
 //             expect(second.id).toBe(2);
-//         }));
-//         it("Delete all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+        }));
+        it("Delete all projects", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //             // Arrange
 //             projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
 //             $rootScope.$digest();
@@ -277,7 +278,7 @@
 //             expect(projects).toEqual(jasmine.any(Array));
 //             expect(projects.length).toBe(0);
 //             expect(artifact).toBeNull();
-//         }));
-//     });
+        }));
+    });
 
-// });
+});

@@ -10,9 +10,11 @@ import {IFileUploadService, FileUploadService} from "../../../core/file-upload/f
 
 class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
     public close(result?: any): void {
+        return;
     }
 
     public dismiss(reason?: any): void {
+        return;
     }
 
     public result: angular.IPromise<any>;

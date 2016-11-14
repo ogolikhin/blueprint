@@ -5,7 +5,7 @@ The repo for HTML5 / SPA and distributed services code.
 ## Running the site
 
 The HTML5 site requires webpack to run and supports multiple entry points as outlined below
-* `npm start` - quick alies to run the site
+* `npm start` - quick alies to run the site. Should be default way to start the site
 * `npm run dev`<sup>^</sup> - bundle the site for local development
 * `npm run dev:open-browser` - bundle the site for local development and launch default browser
 * `npm run dev:no-browser`

@@ -686,7 +686,7 @@ describe("Artifact", () => {
         }));
     });
 
-//--
+
      describe("Delete", () => {
        it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
              // arrange
@@ -741,9 +741,6 @@ describe("Artifact", () => {
 
 
      });
-
-//--
-
 
 
     describe("refresh", () => {

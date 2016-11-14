@@ -84,7 +84,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             projectName: null,
             link: null,
             version: null
-        }
+        };
 
         return defaultSystemPersonaReference;
     }

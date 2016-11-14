@@ -113,7 +113,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
             this.tree.reload(projects);
 
-            let currentSelection = this.selectedArtifactId;
+            const currentSelection = this.selectedArtifactId;
             let navigateToId: number;
             if (projects && projects.length > 0) {
                 if (!currentSelection || this.numberOfProjectsOnLastLoad !== projects.length) {

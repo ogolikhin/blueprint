@@ -31,9 +31,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         // Output
         onLoad: "&?",
         onSelect: "&?",
-        onRowClick: "&?",
-        onRowDblClick: "&?",
-        onRowPostCreate: "&?"
+        onRowClick: "&?"
     };
 }
 
@@ -50,8 +48,6 @@ export interface IBPTreeController {
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
     onRowClick?: Function;
-    onRowDblClick?: Function;
-    onRowPostCreate?: Function;
 }
 
 export interface IBPTreeControllerApi {
@@ -80,8 +76,6 @@ export class BPTreeController implements IBPTreeController {
     public onLoad: Function;
     public onSelect: Function;
     public onRowClick: Function;
-    public onRowDblClick: Function;
-    public onRowPostCreate: Function;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -137,7 +131,6 @@ export class BPTreeController implements IBPTreeController {
             onCellClicked: this.cellClicked,
             onRowSelected: this.rowSelected,
             onRowGroupOpened: this.rowGroupOpened,
-            processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.updateViewport,
@@ -395,12 +388,6 @@ export class BPTreeController implements IBPTreeController {
 
         if (_.isFunction(this.onSelect)) {
             this.onSelect({item: node.data});
-        }
-    };
-
-    private rowPostCreate = (params: any) => {
-        if (_.isFunction(this.onRowPostCreate)) {
-            this.onRowPostCreate({prms: params});
         }
     };
 }

@@ -111,6 +111,31 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.populateTaskChanges();
     }
 
+    private getSelectableArtifactTypes(unSelectableTypes: Models.ItemTypePredefined[]): Models.ItemTypePredefined[] {
+        const selectableArtifactTypes: Models.ItemTypePredefined[] = [
+            Models.ItemTypePredefined.Actor,
+            Models.ItemTypePredefined.BusinessProcess,
+            Models.ItemTypePredefined.Document,
+            Models.ItemTypePredefined.DomainDiagram,
+            Models.ItemTypePredefined.PrimitiveFolder,
+            Models.ItemTypePredefined.GenericDiagram,
+            Models.ItemTypePredefined.Glossary,
+            Models.ItemTypePredefined.Process,
+            Models.ItemTypePredefined.Storyboard,
+            Models.ItemTypePredefined.TextualRequirement,
+            Models.ItemTypePredefined.UIMockup,
+            Models.ItemTypePredefined.UseCase,
+            Models.ItemTypePredefined.UseCaseDiagram
+        ];
+
+        for (const i in unSelectableTypes) {
+            if (selectableArtifactTypes.indexOf(unSelectableTypes[i]) >= 0) {
+                selectableArtifactTypes.splice(selectableArtifactTypes.indexOf(unSelectableTypes[i]), 1);
+            }
+        }
+        return selectableArtifactTypes;
+    }
+
     public openIncludePicker() {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
@@ -120,7 +145,10 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             header: this.localization.get("ST_Select_Include_Artifact_Label")
         };
 
-        const dialogOption: IArtifactPickerOptions = {};
+        const dialogOption: IArtifactPickerOptions = {
+            selectableItemTypes: this.getSelectableArtifactTypes([Models.ItemTypePredefined.Actor]),
+            showSubArtifacts: false
+        };
 
         this.openArtifactPicker(dialogSettings, dialogOption);
     }
@@ -141,7 +169,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.openArtifactPicker(dialogSettings, dialogOption);
     }
 
-    public openArtifactPicker(dialogSettings: IDialogSettings, dialogOptions: IArtifactPickerOptions) {
+    private openArtifactPicker(dialogSettings: IDialogSettings, dialogOptions: IArtifactPickerOptions) {
 
         this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
             if (items.length === 1) {

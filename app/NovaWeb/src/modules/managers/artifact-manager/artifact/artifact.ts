@@ -650,8 +650,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return null;
     }
 
-    protected validateCustomArtifactPromisesForSave(): ng.IPromise <any> {
-        return null;
+    protected validateCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
+        let deferred = this.services.getDeferred<IStatefulArtifact>();
+        deferred.resolve();
+        return deferred.promise;
     }
 
     protected customHandleSaveFailed(): void {

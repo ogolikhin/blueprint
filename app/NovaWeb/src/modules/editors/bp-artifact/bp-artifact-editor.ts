@@ -10,6 +10,7 @@ import {PropertyEditor} from "./bp-property-editor";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IRowSliderControllerApi} from "../../shared";
 
 export {
     IArtifactManager,
@@ -26,6 +27,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
+    public slider: IRowSliderControllerApi;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -121,6 +123,10 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
         const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
+
+        if (this.slider) {
+            this.slider.recalculate();
+        }
 
         let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {

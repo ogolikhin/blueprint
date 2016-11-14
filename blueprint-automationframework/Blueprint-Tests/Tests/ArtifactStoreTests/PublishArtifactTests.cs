@@ -11,7 +11,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
-using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {

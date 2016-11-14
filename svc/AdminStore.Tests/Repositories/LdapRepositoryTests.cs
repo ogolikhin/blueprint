@@ -153,7 +153,6 @@ namespace AdminStore.Repositories
             var authenticator = new Mock<IAuthenticator>();
             var logMock = new Mock<IServiceLogRepository>();
             authenticator.Setup(a => a.Bind(loginInfo, password, AuthenticationTypes.Secure)).Throws(new LdapException(LdapRepository.LdapInvalidCredentialsErrorCode)).Verifiable();
-            authenticator.Setup(a => a.SearchDirectory(loginInfo, password)).Returns(true).Verifiable();
             var repository = new LdapRepository(settingsRepository.Object, logMock.Object, authenticator.Object);
 
             // Act
@@ -162,7 +161,7 @@ namespace AdminStore.Repositories
             // Assert
             settingsRepository.Verify();
             authenticator.Verify();
-            Assert.AreEqual(AuthenticationStatus.Success, status);
+            Assert.AreEqual(AuthenticationStatus.InvalidCredentials, status);
 
         }
 

@@ -11,6 +11,7 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -45,14 +46,16 @@ namespace ArtifactStoreTests
         public void PublishArtifact_SingleSavedArtifact_ArtifactHasVersion1(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, author);
             Assert.AreEqual(int.MaxValue, artifactHistoryBefore[0].VersionId, "Version ID before publish should be {0}!", int.MaxValue);
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, _user),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -60,7 +63,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
             ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifact, expectedVersion: 1);
 
-            var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+            var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, author);
             Assert.AreEqual(1, artifactHistoryAfter[0].VersionId, "Version ID after publish should be 1!");
         }
 
@@ -72,9 +75,11 @@ namespace ArtifactStoreTests
         public void PublishArtifact_SinglePublishedArtifactWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
-            IArtifact artifactWithMultipleVersions = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, _user);
+            IArtifact artifactWithMultipleVersions = Helper.CreateAndPublishArtifact(_project, author, artifactType, numberOfVersions: numberOfVersions);
+
+            var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, author);
             Assert.AreEqual(numberOfVersions, artifactHistoryBefore[0].VersionId, "Version ID before Nova publish should be {0}!", numberOfVersions);
 
             artifactWithMultipleVersions.Save();    // Now save to make a draft.
@@ -82,7 +87,7 @@ namespace ArtifactStoreTests
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifactWithMultipleVersions, _user),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifactWithMultipleVersions, author),
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -250,22 +255,24 @@ namespace ArtifactStoreTests
         public void PublishArtifact_SingleDeletedArtifact_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Delete();
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            artifact.Delete(author);
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, _user),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(anotherUser, artifact.Id),
+            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Id),
                 "After publishing a deleted artifact, other users should not be able to get the deleted artifact!");
         }
 
@@ -277,13 +284,15 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int numberOfArtifactsToPublish, int numberOfArtifactsToNotPublish)
         {
             // Setup:
-            var artifactsPassedToPublish = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifactsToPublish);
-            var artifactsNotPassedToPublish = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifactsToNotPublish);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var artifactsPassedToPublish = Helper.CreateAndSaveMultipleArtifacts(_project, author, artifactType, numberOfArtifactsToPublish);
+            var artifactsNotPassedToPublish = Helper.CreateAndSaveMultipleArtifacts(_project, author, artifactType, numberOfArtifactsToNotPublish);
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(artifactsPassedToPublish, _user, all: true),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(artifactsPassedToPublish, author, all: true),
                 "'POST {0}?all=true' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -307,7 +316,9 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int numberOfArtifacts)
         {
             // Setup:
-            var allArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var allArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
@@ -315,7 +326,7 @@ namespace ArtifactStoreTests
             try
             {
                 Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), _user, all: true),
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -344,8 +355,10 @@ namespace ArtifactStoreTests
             BaseArtifactType savedArtifactType, int numberOfSavedArtifacts, BaseArtifactType publishedArtifactType, int numberOfPublishedArtifacts)
         {
             // Setup:
-            var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, savedArtifactType, numberOfSavedArtifacts);
-            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, publishedArtifactType, numberOfPublishedArtifacts);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+                
+            var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, savedArtifactType, numberOfSavedArtifacts);
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, publishedArtifactType, numberOfPublishedArtifacts);
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
@@ -353,7 +366,7 @@ namespace ArtifactStoreTests
             try
             {
                 Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), _user, all: true),
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -385,11 +398,13 @@ namespace ArtifactStoreTests
             var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
+
             IProject firstProject = projects[0];
             IProject secondProject = projects[1];
 
-            var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, _user, artifactType, numberOfArtifacts);
-            var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, _user, artifactType, numberOfArtifacts);
+            var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, author, artifactType, numberOfArtifacts);
+            var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, author, artifactType, numberOfArtifacts);
 
             var allArtifacts = new List<IArtifactBase>();
             allArtifacts.AddRange(artifactsInFirstProject);
@@ -398,7 +413,7 @@ namespace ArtifactStoreTests
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(allArtifacts, _user),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(allArtifacts, author),
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -423,11 +438,13 @@ namespace ArtifactStoreTests
             var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
+
             IProject firstProject = projects[0];
             IProject secondProject = projects[1];
 
-            var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, _user, artifactType, numberOfArtifacts);
-            var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, _user, artifactType, numberOfArtifacts);
+            var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, author, artifactType, numberOfArtifacts);
+            var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, author, artifactType, numberOfArtifacts);
 
             var allArtifacts = new List<IArtifactBase>();
             allArtifacts.AddRange(artifactsInFirstProject);
@@ -439,8 +456,8 @@ namespace ArtifactStoreTests
             try
             {
                 Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), _user, all: true),
-                    "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                    "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
                 var expectedProjects = new List<IProject>();
@@ -453,6 +470,63 @@ namespace ArtifactStoreTests
 
                 AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
                     publishResponse, artifactsInFirstProject, expectedVersion: 1);
+            }
+            finally
+            {
+                // This is needed so the Dispose() in the TearDown doesn't fail.
+                if (publishResponse != null)
+                {
+                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                }
+            }
+        }
+
+        [TestCase(BaseArtifactType.Process, 3)]
+        [TestRail(0)]
+        [Description("Create & save artifacts in a couple of projects.  Publish all the artifacts.  User has permissions only for one artifact in 2nd project.  Verify publish is successful.")]
+        public void PublishArtifactWithAllTrue_ArtifactsSavedInCoupleOfProjects_UserHasPermissionsOnlyToOneArtifactInSecondProjects(BaseArtifactType artifactType, int numberOfArtifacts)
+        {
+            // Setup:
+            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
+
+            // User has author rights for first project but none permissions for the second project
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, projects[1]);
+
+            var artifacts = Helper.CreateAndSaveMultipleArtifacts(projects[0], user, artifactType, numberOfArtifacts);
+
+            // Create & publish artifact with user that has permissions to the project
+            var artifact = Helper.CreateAndPublishArtifact(projects[1], _user, artifactType);
+            // Allow editing for previously created & published artifact with user that does not have permissions for that project
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Author, projects[1], artifact);
+
+            artifact.Save(user);
+
+            var allArtifacts = new List<IArtifactBase>();
+            allArtifacts.AddRange(artifacts);
+            allArtifacts.Add(artifact);
+
+            INovaArtifactsAndProjectsResponse publishResponse = null;
+
+            try
+            {
+                // Execute:
+                Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), user, all: true),
+                    "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
+
+                // Verify:
+                var expectedProjects = new List<IProject>();
+                expectedProjects.Add(projects[0]);
+                expectedProjects.Add(projects[0]);
+
+                ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+                Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
+                    "There should be {0} published artifacts returned!", allArtifacts.Count);
+
+                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
+                    publishResponse, artifacts, expectedVersion: 1);
             }
             finally
             {

@@ -6,8 +6,14 @@ import "angular-ui-bootstrap";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {createFormlyModule} from "../../formly-config.mock";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly Number", () => {
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {        
+        $provide.service("validationService", ValidationService);
+    }));
+
     let fieldsDefinition = [
         {
             type: "bpFieldNumber",
@@ -48,7 +54,7 @@ describe("Formly Number", () => {
 
     let template = `<formly-dir model="model"></formly-dir>`;
     let compile, scope, rootScope, element, node, isolateScope, vm;
-
+    
     beforeEach(
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {

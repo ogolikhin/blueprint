@@ -79,11 +79,7 @@ namespace AdminStore.Repositories
         private AuthenticationStatus Authenticate(LoginInfo loginInfo, string password, AuthenticationTypes authenticationType = AuthenticationTypes.Secure)
         {
             var authenticationStatus = AuthenticateViaLdap(loginInfo, password, authenticationType);
-            if (authenticationStatus != AuthenticationStatus.Success)
-            {
-                return AuthenticateViaDirectory(loginInfo, password);
-            }
-            return AuthenticationStatus.Success;
+            return authenticationStatus == AuthenticationStatus.Error ? AuthenticateViaDirectory(loginInfo, password) : authenticationStatus;
         }
 
         private AuthenticationStatus AuthenticateViaDirectory(LoginInfo loginInfo, string password)

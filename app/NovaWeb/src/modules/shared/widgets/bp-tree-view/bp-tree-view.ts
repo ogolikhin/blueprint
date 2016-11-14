@@ -93,6 +93,10 @@ export interface IColumnRendererParams {
     $scope: ng.IScope;
 }
 
+export interface IHeaderCellRendererParams {
+    context?: any;
+}
+
 export interface IBPTreeViewControllerApi {
     ensureNodeVisible(node: ITreeViewNode): void;
     deselectAll(): void;
@@ -229,7 +233,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                    field: column.field,
                    width: column.width,
                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNode) : undefined,
-                   cellRenderer: column.isGroup ? "group" : undefined,
+                   cellRenderer: column.isGroup ? "group" : column.innerRenderer,
                    cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
                             (params: any) => (params.data as ITreeViewNode).isSelectable : undefined,

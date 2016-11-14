@@ -28,4 +28,5 @@ export class SystemTaskDialogModel extends SubArtifactTaskDialogModel {
     label: string;
     imageId: string;
     associatedImageUrl: string;
+    availablePersona: any[];
 }

@@ -173,6 +173,7 @@ export class SubArtifactEditorModalOpener {
         model.label = model.originalItem.label;
         model.persona = model.originalItem.persona;
         model.associatedImageUrl = model.originalItem.associatedImageUrl;
+        model.availablePersona = [{ "name": "test actor 1" }, { "name": "test actor 2" }];
 
         return model;
     }

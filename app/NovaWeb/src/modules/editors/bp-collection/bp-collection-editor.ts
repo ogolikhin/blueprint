@@ -319,12 +319,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
 class CollectionNodeVM implements ITreeViewNode {
     public key: string;
-    public isSelectable: boolean;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService,
-                public isArtifactSelectable: boolean = true) {
+                public isSelectable: boolean = true) {
         this.key = String(model.id);
-        this.isSelectable = isArtifactSelectable;
     }
 
     public getIcon(): string {

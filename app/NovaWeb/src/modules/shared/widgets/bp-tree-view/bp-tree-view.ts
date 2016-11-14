@@ -94,7 +94,7 @@ export interface IColumnRendererParams {
 }
 
 export interface IHeaderCellRendererParams {
-    context: {};
+    context?: any;
 }
 
 export interface IBPTreeViewControllerApi {

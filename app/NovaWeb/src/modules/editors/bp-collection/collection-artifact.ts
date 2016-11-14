@@ -83,12 +83,15 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
 
     public changes(): IArtifact {
         let artifactChanges = super.changes();
+        if (!artifactChanges || !artifactChanges.specificPropertyValues) {
+            return artifactChanges;
+        }
 
         const changesets = this.changesets.get();
         if (changesets.length > 0) {
 
-            let addedArtifactIds: number[] = [];
-            let removedArtifactIds: number[] = [];
+            const addedArtifactIds: number[] = [];
+            const removedArtifactIds: number[] = [];
             changesets.map((changeset: IChangeSet) => {
                 if (changeset.type === ChangeTypeEnum.Add) {
                     const id = changeset.key as number;

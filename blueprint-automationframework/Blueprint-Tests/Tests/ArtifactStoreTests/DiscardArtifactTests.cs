@@ -669,8 +669,7 @@ namespace ArtifactStoreTests
             List<int> tempIds = new List<int>();
             discardArtifactResponse.Artifacts.ForEach(a => tempIds.Add(a.Id));
 
-            if (user == null)
-                user = _user;
+            user = user ?? _user;
 
             foreach (IArtifactBase artifact in artifactsTodiscard)
             {

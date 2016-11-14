@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import {Models} from "../../main";
-import {IColumn, ITreeViewNode, IColumnRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
+import {IColumn, ITreeViewNode, IColumnRendererParams, IHeaderCellRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
@@ -137,7 +137,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         this.rootNode = collectionArtifacts;
     };
 
-    private headerCellRendererSelectAll(params, isArtifactReadOnly) {
+    private headerCellRendererSelectAll(params: IHeaderCellRendererParams, isArtifactReadOnly: boolean) {
         let cb = document.createElement("i");
         cb.setAttribute("class", "ag-checkbox-unchecked");
 
@@ -183,7 +183,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     return this.headerCellRendererSelectAll(params, this.artifact.artifactState.readonly);
                 },
                 field: "chck",
-                isGroup: this.artifact.artifactState.readonly,
                 innerRenderer: (params: IColumnRendererParams) => {
                     if (this.artifact.artifactState.readonly) {
                         return `<span class="ag-cell-wrapper"><span class="ag-selection-checkbox"><i class="ag-checkbox-unchecked disabled"></i></span></span>`;

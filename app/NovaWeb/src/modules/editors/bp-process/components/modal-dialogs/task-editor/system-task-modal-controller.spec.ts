@@ -254,7 +254,7 @@ describe("SystemTaskModalController", () => {
                 model.personaReference = {
                     id: -1,
                     projectId: null,
-                    name: this.NEW_USER_TASK_PERSONA,
+                    name: "System",
                     typePrefix: null,
                     baseItemTypePredefined: Models.ItemTypePredefined.Actor,
                     projectName: null,

@@ -1,10 +1,13 @@
 import * as angular from "angular";
+require("script!mxClient");
 import "rx/dist/rx.lite";
 import { Models, Enums } from "../../main/models";
 import { IProcess } from "./models/process-models";
 import { IState } from "../../managers/artifact-manager/state/state";
 import { IArtifactService } from "../../managers/artifact-manager/";
 import { ArtifactServiceMock } from "../../managers/artifact-manager/artifact/artifact.svc.mock";
+import { ValidationServiceMock } from  "../../managers/artifact-manager/validation/validation.mock";
+import { IValidationService } from  "../../managers/artifact-manager/validation";
 import { ISession } from "../../shell/login/session.svc";
 import { SessionSvcMock } from "../../shell/login//mocks.spec";
 import { IMessageService } from "../../core/messages/message.svc";
@@ -19,6 +22,17 @@ import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import * as TestModels from "./models/test-model-factory";
 
+class ExecutionEnvironmentDetectorMock {
+    private browserInfo: any;
+
+    constructor() {
+        this.browserInfo = { msie: false, firefox: false, version: 0 };
+    }
+
+    public getBrowserInfo(): any {
+        return this.browserInfo;
+    }
+}
 
 describe("When process is saved", () => {
 
@@ -32,6 +46,9 @@ describe("When process is saved", () => {
     let result: IProcessUpdateResult;
     let processArtifact: StatefulProcessArtifact;
 
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("session", null);
@@ -44,6 +61,7 @@ describe("When process is saved", () => {
         $provide.service("projectManager", null);
         $provide.service("metadataService", null);
         $provide.service("publishService", null);
+        $provide.service("validationService", ValidationServiceMock);
     }));
     beforeEach(inject((
         _$rootScope_: ng.IRootScopeService,
@@ -51,7 +69,8 @@ describe("When process is saved", () => {
         _$httpBackend_: ng.IHttpBackendService,
         messageService: IMessageService, 
 		artifactService: IArtifactService,
-		processService: IProcessService) => {
+		processService: IProcessService,
+        validationService: IValidationService) => {
 
         $rootScope = _$rootScope_;
         $q = _$q_;
@@ -62,7 +81,7 @@ describe("When process is saved", () => {
         processModel = JSON.parse('{ "id":4831, "name":"Process 4", "typePrefix":"PRO", "projectId":1, "baseItemTypePredefined":4114, "shapes":[{ "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": 4900, "name": "UT1", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Persona": { "propertyName": "Persona", "typePredefined": 4130, "typeId": null, "value": "User" }, "StoryLinks": { "propertyName": "StoryLinks", "typePredefined": 4131, "typeId": null, "value": null }, "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1 }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 2 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" }, "ImageId": { "propertyName": "ImageId", "typePredefined": 4132, "typeId": null, "value": null } } }, { "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": 4903, "name": "ST2", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Persona": { "propertyName": "Persona", "typePredefined": 4130, "typeId": null, "value": "System" }, "AssociatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "ImageId": { "propertyName": "ImageId", "typePredefined": 4132, "typeId": null, "value": null }, "StoryLinks": { "propertyName": "StoryLinks", "typePredefined": 4131, "typeId": null, "value": null }, "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": -1 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": -1 }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 3 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 4 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } } }, { "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": 4833, "name": "Start", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150 }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 0 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 1 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } } }, { "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": 4834, "name": "Precondition", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Persona": { "propertyName": "Persona", "typePredefined": 4130, "typeId": null, "value": "System" }, "AssociatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": null, "value": null }, "ImageId": { "propertyName": "ImageId", "typePredefined": 4132, "typeId": null, "value": null }, "StoryLinks": { "propertyName": "StoryLinks", "typePredefined": 4131, "typeId": null, "value": null }, "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150 }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 1 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 5 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } } }, { "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": 4843, "name": "End", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": 47, "value": "" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": 63, "value": "" }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": 66, "value": 126 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": 67, "value": 150 }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": 64, "value": 6 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": 65, "value": 0 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 3 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": 51, "value": "" } } }, { "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": -1, "name": "New Task", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Persona": { "propertyName": "Persona", "typePredefined": 4130, "typeId": -1, "value": "User" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": -1, "value": "" }, "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": -1, "value": "" }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": -1, "value": 4 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": -1, "value": 0 }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": -1, "value": -1 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": -1, "value": -1 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": -1, "value": 2 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": -1, "value": "" } } }, { "associatedArtifact": null, "baseItemTypePredefined": 8228, "id": -2, "name": "New System", "parentId": 4831, "projectId": 1, "typePrefix": "PROS", "propertyValues": { "Persona": { "propertyName": "Persona", "typePredefined": 4130, "typeId": -1, "value": "System" }, "AssociatedImageUrl": { "propertyName": "AssociatedImageUrl", "typePredefined": 0, "typeId": -1, "value": "" }, "ImageId": { "propertyName": "ImageId", "typePredefined": 4132, "typeId": -1, "value": "" }, "Label": { "propertyName": "Label", "typePredefined": 4115, "typeId": -1, "value": "" }, "Description": { "propertyName": "Description", "typePredefined": 4099, "typeId": -1, "value": "" }, "X": { "propertyName": "X", "typePredefined": 8193, "typeId": -1, "value": 5 }, "Y": { "propertyName": "Y", "typePredefined": 8194, "typeId": -1, "value": 0 }, "Width": { "propertyName": "Width", "typePredefined": 8195, "typeId": -1, "value": -1 }, "Height": { "propertyName": "Height", "typePredefined": 8196, "typeId": -1, "value": -1 }, "ClientType": { "propertyName": "ClientType", "typePredefined": 4114, "typeId": -1, "value": 4 }, "ItemLabel": { "propertyName": "ItemLabel", "typePredefined": 4102, "typeId": -1, "value": "" } } }], "links":[{ "destinationId": 4903, "label": null, "orderindex": 0, "sourceId": 4900 }, { "destinationId": -1, "label": null, "orderindex": 0, "sourceId": 4903 }, { "destinationId": 4834, "label": null, "orderindex": 0, "sourceId": 4833 }, { "destinationId": 4900, "label": null, "orderindex": 0, "sourceId": 4834 }, { "destinationId": -2, "label": "", "orderindex": 0, "sourceId": -1 }, { "destinationId": 4843, "label": "", "orderindex": 0, "sourceId": -2 }], "propertyValues":{ "Description":{ "propertyName":"Description", "typePredefined":4099, "typeId":47, "value":"" },"ClientType":{ "propertyName": "ClientType", "typePredefined": 4114, "typeId": 62, "value": 2 }}, "decisionBranchDestinationLinks":[], "itemTypeId":0, "requestedVersionInfo":null}');
         
         let artifactServices = new StatefulArtifactServices(
-            _$q_, session, messageService, null, null, artifactService, null, null, null, null, null);
+            _$q_, session, messageService, null, null, artifactService, null, null, null, null, null, validationService);
 
         services = new StatefulProcessArtifactServices(artifactServices, _$q_, processService);
 		
@@ -95,7 +114,7 @@ describe("When process is saved", () => {
 
     }));
 	
-    it("calls both saveProcess() and saveArtifact() methods ", (done) => {
+    fit("calls both saveProcess() and saveArtifact() methods ", (done) => {
 
         spyOn(processArtifact, "saveProcess").and.callThrough();
 

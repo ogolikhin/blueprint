@@ -32,6 +32,7 @@ import {
 } from "./attachments";
 
 import {IMetaData, MetaDataService, IMetaDataService} from "./metadata";
+import {ValidationService, IValidationService} from "./validation";
 
 export {IArtifactState, IState} from "./state/state";
 
@@ -43,7 +44,8 @@ angular.module("bp.managers.artifact", [])
     .service("metadataService", MetaDataService)
     .service("artifactRelationships", ArtifactRelationshipsService)
     .service("statefulArtifactFactory", StatefulArtifactFactory)
-    .service("publishService", PublishService);
+    .service("publishService", PublishService)
+    .service("validationService", ValidationService);
 
 
 export {
@@ -79,5 +81,7 @@ export {
     IArtifactRelationshipsService,
     StatefulProcessArtifact,
     PublishService,
-    IPublishService
+    IPublishService,
+    ValidationService,
+    IValidationService
 };

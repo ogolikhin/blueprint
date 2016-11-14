@@ -1,6 +1,8 @@
 import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IValidationService} from "../../../../managers/artifact-manager/validation";
+
 //fixme: only one class per file
 export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldNumber";
@@ -21,63 +23,71 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldNumberController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization"];
+    static $inject: [string] = ["$scope", "localization", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
+    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private validationService: IValidationService) {
         super();
 
         let validators = {
             decimalPlaces: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if (!scope.options.data.isValidated) {
-                        return true;
-                    }
-                    let value = $modelValue || $viewValue;
-                    if (value) {
-                        let decimal = value.toString().split(localization.current.decimalSeparator);
-                        if (decimal.length === 2) {
-                            return decimal[1].length <= scope.to.decimalPlaces;
-                        }
-                    }
-                    return true;
+                    return validationService.numberValidation.decimalPlaces($viewValue, $modelValue, scope.to.decimalPlaces, 
+                                                                                                    localization, scope.options.data.isValidated);
+                    // if (!scope.options.data.isValidated) {
+                    //     return true;
+                    // }
+                    // let value = $modelValue || $viewValue;
+                    // if (value) {
+                    //     let decimal = value.toString().split(localization.current.decimalSeparator);
+                    //     if (decimal.length === 2) {
+                    //         return decimal[1].length <= scope.to.decimalPlaces;
+                    //     }
+                    // }
+                    // return true;
                 }
             },
             wrongFormat: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    let value = $modelValue || $viewValue;
-                    return !value || angular.isNumber(
-                            localization.current.toNumber(value, scope.options.data.isValidated ? scope.to.decimalPlaces : null)
-                        );
+                    return validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces, 
+                                                                                                     localization, scope.options.data.isValidated);
+                    // let value = $modelValue || $viewValue;
+                    // return !value || angular.isNumber(
+                    //         localization.current.toNumber(value, scope.options.data.isValidated ? scope.to.decimalPlaces : null)
+                    //     );
                 }
             },
             max: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if (!scope.options.data.isValidated) {
-                        return true;
-                    }
-                    let max = localization.current.toNumber(scope.to.max);
-                    if (angular.isNumber(max)) {
-                        let value = localization.current.toNumber($modelValue || $viewValue);
-                        if (angular.isNumber(value)) {
-                            return value <= max;
-                        }
-                    }
-                    return true;
+                    return validationService.numberValidation.max($viewValue, $modelValue, scope.to.max, 
+                                                                                        localization, scope.options.data.isValidated);
+                    // if (!scope.options.data.isValidated) {
+                    //     return true;
+                    // }
+                    // let max = localization.current.toNumber(scope.to.max);
+                    // if (angular.isNumber(max)) {
+                    //     let value = localization.current.toNumber($modelValue || $viewValue);
+                    //     if (angular.isNumber(value)) {
+                    //         return value <= max;
+                    //     }
+                    // }
+                    // return true;
                 }
             },
             min: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if (!scope.options.data.isValidated) {
-                        return true;
-                    }
-                    let min = localization.current.toNumber(scope.to.min);
-                    if (angular.isNumber(min)) {
-                        let value = localization.current.toNumber($modelValue || $viewValue);
-                        if (angular.isNumber(value)) {
-                            return value >= min;
-                        }
-                    }
-                    return true;
+                    return validationService.numberValidation.min($viewValue, $modelValue, scope.to.min, 
+                                                                                       localization, scope.options.data.isValidated);
+                    // if (!scope.options.data.isValidated) {
+                    //     return true;
+                    // }
+                    // let min = localization.current.toNumber(scope.to.min);
+                    // if (angular.isNumber(min)) {
+                    //     let value = localization.current.toNumber($modelValue || $viewValue);
+                    //     if (angular.isNumber(value)) {
+                    //         return value >= min;
+                    //     }
+                    // }
+                    // return true;
                 }
             }
         };
@@ -88,3 +98,4 @@ export class BpFieldNumberController extends BPFieldBaseController {
         };
     }
 }
+

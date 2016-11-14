@@ -2,6 +2,7 @@ import "angular-formly";
 import {Helper} from "../../../../shared";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IValidationService} from "../../../../managers/artifact-manager/validation";
 
 export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
     static $inject: [string] = ["$scope"];
@@ -66,9 +67,9 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldDatePickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization"];
+    static $inject: [string] = ["$scope", "localization", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
+    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private validationService: IValidationService) {
         super();
 
         const to: AngularFormly.ITemplateOptions = {
@@ -110,33 +111,37 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             },
             minDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if (!scope.options.data.isValidated) {
-                        return true;
-                    }
+                    return validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
+                                                                                          localization, scope.options.data.isValidated);
+                    // if (!scope.options.data.isValidated) {
+                    //     return true;
+                    // }
 
-                    let date = localization.current.toDate($modelValue || $viewValue, true);
-                    let minDate = localization.current.toDate(scope.to.datepickerOptions.minDate, true);
+                    // let date = localization.current.toDate($modelValue || $viewValue, true);
+                    // let minDate = localization.current.toDate(scope.to.datepickerOptions.minDate, true);
 
-                    if (date && minDate) {
-                        return date.getTime() >= minDate.getTime();
-                    }
-                    return true;
+                    // if (date && minDate) {
+                    //     return date.getTime() >= minDate.getTime();
+                    // }
+                    // return true;
                 }
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if (!scope.options.data.isValidated) {
-                        return true;
-                    }
+                    return validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
+                                                                                          localization, scope.options.data.isValidated);
+                    // if (!scope.options.data.isValidated) {
+                    //     return true;
+                    // }
 
-                    let date = localization.current.toDate($modelValue || $viewValue, true);
-                    let maxDate = localization.current.toDate(scope.to.datepickerOptions.maxDate, true);
+                    // let date = localization.current.toDate($modelValue || $viewValue, true);
+                    // let maxDate = localization.current.toDate(scope.to.datepickerOptions.maxDate, true);
 
-                    if (date && maxDate) {
-                        return date.getTime() <= maxDate.getTime();
-                    }
+                    // if (date && maxDate) {
+                    //     return date.getTime() <= maxDate.getTime();
+                    // }
 
-                    return true;
+                    // return true;
                 }
             }
         };

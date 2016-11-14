@@ -15,7 +15,7 @@ export interface IStatefulProcessArtifact extends  IStatefulArtifact {
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulProcessArtifact, IProcess {
 
     private loadProcessPromise: ng.IPromise<IStatefulArtifact>;
-
+    private artifactPropertyTypes: {} = null;
     public shapes: IProcessShape[];
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
@@ -52,6 +52,71 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact> {
         let saveProcessPromise = this.saveProcess();
         return saveProcessPromise;
+    }
+
+    private getArtifactPropertyTypes(): ng.IPromise<any> {
+        const deferred = this.services.getDeferred<any>();
+        if (this.artifactPropertyTypes === null) {
+            this.services.metaDataService.getArtifactPropertyTypes(this.projectId, this.artifact.itemTypeId).then((result) => {
+                this.artifactPropertyTypes = {};
+                for (const propType of result) {
+                    if (!!propType.id && !this.artifactPropertyTypes[propType.id.toString()]) {
+                        this.artifactPropertyTypes[propType.id.toString()] = propType;
+                    }
+                }
+                deferred.resolve();
+            }).catch((err) => {
+                // log error?
+                deferred.reject(err);
+            });
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise;
+    }
+
+    protected validateCustomArtifactPromisesForSave(): ng.IPromise<IStatefulArtifact> {
+        const deferred = this.services.getDeferred<IStatefulArtifact>();
+        this.getArtifactPropertyTypes().then((artifactPropertyTypes) => {
+            for (const propValue of this.changes().customPropertyValues) {
+                const itemType: Models.IPropertyType = this.artifactPropertyTypes[propValue.propertyTypeId];
+                switch (itemType.primitiveType) {
+                    case Models.PrimitiveType.Number:
+                        if (!this.services.validationService.numberValidation.isValid(propValue.value, 
+                                                                                                            propValue.value, 
+                                                                                                            itemType.decimalPlaces, 
+                                                                                                            this.services.localizationService, 
+                                                                                                            itemType.minNumber, 
+                                                                                                            itemType.maxNumber,
+                                                                                                            itemType.isValidated,
+                                                                                                            itemType.isRequired)) {
+                            return this.set_400_114_error(deferred);
+                        }
+                        break;
+                    case Models.PrimitiveType.Date:
+                        if (!this.services.validationService.dateValidation.isValid(propValue.value, 
+                                                                                                           propValue.value, 
+                                                                                                           this.services.localizationService, 
+                                                                                                           itemType.minDate, 
+                                                                                                           itemType.maxDate,
+                                                                                                           itemType.isValidated,
+                                                                                                           itemType.isRequired)) {
+                            return this.set_400_114_error(deferred);
+                        }
+                        break;
+                    default:
+                        if (itemType.isRequired && (propValue.value == null)) {
+                            return this.set_400_114_error(deferred);
+                        } 
+                        break;
+                }
+            }
+            deferred.resolve();
+        }).catch((err) => {
+            // log error?
+            deferred.reject(err);
+        });
+        return deferred.promise;
     }
 
     protected customHandleSaveFailed(): void {

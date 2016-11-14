@@ -263,6 +263,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             }
         context.isFresh = false;
         
+        if ($scope["form"]) {
+            if (this.selectedSubArtifact) {
+                this.selectedSubArtifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;
+            } else {
+                this.selectedArtifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;
+            }
+        }
     };
 
     private getSelectedItem(): IStatefulItem {

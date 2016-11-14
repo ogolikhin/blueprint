@@ -384,42 +384,51 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.services.messageService.clearMessages();
 
         const changes = this.changes();
-        if (!changes) {
-            const compoundId: string = this.prefix + this.id.toString();
-            let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-            deferred.reject(new Error(message.replace("{0}", compoundId)));
-            return deferred.promise;
-        }
-
-        const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
-        if (saveCustomArtifact) {
-            saveCustomArtifact.then(() => {
-                this.saveArtifact(changes).then(() => {
-                    deferred.resolve(this);
-                })
-                    .catch((error) => {
-                        this.customHandleSaveFailed();
-                        deferred.reject(error);
-                    });
+        if (changes) {
+            this.validateCustomArtifactPromisesForSave().then(() => {
+                const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
+                if (saveCustomArtifact) {
+                    saveCustomArtifact.then(() => {
+                        this.saveArtifact(changes).then(() => {
+                            deferred.resolve(this);
+                        })
+                            .catch((error) => {
+                                this.customHandleSaveFailed();
+                                deferred.reject(error);
+                            });
+                    })
+                        .catch((error) => {
+                            // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                            if (error) {
+                                deferred.reject(this.handleSaveError(error));
+                            } else {
+                                deferred.reject(error);
+                            }
+                        });
+                } else {
+                    this.saveArtifact(changes)
+                        .then(() => {
+                            deferred.resolve(this);
+                        })
+                        .catch((error) => {
+                            deferred.reject(error);
+                        });
+                }
             })
-                .catch((error) => {
-                    // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
-                    if (error) {
-                        deferred.reject(this.handleSaveError(error));
-                    } else {
-                        deferred.reject(error);
-                    }
-                });
+            .catch((err) => {
+                deferred.reject(err);
+            });
         } else {
-            this.saveArtifact(changes)
-                .then(() => {
-                    deferred.resolve(this);
-                })
-                .catch((error) => {
-                    deferred.reject(error);
-                });
+            return this.set_400_114_error(deferred);
         }
 
+        return deferred.promise;
+    }
+
+    public set_400_114_error(deferred: ng.IDeferred<IStatefulArtifact>) {
+        const compoundId: string = this.prefix + this.id.toString();
+        let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+        deferred.reject(new Error(message.replace("{0}", compoundId)));
         return deferred.promise;
     }
 
@@ -638,6 +647,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     protected getCustomArtifactPromisesForSave(): ng.IPromise <IStatefulArtifact> {
+        return null;
+    }
+
+    protected validateCustomArtifactPromisesForSave(): ng.IPromise <any> {
         return null;
     }
 

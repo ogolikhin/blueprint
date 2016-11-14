@@ -739,6 +739,37 @@ describe("Artifact", () => {
              expect(artifact.artifactState.deleted).toBeFalsy();
          }));
 
+         it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+             // arrange
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                 const deferred = $q.defer<any>();
+                 deferred.reject({
+                     statusCode: HttpStatusCode.Conflict,
+                     errorContent : {
+                         id: 222,
+                         name: "TEST",
+                         prefix: "PREFIX"
+                     }
+                 });
+                 return deferred.promise;
+             });
+             const errormessage = "Artifact TEST (PREFIX222) is already locked by other user.";
+             // act
+             
+             artifact.delete();
+             $rootScope.$digest();
+
+             // assert
+             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+             expect(error.message).toEqual(errormessage);
+             expect(artifact.artifactState.deleted).toBeFalsy();
+         }));
+
+
 
      });
 

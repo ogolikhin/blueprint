@@ -133,9 +133,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         this.rootNode = collectionArtifacts;
     };
 
-    private headerCellRendererSelectAll(params) {
+    private headerCellRendererSelectAll(params, isArtifactReadOnly) {
         let cb = document.createElement("i");
         cb.setAttribute("class", "ag-checkbox-unchecked");
+
+        if (isArtifactReadOnly) {
+            cb.setAttribute("class", "disabled");
+        }
 
         let sp = document.createElement("span");
         sp.setAttribute("class", "ag-group-checkbox");
@@ -146,31 +150,42 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         eHeader.setAttribute("class", "ag-header-checkbox");
         eHeader.appendChild(sp);
 
-        cb.addEventListener("click", function (e) {
-            let checked: boolean;
+        if (!isArtifactReadOnly) {
+            cb.addEventListener("click", function (e) {
+                let checked: boolean;
 
-            if ((e.target)["data-checked"] && (e.target)["data-checked"] === true) {
-                checked = false;
-                cb.setAttribute("class", "ag-checkbox-unchecked");
-            } else {
-                checked = true;
-                cb.setAttribute("class", "ag-checkbox-checked");
-            }
+                if ((e.target)["data-checked"] && (e.target)["data-checked"] === true) {
+                    checked = false;
+                    cb.setAttribute("class", "ag-checkbox-unchecked");
+                } else {
+                    checked = true;
+                    cb.setAttribute("class", "ag-checkbox-checked");
+                }
 
-            (<HTMLInputElement>e.target)["data-checked"] = checked;
-            params.context.allSelected = checked;
-            params.context.selectAllClass.selectAll(checked);
-        });
+                (<HTMLInputElement>e.target)["data-checked"] = checked;
+                params.context.allSelected = checked;
+                params.context.selectAllClass.selectAll(checked);
+            });
+        }
         return eHeader;
     }
 
     public columns: IColumn[] = [
         {
-            isCheckboxSelection: true,
+            isCheckboxSelection: () => !this.artifact.artifactState.readonly,
             width: 30,
-            headerName: "",
-            headerCellRenderer: this.headerCellRendererSelectAll,
-            field: "chck"
+            headerCellRenderer: (params) => {
+                return this.headerCellRendererSelectAll(params, this.artifact.artifactState.readonly);
+            },
+            field: "chck",
+            isGroup: true,
+            isCheckboxHidden: () => this.artifact.artifactState.readonly,
+            innerRenderer: (params: IColumnRendererParams) => {
+                if (this.artifact.artifactState.readonly) {
+                    return `<span class="ag-cell-wrapper"><span class="ag-selection-checkbox"><i class="ag-checkbox-unchecked disabled"></i></span></span>`;
+                }
+                return "";
+            }
         },
         {
             width: 100,
@@ -252,7 +267,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
 
                 };
-                return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact($event)"></i>`;
+
+                if (this.artifact.artifactState.readonly) {
+                    return `<i class="icon icon__normal fonticon-delete-filled disabled"></i>`;
+                } else {
+                    return `<i class="icon icon__action fonticon-delete-filled" ng-click="removeArtifact($event)"></i>`;
+                }
+
             }
         }];
 

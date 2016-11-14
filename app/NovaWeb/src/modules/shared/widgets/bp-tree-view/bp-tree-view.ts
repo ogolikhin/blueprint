@@ -35,6 +35,7 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         columns: "<",
         headerHeight: "<",
         sizeColumnsToFit: "<",
+        isTreeReadOnly: "<",
         api: "=?",
         // Output
         onSelect: "&?",
@@ -80,8 +81,8 @@ export interface IColumn {
     colWidth?: number;
     minColWidth?: number;
     isGroup?: boolean;
-    isCheckboxSelection?: boolean;
-    isCheckboxHidden?: boolean;
+    isCheckboxSelection?: Function | boolean;
+    isCheckboxHidden?: Function | boolean;
     cellClass?: (vm: ITreeViewNode) => string[];
     innerRenderer?: (params: IColumnRendererParams) => string;
 }
@@ -114,6 +115,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
     public onGridReset: () => void;
+    public isTreeReadOnly: boolean;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -130,6 +132,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
+        this.isTreeReadOnly = angular.isDefined(this.isTreeReadOnly) ? this.isTreeReadOnly : false;
 
         this.options = {
             angularCompileHeaders: true,
@@ -369,6 +372,10 @@ export class BPTreeViewController implements IBPTreeViewController {
     };
 
     public onCellClicked = (event: {event: MouseEvent, node: agGrid.RowNode}) => {
+        if (this.isTreeReadOnly) {
+            return;
+        }
+
         // Only deal with clicks in the .ag-group-value span
         let element = event.event.target as Element;
         while (!(element && element.classList.contains("ag-group-value"))) {

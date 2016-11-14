@@ -51,7 +51,9 @@
                           header-height="30"
                           size-columns-to-fit="'true'"
                           on-select="$ctrl.onSelect(vm, isSelected)"
-                          on-grid-reset="$ctrl.onGridReset()"/>
+                          on-grid-reset="$ctrl.onGridReset()"
+                          is-tree-read-only="$ctrl.artifact.artifactState.readonly"
+                    />
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"

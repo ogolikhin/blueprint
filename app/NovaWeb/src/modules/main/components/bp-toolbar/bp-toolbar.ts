@@ -162,10 +162,10 @@ export class BPToolbarController implements IBPToolbarController {
 
     /**
      * Closes the selected project.
-     * 
+     *
      * If there is no opened projects, navigates to main state
      * Otherwise navigates to next project in project list
-     * 
+     *
      */
     private closeProject() {
         const artifact = this.artifactManager.selection.getArtifact();
@@ -225,7 +225,7 @@ export class BPToolbarController implements IBPToolbarController {
                 //refresh all after discard all finishes
                 this.projectManager.refreshAll();
 
-                this.messageService.addInfoWithPar("Discard_All_Success_Message", [data.artifacts.length]);
+                this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })
             .finally(() => {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
@@ -266,7 +266,7 @@ export class BPToolbarController implements IBPToolbarController {
                         selectedArtifact.refresh();
                     }
 
-                    this.messageService.addInfoWithPar("Publish_All_Success_Message", [data.artifacts.length]);
+                    this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
                 })
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
@@ -385,11 +385,17 @@ export class BPToolbarController implements IBPToolbarController {
                             });
                     })
                     .catch((error: IApplicationError) => {
-                        if (error.statusCode === 404) {
+                        if (error.statusCode === 404 && error.errorCode === 102) { // project not found, we refresh all
+                            this.projectManager.refreshAll()
+                                .then(() => {
+                                    this.messageService.addError("Create_New_Artifact_Error_404_102", true);
+                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                });
+                        } else if (error.statusCode === 404) { // parent or artifact type not found, we refresh the single project
                             this.projectManager.refresh(projectId)
                                 .then(() => {
                                     this.projectManager.triggerProjectCollectionRefresh();
-                                    this.messageService.addError("Create_New_Artifact_Error_404", true);
+                                    this.messageService.addError(`Create_New_Artifact_Error_404_${error.errorCode.toString()}`, true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
                         } else if (!error.handled) {

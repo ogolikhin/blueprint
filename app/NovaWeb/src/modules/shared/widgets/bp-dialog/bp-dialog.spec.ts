@@ -55,8 +55,8 @@ describe("DialogService", () => {
     describe("open method", () => {
         it("simple open dialog ", inject((dialogService: IDialogService) => {
             // Arrange
-            var spy = spyOn(dialogService, "openInternal").and.callThrough();
-            var dialogSettings: IDialogSettings = {};
+            const spy = spyOn(dialogService, "openInternal").and.callThrough();
+            const dialogSettings: IDialogSettings = {};
 
             // Act
             dialogService.open(dialogSettings);
@@ -66,10 +66,10 @@ describe("DialogService", () => {
         }));
         it("open dialog fake", inject((dialogService: IDialogService, $q: ng.IQService) => {
             // Arrange
-            var spy = spyOn(dialogService, "openInternal").and.callFake(function () {
+            const spy = spyOn(dialogService, "openInternal").and.callFake(function () {
                 return new ModalServiceInstanceMock($q);
             });
-            var dialogSettings: IDialogSettings = {};
+            const dialogSettings: IDialogSettings = {};
 
             // Act
             dialogService.open(dialogSettings);
@@ -82,7 +82,7 @@ describe("DialogService", () => {
         it("open dialog with default settings", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
-            var dialogSettings: IDialogSettings = {};
+            const dialogSettings: IDialogSettings = {};
 
             // Act
             dialogService.open(dialogSettings);
@@ -99,7 +99,7 @@ describe("DialogService", () => {
         it("open dialog with settings", inject((dialogService: IDialogService) => {
             // Arrange
             spyOn(dialogService, "openInternal").and.callThrough();
-            var dialogSettings: IDialogSettings = {
+            const dialogSettings: IDialogSettings = {
                 type: DialogTypeEnum.Alert,
                 cancelButton: "CANCEL",
                 okButton: "OKAY",

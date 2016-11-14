@@ -72,7 +72,7 @@ namespace Model.StorytellerModel
         CreatedOn = 4125,
         LastEditedBy = 4126,
         LastEditedOn = 4127,
-        Persona = 4130,
+        Persona = 0,    // Used to be 4130, now dev changed it to 0 again.
         StoryLink = 4131,
         ImageId = 4132,
         AssociatedArtifact = 4133,

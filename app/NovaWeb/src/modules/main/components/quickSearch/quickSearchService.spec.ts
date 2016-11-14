@@ -23,7 +23,7 @@ describe("Service: Quick Search", () => {
     //  you would need to inject these into each test
     beforeEach(inject((
         quickSearchService: IQuickSearchService,
-        _projectManager_: ProjectManagerMock,        
+        _projectManager_: ProjectManagerMock,
          _$httpBackend_: ng.IHttpBackendService
         ) => {
         service = quickSearchService;
@@ -31,11 +31,11 @@ describe("Service: Quick Search", () => {
         $httpBackend = _$httpBackend_;
     }));
 
-    it('should contain a QuickSearchService', () => {
+    it("should contain a QuickSearchService", () => {
         expect(service).toBeDefined();
     });
 
-    it('search is only enabled if you have at least one open project', () => {
+    it("search is only enabled if you have at least one open project", () => {
         expect(service.canSearch()).toBe(true);
         const statefulArtifact = new StatefulArtifact({id: 123}, null);
         const project = new ArtifactNode(statefulArtifact);
@@ -64,14 +64,14 @@ describe("Service: Quick Search", () => {
         // act
         service.metadata("abc").then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.totalCount).toBe(totalCount);
     });
-    
+
     it("searchmetadata - with pageSize", () => {
         // arrange
         const statefulArtifact = new StatefulArtifact({id: 123}, null);
@@ -94,9 +94,9 @@ describe("Service: Quick Search", () => {
         // act
         service.metadata("abc", null, pageSize).then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.totalCount).toBe(totalCount);
@@ -125,9 +125,9 @@ describe("Service: Quick Search", () => {
         // act
         service.metadata("abc", page, pageSize).then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.totalCount).toBe(totalCount);
@@ -143,7 +143,7 @@ describe("Service: Quick Search", () => {
             "Query": "abc",
             "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
         };
-        
+
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/`, data)
             .respond(HttpStatusCode.Success,
                 {
@@ -155,15 +155,15 @@ describe("Service: Quick Search", () => {
         // act
         service.search("abc").then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.items).toBeDefined();
         expect(results.items.length).toBe(0);
     });
-    
+
     it("search - with page and page size", () => {
         // arrange
         const statefulArtifact = new StatefulArtifact({id: 123}, null);
@@ -175,7 +175,7 @@ describe("Service: Quick Search", () => {
             "Query": "abc",
             "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
         };
-        
+
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/?page=${page}&pageSize=${pageSize}`, data)
             .respond(HttpStatusCode.Success,
                 {
@@ -187,15 +187,15 @@ describe("Service: Quick Search", () => {
         // act
         service.search("abc", page, pageSize).then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.items).toBeDefined();
         expect(results.items.length).toBe(0);
     });
-    
+
     it("search - with page", () => {
         // arrange
         const statefulArtifact = new StatefulArtifact({id: 123}, null);
@@ -206,7 +206,7 @@ describe("Service: Quick Search", () => {
             "Query": "abc",
             "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
         };
-        
+
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/?page=${page}`, data)
             .respond(HttpStatusCode.Success,
                 {
@@ -218,9 +218,9 @@ describe("Service: Quick Search", () => {
         // act
         service.search("abc", page).then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.items).toBeDefined();
@@ -237,7 +237,7 @@ describe("Service: Quick Search", () => {
             "Query": "abc",
             "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
         };
-        
+
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/?pageSize=${pageSize}`, data)
             .respond(HttpStatusCode.Success,
                 {
@@ -249,9 +249,9 @@ describe("Service: Quick Search", () => {
         // act
         service.search("abc", null, pageSize).then((result) => {
             results = result;
-        });                    
-        $httpBackend.flush();        
-        
+        });
+        $httpBackend.flush();
+
         // assert
         expect(results).toBeDefined();
         expect(results.items).toBeDefined();

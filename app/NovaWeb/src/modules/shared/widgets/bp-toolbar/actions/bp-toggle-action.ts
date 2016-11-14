@@ -45,7 +45,7 @@ export interface IBPToggleAction extends IBPAction {
 
 export class BPToggleAction implements IBPToggleAction {
     private _actions: IBPToggleItemAction[];
-    private _currentValue: any;
+    protected _currentValue: any;
 
     constructor(private initialValue: any,
                 private toggle: (value: any) => void,

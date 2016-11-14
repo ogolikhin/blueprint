@@ -41,6 +41,7 @@ class PageContentCtrl {
         // When selection is empty we need to remove breascrumb
         if (!selection.artifact && !selection.subArtifact) {
             this.currentArtifact = null;
+            this.mainBreadcrumbService.breadcrumbLinks = [];
             return;
         }
         if (this.currentArtifact === selection.artifact) {
@@ -48,7 +49,8 @@ class PageContentCtrl {
         }
         // When the selected artifact is subartifact inside UseCase diagram
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
-        if (explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
+        if (explorerArtifact &&
+            explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
             explorerArtifact !== selection.artifact) {
             return;
         }

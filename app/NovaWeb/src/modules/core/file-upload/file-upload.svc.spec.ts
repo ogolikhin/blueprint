@@ -19,8 +19,8 @@ describe("File Upload", () => {
                     .respond(data);
 
                 // Act
-                var error: any;
-                var result: IFileResult;
+                let error: any;
+                let result: IFileResult;
                 fileUploadService.uploadToFileStore(file, expirationDate).then(response => result = response, response => error = response);
                 $httpBackend.flush();
 
@@ -39,8 +39,8 @@ describe("File Upload", () => {
                     .respond(data);
 
                 // Act
-                var error: any;
-                var result: IFileResult;
+                let error: any;
+                let result: IFileResult;
                 fileUploadService.uploadToFileStore(file).then(response => result = response, response => error = response);
                 $httpBackend.flush();
 
@@ -61,8 +61,8 @@ describe("File Upload", () => {
                     .respond(status, data);
 
                 // Act
-                var error: any;
-                var result: IFileResult;
+                let error: any;
+                let result: IFileResult;
                 fileUploadService.uploadToFileStore(file, expirationDate).then(response => result = response, response => error = response);
                 $httpBackend.flush();
 

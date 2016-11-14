@@ -12,7 +12,7 @@
 // import { ProjectRepositoryMock } from "../../services/project-repository.mock";
 // import { SelectionManager } from "../../../main/services/selection-manager";
 
-// describe("Project Explorer Test", () => {
+xdescribe("Project Explorer Test", () => {
 //     let isReloadCalled: number = 0;
 
 //     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -38,7 +38,7 @@
 //     }));
 
 
-//     it("check property map", inject((explorer: ProjectExplorerController) => {
+    it("check property map", (() => {//inject((explorer: ProjectExplorerController) => {
 //         // Arrange
 //         // Act
 //         // Assert
@@ -50,9 +50,9 @@
 //         expect(explorer.propertyMap["hasChildren"]).toEqual("hasChildren");
 //         expect(explorer.propertyMap["artifacts"]).toEqual("children");
 
-//     }));
+    }));
 
-//     it("onDestroy", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
+    it("onDestroy", (() => {//inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         let _before = explorer["_subscribers"] as Rx.IDisposable[];
 
@@ -63,10 +63,10 @@
 //         // Assert
 //         expect(_before.length).toEqual(2);
 //         expect(_after.length).toEqual(0);
-//     }));
+    }));
 
 
-//     it("Load project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, explorer: ProjectExplorerController) => {
+    it("Load project", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         isReloadCalled = 0;
 //         explorer.tree.reload = function (data: any[], id?: number) {
@@ -81,8 +81,9 @@
 //         // Assert
 //         expect(isReloadCalled).toEqual(1);
 
-//     }));
-//     it("Load project children call", inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager, explorer: ProjectExplorerController) => {
+    }));
+    it("Load project children call", (() => {//
+//         inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         isReloadCalled = 0;
 //         explorer.tree.selectNode = function (id: number) {
@@ -98,9 +99,9 @@
 
 //         // Assert
 //         expect(isReloadCalled).toEqual(3);
-//     }));
+    }));
 
-//     it("close project", inject((projectManager: ProjectManager, explorer: ProjectExplorerController) => {
+    it("close project", (() => {//inject((projectManager: ProjectManager, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         isReloadCalled = 0;
 //         explorer.tree.reload = function (data: any[], id?: number) {
@@ -115,9 +116,9 @@
 //         // Assert
 //         expect(isReloadCalled).toEqual(1);
 
-//     }));
+    }));
 
-//     it("doLoad", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
+    it("doLoad", (() => {//inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         isReloadCalled = 0;
 //         explorer.tree.reload = function (data: any[], id?: number) {
@@ -129,9 +130,9 @@
 //         // Act
 //          //expect(isReloadCalled).toEqual(1);
 
-//     }));
+    }));
 
-//     it("doLoad (nothing)", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
+    it("doLoad (nothing)", (() => {//inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController) => {
 //         // Arrange
 //         isReloadCalled = 0;
 //         explorer.tree.reload = function (data: any[], id?: number) {
@@ -143,9 +144,9 @@
 //         // Act
 //         expect(isReloadCalled).toEqual(0);
 
-//     }));
+    }));
 
-//     it("doSelect", inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController, selectionManager: SelectionManager) => {
+    it("doSelect", (() => {//inject(($rootScope: ng.IRootScopeService, explorer: ProjectExplorerController, selectionManager: SelectionManager) => {
 //         // Arrange
 //         isReloadCalled = 0;
 //         explorer.tree.selectNode = function (id?: number) {
@@ -164,10 +165,10 @@
 //         expect(selectedArtifact.name).toBe("Project 1");
 
 
-//     }));
+    }));
 
 
-//     it("close current project", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+    it("close current project", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //         // Arrange
 //         isReloadCalled = 1;
 //         projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
@@ -186,9 +187,9 @@
 //         expect(current).toBeDefined();
 //         expect(projectManager.projectCollection.getValue.length).toEqual(0);
 
-//     }));
+    }));
 
-//     it("close all projects", inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+    it("close all projects", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //         // Arrange
 //         isReloadCalled = 1;
 //         projectManager.loadProject(new Models.Project({ id: 2, name: "Project 1" }));
@@ -205,6 +206,6 @@
 //         expect(current).toBeNull();
 //         expect(projectManager.projectCollection.getValue.length).toEqual(0);
 
-//     }));
+    }));
 
-// });
+});

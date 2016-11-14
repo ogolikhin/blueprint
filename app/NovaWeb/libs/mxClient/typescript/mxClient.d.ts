@@ -2652,6 +2652,7 @@ interface MxGraph {
     isMouseDown: boolean;
     getCellAt(x, y, parent?, vertices?, edges?, ignoreFn?);
 
+    dblClick(evt: MouseEvent, cell: MxCell);
     /**
      * Function: orderCells
      * 

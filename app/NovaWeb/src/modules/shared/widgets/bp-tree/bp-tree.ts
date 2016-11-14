@@ -1,6 +1,6 @@
-import * as Grid from "ag-grid/main";
-import {RowNode} from "ag-grid/main";
+import * as agGrid from "ag-grid/main";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IArtifactNode} from "../../../managers/project-manager";
 
 /**
  * Usage:
@@ -9,11 +9,8 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *          grid-columns="$ctrl.columns"
  *          enable-editing-on="name"
  *          enable-dragndrop="true"
- *          property-map="$ctrl.propertyMap"
- *          data-source="$ctrl.datasource"
  *          on-load="$ctrl.doLoad(prms)"
- *          on-select="$ctrl.doSelect(item)"
- *          on-sync="$ctrl.doSync(item)">
+ *          on-select="$ctrl.doSelect(item)">
  * </bp-tree>
  */
 
@@ -21,41 +18,28 @@ export class BPTreeComponent implements ng.IComponentOptions {
     public template: string = require("./bp-tree.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPTreeController;
     public bindings: any = {
-        //properties
+        // Two-way
+        api: "=?",
+        // Input
         gridClass: "@",
         enableEditingOn: "@",
         enableDragndrop: "<",
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
-        //settings
         gridColumns: "<",
-        propertyMap: "<",
-        //to set connection with parent
-        api: "=?",
-        //events
+        // Output
         onLoad: "&?",
         onSelect: "&?",
-        onSync: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
         onRowPostCreate: "&?"
     };
 }
 
-export interface ITreeNode {
-    id: number;
-    name: string;
-    itemTypeId: number;
-    hasChildren: boolean;
-    parentNode?: ITreeNode;
-    children?: ITreeNode[];
-    loaded?: boolean;
-    open?: boolean;
-}
-
 export interface IBPTreeController {
     // BPTreeComponent bindings
+    api: IBPTreeControllerApi;
     gridClass: string;
     enableEditingOn: string;
     enableDragndrop: boolean;
@@ -63,11 +47,8 @@ export interface IBPTreeController {
     rowHeight: number;
     headerHeight: number;
     gridColumns: any[];
-    propertyMap: any;
-    api: IBPTreeControllerApi;
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
-    onSync?: Function;                //to be called on time of ag-grid row selection
     onRowClick?: Function;
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
@@ -77,7 +58,7 @@ export interface IBPTreeControllerApi {
     getSelectedNodeId(): number;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
-    clearSelection();
+    deselectAll();
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
     //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
@@ -96,20 +77,18 @@ export class BPTreeController implements IBPTreeController {
     public rowHeight: number;
     public headerHeight: number;
     public gridColumns: any[];
-    public propertyMap: any;
     public onLoad: Function;
     public onSelect: Function;
-    public onSync: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
 
     // ag-grid bindings
-    public options: Grid.GridOptions;
+    public options: agGrid.GridOptions;
 
     private editableColumns: string[] = [];
     private _datasource: any[] = [];
-    private selectedRowNode: RowNode;
+    private selectedRowNode: agGrid.RowNode;
 
     private _innerRenderer: Function;
 
@@ -137,7 +116,7 @@ export class BPTreeController implements IBPTreeController {
     }
 
     public $onInit = () => {
-        this.options = <Grid.GridOptions>{
+        this.options = <agGrid.GridOptions>{
             angularCompileRows: true, // this is needed to compile directives (dynamically added) on the rows
             headerHeight: this.headerHeight,
             showToolPanel: false,
@@ -174,32 +153,6 @@ export class BPTreeController implements IBPTreeController {
         this.options.api.destroy();
     };
 
-    private mapData(data: any, propertyMap?: any): ITreeNode {
-        propertyMap = propertyMap || this.propertyMap;
-
-        if (!propertyMap) {
-            return data;
-        }
-
-        let item = {} as ITreeNode;
-
-        for (let property in data) {
-            item[propertyMap[property] ? propertyMap[property] : property] = data[property];
-        }
-
-        if (item.hasChildren) {
-            if (angular.isArray(item.children) && item.children.length) {
-                item.children = item.children.map(function (it) {
-                    return this.mapData(it, propertyMap);
-                }.bind(this)) as ITreeNode[];
-            } else {
-                item.children = [];
-            }
-        }
-
-        return item;
-    }
-
     public api: IBPTreeControllerApi = {
         getSelectedNodeId: () => {
             return this.selectedRowNode ? this.selectedRowNode.data.id : null;
@@ -207,16 +160,16 @@ export class BPTreeController implements IBPTreeController {
 
         //to select a tree node in ag grid
         selectNode: (id: number) => {
-            this.options.api.getModel().forEachNode((it: RowNode) => {
+            this.options.api.getModel().forEachNode((it: agGrid.RowNode) => {
                 if (it.data.id === id) {
                     it.setSelected(true, true);
                 }
             });
-            this.options.api.ensureNodeVisible((it: RowNode) => it.data.id === id);
+            this.options.api.ensureNodeVisible((it: agGrid.RowNode) => it.data.id === id);
         },
 
-        clearSelection: () => {
-            const selectedNodes = this.options.api.getSelectedNodes() as RowNode[];
+        deselectAll: () => {
+            const selectedNodes = this.options.api.getSelectedNodes() as agGrid.RowNode[];
             if (selectedNodes && selectedNodes.length) {
                 selectedNodes.map(node => {
                     node.setSelected(false);
@@ -247,25 +200,18 @@ export class BPTreeController implements IBPTreeController {
         },
 
         //sets a new datasource or add a datasource to specific node  children collection
-        reload: (data?: any[], nodeId?: number) => {
-            let nodes: ITreeNode[] = [];
-
+        reload: (data?: IArtifactNode[], nodeId?: number) => {
             this._datasource = this._datasource || [];
-            if (data) {
-                nodes = data.map(function (it) {
-                    return this.mapData(it, this.propertyMap);
-                }.bind(this)) as ITreeNode[];
-            }
 
             if (nodeId) {
                 const node = this.getNode(nodeId, this._datasource);
                 if (node) {
                     node.open = true;
                     node.loaded = true;
-                    node.children = nodes;
+                    node.children = data;
                 }
             } else {
-                this._datasource = nodes;
+                this._datasource = data;
             }
 
             this.options.api.setRowData(this._datasource);
@@ -295,11 +241,11 @@ export class BPTreeController implements IBPTreeController {
         }
     };
 
-    private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
-        let item: ITreeNode;
+    private getNode(id: number, nodes?: IArtifactNode[]): IArtifactNode {
+        let item: IArtifactNode;
 
         if (nodes) {
-            nodes.map(function (node: ITreeNode) {
+            nodes.map(function (node: IArtifactNode) {
                 if (!item && node.id === id) {  ///needs to be changed toCamelCase
                     item = node;
                 } else if (!item && node.children) {
@@ -357,12 +303,12 @@ export class BPTreeController implements IBPTreeController {
 
     // Callbacks
 
-    private getNodeChildDetails(node: ITreeNode) {
-        if (node.children) {
+    private getNodeChildDetails(node: IArtifactNode) {
+        if (node.hasChildren) {
             return {
                 group: true,
                 expanded: node.open,
-                children: node.children,
+                children: node.children || [],
                 field: "name",
                 key: node.id // the key is used by the default group cellRenderer
             };
@@ -371,7 +317,7 @@ export class BPTreeController implements IBPTreeController {
         }
     };
 
-    private getBusinessKeyForNode(node: RowNode) {
+    private getBusinessKeyForNode(node: agGrid.RowNode) {
         return node.data.id;
         //return node.key; //it is initially undefined for non folder???
     };
@@ -419,13 +365,9 @@ export class BPTreeController implements IBPTreeController {
         }
 
         node.data.open = node.expanded;
-
-        if (_.isFunction(this.onSync)) {
-            this.onSync({item: node.data});
-        }
     };
 
-    private rowSelected = (event: {node: RowNode}) => {
+    private rowSelected = (event: {node: agGrid.RowNode}) => {
         const node = event.node;
         const isSelected = node.isSelected();
 

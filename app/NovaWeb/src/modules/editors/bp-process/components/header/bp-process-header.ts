@@ -77,7 +77,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public $onInit() {
         this.breadcrumbService.getReferences()
             .then((result: IPathItem[]) => {
-                for (let i: number = 0; i < result.length; i++) {
+                for (let i: number = 0; i < result.length - 1; i++) {
                     const pathItem = result[i];
                     const breadcrumbLink: IBreadcrumbLink = {
                         id: pathItem.id,
@@ -93,6 +93,14 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onDestroy() {
+        if (this.toolbarActions) {
+            const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
+            
+            if (toggleAction) {
+                toggleAction.dispose();
+            }
+        }
+
         super.$onDestroy();
     }
 

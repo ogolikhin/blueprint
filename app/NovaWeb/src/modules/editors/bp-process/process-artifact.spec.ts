@@ -117,6 +117,7 @@ describe("StatefulProcessArtifact", () => {
         };
         //Act
         processArtifact.getObservable().subscribe(loaded, () => {
+            return;
         });
         $rootScope.$digest();
 
@@ -124,11 +125,11 @@ describe("StatefulProcessArtifact", () => {
         expect(isLoaded).toBeTruthy();
     });
 
-    describe("Load - process service updates are reflected on model", ()=> {
+    describe("Load - process service updates are reflected on model", () => {
 
         let processArtifact: StatefulProcessArtifact,
             model: IProcess;
-        beforeEach(()=> {
+        beforeEach(() => {
             const artifact = {
                 id: 1,
                 name: "",
@@ -143,7 +144,7 @@ describe("StatefulProcessArtifact", () => {
 
             let loadSpy = spyOn(services.processService, "load");
             loadSpy.and.returnValue($q.when(model));
-        })
+        });
 
         it("IProcess is populated", () => {
             //Act

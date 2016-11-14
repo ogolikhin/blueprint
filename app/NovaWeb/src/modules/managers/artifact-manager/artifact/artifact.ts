@@ -21,7 +21,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     subArtifactCollection: ISubArtifactCollection;
     //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
     save(): ng.IPromise<IStatefulArtifact>;
-    delete(): ng.IPromise<IStatefulArtifact>;
+    delete(): ng.IPromise<Models.IArtifact[]>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
@@ -97,6 +97,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
             this.getServices().$q.all(promisesToExecute).then(() => {
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
             }).catch((error) => {
                 this.artifactState.readonly = true;
                 this.error.onNext(error);
@@ -178,7 +179,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             let discardOverlayId = this.services.loadingOverlayService.beginLoading();
             this.services.publishService.discardArtifacts(dependents.artifacts.map((d: Models.IArtifact) => d.id))
             .then(() => {
-                this.services.messageService.addInfoWithPar("Discard_All_Success_Message", [dependents.artifacts.length]);
+                this.services.messageService.addInfo("Discard_All_Success_Message", dependents.artifacts.length);
                 deffered.resolve();
             })
             .catch((err) => {
@@ -616,11 +617,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
-    public delete(): ng.IPromise<IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
+    public delete(): ng.IPromise<Models.IArtifact[]> {
+        let deferred = this.services.getDeferred<Models.IArtifact[]>();
 
         this.services.artifactService.deleteArtifact(this.id).then((it: Models.IArtifact[]) => {
-            deferred.resolve(this);
+            deferred.resolve(it);
 
         }).catch((error: IApplicationError) => {
             this.error.onNext(error);

@@ -26,8 +26,8 @@
                      ng-class="{selected: searchResult.selected(), selectable: searchResult.isSelectable}"
                      ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
                      ng-dblclick="$ctrl.onDouble(searchResult)">
-                    <input class="checkbox" type="checkbox" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
-                    
+                    <input class="checkbox" type="checkbox" ng-class="{'search-hidden-checkbox': !searchResult.isSelectable}" ng-model="searchResult.selected" ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
+
                     <i ng-if="!$ctrl.hasCustomIcon(searchResult)" ng-class="searchResult.iconClass"></i>
                     <bp-item-type-icon ng-if="$ctrl.hasCustomIcon(searchResult)"
                                        item-type-id="searchResult.model.itemTypeId"
@@ -62,6 +62,7 @@
                           selection-mode="$ctrl.currentSelectionMode"
                           row-height="20"
                           root-node="$ctrl.rootNode"
+                          api="$ctrl.treeApi"
                           root-node-visible="false"
                           columns="$ctrl.columns"
                           header-height="20"

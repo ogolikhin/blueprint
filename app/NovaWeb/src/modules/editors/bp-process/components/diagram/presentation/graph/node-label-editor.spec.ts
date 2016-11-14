@@ -4,9 +4,6 @@ import {Label, LabelStyle, LabelType, ILabel} from "./labels/label";
 import {Helper} from "../../../../../../shared/utils/helper";
 
 class ExecutionEnvironmentDetectorMock {
-    constructor() {
-    }
-
     public getBrowserInfo(): any {
         return {msie: false, firefox: false, version: 0};
     }
@@ -39,7 +36,7 @@ describe("Node Label Editor test", () => {
     let labelText = "OLD VALUE";
 
     function fireKBEvent(etype, keyCode) {
-        var e = $.Event(etype);
+        const e = $.Event(etype);
         e.keyCode = keyCode;
         e.which = keyCode;
         let elem = angular.element(document.getElementsByClassName("processEditorCustomLabel")[0]);

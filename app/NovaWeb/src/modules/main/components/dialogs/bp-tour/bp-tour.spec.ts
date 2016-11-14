@@ -7,6 +7,7 @@ describe("Tour Dialog", () => {
     beforeEach(() => {
         dialogMock = {
             close: function () {
+                return;
             }
         };
         controller = new BPTourController(dialogMock);

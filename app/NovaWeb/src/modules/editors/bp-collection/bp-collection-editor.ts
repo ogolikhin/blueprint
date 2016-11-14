@@ -175,6 +175,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     public getColumns(): IColumn[] {
+        console.log(this.artifact.artifactState.readonly);
         return [
             {
                 isCheckboxSelection: !this.artifact.artifactState.readonly,
@@ -183,8 +184,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     return this.headerCellRendererSelectAll(params, this.artifact.artifactState.readonly);
                 },
                 field: "chck",
-                isGroup: true,
-                isCheckboxHidden: this.artifact.artifactState.readonly,
+                isGroup: this.artifact.artifactState.readonly,
                 innerRenderer: (params: IColumnRendererParams) => {
                     if (this.artifact.artifactState.readonly) {
                         return `<span class="ag-cell-wrapper"><span class="ag-selection-checkbox"><i class="ag-checkbox-unchecked disabled"></i></span></span>`;
@@ -324,7 +324,7 @@ class CollectionNodeVM implements ITreeViewNode {
     public isSelectable: boolean;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService,
-                public isArtifactSelectable: boolean) {
+                public isArtifactSelectable: boolean = true) {
         this.key = String(model.id);
         this.isSelectable = isArtifactSelectable;
     }

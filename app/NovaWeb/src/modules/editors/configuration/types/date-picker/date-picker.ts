@@ -2,7 +2,7 @@ import "angular-formly";
 import {Helper} from "../../../../shared";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IValidationService} from "../../../../managers/artifact-manager/validation";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
     static $inject: [string] = ["$scope"];

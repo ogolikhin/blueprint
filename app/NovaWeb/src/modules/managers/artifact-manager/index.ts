@@ -32,7 +32,7 @@ import {
 } from "./attachments";
 
 import {IMetaData, MetaDataService, IMetaDataService} from "./metadata";
-import {ValidationService, IValidationService} from "./validation";
+import {ValidationService, IValidationService} from "./validation/validation.svc";
 
 export {IArtifactState, IState} from "./state/state";
 

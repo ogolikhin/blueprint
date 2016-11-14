@@ -3,7 +3,7 @@ import {IDiagramElement, IMenuContainer} from "../models/";
 import {IProcessLinkModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
 import {ArtifactUpdateType} from "../../../../../models/enums";
 import {NodeType, NodeChange, ElementType} from "../models/";
-import {Label, LabelStyle} from "../labels/label";
+import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {DiagramElement} from "./diagram-element";
 import {Connector, ConnectorOverlay} from "./connector";
 import {ProcessEvents} from "../../../process-diagram-communication";
@@ -59,9 +59,8 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 width,
                 "#999999"
             );
-            this.textLabel = new Label((value: string) => {
-                    this.label = value;
-                },
+            this.textLabel = new Label(
+                LabelType.Text, 
                 graph.getHtmlElement(),
                 this.model.sourceId + "-" + this.model.destinationId,
                 "Label-B" + this.model.sourceId + "-" + this.model.destinationId,
@@ -72,6 +71,10 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 graph.viewModel.isReadonly,
                 this.LABEL_TEXT_ALIGNMENT
             );
+            // handle label change event 
+            this.textLabel.onTextChange = (value: string) => {
+                this.label = value;
+            };
         }
     }
 

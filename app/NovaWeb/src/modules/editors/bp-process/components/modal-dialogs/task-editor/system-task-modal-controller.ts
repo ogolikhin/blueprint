@@ -67,7 +67,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
                 projectName: null,
                 link: null,
                 version: null
-            }
+            };
             this.dialogModel.personaReference = defaultSystemPersonaReference;
             this.dialogModel.persona = this.localization.get("ST_New_System_Task_Persona");
         }

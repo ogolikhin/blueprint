@@ -6,18 +6,18 @@ import {ConnectionInfo} from "./layout/connection-info";
 import {LayoutResult} from "./layout/layout-result";
 import {ConnectorTypes, Shapes} from "../utils/constants";
 
-var nextIndexGenerator = () => {
-    var orderIndex = 0;
-    var generate = () => {
+const nextIndexGenerator = () => {
+    let orderIndex = 0;
+    const generate = () => {
         return orderIndex++;
     };
     return generate;
 };
 
-var nextStepOrderIndex = nextIndexGenerator();
-var nextFlowOrderIndex = nextIndexGenerator();
+const nextStepOrderIndex = nextIndexGenerator();
+const nextFlowOrderIndex = nextIndexGenerator();
 
-var createStep = (id: number, name: string, description?: string): IStep => {
+const createStep = (id: number, name: string, description?: string): IStep => {
     return {
         id: id,
         name: name,
@@ -29,8 +29,8 @@ var createStep = (id: number, name: string, description?: string): IStep => {
         external: null
     };
 };
-var createFlow = (id: number, name: string, description?: string) => {
-    var flow: IFlow = {
+const createFlow = (id: number, name: string, description?: string) => {
+    const flow: IFlow = {
         id: id,
         name: name,
         orderIndex: nextFlowOrderIndex(),
@@ -42,10 +42,10 @@ var createFlow = (id: number, name: string, description?: string) => {
 };
 
 describe("UsecaseToDiagram ", () => {
-    var usecase: IUseCase;
+    let usecase: IUseCase;
 
-    var preCondition: IStep;
-    var postCondition: IStep;
+    let preCondition: IStep;
+    let postCondition: IStep;
 
     beforeEach(() => {
         preCondition = createStep(1, "Pre condition", "Pre condition");
@@ -61,14 +61,14 @@ describe("UsecaseToDiagram ", () => {
     it("convert method: calls UsecaseFlowGraphBuilder and FlowGraphDiagramBuilder", () => {
         //arrange
 
-        var usecaseToDiagram = new UsecaseToDiagram();
+        const usecaseToDiagram = new UsecaseToDiagram();
 
-        var buildGraph = spyOn(UsecaseFlowGraphBuilder.prototype, "buildGraph").and.callThrough();
-        var buildDiagram = spyOn(FlowGraphDiagramBuilder.prototype, "buildDiagram").and.callThrough();
+        const buildGraph = spyOn(UsecaseFlowGraphBuilder.prototype, "buildGraph").and.callThrough();
+        const buildDiagram = spyOn(FlowGraphDiagramBuilder.prototype, "buildDiagram").and.callThrough();
 
         //Act
 
-        var diagram = usecaseToDiagram.convert(usecase);
+        const diagram = usecaseToDiagram.convert(usecase);
 
         //Assert
 
@@ -80,13 +80,13 @@ describe("UsecaseToDiagram ", () => {
 });
 
 describe("FlowGraphDiagramBuilder ", () => {
-    var usecase: IUseCase;
+    let usecase: IUseCase;
 
-    var preCondition: IStep;
-    var postCondition: IStep;
+    let preCondition: IStep;
+    let postCondition: IStep;
 
-    var defaultPosition = {x: 0, y: 0};
-    var defaultSize = {width: 100, height: 100};
+    const defaultPosition = {x: 0, y: 0};
+    const defaultSize = {width: 100, height: 100};
 
     beforeEach(() => {
         preCondition = createStep(1, "Pre condition", "Pre condition");
@@ -102,12 +102,12 @@ describe("FlowGraphDiagramBuilder ", () => {
     it("buildDiagram method: 'straight connector'", () => {
         //arrange
 
-        var step = createStep(3, "Step 1", "First step");
+        const step = createStep(3, "Step 1", "First step");
         usecase.steps.push(step);
 
-        var graph = new FlowGraph();
+        const graph = new FlowGraph();
 
-        var node = graph.createNode();
+        let node = graph.createNode();
         node.position = defaultPosition;
         node.size = defaultSize;
         node.tag = usecase.preCondition;
@@ -125,17 +125,17 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.postCondition;
         graph.getMainFlow().addNode(node);
 
-        var layoutResult = new LayoutResult(graph);
+        const layoutResult = new LayoutResult(graph);
 
-        var connection = new ConnectionInfo();
+        const connection = new ConnectionInfo();
         connection.startNode = graph.getNodes()[0];
         connection.endNode = graph.getNodes()[1];
         layoutResult.getConnections().push(connection);
 
         //Act
 
-        var diagramBuilder = new FlowGraphDiagramBuilder();
-        var diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
+        const diagramBuilder = new FlowGraphDiagramBuilder();
+        const diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
 
         //Assert
 
@@ -148,17 +148,17 @@ describe("FlowGraphDiagramBuilder ", () => {
     it("buildDiagram method: 'right-angled connector'", () => {
         //arrange
 
-        var step = createStep(3, "Step 1", "First step");
+        const step = createStep(3, "Step 1", "First step");
 
-        var ucflow = createFlow(4, "AlternateFlow");
-        var condition = createStep(5, "Step 1", "First step");
+        const ucflow = createFlow(4, "AlternateFlow");
+        const condition = createStep(5, "Step 1", "First step");
         ucflow.steps.push(condition);
         step.flows.push(ucflow);
         usecase.steps.push(step);
 
-        var graph = new FlowGraph();
+        const graph = new FlowGraph();
 
-        var node = graph.createNode();
+        let node = graph.createNode();
         node.position = defaultPosition;
         node.size = defaultSize;
         node.tag = usecase.preCondition;
@@ -176,8 +176,8 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.steps[0];
         graph.getMainFlow().addNode(node);
 
-        var flow = graph.createAlternateFlow();
-        var conditionNode = graph.createNode();
+        const flow = graph.createAlternateFlow();
+        const conditionNode = graph.createNode();
         conditionNode.position = {x: 100, y: 100};
         conditionNode.size = defaultSize;
         conditionNode.tag = usecase.steps[0].flows[0].steps[0];
@@ -189,9 +189,9 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.postCondition;
         graph.getMainFlow().addNode(node);
 
-        var layoutResult = new LayoutResult(graph);
+        const layoutResult = new LayoutResult(graph);
 
-        var connection = new ConnectionInfo();
+        const connection = new ConnectionInfo();
         connection.startNode = graph.getNodes()[1];
         connection.endNode = conditionNode;
         connection.addPointToXy(0, 0);
@@ -202,8 +202,8 @@ describe("FlowGraphDiagramBuilder ", () => {
 
         //Act
 
-        var diagramBuilder = new FlowGraphDiagramBuilder();
-        var diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
+        const diagramBuilder = new FlowGraphDiagramBuilder();
+        const diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
 
         //Assert
 
@@ -218,12 +218,12 @@ describe("FlowGraphDiagramBuilder ", () => {
     it("buildDiagram method: '3 shapes - checks position and size'", () => {
         //arrange
 
-        var step = createStep(3, "Step 1", "First step");
+        const step = createStep(3, "Step 1", "First step");
         usecase.steps.push(step);
 
-        var graph = new FlowGraph();
+        const graph = new FlowGraph();
 
-        var node = graph.createNode();
+        let node = graph.createNode();
         node.position = {x: 0, y: 0};
         node.size = {width: 100, height: 100};
         node.tag = usecase.preCondition;
@@ -241,12 +241,12 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.postCondition;
         graph.getMainFlow().addNode(node);
 
-        var layoutResult = new LayoutResult(graph);
+        const layoutResult = new LayoutResult(graph);
 
         //Act
 
-        var diagramBuilder = new FlowGraphDiagramBuilder();
-        var diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
+        const diagramBuilder = new FlowGraphDiagramBuilder();
+        const diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
 
         //Assert
 
@@ -270,17 +270,17 @@ describe("FlowGraphDiagramBuilder ", () => {
     it("buildDiagram method: '5 shapes (Pre, post, branching, step, flow condition) - checks shape types'", () => {
         //arrange
 
-        var step = createStep(3, "Step 1", "First step");
+        const step = createStep(3, "Step 1", "First step");
 
-        var ucflow = createFlow(4, "AlternateFlow");
-        var condition = createStep(5, "Step 1", "First step");
+        const ucflow = createFlow(4, "AlternateFlow");
+        const condition = createStep(5, "Step 1", "First step");
         ucflow.steps.push(condition);
         step.flows.push(ucflow);
         usecase.steps.push(step);
 
-        var graph = new FlowGraph();
+        const graph = new FlowGraph();
 
-        var node = graph.createNode();
+        let node = graph.createNode();
         node.position = defaultPosition;
         node.size = defaultSize;
         node.tag = usecase.preCondition;
@@ -298,8 +298,8 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.steps[0];
         graph.getMainFlow().addNode(node);
 
-        var flow = graph.createAlternateFlow();
-        var conditionNode = graph.createNode();
+        const flow = graph.createAlternateFlow();
+        const conditionNode = graph.createNode();
         conditionNode.position = {x: 100, y: 100};
         conditionNode.size = defaultSize;
         conditionNode.tag = usecase.steps[0].flows[0].steps[0];
@@ -311,12 +311,12 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.postCondition;
         graph.getMainFlow().addNode(node);
 
-        var layoutResult = new LayoutResult(graph);
+        const layoutResult = new LayoutResult(graph);
 
         //Act
 
-        var diagramBuilder = new FlowGraphDiagramBuilder();
-        var diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
+        const diagramBuilder = new FlowGraphDiagramBuilder();
+        const diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
 
         //Assert
 
@@ -331,17 +331,17 @@ describe("FlowGraphDiagramBuilder ", () => {
     it("buildDiagram method: '6 shapes (Pre, post, branching, step, flow condition, exit)' - checks shape types", () => {
         //arrange
 
-        var step = createStep(3, "Step 1", "First step");
+        const step = createStep(3, "Step 1", "First step");
 
-        var ucflow = createFlow(4, "AlternateFlow");
-        var condition = createStep(5, "Step 1", "First step");
+        const ucflow = createFlow(4, "AlternateFlow");
+        const condition = createStep(5, "Step 1", "First step");
         ucflow.steps.push(condition);
         step.flows.push(ucflow);
         usecase.steps.push(step);
 
-        var graph = new FlowGraph();
+        const graph = new FlowGraph();
 
-        var node = graph.createNode();
+        let node = graph.createNode();
         node.position = defaultPosition;
         node.size = defaultSize;
         node.tag = usecase.preCondition;
@@ -359,8 +359,8 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.steps[0];
         graph.getMainFlow().addNode(node);
 
-        var flow = graph.createAlternateFlow();
-        var conditionNode = graph.createNode();
+        const flow = graph.createAlternateFlow();
+        const conditionNode = graph.createNode();
         conditionNode.position = {x: 100, y: 100};
         conditionNode.size = defaultSize;
         conditionNode.tag = usecase.steps[0].flows[0].steps[0];
@@ -378,12 +378,12 @@ describe("FlowGraphDiagramBuilder ", () => {
         node.tag = usecase.postCondition;
         graph.getMainFlow().addNode(node);
 
-        var layoutResult = new LayoutResult(graph);
+        const layoutResult = new LayoutResult(graph);
 
         //Act
 
-        var diagramBuilder = new FlowGraphDiagramBuilder();
-        var diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
+        const diagramBuilder = new FlowGraphDiagramBuilder();
+        const diagram = diagramBuilder.buildDiagram(layoutResult, usecase);
 
         //Assert
 
@@ -398,10 +398,10 @@ describe("FlowGraphDiagramBuilder ", () => {
 });
 
 describe("UsecaseFlowGraphBuilder ", () => {
-    var usecase: IUseCase;
+    let usecase: IUseCase;
 
-    var preCondition: IStep;
-    var postCondition: IStep;
+    let preCondition: IStep;
+    let postCondition: IStep;
 
     beforeEach(() => {
         preCondition = createStep(1, "Pre condition", "Pre condition");
@@ -416,11 +416,11 @@ describe("UsecaseFlowGraphBuilder ", () => {
 
     it("buildGraph method: 'use case (pre condition, post condition and 1 step) '", () => {
         //arrange
-        var graphBuilder = new UsecaseFlowGraphBuilder();
-        var step = createStep(3, "Step 1", "First step");
+        const graphBuilder = new UsecaseFlowGraphBuilder();
+        const step = createStep(3, "Step 1", "First step");
         usecase.steps.push(step);
         //act
-        var graph = graphBuilder.buildGraph(usecase);
+        const graph = graphBuilder.buildGraph(usecase);
 
         //assert
         expect(graph).not.toBeNull();
@@ -434,17 +434,17 @@ describe("UsecaseFlowGraphBuilder ", () => {
 
     it("buildGraph method: 'use case (Alternate flow: return step = Post Condition) '", () => {
         //arrange
-        var graphBuilder = new UsecaseFlowGraphBuilder();
-        var step = createStep(3, "Step 1", "First step");
-        var alternateFlow = createFlow(4, "Alternate Flow");
+        const graphBuilder = new UsecaseFlowGraphBuilder();
+        const step = createStep(3, "Step 1", "First step");
+        const alternateFlow = createFlow(4, "Alternate Flow");
         alternateFlow.returnToStepName = usecase.postCondition.name;
-        var flowCondition = createStep(5, "Step 1a", "Alternate flow condition");
+        const flowCondition = createStep(5, "Step 1a", "Alternate flow condition");
         alternateFlow.steps.push(flowCondition);
         step.flows.push(alternateFlow);
         usecase.steps.push(step);
 
         //act
-        var graph = graphBuilder.buildGraph(usecase);
+        const graph = graphBuilder.buildGraph(usecase);
 
         //assert
         expect(graph).not.toBeNull();
@@ -462,17 +462,17 @@ describe("UsecaseFlowGraphBuilder ", () => {
 
     it("buildGraph method: 'use case (Alternate flow: return step = Exit) '", () => {
         //arrange
-        var graphBuilder = new UsecaseFlowGraphBuilder();
-        var step = createStep(3, "Step 1", "First step");
-        var alternateFlow = createFlow(4, "Alternate Flow");
+        const graphBuilder = new UsecaseFlowGraphBuilder();
+        const step = createStep(3, "Step 1", "First step");
+        const alternateFlow = createFlow(4, "Alternate Flow");
         alternateFlow.returnToStepName = "Exit";
-        var flowCondition = createStep(5, "Step 1a", "Alternate flow condition");
+        const flowCondition = createStep(5, "Step 1a", "Alternate flow condition");
         alternateFlow.steps.push(flowCondition);
         step.flows.push(alternateFlow);
         usecase.steps.push(step);
 
         //act
-        var graph = graphBuilder.buildGraph(usecase);
+        const graph = graphBuilder.buildGraph(usecase);
 
         //assert
         expect(graph).not.toBeNull();
@@ -489,17 +489,17 @@ describe("UsecaseFlowGraphBuilder ", () => {
 
     it("buildGraph method: 'use case (Alternate flow: return step = Step with alternate flow) '", () => {
         //arrange
-        var graphBuilder = new UsecaseFlowGraphBuilder();
-        var step = createStep(3, "Step 1", "First step");
-        var alternateFlow = createFlow(4, "Alternate Flow");
+        const graphBuilder = new UsecaseFlowGraphBuilder();
+        const step = createStep(3, "Step 1", "First step");
+        const alternateFlow = createFlow(4, "Alternate Flow");
         alternateFlow.returnToStepName = step.name;
-        var flowCondition = createStep(5, "Step 1a", "Alternate flow condition");
+        const flowCondition = createStep(5, "Step 1a", "Alternate flow condition");
         alternateFlow.steps.push(flowCondition);
         step.flows.push(alternateFlow);
         usecase.steps.push(step);
 
         //act
-        var graph = graphBuilder.buildGraph(usecase);
+        const graph = graphBuilder.buildGraph(usecase);
 
         //assert
         expect(graph).not.toBeNull();
@@ -518,7 +518,7 @@ describe("UsecaseFlowGraphBuilder ", () => {
 
 describe("UseCaseShape", () => {
 
-    var useCaseElement: IUseCaseElement;
+    let useCaseElement: IUseCaseElement;
 
     beforeEach(() => {
         useCaseElement = {
@@ -531,12 +531,12 @@ describe("UseCaseShape", () => {
     it("id method: returns id of element", () => {
         //arrange
 
-        var shape = new UseCaseShape();
+        const shape = new UseCaseShape();
         shape.element = useCaseElement;
 
         //Act
 
-        var id = shape.id;
+        const id = shape.id;
 
         //Assert
         expect(id).toEqual(1);
@@ -545,13 +545,13 @@ describe("UseCaseShape", () => {
     it("name method: returns name of element", () => {
         //arrange
 
-        var shape = new UseCaseShape();
+        const shape = new UseCaseShape();
         useCaseElement.name = "Step 1a";
         shape.element = useCaseElement;
 
         //Act
 
-        var name = shape.name;
+        const name = shape.name;
 
         //Assert
         expect(name).toEqual("Step 1a");
@@ -560,14 +560,14 @@ describe("UseCaseShape", () => {
     it("label method: returns name and description of element", () => {
         //arrange
 
-        var shape = new UseCaseShape();
+        const shape = new UseCaseShape();
         shape.element = useCaseElement;
         useCaseElement.name = "Step 1a";
         (<IStep>useCaseElement).description = "<p><span>description</span></p>";
 
         //Act
 
-        var label = shape.label;
+        const label = shape.label;
 
         //Assert
         expect(label).toEqual("<p><span style='font-size: 12px; line-height: 1.45000004768372'><b>1a: </b></span><span>description</span></p>");
@@ -576,12 +576,12 @@ describe("UseCaseShape", () => {
     it("label method: returns null when description is null", () => {
         //arrange
 
-        var shape = new UseCaseShape();
+        const shape = new UseCaseShape();
         shape.element = useCaseElement;
         (<IStep>useCaseElement).description = null;
 
         //Act
-        var label = shape.label;
+        const label = shape.label;
 
         //Assert
         expect(label).toBeNull();
@@ -590,13 +590,13 @@ describe("UseCaseShape", () => {
     it("label method: returns description of element", () => {
         //arrange
 
-        var shape = new PrePostConditionShape();
+        const shape = new PrePostConditionShape();
         shape.element = useCaseElement;
         (<IStep>useCaseElement).description = "description";
 
         //Act
 
-        var label = shape.label;
+        const label = shape.label;
 
         //Assert
         expect(label).toEqual("description");

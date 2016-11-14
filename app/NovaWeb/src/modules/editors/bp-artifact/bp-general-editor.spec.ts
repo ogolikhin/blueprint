@@ -14,7 +14,7 @@
 // import { SessionSvcMock } from "../../shell/login/mocks.spec";
 
 
-// describe("Component BpGeneralEditorInfo", () => {
+xdescribe("Component BpGeneralEditorInfo", () => {
 
 //     beforeEach(angular.mock.module("bp.editors.details"));
 
@@ -46,7 +46,7 @@
 //         ctrl = null;
 //     });
 
-//     it("should be visible by default", () => {
+     it("should be visible by default", () => {
 //         // Arrange
 //         bindings = {
 //             artifact: {
@@ -60,6 +60,6 @@
 //         expect(componentTest.element.find(".readonly-indicator").length).toBe(0);
 //         expect(componentTest.element.find(".lock-indicator").length).toBe(0);
 //         expect(componentTest.element.find(".dirty-indicator").length).toBe(0);
-//     });
+     });
 
-// });
+});

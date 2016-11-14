@@ -655,9 +655,9 @@ namespace SearchServiceTests
 
             selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ProjectIds.Contains(a.ProjectId)).ToList();
 
-            if (searchCriteria.ItemTypeIds != null)
+            if (searchCriteria.PredefinedTypeIds != null)
             {
-                selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ItemTypeIds.Contains(a.ArtifactTypeId)).ToList();
+                selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.PredefinedTypeIds.Contains(a.ArtifactTypeId)).ToList();
 
             }
 

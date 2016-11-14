@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using TestCommon;
 using Common;
 using Utilities.Factories;
+using Model.ArtifactModel.Enums;
 
 namespace SearchServiceTests
 {
@@ -27,7 +28,7 @@ namespace SearchServiceTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_adminUser, shouldRetrievePropertyTypes: true);
+            _projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2, shouldRetrievePropertyTypes: true);
 
             Assert.IsTrue(_projects.Count >= 2, "These tests expect that Blueprint server has at least 2 projects.");
 
@@ -134,8 +135,10 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(artifact.Name, _firstProject.Id);
             ItemSearchResult results = null;
 
+            string separatorString = " > ";
+
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: separatorString); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -237,9 +240,8 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
 
             // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
-            List<int> actorTypeIds = (artifacts.FindAll(a => a.BaseArtifactType == BaseArtifactType.Actor)).ConvertAll(a =>a.ArtifactTypeId);
             var nameSearchCriteria       = new FullTextSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
-            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, actorTypeIds);  // Search by name and TypeId across all projects.
+            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, (int)ItemTypePredefined.Actor);  // Search by name and TypeId across all projects.
 
             ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
@@ -269,6 +271,143 @@ namespace SearchServiceTests
             }
         }
 
+        [TestCase]
+        [TestRail(191041)]
+        [Description("Search published artifact by full name within 2 projects, verify search item has expected version.")]
+        public void SearchArtifactByFullName_2Projects_VerifyVersionInfo()
+        {
+            // Setup:
+            int numberOfVersions = 3;
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Document,
+                numberOfVersions: numberOfVersions);
+
+            artifact.Save(_authorUser);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+
+            Assert.AreEqual(numberOfVersions, results.Items[0].Version, "Version should have expected value.");
+        }
+
+        [TestCase]
+        [TestRail(191042)]
+        [Description("Search published artifact by full name within 2 projects, verify search item has expected Path.")]
+        public void SearchArtifactByFullName_2Projects_VerifyPath()
+        {
+            // Setup:
+            var parentFolder = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.PrimitiveFolder);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase, parentFolder);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Actor, parentArtifact);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            ItemSearchResult results = null;
+
+            string separatorString = " > ";
+            string expectedPath = string.Concat(_firstProject.Name, separatorString, parentFolder.Name, separatorString,
+                parentArtifact.Name);
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                results = Helper.SearchService.SearchItems(_authorUser, searchCriteria,
+                separatorString: separatorString); }, "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            StringAssert.AreEqualIgnoringCase(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
+        }
+
+        [TestCase]
+        [TestRail(191045)]
+        [Description("Create and publish 11 artifacts, search published artifact by full name in all projects, verify that PageItemCount is 10.")]
+        public void SearchArtifactByName_2Projects_VerifyPageSizeDefaultValue10()
+        {
+            // Setup:
+            string artifactName = RandomGenerator.RandomAlphaNumeric(12);
+            int numberOfArtifacts = 11;
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+            }
+            
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.AreEqual(10, results.PageItemCount, "Default value of PageItemCount should be 10.");
+        }
+
+        [TestCase]
+        [TestRail(191046)]
+        [Description("Search published artifact by full name in 2 projects with PageSize, verify that number of search result is limited by PageSize.")]
+        public void SearchArtifactByName_SetPageSize_VerifyPageSizeHasExpectedValue()
+        {
+            // Setup:
+            string artifactName = RandomGenerator.RandomAlphaNumeric(12);
+            int numberOfArtifacts = 5;
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
+            }
+            
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);
+            ItemSearchResult results = null;
+            int pageSize = 3;
+            
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria, pageSize: pageSize); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.AreEqual(pageSize, results.PageItemCount, "Default value of PageItemCount should be {0}.", pageSize);
+            Assert.AreEqual(pageSize, results.Items.Count, "When expected number of search results is more than PageItemCount, number of returned items should be PageItemCount.");
+        }
+
+        [TestCase]
+        [TestRail(191054)]
+        [Description("Search published artifact by full name within all available projects with IncludeArtifactPath = false, verify search item has Path with null value.")]
+        public void SearchArtifactByFullName_IncludeArtifactPathFalse_VerifyPathIsNull()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = false;
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                results = Helper.SearchService.SearchItems(_authorUser, searchCriteria);
+            }, "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
+            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.IsNull(results.Items[0].Path, "Path should be null when IncludeArtifactPath is false");
+        }
+
         /// <summary>
         /// Returns true if SearchItem contains information about Artifact and false otherwise
         /// </summary>
@@ -279,7 +418,7 @@ namespace SearchServiceTests
             return ((searchItem.Id == artifact.Id) &&
             (searchItem.Name == artifact.Name) &&
             (searchItem.ProjectId == artifact.ProjectId) &&
-            //(searchItem.TypeName == artifact.ArtifactTypeName) &&
+            //(searchItem.Version == artifact.Version) &&
             (searchItem.ItemTypeId == artifact.ArtifactTypeId));
         }
     }

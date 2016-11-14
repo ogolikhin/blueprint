@@ -10,6 +10,7 @@ describe("Controller: Quick Search", () => {
 
     // Provide any mocks needed
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        return;
     }));
 
     // Inject in angular constructs otherwise,

@@ -1,26 +1,16 @@
 ﻿import {Message, MessageType, IMessage} from "./message";
 import {ISettingsService} from "../configuration/settings";
-import {ILocalizationService} from "../localization/localizationService";
 
 export interface IMessageService {
 
     /**
      * Given a message, displays it as a ribbon header
      * msg: Message to display.
-     * messageTimeout: Optional, default is based on msg.messageType type. Time to display message in ms. 0 = no timeout.
      */
-    addMessage(msg: Message, messageTimeout?: number): void;
-
+    addMessage(msg: Message): void;
     addError(text: string | Error | any, persist?: boolean): void;
-    addWarning(text: string): void;
-
-    /**
-     * Given a message, displays it as a ribbon info header
-     * text: Message to display.
-     * messageTimeout: Optional, default is set by Settings service. time to display message in ms. 0 = no timeout.
-     */
-    addInfo(text: string, messageTimeout?: number): void;
-    addInfoWithPar(text: string, par: any[]): void;
+    addWarning(text: string, ...params: any[]): void;
+    addInfo(text: string, ...params: any[]): void;
     deleteMessageById(id: number): void;
     clearMessages(): void;
     messages: IMessage[];
@@ -33,13 +23,11 @@ export class MessageService implements IMessageService {
 
     public static $inject = [
         "$timeout",
-        "settings",
-        "localization"
+        "settings"
     ];
 
     constructor(private $timeout: ng.ITimeoutService,
-                private settings: ISettingsService,
-                private localization: ILocalizationService) {
+                private settings: ISettingsService) {
         this.initialize();
     }
 
@@ -125,29 +113,19 @@ export class MessageService implements IMessageService {
         }
     }
 
-    public addWarning(msg: string): void {
+    public addWarning(msg: string, ...params: any[]): void {
         if (!msg) {
             return;
         }
 
-        this.addMessage(new Message(MessageType.Warning, msg));
+        this.addMessage(new Message(MessageType.Warning, msg, false, ...params));
     }
 
-    public addInfo(msg: string, messageTimeout?: number): void {
+    public addInfo(msg: string, ...params: any[]): void {
         if (!msg) {
             return;
         }
-
-        this.addMessage(new Message(MessageType.Info, msg, true), messageTimeout);
-    }
-
-    public addInfoWithPar(msg: string, par: any[]): void {
-        msg = this.localization.get(msg);
-        for (let i: number = 0; i < par.length; i++) {
-            msg = msg.replace("{" + i + "}", par[i]);
-        }
-
-        this.addInfo(msg);
+        this.addMessage(new Message(MessageType.Info, msg, true, ...params));
     }
 
     /**
@@ -155,19 +133,17 @@ export class MessageService implements IMessageService {
      * msg: Message to display.
      * messageTimeout: Optional, default is based on msg.messageType type. Time to display message in ms. 0 = no timeout.
      */
-    public addMessage(msg: Message, messageTimeout?: number): void {
+    public addMessage(msg: Message): void {
         // if the message of that type and with that text is already displayed, don't add another one
         if (this.findDuplicateMessages(msg).length) {
             return;
         }
 
+
         msg.id = this.id;
         this.id++;
         this._messages.push(msg);
-
-        if (!messageTimeout) {
-            messageTimeout = this.getMessageTimeout(msg.messageType);
-        }
+        const messageTimeout = msg.timeout || this.getMessageTimeout(msg.messageType);
 
         if (messageTimeout > 0) {
             this.timers[msg.id] = this.$timeout(this.clearMessageAfterInterval.bind(null, msg.id), messageTimeout);

@@ -30,7 +30,7 @@ describe("Get process data model from the process model service", () => {
             let testData = createDefaultProcessModel();
             it("should return data successfully through a promise", () => {
                 // Arrange
-                var successSpy = jasmine.createSpy("success"),
+                const successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.expectGET("/svc/components/storyteller/processes/772")
                     .respond(testData);
@@ -125,7 +125,7 @@ describe("Get process data model from the process model service", () => {
         describe("When process model is not returned from the server", () => {
             it("should reject data through promise if the server is broken", () => {
                 // Arrange
-                var successSpy = jasmine.createSpy("success"),
+                const successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/772")
                     .respond(() => [HttpStatusCode.ServerError, {}, {}, "Internal Server Error"]);
@@ -141,7 +141,7 @@ describe("Get process data model from the process model service", () => {
 
             it("should reject data through promise if data is not found", () => {
                 // Arrange
-                var successSpy = jasmine.createSpy("success"),
+                const successSpy = jasmine.createSpy("success"),
                     failureSpy = jasmine.createSpy("failure");
                 httpBackend.when("GET", "/svc/components/storyteller/processes/772")
                     .respond(() => [HttpStatusCode.NotFound, {}, {}, "Not Found"]);

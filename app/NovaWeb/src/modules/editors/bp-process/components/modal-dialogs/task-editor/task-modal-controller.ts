@@ -57,9 +57,16 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public cleanIncludeField(): void {
-        if (this.canCleanIncludeField()) {
+        if (this.canCleanField()) {
             this.isIncludeResultsVisible = false;
             this.setAssociatedArtifact(null);
+            this.refreshView();
+        }
+    }
+
+    public cleanPersonaField(): void {
+        if (this.canCleanField()) {
+            this.setPersonaReference(null);
             this.refreshView();
         }
     }
@@ -193,7 +200,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         });
     }
 
-    private canCleanIncludeField(): boolean {
+    private canCleanField(): boolean {
         return !this.dialogModel.isReadonly;
     }
 

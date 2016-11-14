@@ -25,7 +25,7 @@
                            typeahead-template-url="artifactTypesDropdown.html"
                            typeahead-show-hint="true"
                            typeahead-min-length="0" />
-                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="dialogModel.persona = ''">
+                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona"  ng-click="$ctrl.cleanPersonaField()">
                     <span class="fonticon2-error"></span>
                 </button>
                 <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">

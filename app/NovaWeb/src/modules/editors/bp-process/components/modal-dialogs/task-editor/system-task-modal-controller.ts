@@ -52,7 +52,11 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
 
     protected setPersonaReference(value: IArtifactReference) {
         this.dialogModel.personaReference = value;
-        this.dialogModel.persona = value.name;
+        if (value) {
+            this.dialogModel.persona = value.name;
+        } else {
+            this.dialogModel.persona = "";
+        }
     }
 
     protected populateTaskChanges() {
@@ -62,6 +66,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             this.dialogModel.originalItem.imageId = this.dialogModel.imageId;
             this.dialogModel.originalItem.associatedImageUrl = this.dialogModel.associatedImageUrl;
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
+            this.dialogModel.originalItem.personaReference = this.dialogModel.personaReference;
         }
     }
 }

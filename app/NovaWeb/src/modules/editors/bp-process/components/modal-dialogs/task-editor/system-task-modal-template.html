@@ -25,7 +25,7 @@
                        typeahead-template-url="artifactTypesDropdown.html"
                        typeahead-show-hint="true"
                        typeahead-min-length="0" />
-                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="dialogModel.persona = ''">
+                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="$ctrl.cleanPersonaField()">
                     <span class="fonticon2-error"></span>
                 </button>
                 <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
@@ -33,6 +33,7 @@
                 </button>
                 <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
             </div>
+        </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text" ng-blur="$ctrl.nameOnBlur()" ng-focus="$ctrl.nameOnFocus()"
                     ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"

@@ -482,7 +482,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(191079)]
-        [Description("Create & save artifacts in a couple of projects.  Publish all the artifacts.  User has permissions only for one artifact in 2nd project.  Verify publish is successful.")]
+        [Description("Create, publish & save artifacts in a couple of projects.  Publish all the artifacts.  User has permissions only for one artifact in 2nd project.  Verify publish is successful.")]
         public void PublishArtifactWithAllTrue_ArtifactsSavedInCoupleOfProjects_UserHasPermissionsOnlyToOneArtifactInSecondProjects(BaseArtifactType artifactType)
         {
             // Setup:

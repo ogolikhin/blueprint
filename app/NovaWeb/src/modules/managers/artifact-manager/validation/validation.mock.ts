@@ -29,7 +29,7 @@ class NumberValidationMock implements INumberValidation {
         return true;
     }
 
-    public max(newValue: number, 
+    public isMax(newValue: number, 
                     oldValue: number,
                     _max: any, 
                     localization: ILocalizationService, 
@@ -37,7 +37,7 @@ class NumberValidationMock implements INumberValidation {
         return true;
     }
 
-    public min(newValue: number, 
+    public isMin(newValue: number, 
                     oldValue: number, 
                     _min: any, 
                     localization: ILocalizationService, 

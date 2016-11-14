@@ -16,14 +16,14 @@ export interface INumberValidation {
                         decimalPlaces: number, 
                         localization: ILocalizationService, 
                         isValidated: boolean): boolean;
-    min(newValue: number, 
+    isMin(newValue: number, 
           oldValue: number, 
-          _min: any, 
+          min: any, 
           localization: ILocalizationService, 
           isValidated: boolean): boolean;
-    max(newValue: number, 
+    isMax(newValue: number, 
            oldValue: number,
-           _max: any, 
+           max: any, 
            localization: ILocalizationService, 
            isValidated: boolean): boolean;
     isValid(newValue: number, 
@@ -76,7 +76,7 @@ class NumberValidation implements INumberValidation {
         if (!isValidated) {
             return true;
         }
-        let value = oldValue || newValue;
+        const value = oldValue || newValue;
         if (value) {
             let decimal = value.toString().split(localization.current.decimalSeparator);
             if (decimal.length === 2) {
@@ -91,41 +91,41 @@ class NumberValidation implements INumberValidation {
                                 decimalPlaces: number, 
                                 localization: ILocalizationService, 
                                 isValidated: boolean): boolean {
-        let value = oldValue || newValue;
+        const value = oldValue || newValue;
         return !value || angular.isNumber(localization.current.toNumber(value, isValidated ? decimalPlaces : null));
     }
 
-    public max(newValue: number, 
+    public isMax(newValue: number, 
                     oldValue: number,
-                    _max: any, 
+                    max: any, 
                     localization: ILocalizationService, 
                     isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
-        let max = localization.current.toNumber(_max);
-        if (angular.isNumber(max)) {
+        const maxNum = localization.current.toNumber(max);
+        if (!_.isNull(maxNum)) {
             let value = localization.current.toNumber(oldValue || newValue);
             if (angular.isNumber(value)) {
-                return value <= max;
+                return value <= maxNum;
             }
         }
         return true;
     }
 
-    public min(newValue: number, 
+    public isMin(newValue: number, 
                     oldValue: number, 
-                    _min: any, 
+                    min: any, 
                     localization: ILocalizationService, 
                     isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
-        let min = localization.current.toNumber(_min);
-        if (angular.isNumber(min)) {
+        const minNum = localization.current.toNumber(min);
+        if (!_.isNull(minNum)) {
             let value = localization.current.toNumber(oldValue || newValue);
             if (angular.isNumber(value)) {
-                return value >= min;
+                return value >= minNum;
             }
         }
         return true;
@@ -141,8 +141,8 @@ class NumberValidation implements INumberValidation {
                         isRequired: boolean): boolean {
         return this.decimalPlaces(newValue, oldValue,  decimalPlaces, localization, isValidated) &&
                   this.wrongFormat(newValue, oldValue,  decimalPlaces, localization, isValidated) &&
-                  this.min(newValue, oldValue,  _min, localization, isValidated) &&
-                  this.max(newValue, oldValue, _max, localization, isValidated) &&
+                  this.isMin(newValue, oldValue,  _min, localization, isValidated) &&
+                  this.isMax(newValue, oldValue, _max, localization, isValidated) &&
                   (isRequired ? (!!newValue || !!oldValue) : true);
     }
 }
@@ -175,8 +175,8 @@ class DateValidation implements IDateValidation {
             return true;
         }
 
-        let date = localization.current.toDate(oldValue || newValue, true);
-        let maxDate = localization.current.toDate(_maxDate, true);
+        const date = localization.current.toDate(oldValue || newValue, true);
+        const maxDate = localization.current.toDate(_maxDate, true);
 
         if (date && maxDate) {
             return date.getTime() <= maxDate.getTime();

@@ -58,7 +58,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
             },
             max: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.numberValidation.max($viewValue, $modelValue, scope.to.max, 
+                    return validationService.numberValidation.isMax($viewValue, $modelValue, scope.to.max, 
                                                                                         localization, scope.options.data.isValidated);
                     // if (!scope.options.data.isValidated) {
                     //     return true;
@@ -75,7 +75,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
             },
             min: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.numberValidation.min($viewValue, $modelValue, scope.to.min, 
+                    return validationService.numberValidation.isMin($viewValue, $modelValue, scope.to.min, 
                                                                                        localization, scope.options.data.isValidated);
                     // if (!scope.options.data.isValidated) {
                     //     return true;

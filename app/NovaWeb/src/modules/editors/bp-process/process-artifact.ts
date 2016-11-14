@@ -59,11 +59,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         if (this.artifactPropertyTypes === null) {
             this.services.metaDataService.getArtifactPropertyTypes(this.projectId, this.artifact.itemTypeId).then((result) => {
                 this.artifactPropertyTypes = {};
-                for (const propType of result) {
+
+                _.each(result, (propType) => {
                     if (!!propType.id && !this.artifactPropertyTypes[propType.id.toString()]) {
                         this.artifactPropertyTypes[propType.id.toString()] = propType;
                     }
-                }
+                });
+
                 deferred.resolve();
             }).catch((err) => {
                 // log error?
@@ -78,29 +80,29 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     protected validateCustomArtifactPromisesForSave(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.getArtifactPropertyTypes().then((artifactPropertyTypes) => {
-            for (const propValue of this.changes().customPropertyValues) {
+             _.each(this.changes().customPropertyValues, (propValue) => {
                 const itemType: Models.IPropertyType = this.artifactPropertyTypes[propValue.propertyTypeId];
                 switch (itemType.primitiveType) {
                     case Models.PrimitiveType.Number:
                         if (!this.services.validationService.numberValidation.isValid(propValue.value, 
-                                                                                                            propValue.value, 
-                                                                                                            itemType.decimalPlaces, 
-                                                                                                            this.services.localizationService, 
-                                                                                                            itemType.minNumber, 
-                                                                                                            itemType.maxNumber,
-                                                                                                            itemType.isValidated,
-                                                                                                            itemType.isRequired)) {
+                            propValue.value,
+                            itemType.decimalPlaces,
+                            this.services.localizationService,
+                            itemType.minNumber,
+                            itemType.maxNumber,
+                            itemType.isValidated,
+                            itemType.isRequired)) {
                             return this.set_400_114_error(deferred);
                         }
                         break;
                     case Models.PrimitiveType.Date:
-                        if (!this.services.validationService.dateValidation.isValid(propValue.value, 
-                                                                                                           propValue.value, 
-                                                                                                           this.services.localizationService, 
-                                                                                                           itemType.minDate, 
-                                                                                                           itemType.maxDate,
-                                                                                                           itemType.isValidated,
-                                                                                                           itemType.isRequired)) {
+                        if (!this.services.validationService.dateValidation.isValid(propValue.value,
+                            propValue.value,
+                            this.services.localizationService,
+                            itemType.minDate,
+                            itemType.maxDate,
+                            itemType.isValidated,
+                            itemType.isRequired)) {
                             return this.set_400_114_error(deferred);
                         }
                         break;
@@ -110,7 +112,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                         } 
                         break;
                 }
-            }
+            });
             deferred.resolve();
         }).catch((err) => {
             // log error?

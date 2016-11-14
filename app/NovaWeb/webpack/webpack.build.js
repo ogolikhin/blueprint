@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var path = require('path');
+var autoprefixer = require('autoprefixer');
 
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -101,6 +102,9 @@ module.exports = {
             }
         ]
     },
+    postcss: [
+        autoprefixer({browsers: ['last 2 versions']})
+    ],
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
@@ -110,5 +114,5 @@ module.exports = {
             lowerCaseAttributeNames: false
         }
     },
-    devtool: 'source-map'
+    devtool: 'cheap-module-source-map'
 };

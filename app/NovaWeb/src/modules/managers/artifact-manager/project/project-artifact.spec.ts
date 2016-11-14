@@ -18,6 +18,7 @@ import {
     StatefulArtifactFactory,
     MetaDataService
 } from "../../../managers/artifact-manager";
+import {ValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Project", () => {
     let project: IStatefulArtifact;
@@ -38,6 +39,7 @@ describe("Project", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", PublishServiceMock);
+        $provide.service("validationService", ValidationService);
     }));
 
     beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory) => {

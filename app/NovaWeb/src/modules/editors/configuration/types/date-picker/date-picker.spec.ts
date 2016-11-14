@@ -7,8 +7,14 @@ import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {createFormlyModule} from "../../formly-config.mock";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly Date Picker", () => {
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {        
+        $provide.service("validationService", ValidationService);
+    }));
+    
     let fieldsDefinition = [
         {
             type: "bpFieldDatepicker",
@@ -55,7 +61,6 @@ describe("Formly Date Picker", () => {
 
     let template = `<formly-dir model="model"></formly-dir>`;
     let compile, scope, rootScope, element, node, isolateScope, vm;
-
     beforeEach(
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {

@@ -24,6 +24,7 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
 import {ApplicationError} from "../../../core/error/applicationError";
+import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -43,6 +44,7 @@ describe("Artifact", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", PublishServiceMock);
+        $provide.service("validationService", ValidationServiceMock);
     }));
 
     beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory) => {

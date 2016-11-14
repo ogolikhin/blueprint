@@ -7,8 +7,6 @@ import {IArtifactNode} from "../../../managers/project-manager";
  *
  * <bp-tree api="$ctrl.tree"
  *          grid-columns="$ctrl.columns"
- *          enable-editing-on="name"
- *          enable-dragndrop="true"
  *          on-load="$ctrl.doLoad(prms)"
  *          on-select="$ctrl.doSelect(item)">
  * </bp-tree>
@@ -22,8 +20,6 @@ export class BPTreeComponent implements ng.IComponentOptions {
         api: "=?",
         // Input
         gridClass: "@",
-        enableEditingOn: "@",
-        enableDragndrop: "<",
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
@@ -39,8 +35,6 @@ export interface IBPTreeController {
     // BPTreeComponent bindings
     api: IBPTreeControllerApi;
     gridClass: string;
-    enableEditingOn: string;
-    enableDragndrop: boolean;
     rowBuffer: number;
     rowHeight: number;
     headerHeight: number;
@@ -67,8 +61,6 @@ export class BPTreeController implements IBPTreeController {
 
     // BPTreeViewComponent bindings
     public gridClass: string;
-    public enableEditingOn: string;
-    public enableDragndrop: boolean;
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
@@ -80,7 +72,6 @@ export class BPTreeController implements IBPTreeController {
     // ag-grid bindings
     public options: agGrid.GridOptions;
 
-    private editableColumns: string[] = [];
     private _datasource: any[] = [];
     private selectedRowNode: agGrid.RowNode;
 
@@ -88,11 +79,9 @@ export class BPTreeController implements IBPTreeController {
 
     constructor(private localization: ILocalizationService, private $element?) {
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
-        this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
-        this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
         if (angular.isArray(this.gridColumns)) {
             this.gridColumns.map(function (gridCol) {
@@ -275,23 +264,8 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private innerRenderer = (params: any) => {
-        let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
-
-        let enableDragndrop: string;
-        if (this.enableDragndrop) {
-            let node = params.node;
-            let path = node.childIndex;
-            while (node.level) {
-                node = node.parent;
-                path = node.childIndex + "/" + path;
-            }
-            enableDragndrop = ` bp-tree-dragndrop="${path}"`;
-        } else {
-            enableDragndrop = "";
-        }
-
         let currentValue = this._innerRenderer(params) || params.value;
-        return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
+        return `<span class="ag-group-value-wrapper">${currentValue}</span>`;
     };
 
     // Callbacks

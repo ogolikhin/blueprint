@@ -47,13 +47,12 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Create and save artifacts
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(savedArtifacts, author),
-                "'POST {0}' should return 200 OK after saved artifacts discarded!", DISCARD_PATH);
+                "'POST {0}' should return 200 OK after saved artifacts are discarded!", DISCARD_PATH);
 
             // Verify:
             Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
@@ -70,14 +69,13 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Create and save artifacts
             var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(
                 () => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: author, all: true),
-                "'POST {0}?all=true' should return 200 OK after saved artifacts discarded!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK after saved artifacts are discarded!", DISCARD_PATH);
 
             try
             {
@@ -104,7 +102,6 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Create and publish artifacts
             var changedPublishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
 
             foreach (var publishedArtifact in changedPublishedArtifacts.ConvertAll(x => (IArtifact)x))
@@ -135,7 +132,6 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Create and publish artifacts
             var changedPublishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
 
             foreach (var publishedArtifact in changedPublishedArtifacts.ConvertAll(x => (IArtifact)x))
@@ -147,7 +143,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(changedPublishedArtifacts, author, all: true),
-                "'POST {0}?all=true' should return 200 OK after saved artifacts discarded!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK after saved artifacts are discarded!", DISCARD_PATH);
 
             // Verify:
             Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
@@ -164,14 +160,13 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Create and publish artifacts
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
 
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, author, all: true),
-                "'POST {0}?all=true' should return 200 OK after saved artifacts discarded!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK after saved artifacts are discarded!", DISCARD_PATH);
 
             // Verify:
             Assert.AreEqual(0, discardArtifactResponse.Artifacts.Count, "There should be no artifacts returned in discard results!");
@@ -180,7 +175,7 @@ namespace ArtifactStoreTests
 
         [TestCase(2, BaseArtifactType.Actor)]
         [TestRail(166138)]
-        [Description("Create a list of saved artifacts as well as list of published artifacts.  Discard with all=true.  " +
+        [Description("Create a list of saved artifacts as well as published artifacts.  Discard with all=true.  " +
             "Verify saved artifacts are discarded.")]
         public void DiscardAllArtifacts_MixedListOfPublishedAndSavedArtifacts_SavedArtifactsAreDiscarded(
             int numberOfArtifacts, BaseArtifactType artifactType)
@@ -188,10 +183,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // Create and publish artifacts
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
 
-            // Create and save artifacts
             List<IArtifactBase> savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, artifactType, numberOfArtifacts);
 
             List<IArtifactBase> mixedArtifacts = new List<IArtifactBase>();
@@ -202,7 +195,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, author, all: true),
-                "'POST {0}?all=true' should return 200 OK after saved artifacts discarded!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK after saved artifacts are discarded!", DISCARD_PATH);
 
             // Verify:
             Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
@@ -227,7 +220,6 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projectCustomData);
 
-            // Create and publish artifacts 
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, author, artifactType, numberOfArtifacts); 
   
             for (int i = 0; i < numberOfArtifacts; i++) 
@@ -272,7 +264,6 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            // Create and publish artifacts
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, author, artifactType, numberOfArtifacts);
             IArtifact firstArtifact = (IArtifact)publishedArtifacts[0];
 
@@ -312,7 +303,6 @@ namespace ArtifactStoreTests
 
             List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
-            // Create and publish artifacts
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
 
             var changedArtifacts = new List<IArtifactBase>();
@@ -351,7 +341,6 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
 
-            // Create and publish artifacts
             var artifactChainInProject1 = Helper.CreatePublishedArtifactChain(projects[0], author, artifactTypes.ToArray());
             var artifactChainInProject2 = Helper.CreatePublishedArtifactChain(projects[1], author, artifactTypes.ToArray());
 
@@ -372,7 +361,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => discardArtifactResponse = Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: author, all: true),
-                "'POST {0}?all=true' should return 200 OK if the changed artifacts discarded in different projects!", DISCARD_PATH);
+                "'POST {0}?all=true' should return 200 OK if the changed artifacts are discarded in different projects!", DISCARD_PATH);
 
             // Verify:
             Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
@@ -392,7 +381,6 @@ namespace ArtifactStoreTests
 
             List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
-            // Create and publish artifacts
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
 
             IArtifactBase lastArtifact = artifactChain.Last();
@@ -422,7 +410,6 @@ namespace ArtifactStoreTests
 
             List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
-            // Create and publish artifacts
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
             IArtifactBase lastArtifact = artifactChain.Last();
             lastArtifact.Delete(author);
@@ -449,7 +436,6 @@ namespace ArtifactStoreTests
         public void DiscardArtifacts_DiscardPublishedArtifactsWithNoChildren_400BadRequest(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            // Create and publish artifacts
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
 
             // Execute:
@@ -466,10 +452,8 @@ namespace ArtifactStoreTests
         public void DiscardArtifacts_DiscardMixedListOfSavedPublishedArtifacts_400BadReques(int numberOfArtifacts, BaseArtifactType artifactType)
         {
             // Setup:
-            // Create and save artifacts
             List<IArtifactBase> savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
 
-            // Create and publish artifacts
             List<IArtifactBase> publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
 
             List<IArtifactBase> mixedArtifacts = new List<IArtifactBase>();
@@ -511,7 +495,6 @@ namespace ArtifactStoreTests
         public void DiscardArtifact_InvalidToken_401Unauthorized()
         {
             // Setup:
-            // Create and save artifacts
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
 
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
@@ -557,7 +540,6 @@ namespace ArtifactStoreTests
         public void DiscardArtifact_NonExistentArtifactId_404NotFound(int nonExistentArtifactId, string expectedErrorMessage)
         {
             // Setup:
-            // Create artifact
             IArtifactBase artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             // Replace ProjectId with a fake ID that shouldn't exist.
@@ -584,7 +566,6 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             // Setup:
-            // Create and publish artifacts
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes);
 
             for (int i = 1; i < artifactTypes.Length; i++)
@@ -610,7 +591,6 @@ namespace ArtifactStoreTests
             BaseArtifactType grandParentType, BaseArtifactType parentType, BaseArtifactType childType)
         {
             // Setup:
-            // Create and publish artifacts
             var grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, grandParentType);
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentType, grandParentArtifact);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childType, parentArtifact);
@@ -634,7 +614,6 @@ namespace ArtifactStoreTests
             BaseArtifactType grandParentType, BaseArtifactType parentType, BaseArtifactType childType)
         {
             // Setup:
-            // Create and publish artifacts
             var grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, grandParentType);
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentType, grandParentArtifact);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childType, parentArtifact);

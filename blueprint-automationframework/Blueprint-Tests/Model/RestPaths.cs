@@ -101,6 +101,11 @@ namespace Model
                     {
                         public const string CHILDREN                = "svc/adminstore/instance/folders/{0}/children";
                     }
+
+                    public static class Projects_id_
+                    {
+                        public const string NAVIGATIONPATH          = "svc/adminstore/instance/projects/{0}/navigationPath";
+                    }
                 }
 
                 public static class Licenses

@@ -14,6 +14,7 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 using System;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -84,7 +85,7 @@ namespace ArtifactStoreTests
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            Assert.IsNotNull(artifactDetailsAfter.Description); 
+            Assert.IsNotNull(artifactDetailsAfter.Description);
             Assert.AreEqual(description, artifactDetailsAfter.Description);
         }
 
@@ -135,6 +136,38 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(newName, artifactDetails.Name);
         }
+
+        #region Artifact Properties tests
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(999999)]
+        [Description("Create & publish a Process artifact.  Update a text property, save and publish.  Verify the artifact returned the test property updated.")]
+        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(BaseArtifactType baseArtifactType)
+        {
+            // Setup:
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projectCustomData);
+
+            var artifactTypeName = StandardPackArtifactName(baseArtifactType);
+
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(projectCustomData, author, ItemTypePredefined.Process, artifactTypeName: artifactTypeName);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            // Execute:
+            //  UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
+
+            // Verify:
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
+        }
+
+        #endregion Artifact Properties tests
 
         #endregion 200 OK tests
 
@@ -624,6 +657,11 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+        }
+
+        private static string StandardPackArtifactName(BaseArtifactType baseArtifactType)
+        {
+            return I18NHelper.FormatInvariant("{0}(Standard Pack)", Enum.GetName(typeof(BaseArtifactType), baseArtifactType));
         }
 
         #endregion Private functions

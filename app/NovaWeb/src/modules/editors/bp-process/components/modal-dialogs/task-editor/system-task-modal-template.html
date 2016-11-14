@@ -25,14 +25,15 @@
                        typeahead-template-url="artifactTypesDropdown.html"
                        typeahead-show-hint="true"
                        typeahead-min-length="0" />
-                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="dialogModel.persona = ''">
+                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="$ctrl.cleanPersonaField()">
                     <span class="fonticon2-error"></span>
                 </button>
-                <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
                     +
                 </button>
                 <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
             </div>
+        </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text" ng-blur="$ctrl.nameOnBlur()" ng-focus="$ctrl.nameOnFocus()"
                     ng-class="dialogModel.action ? 'nova-form-control input-is-dirty' : 'nova-form-control'"
@@ -54,7 +55,7 @@
                     <div class="nova-form-group">
 
                         <div ng-show="!$ctrl.isIncludeResultsVisible">
-                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
                                 <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
@@ -76,6 +77,11 @@
                     </div>
     </form>
 
+    <script type="text/ng-template" id="artifactTypesDropdown.html">
+        <a>
+            <span ng-bind-html="match.label | bpEscapeAndHighlight:query"></span>
+        </a>
+    </script>
 </div>
 
 <div class="modal-footer storyteller-modal-footer">

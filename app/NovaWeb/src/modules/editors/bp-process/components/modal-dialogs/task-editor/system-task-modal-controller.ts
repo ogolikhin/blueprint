@@ -59,17 +59,17 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             this.dialogModel.persona = value.name;
         } else {
             const defaultSystemPersonaReference = {
-                id: this._idGenerator.getSystemPeronaId(),
+                id: this._idGenerator.getUserPeronaId(),
                 projectId: null,
-                name: this.localization.get("ST_New_User_Task_Persona"),
+                name: this.localization.get("ST_New_System_Task_Persona"),
                 typePrefix: null,
                 baseItemTypePredefined: Models.ItemTypePredefined.Actor,
                 projectName: null,
                 link: null,
                 version: null
-            };
+            }
             this.dialogModel.personaReference = defaultSystemPersonaReference;
-            this.dialogModel.persona = this.localization.get("ST_New_User_Task_Persona");
+            this.dialogModel.persona = this.localization.get("ST_New_System_Task_Persona");
         }
     }
 

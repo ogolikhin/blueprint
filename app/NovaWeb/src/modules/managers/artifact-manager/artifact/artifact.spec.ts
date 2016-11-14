@@ -735,7 +735,7 @@ describe("Artifact", () => {
                  });
                  return deferred.promise;
              });
-             const errormessage = "Artifact TEST (PREFIX222) is already locked by other user.";
+             const errormessage = "Then artifact PREFIX222 is already locked by another user.";
              // act
              
              artifact.delete();

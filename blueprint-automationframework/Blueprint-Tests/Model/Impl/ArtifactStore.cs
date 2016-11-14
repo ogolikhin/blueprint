@@ -354,50 +354,9 @@ namespace Model.Impl
             int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifact.Id);
-            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            if (versionId != null)
-            {
-                queryParameters.Add("versionId", versionId.ToString());
-            }
-
-            if (subArtifactId != null)
-            {
-                queryParameters.Add("subArtifactId", subArtifactId.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-
-            try
-            {
-                var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
-
-                return attachment;
-            }
-            catch (Exception)
-            {
-                Logger.WriteDebug("Content = '{0}'", restApi.Content);
-
-                if (expectedServiceErrorMessage != null)
-                {
-                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
-                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
-                }
-
-                throw;
-            }
+            
+            return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId,
+                expectedStatusCodes, expectedServiceErrorMessage);
         }
 
         /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, List{HttpStatusCode})"/>
@@ -408,36 +367,9 @@ namespace Model.Impl
             int? versionId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifact.Id);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (subArtifactId != null)
-            {
-                queryParameters.Add("subArtifactId", subArtifactId.ToString());
-            }
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            if (versionId !=  null)
-            {
-                queryParameters.Add("versionId", versionId.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-
-            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
-
-            return relationships;
+            return GetRelationships(Address, user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, int?, List{HttpStatusCode})"/>
@@ -801,6 +733,75 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Gets attachments for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactId">The ID of the artifact that has the attachment to get.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
+        /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
+        /// <returns>Attachment object for the specified artifact/subartifact.</returns>
+        public static Attachments GetAttachments(string address,
+            int artifactId,
+            IUser user,
+            bool? addDrafts = null,
+            int? versionId = null,
+            int? subArtifactId = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            IServiceErrorMessage expectedServiceErrorMessage = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifactId);
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            try
+            {
+                var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+                return attachment;
+            }
+            catch (Exception)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                if (expectedServiceErrorMessage != null)
+                {
+                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
+                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Gets all children artifacts for specified by id project.
         /// (Runs: GET /projects/{projectId}/children)
         /// </summary>
@@ -821,6 +822,57 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Gets relationships for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
+        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
+        public static Relationships GetRelationships(string address,
+            IUser user,
+            int artifactId,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return relationships;
         }
 
         /// <summary>

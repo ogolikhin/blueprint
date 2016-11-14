@@ -1,12 +1,16 @@
-﻿using CustomAttributes;
+﻿using System.Collections.Generic;
+using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using Model.NovaModel;
 using NUnit.Framework;
 using TestCommon;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -59,20 +63,9 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
-            Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
-            Assert.AreEqual(-1, copyResult.Artifact.Version, "Version of a copied artifact should always be -1 (i.e. not published)!");
-            Assert.AreEqual(1, copyResult.CopiedArtifactsCount,
-                "There should be exactly 1 artifact copied, but the result reports {0} were copied.", copyResult.CopiedArtifactsCount);
-            Assert.AreNotEqual(sourceArtifact.Id, copyResult.Artifact.Id,
-                "The ID of the copied artifact should not be the same as the original artifact!");
-
-            ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, sourceArtifact, skipIdAndVersion: true);
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, copyResult.Artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
         }
-
+        
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Glossary)]
         [TestCase(BaseArtifactType.Document, BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.Glossary, BaseArtifactType.TextualRequirement)]
@@ -84,10 +77,10 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SinglePublishedChildArtifact_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType parentArtifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType, parentArtifact, numberOfVersions: 2);
 
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, author, parentArtifactType);
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, sourceArtifactType, parentArtifact, numberOfVersions: 2);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -96,38 +89,91 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
-            Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
-            Assert.AreEqual(-1, copyResult.Artifact.Version, "Version of a copied artifact should always be -1 (i.e. not published)!");
-            Assert.AreEqual(1, copyResult.CopiedArtifactsCount,
-                "There should be exactly 1 artifact copied, but the result reports {0} were copied.", copyResult.CopiedArtifactsCount);
-            Assert.AreNotEqual(sourceArtifact.Id, copyResult.Artifact.Id,
-                "The ID of the copied artifact should not be the same as the original artifact!");
-
-            ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, sourceArtifact, skipIdAndVersion: true);
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, copyResult.Artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
         }
-
-        [TestCase(BaseArtifactType.TextualRequirement)]
+        
+        [TestCase(BaseArtifactType.Actor, false)]
+        [TestCase(BaseArtifactType.TextualRequirement, true)]
         [TestRail(191049)]
-        [Description("Create and publish an artifact and a folder.  Add an attachment to the artifact.  Copy the artifact into the folder.  Verify the source " +
+        [Description("Create and publish an artifact and save a folder.  Add an attachment to the artifact.  Copy the artifact into the folder.  Verify the source " +
             "artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedArtifactWithAttachment_ToNewFolder_ReturnsNewArtifactWithAttachment(BaseArtifactType artifactType)
+        public void CopyArtifact_SinglePublishedArtifactWithAttachment_ToNewSavedFolder_ReturnsNewArtifactWithAttachment(
+            BaseArtifactType artifactType, bool shouldPublishAttachment)
         {
-            Assert.Fail("Test not implemented yet.");
-        }
+            // Setup:
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-        [TestCase(BaseArtifactType.Actor, TraceDirection.From, false)]
-        [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true)]
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+
+            // Create & add attachment to the source artifact:
+            var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, sourceArtifact, attachmentFile, Helper.ArtifactStore);
+
+            if (shouldPublishAttachment)
+            {
+                sourceArtifact.Publish();
+            }
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
+
+            // Verify the attachment was copied.
+            var attachmentAfterTest = ArtifactStore.GetAttachments(Helper.ArtifactStore.Address, copyResult.Artifact.Id, author);
+            Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 1 attachments at this point.");
+            Assert.AreEqual(attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
+            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+            // TODO: Get the file contents and compare.
+        }
+        
+        [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
+        [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
+        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
         [TestRail(191050)]
-        [Description("Create and publish an artifact and a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
+        [Description("Create and save an artifact and save a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
-            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect)
+            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
         {
-            Assert.Fail("Test not implemented yet.");
+            // Setup:
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+
+            // Create & add manual trace to the source artifact:
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact, targetArtifact, ArtifactUpdateChangeType.Add,
+                Helper.ArtifactStore, direction, isSuspect);
+
+            if (shouldPublishTrace)
+            {
+                sourceArtifact.Publish();
+            }
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
+
+            // Get traces & compare.
+            Relationships sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, author, copyResult.Artifact.Id, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact, addDrafts: true);
+
+            Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
+            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
+
+            ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
 
         [Category(Categories.CustomData)]
@@ -152,5 +198,37 @@ namespace ArtifactStoreTests
 
         #endregion 201 Created tests
 
+        #region Private functions
+
+        /// <summary>
+        /// Asserts that the properties of the copied artifact are the same as the original artifact (except Id and Version)
+        /// and that the the expected number of files were copied.
+        /// </summary>
+        /// <param name="originalArtifact">The original artifact that was copied.</param>
+        /// <param name="copyResult">The result returned from the Nova copy call.</param>
+        /// <param name="user">The user to use for getting artifact details.</param>
+        /// <param name="expectedNumberOfFilesCopied">(optional) The number of artifacts that were expected to be copied.</param>
+        /// <exception cref="AssertionException">If any expectations failed.</exception>
+        private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(IArtifact originalArtifact,
+            CopyNovaArtifactResultSet copyResult,
+            IUser user,
+            int expectedNumberOfFilesCopied = 1)
+        {
+            Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
+            Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
+            Assert.AreEqual(-1, copyResult.Artifact.Version, "Version of a copied artifact should always be -1 (i.e. not published)!");
+            Assert.AreEqual(expectedNumberOfFilesCopied, copyResult.CopiedArtifactsCount,
+                "There should be exactly {0} artifact copied, but the result reports {1} artifacts were copied.",
+                expectedNumberOfFilesCopied, copyResult.CopiedArtifactsCount);
+            Assert.AreNotEqual(originalArtifact.Id, copyResult.Artifact.Id,
+                "The ID of the copied artifact should not be the same as the original artifact!");
+
+            ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, originalArtifact, skipIdAndVersion: true);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
+        }
+
+        #endregion Private functions
     }
 }

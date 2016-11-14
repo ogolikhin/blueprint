@@ -1,3 +1,4 @@
+using System;
 using Common;
 using Model;
 using Model.Impl;
@@ -370,13 +371,13 @@ namespace Helper
         }
 
         /// <summary>
-        /// Attaches file to the artifact (Save changes).
+        /// Attaches files to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
+        public static void AddArtifactAttachmentsAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -385,6 +386,7 @@ namespace Helper
 
             artifact.Lock(user);
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
             foreach (var file in files)
             {
                 artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
@@ -396,11 +398,40 @@ namespace Helper
         }
 
         /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
+        public static void AddArtifactAttachmentAndSave(
+            IUser user,
+            IArtifact artifact,
+            INovaFile file,
+            IArtifactStore artifactStore,
+            int expectedAttachedFilesCount = 1)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            artifact.Lock(user);
+            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
+
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            var attachment = artifactStore.GetAttachments(artifact, user);
+            Assert.AreEqual(expectedAttachedFilesCount, attachment.AttachedFiles.Count, "The attachment should be added.");
+        }
+
+        /// <summary>
         /// Attaches file to the subartifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
-        /// <param name="artifact">SubArtifact.</param>
+        /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
@@ -553,6 +584,24 @@ namespace Helper
         }
 
         /// <summary>
+        /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
+        /// </summary>
+        /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
+        /// <param name="targetArtifact">The target artifact of the trace.</param>
+        /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
+        public static void ValidateTrace(NovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
+        {
+            Assert.NotNull(sourceArtifactTrace, "The NovaTrace of the source artifact shouldn't be null!");
+            Assert.NotNull(targetArtifact, "The target artifact shouldn't be null!");
+
+            Assert.AreEqual(sourceArtifactTrace.ArtifactId, targetArtifact.Id, "Id from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
+        }
+
+        /// <summary>
         /// Validates inline trace link returned from artifact details
         /// </summary>
         /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
@@ -637,7 +686,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
 
-            var text = string.Empty;
+            var text = String.Empty;
 
             foreach (var artifact in artifacts)
             {
@@ -653,7 +702,7 @@ namespace Helper
                 }
             }
 
-            Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
+            Assert.IsFalse(String.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
 
             return I18NHelper.FormatInvariant("<p>{0}</p>", text);
         }
@@ -700,6 +749,5 @@ namespace Helper
                 expectedServiceErrorMessage: expectedErrorMessage);
             // TODO: add assertions about changed traces
         }
-
     }
 }

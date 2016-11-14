@@ -58,8 +58,7 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
-                new List<INovaFile> { _attachmentFile }, Helper.ArtifactStore),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore),
                 "Exception caught while trying to update an artifact!");
 
             // Verify:
@@ -77,8 +76,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, new List<INovaFile> { _attachmentFile },
-                Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_user);
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
 
@@ -108,9 +106,9 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() =>
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
-            new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
-            "Exception caught while trying to update an artifact!");
+                ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_user, artifact,
+                new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
+                "Exception caught while trying to update an artifact!");
 
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
@@ -132,7 +130,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
-                new List<INovaFile> { _attachmentFile }, Helper.ArtifactStore),
+                _attachmentFile, Helper.ArtifactStore),
                 "Unexpected Exception caught while trying to update an artifact!");
             
             // Verify:

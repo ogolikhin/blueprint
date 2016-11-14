@@ -26,7 +26,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
-    private selectedArtifactNameBeforeChange: string;
+    private selectedArtifactId: number;
     private isFullReLoad: boolean;
 
     public static $inject: [string] = [
@@ -95,7 +95,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
 
         if (value) {
-            this.selectedArtifactNameBeforeChange = value.name;
+            this.selectedArtifactId = value.id;
 
             this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
@@ -111,24 +111,23 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
             this.tree.reload(projects);
 
-            let currentSelection = this.selected ? this.selected.id : undefined;
+            const currentSelectionId = this.selectedArtifactId;
             let navigateToId: number;
             if (projects && projects.length > 0) {
-                if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
+                if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.setSelectedNode(projects[0].artifact.id);
-                    navigateToId = this.selected.id;
+                    navigateToId = this.selectedArtifactId;
                 }
 
-                if (this.tree.nodeExists(this.selected.id)) {
+                if (this.tree.nodeExists(this.selectedArtifactId)) {
                     //if node exists in the tree
-                    if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId()) {
-                        this.tree.selectNode(this.selected.id);
-                        navigateToId = this.selected.id;
+                    if (this.isFullReLoad || this.selectedArtifactId !== this.tree.getSelectedNodeId()) {
+                        navigateToId = this.selectedArtifactId;
                     }
                     this.isFullReLoad = true;
 
                     //replace with a new object from tree, since the selected object may be stale after refresh
-                    this.setSelectedNode(this.selected.id);
+                    this.setSelectedNode(this.selectedArtifactId);
                 } else {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
@@ -150,10 +149,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             this.numberOfProjectsOnLastLoad = projects.length;
 
             if (_.isFinite(navigateToId)) {
-                if (navigateToId !== currentSelection) {
+                if (navigateToId !== currentSelectionId) {
                     this.navigationService.navigateTo({ id: navigateToId });
-
-                } else if (navigateToId === currentSelection) {
+                } else {
                     this.navigationService.reloadParentState();
                 }
             }

@@ -75,7 +75,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 }
             }
         } else {
-            this.tree.clearSelection();
+            this.tree.deselectAll();
 
             this.selected = null;
         }

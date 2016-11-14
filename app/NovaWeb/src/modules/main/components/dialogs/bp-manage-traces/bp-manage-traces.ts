@@ -146,7 +146,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
 
 
-        this.api.clearSelected();
+        this.api.deselectAll();
         this.disableTrace();
         this.toggleSave();
     }

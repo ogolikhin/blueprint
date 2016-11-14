@@ -6,7 +6,7 @@
   </GeneralInfo>
   <BlueprintWebInfo>
     <SiteName>Blueprint</SiteName>
-    <SitePort>443</SitePort>
+    <SitePort>441</SitePort>
     <SiteAuxiliaryPort>9101</SiteAuxiliaryPort>
     <IsHTTP>false</IsHTTP>
     <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
@@ -22,7 +22,7 @@
     <AccountType>NetworkService</AccountType>
   </JobExecutorInfo>
   <BlueprintDatabaseInfo>
-    <DBServerLocation>localhost</DBServerLocation>
+    <DBServerLocation>localhost\sqlserver2014</DBServerLocation>
     <DBName>Blueprint</DBName>
     <IsWindowsAuthentication>false</IsWindowsAuthentication>
     <DBAdminUserName>sa</DBAdminUserName>

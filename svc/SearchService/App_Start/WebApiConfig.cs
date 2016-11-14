@@ -1,6 +1,5 @@
 ﻿using System.Configuration;
 using System.Web.Http;
-using ServiceLibrary.Helpers;
 
 namespace SearchService
 {
@@ -21,6 +20,6 @@ namespace SearchService
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
-        public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];        
+        public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];
     }
 }

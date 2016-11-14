@@ -5,6 +5,7 @@ describe("BPButtonAction", () => {
         // arrange
         const type = "button";
         const execute = () => {
+            return;
         };
         const canExecute = () => false;
         const icon = "test1";

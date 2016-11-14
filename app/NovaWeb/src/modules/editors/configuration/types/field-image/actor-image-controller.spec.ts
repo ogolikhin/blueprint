@@ -45,11 +45,12 @@ describe("Actor image controller tests", () => {
                 };
 
                 scope.model = {
-                    image: imageModel,
+                    image: imageModel
                 };
 
                 scope["to"] = {
                     onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+                        return;
                     }
                 };
 
@@ -73,18 +74,19 @@ describe("Actor image controller tests", () => {
                                                    messageService: IMessageService, dialogService: IDialogService,
                                                    settingsService: ISettingsService) => {
 
-            var base64 = "";
+            const base64 = "";
 
-            var files = [{
+            const files = [{
                 file: new Blob([base64], {type: "image/png"}),
                 guid: "2788d782-4d7f-e611-82cc-a0999b0c8c40",
                 name: imageModel,
                 url: "svc/bpfilestore/file/2788d782-4d7f-e611"
             }];
 
-            var readerSpy = spyOn(FileReader.prototype, "readAsDataURL");
+            const readerSpy = spyOn(FileReader.prototype, "readAsDataURL");
 
             scope.onFileSelect(files, function () {
+                return;
             });
             $timeout.flush();
             expect(readerSpy).toHaveBeenCalled();
@@ -94,14 +96,14 @@ describe("Actor image controller tests", () => {
     describe("delete image for actor", () => {
 
         it("delete image for actor without readonly mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
-                                                                   messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
+            messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
             scope.onActorImageDelete();
             expect(scope.model.image === null).toBeTruthy();
         }));
 
         it("delete image for actor with read only mode", inject(($timeout: ng.ITimeoutService, localization: ILocalizationService, $window: ng.IWindowService,
-                                                                 messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
+            messageService: IMessageService, dialogService: IDialogService, settingsService: ISettingsService) => {
 
             scope.onActorImageDelete(true);
             expect(scope.model.image === imageModel).toBeTruthy();

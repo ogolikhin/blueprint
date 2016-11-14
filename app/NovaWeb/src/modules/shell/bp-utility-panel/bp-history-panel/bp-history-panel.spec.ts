@@ -10,7 +10,7 @@
 // import { StateManager } from "../../../core/services/state-manager";
 // import { DialogService } from "../../../shared/widgets/bp-dialog";
 
-// describe("Component BPHistoryPanel", () => {
+xdescribe("Component BPHistoryPanel", () => {
 
 //     let directiveTest: ComponentTest<BPHistoryPanelController>;
 //     let template = `<bp-history-panel></bp-history-panel>`;
@@ -38,13 +38,13 @@
 //         vm = null;
 //     });
 
-//     it("should be visible by default", () => {
+    it("should be visible by default", () => {
 //         //Assert
 //         expect(directiveTest.element.find(".filter-bar").length).toBe(0);
 //         expect(directiveTest.element.find(".empty-state").length).toBe(1);
-//     });
+    });
 
-//     it("should load data for a selected artifact",
+    it("should load data for a selected artifact", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
@@ -58,9 +58,9 @@
 //             //Assert
 //             expect(selectedArtifact).toBeDefined();
 //             expect(vm.artifactHistoryList.length).toBe(11);
-//     }));
+    }));
 
-//     it("should get more historical versions along with a draft", inject(($timeout: ng.ITimeoutService) => {
+    it("should get more historical versions along with a draft", inject(($timeout: ng.ITimeoutService) => {
 
 //        //Arrange
 //        vm.artifactHistoryList = [{
@@ -76,9 +76,9 @@
 
 //        //Assert
 //        expect(vm.artifactHistoryList.length).toBe(12);
-//     }));
+    }));
 
-//     it("should get empty list because it already has version 1", inject(($timeout: ng.ITimeoutService) => {
+    it("should get empty list because it already has version 1", inject(($timeout: ng.ITimeoutService) => {
 
 //        //Arrange
 //        vm.artifactHistoryList = [{
@@ -93,9 +93,9 @@
 
 //        //Assert
 //        expect(vm.artifactHistoryList.length).toBe(1);
-//     }));
+    }));
 
-//     it("should get list in ascending order if the flag is set", inject(($timeout: ng.ITimeoutService) => {
+    it("should get list in ascending order if the flag is set", inject(($timeout: ng.ITimeoutService) => {
 
 //        //Arrange
 //        vm.sortAscending = true;
@@ -104,9 +104,9 @@
 
 //        //Assert
 //        expect(vm.artifactHistoryList.length).toBe(11);
-//     }));
+    }));
 
-//     it("should select specified artifact version", inject(($timeout: ng.ITimeoutService) => {
+    it("should select specified artifact version", inject(($timeout: ng.ITimeoutService) => {
 
 //        //Arrange
 //        let artifact = {
@@ -123,6 +123,6 @@
 
 //        //Assert
 //        expect(vm.selectedArtifactVersion).toBe(artifact);
-//     }));
+    }));
 
-// });
+});

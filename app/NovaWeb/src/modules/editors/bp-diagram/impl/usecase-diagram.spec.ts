@@ -91,7 +91,7 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.Include};
-        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
+        const points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
@@ -107,7 +107,7 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.Extended};
-        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
+        const points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
@@ -127,7 +127,7 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.IncludeAndExtended};
-        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
+        const points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);
@@ -147,7 +147,7 @@ describe("Rendering common shapes", () => {
         // Arrange
         const props = new Array<Prop>();
         props[0] = {name: ShapeProps.LINK_TYPE, value: UCDLinkType.ActorInheritance};
-        var points = [{x: 100, y: 150}, {x: 0, y: 0}];
+        const points = [{x: 100, y: 150}, {x: 0, y: 0}];
         const connections = [];
         connections.push(DiagramMock.createConnection(ConnectorTypes.STRAIGHT, points, props));
         const diagramMock = DiagramMock.createDiagramMock([], connections, Diagrams.USECASE_DIAGRAM);

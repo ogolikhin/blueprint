@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import {BPTreeController, ITreeNode} from "./bp-tree";
+import {BPTreeController} from "./bp-tree";
 import {GridApi} from "ag-grid/main";
 
 function toFlat(root: any): any[] {

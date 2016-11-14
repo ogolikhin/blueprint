@@ -101,6 +101,8 @@ describe("ToggleProcessTypeAction", () => {
         it("is disabled if process is read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(
                 process, 
                 communicationManager.toolbarCommunicationManager, 
@@ -117,6 +119,8 @@ describe("ToggleProcessTypeAction", () => {
         it("is enabled if process is not read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
 
             // act
             const action = new ToggleProcessTypeAction(
@@ -132,6 +136,8 @@ describe("ToggleProcessTypeAction", () => {
         it("notifies about process type change", () => {
             // arrange
             const process = createStatefulProcessArtifact();
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(
                 process, 
                 communicationManager.toolbarCommunicationManager, 

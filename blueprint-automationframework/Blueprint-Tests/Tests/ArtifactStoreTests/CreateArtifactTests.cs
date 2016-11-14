@@ -544,6 +544,7 @@ namespace ArtifactStoreTests
                 I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/qOMQZVdh  Text property isn't HTML wrapped.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
         [Category(Categories.CustomData)]
         [TestCase(ArtifactTypePredefined.Actor)]

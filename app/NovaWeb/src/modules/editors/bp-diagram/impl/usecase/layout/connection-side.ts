@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Defines the side of a node where a connections starts or ends.
  */
 export enum ConnectionSide {

@@ -93,6 +93,14 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     }
 
     public $onDestroy() {
+        if (this.toolbarActions) {
+            const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
+            
+            if (toggleAction) {
+                toggleAction.dispose();
+            }
+        }
+
         super.$onDestroy();
     }
 

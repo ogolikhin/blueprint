@@ -6,8 +6,10 @@ describe("BPButtonGroupAction", () => {
         // arrange
         const type = "buttongroup";
         const button1 = new BPButtonAction(() => {
+            return;
         }, () => true, "test1", "test1", "test1");
         const button2 = new BPButtonAction(() => {
+            return;
         }, () => false, "test2");
 
         // act

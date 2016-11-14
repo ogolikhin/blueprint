@@ -650,6 +650,133 @@ describe("Artifact", () => {
         }));
     });
 
+//--
+     describe("Delete", () => {
+       it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+             // arrange
+          // act
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.resolve([{
+                    id: 1, name: "TEST"
+                }]);
+                return deferred.promise;
+            });
+            let result;
+           artifact.delete().then((it) => {
+               result = it;
+           });
+           $rootScope.$digest();
+          // assert
+           expect(artifact.artifactState.deleted).toBeTruthy()
+           expect(result).toBeDefined();
+           expect(result).toEqual(jasmine.any(Array));
+         }));
+
+         it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+             // arrange
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                 const deferred = $q.defer<any>();
+                 deferred.reject({
+                     statusCode: HttpStatusCode.Conflict
+                 });
+                 return deferred.promise;
+             });
+
+             // act
+             
+             artifact.delete();
+             $rootScope.$digest();
+
+             // assert
+             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+         }));
+
+    //     it("publish dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+    //                                              messageService: IMessageService, $q: ng.IQService) => {
+    //         // arrange
+    //         spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
+    //             let defer = $q.defer<Models.IPublishResultSet>();
+
+    //             if (artifactIds[0] === 22) {
+    //                 defer.reject({
+    //                     errorContent: {
+    //                         artifacts: [
+    //                             {
+    //                                 id: 2,
+    //                                 projectId: 1
+    //                             }
+    //                         ],
+    //                         projects: [
+    //                             {
+    //                                 id: 1
+    //                             }
+    //                         ]
+    //                     },
+    //                     statusCode: HttpStatusCode.Conflict
+
+    //                 });
+    //             } else if (artifactIds[0] === 2) {
+    //                 defer.resolve();
+    //             } else {
+    //                 defer.reject();
+    //             }
+    //             return defer.promise;
+    //         });
+
+    //         // act
+    //         artifact.publish();
+    //         $rootScope.$digest();
+
+    //         // assert
+    //         expect(artifact.artifactState.lockedBy).toEqual(Enums.LockedByEnum.None);
+    //         expect(messageService.messages.length).toEqual(1);
+    //         expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
+    //     }));
+
+    //     it("publish dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+    //                                            messageService: IMessageService, $q: ng.IQService) => {
+    //         // arrange
+    //         spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
+    //             let defer = $q.defer<Models.IPublishResultSet>();
+    //             defer.reject({
+    //                 errorContent: {
+    //                     artifacts: [
+    //                         {
+    //                             id: 2,
+    //                             projectId: 1
+    //                         }
+    //                     ],
+    //                     projects: [
+    //                         {
+    //                             id: 1
+    //                         }
+    //                     ]
+    //                 },
+    //                 statusCode: HttpStatusCode.Conflict
+
+    //             });
+    //             return defer.promise;
+    //         });
+
+    //         // act
+    //         artifact.publish();
+    //         $rootScope.$digest();
+
+    //         // assert
+    //         expect(messageService.messages.length).toEqual(1);
+    //         expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
+    //     }));
+
+     });
+
+//--
+
+
 
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {

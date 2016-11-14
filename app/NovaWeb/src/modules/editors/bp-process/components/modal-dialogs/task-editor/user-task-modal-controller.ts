@@ -90,7 +90,7 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
             projectName: null,
             link: null,
             version: null
-        }
+        };
 
         return defaultUserPersonaReference;
     }

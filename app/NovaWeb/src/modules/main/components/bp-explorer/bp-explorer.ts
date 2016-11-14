@@ -113,10 +113,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
             this.tree.reload(projects);
 
-            const currentSelection = this.selectedArtifactId;
+            const currentSelectionId = this.selectedArtifactId;
             let navigateToId: number;
             if (projects && projects.length > 0) {
-                if (!currentSelection || this.numberOfProjectsOnLastLoad !== projects.length) {
+                if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.setSelectedNode(projects[0].artifact.id);
                     navigateToId = this.selectedArtifactId;
                 }
@@ -151,10 +151,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
             this.numberOfProjectsOnLastLoad = projects.length;
 
             if (_.isFinite(navigateToId)) {
-                if (navigateToId !== currentSelection) {
+                if (navigateToId !== currentSelectionId) {
                     this.navigationService.navigateTo({ id: navigateToId });
 
-                } else if (navigateToId === currentSelection) {
+                } else if (navigateToId === currentSelectionId) {
                     this.navigationService.reloadParentState();
                 }
             }

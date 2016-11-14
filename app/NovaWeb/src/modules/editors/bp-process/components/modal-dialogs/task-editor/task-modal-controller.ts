@@ -20,6 +20,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     protected abstract setAssociatedArtifact(value: IArtifactReference);
     protected abstract getPersonaReference(): IArtifactReference;
     protected abstract setPersonaReference(value: IArtifactReference);
+    protected abstract getDefaultPersonaReference(): IArtifactReference;
     protected abstract populateTaskChanges();
 
     public static $inject = [

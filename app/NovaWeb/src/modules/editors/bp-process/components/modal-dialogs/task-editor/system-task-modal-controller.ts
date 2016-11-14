@@ -58,18 +58,8 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             this.dialogModel.personaReference = value;
             this.dialogModel.persona = value.name;
         } else {
-            const defaultSystemPersonaReference = {
-                id: this._idGenerator.getUserPeronaId(),
-                projectId: null,
-                name: this.localization.get("ST_New_System_Task_Persona"),
-                typePrefix: null,
-                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
-                projectName: null,
-                link: null,
-                version: null
-            };
-            this.dialogModel.personaReference = defaultSystemPersonaReference;
-            this.dialogModel.persona = this.localization.get("ST_New_System_Task_Persona");
+            this.dialogModel.personaReference = this.getDefaultPersonaReference();
+            this.dialogModel.persona = this.dialogModel.personaReference.name;
         }
     }
 
@@ -82,5 +72,20 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
             this.dialogModel.originalItem.personaReference = this.dialogModel.personaReference;
         }
+    }
+
+    protected getDefaultPersonaReference(): IArtifactReference {
+        const defaultSystemPersonaReference = {
+            id: this._idGenerator.getSystemPeronaId(),
+            projectId: null,
+            name: this.localization.get("ST_New_System_Task_Persona"),
+            typePrefix: null,
+            baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+            projectName: null,
+            link: null,
+            version: null
+        }
+
+        return defaultSystemPersonaReference;
     }
 }

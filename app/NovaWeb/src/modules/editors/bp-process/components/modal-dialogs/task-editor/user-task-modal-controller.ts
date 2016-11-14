@@ -64,18 +64,8 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
             this.dialogModel.personaReference = value;
             this.dialogModel.persona = value.name;
         } else {
-            const defaultUserPersonaReference = {
-                id: this._idGenerator.getUserPeronaId(),
-                projectId: null,
-                name: this.localization.get("ST_New_User_Task_Persona"),
-                typePrefix: null,
-                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
-                projectName: null,
-                link: null,
-                version: null
-            };
-            this.dialogModel.personaReference = defaultUserPersonaReference;
-            this.dialogModel.persona = this.localization.get("ST_New_User_Task_Persona");
+            this.dialogModel.personaReference = this.getDefaultPersonaReference();
+            this.dialogModel.persona = this.dialogModel.personaReference.name;
         }
     }
 
@@ -88,5 +78,20 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
             this.dialogModel.originalItem.personaReference = this.dialogModel.personaReference;
         }
+    }
+
+    protected getDefaultPersonaReference(): IArtifactReference {
+        const defaultUserPersonaReference = {
+            id: this._idGenerator.getUserPeronaId(),
+            projectId: null,
+            name: this.localization.get("ST_New_User_Task_Persona"),
+            typePrefix: null,
+            baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+            projectName: null,
+            link: null,
+            version: null
+        }
+
+        return defaultUserPersonaReference;
     }
 }

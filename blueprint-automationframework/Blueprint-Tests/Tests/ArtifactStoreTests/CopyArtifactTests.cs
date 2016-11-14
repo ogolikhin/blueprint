@@ -95,8 +95,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, false)]
         [TestCase(BaseArtifactType.TextualRequirement, true)]
         [TestRail(191049)]
-        [Description("Create and publish an artifact and save a folder.  Add an attachment to the artifact.  Copy the artifact into the folder.  Verify the source " +
-            "artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
+        [Description("Create & publish an artifact then create & save a folder.  Add an attachment to the artifact.  Copy the artifact into the folder.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithAttachment_ToNewSavedFolder_ReturnsNewArtifactWithAttachment(
             BaseArtifactType artifactType, bool shouldPublishAttachment)
         {
@@ -125,18 +125,27 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
 
             // Verify the attachment was copied.
-            var attachmentAfterTest = ArtifactStore.GetAttachments(Helper.ArtifactStore.Address, copyResult.Artifact.Id, author);
-            Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 1 attachments at this point.");
-            Assert.AreEqual(attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
-            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+            var copiedArtifactAttachments = Helper.ArtifactStore.GetAttachments(sourceArtifact, author, addDrafts: true);
+            Assert.AreEqual(1, copiedArtifactAttachments.AttachedFiles.Count, "Copied artifact should have 1 attachments at this point.");
+            Assert.AreEqual(attachmentFile.FileName, copiedArtifactAttachments.AttachedFiles[0].FileName, "Filename of copied artifact attachment must have expected value.");
+            Assert.AreEqual(0, copiedArtifactAttachments.DocumentReferences.Count, "Copied artifact shouldn't have any Document References.");
+
+            var sourceArtifactAttachments = ArtifactStore.GetAttachments(Helper.ArtifactStore.Address, copyResult.Artifact.Id, author, addDrafts: true);
+            Assert.AreEqual(1, sourceArtifactAttachments.AttachedFiles.Count, "Source artifact should have 1 attachments at this point.");
+            Assert.AreEqual(attachmentFile.FileName, sourceArtifactAttachments.AttachedFiles[0].FileName, "Filename of source artifact attachment must have expected value.");
+            Assert.AreEqual(0, sourceArtifactAttachments.DocumentReferences.Count, "Source artifact shouldn't have any Document References.");
+
+            // Nova copy does a shallow copy of attachments, so sourceArtifactAttachments should equal copiedArtifactAttachments.
+            AttachedFile.AssertEquals(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0]);
+
             // TODO: Get the file contents and compare.
         }
-        
+
         [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
         [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
         [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
         [TestRail(191050)]
-        [Description("Create and save an artifact and save a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
+        [Description("Create & save an artifact then create & publish a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
             BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
@@ -170,7 +179,7 @@ namespace ArtifactStoreTests
             Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact, addDrafts: true);
 
             Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
-            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
+            Assert.AreEqual(2, targetRelationships.ManualTraces.Count, "Target artifact should have 2 manual traces.");
 
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
@@ -207,19 +216,19 @@ namespace ArtifactStoreTests
         /// <param name="originalArtifact">The original artifact that was copied.</param>
         /// <param name="copyResult">The result returned from the Nova copy call.</param>
         /// <param name="user">The user to use for getting artifact details.</param>
-        /// <param name="expectedNumberOfFilesCopied">(optional) The number of artifacts that were expected to be copied.</param>
+        /// <param name="expectedNumberOfArtifactsCopied">(optional) The number of artifacts that were expected to be copied.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(IArtifact originalArtifact,
             CopyNovaArtifactResultSet copyResult,
             IUser user,
-            int expectedNumberOfFilesCopied = 1)
+            int expectedNumberOfArtifactsCopied = 1)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
             Assert.AreEqual(-1, copyResult.Artifact.Version, "Version of a copied artifact should always be -1 (i.e. not published)!");
-            Assert.AreEqual(expectedNumberOfFilesCopied, copyResult.CopiedArtifactsCount,
+            Assert.AreEqual(expectedNumberOfArtifactsCopied, copyResult.CopiedArtifactsCount,
                 "There should be exactly {0} artifact copied, but the result reports {1} artifacts were copied.",
-                expectedNumberOfFilesCopied, copyResult.CopiedArtifactsCount);
+                expectedNumberOfArtifactsCopied, copyResult.CopiedArtifactsCount);
             Assert.AreNotEqual(originalArtifact.Id, copyResult.Artifact.Id,
                 "The ID of the copied artifact should not be the same as the original artifact!");
 

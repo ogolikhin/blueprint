@@ -149,6 +149,8 @@ export enum PropertyTypePredefined {
     StoryLink = 4131,
     ImageId = 4132,
     AssociatedArtifact = 4133,
+    // Server side PersonaReference is 4134 but not used on the client
+    CollectionContent = 4135,
 
     VisualizationGroup = 8192,
     X = 8193,

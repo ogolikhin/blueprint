@@ -9,11 +9,12 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 /**
  * Usage:
  *
- * <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
+ * <bp-artifact-picker api="$ctrl.api"
  *                     selectable-item-types="$ctrl.selectableItemTypes"
  *                     selection-mode="$ctrl.selectionMode"
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"
  *                     is-one-project-level="$ctrl.isOneProjectLevel"
+ *                     is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
  *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
  *                     on-double-click="$ctrl.onDoubleClick(vm)">
  * </bp-artifact-picker>
@@ -22,32 +23,35 @@ export class BpArtifactPicker implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactPickerController;
     public template: string = require("./bp-artifact-picker.html");
     public bindings: {[binding: string]: string} = {
-        isItemSelectable: "&?",
+        // Two-way
         api: "=?",
+        // Input
         selectableItemTypes: "<",
         selectionMode: "<",
         showSubArtifacts: "<",
         isOneProjectLevel: "<",
+        // Output
+        isItemSelectable: "&?",
         onSelectionChanged: "&?",
         onDoubleClick: "&?"
     };
 }
 
 export interface IArtifactPickerAPI {
-    clearSelected(): void;
+    deselectAll(): void;
 }
 
 export interface IArtifactPickerController {
     project: AdminStoreModels.IInstanceItem;
 
     // BpArtifactPicker bindings
-    isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
+    api: IArtifactPickerAPI;
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showSubArtifacts?: boolean;
     isOneProjectLevel?: boolean;
+    isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
-    api: IArtifactPickerAPI;
     onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
 
     // BpTreeView bindings
@@ -70,13 +74,14 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     private static readonly maxSearchResults = 100;
 
     // BpArtifactPicker bindings
-    public isItemSelectable: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
+    public isItemSelectable: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     public onSelectionChanged: (params: {selectedVMs: TreeViewModels.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: TreeViewModels.IViewModel<any>}) => any;
+
     public factory: SearchResultVMFactory;
     public treeApi: IBPTreeViewControllerApi;
 
@@ -121,12 +126,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    public api: IArtifactPickerAPI = {
-        clearSelected: () => {
-            this.treeApi.clearSelected();
-        }
-    };
-
     public $onDestroy(): void {
         if (this.columns) {
             this.columns[0].cellClass = undefined;
@@ -136,6 +135,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.onSelect = undefined;
         this.projectService.abort();
     }
+
+    public api: IArtifactPickerAPI = {
+        deselectAll: () => {
+            this.treeApi.deselectAll();
+        }
+    };
 
     private _project: AdminStoreModels.IInstanceItem;
 

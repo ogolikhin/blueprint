@@ -48,8 +48,7 @@ export {
 } from "./bp-file-upload-status/bp-file-upload-status";
 
 export {
-    IBPTreeControllerApi,
-    ITreeNode
+    IBPTreeControllerApi
 } from "./bp-tree"
 
 export {

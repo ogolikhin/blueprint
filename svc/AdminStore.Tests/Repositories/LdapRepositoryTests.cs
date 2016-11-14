@@ -142,7 +142,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task AuthenticateLdapUserAsync_NoSettingsBindThrowsInvalidCredentials_CallsSearchDirectory()
+        public async Task AuthenticateLdapUserAsync_NoSettingsBindThrowsInvalidCredentials_ReturnsInvalidCredentials()
         {
             // Arrange
             var loginInfo = LoginInfo.Parse("domain\\login");

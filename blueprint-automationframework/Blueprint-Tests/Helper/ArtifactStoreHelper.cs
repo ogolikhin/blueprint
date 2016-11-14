@@ -686,7 +686,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
 
-            var text = String.Empty;
+            var text = string.Empty;
 
             foreach (var artifact in artifacts)
             {
@@ -702,7 +702,7 @@ namespace Helper
                 }
             }
 
-            Assert.IsFalse(String.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
 
             return I18NHelper.FormatInvariant("<p>{0}</p>", text);
         }

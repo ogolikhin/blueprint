@@ -105,8 +105,7 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.DoesNotThrow(() =>
-                ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_user, artifact,
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_user, artifact,
                 new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
                 "Exception caught while trying to update an artifact!");
 

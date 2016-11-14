@@ -17,19 +17,19 @@
     <form name="userTaskForm" novalidate>
         <div class="nova-form-group nova-floating-label">
             <label for="storyteller-user" class="nova-label"><i class="fonticon2-process-persona"></i>{{::$root.config.labels['ST_Persona_Label']}}</label>
-            <div class="nova-form-novina">
-                <span class="nova-form-control">
-                    <input type="text" class="nova-form-control new-artifact__input new-artifact__input--dropdown"
+            <div class="process-form-container">
+                <input type="text" class="nova-form-control new-artifact__input new-artifact__input--dropdown"
                            id="user-task-persona" name="persona"
                            ng-model="dialogModel.persona"
                            uib-typeahead="persona as persona.name for persona in dialogModel.availablePersona | filter:{name:$viewValue} | limitTo: 10"
                            typeahead-template-url="artifactTypesDropdown.html"
                            typeahead-show-hint="true"
                            typeahead-min-length="0" />
-                    <i class="fonticon2-error" ng-if="dialogModel.persona" ng-click="dialogModel.persona = ''"></i>
-                </span>
-                <button class="btn btn-primary btn-small storyteller-include_btn" style="position: absolute; " type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
-                    <i class="fonticon-include-active fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="dialogModel.persona = ''">
+                    <span class="fonticon2-error"></span>
+                </button>
+                <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                    +
                 </button>
             </div>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>

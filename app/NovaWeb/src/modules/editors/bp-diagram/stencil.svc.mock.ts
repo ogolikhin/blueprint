@@ -25,13 +25,10 @@ export class StencilServiceMock implements IStencilService {
             default:
                 throw "Unknown diagram type: " + diagramType;
         }
-        let stencil = null;
-        try {
-            let xml = $.parseXML(data);
-            stencil = xml.documentElement;
-        }
-        finally {
-            return stencil;
+        if (data) {
+            return $.parseXML(data).documentElement;
+        } else {
+            return undefined;
         }
     }
 

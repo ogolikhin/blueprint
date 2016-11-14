@@ -39,6 +39,10 @@ module.exports = [
         exclude: /node_modules/,
         loader: 'url'
     }, {
+        test: /\.ico$/,
+        exclude: /node_modules/,
+        loader: 'url'
+    }, {
         test: require.resolve('tinymce/tinymce'),
         loaders: [
           'imports?this=>window',

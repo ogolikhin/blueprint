@@ -87,14 +87,16 @@ module.exports = {
             {from: '../libs/mxClient/css', to: './libs/mxClient/css'},
             {from: '../libs/mxClient/js', to: './libs/mxClient/js'},
 
+
             {from: '../assets', to: './static'},
             {from: './unsupported-browser', to: './static'},
 
+            {from: '../node_modules/bootstrap-sass/assets/fonts', to: './fonts'},
             {from: '../src/fonts', to: './fonts'},
             {from: '../src/images', to: './static/images'},
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
-            {from: '../src/styles/images/icons', to: './static/images/icons'}
+            {from: '../src/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
             VERSION: JSON.stringify(require('../package.json').version),

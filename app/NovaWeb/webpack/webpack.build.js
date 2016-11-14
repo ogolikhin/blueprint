@@ -1,10 +1,15 @@
+function isDebug(argument) {
+    return argument === '--debug';
+}
+
 var webpack = require('webpack');
 var path = require('path');
-var autoprefixer = require('autoprefixer');
-
+var isDebug = process.argv.some(isDebug);
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+var autoprefixer = require('autoprefixer');
+var ProgressBarPlugin = require('progress-bar-webpack-plugin');
 
 var loaders = require("./loaders");
 var _DIST = path.resolve('./dist');
@@ -25,6 +30,8 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     plugins: [
+        new ProgressBarPlugin(),
+
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',
@@ -45,7 +52,7 @@ module.exports = {
             },
             //mangle: true,
             //beautify: false,
-            sourceMap: true
+            sourceMap: isDebug
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
         new CopyWebpackPlugin([
@@ -68,16 +75,21 @@ module.exports = {
             {from: '../assets', to: './static'},
             {from: './unsupported-browser', to: './static'},
 
+            {from: '../node_modules/bootstrap-sass/assets/fonts', to: './fonts'},
+
             {from: '../src/fonts', to: './fonts'},
             {from: '../src/images', to: './static/images'},
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
-            {from: '../src/styles/images/icons', to: './static/images/icons'}
+            {from: '../src/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })
+    ],
+    postcss: [
+        autoprefixer({browsers: ['last 2 versions']})
     ],
     resolve: {
         root: __dirname,
@@ -102,9 +114,6 @@ module.exports = {
             }
         ]
     },
-    postcss: [
-        autoprefixer({browsers: ['last 2 versions']})
-    ],
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },

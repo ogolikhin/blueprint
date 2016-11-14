@@ -19,14 +19,12 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
      */
     unload();
     subArtifactCollection: ISubArtifactCollection;
-    //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
-    save(): ng.IPromise<IStatefulArtifact>;
+    save(ignoreInvalidValues: boolean): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
-    autosave(): ng.IPromise<IStatefulArtifact>;
+    autosave(): ng.IPromise<boolean>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
-
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
@@ -342,10 +340,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.services.relationshipsService.getRelationships(this.id, undefined, this.getEffectiveVersion());
     }
 
+    public validate(): boolean {
+        return !!this.artifactState.invalid;
+    }
     public changes(): Models.IArtifact {
-        if (this.artifactState.invalid) {
-            return null;
-        }
 
         const delta = {} as Models.IArtifact;
 
@@ -385,17 +383,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return subArtifactChanges;
     }
 
-    public save(): ng.IPromise<IStatefulArtifact> {
+    public save(ignoreInvalidValues: boolean = true): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.services.messageService.clearMessages();
 
-        const changes = this.changes();
-        if (!changes) {
+        if (!ignoreInvalidValues && !this.validate()) {
             const compoundId: string = this.prefix + this.id.toString();
             let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
             deferred.reject(new Error(message.replace("{0}", compoundId)));
             return deferred.promise;
         }
+        const changes = this.changes();
 
         const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
         if (saveCustomArtifact) {
@@ -485,13 +483,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return new Error(message);
     }
 
-    //TODO: stub - replace with implementation
-    public autosave(): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
-        deffered.resolve();
-        return deffered.promise;
+    public autosave(): ng.IPromise<boolean> {
+        if (this.canBeSaved() ) {
+            return this.save()
+            .then(() => true)
+            .catch(() => {
+                return this.services.dialogService.confirm("Autosave has failed. Continue without saving?")
+                        .then(() => {
+                            this.discard();
+                            return true;
+                        }).catch(() => false);            
+            });
+        }
+        return this.services.$q.resolve(true);
     }
-
     public publish(): ng.IPromise<void> {
         let deffered = this.services.getDeferred<void>();
 

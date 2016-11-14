@@ -11,8 +11,8 @@ export class IdGenerator implements IIdGenerator {
                 private systemTaskNewNodeCounter: number = 0,
                 private userDecisionNewNodeCounter: number = 0,
                 private systemDecisionNewNodeCounter: number = 0,
-                private userPersonaNewNodeCounter: number = 0,
-                private systemPersonaNewNodeCounter: number = 0) {
+                private userPersonaNewNodeCounter: number = -1,
+                private systemPersonaNewNodeCounter: number = -2) {
     }
 
     public getId(processShapeType: ProcessShapeType): number {
@@ -32,11 +32,11 @@ export class IdGenerator implements IIdGenerator {
     }
 
     public getUserPeronaId(): number {
-        return --this.userPersonaNewNodeCounter;
+        return this.userPersonaNewNodeCounter;
     }
 
     public getSystemPeronaId(): number {
-        return --this.systemPersonaNewNodeCounter;
+        return this.systemPersonaNewNodeCounter;
     }
 
     public reset() {

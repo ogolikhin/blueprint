@@ -4,9 +4,12 @@ import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
 import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {Models} from "../../../../../main/models";
+import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
 
 export class SystemTaskModalController extends TaskModalController<SystemTaskDialogModel> {
     private systemNamePlaceHolderText: string;
+    private _idGenerator = new IdGenerator();
 
     constructor(
         $scope: IModalScope,
@@ -51,11 +54,22 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
     }
 
     protected setPersonaReference(value: IArtifactReference) {
-        this.dialogModel.personaReference = value;
         if (value) {
+            this.dialogModel.personaReference = value;
             this.dialogModel.persona = value.name;
         } else {
-            this.dialogModel.persona = "";
+            const defaultSystemPersonaReference = {
+                id: this._idGenerator.getSystemPeronaId(),
+                projectId: null,
+                name: this.localization.get("ST_New_User_Task_Persona"),
+                typePrefix: null,
+                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                projectName: null,
+                link: null,
+                version: null
+            };
+            this.dialogModel.personaReference = defaultSystemPersonaReference;
+            this.dialogModel.persona = this.localization.get("ST_New_User_Task_Persona");
         }
     }
 

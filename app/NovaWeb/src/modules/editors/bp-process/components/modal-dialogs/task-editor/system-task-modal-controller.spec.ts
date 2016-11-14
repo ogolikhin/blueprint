@@ -251,6 +251,16 @@ describe("SystemTaskModalController", () => {
                 model.persona = diagramNode.persona;
                 model.associatedArtifact = diagramNode.associatedArtifact;
                 model.originalItem = diagramNode;
+                model.personaReference = {
+                    id: -1,
+                    projectId: null,
+                    name: this.NEW_USER_TASK_PERSONA,
+                    typePrefix: null,
+                    baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                    projectName: null,
+                    link: null,
+                    version: null
+                };
 
                 const $scope = <IModalScope>$rootScope.$new();
                 const localizationSpy = spyOn(localization, "get");

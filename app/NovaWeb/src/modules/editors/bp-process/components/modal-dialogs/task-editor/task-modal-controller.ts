@@ -118,9 +118,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.populateTaskChanges();
     }
 
-    private getSelectableArtifactTypes(unSelectableTypes: Models.ItemTypePredefined[]): Models.ItemTypePredefined[] {
+    private getIncludedArtifactTypes(): Models.ItemTypePredefined[] {
         const selectableArtifactTypes: Models.ItemTypePredefined[] = [
-            Models.ItemTypePredefined.Actor,
             Models.ItemTypePredefined.BusinessProcess,
             Models.ItemTypePredefined.Document,
             Models.ItemTypePredefined.DomainDiagram,
@@ -135,11 +134,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             Models.ItemTypePredefined.UseCaseDiagram
         ];
 
-        for (const i in unSelectableTypes) {
-            if (selectableArtifactTypes.indexOf(unSelectableTypes[i]) >= 0) {
-                selectableArtifactTypes.splice(selectableArtifactTypes.indexOf(unSelectableTypes[i]), 1);
-            }
-        }
         return selectableArtifactTypes;
     }
 
@@ -153,11 +147,11 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         };
 
         const dialogOption: IArtifactPickerOptions = {
-            selectableItemTypes: this.getSelectableArtifactTypes([Models.ItemTypePredefined.Actor]),
+            selectableItemTypes: this.getIncludedArtifactTypes(),
             showSubArtifacts: false
         };
 
-        this.openArtifactPicker(dialogSettings, dialogOption);
+        this.openArtifactPicker(dialogSettings, dialogOption, this.postIncludePickerAction);
     }
 
     public openActorPicker() {
@@ -173,10 +167,25 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             selectableItemTypes: [Models.ItemTypePredefined.Actor]
         };
 
-        this.openArtifactPicker(dialogSettings, dialogOption);
+        this.openArtifactPicker(dialogSettings, dialogOption, this.postActorPickerAction);
     }
 
-    private openArtifactPicker(dialogSettings: IDialogSettings, dialogOptions: IArtifactPickerOptions) {
+    private postIncludePickerAction = (artifactReference: ArtifactReference): void => {
+        if (artifactReference.id === this.dialogModel.artifactId) {
+            this.isIncludeError = true;
+        } else {
+            this.setAssociatedArtifact(artifactReference);
+            this.prepIncludeField();
+            this.isIncludeError = false;
+        }
+    }
+
+    private postActorPickerAction = (artifactReference: ArtifactReference): void => {
+        this.setPersonaReference(artifactReference);
+    }
+    private openArtifactPicker(dialogSettings: IDialogSettings,
+        dialogOptions: IArtifactPickerOptions,
+        postArtifactPickerAction: (artifactReference: ArtifactReference) => void) {
 
         this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
             if (items.length === 1) {
@@ -185,17 +194,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 artifactReference.id = items[0].id;
                 artifactReference.name = items[0].name;
                 artifactReference.typePrefix = items[0].prefix;
-                if (artifactReference.id === this.dialogModel.artifactId) {
-                    this.isIncludeError = true;
-                }
-                else if (artifactReference.baseItemTypePredefined === Models.ItemTypePredefined.Actor) {
-                    this.setPersonaReference(artifactReference);
-                }
-                else {
-                    this.setAssociatedArtifact(artifactReference);
-                    this.prepIncludeField();
-                    this.isIncludeError = false;
-                }
+                postArtifactPickerAction(artifactReference);
             }
         });
     }

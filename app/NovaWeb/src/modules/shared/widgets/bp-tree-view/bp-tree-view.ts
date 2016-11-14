@@ -81,8 +81,8 @@ export interface IColumn {
     colWidth?: number;
     minColWidth?: number;
     isGroup?: boolean;
-    isCheckboxSelection?: Function | boolean;
-    isCheckboxHidden?: Function | boolean;
+    isCheckboxSelection?: boolean;
+    isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeViewNode) => string[];
     innerRenderer?: (params: IColumnRendererParams) => string;
 }

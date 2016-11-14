@@ -625,6 +625,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             deferred.resolve(it);
 
         }).catch((error: IApplicationError) => {
+            if (error.statusCode === HttpStatusCode.Conflict && error.errorContent) {
+                error.message = 
+                `Artifact ${error.errorContent.name} (${error.errorContent.prefix || ""}${error.errorContent.id}) is already locked by other user.`;
+            }
             this.error.onNext(error);
             deferred.reject(error);
         });

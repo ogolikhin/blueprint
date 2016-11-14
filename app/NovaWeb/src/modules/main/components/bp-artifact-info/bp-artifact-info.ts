@@ -21,7 +21,8 @@ import {
     DiscardAction,
     RefreshAction,
     DeleteAction,
-    OpenImpactAnalysisAction
+    OpenImpactAnalysisAction,
+    MoveAction
 } from "./actions";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {Message, MessageType} from "../../../core/messages/message";
@@ -245,6 +246,7 @@ export class BpArtifactInfoController {
         if (artifact) {
             this.toolbarActions.push(
                 new BPButtonGroupAction(
+                    new MoveAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService, this.dialogService),
                     new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),

@@ -1,6 +1,7 @@
 import * as Grid from "ag-grid/main";
 import {RowNode} from "ag-grid/main";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IArtifactNode} from "../../../managers/project-manager";
 
 /**
  * Usage:
@@ -11,8 +12,7 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *          enable-dragndrop="true"
  *          data-source="$ctrl.datasource"
  *          on-load="$ctrl.doLoad(prms)"
- *          on-select="$ctrl.doSelect(item)"
- *          on-sync="$ctrl.doSync(item)">
+ *          on-select="$ctrl.doSelect(item)">
  * </bp-tree>
  */
 
@@ -34,22 +34,10 @@ export class BPTreeComponent implements ng.IComponentOptions {
         //events
         onLoad: "&?",
         onSelect: "&?",
-        onSync: "&?",
         onRowClick: "&?",
         onRowDblClick: "&?",
         onRowPostCreate: "&?"
     };
-}
-
-export interface ITreeNode {
-    id: number;
-    name: string;
-    itemTypeId: number;
-    hasChildren: boolean;
-    parentNode?: ITreeNode;
-    children?: ITreeNode[];
-    loaded?: boolean;
-    open?: boolean;
 }
 
 export interface IBPTreeController {
@@ -64,7 +52,6 @@ export interface IBPTreeController {
     api: IBPTreeControllerApi;
     onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
-    onSync?: Function;                //to be called on time of ag-grid row selection
     onRowClick?: Function;
     onRowDblClick?: Function;
     onRowPostCreate?: Function;
@@ -95,7 +82,6 @@ export class BPTreeController implements IBPTreeController {
     public gridColumns: any[];
     public onLoad: Function;
     public onSelect: Function;
-    public onSync: Function;
     public onRowClick: Function;
     public onRowDblClick: Function;
     public onRowPostCreate: Function;
@@ -217,7 +203,7 @@ export class BPTreeController implements IBPTreeController {
         },
 
         //sets a new datasource or add a datasource to specific node  children collection
-        reload: (data?: ITreeNode[], nodeId?: number) => {
+        reload: (data?: IArtifactNode[], nodeId?: number) => {
             this._datasource = this._datasource || [];
 
             if (nodeId) {
@@ -258,11 +244,11 @@ export class BPTreeController implements IBPTreeController {
         }
     };
 
-    private getNode(id: number, nodes?: ITreeNode[]): ITreeNode {
-        let item: ITreeNode;
+    private getNode(id: number, nodes?: IArtifactNode[]): IArtifactNode {
+        let item: IArtifactNode;
 
         if (nodes) {
-            nodes.map(function (node: ITreeNode) {
+            nodes.map(function (node: IArtifactNode) {
                 if (!item && node.id === id) {  ///needs to be changed toCamelCase
                     item = node;
                 } else if (!item && node.children) {
@@ -320,7 +306,7 @@ export class BPTreeController implements IBPTreeController {
 
     // Callbacks
 
-    private getNodeChildDetails(node: ITreeNode) {
+    private getNodeChildDetails(node: IArtifactNode) {
         if (node.hasChildren) {
             return {
                 group: true,
@@ -382,10 +368,6 @@ export class BPTreeController implements IBPTreeController {
         }
 
         node.data.open = node.expanded;
-
-        if (_.isFunction(this.onSync)) {
-            this.onSync({item: node.data});
-        }
     };
 
     private rowSelected = (event: {node: RowNode}) => {

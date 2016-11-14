@@ -223,7 +223,7 @@ namespace ArtifactStoreTests
             Assert.AreNotEqual(originalArtifact.Id, copyResult.Artifact.Id,
                 "The ID of the copied artifact should not be the same as the original artifact!");
 
-            ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, originalArtifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact, skipIdAndVersion: true);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);

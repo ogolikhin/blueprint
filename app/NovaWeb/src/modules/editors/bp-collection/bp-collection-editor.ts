@@ -78,7 +78,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
             this.metadataService.get(collectionArtifact.projectId).then(() => {
                 this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
-                    return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService);
+                    return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
                 });
                 this.subscribeOnCollectionChanges(collectionArtifact);
 
@@ -114,7 +114,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         this.visibleArtifact = undefined;
         changes.map((change: IChangeSet) => {
             if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService);
+                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
                 collectionArtifacts.push(addedTreeVM);
                 if (!this.visibleArtifact) {
                     this.visibleArtifact = addedTreeVM;
@@ -315,10 +315,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
 class CollectionNodeVM implements ITreeViewNode {
     public key: string;
-    public isSelectable: boolean = true;
+    public isSelectable: boolean;
 
-    constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService) {
+    constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService,
+                public isArtifactSelectable: boolean) {
         this.key = String(model.id);
+        this.isSelectable = isArtifactSelectable;
     }
 
     public getIcon(): string {

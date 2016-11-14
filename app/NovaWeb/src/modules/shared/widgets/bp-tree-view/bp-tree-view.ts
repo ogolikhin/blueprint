@@ -14,7 +14,6 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *               root-node="$ctrl.rootNode"
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
- *               api="$ctrl.api"
  *               header-height="20"
  *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
@@ -38,7 +37,6 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         columns: "<",
         headerHeight: "<",
         sizeColumnsToFit: "<",
-        isTreeReadOnly: "<",
         // Output
         onSelect: "&?",
         onDoubleClick: "&?",
@@ -117,7 +115,6 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onDoubleClick: (param: {vm: ITreeViewNode}) => void;
     public onError: (param: {reason: any}) => void;
     public onGridReset: () => void;
-    public isTreeReadOnly: boolean;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -134,7 +131,6 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
-        this.isTreeReadOnly = angular.isDefined(this.isTreeReadOnly) ? this.isTreeReadOnly : false;
 
         this.options = {
             suppressRowClickSelection: true,
@@ -374,10 +370,6 @@ export class BPTreeViewController implements IBPTreeViewController {
     };
 
     public onCellClicked = (event: {event: MouseEvent, node: agGrid.RowNode}) => {
-        if (this.isTreeReadOnly) {
-            return;
-        }
-
         // Only deal with clicks in the .ag-group-value span
         let element = event.event.target as Element;
         while (!(element && element.classList.contains("ag-group-value"))) {

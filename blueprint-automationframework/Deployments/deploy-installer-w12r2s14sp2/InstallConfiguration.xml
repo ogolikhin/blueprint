@@ -9,9 +9,9 @@
     <SitePort>8080</SitePort>
     <SiteAuxiliaryPort>9101</SiteAuxiliaryPort>
     <IsHTTP>true</IsHTTP>
-    <SiteHostName>blueprint.net</SiteHostName>
+    <SiteHostName>deploy-installer-w12r2s14sp2.blueprintsys.net</SiteHostName>
     <IsAppPoolAccountCustom>true</IsAppPoolAccountCustom>
-    <AppPoolAccountUsername>bpadmin</AppPoolAccountUsername>
+    <AppPoolAccountUsername>WIN-NT2N2CHOOM4\bpadmin</AppPoolAccountUsername>
     <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
     <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
     <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>

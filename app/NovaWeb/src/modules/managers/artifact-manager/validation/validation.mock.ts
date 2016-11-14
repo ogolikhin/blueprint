@@ -1,4 +1,6 @@
-import { IValidationService, INumberValidation, IDateValidation } from "./";
+import { IValidationService } from "./validation.svc";
+import { INumberValidation } from "./number-validation";
+import { IDateValidation } from "./date-validation";
 import { ILocalizationService } from "../../../core/localization/localizationService";
 
 export class ValidationServiceMock implements IValidationService {

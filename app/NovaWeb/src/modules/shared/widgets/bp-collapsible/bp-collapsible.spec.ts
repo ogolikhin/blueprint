@@ -4,7 +4,7 @@ import {BPCollapsible} from "./bp-collapsible";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 describe("BPCollapsible Directive", () => {
-    var longElement: JQuery;
+    let longElement: JQuery;
 
     beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider, $provide: ng.auto.IProvideService) => {
         $compileProvider.directive("bpCollapsible", BPCollapsible.factory());
@@ -15,12 +15,13 @@ describe("BPCollapsible Directive", () => {
         let ContainterId = "discussion-scrollable-content";
         let collapsibleElementHtml = `<div class='collapsible' bp-collapsible='80' scrollable-container-id=${ContainterId} style='height:250px;'></div>`;
         longElement = angular.element(`<div class='scrollable-content'>${collapsibleElementHtml}</div>`);
-        var scope = $rootScope.$new();
+        const scope = $rootScope.$new();
         let element = $compile(longElement)(scope);
         angular.element("body").append(element);
         scope.$digest();
         let perfectScrollbar = {};
         perfectScrollbar["update"] = () => {
+            return;
         };
         (<any>window).PerfectScrollbar = perfectScrollbar;
     }));

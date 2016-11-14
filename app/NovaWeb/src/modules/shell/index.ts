@@ -24,8 +24,8 @@ import {ArtifactDiscussions} from "./bp-utility-panel/bp-discussion-panel/artifa
 import {BPDiscussionPanel} from "./bp-utility-panel/bp-discussion-panel/bp-discussions-panel";
 import {BPArtifactDiscussionItem} from "./bp-utility-panel/bp-discussion-panel/bp-artifact-discussion-item/bp-artifact-discussion-item";
 import {BPAttachmentsPanel} from "./bp-utility-panel/bp-attachments-panel/bp-attachments-panel";
-import {BPArtifactAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-attachment-item/bp-artifact-attachment-item";
-import {BPArtifactDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-artifact-document-item/bp-artifact-document-item";
+import {BPAttachmentItem} from "./bp-utility-panel/bp-attachments-panel/bp-attachment-item/bp-attachment-item";
+import {BPDocumentItem} from "./bp-utility-panel/bp-attachments-panel/bp-document-item/bp-document-item";
 import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-discussion-reply-item/bp-discussion-reply-item";
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {ErrorComponent} from "./error/error.component";
@@ -68,8 +68,8 @@ angular.module("app.shell",
     .component("bpDiscussionPanel", new BPDiscussionPanel())
     .component("bpArtifactDiscussionItem", new BPArtifactDiscussionItem())
     .component("bpAttachmentsPanel", new BPAttachmentsPanel())
-    .component("bpArtifactAttachmentItem", new BPArtifactAttachmentItem())
-    .component("bpArtifactDocumentItem", new BPArtifactDocumentItem())
+    .component("bpAttachmentItem", new BPAttachmentItem())
+    .component("bpDocumentItem", new BPDocumentItem())
     .component("bpDiscussionReplyItem", new BPDiscussionReplyItem())
     .component("bpCommentEdit", new BPCommentEdit())
     .component("error", new ErrorComponent())

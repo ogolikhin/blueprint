@@ -26,6 +26,7 @@ describe("BPToggleAction", () => {
         // arrange
         const type = "toggle";
         const execute = () => {
+            return;
         };
         const canExecute = () => true;
         const item1 = new BPToggleItemAction("test1", 1, true, "test1", "test1");

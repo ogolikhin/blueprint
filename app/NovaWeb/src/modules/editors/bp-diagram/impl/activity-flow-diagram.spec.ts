@@ -15,16 +15,16 @@ import {IShapeTemplates} from "./abstract-diagram-factory";
 describe("UsecaseShapeFactory ", () => {
     it("PrePostCondition template Test", () => {
         // Arrange
-        var factory = new UsecaseShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const factory = new UsecaseShapeFactory();
+        const templates = <IShapeTemplates>{};
         factory.initTemplates(templates);
-        var shape = {};
+        const shape = {};
 
         // Act
-        var template = templates[Shapes.PRE_POST_CONDITION](<IShape>shape);
+        const template = templates[Shapes.PRE_POST_CONDITION](<IShape>shape);
 
         // Assert
-        var style = Style.createFromString(template.getStyle());
+        const style = Style.createFromString(template.getStyle());
 
         expect(style[mxConstants.STYLE_SHAPE]).toEqual(mxConstants.SHAPE_ELLIPSE);
         expect(style[mxConstants.STYLE_ALIGN]).toEqual(mxConstants.ALIGN_CENTER);
@@ -37,16 +37,16 @@ describe("UsecaseShapeFactory ", () => {
 
     it("Branching step template Test", () => {
         // Arrange
-        var factory = new UsecaseShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const factory = new UsecaseShapeFactory();
+        const templates = <IShapeTemplates>{};
         factory.initTemplates(templates);
-        var shape = {};
+        const shape = {};
 
         // Act
-        var template = templates[Shapes.BRANCHING](<IShape>shape);
+        const template = templates[Shapes.BRANCHING](<IShape>shape);
 
         // Assert
-        var style = Style.createFromString(template.getStyle());
+        const style = Style.createFromString(template.getStyle());
 
         expect(style[mxConstants.STYLE_SHAPE]).toEqual(mxConstants.SHAPE_RHOMBUS);
         expect(style[mxConstants.STYLE_STROKECOLOR]).toEqual(UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR);
@@ -57,16 +57,16 @@ describe("UsecaseShapeFactory ", () => {
 
     it("Exit step template Test", () => {
         // Arrange
-        var factory = new UsecaseShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const factory = new UsecaseShapeFactory();
+        const templates = <IShapeTemplates>{};
         factory.initTemplates(templates);
-        var shape = {};
+        const shape = {};
 
         // Act
-        var template = templates[Shapes.EXIT](<IShape>shape);
+        const template = templates[Shapes.EXIT](<IShape>shape);
 
         // Assert
-        var style = Style.createFromString(template.getStyle());
+        const style = Style.createFromString(template.getStyle());
 
         expect(style[mxConstants.STYLE_SHAPE]).toEqual(mxConstants.SHAPE_ELLIPSE);
         expect(style[mxConstants.STYLE_STROKECOLOR]).toEqual(UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR);
@@ -77,20 +77,20 @@ describe("UsecaseShapeFactory ", () => {
 
     it("Condition step template Test", () => {
         // Arrange
-        var factory = new UsecaseShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const factory = new UsecaseShapeFactory();
+        const templates = <IShapeTemplates>{};
         factory.initTemplates(templates);
-        var shape: any = {
+        const shape: any = {
             element: {
                 condition: true
             }
         };
 
         // Act
-        var template = templates[Shapes.STEP](<IUseCaseShape>shape);
+        const template = templates[Shapes.STEP](<IUseCaseShape>shape);
 
         // Assert
-        var style = Style.createFromString(template.getStyle());
+        const style = Style.createFromString(template.getStyle());
 
         expect(style[mxConstants.STYLE_SHAPE]).toEqual(mxConstants.SHAPE_RECTANGLE);
         expect(style[mxConstants.STYLE_STROKECOLOR]).toEqual(UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR);
@@ -104,20 +104,20 @@ describe("UsecaseShapeFactory ", () => {
 
     it("System step template Test", () => {
         // Arrange
-        var factory = new UsecaseShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const factory = new UsecaseShapeFactory();
+        const templates = <IShapeTemplates>{};
         factory.initTemplates(templates);
-        var shape: any = {
+        const shape: any = {
             element: {
                 stepOf: StepOfType.System
             }
         };
 
         // Act
-        var template = templates[Shapes.STEP](<IUseCaseShape>shape);
+        const template = templates[Shapes.STEP](<IUseCaseShape>shape);
 
         // Assert
-        var style = Style.createFromString(template.getStyle());
+        const style = Style.createFromString(template.getStyle());
 
         expect(style[mxConstants.STYLE_SHAPE]).toEqual(mxConstants.SHAPE_RECTANGLE);
         expect(style[mxConstants.STYLE_STROKECOLOR]).toEqual(UsecaseShapeFactory.DEFAULT_SHAPE_STROKE_COLOR);
@@ -131,16 +131,16 @@ describe("UsecaseShapeFactory ", () => {
 
     it("Connector template Test", () => {
         // Arrange
-        var factory = new UsecaseShapeFactory();
-        var templates = <IShapeTemplates>{};
+        const factory = new UsecaseShapeFactory();
+        const templates = <IShapeTemplates>{};
         factory.initTemplates(templates);
-        var connection: any = {};
+        const connection: any = {};
 
         // Act
-        var template = factory.createConnectorTemplate()(<IConnection>connection);
+        const template = factory.createConnectorTemplate()(<IConnection>connection);
 
         // Assert
-        var style = Style.createFromString(template.getStyle());
+        const style = Style.createFromString(template.getStyle());
 
         expect(style[mxConstants.STYLE_SHAPE]).toEqual(mxConstants.SHAPE_CONNECTOR);
         expect(style[mxConstants.STYLE_STROKEWIDTH]).toEqual(UsecaseShapeFactory.DEFAULT_CONNECTOR_STROKE_WIDTH.toString());

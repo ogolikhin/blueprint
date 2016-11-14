@@ -1,15 +1,15 @@
 <TestConfiguration>
 
-  <BlueprintServer address="http://deploy-installer-w12r2s14sp1.blueprintsys.net/" username="admin" password="$Admin93" />
+  <BlueprintServer address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:441/" username="admin" password="$Admin93" />
 
   <BlueprintServices>
-    <Service name="AdminStore"    address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
-    <Service name="AccessControl" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:83" />
-    <Service name="ArtifactStore" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
-    <Service name="ConfigControl" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:83" />
-    <Service name="FileStore"     address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
-    <Service name="Storyteller"   address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
-    <Service name="SearchService" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net" />
+    <Service name="AdminStore"    address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:441" />
+    <Service name="AccessControl" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:9101" />
+    <Service name="ArtifactStore" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:441" />
+    <Service name="ConfigControl" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:9101" />
+    <Service name="FileStore"     address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:441" />
+    <Service name="Storyteller"   address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:441" />
+    <Service name="SearchService" address="http://deploy-installer-w12r2s14sp1.blueprintsys.net:441" />
   </BlueprintServices>
 
   <Databases>

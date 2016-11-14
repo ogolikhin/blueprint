@@ -38,13 +38,13 @@
 
             <div class="separator"></div>
 
-            <bp-artifact-attachment-item
+            <bp-attachment-item
                 class="utility-panel-artifact-item"
                 ng-class="{'new-attachment': attachment.guid}"
                 attachment-info="attachment"
                 delete-item="$ctrl.deleteAttachment(attachment)"
                 can-change-attachments="!$ctrl.item.artifactState.readonly">
-            </bp-artifact-attachment-item>
+            </bp-attachment-item>
         </div>
     </div>
     <div ng-if="!$ctrl.attachmentsList.length && $ctrl.categoryFilter === 1"
@@ -59,12 +59,12 @@
 
             <div class="separator"></div>
 
-            <bp-artifact-document-item
+            <bp-document-item
                 class="utility-panel-artifact-item"
                 doc-ref-info="document"
                 delete-item="$ctrl.deleteDocRef(document)"
                 can-change-attachments="!$ctrl.item.artifactState.readonly">
-            </bp-artifact-document-item>
+            </bp-document-item>
         </div>
     </div>
     <div ng-if="!$ctrl.docRefList.length && $ctrl.categoryFilter === 2"

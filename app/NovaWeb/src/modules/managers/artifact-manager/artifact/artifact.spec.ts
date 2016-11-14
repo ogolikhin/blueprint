@@ -687,6 +687,93 @@ describe("Artifact", () => {
     });
 
 
+     describe("Delete", () => {
+       it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+             // arrange
+          // act
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+          
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.resolve([{
+                    id: 1, name: "TEST"
+                }]);
+                return deferred.promise;
+            });
+            let result;
+           artifact.delete().then((it) => {
+               result = it;
+           });
+           $rootScope.$digest();
+          // assert
+           expect(result).toBeDefined();
+           expect(result).toEqual(jasmine.any(Array));
+           expect(error).toBeUndefined();
+           expect(artifact.artifactState.deleted).toBeTruthy();
+         }));
+
+         it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+             // arrange
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                 const deferred = $q.defer<any>();
+                 deferred.reject({
+                     statusCode: HttpStatusCode.Conflict
+                 });
+                 return deferred.promise;
+             });
+
+             // act
+             
+             artifact.delete();
+             $rootScope.$digest();
+
+             // assert
+             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+             expect(artifact.artifactState.deleted).toBeFalsy();
+         }));
+
+         it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+             // arrange
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                 const deferred = $q.defer<any>();
+                 deferred.reject({
+                     statusCode: HttpStatusCode.Conflict,
+                     errorContent : {
+                         id: 222,
+                         name: "TEST",
+                         prefix: "PREFIX"
+                     }
+                 });
+                 return deferred.promise;
+             });
+             const errormessage = "Artifact TEST (PREFIX222) is already locked by other user.";
+             // act
+             
+             artifact.delete();
+             $rootScope.$digest();
+
+             // assert
+             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+             expect(error.message).toEqual(errormessage);
+             expect(artifact.artifactState.deleted).toBeFalsy();
+         }));
+
+
+
+     });
+
+
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {
             // arrange

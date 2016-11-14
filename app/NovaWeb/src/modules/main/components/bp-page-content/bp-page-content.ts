@@ -41,6 +41,7 @@ class PageContentCtrl {
         // When selection is empty we need to remove breascrumb
         if (!selection.artifact && !selection.subArtifact) {
             this.currentArtifact = null;
+            this.mainBreadcrumbService.breadcrumbLinks = [];
             return;
         }
         if (this.currentArtifact === selection.artifact) {

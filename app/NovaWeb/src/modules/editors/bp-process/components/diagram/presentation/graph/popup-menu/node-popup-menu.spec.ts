@@ -116,6 +116,7 @@ describe("Popup Menu", () => {
         popupMenu.insertionPoint["__proto__"]["edge"] = false;
         popupMenu.insertionPoint["__proto__"]["vertex"] = true;
         popupMenu.insertionPoint["getNodeType"] = () => {
+            return;
         };
 
         let menu = new mxPopupMenu();

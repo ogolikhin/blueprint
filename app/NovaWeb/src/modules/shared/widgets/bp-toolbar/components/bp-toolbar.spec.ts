@@ -36,8 +36,10 @@ describe("BPToolbar", () => {
         const template = `<bp-toolbar-2 actions="actions"></bp-toolbar-2>`;
         const actions = [
             new BPButtonAction(() => {
+                return;
             }, () => true, "test1", "test1", "test1"),
             new BPButtonAction(() => {
+                return;
             }, () => true, "test2", "test2", "test2")
         ];
         $scope["actions"] = actions;

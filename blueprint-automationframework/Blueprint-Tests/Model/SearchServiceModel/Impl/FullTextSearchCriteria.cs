@@ -19,7 +19,12 @@ namespace Model.SearchServiceModel.Impl
         /// <summary>
         /// The ids of the artifact types to include in the search scope.
         /// </summary>
-        public IEnumerable<int> ItemTypeIds { get; set; }
+        public IEnumerable<int> PredefinedTypeIds { get; set; }
+
+        /// <summary>
+        /// Should return Project Path for the results.
+        /// </summary>
+        public bool? IncludeArtifactPath { get; set; }
 
         #endregion JSON serialized properties
 
@@ -30,9 +35,10 @@ namespace Model.SearchServiceModel.Impl
 
         public FullTextSearchCriteria(string query, IEnumerable<int> projectIds, IEnumerable<int> itemTypeIds = null)
         {
-            this.Query = query;
-            this.ProjectIds = projectIds;
-            this.ItemTypeIds = itemTypeIds;
+            Query = query;
+            ProjectIds = projectIds;
+            PredefinedTypeIds = itemTypeIds;
+            IncludeArtifactPath = true;
         }
 
         public FullTextSearchCriteria(string query, int projectId, IEnumerable<int> itemTypeIds = null) :

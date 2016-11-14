@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import {IDialogService, ITreeNode} from "../../shared";
+import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {ArtifactNode} from "./artifact-node";
 import {IDispose} from "../models";
@@ -13,13 +13,17 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
-export interface IArtifactNode extends ITreeNode, IDispose {
+export interface IArtifactNode extends IDispose {
     artifact: IStatefulArtifact;
+
+    id: number;
+    name: string;
+    hasChildren: boolean;
+    parentNode?: IArtifactNode;
     children?: IArtifactNode[];
-    parentNode: IArtifactNode;
-    projectId: number;
-    permissions: Enums.RolePermissions;
-    predefinedType: Enums.ItemTypePredefined;
+    loaded?: boolean;
+    open?: boolean;
+
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
 }
 
@@ -352,7 +356,7 @@ export class ProjectManager implements IProjectManager {
     public remove(projectId: number) {
         this.artifactManager.removeAll(projectId);
         const projects = this.projectCollection.getValue().filter((project) => {
-            if (project.projectId === projectId) {
+            if (project.artifact.projectId === projectId) {
                 project.dispose();
                 return false;
             }
@@ -364,7 +368,7 @@ export class ProjectManager implements IProjectManager {
 
     public removeAll() {
         this.projectCollection.getValue().forEach((project) => {
-            this.artifactManager.removeAll(project.projectId);
+            this.artifactManager.removeAll(project.artifact.projectId);
             project.dispose();
         });
         this.projectCollection.onNext([]);
@@ -373,7 +377,7 @@ export class ProjectManager implements IProjectManager {
     public loadArtifact(id: number): ng.IPromise<any> {
         let node: IArtifactNode = this.getArtifactNode(id);
         if (node) {
-            return this.projectService.getArtifacts(node.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
+            return this.projectService.getArtifacts(node.artifact.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
                 node.children = data.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);

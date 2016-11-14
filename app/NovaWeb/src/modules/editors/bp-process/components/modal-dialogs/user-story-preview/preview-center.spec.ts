@@ -8,10 +8,10 @@ import {SystemTask} from "../../diagram/presentation/graph/shapes/";
 //TODO: Need to wait for ArtifactManagerMock to be done and then we can include PreviewCenter tests back
 xdescribe("PreviewCenter Directive", () => {
 
-    var element: ng.IAugmentedJQuery;
-    var controller: PreviewCenterController;
-    var scope: ng.IScope;
-    var directiveWrapper: string;
+    let element: ng.IAugmentedJQuery;
+    let controller: PreviewCenterController;
+    let scope: ng.IScope;
+    let directiveWrapper: string;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
         $compileProvider.component("previewCenter", new PreviewCenterComponent());
@@ -93,7 +93,7 @@ xdescribe("PreviewCenter Directive", () => {
 
     it("showMore br", (inject(() => {
         //Arrange
-        var event = jQuery.Event("keydown", {
+        const event = jQuery.Event("keydown", {
             keyCode: 13
         });
         spyOn(controller, "resizeContentAreas");
@@ -107,7 +107,7 @@ xdescribe("PreviewCenter Directive", () => {
 
     it("showMore nfr", (inject(() => {
         //Arrange
-        var event = jQuery.Event("keydown", {
+        const event = jQuery.Event("keydown", {
             keyCode: 13
         });
         spyOn(controller, "resizeContentAreas");

@@ -24,7 +24,7 @@
 //     ArtifactRelationshipsService }
 //     from "../../../managers/artifact-manager";
 
-// describe("Component BPDiscussionPanel", () => {
+xdescribe("Component BPDiscussionPanel", () => {
 
 //     let directiveTest: ComponentTest<BPDiscussionPanelController>;
 //     let template = `<bp-discussion-panel></bp-discussion-panel>`;
@@ -60,14 +60,14 @@
 //         vm = null;
 //     });
 
-// it("should be visible by default", () => {
+it("should be visible by default", () => {
 //     //Assert
 //     expect(directiveTest.element.find(".filter-bar").length).toBe(0);
 //     expect(directiveTest.element.find(".empty-state").length).toBe(1);
 //     expect(directiveTest.element.find(".scrollable-content").length).toBe(0);
-// });
+});
 
-// it("should be read-only for newly created sub-artifacts",
+it("should be read-only for newly created sub-artifacts", (() => {//
 //     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
 //     //Arrange
 //     const artifact = statefulArtifactFactory.createStatefulArtifact({
@@ -96,9 +96,9 @@
 //     //Assert
 //     expect(vm.canCreate).toBeFalsy();
 //     expect(vm.canDelete).toBeFalsy();
-// }));
+}));
 
-// it("should load data for a selected artifact",
+it("should load data for a selected artifact", (() => {//
 //     inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
 //         //Arrange
 //         const artifact = statefulArtifactFactory.createStatefulArtifact({
@@ -115,9 +115,9 @@
 //             //Assert
 //             expect(artifact).toBeDefined();
 //             expect(vm.artifactDiscussionList.length).toBe(2);
-//         }));
+        }));
 
-//     it("should not load data for a artifact of incorrect type",
+    it("should not load data for a artifact of incorrect type", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
 //             //Arrange
 //             const artifact = statefulArtifactFactory.createStatefulArtifact({
@@ -135,9 +135,9 @@
 //             expect(vm.artifactDiscussionList.length).toBe(0);
 //             expect(vm.canCreate).toBe(false);
 //             expect(vm.canDelete).toBe(false);
-//         }));
+        }));
 
-//     it("should load replies for expanded discussion",
+    it("should load replies for expanded discussion", (() => {//
 //         inject(($rootScope: ng.IRootScopeService,
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -158,9 +158,9 @@
 //             //Assert
 //             expect(vm.artifactDiscussionList[0].expanded).toBe(true);
 //             expect(vm.artifactDiscussionList[0].replies.length).toBe(1);
-//         }));
+        }));
 
-//     it("should throw exception for expanded discussion",
+    it("should throw exception for expanded discussion", (() => {//
 //         inject(($rootScope: ng.IRootScopeService,
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
@@ -194,9 +194,9 @@
 //             //Assert
 //             expect(vm.artifactDiscussionList[0].expanded).toBe(true);
 //             expect(vm.artifactDiscussionList[0].replies.length).toBe(0);
-//         }));
+        }));
 
-//     it("expanded should be false for collapsed discussion",
+    it("expanded should be false for collapsed discussion", (() => {//
 //         inject(($rootScope: ng.IRootScopeService,
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -216,9 +216,9 @@
 
 //             //Assert
 //             expect(vm.artifactDiscussionList[0].expanded).toBe(false);
-//         }));
+        }));
 
-//     it("add discussion should return default discussion",
+    it("add discussion should return default discussion", (() => {//
 //         inject(($rootScope: ng.IRootScopeService,
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -238,9 +238,9 @@
 
 //             //Assert
 //             expect(newDiscussion).toBeDefined;
-//         }));
+        }));
 
-//     it("add discussion throws exception",
+    it("add discussion throws exception", (() => {//
 //         inject(($rootScope: ng.IRootScopeService,
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
@@ -271,9 +271,9 @@
 
 //             //Assert
 //             expect(newDiscussion).toBeUndefined;
-//         }));
+        }));
 
-//     it("add discussion reply should return default reply",
+    it("add discussion reply should return default reply", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -294,9 +294,9 @@
 //             //Assert
 //             expect(newReply).toBeDefined;
 //             expect(newReply).not.toBeNull;
-//         }));
+        }));
 
-//     it("add discussion reply throws exception",
+    it("add discussion reply throws exception", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
@@ -327,9 +327,9 @@
 
 //             //Assert
 //             expect(newReply).toBeUndefined;
-//         }));
+        }));
 
-//     it("Clicking new comment shows add comment",
+    it("Clicking new comment shows add comment", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -348,9 +348,9 @@
 //             //Assert
 //             expect(vm.showAddComment).toBe(true);
 //             expect(vm.artifactDiscussionList[1].showAddReply).toBe(false);
-//         }));
+        }));
 
-//     it("Clicking cancel comment hides add comment",
+    it("Clicking cancel comment hides add comment", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -370,9 +370,9 @@
 
 //             //Assert
 //             expect(vm.showAddComment).toBe(false);
-//         }));
+        }));
 
-//     it("Editing discussion should move it to the first",
+    it("Editing discussion should move it to the first", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -393,8 +393,8 @@
 
 //             //Assert
 //             expect(vm.artifactDiscussionList[0].discussionId).toBe(secondDiscussionId);
-//         }));
-//     it("delete comment success, replies reloaded.",
+        }));
+    it("delete comment success, replies reloaded.", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager,
 //                 statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService, $q: ng.IQService) => {
 //             //Arrange
@@ -460,9 +460,9 @@
 //             $rootScope.$digest();
 //             //Assert
 //             expect(discussion.replies[0].replyId).toBe(2);
-//         }));
+        }));
 
-//     it("delete comment thread success, discussions reloaded.",
+    it("delete comment thread success, discussions reloaded.", (() => {//
 //         inject(($rootScope: ng.IRootScopeService,
 //                 artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory, $timeout: ng.ITimeoutService) => {
 //             //Arrange
@@ -507,5 +507,5 @@
 //             expect(vm.artifactDiscussionList[0].itemId).toBe(1);
 //             expect(vm.artifactDiscussionList[0].discussionId).toBe(1);
 //             expect(vm.artifactDiscussionList[0].lastEditedOn).toBe("2016-05-31T17:19:53.07");
-//         }));
-// });
+        }));
+});

@@ -20,14 +20,13 @@ export interface IProjectExplorerController {
     columns: any[];
     doLoad: Function;
     doSelect: Function;
-    doSync: Function;
 }
 
 export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
-    private selectedArtifactNameBeforeChange: string;
+    private selectedArtifactId: number;
     private isFullReLoad: boolean;
 
     public static $inject: [string] = [
@@ -76,7 +75,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 }
             }
         } else {
-            this.tree.clearSelection();
+            this.tree.deselectAll();
 
             this.selected = null;
         }
@@ -96,7 +95,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
 
         if (value) {
-            this.selectedArtifactNameBeforeChange = value.name;
+            this.selectedArtifactId = value.id;
 
             this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
@@ -112,24 +111,23 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
             this.tree.reload(projects);
 
-            let currentSelection = this.selected ? this.selected.id : undefined;
+            const currentSelectionId = this.selectedArtifactId;
             let navigateToId: number;
             if (projects && projects.length > 0) {
-                if (!this.selected || this.numberOfProjectsOnLastLoad !== projects.length) {
+                if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== projects.length) {
                     this.setSelectedNode(projects[0].artifact.id);
-                    navigateToId = this.selected.id;
+                    navigateToId = this.selectedArtifactId;
                 }
 
-                if (this.tree.nodeExists(this.selected.id)) {
+                if (this.tree.nodeExists(this.selectedArtifactId)) {
                     //if node exists in the tree
-                    if (this.isFullReLoad || this.selected.id !== this.tree.getSelectedNodeId()) {
-                        this.tree.selectNode(this.selected.id);
-                        navigateToId = this.selected.id;
+                    if (this.isFullReLoad || this.selectedArtifactId !== this.tree.getSelectedNodeId()) {
+                        navigateToId = this.selectedArtifactId;
                     }
                     this.isFullReLoad = true;
 
                     //replace with a new object from tree, since the selected object may be stale after refresh
-                    this.setSelectedNode(this.selected.id);
+                    this.setSelectedNode(this.selectedArtifactId);
                 } else {
                     //otherwise, if parent node is in the tree
                     if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
@@ -140,9 +138,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
                         this.setSelectedNode(this.selected.parentNode.id);
                     } else {
                         //otherwise, try with project node
-                        if (this.tree.nodeExists(this.selected.projectId)) {
-                            this.tree.selectNode(this.selected.projectId);
-                            navigateToId = this.selected.projectId;
+                        if (this.tree.nodeExists(this.selected.artifact.projectId)) {
+                            this.tree.selectNode(this.selected.artifact.projectId);
+                            navigateToId = this.selected.artifact.projectId;
                         }
                     }
                 }
@@ -151,10 +149,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             this.numberOfProjectsOnLastLoad = projects.length;
 
             if (_.isFinite(navigateToId)) {
-                if (navigateToId !== currentSelection) {
+                if (navigateToId !== currentSelectionId) {
                     this.navigationService.navigateTo({ id: navigateToId });
-
-                } else if (navigateToId === currentSelection) {
+                } else {
                     this.navigationService.reloadParentState();
                 }
             }
@@ -180,17 +177,18 @@ export class ProjectExplorerController implements IProjectExplorerController {
         headerName: "",
         field: "name",
         cellClass: function (params) {
+            const node = params.data as IArtifactNode;
             let css: string[] = [];
 
-            if (params.data.hasChildren) {
+            if (node.hasChildren) {
                 css.push("has-children");
             }
             let typeName: string;
-            if (params.data.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
-                params.data.parentNode.predefinedType === Models.ItemTypePredefined.Project) {
+            if (node.artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
+                node.parentNode.artifact.predefinedType === Models.ItemTypePredefined.Project) {
                 typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
             } else {
-                typeName = Models.ItemTypePredefined[params.data.predefinedType];
+                typeName = Models.ItemTypePredefined[node.artifact.predefinedType];
             }
             if (typeName) {
                 css.push("is-" + _.kebabCase(typeName));
@@ -201,9 +199,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
         cellRenderer: "group",
         cellRendererParams: {
             innerRenderer: (params) => {
+                const node = params.data as IArtifactNode;
                 let icon = "<i ng-drag-handle></i>";
-                const name = Helper.escapeHTMLText(params.data.name);
-                const artifact = (params.data as IArtifactNode).artifact;
+                const name = Helper.escapeHTMLText(node.name);
+                const artifact = node.artifact;
                 if (_.isFinite(artifact.itemTypeIconId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifact.itemTypeId}"
@@ -233,22 +232,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     };
 
     public doSelect = (node: IArtifactNode) => {
-        this.doSync(node);
         this.selected = node;
         this.navigationService.navigateTo({ id: node.id });
-    };
-
-    public doSync = (node: IArtifactNode): IStatefulArtifact => {
-        //check passed in parameter
-        let artifactNode = this.projectManager.getArtifactNode(node.id);
-
-        if (artifactNode.children && artifactNode.children.length) {
-            angular.extend(artifactNode, {
-                loaded: node.loaded,
-                open: node.open
-            });
-        }
-
-        return artifactNode.artifact;
     };
 }

@@ -9,24 +9,24 @@ describe("Filter: Moment Date", () => {
 
     // Provide any mocks needed
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-
+        return;
     }));
 
     // Inject in angular constructs otherwise,
     //  you would need to inject these into each test
     beforeEach(inject(($filter: ng.IFilterService) => {
-        momentFilter = $filter('momentDate')
+        momentFilter = $filter("momentDate");
     }));
 
-    it('should exist', () => {
+    it("should exist", () => {
         expect(!!momentFilter).toBe(true);
     });
 
-    it('should parse date', () => {
+    it("should parse date", () => {
         const tempDate = new Date("October 11 1980");
 
-        expect(momentFilter(tempDate)).toBe('1980-10-11T00:00:00-04:00');
-        expect(momentFilter(tempDate, 'MMMM DD, YYYY')).toBe("October 11, 1980")
-    })
+        expect(momentFilter(tempDate)).toBe("1980-10-11T00:00:00-04:00");
+        expect(momentFilter(tempDate, "MMMM DD, YYYY")).toBe("October 11, 1980");
+    });
 
 });

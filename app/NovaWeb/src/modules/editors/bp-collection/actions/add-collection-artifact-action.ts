@@ -19,11 +19,11 @@ export class AddCollectionArtifactAction extends BPButtonAction {
                 }
 
                 const dialogSettings = <IDialogSettings>{
-                    okButton: localization.get("App_Button_Open"),
+                    okButton: localization.get("App_Button_Add"),
                     template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
                     controller: ArtifactPickerDialogController,
                     css: "nova-open-project",
-                    header: localization.get("App_Properties_Actor_InheritancePicker_Title")
+                    header: localization.get("Artifact_Collection_Add_Artifacts_Picker_Header")
                 };
 
                 const dialogData: IArtifactPickerOptions = {
@@ -37,11 +37,11 @@ export class AddCollectionArtifactAction extends BPButtonAction {
                     }
                 };
 
-                dialogService.open(dialogSettings, dialogData).then((artifacts: Models.IArtifact[]) => {
+                dialogService.open(dialogSettings, dialogData).then((artifacts: Models.IArtifact[]) => {                        
                     if (artifacts && artifacts.length > 0) {
                             artifact.addArtifactsToCollection(artifacts);
                         }
-                    });
+                    });                
                 },
             (): boolean => {
                 if (!artifact) {

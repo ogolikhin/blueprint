@@ -70,6 +70,7 @@ function Build-Nova-Html{
         [Parameter(Mandatory=$true)][string]$msBuildVerbosity,
         [Parameter(Mandatory=$true)][string]$visualStudioVersion,
         [Parameter(Mandatory=$false)][bool] $RunTests = $true,
+        [Parameter(Mandatory=$false)][bool] $BuildDebug = $false,
 
         #Unused, for splatting the same hashtable into multiple methods without error.
         [Parameter(ValueFromRemainingArguments=$true)] $vars
@@ -79,19 +80,22 @@ function Build-Nova-Html{
 
     try
     {
-       pushd "$workspace\app\NovaWeb"
+        pushd "$workspace\app\NovaWeb"
    
-       Invoke-MyExpression "npm" "install"
-       Invoke-MyExpression "npm" "update"
-       Invoke-MyExpression "typings" "i"
+        Invoke-MyExpression "npm" "install"
+        Invoke-MyExpression "npm" "update"
 
-       # Increment build version number
-       $version = $blueprintVersion.split(".")
-       $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
-       Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
+        # Increment build version number
+        $version = $blueprintVersion.split(".")
+        $semver = $version[0] + "." + $version[1] + "." + $version[2] + "-" + $version[3]
+        Invoke-MyExpression "npm" "version $semver" -ignoreErrorCode
 
-       # Build Nova Application
-       Invoke-MyExpression "npm" "run build"
+        # Build Nova Application
+        if($BuildDebug) {
+            Invoke-MyExpression "npm" "run build -- --debug"
+        } else {
+            Invoke-MyExpression "npm" "run build"
+        }
 
         if($RunTests)
         {

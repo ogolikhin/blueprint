@@ -1,22 +1,15 @@
-import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
-import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
-import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {
-    IProcessGraph,
-    IDiagramNode,
-    IDiagramNodeElement,
-    ISystemTask,
-    ILabel,
-    NodeType,
-    NodeChange,
-    ElementType} from "../models/";
-import {ShapesFactory} from "./shapes-factory";
-import {DiagramNodeElement} from "./diagram-element";
-import {DiagramNode} from "./diagram-node";
-import {NodeFactorySettings} from "./node-factory-settings";
-import {Button} from "../buttons/button";
-import {Label, LabelStyle} from "../labels/label";
-import {ProcessEvents} from "../../../process-diagram-communication";
+import { ISystemTaskShape, PropertyTypePredefined, IArtifactReference } from "../../../../../models/process-models";
+import { ItemIndicatorFlags, ProcessShapeType } from "../../../../../models/enums";
+import { ModalDialogType } from "../../../../modal-dialogs/modal-dialog-constants";
+import { IProcessGraph, IDiagramNode, IDiagramNodeElement } from "../models/";
+import { ISystemTask, NodeType, NodeChange, ElementType } from "../models/";
+import { ShapesFactory } from "./shapes-factory";
+import { DiagramNodeElement } from "./diagram-element";
+import { DiagramNode } from "./diagram-node";
+import { NodeFactorySettings} from "./node-factory-settings";
+import { Button } from "../buttons/button";
+import { Label, LabelStyle, LabelType, ILabel } from "../labels/label";
+import { ProcessEvents } from "../../../process-diagram-communication";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 
@@ -319,9 +312,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.header.getWidth() - 4,
             "#4C4C4C"
         );
-        this.personaLabel = new Label((value: string) => {
-                this.persona = value;
-            },
+        // Note: persona label is readonly
+        this.personaLabel = new Label(
+            LabelType.Persona, 
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
@@ -329,7 +322,15 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            true // readonly 
+        );
+
+        // handle persona label double click event 
+        // open modal dialog so user can change the persona
+
+        this.personaLabel.onDblClick = () => {
+            this.openDialog(ModalDialogType.SystemTaskDetailsDialogType);
+        };
 
         let cell = mxGraph.addCell(this.header, this.callout);
 
@@ -347,9 +348,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             "#4C4C4C",
             "white"
         );
-        this.textLabel = new Label((value: string) => {
-                this.label = value;
-            },
+        this.textLabel = new Label(
+            LabelType.Text,
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -357,7 +357,13 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly 
+         );
+
+        // handle label change event 
+        this.textLabel.onTextChange = (value: string) => {
+            this.label = value;
+        };
 
         cell = mxGraph.addCell(this.bodyCell, this.callout);
 
@@ -426,11 +432,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     private openDialog(dialogType: ModalDialogType) {
         this.dialogManager.openDialog(this.model.id, dialogType);
-
-        // #TODO implement new mechanism for opening modal dialogs
-        //this.rootScope.$broadcast(BaseModalDialogController.dialogOpenEventName,
-        //    this.model.id,
-        //    dialogType);
     }
 
     public getLabelCell(): MxCell {

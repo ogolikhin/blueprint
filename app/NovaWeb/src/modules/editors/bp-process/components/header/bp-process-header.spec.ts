@@ -25,12 +25,14 @@ import {ProjectManager} from "../../../../managers/project-manager/project-manag
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {LoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let $compile: ng.ICompileService;
     let controller: BpProcessHeaderController;
+    let localization: LocalizationServiceMock;
     let breadcrumbService: IBreadcrumbService;
     let navigationService: INavigationService;
 
@@ -54,29 +56,30 @@ describe("BpProcessHeader", () => {
         $provide.service("artifactRelationships", ArtifactRelationshipsService);
         $provide.service("projectManager", ProjectManager);
         $provide.service("projectService", ProjectService);
+        $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$compile_: ng.ICompileService,
                        _$q_: ng.IQService,
+                       _localization_: LocalizationServiceMock,
                        _breadcrumbService_: IBreadcrumbService,
                        _navigationService_: INavigationService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         $compile = _$compile_;
+        localization = _localization_;
         breadcrumbService = _breadcrumbService_;
         navigationService = _navigationService_;
     }));
 
-    xit("correctly initializes breadcrumb", () => {
+    it("correctly initializes breadcrumb", () => {
         // arrange
         const deferred = $q.defer();
         deferred.resolve([
-            // should have isEnabled = false since no link
-            {id: 0, name: "link0"},
-            {id: 1, name: "link1", link: "http//link1"},
-            // should have isEnabled = false since last link
-            {id: 2, name: "link2", link: "http://link2"}
+            {id: 0, name: "link0", version: undefined, accessible: false},
+            {id: 1, name: "link1", version: undefined, accessible: true},
+            {id: 2, name: "link2", version: undefined, accessible: true}
         ]);
         spyOn(breadcrumbService, "getReferences").and.returnValue(deferred.promise);
 
@@ -84,19 +87,37 @@ describe("BpProcessHeader", () => {
         const element = $compile(template)($rootScope.$new());
         controller = element.controller("bpProcessHeader");
 
-        const link0 = <IBreadcrumbLink>{id: 0, name: "link0", isEnabled: false};
-        const link1 = <IBreadcrumbLink>{id: 1, name: "link1", isEnabled: true};
-        const link2 = <IBreadcrumbLink>{id: 2, name: "link2", isEnabled: false};
+        // should have isEnabled = false since no link
+        const link0 = <IBreadcrumbLink>{
+            id: 0,
+            name: localization.get("ST_Breadcrumb_InaccessibleArtifact"),
+            version: undefined,
+            isEnabled: false
+        };
+        const link1 = <IBreadcrumbLink>{
+            id: 1,
+            name: "link1",
+            version: undefined,
+            isEnabled: true
+        };
+        // should have isEnabled = false since last link
+        // const link2 = <IBreadcrumbLink>{
+        //     id: 2,
+        //     name: "link2",
+        //     version: undefined,
+        //     isEnabled: false
+        // };
 
         // act
         $rootScope.$digest();
 
         // assert
         expect(controller.breadcrumbLinks).not.toBeNull();
-        expect(controller.breadcrumbLinks.length).toBe(3);
+        expect(controller.breadcrumbLinks.length).toBe(2);
         expect(controller.breadcrumbLinks[0]).toEqual(link0);
         expect(controller.breadcrumbLinks[1]).toEqual(link1);
-        expect(controller.breadcrumbLinks[2]).toEqual(link2);
+        //The process name has been removed from breadcrumb
+        // expect(controller.breadcrumbLinks[2]).toEqual(link2);
     });
 
     describe("navigateTo method", () => {

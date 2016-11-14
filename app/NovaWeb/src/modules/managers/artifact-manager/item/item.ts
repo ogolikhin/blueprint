@@ -267,10 +267,10 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public abstract lock();
 
-    protected isFullArtifactLoadedOrLoading() {
+    protected isFullArtifactLoadedOrLoading(): boolean {
         return (this._customProperties && this._customProperties.isLoaded &&
             this._specialProperties && this._specialProperties.isLoaded) ||
-            this.loadPromise;
+            !!this.loadPromise;
     }
 
     public unload() {
@@ -366,7 +366,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected abstract getRelationshipsInternal(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet> ;
 
     public changes(): Models.IArtifact {
-        let delta: Models.IArtifact = {} as Models.Artifact;
+        const delta = {} as Models.IArtifact;
 
         delta.id = this.id;
         delta.projectId = this.projectId;

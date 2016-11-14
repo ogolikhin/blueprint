@@ -202,8 +202,11 @@ describe("BpArtifactPickerController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {
-                name: "name", getIcon() {
+                getIcon() {
                     return "icon";
+                },
+                getLabel() {
+                    return "name";
                 }
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
@@ -212,6 +215,7 @@ describe("BpArtifactPickerController", () => {
                 $scope: $scope,
                 eGridCell: cell
             };
+
             // Act
             const result = controller.columns[0].innerRenderer(params);
 
@@ -223,8 +227,8 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when ArtifactNodeVM or SubArtifactNodeVM, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3} as Models.IArtifact;
-        const vm = controller.factory.createArtifactNodeVM(model);
         controller.project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
+        const vm = controller.factory.createArtifactNodeVM(controller.project, model);
         controller.onSelectionChanged = jasmine.createSpy("onSelectionChanged");
 
         // Act

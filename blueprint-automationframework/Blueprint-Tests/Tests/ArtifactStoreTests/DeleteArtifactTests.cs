@@ -75,8 +75,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
@@ -309,7 +308,6 @@ namespace ArtifactStoreTests
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug:  3208  Gets a 500 error when deleting the parent.
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
         [TestRail(190725)]
         [Description("Create & publish a grand-parent, parent & child artifact then move the parent to be under the project.  " +
@@ -338,20 +336,19 @@ namespace ArtifactStoreTests
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            Helper.ArtifactStore.PublishArtifacts(artifactChain.ConvertAll(a => (IArtifactBase) a), _user);
+            Helper.ArtifactStore.PublishArtifacts(artifacts: null, user: _user, all: true);
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
-            
+
             // Verify:
-            int expectedArtifactCount = artifactChain.Count;
+            var parentAndChild = artifactChain.GetRange(1, 2);
+            int expectedArtifactCount = parentAndChild.Count;
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
-            var parentAndChild = artifactChain.GetRange(1, 2);
             VerifyDeletedArtifactAndChildrenWereReturned(parentAndChild, deletedArtifacts);
             VerifyArtifactsAreDeleted(parentAndChild);
-            
         }
 
         #endregion 200 OK tests
@@ -435,7 +432,7 @@ namespace ArtifactStoreTests
                 "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", parentArtifact.Id);
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", childArtifact.Id);
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
@@ -451,8 +448,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Create a user without permission to delete the artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
@@ -528,8 +524,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "Failed to delete a published {0}!", artifactType);
@@ -555,8 +550,7 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
                 "Failed to delete a published {0}!", artifactType);
@@ -646,8 +640,8 @@ namespace ArtifactStoreTests
                     "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
 
                 // Verify:
-                string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == parentArtifactType).Prefix;
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, parentArtifact.Id);
+                string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == childArtifactType).Prefix;
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childArtifact.Id);
                 ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally
@@ -672,8 +666,7 @@ namespace ArtifactStoreTests
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
 
             IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            IArtifact artifact = Helper.CreateAndWrapNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
-            artifact.Publish();
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Lock artifact to prevent other users from deleting
             artifact.Lock(userWithLock);
@@ -712,8 +705,8 @@ namespace ArtifactStoreTests
                     "We should get a 409 Conflict when a user tries to delete a Collection Folder when it has a child locked by another user!");
 
                 // Verify:
-                string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.CollectionFolder).Prefix;
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, parentCollectionFolder.Id);
+                string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.ArtifactCollection).Prefix;
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childCollection.Id);
                 ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally

@@ -113,7 +113,6 @@ export class ArtifactService implements IArtifactService {
                 defer.resolve(result.data);
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
-                result.data.message = "Artifact_NotFound"; 
                 defer.reject(result.data);
             }
         );

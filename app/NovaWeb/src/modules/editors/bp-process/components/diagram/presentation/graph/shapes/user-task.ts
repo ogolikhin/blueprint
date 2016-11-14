@@ -1,18 +1,10 @@
-﻿import {IArtifactProperty, IUserTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
-import {ItemIndicatorFlags} from "../../../../../models/enums";
-import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {
-    IDiagramNodeElement,
-    ISystemTask,
-    IUserTask,
-    IUserStoryProperties,
-    ILabel,
-    IProcessGraph,
-    IDiagramNode,
-    NodeType,
-    NodeChange,
-    ElementType}
-    from "../models/";
+﻿import { IArtifactProperty, IUserTaskShape } from "../../../../../models/process-models";
+import { PropertyTypePredefined, IArtifactReference } from "../../../../../models/process-models";
+import { ItemIndicatorFlags } from "../../../../../models/enums";
+import { ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import { IDiagramNodeElement, ISystemTask, IUserTask } from "../models/";
+import { IUserStoryProperties, IProcessGraph } from "../models/";
+import { IDiagramNode, NodeType, NodeChange, ElementType } from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -20,7 +12,7 @@ import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
-import {Label, LabelStyle} from "../labels/label";
+import { Label, LabelStyle, LabelType, ILabel } from "../labels/label";
 import {SystemDecision} from "./";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
@@ -266,6 +258,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
+
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
 
@@ -278,6 +271,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT,
             " editable=0;shape=label;strokeColor=#D4D5DA;fillColor=" + fillColor + ";foldable=0;fontColor=#4C4C4C;" +
             "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12");
+
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
@@ -291,9 +285,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             "#4C4C4C",
             "white"
         );
-        this.textLabel = new Label((value: string) => {
-                this.label = value;
-            },
+        this.textLabel = new Label(
+            LabelType.Text,
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -301,8 +294,14 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly 
+            );
 
+        // handle label change event 
+        this.textLabel.onTextChange = (value: string) => {
+            this.label = value;
+        };
+ 
         //header
         mxGraph.addCell(this.header, this);
         const personaLabelStyle: LabelStyle = new LabelStyle(
@@ -317,9 +316,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.USER_TASK_WIDTH - 40,
             "#4C4C4C"
         );
-        this.personaLabel = new Label((value: string) => {
-                this.persona = value;
-            },
+        // Note: the persona label is readonly 
+        this.personaLabel = new Label(
+            LabelType.Persona, 
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
@@ -327,8 +326,16 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            true // readonly 
+        );
 
+        // handle persona label double click event 
+        // open modal dialog so user can change the persona
+
+        this.personaLabel.onDblClick = () => {
+            this.openDialog(ModalDialogType.UserTaskDetailsDialogType);
+        };
+         
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
 

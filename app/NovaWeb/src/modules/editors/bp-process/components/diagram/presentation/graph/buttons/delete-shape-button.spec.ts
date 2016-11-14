@@ -16,8 +16,8 @@ describe("DeleteShapeButton", () => {
 
             //Assert
             expect(deleteShapeButton.id).toEqual(`DS${id}`);
-        })
-    }),
+        });
+    });
 
         describe("When NodeFactorySettings are supplied and delete action is enabled ", () => {
 
@@ -26,7 +26,7 @@ describe("DeleteShapeButton", () => {
                 //Arrange
                 const id = "test";
                 const clickAction = () => {
-                    console.log("I clicked")
+                    console.log("I clicked");
                 };
 
                 const nodeFactorySettings: NodeFactorySettings = new NodeFactorySettings();
@@ -35,8 +35,8 @@ describe("DeleteShapeButton", () => {
 
                 //Assert
                 expect(deleteShapeButton.isEnabled).toEqual(true);
-            })
-        })
+            });
+        });
 
     describe("When NodeFactorySettings are supplied and delete action is false ", () => {
 
@@ -45,7 +45,7 @@ describe("DeleteShapeButton", () => {
             //Arrange
             const id = "test";
             const clickAction = () => {
-                console.log("I clicked")
+                console.log("I clicked");
             };
             const nodeFactorySettings: NodeFactorySettings = new NodeFactorySettings();
             nodeFactorySettings.isDeleteShapeEnabled = false;
@@ -53,7 +53,7 @@ describe("DeleteShapeButton", () => {
 
             //Assert
             expect(deleteShapeButton.isEnabled).toEqual(false);
-        })
-    })
+        });
+    });
 
 });

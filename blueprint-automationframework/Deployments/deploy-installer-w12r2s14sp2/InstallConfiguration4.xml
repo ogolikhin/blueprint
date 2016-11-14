@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<OutputSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <GeneralInfo>
+    <InstallationPath>C:\Web\Blueprint</InstallationPath>
+    <IsDistributedInstallation>false</IsDistributedInstallation>
+  </GeneralInfo>
+  <BlueprintWebInfo>
+    <SiteName>Blueprint</SiteName>
+    <SitePort>80</SitePort>
+    <SiteAuxiliaryPort>83</SiteAuxiliaryPort>
+    <SiteHostName>deploy-installer-w12r2s14sp2.blueprintsys.net</SiteHostName>
+    <EnableHTTPSBinding>false</EnableHTTPSBinding>
+    <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
+    <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
+    <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
+    <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>
+    <ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
+  </BlueprintWebInfo>
+  <ALMInfo>
+    <IsALMEnabled>true</IsALMEnabled>
+    <ALMSiteName>Blueprint_ALMLegacyConnector</ALMSiteName>
+    <ALMPort>85</ALMPort>
+  </ALMInfo>
+  <JobExecutorInfo>
+    <AccountType>LocalSystem</AccountType>
+  </JobExecutorInfo>
+  <BlueprintDatabaseInfo>
+    <DBServerLocation>localhost\sqlserver2014</DBServerLocation>
+    <DBName>Blueprint</DBName>
+    <IsWindowsAuthentication>false</IsWindowsAuthentication>
+    <DBAdminUserName>sa</DBAdminUserName>
+  </BlueprintDatabaseInfo>
+  <AdminStorageDatabaseInfo>
+    <IsWindowsAuthentication>false</IsWindowsAuthentication>
+    <IsAdminStoreDifferentServer>false</IsAdminStoreDifferentServer>
+  </AdminStorageDatabaseInfo>
+</OutputSettings>

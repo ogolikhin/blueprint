@@ -68,11 +68,13 @@ describe("OpenProjectController", () => {
         it("innerRenderer returns correct result", () => {
             // Arrange
             const vm = {
-                name: "name"
+                getLabel() {
+                    return "name";
+                }
             } as TreeViewModels.TreeViewNodeVM<any>;
             const cell = {} as HTMLElement;
 
-             const params: IColumnRendererParams = {
+            const params: IColumnRendererParams = {
                 data: vm,
                 $scope: $scope,
                 eGridCell: cell
@@ -129,13 +131,7 @@ describe("OpenProjectController", () => {
         expect(controller.isProjectSelected).toEqual(true);
         expect(controller.selectedItem).toEqual(vm);
         expect($sce.getTrustedHtml(controller.selectedDescription)).toEqual("abc");
-        expect(controller.returnValue).toEqual({
-            id: 3,
-            name: "name",
-            description: "abc",
-            itemTypeId: Enums.ItemTypePredefined.Project,
-            permissions: Enums.RolePermissions.Read
-        });
+        expect(controller.returnValue).toEqual(model);
     }));
 
     it("onSelect, when selected folder, sets selection", inject(($browser) => {

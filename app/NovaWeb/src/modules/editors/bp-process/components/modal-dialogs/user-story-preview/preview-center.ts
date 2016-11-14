@@ -186,12 +186,9 @@ export class PreviewCenterController {
             }
             const stateObserver = this.statefulUserStoryArtifact.artifactState.onStateChange.debounce(100).subscribe(
                 (state) => {
-                    if (state.deleted) {
+                    if (state && state.deleted) {
                         this.messageService.addError(this.localization.get("ST_Userstory_Has_Been_Deleted"));
                     }
-                },
-                (err) => {
-                    throw new Error(err);
                 });
 
             const observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {

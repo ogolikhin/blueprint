@@ -189,6 +189,7 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
         [Explicit(IgnoreReasons.UnderDevelopment)] // will be updated under User Story 3419:[Nova] Backend for editing properties (properties and sub-artifacts)
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182596)]

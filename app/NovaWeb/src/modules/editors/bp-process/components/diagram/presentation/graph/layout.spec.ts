@@ -65,7 +65,7 @@ describe("Layout test", () => {
         model.subArtifactCollection = new StatefulSubArtifactCollection(model, null);
         model.changeset = new ChangeSetCollector(model);
         model.artifactState = {dirty: false};
-        model.lock = function (){};
+        model.lock = function (){ return; };
         const processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };
@@ -711,7 +711,7 @@ describe("Layout test", () => {
                 graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 /*
                  start -> pre -> ut1 -> st1 -> ut2 -> sd2 -> st2A ---------> ud3 -> ut4 -> st4 -> ut6 -> st6 -> end
-                 -> st2B -> ut1         -> ut5 -> st5 -> ut1                        
+                 -> st2B -> ut1         -> ut5 -> st5 -> ut1
                  */
             });
 
@@ -1001,7 +1001,7 @@ describe("Layout test", () => {
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 const processGraph = new ProcessGraph(
-                    rootScope, localScope, container, processModel, dialogService, 
+                    rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
                 processGraph.render(true, false);
@@ -1048,7 +1048,7 @@ describe("Layout test", () => {
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 const processGraph = new ProcessGraph(
-                    rootScope, localScope, container, processModel, dialogService, 
+                    rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
                 processGraph.render(true, false);
@@ -1073,7 +1073,7 @@ describe("Layout test", () => {
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 const processGraph = new ProcessGraph(
-                    rootScope, localScope, container, processModel, dialogService, 
+                    rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
                 processGraph.render(true, false);
@@ -1098,7 +1098,7 @@ describe("Layout test", () => {
                 spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
 
                 const processGraph = new ProcessGraph(
-                    rootScope, localScope, container, processModel, dialogService, 
+                    rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
                 processGraph.render(true, false);

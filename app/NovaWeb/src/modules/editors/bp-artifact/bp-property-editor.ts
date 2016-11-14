@@ -36,18 +36,18 @@ export class PropertyEditor {
             case Models.PrimitiveType.Choice:
                 if (angular.isArray($value)) {
                     return {
-                        validValueIds: $value.map((it) => {
-                            return this.locale.toNumber(it);
+                        validValues: $value.map((it) => {
+                            return {id: this.locale.toNumber(it)} as Models.IOption;
                         })
-                    };
+                    } as Models.IChoicePropertyValue;
                 } else if (angular.isObject(($value))) {
-                    return {customValue: $value.customValue};
+                    return {customValue: $value.customValue} as Models.IChoicePropertyValue;
                 } else if (context.propertyTypePredefined < 0) {
                     return this.locale.toNumber($value);
                 }
                 return {
-                    validValueIds: [this.locale.toNumber($value)]
-                };
+                    validValues: [{id: this.locale.toNumber($value)} as Models.IOption]
+                } as Models.IChoicePropertyValue;
 
             case Models.PrimitiveType.User:
                 if (angular.isArray($value)) {
@@ -83,9 +83,9 @@ export class PropertyEditor {
             return this.locale.toDate($value);
 
         } else if (context.primitiveType === Models.PrimitiveType.Choice) {
-            if (angular.isArray($value.validValueIds)) {
-                let values = $value.validValueIds.map((v: number) => {
-                    return v;
+            if (angular.isArray($value.validValues)) {
+                const values = $value.validValues.map((v: Models.IOption) => {
+                    return v.id;
                 });
                 return context.isMultipleAllowed ? values : values[0];
                 //} else if (angular.isString($value.customValue)) {
@@ -181,7 +181,7 @@ export class PropertyEditor {
                 }
                 if (isModelSet) {
                     propertyContext.isFresh = true;
-                    let field = this.createPropertyField(propertyContext, statefulItem.id);
+                    let field = this.createPropertyField(propertyContext, statefulItem);
                     this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                     if (fieldsupdated) {
                         this._fields.push(field);
@@ -214,7 +214,9 @@ export class PropertyEditor {
         return this._model || {};
     }
 
-    private createPropertyField(context: IPropertyDescriptor, itemId: number, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
+    private createPropertyField(context: IPropertyDescriptor,
+                                item: IStatefulItem,
+                                reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
 
         let field: AngularFormly.IFieldConfigurationObject = {
             key: context.fieldPropertyName,
@@ -291,7 +293,10 @@ export class PropertyEditor {
                     break;
                 case Models.PrimitiveType.DocumentFile:
                     field.type = "bpDocumentFile";
-                    field.templateOptions["artifactId"] = itemId;
+                    field.templateOptions["artifactId"] = item.id;
+                    if (item.artifactState.historical) {
+                        field.templateOptions["versionId"] = item.getEffectiveVersion();
+                    }
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

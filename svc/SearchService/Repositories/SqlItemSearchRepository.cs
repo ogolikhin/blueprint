@@ -89,7 +89,7 @@ namespace SearchService.Repositories
                 sql = "SearchFullText";
             }
 
-            var items = (await ConnectionWrapper.QueryAsync<FullTextSearchResult>(sql, param, commandType: CommandType.StoredProcedure)).ToList();
+            var items = (await ConnectionWrapper.QueryAsync<FullTextSearchResult>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
             return new FullTextSearchResultSet
             {
                 Items = items,
@@ -127,7 +127,7 @@ namespace SearchService.Repositories
                 sql = "SearchFullTextMetaData";
             }
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<MetaDataSearchResult, int?>(sql, param, commandType: CommandType.StoredProcedure);
+            var result = await ConnectionWrapper.QueryMultipleAsync<MetaDataSearchResult, int?>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout);
             return new MetaDataSearchResultSet
             {
                 Items = result.Item1,

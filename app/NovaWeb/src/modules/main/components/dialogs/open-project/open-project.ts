@@ -1,6 +1,6 @@
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
-import {Models, Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {AdminStoreModels, TreeViewModels} from "../../../models";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 
@@ -44,18 +44,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     };
 
     //Dialog return value
-    public get returnValue(): Models.IProject {
-        if (this.isProjectSelected) {
-            const model = this.selectedItem.model;
-            return {
-                id: model.id || -1,
-                name: model.name || "",
-                description: model.description || "",
-                itemTypeId: Enums.ItemTypePredefined.Project,
-                permissions: model.permissions || Enums.RolePermissions.Read // if the user can select it, it means he can read it
-            } as Models.IProject;
-        }
-        return undefined;
+    public get returnValue(): AdminStoreModels.IInstanceItem {
+        return this.isProjectSelected ? this.selectedItem.model : undefined;
     };
 
     public get errorMessage(): string {
@@ -121,8 +111,8 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 // See https://www.ag-grid.com/change-log/changeLogIndex.php
                 params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
-            const name = Helper.escapeHTMLText(vm.name);
-            return `<span class="ag-group-value-wrapper"><i></i><span>${name}</span></span>`;
+            const label = Helper.escapeHTMLText(vm.getLabel());
+            return `<span class="ag-group-value-wrapper"><i></i><span>${label}</span></span>`;
         }
     }];
 

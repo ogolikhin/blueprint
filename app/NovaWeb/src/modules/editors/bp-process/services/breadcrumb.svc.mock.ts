@@ -1,4 +1,4 @@
-import {IBreadcrumbService, IArtifactReference} from "./breadcrumb.svc";
+import {IBreadcrumbService, IPathItem} from "./breadcrumb.svc";
 
 export class BreadcrumbServiceMock implements IBreadcrumbService {
     public static $inject: string[] = [
@@ -8,7 +8,7 @@ export class BreadcrumbServiceMock implements IBreadcrumbService {
     constructor(private $q: ng.IQService) {
     }
 
-    public getReferences(): ng.IPromise<IArtifactReference[]> {
+    public getReferences(): ng.IPromise<IPathItem[]> {
         let deferred = this.$q.defer();
         deferred.resolve([]);
 

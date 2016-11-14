@@ -28,6 +28,7 @@ import {IPublishService, IValidationService} from "../../../managers/artifact-ma
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {StatefulProjectArtifact} from "../project/project-artifact";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: IArtifact): IStatefulArtifact;
@@ -114,6 +115,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             throw Error("Argument 'artifact' should not be null or undefined");
         }
         switch (artifact.predefinedType) {
+            case ItemTypePredefined.Project:
+                return this.createStatefulProjectArtifact(artifact);
             case ItemTypePredefined.GenericDiagram:
             case ItemTypePredefined.BusinessProcess:
             case ItemTypePredefined.DomainDiagram:
@@ -149,7 +152,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     public createStatefulGlossaryArtifact(artifact: IArtifact): IStatefulGlossaryArtifact {
         return new StatefulGlossaryArtifact(artifact, this.services);
     }
-    
+
     public createStatefulDiagramArtifact(artifact: IArtifact): IStatefulDiagramArtifact {
         return new StatefulDiagramArtifact(artifact, this.services);
     }
@@ -163,5 +166,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
 
         return new StatefulProcessArtifact(artifact, processServices);
+    }
+
+    private createStatefulProjectArtifact(artifact: IArtifact): IStatefulArtifact {
+        return new StatefulProjectArtifact(artifact, this.services);
     }
 }

@@ -1,42 +1,51 @@
-﻿// import { IProjectManager } from "./project-manager";
-// import { Models } from "./project-repository";
+﻿import { IProjectManager, IArtifactNode } from "./project-manager";
+import { Models, AdminStoreModels, Enums } from "../../main/models";
+import { IStatefulArtifact, StatefulArtifact } from "../artifact-manager/artifact";
+
+export class ProjectManagerMock implements IProjectManager {
+    public static $inject = ["$q"];
+    constructor(private $q: ng.IQService) { }
 
 
-// export class ProjectManagerMock implements IProjectManager {
-//     public static $inject = ["$q"];
-//     constructor(private $q: ng.IQService) { }
+    private _projectCollection: Rx.BehaviorSubject<IArtifactNode[]>;
 
-//     public initialize = () => { };
-//     public dispose = () => { };
+    get projectCollection(): Rx.BehaviorSubject<IArtifactNode[]> {
+        return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<IArtifactNode[]>([]));
+    }
 
-//     private _projectCollection: Rx.BehaviorSubject<Models.IProject[]>;
+    loadFolders = (id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]> => {
+        const deferred = this.$q.defer<AdminStoreModels.IInstanceItem[]>();
+        const items = [{ id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false }];
+        deferred.resolve(items);
+        return deferred.promise;
+    };
+    getProject = (id: number) => { return null; };
+    getArtifact = (artifactId: number): IStatefulArtifact => {
+        let artifact: Models.IArtifact = { hasChildren: true, id: 1 };
 
-//     public get projectCollection(): Rx.BehaviorSubject<Models.IProject[]> {
-//         return this._projectCollection || (this._projectCollection = new Rx.BehaviorSubject<Models.IProject[]>([]));
-//     }
+        return new StatefulArtifact(artifact, null);
+    };
 
-//     public loadProject = (project: Models.IProject) => { };
-//     public loadArtifact = (project: Models.IArtifact) => { };
-//     public loadFolders = (id?: number) => {
-//         var deferred = this.$q.defer<AdminStoreModels.IInstanceItem[]>();
-//         let items = [{ id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false }];
-//         deferred.resolve(items);
-//         return deferred.promise;
-//     };
-//     public closeProject = (all?: boolean) => { };
-//     public getProject = (id: number) => { return null; };
-//     public getArtifact = (artifactId: number, project?: Models.IArtifact) => {
-//         let artifact: Models.IArtifact = { hasChildren: true, id: 1 };
-//         return artifact;
-//     };
-//     public getSubArtifact = (artifact: number | Models.IArtifact, subArtifactId: number) => { return null; };
-//     public getArtifactType = (artifact: number | Models.IArtifact, project?: number | Models.IProject) => { return null; };
-//     public getArtifactPropertyTypes = (artifact: number | Models.IArtifact, subArtifact: Models.ISubArtifact): Models.IPropertyType[] => {
-//         var result: Models.IPropertyType[] = [{id: 1}];
-//         return result;
-//     };
-//     public getSubArtifactPropertyTypes = (subArtifact: number | Models.IArtifact) => { return null; };
-//     public getPropertyTypes = (project: number, propertyTypeId: number) => { return null; };
+    initialize() { /*do nothing*/ }
+    removeAll(): void { /*do nothing*/ }
+    refresh(id: number, forceOpen?: boolean): ng.IPromise<void> { return null; }
+    refreshCurrent(): ng.IPromise<void> { return null; }
+    refreshAll(): ng.IPromise<void> { return null; }
+    loadArtifact(id: number): void { /*do nothing*/ }
+    getArtifactNode(id: number): IArtifactNode { return null; }
+    getSelectedProject(): IArtifactNode { return null; }
+    triggerProjectCollectionRefresh() { /*do nothing*/ }
+    getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]> { return null; }
 
-//     public updateArtifactName(artifact: Models.IArtifact) {}
-// }
+    add(project: AdminStoreModels.IInstanceItem) {
+        return null;
+    }
+
+    remove(projectId: number): void {
+        return null;
+    }
+
+    dispose() {
+        /*do nothing*/
+    }
+}

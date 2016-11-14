@@ -17,8 +17,9 @@ export class QuickSearchModalController {
     form: ng.IFormController;
     isLoading: boolean;
     results: SearchModels.ISearchItem[];
+    metadata: SearchModels.ISearchMetadata;
+    
     private page: number;
-    private totalItems: number;
 
     static $inject = [
         "$rootScope",
@@ -26,7 +27,8 @@ export class QuickSearchModalController {
         "$log",
         "$uibModalInstance",
         "localization",
-        "$q"
+        "$q",
+        "$document"
     ];
 
     private stateChangeStartListener: Function;
@@ -36,7 +38,8 @@ export class QuickSearchModalController {
                 private $log: ng.ILogService,
                 private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 private localization: ILocalizationService,
-                private $q: ng.IQService) {
+                private $q: ng.IQService,
+                private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
         
@@ -59,6 +62,12 @@ export class QuickSearchModalController {
             if (result.totalCount > 0) {
                 this.search(this.searchTerm);
             }
+        }).finally(() => {            
+            const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
+            if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
+                const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
+                outerModalDialog.focus();
+            }
         });
     }
 
@@ -70,7 +79,7 @@ export class QuickSearchModalController {
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term, this.page).then((results: SearchModels.ISearchResult) => {
+        this.quickSearchService.search(term, this.page, this.metadata.pageSize).then((results: SearchModels.ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
@@ -83,8 +92,8 @@ export class QuickSearchModalController {
         this.quickSearchService.searchTerm = "";
         this.form.$setPristine();
         this.results = [];
-        this.totalItems = 0;
         this.page = 1;
+        this.resetMetadata();
     }
 
     get showHide(): boolean {
@@ -97,6 +106,7 @@ export class QuickSearchModalController {
     }
 
     $onInit() {
+        this.resetMetadata();
         this.page = 1;
         if (this.searchTerm.length) {
             this.searchWithMetadata(this.searchTerm);
@@ -122,9 +132,17 @@ export class QuickSearchModalController {
 
         this.$uibModalInstance.dismiss("cancel");
     }
+    
+    showPagination(): boolean {
+        return this.metadata.totalCount > 0 && this.metadata.totalPages > 1;
+    }
+
+    private resetMetadata() {
+        this.metadata = { totalCount: 0, pageSize: null, items: [], totalPages: 0 };
+    }
 
     private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
-        this.totalItems = result.totalCount;
+        this.metadata = result;
         this.page = 1;
         if (result.totalCount === 0) {
             this.results = [];
@@ -133,6 +151,6 @@ export class QuickSearchModalController {
     }
     
     get getResultsFoundText() {
-        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.totalItems.toString());        
+        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());        
     } 
 }

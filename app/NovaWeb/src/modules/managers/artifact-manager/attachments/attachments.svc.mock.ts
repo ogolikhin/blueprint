@@ -75,6 +75,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 {
                     artifactName: "acc-wizard.d.ts",
                     artifactId: 258,
+                    versionId: undefined,
                     userId: 1,
                     userName: "admin",
                     itemTypePrefix: "DOC",
@@ -83,6 +84,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 {
                     artifactName: "document with no attachment",
                     artifactId: 357,
+                    versionId: undefined,
                     userId: 1,
                     userName: "admin",
                     itemTypePrefix: "DOC",
@@ -91,6 +93,7 @@ export class ArtifactAttachmentsMock implements IArtifactAttachmentsService {
                 {
                     artifactName: "a very long document name without an attachment that will need to be displayed",
                     artifactId: 358,
+                    versionId: undefined,
                     userId: 1,
                     userName: "admin",
                     itemTypePrefix: "DOC",

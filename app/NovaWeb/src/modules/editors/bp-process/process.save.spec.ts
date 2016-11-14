@@ -67,7 +67,7 @@ describe("When process is saved", () => {
     }));
     beforeEach(inject((
         _$rootScope_: ng.IRootScopeService,
-		_$q_: ng.IQService,
+        _$q_: ng.IQService,
         _$httpBackend_: ng.IHttpBackendService,
         messageService: IMessageService, 
 		artifactService: IArtifactService,
@@ -88,7 +88,7 @@ describe("When process is saved", () => {
             _$q_, session, messageService, null, localization, artifactService, null, null, metadataService, null, null, validationService);
 
         services = new StatefulProcessArtifactServices(artifactServices, _$q_, processService);
-		
+
         artifactModel = {
             id: 22,
             name: "Process Artifact",
@@ -96,7 +96,7 @@ describe("When process is saved", () => {
             predefinedType: Models.ItemTypePredefined.Process,
             permissions: Enums.RolePermissions.Edit
         };
-		
+
         processArtifact = new StatefulProcessArtifact(artifactModel, services);
         processArtifact["onLoad"](processModel);
 
@@ -117,7 +117,7 @@ describe("When process is saved", () => {
             .respond(result);
 
     }));
-	
+
     it("calls both saveProcess() and saveArtifact() methods ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
             const deferred = $q.defer();
@@ -131,13 +131,13 @@ describe("When process is saved", () => {
             deferred.resolve();
             return deferred.promise;
         });
-		
+
         processArtifact.save()
             .then((processArtifact) => {
-                // assert 
+                // assert
 
-				// two distinct calls are made to save the process model and 
-				// the artifact collections, properties etc.
+                // two distinct calls are made to save the process model and
+                // the artifact collections, properties etc.
                 expect(processArtifact["saveProcess"]).toHaveBeenCalled();
                 expect(processArtifact["saveArtifact"]).toHaveBeenCalled();
             })
@@ -147,7 +147,7 @@ describe("When process is saved", () => {
             .finally(() => {
                 done();
             });
-		
+
         $httpBackend.flush();
 
     });
@@ -166,13 +166,13 @@ describe("When process is saved", () => {
         });
 
         spyOn(processArtifact, "mapTempIdsAfterSave").and.callFake((tempIdMap) => {
-			// assert
+            // assert
             expect(tempIdMap).toBeDefined();
         });
 
         processArtifact.save()
             .then((processArtifact) => {
-				// a call should be made to map temporary ids to actual ids 
+                // a call should be made to map temporary ids to actual ids
                 expect(processArtifact["mapTempIdsAfterSave"]).toHaveBeenCalled();
             })
             .catch((error) => {
@@ -200,8 +200,8 @@ describe("When process is saved", () => {
             deferred.resolve();
             return deferred.promise;
         });
-        // before save there should be temporary ids (negative integers) 
-        // assigned to new shapes 
+        // before save there should be temporary ids (negative integers)
+        // assigned to new shapes
 
         let countTempIdsBefore: number = 0;
         processArtifact.subArtifactCollection.list().forEach(item => {
@@ -247,12 +247,12 @@ describe("When process is saved", () => {
                         countTempIdsAfter++;
                     }
                 });
-				// assert 
+                // assert
 
-				// a call should be made to map temporary ids to actual ids 
+                // a call should be made to map temporary ids to actual ids
                 expect(processArtifact["mapTempIdsAfterSave"]).toHaveBeenCalled();
 
-				// no temporary ids should remain 
+                // no temporary ids should remain
                 expect(countTempIdsBefore).toBeGreaterThan(0);
                 expect(countTempIdsAfter).toBe(0);
             })
@@ -280,9 +280,9 @@ describe("When process is saved", () => {
             deferred.reject("save artifact failed");
             return deferred.promise;
         });
-        // before save there should be temporary ids (negative integers) 
+        // before save there should be temporary ids (negative integers)
         // assigned to new shapes
-		 
+
         let countTempIdsBefore: number = 0;
         processArtifact.subArtifactCollection.list().forEach(item => {
             if (item.id <= 0) {
@@ -291,28 +291,28 @@ describe("When process is saved", () => {
         });
         processArtifact.save()
             .then((processArtifact) => {
-                ; // no-op 
+                ; // no-op
             })
             .catch((error) => {
-				// if the process model is saved but the artifact cannot 
+                // if the process model is saved but the artifact cannot
                 // be saved the process model should be patched with actual
-                // ids and no temporary ids should remain 
-				 
+                // ids and no temporary ids should remain
+
                 let countTempIdsAfter: number = 0;
                 processArtifact.subArtifactCollection.list().forEach(item => {
                     if (item.id <= 0) {
                         countTempIdsAfter++;
                     }
                 });
-				// assert
+                // assert
 
-				// a call should be made to redraw the process diagram 
+                // a call should be made to redraw the process diagram
                 expect(processArtifact["notifySubscribers"]).toHaveBeenCalled();
 
-				// the dirty flag should remain true after save fails
+                // the dirty flag should remain true after save fails
                 expect(processArtifact.artifactState.dirty).toBe(true);
 
-                // no temporary ids should remain 
+                // no temporary ids should remain
                 expect(countTempIdsBefore).toBeGreaterThan(0);
                 expect(countTempIdsAfter).toBe(0);
             })

@@ -1,7 +1,7 @@
 import "../../";
 import * as angular from "angular";
 import "angular-mocks";
-import {QuickSearchController, IQuickSearchController} from './quickSearchController';
+import {QuickSearchController, IQuickSearchController} from "./quickSearchController";
 
 describe("Controller: Quick Search", () => {
     let controller;
@@ -10,7 +10,7 @@ describe("Controller: Quick Search", () => {
 
     // Provide any mocks needed
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-
+        return;
     }));
 
     // Inject in angular constructs otherwise,

@@ -28,6 +28,7 @@
                 <!-- Skip 3rd party assemblies -->
                 <ModulePath>.*testadapter\.dll$</ModulePath>
                 <ModulePath>.*HtmlAgilityPack\.dll$</ModulePath>
+                <ModulePath>.*Logging.Database\.dll$</ModulePath>
               </Exclude>
             </ModulePaths>
             <Attributes>

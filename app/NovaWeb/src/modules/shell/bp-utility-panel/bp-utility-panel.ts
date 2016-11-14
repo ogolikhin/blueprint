@@ -76,10 +76,6 @@ export class BPUtilityPanelController {
     }
 
     private updateItem = (changes: IItemChangeSet) => {
-        this.itemDisplayName = undefined;
-        this.itemClass = undefined;
-        this.itemTypeId = undefined;
-        this.hasCustomIcon = false;
         if (changes && changes.item) {
             const item: IStatefulItem = changes.item;
             this.itemDisplayName = `${(item.prefix || "")}${item.id}: ${item.name || ""}`;
@@ -94,9 +90,17 @@ export class BPUtilityPanelController {
                 this.itemTypeIconId = item.itemTypeIconId;
             }
         }
-    } 
+    }
+
+    private clearItem() {
+        this.itemDisplayName = undefined;
+        this.itemClass = undefined;
+        this.itemTypeId = undefined;
+        this.hasCustomIcon = false;
+    }
 
     private onSelectionChanged = (selection: ISelection) => {
+        this.clearItem();
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
         if (this.propertySubscriber) {
             this.propertySubscriber.dispose();

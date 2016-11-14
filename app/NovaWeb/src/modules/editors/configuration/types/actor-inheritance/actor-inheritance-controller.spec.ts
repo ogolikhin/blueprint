@@ -57,6 +57,7 @@ describe("Actor Inheritance controller", () => {
 
                 scope["to"] = {
                     onChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
+                        return;
                     }
                 };
 
@@ -99,7 +100,7 @@ describe("Actor Inheritance controller", () => {
         };
         selectionManager.setArtifact(artifact);
 
-        var addErrorSpy = spyOn(messageService, "addError");
+        const addErrorSpy = spyOn(messageService, "addError");
 
         // Act
         scope.selectBaseActor();

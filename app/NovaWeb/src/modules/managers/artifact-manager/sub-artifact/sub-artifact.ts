@@ -49,8 +49,9 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id, this.getEffectiveVersion()).then((artifact: Models.ISubArtifact) => {
             this.initialize(artifact);
             deferred.resolve(this);
-        }).catch((err) => {
-            deferred.reject(err);
+        }).catch((error) => {
+            this.artifactState.readonly = true;
+            deferred.reject(error);
         });
         return deferred.promise;
     }
@@ -58,11 +59,9 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public getObservable(): Rx.Observable<IStatefulSubArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
             this.loadPromise = this.load();
-
             this.loadPromise.then(() => {
                 this.subject.onNext(this);
             }).catch((error) => {
-                this.artifactState.readonly = true;
                 this.error.onNext(error);
             }).finally(() => {
                 this.loadPromise = null;

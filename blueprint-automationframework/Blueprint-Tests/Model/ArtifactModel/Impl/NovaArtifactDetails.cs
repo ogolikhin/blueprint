@@ -272,6 +272,7 @@ namespace Model.ArtifactModel.Impl
         public override int? ParentId { get; set; }
         public double OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
+        public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
 
@@ -461,7 +462,7 @@ namespace Model.ArtifactModel.Impl
 
     public class CustomProperty
     {
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
         public int PropertyTypeId { get; set; }
@@ -476,6 +477,12 @@ namespace Model.ArtifactModel.Impl
 
         [JsonProperty("PropertyTypePredefined")]
         public PropertyTypePredefined PropertyType { get; set; }
+
+        public bool? IsMultipleAllowed { get; set; }
+
+        public bool? IsRichText { get; set; }
+
+        public int? PrimitiveType { get; set; }
 
         [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
         public object CustomPropertyValue { get; set; }

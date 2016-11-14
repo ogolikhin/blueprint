@@ -170,12 +170,12 @@ $modal-open-project-height: 450px;
             color: $gray-light;
             padding: 30px 10px;
             text-align: center;
-        }
+        }        
 
         .search-results {
             max-height: $artifact-picker-tree-height;
             box-sizing: content-box;
-            overflow: auto;
+            overflow: auto;                       
         }
 
         .search-result {
@@ -183,6 +183,10 @@ $modal-open-project-height: 450px;
             align-items: center;
             border-bottom: 1px solid $gray-lightest;
             padding: 8px;
+
+            .search-hidden-checkbox {                
+                visibility: hidden;
+            }
 
             .checkbox {
                 min-width: 25px;
@@ -404,7 +408,7 @@ $modal-open-project-height: 450px;
 
 .modal.nova-login {
     .modal-header {
-        background: $brand-secondary url('images/logo-storyteller-white.svg') center center no-repeat;
+        background: $brand-secondary url('/novaweb/static/images/logo-storyteller-white.svg') center center no-repeat;
         background-size: 180px;
         height: 89px;
     }

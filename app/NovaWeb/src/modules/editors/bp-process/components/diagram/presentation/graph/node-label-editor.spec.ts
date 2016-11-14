@@ -1,12 +1,9 @@
 import * as angular from "angular";
 import {NodeLabelEditor} from "./node-label-editor";
-import {Label, LabelStyle} from "./labels/label";
+import {Label, LabelStyle, LabelType, ILabel} from "./labels/label";
 import {Helper} from "../../../../../../shared/utils/helper";
 
 class ExecutionEnvironmentDetectorMock {
-    constructor() {
-    }
-
     public getBrowserInfo(): any {
         return {msie: false, firefox: false, version: 0};
     }
@@ -21,10 +18,10 @@ describe("Node Label Editor test", () => {
     document.body.appendChild(container);
     let nodeLabelEditor: NodeLabelEditor = new NodeLabelEditor(container);
 
-    let label: Label = null;
+    let label: ILabel = null;
 
     afterEach(() => {
-        label.onDispose();
+        label.dispose();
         while (container.children[0] != null) {
             container.removeChild(container.children[0]);
         }
@@ -39,19 +36,16 @@ describe("Node Label Editor test", () => {
     let labelText = "OLD VALUE";
 
     function fireKBEvent(etype, keyCode) {
-        var e = $.Event(etype);
+        const e = $.Event(etype);
         e.keyCode = keyCode;
         e.which = keyCode;
         let elem = angular.element(document.getElementsByClassName("processEditorCustomLabel")[0]);
         elem.trigger(e);
     }
+     
 
-    function setLabel(value: string) {
-        labelText = value;
-    }
-
-    function addLabel(): Label {
-        var labelStyle: LabelStyle = new LabelStyle(
+    function addLabel(): ILabel {
+        let labelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
             12,
             "transparent",
@@ -64,7 +58,8 @@ describe("Node Label Editor test", () => {
             "#4C4C4C"
         );
 
-        return new Label((value) => setLabel(value),
+        let textLabel: ILabel = new Label(
+            LabelType.Text,
             container,
             "99",
             "Label-B99",
@@ -73,6 +68,12 @@ describe("Node Label Editor test", () => {
             30,
             10,
             false);
+
+        textLabel.onTextChange = (value) => {
+            labelText = value; 
+        }
+
+        return textLabel;
     };
 
     it("The label should be rendered ", () => {

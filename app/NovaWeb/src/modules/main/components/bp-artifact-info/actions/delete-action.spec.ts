@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "../../../";
 import {DeleteAction} from "./delete-action";
-import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulArtifactFactory, ArtifactManager, IArtifactManager} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMessageService} from "../../../../core/messages/message.svc";
@@ -25,8 +25,9 @@ describe("DeleteAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);        
         $provide.service("dialogService", DialogServiceMock);
+        $provide.service("artifactManager", ArtifactManager); 
         $provide.service("projectManager", ProjectManager); 
-        $provide.service("loadingOverlayService", LoadingOverlayService);       
+        $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -36,6 +37,7 @@ describe("DeleteAction", () => {
 
     it("throws exception when localization is null", inject((
             statefulArtifactFactory: IStatefulArtifactFactory,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -48,7 +50,7 @@ describe("DeleteAction", () => {
 
         // act
         try {
-            new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            new DeleteAction(artifact, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
         } catch (exception) {
             error = exception;
         }
@@ -61,6 +63,7 @@ describe("DeleteAction", () => {
     it("throws exception when dialogService is null", inject((
             statefulArtifactFactory: IStatefulArtifactFactory,
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -72,7 +75,7 @@ describe("DeleteAction", () => {
 
         // act
         try {
-            new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            new DeleteAction(artifact, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
         } catch (exception) {
             error = exception;
         }
@@ -85,6 +88,7 @@ describe("DeleteAction", () => {
 
     it("is disabled when artifact is null", inject((
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -94,7 +98,8 @@ describe("DeleteAction", () => {
             const artifact: IStatefulArtifact = null;
 
             // act
-            const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            const deleteAction = new DeleteAction(artifact, 
+            localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -103,6 +108,7 @@ describe("DeleteAction", () => {
     it("is disabled when artifact is read-only", inject((
             statefulArtifactFactory: IStatefulArtifactFactory,            
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -113,7 +119,8 @@ describe("DeleteAction", () => {
             artifact.artifactState.readonly = true;
 
             // act
-            const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            const deleteAction = new DeleteAction(artifact, localization, 
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -122,6 +129,7 @@ describe("DeleteAction", () => {
     it("is disabled when artifact is Project", inject((
             statefulArtifactFactory: IStatefulArtifactFactory,            
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -135,7 +143,8 @@ describe("DeleteAction", () => {
                 });
 
             // act
-            const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            const deleteAction = new DeleteAction(artifact, localization, 
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -144,6 +153,7 @@ describe("DeleteAction", () => {
     it("is disabled when artifact is Collections", inject((
             statefulArtifactFactory: IStatefulArtifactFactory,            
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -157,7 +167,8 @@ describe("DeleteAction", () => {
                 });
 
             // act
-            const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            const deleteAction = new DeleteAction(artifact, localization,
+             messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -166,6 +177,7 @@ describe("DeleteAction", () => {
     it("is enabled when artifact is valid", inject((
             statefulArtifactFactory: IStatefulArtifactFactory,            
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
@@ -182,7 +194,8 @@ describe("DeleteAction", () => {
                 });
 
             // act
-            const deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+            const deleteAction = new DeleteAction(artifact, localization, 
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
 
             // assert
             expect(deleteAction.disabled).toBe(false);
@@ -196,14 +209,17 @@ describe("DeleteAction", () => {
         let getDescendantsSpy: jasmine.Spy;
         let endLoadingSpy: jasmine.Spy;    
         let dialogOpenSpy: jasmine.Spy;    
+        let completeDeleteSpy: jasmine.Spy;    
+        let error: any;
 
         beforeEach(inject((
             statefulArtifactFactory: IStatefulArtifactFactory,            
             localization: ILocalizationService,
+            artifactManager: IArtifactManager,
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService,
             ) => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -213,11 +229,18 @@ describe("DeleteAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-                deleteAction = new DeleteAction(artifact, localization, messageService, projectManager, loadingOverlayService, dialogService);
+                deleteAction = new DeleteAction(artifact, localization, messageService, artifactManager, 
+                                    projectManager, loadingOverlayService, dialogService);
                 beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
                 endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
                 dialogOpenSpy = spyOn(dialogService, "open");
                 deleteSpy = spyOn(artifact, "delete");
+                completeDeleteSpy = spyOn(deleteAction, "complete").and.callFake(() => {
+                    return true;
+                });
+                spyOn(messageService, "addError").and.callFake((err) => {
+                    error = err;
+                });
                 refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
                     const deferred = $q_.defer();
                     deferred.resolve(true);
@@ -289,6 +312,28 @@ describe("DeleteAction", () => {
                  
 
                 expect(deleteSpy).not.toHaveBeenCalled();
+            });
+            it("failed delete", () => {
+                // assert
+                dialogOpenSpy.and.callFake(() => {
+                    const deferred = $q_.defer();
+                    deferred.resolve(true);
+                    return deferred.promise;
+                });
+                deleteSpy.and.callFake(() => {
+                    const deferred = $q_.defer();
+                    deferred.reject({});
+                    return deferred.promise;
+                });
+
+
+                deleteAction.execute();
+                $scope.$digest();
+                 
+
+                expect(completeDeleteSpy).not.toHaveBeenCalled();
+                expect(error).toBeDefined();
+                
             });
 
         });

@@ -26,7 +26,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
-    private selectedArtifactNameBeforeChange: string;
     private selectedArtifactId: number;
     private isFullReLoad: boolean;
 
@@ -96,7 +95,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
 
         if (value) {
-            this.selectedArtifactNameBeforeChange = value.name;
             this.selectedArtifactId = value.id;
 
             this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
@@ -153,8 +151,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (_.isFinite(navigateToId)) {
                 if (navigateToId !== currentSelectionId) {
                     this.navigationService.navigateTo({ id: navigateToId });
-
-                } else if (navigateToId === currentSelectionId) {
+                } else {
                     this.navigationService.reloadParentState();
                 }
             }

@@ -20,6 +20,7 @@ import {
     ArtifactAttachmentsService
 } from "../../../../managers/artifact-manager";
 import {HttpStatusCode} from "../../../../core/http/http-status-code";
+import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
 
 describe("Component BPDiscussionReplyItem", () => {
 
@@ -37,6 +38,7 @@ describe("Component BPDiscussionReplyItem", () => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("validationService", ValidationServiceMock);
     }));
 
     let directiveTest: ComponentTest<BPArtifactRelationshipItemController>;

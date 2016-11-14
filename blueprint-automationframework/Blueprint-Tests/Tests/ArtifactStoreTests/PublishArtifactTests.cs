@@ -480,31 +480,31 @@ namespace ArtifactStoreTests
             }
         }
 
-        [TestCase(BaseArtifactType.Process, 3)]
+        [TestCase(BaseArtifactType.Process)]
         [TestRail(191079)]
         [Description("Create & save artifacts in a couple of projects.  Publish all the artifacts.  User has permissions only for one artifact in 2nd project.  Verify publish is successful.")]
-        public void PublishArtifactWithAllTrue_ArtifactsSavedInCoupleOfProjects_UserHasPermissionsOnlyToOneArtifactInSecondProjects(BaseArtifactType artifactType, int numberOfArtifacts)
+        public void PublishArtifactWithAllTrue_ArtifactsSavedInCoupleOfProjects_UserHasPermissionsOnlyToOneArtifactInSecondProjects(BaseArtifactType artifactType)
         {
             // Setup:
-            var projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
-            Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
 
             // User has author rights for first project but none permissions for the second project
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projects[0]);
             Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, projects[1]);
 
-            var artifacts = Helper.CreateAndSaveMultipleArtifacts(projects[0], user, artifactType, numberOfArtifacts);
+            var artifactInProject1 = Helper.CreateAndPublishArtifact(projects[0], user, artifactType);
+            artifactInProject1.Save(user);
 
             // Create & publish artifact with user that has permissions to the project
-            var artifact = Helper.CreateAndPublishArtifact(projects[1], _user, artifactType);
+            var artifactInProject2 = Helper.CreateAndPublishArtifact(projects[1], _user, artifactType);
             // Allow editing for previously created & published artifact with user that does not have permissions for that project
-            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Author, projects[1], artifact);
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Author, projects[1], artifactInProject2);
 
-            artifact.Save(user);
+            artifactInProject2.Save(user);
 
             var allArtifacts = new List<IArtifactBase>();
-            allArtifacts.AddRange(artifacts);
-            allArtifacts.Add(artifact);
+            allArtifacts.Add(artifactInProject1);
+            allArtifacts.Add(artifactInProject2);
 
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
@@ -518,14 +518,14 @@ namespace ArtifactStoreTests
                 // Verify:
                 var expectedProjects = new List<IProject>();
                 expectedProjects.Add(projects[0]);
-                expectedProjects.Add(projects[0]);
+                expectedProjects.Add(projects[1]);
 
                 ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
                 Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should be {0} published artifacts returned!", allArtifacts.Count);
 
                 AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                    publishResponse, artifacts, expectedVersion: 1);
+                    publishResponse, allArtifacts, expectedVersion: 2);
             }
             finally
             {

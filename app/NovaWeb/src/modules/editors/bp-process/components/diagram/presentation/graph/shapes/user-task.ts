@@ -197,6 +197,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         }
     }
 
+    public get personaReference(): IArtifactReference {
+        return this.model.personaReference;
+    }
+
+    public set personaReference(value: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== value) {
+            this.model.personaReference = value;
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value);
+        }
+    }
+
     public getHeight(): number {
         return this.USER_TASK_HEIGHT;
     }

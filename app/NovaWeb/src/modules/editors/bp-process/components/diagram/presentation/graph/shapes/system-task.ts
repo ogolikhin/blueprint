@@ -248,6 +248,17 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         }
     }
 
+    public get personaReference(): IArtifactReference {
+        return this.model.personaReference;
+    }
+
+    public set personaReference(value: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== value) {
+            this.model.personaReference = value;
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value);
+        }
+    }
+
     public getX(): number {
         let shift = this.SYSTEM_TASK_SHIFT;
         if (this.model.propertyValues["clientType"].value === ProcessShapeType.PreconditionSystemTask) {

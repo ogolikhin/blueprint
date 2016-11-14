@@ -15,6 +15,7 @@ export class UserTaskDialogModel extends SubArtifactTaskDialogModel {
     persona: string;
     action: string;
     associatedArtifact: IArtifactReference;
+    personaReference: IArtifactReference;
     label: string;
     objective: string;
     availablePersona: any[];
@@ -25,7 +26,9 @@ export class SystemTaskDialogModel extends SubArtifactTaskDialogModel {
     persona: string;
     action: string;
     associatedArtifact: IArtifactReference;
+    personaReference: IArtifactReference;
     label: string;
     imageId: string;
     associatedImageUrl: string;
+    availablePersona: any[];
 }

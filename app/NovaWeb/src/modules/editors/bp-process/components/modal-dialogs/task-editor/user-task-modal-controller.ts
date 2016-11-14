@@ -52,6 +52,15 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         this.dialogModel.associatedArtifact = value;
     }
 
+    protected getPersonaReference(): IArtifactReference {
+        return this.dialogModel.personaReference;
+    }
+
+    protected setPersonaReference(value: IArtifactReference) {
+        this.dialogModel.personaReference = value;
+        this.dialogModel.persona = value.name;
+    }
+
     protected populateTaskChanges() {
 
         if (this.dialogModel.originalItem && this.dialogModel) {

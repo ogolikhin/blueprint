@@ -18,6 +18,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
     protected abstract getAssociatedArtifact(): IArtifactReference;
     protected abstract setAssociatedArtifact(value: IArtifactReference);
+    protected abstract getPersonaReference(): IArtifactReference;
+    protected abstract setPersonaReference(value: IArtifactReference);
     protected abstract populateTaskChanges();
 
     public static $inject = [
@@ -109,7 +111,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.populateTaskChanges();
     }
 
-    public openArtifactPicker() {
+    public openIncludePicker() {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
             template: require("../../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
@@ -118,21 +120,44 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             header: this.localization.get("ST_Select_Include_Artifact_Label")
         };
 
-        const dialogData: IArtifactPickerOptions = {};
+        const dialogOption: IArtifactPickerOptions = {};
 
-        this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+        this.openArtifactPicker(dialogSettings, dialogOption);
+    }
+
+    public openActorPicker() {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Open"),
+            template: require("../../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: this.localization.get("ST_Select_Include_Artifact_Label")
+        };
+
+        const dialogOption: IArtifactPickerOptions = {
+            selectableItemTypes: [Models.ItemTypePredefined.Actor]
+        };
+
+        this.openArtifactPicker(dialogSettings, dialogOption);
+    }
+
+    public openArtifactPicker(dialogSettings: IDialogSettings, dialogOptions: IArtifactPickerOptions) {
+
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
             if (items.length === 1) {
-                const associatedArtifact = new ArtifactReference();
-                associatedArtifact.baseItemTypePredefined = items[0].predefinedType;
-                associatedArtifact.id = items[0].id;
-                associatedArtifact.name = items[0].name;
-                associatedArtifact.typePrefix = items[0].prefix;
-                if (associatedArtifact.id === this.dialogModel.artifactId) {
+                const artifactReference = new ArtifactReference();
+                artifactReference.baseItemTypePredefined = items[0].predefinedType;
+                artifactReference.id = items[0].id;
+                artifactReference.name = items[0].name;
+                artifactReference.typePrefix = items[0].prefix;
+                if (artifactReference.id === this.dialogModel.artifactId) {
                     this.isIncludeError = true;
                 }
+                else if (artifactReference.baseItemTypePredefined === Models.ItemTypePredefined.Actor) {
+                    this.setPersonaReference(artifactReference);
+                }
                 else {
-                    this.setAssociatedArtifact(associatedArtifact);
-                    this.prepIncludeField();
+                    this.setAssociatedArtifact(artifactReference);
                     this.prepIncludeField();
                     this.isIncludeError = false;
                 }

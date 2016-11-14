@@ -175,7 +175,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     public getColumns(): IColumn[] {
-        console.log(this.artifact.artifactState.readonly);
         return [
             {
                 isCheckboxSelection: !this.artifact.artifactState.readonly,

@@ -46,12 +46,12 @@ export class ArtifactRoutes {
             });
     }
 
-    public static autoSave($q: ng.IQService, selection: ISelectionManager, dialogService: IDialogService): ng.IPromise<boolean> {
+    public static autoSave($q: ng.IQService, selection: ISelectionManager, dialogService: IDialogService): ng.IPromise<void> {
         let artifact = selection.getArtifact();
         if (artifact) {
             return artifact.autosave();
         }
-        return $q.resolve(true);
+        return $q.resolve();
     }  
 
 }

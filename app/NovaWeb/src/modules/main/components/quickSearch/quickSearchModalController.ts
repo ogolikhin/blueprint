@@ -1,6 +1,5 @@
-import * as SearchModels from "./models/model";
 import { ILocalizationService } from "../../../core/localization/localizationService";
-import { IQuickSearchService } from "./quickSearchService";
+import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
 export interface IQuickSearchModalController {
     searchTerm: string;
@@ -16,9 +15,9 @@ export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;
-    results: SearchModels.ISearchItem[];
-    metadata: SearchModels.ISearchMetadata;
-    
+    results: ISearchItem[];
+    metadata: ISearchMetadata;
+
     private page: number;
 
     static $inject = [
@@ -42,7 +41,7 @@ export class QuickSearchModalController {
                 private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
-        
+
     }
 
     private isFormInvalid(): boolean {
@@ -62,7 +61,7 @@ export class QuickSearchModalController {
             if (result.totalCount > 0) {
                 this.search(this.searchTerm);
             }
-        }).finally(() => {            
+        }).finally(() => {
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
@@ -71,7 +70,7 @@ export class QuickSearchModalController {
         });
     }
 
-    search(term: string) {        
+    search(term: string) {
         if (this.isFormInvalid()) {
             return null;
         }
@@ -79,14 +78,14 @@ export class QuickSearchModalController {
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term, this.page, this.metadata.pageSize).then((results: SearchModels.ISearchResult) => {
+        this.quickSearchService.search(term, this.page, this.metadata.pageSize).then((results: ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
             this.isLoading = false;
         });
-    }    
-    
+    }
+
     clearSearch() {
         this.searchTerm = "";
         this.quickSearchService.searchTerm = "";
@@ -132,7 +131,7 @@ export class QuickSearchModalController {
 
         this.$uibModalInstance.dismiss("cancel");
     }
-    
+
     showPagination(): boolean {
         return this.metadata.totalCount > 0 && this.metadata.totalPages > 1;
     }
@@ -141,7 +140,7 @@ export class QuickSearchModalController {
         this.metadata = { totalCount: 0, pageSize: null, items: [], totalPages: 0 };
     }
 
-    private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
+    private updateMetadataInfo(result: ISearchMetadata) {
         this.metadata = result;
         this.page = 1;
         if (result.totalCount === 0) {
@@ -149,8 +148,8 @@ export class QuickSearchModalController {
             this.isLoading = false;
         }
     }
-    
+
     get getResultsFoundText() {
-        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());        
-    } 
+        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());
+    }
 }

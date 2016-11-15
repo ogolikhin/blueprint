@@ -1,12 +1,47 @@
-import { IProjectManager } from "../../../managers/project-manager/project-manager";
-import { IMetaDataService } from "../../../managers/artifact-manager/metadata/metadata.svc";
-import { IItemType } from "../../models/models";
-import { Models } from "../../models";
-import * as SearchModels from "./models/model";
+import {IProjectManager} from "../../../managers/project-manager/project-manager";
+import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
+import {IItemType} from "../../models/models";
+import {Models} from "../../models";
+export interface ISearchMetadata {
+    totalCount: number;
+    totalPages: number;
+    pageSize: number;
+    items: any[];
+}
 
+export interface ISearchItem {
+    artifactId: number;
+    createdBy: string;
+    createdDateTime: string;
+    createdUser: number;
+    isSubartifact: boolean;
+    itemId: number;
+    itemTypeId: number;
+    lastModifiedBy: string;
+    lastModifiedDateTime: string;
+    lastModifiedUser: number;
+    name: string;
+    projectId: number;
+    propertyName: string;
+    propertyTypeId: number;
+    searchableValue: string;
+    subartifactId: number;
+    typeName: string;
+    typePrefix: string;
+    iconImageId: number;
+    predefinedType: number;
+    artifactClass: string;
+}
+
+export interface ISearchResult {
+    items: ISearchItem[];
+    page: number;
+    pageItemCount: number;
+    pageSize: number;
+}
 export interface IQuickSearchService {
-    search(term: string, page?: number, pageSize?: number): ng.IPromise<SearchModels.ISearchResult>;
-    metadata(term: string, page?: number, pageSize?: number): ng.IPromise<SearchModels.ISearchMetadata>;
+    search(term: string, page?: number, pageSize?: number): ng.IPromise<ISearchResult>;
+    metadata(term: string, page?: number, pageSize?: number): ng.IPromise<ISearchMetadata>;
     searchTerm: string;
     canSearch(): boolean;
 }
@@ -23,11 +58,11 @@ export class QuickSearchService implements IQuickSearchService {
     ];
 
     constructor(private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private $timeout: ng.ITimeoutService,
-        private $log: ng.ILogService,
-        private projectManager: IProjectManager,
-        private metadataService: IMetaDataService) {
+                private $http: ng.IHttpService,
+                private $timeout: ng.ITimeoutService,
+                private $log: ng.ILogService,
+                private projectManager: IProjectManager,
+                private metadataService: IMetaDataService) {
     }
 
     searchTerm: string;
@@ -35,29 +70,30 @@ export class QuickSearchService implements IQuickSearchService {
     canSearch(): boolean {
         return !(this.projectManager.projectCollection.getValue().map(project => project.id).length > 0);
     }
+
     private appendParameters(url: string, page: number, pageSize: number): string {
         if (page) {
             url = url + `?page=${page}`;
             if (pageSize) {
                 url = url + `&pageSize=${pageSize}`;
             }
-        } else if (pageSize) {            
+        } else if (pageSize) {
             url = url + `?pageSize=${pageSize}`;
         }
         return url;
     }
 
     private getSearchUrl(page: number, pageSize: number): string {
-        const url = `/svc/searchservice/itemsearch/fulltext/`;        
-        return this.appendParameters(url, page, pageSize);
-    }
-    
-    private getMetadataUrl(page: number, pageSize: number): string {
-        const url = `/svc/searchservice/itemsearch/fulltextmetadata/`;        
+        const url = `/svc/searchservice/itemsearch/fulltext/`;
         return this.appendParameters(url, page, pageSize);
     }
 
-    metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<SearchModels.ISearchMetadata> {
+    private getMetadataUrl(page: number, pageSize: number): string {
+        const url = `/svc/searchservice/itemsearch/fulltextmetadata/`;
+        return this.appendParameters(url, page, pageSize);
+    }
+
+    metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchMetadata> {
 
         const deferred = this.$q.defer();
         const request: ng.IRequestConfig = {
@@ -71,7 +107,7 @@ export class QuickSearchService implements IQuickSearchService {
         };
 
         this.$http(request).then(
-            (result) => {           
+            (result) => {
                 deferred.resolve(result.data);
             },
             (error) => {
@@ -82,7 +118,7 @@ export class QuickSearchService implements IQuickSearchService {
         return deferred.promise;
     }
 
-    search(term: string, page: number = null, pageSize: number = null): ng.IPromise<SearchModels.ISearchResult> {
+    search(term: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchResult> {
         this.$log.debug(`searching server for "${term}"`);
 
         //const MOCK_RESULTS = require("./quickSearch.mock.ts");
@@ -99,23 +135,23 @@ export class QuickSearchService implements IQuickSearchService {
         };
 
         this.$http(request).then((result) => {
-            let p = [];
-            _.each((<SearchModels.ISearchResult>result.data).items, (item) => {
-                if (item.isSubartifact) {
-                    p.push(this.metadataService.getSubArtifactItemType(item.projectId, item.itemTypeId).then((itemType: IItemType) => {
-                        return this.extendItem(item, itemType);
-                    }));
-                }
-                else {
-                    p.push(this.metadataService.getArtifactItemType(item.projectId, item.itemTypeId).then((itemType: IItemType) => {
-                        return this.extendItem(item, itemType);
-                    }));
-                }
-            });
-            this.$q.all(p).then(() => {
-                deferred.resolve(result.data);
-            });
-        },
+                let p = [];
+                _.each((<ISearchResult>result.data).items, (item) => {
+                    if (item.isSubartifact) {
+                        p.push(this.metadataService.getSubArtifactItemType(item.projectId, item.itemTypeId).then((itemType: IItemType) => {
+                            return this.extendItem(item, itemType);
+                        }));
+                    }
+                    else {
+                        p.push(this.metadataService.getArtifactItemType(item.projectId, item.itemTypeId).then((itemType: IItemType) => {
+                            return this.extendItem(item, itemType);
+                        }));
+                    }
+                });
+                this.$q.all(p).then(() => {
+                    deferred.resolve(result.data);
+                });
+            },
             (error) => {
                 deferred.reject(error);
             }
@@ -124,7 +160,7 @@ export class QuickSearchService implements IQuickSearchService {
         return deferred.promise;
     }
 
-    private extendItem(item: SearchModels.ISearchItem, itemType: IItemType) {
+    private extendItem(item: ISearchItem, itemType: IItemType) {
         if (!itemType) {
             return item;
         }

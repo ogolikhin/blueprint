@@ -1,7 +1,7 @@
 import "../../";
 import * as angular from "angular";
 import "angular-mocks";
-import {QuickSearchController, IQuickSearchController} from "./quickSearchController";
+import {QuickSearchController} from "./quickSearchController";
 
 describe("Controller: Quick Search", () => {
     let controller;

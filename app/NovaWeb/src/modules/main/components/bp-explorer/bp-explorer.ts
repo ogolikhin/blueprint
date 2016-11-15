@@ -72,7 +72,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }
 
     private setSelectedNode(artifactId: number) {
-        this.$q.when(this.isLoading ? this.isLoading.promise : undefined).then(() => {
+        const setSelectedNodeInternal = (artifactId: number) => {
             if (this.tree.nodeExists(artifactId)) {
                 this.tree.selectNode(artifactId);
 
@@ -87,7 +87,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
                 this.selected = null;
             }
-        });
+        };
+
+        if (this.isLoading) {
+            this.isLoading.promise.then(() => setSelectedNodeInternal(artifactId));
+        } else {
+            setSelectedNodeInternal(artifactId);
+        }
+
     }
 
     private _selected: IArtifactNode;
@@ -115,7 +122,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private isLoading: ng.IDeferred<void>;
 
     private onLoadProject = (projects: IArtifactNode[]) => {
-        this.isLoading = this.$q.defer<void>();
+        if (!this.isLoading) {
+            this.isLoading = this.$q.defer<void>();
+        }
         this.projects = projects.slice(0); // create a copy
     }
 

@@ -124,6 +124,18 @@ bp-properties-panel {
                 //min-width: $property-input-width;
             }
         }
+
+        .formly-field-bpFieldTextRTF {
+            .mce-toolbar-grp {
+                min-width: 244px;
+                top: -25px;
+
+                .mce-btn button {
+                    line-height: 15px;
+                    padding: 2px 1px;
+                }
+            }
+        }
     }
 
     .single-column-property .formly .formly-field label {

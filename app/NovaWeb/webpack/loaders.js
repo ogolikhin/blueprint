@@ -39,6 +39,11 @@ module.exports = [
         ]
     },
     {
+        test: /\.json$/,
+        exclude: /node_modules/,
+        loader: 'raw'
+    },
+    {
         test: /\.html$/,
         exclude: /node_modules/,
         loader: 'raw',

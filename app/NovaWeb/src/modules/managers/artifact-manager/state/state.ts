@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import * as _ from "lodash";
 import {Models, Enums} from "../../../main/models";
 import {IDispose} from "../../models";
 import {IIStatefulArtifact} from "../artifact";
@@ -33,7 +34,7 @@ export class ArtifactState implements IArtifactState {
     }
 
     private currentState: IState = this.newState();
-    private prevState: IState = this.clone(this.currentState);
+    private prevState: IState = _.cloneDeep(this.currentState);
 
     private subject: Rx.BehaviorSubject<IState>;
 
@@ -55,12 +56,7 @@ export class ArtifactState implements IArtifactState {
 
     private reset() {
         this.currentState = this.newState();
-        this.prevState = this.clone(this.currentState);
-    }
-
-    private clone(source: IState): IState {
-        let duplicate = JSON.parse(JSON.stringify(source));
-        return duplicate;
+        this.prevState = _.cloneDeep(this.currentState);
     }
 
     public get onStateChange(): Rx.Observable<IState> {
@@ -83,20 +79,16 @@ export class ArtifactState implements IArtifactState {
             if (notifyChange) {
                 this.notifyStateChange();
             } else {
-                this.prevState = this.clone(this.currentState);
+                this.prevState = _.cloneDeep(this.currentState);
             }
         }
     }
 
     private notifyStateChange() {
-        if (!this.compareEqual(this.prevState, this.currentState)) {
-            this.prevState = this.clone(this.currentState);
+        if (!_.isEqual(this.prevState, this.currentState)) {
+            this.prevState = _.cloneDeep(this.currentState);
             this.subject.onNext(this.currentState);
         }
-    }
-
-    private compareEqual(prev: IState, curr: IState): boolean {
-        return JSON.stringify(prev) === JSON.stringify(curr);
     }
 
     public get deleted(): boolean {

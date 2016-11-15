@@ -35,7 +35,9 @@ describe("ProcessViewModel", () => {
                        loadingOverlayService: ILoadingOverlayService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null);
+        let artitfactServices = new StatefulArtifactServices(
+            _$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null
+        );
         services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
     }));
     it("test add stateful Shape", () => {

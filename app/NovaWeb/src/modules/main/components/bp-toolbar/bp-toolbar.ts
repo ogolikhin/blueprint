@@ -311,7 +311,7 @@ export class BPToolbarController implements IBPToolbarController {
     }
 
     public $onInit() {
-        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+        const artifactStateSubscriber = this.artifactManager.selection.currentlySelectedArtifactObservable
             .map(selectedArtifact => {
                 if (!selectedArtifact) {
                     this._currentArtifact = null;
@@ -319,7 +319,6 @@ export class BPToolbarController implements IBPToolbarController {
                 return selectedArtifact;
             })
             .filter(selectedArtifact => !!selectedArtifact)
-            .flatMap(selectedArtifact => selectedArtifact.getObservable())
             .subscribe(this.setCurrentArtifact);
 
         this._subscribers = [artifactStateSubscriber];

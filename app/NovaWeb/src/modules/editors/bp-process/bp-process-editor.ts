@@ -178,6 +178,10 @@ export class BpProcessEditorController extends BpBaseEditor {
             const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(elements[0].model.id);
             if (subArtifact) {
                 subArtifact.loadProperties().then((loadedSubArtifact: IStatefulSubArtifact) => {
+                    if (this.isDestroyed) {
+                        return;
+                    }
+                    
                     this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
                 });
             }

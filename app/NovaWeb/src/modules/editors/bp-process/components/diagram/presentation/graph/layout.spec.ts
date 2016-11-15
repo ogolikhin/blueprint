@@ -1,3 +1,4 @@
+/* tslint:disable max-file-line-count */
 import * as angular from "angular";
 require("script!mxClient");
 import {ProcessGraph} from "./process-graph";

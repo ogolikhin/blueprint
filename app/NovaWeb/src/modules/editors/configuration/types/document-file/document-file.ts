@@ -88,6 +88,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                         fileGuid: uploadedFile.guid,
                         filePath: uploadedFile.url
                     };
+                    this.$scope.model[this.$scope.options["key"]] = newFileObject;
                     if (onChange) {
                         onChange(newFileObject, $scope.fields[0], $scope);
                     }
@@ -134,6 +135,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     message: localization.get("App_UP_Attachments_Delete_Attachment", "Attachment will be deleted. Continue?")
                 };
                 dialogService.open(dialogSettings).then(() => {
+                    this.$scope.model[this.$scope.options["key"]] = null;
                     if (onChange) {
                         onChange(null, $scope.fields[0], $scope);
                     }

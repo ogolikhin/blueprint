@@ -179,6 +179,11 @@ export interface IActorImagePropertyValue {
     imageSource: string;
 }
 
+export interface ICollectionContentPropertyValue {
+    addedArtifacts: number[];
+    removedArtifacts: number[];
+}
+
 export interface IProjectMeta {
     artifactTypes: IItemType[];
     propertyTypes: IPropertyType[];

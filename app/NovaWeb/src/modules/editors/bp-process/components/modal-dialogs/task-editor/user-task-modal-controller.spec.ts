@@ -11,6 +11,8 @@ import {UserTaskModalController} from "./user-task-modal-controller";
 import {IArtifactReference} from "../../../models/process-models";
 import {UserTask} from "../../diagram/presentation/graph/shapes/";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {Models} from "../../../../../main/models/";
+
 require("script!mxClient");
 
 describe("UserTaskModalController", () => {
@@ -68,6 +70,16 @@ describe("UserTaskModalController", () => {
                 typePrefix: "PRO"
             };
             model.originalItem = createUserTaskNode();
+            model.personaReference = {
+                id: -1,
+                projectId: null,
+                name: "User",
+                typePrefix: null,
+                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                projectName: null,
+                link: null,
+                version: null
+            };
 
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");

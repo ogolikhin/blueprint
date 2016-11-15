@@ -318,9 +318,10 @@ namespace Helper
         /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
         ///     By default the ItemTypePredefined is converted into its equivalent BaseArtifactType.</param>
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
         public IArtifact CreateWrapAndSaveNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
-            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null)
+            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null, string artifactTypeName = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -330,7 +331,7 @@ namespace Helper
             }
 
             var collection = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
-                itemType, name, project, parentId, orderIndex);
+                itemType, name, project, artifactTypeName, parentId, orderIndex);
 
             return WrapNovaArtifact(collection, project, user, baseType);
         }
@@ -348,11 +349,12 @@ namespace Helper
         /// <param name="baseType">(optional) The OpenAPI base artifact type for this artifact.
         ///     By default the ItemTypePredefined is converted into its equivalent BaseArtifactType.</param>
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
         public IArtifact CreateWrapAndPublishNovaArtifact(IProject project, IUser user, ItemTypePredefined itemType,
-            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null)
+            int? parentId = null, double? orderIndex = null, BaseArtifactType? baseType = null, string name = null, string artifactTypeName = null)
         {
-            var artifact = CreateWrapAndSaveNovaArtifact(project, user, itemType, parentId, orderIndex, baseType, name);
+            var artifact = CreateWrapAndSaveNovaArtifact(project, user, itemType, parentId, orderIndex, baseType, name, artifactTypeName);
             ArtifactStore.PublishArtifact(artifact, user);
             return artifact;
         }

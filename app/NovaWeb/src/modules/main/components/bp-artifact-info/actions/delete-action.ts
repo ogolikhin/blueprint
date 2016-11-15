@@ -111,11 +111,15 @@ export class DeleteAction extends BPButtonAction {
 
 
     private complete(deletedArtifacts: Models.IArtifact[]) {
-        const artifact = this.artifactManager.get(this.artifact.parentId); 
-        this.artifactManager.selection.setArtifact(artifact);
-        this.projectManager.refresh(this.artifact.projectId, true).then(() => {
-            this.projectManager.triggerProjectCollectionRefresh();
-        });
+        const parentArtifact = this.artifactManager.get(this.artifact.parentId); 
+        if (parentArtifact) {
+            this.artifactManager.selection.setArtifact(parentArtifact);
+            this.projectManager.refresh(parentArtifact.projectId, true).then(() => {
+                this.projectManager.triggerProjectCollectionRefresh();
+            });
+        } else {
+            this.artifact.refresh();
+        }
         const message = new Message(
                 MessageType.Info, 
                 deletedArtifacts.length > 1 ? "Delete_Artifact_All_Success_Message" : "Delete_Artifact_Single_Success_Message", 

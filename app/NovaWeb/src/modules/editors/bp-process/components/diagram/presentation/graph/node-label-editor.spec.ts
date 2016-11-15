@@ -71,7 +71,7 @@ describe("Node Label Editor test", () => {
 
         textLabel.onTextChange = (value) => {
             labelText = value; 
-        }
+        };
 
         return textLabel;
     };

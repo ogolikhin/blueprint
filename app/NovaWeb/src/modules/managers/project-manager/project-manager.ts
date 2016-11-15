@@ -157,14 +157,6 @@ export class ProjectManager implements IProjectManager {
 
         let selectedArtifact = this.artifactManager.selection.getArtifact();
 
-        // //if selected artifact is dirty and is in the project being refreshed - perform autosave
-        // let autosave: ng.IPromise<any>;
-        // if (selectedArtifact.artifactState.dirty && selectedArtifact.projectId === projectNode.id) {
-        //     autosave = selectedArtifact.autosave();
-        // } else {
-        //     autosave = this.$q.resolve();
-        // }
-
         return selectedArtifact.autosave().then(() => {
             return this.doRefresh(projectNode, selectedArtifact, forceOpen);
         });

@@ -1,5 +1,4 @@
 import * as angular from "angular";
-import * as _ from "lodash";
 import {Models, Enums} from "../../../main/models";
 import {IDispose} from "../../models";
 import {IIStatefulArtifact} from "../artifact";

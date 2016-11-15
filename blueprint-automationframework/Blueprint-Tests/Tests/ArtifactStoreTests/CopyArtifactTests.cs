@@ -184,7 +184,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
-
+        /*
         [Category(Categories.CustomData)]
         [TestCase(BaseArtifactType.TextualRequirement)]
         [TestRail(191051)]
@@ -204,7 +204,7 @@ namespace ArtifactStoreTests
         {
             Assert.Fail("Test not implemented yet.");
         }
-
+        */
         #endregion 201 Created tests
 
         #region Private functions

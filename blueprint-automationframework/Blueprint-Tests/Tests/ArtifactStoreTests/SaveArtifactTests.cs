@@ -140,10 +140,10 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase(BaseArtifactType.Process, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase("Std-Text-Required-RT-Multi-HasDefault")]
         [TestRail(999999)]
         [Description("Create & publish a Process artifact.  Update a text property, save and publish.  Verify the artifact returned the test property updated.")]
-        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(BaseArtifactType baseArtifactType, string propertyName)
+        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(string propertyName)
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);

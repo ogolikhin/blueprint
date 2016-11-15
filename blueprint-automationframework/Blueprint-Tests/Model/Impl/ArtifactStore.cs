@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using Common;
 using Model.ArtifactModel;
@@ -11,6 +10,8 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 using Newtonsoft.Json;
+using System.Web;
+using System.Net.Mime;
 
 namespace Model.Impl
 {
@@ -534,6 +535,42 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return artifactBaseInfo.ConvertAll(o => (INovaVersionControlArtifactInfo)o);
+        }
+
+        public IFile GetAttachmentFile(IUser user, int itemId, int fileId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(itemId, nameof(itemId));
+            ThrowIf.ArgumentNull(fileId, nameof(fileId));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            File file = null;
+
+            string tokenValue = user.Token?.AccessControlToken;
+            
+            var restApi = new RestApiFacade(Address, tokenValue);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT_id_, itemId, fileId);
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            // TODO: implementation copied from FileStore.cs - fix after call will be implemented
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string filename = HttpUtility.UrlDecode(new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName);
+
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    Guid = fileId.ToString(),
+                    LastModifiedDate =
+                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
+                            null),
+                    FileType = response.ContentType,
+                    FileName = filename
+                };
+            }
+
+            return file;
         }
 
         #endregion Members inherited from IArtifactStore

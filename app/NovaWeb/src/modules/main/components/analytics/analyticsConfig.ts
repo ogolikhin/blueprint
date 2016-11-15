@@ -1,17 +1,19 @@
-export class AnalyticsConfig{
-    static $inject =[
+export class AnalyticsConfig {
+    static $inject = [
         "AnalyticsProvider"
     ];
-    constructor(AnalyticsProvider:ng.google.analytics.AnalyticsProvider){
+
+    constructor(AnalyticsProvider: ng.google.analytics.AnalyticsProvider) {
         //https://github.com/revolunet/angular-google-analytics
+        AnalyticsProvider.logAllCalls(true);
+        //AnalyticsProvider.startOffline(true);
+        AnalyticsProvider.setAccount("UA-87378361-1");
+        AnalyticsProvider.setPageEvent("$stateChangeSuccess");
 
-        AnalyticsProvider.setAccount('UA-87378361-1');
-        AnalyticsProvider.setPageEvent('$stateChangeSuccess');
-
-        // Set the domain name. Use 'none' for localhost
-        AnalyticsProvider.setDomainName('none');
+        // Set the domain name. Use "none" for localhost
+        AnalyticsProvider.setDomainName("none");
 
         //flag that can disable analytics if needed
-        (<any>AnalyticsProvider).disableAnalytics(false);
+        //(<any>AnalyticsProvider).disableAnalytics(false);
     }
 }

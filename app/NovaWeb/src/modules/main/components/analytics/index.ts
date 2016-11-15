@@ -1,4 +1,5 @@
 import {AnalyticsConfig} from "./analyticsConfig";
-
-angular.module('bp.components.analytics',[])
-.config(AnalyticsConfig);
+import {AnalyticsRun} from "./analyticsRun";
+angular.module("bp.components.analytics", [])
+    .config(AnalyticsConfig)
+    .run(AnalyticsRun);

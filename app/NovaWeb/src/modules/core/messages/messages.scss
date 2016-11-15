@@ -15,15 +15,16 @@ message {
         position: relative;
         width: 100%;
         display: flex;
+        align-items: center;
 
         .icon {
             display: inline-block;
-            text-align: center;
             margin: -10px 10px;
             font-size: 2.5rem;
 
             &::before {
                 font-size: 2.5rem;
+                line-height: inherit;
             }
         }
 

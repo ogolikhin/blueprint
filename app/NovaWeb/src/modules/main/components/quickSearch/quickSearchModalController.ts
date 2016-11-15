@@ -1,4 +1,4 @@
-import { ILocalizationService } from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
 export interface IQuickSearchModalController {
@@ -114,7 +114,7 @@ export class QuickSearchModalController {
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
     }
 
-    onStateChangeStart = (e, toState, toParams, fromState, fromParams) => {
+    onStateChangeStart(e, toState, toParams, fromState, fromParams) {
         this.$log.debug("state changing from search modal");
         // navigating to same artifact destroys the editor, but does not enter item state to load artifact.
         if (toParams.id === fromParams.id) {
@@ -137,7 +137,7 @@ export class QuickSearchModalController {
     }
 
     private resetMetadata() {
-        this.metadata = { totalCount: 0, pageSize: null, items: [], totalPages: 0 };
+        this.metadata = {totalCount: 0, pageSize: null, items: [], totalPages: 0};
     }
 
     private updateMetadataInfo(result: ISearchMetadata) {

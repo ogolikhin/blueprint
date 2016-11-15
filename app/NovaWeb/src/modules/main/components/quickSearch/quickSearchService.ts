@@ -53,8 +53,8 @@ export class QuickSearchService implements IQuickSearchService {
         "$timeout",
         "$log",
         "projectManager",
-        "metadataService"
-
+        "metadataService",
+        "Analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -62,7 +62,8 @@ export class QuickSearchService implements IQuickSearchService {
                 private $timeout: ng.ITimeoutService,
                 private $log: ng.ILogService,
                 private projectManager: IProjectManager,
-                private metadataService: IMetaDataService) {
+                private metadataService: IMetaDataService,
+                private Analytics) {
     }
 
     searchTerm: string;
@@ -134,6 +135,23 @@ export class QuickSearchService implements IQuickSearchService {
             }
         };
 
+
+        /*
+         // Create a new tracking event
+         Analytics.trackEvent('video', 'play', 'django.mp4');
+
+         // Create a new tracking event with a value
+         Analytics.trackEvent('video', 'play', 'django.mp4', 4);
+
+         // Create a new tracking event with a value and non-interaction flag
+         Analytics.trackEvent('video', 'play', 'django.mp4', 4, true);
+
+         // Create a new tracking event with a value, non-interaction flag, custom dimension, and custom metric
+         // Universal Analytics only
+         Analytics.trackEvent('video', 'play', 'django.mp4', 4, true, { dimension15: 'My Custom Dimension', metric18: 8000 });
+         */
+
+        //this.Analytics.trackEvent();
         this.$http(request).then((result) => {
                 let p = [];
                 _.each((<ISearchResult>result.data).items, (item) => {

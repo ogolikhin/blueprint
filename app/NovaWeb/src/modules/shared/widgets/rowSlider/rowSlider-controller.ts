@@ -38,11 +38,11 @@ export class RowSliderController {
     };
 
     public previousSlide = (): void => {
-        ; // temporary
+        // temporary
     };
 
     public nextSlide = (): void => {
-        ; // temporary
+        // temporary
     };
 
     private recalculate = (availableWidth?: number): void => {

@@ -1,6 +1,8 @@
 ﻿import {IStencilService} from "./impl/stencil.svc";
 
 export class StencilServiceMock implements IStencilService {
+    private readonly parser = new DOMParser();
+
     public getStencil(diagramType: string): HTMLElement {
         let data: string;
         switch (diagramType) {
@@ -27,7 +29,7 @@ export class StencilServiceMock implements IStencilService {
         }
 
         try {
-            let xml = $.parseXML(data);
+            const xml = this.parser.parseFromString(data, "text/xml");
             return xml.documentElement;
         } catch (error) {
             return null;

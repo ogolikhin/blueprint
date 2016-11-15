@@ -4,7 +4,7 @@ import {IStatefulArtifactServices} from "../services";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
 import {IArtifactAttachmentsResultSet} from "../attachments";
 import {IChangeSet} from "../changeset";
-import {ISubArtifactCollection} from "../sub-artifact";
+import {ISubArtifactCollection, StatefulSubArtifactCollection} from "../sub-artifact";
 import {MetaData} from "../metadata";
 import {IDispose} from "../../models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
@@ -14,19 +14,16 @@ import {IApplicationError, ApplicationError} from "../../../core/error/applicati
 import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
-    /**
-     * Unload full weight artifact
-     */
-    unload();
     subArtifactCollection: ISubArtifactCollection;
-    //load(force?: boolean): ng.IPromise<IStatefulArtifact>;
+
+    // Unload full weight artifact
+    unload();
     save(): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
     autosave(): ng.IPromise<IStatefulArtifact>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
-
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
@@ -40,6 +37,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     private state: IArtifactState;
 
     protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
+    protected _subArtifactCollection: ISubArtifactCollection;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
@@ -116,6 +114,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public discard() {
         super.discard();
+        
+        if (this._subArtifactCollection) {
+            this._subArtifactCollection.discard();
+        }
+
         this.artifactState.dirty = false;
     }
 
@@ -322,6 +325,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.subject.onNext(this);
             }
         }
+    }
+
+    public get subArtifactCollection() {
+        if (!this._subArtifactCollection) {
+            this._subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
+        }
+        return this._subArtifactCollection;
     }
 
     protected getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet> {

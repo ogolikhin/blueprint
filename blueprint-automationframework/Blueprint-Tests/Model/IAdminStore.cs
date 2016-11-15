@@ -215,5 +215,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Response content.</returns>
         IPrimitiveFolder GetFolderById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns NavigationPath for Project. 
+        /// (Runs: GET svc/adminstore/instance/projects/projectId/navigationPath)
+        /// </summary>
+        /// <param name="projectId">An id of specific project.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        /// <param name="includeProjectItself">(optional) Should name of project be included. By default includes Project's name.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Navigation Path.</returns>
+        List<string> GetProjectNavigationPath(int projectId, IUser user, bool? includeProjectItself = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

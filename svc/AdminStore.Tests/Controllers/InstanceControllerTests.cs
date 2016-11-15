@@ -85,5 +85,31 @@ namespace AdminStore.Controllers
             //Assert
             Assert.AreSame(project, result);
         }
+
+        [TestMethod]
+        public async Task GetProjectNavigationPathAsync_Success()
+        {
+            //Arrange
+            const int userId = 88;
+            var session = new Session { UserId = userId };
+            const int projectId = 99;
+            const bool includeProjectItself = true;
+            var repositoryResult = new List<string> { "Blueprint", "ProjectName" };
+            var mockInstanceRepository = new Mock<ISqlInstanceRepository>();
+            mockInstanceRepository.Setup(r => r.GetProjectNavigationPathAsync(projectId, userId, includeProjectItself))
+                .ReturnsAsync(repositoryResult);
+            var mockServiceLogRepository = new Mock<IServiceLogRepository>();
+            var instanceController = new InstanceController(mockInstanceRepository.Object, mockServiceLogRepository.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            instanceController.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            //Act
+            var result = await instanceController.GetProjectNavigationPathAsync(projectId);
+
+            //Assert
+            Assert.AreSame(repositoryResult, result);
+        }
     }
 }

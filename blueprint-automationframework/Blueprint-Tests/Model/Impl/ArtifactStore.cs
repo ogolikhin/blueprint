@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using Common;
 using Model.ArtifactModel;
@@ -709,6 +710,43 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(project, nameof(project));
 
+            return CreateArtifact(address, 
+                user, 
+                baseArtifactType, 
+                name, 
+                project, 
+                artifactTypeName: null, 
+                parentArtifactId: parentArtifactId, 
+                orderIndex: orderIndex, 
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Creates a new Nova artifact using named Artifact Type.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="baseArtifactType">The base artifact type (i.e. ItemType) to create.</param>
+        /// <param name="name">The name of the new artifact.</param>
+        /// <param name="project">The project where the artifact will be created in.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <param name="parentArtifactId">(optional) The ID of the parent of the new artifact.</param>
+        /// <param name="orderIndex">(optional) The order index of the new artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        public static INovaArtifactDetails CreateArtifact(string address,
+            IUser user,
+            ItemTypePredefined baseArtifactType,
+            string name,
+            IProject project,
+            string artifactTypeName = null,
+            int? parentArtifactId = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
             string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
@@ -716,7 +754,17 @@ namespace Model.Impl
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
             // Get the custom artifact type for the project.
-            NovaArtifactType itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == baseArtifactType);
+            NovaArtifactType itemType;
+
+            if (artifactTypeName == null)
+            {
+                itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == baseArtifactType);
+            }
+            else
+            {
+                itemType = project.NovaArtifactTypes.Find(at => at.PredefinedType == baseArtifactType && at.Name.Equals(artifactTypeName));
+            }
+
             Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
                 project.Name, baseArtifactType);
 

@@ -277,6 +277,7 @@ namespace ArtifactStoreTests
             IArtifact collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+
             IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
 
             childArtifact.Lock(author);
@@ -300,6 +301,7 @@ namespace ArtifactStoreTests
         [TestRail(191030)]
         [Description("Create an artifact of collection artifact type or collection folder. Move this artifact to be a child of the root Collections folder. " + 
             "Verify the moved artifact is returned with the updated Parent ID.")]
+
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultCollectionsFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
@@ -326,6 +328,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
+
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(defaultCollectionFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
@@ -404,6 +407,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
         }
 
+
         #endregion 200 OK tests
 
         #region 400 Bad Request
@@ -426,6 +430,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "This move will result in a circular relationship between the artifact and its new parent.");
        }
+
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(190963)]

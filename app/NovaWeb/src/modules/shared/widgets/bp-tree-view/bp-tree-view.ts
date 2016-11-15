@@ -93,6 +93,10 @@ export interface IColumnRendererParams {
     $scope: ng.IScope;
 }
 
+export interface IHeaderCellRendererParams {
+    context?: any;
+}
+
 export interface IBPTreeViewControllerApi {
     ensureNodeVisible(node: ITreeViewNode): void;
     deselectAll(): void;
@@ -229,7 +233,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                    field: column.field,
                    width: column.width,
                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeViewNode) : undefined,
-                   cellRenderer: column.isGroup ? "group" : undefined,
+                   cellRenderer: column.isGroup ? "group" : column.innerRenderer,
                    cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
                             (params: any) => (params.data as ITreeViewNode).isSelectable : undefined,
@@ -245,9 +249,9 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             let rowDataAsync: ITreeViewNode[] | ng.IPromise<ITreeViewNode[]>;
             if (this.rootNode) {
-                if (this.rootNodeVisible || angular.isArray(this.rootNode)) {
-                    rowDataAsync = angular.isArray(this.rootNode) ? <ITreeViewNode[]>this.rootNode : [<ITreeViewNode>this.rootNode];
-                } else if (angular.isFunction((<ITreeViewNode>this.rootNode).loadChildrenAsync)) {
+                if (this.rootNodeVisible || _.isArray(this.rootNode)) {
+                    rowDataAsync = _.isArray(this.rootNode) ? <ITreeViewNode[]>this.rootNode : [<ITreeViewNode>this.rootNode];
+                } else if (_.isFunction((<ITreeViewNode>this.rootNode).loadChildrenAsync)) {
                     const rootNode = <ITreeViewNode>this.rootNode;
                     rowDataAsync = rootNode.loadChildrenAsync().then(() => rootNode.children);
                 } else {
@@ -289,7 +293,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     }
                 }
             }).catch(reason => {
-                if (angular.isFunction(this.onError)) {
+                if (_.isFunction(this.onError)) {
                     this.onError({reason: reason});
                 }
             }).finally(() => {
@@ -299,7 +303,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                         this.options.api.showNoRowsOverlay();
                     }
                 }
-                if (this.onGridReset) {
+                if (_.isFunction(this.onGridReset)) {
                     this.onGridReset();
                 }
             });
@@ -347,12 +351,12 @@ export class BPTreeViewController implements IBPTreeViewController {
                 row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
-            if (node.expanded && angular.isFunction(vm.loadChildrenAsync)) {
+            if (node.expanded && _.isFunction(vm.loadChildrenAsync)) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
                 vm.loadChildrenAsync().then(() => this.resetGridAsync(true)).catch(reason => {
-                    if (angular.isFunction(this.onError)) {
+                    if (_.isFunction(this.onError)) {
                         this.onError({reason: reason});
                     }
                 });
@@ -410,7 +414,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         const vm = node.data as ITreeViewNode;
         if (isSelected && (!vm.isSelectable || !this.isVisible(node))) {
             node.setSelected(false);
-        } else if (this.onSelect) {
+        } else if (_.isFunction(this.onSelect)) {
             this.onSelect({vm: vm, isSelected: isSelected});
         }
     };
@@ -426,7 +430,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public onRowDoubleClicked = (event: {data: ITreeViewNode}) => {
         const vm = event.data;
-        if (this.onDoubleClick && vm.isSelectable && !vm.isExpandable) {
+        if (_.isFunction(this.onDoubleClick) && vm.isSelectable && !vm.isExpandable) {
             this.onDoubleClick({vm: vm});
         }
     };

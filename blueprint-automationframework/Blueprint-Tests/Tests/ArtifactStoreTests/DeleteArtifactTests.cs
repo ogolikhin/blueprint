@@ -432,7 +432,7 @@ namespace ArtifactStoreTests
                 "We should get a 403 Forbidden when a user trying to delete a parent artifact does not have permission to delete one of its children!");
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", parentArtifact.Id);
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", childArtifact.Id);
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
@@ -640,8 +640,8 @@ namespace ArtifactStoreTests
                     "We should get a 409 Conflict when a user tries to delete an artifact when it has a child locked by another user!");
 
                 // Verify:
-                string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == parentArtifactType).Prefix;
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, parentArtifact.Id);
+                string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == childArtifactType).Prefix;
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childArtifact.Id);
                 ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally
@@ -705,8 +705,8 @@ namespace ArtifactStoreTests
                     "We should get a 409 Conflict when a user tries to delete a Collection Folder when it has a child locked by another user!");
 
                 // Verify:
-                string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.CollectionFolder).Prefix;
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, parentCollectionFolder.Id);
+                string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.ArtifactCollection).Prefix;
+                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childCollection.Id);
                 ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally

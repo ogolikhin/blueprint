@@ -4,9 +4,12 @@ import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
 import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {Models} from "../../../../../main/models";
+import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
 
 export class UserTaskModalController extends TaskModalController<UserTaskDialogModel> {
     public actionPlaceHolderText: string;
+    private _idGenerator = new IdGenerator();
 
     public static $inject = [
         "$scope",
@@ -52,6 +55,20 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         this.dialogModel.associatedArtifact = value;
     }
 
+    protected getPersonaReference(): IArtifactReference {
+        return this.dialogModel.personaReference;
+    }
+
+    protected setPersonaReference(value: IArtifactReference) {
+        if (value) {
+            this.dialogModel.personaReference = value;
+            this.dialogModel.persona = value.name;
+        } else {
+            this.dialogModel.personaReference = this.getDefaultPersonaReference();
+            this.dialogModel.persona = this.dialogModel.personaReference.name;
+        }
+    }
+
     protected populateTaskChanges() {
 
         if (this.dialogModel.originalItem && this.dialogModel) {
@@ -59,6 +76,22 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
             this.dialogModel.originalItem.action = this.dialogModel.action;
             this.dialogModel.originalItem.objective = this.dialogModel.objective;
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
+            this.dialogModel.originalItem.personaReference = this.dialogModel.personaReference;
         }
+    }
+
+    protected getDefaultPersonaReference(): IArtifactReference {
+        const defaultUserPersonaReference = {
+            id: this._idGenerator.getUserPeronaId(),
+            projectId: null,
+            name: this.localization.get("ST_New_User_Task_Persona"),
+            typePrefix: null,
+            baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+            projectName: null,
+            link: null,
+            version: null
+        };
+
+        return defaultUserPersonaReference;
     }
 }

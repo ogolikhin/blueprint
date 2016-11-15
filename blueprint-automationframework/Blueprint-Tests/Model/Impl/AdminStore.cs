@@ -485,6 +485,34 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IAdminStore.GetProjectNavigationPath(int, IUser, bool?, List{HttpStatusCode})"/>
+        public List<string> GetProjectNavigationPath(int projectId, IUser user, bool? includeProjectItself = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.Projects_id_.NAVIGATIONPATH,
+                projectId);
+            
+
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+
+            if (includeProjectItself != null)
+            {
+                queryParameters.Add("includeProjectItself", includeProjectItself.ToString());
+            }
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            var navigationPath = restApi.SendRequestAndDeserializeObject<List<string>>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+                return navigationPath;
+        }
+
         #endregion Members inherited from IAdminStore
 
         #region Members inherited from IDisposable

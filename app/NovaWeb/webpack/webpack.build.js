@@ -3,6 +3,7 @@ function isDebug(argument) {
 }
 
 var webpack = require('webpack');
+var failPlugin = require('webpack-fail-plugin');
 var path = require('path');
 var isDebug = process.argv.some(isDebug);
 var CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -30,8 +31,8 @@ module.exports = {
         filename: '[name].bundle.js'
     },
     plugins: [
+        failPlugin,
         new ProgressBarPlugin(),
-
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',

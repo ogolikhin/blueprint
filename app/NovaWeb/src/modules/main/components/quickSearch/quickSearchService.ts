@@ -40,7 +40,7 @@ export interface ISearchResult {
     pageSize: number;
 }
 export interface IQuickSearchService {
-    search(term: string, page?: number, pageSize?: number): ng.IPromise<ISearchResult>;
+    search(term: string, eventSource: string, page?: number, pageSize?: number): ng.IPromise<ISearchResult>;
     metadata(term: string, page?: number, pageSize?: number): ng.IPromise<ISearchMetadata>;
     searchTerm: string;
     canSearch(): boolean;
@@ -119,39 +119,32 @@ export class QuickSearchService implements IQuickSearchService {
         return deferred.promise;
     }
 
-    search(term: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchResult> {
+    search(term: string, eventSource: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchResult> {
         this.$log.debug(`searching server for "${term}"`);
 
-        //const MOCK_RESULTS = require("./quickSearch.mock.ts");
 
         const deferred = this.$q.defer();
+        const projectIds = this.projectManager.projectCollection.getValue().map(project => project.id);
+
         const request: ng.IRequestConfig = {
             method: "POST",
             url: this.getSearchUrl(page, pageSize),
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.id)
+                "ProjectIds": projectIds
             }
         };
 
 
-        /*
-         // Create a new tracking event
-         Analytics.trackEvent('video', 'play', 'django.mp4');
+        this.Analytics.trackEvent("Event", "Quick Search", eventSource, term, false,
+            {
+                projectIds: projectIds,
+                page: 1,
+                pageSize: 10
+            });
 
-         // Create a new tracking event with a value
-         Analytics.trackEvent('video', 'play', 'django.mp4', 4);
 
-         // Create a new tracking event with a value and non-interaction flag
-         Analytics.trackEvent('video', 'play', 'django.mp4', 4, true);
-
-         // Create a new tracking event with a value, non-interaction flag, custom dimension, and custom metric
-         // Universal Analytics only
-         Analytics.trackEvent('video', 'play', 'django.mp4', 4, true, { dimension15: 'My Custom Dimension', metric18: 8000 });
-         */
-
-        //this.Analytics.trackEvent();
         this.$http(request).then((result) => {
                 let p = [];
                 _.each((<ISearchResult>result.data).items, (item) => {

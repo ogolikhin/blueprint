@@ -52,14 +52,15 @@ export class QuickSearchModalController {
         return false;
     }
 
-    searchWithMetadata(term: string) {
+    searchWithMetadata(term: string, source: string) {
         if (this.isFormInvalid()) {
             return null;
         }
+
         this.quickSearchService.metadata(this.searchTerm).then((result) => {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
-                this.search(this.searchTerm);
+                this.search(this.searchTerm, source);
             }
         }).finally(() => {
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
@@ -70,15 +71,17 @@ export class QuickSearchModalController {
         });
     }
 
-    search(term: string) {
+    search(term: string, source: string) {
         if (this.isFormInvalid()) {
             return null;
         }
+        source = !source ? "Modal" : source;
+
         this.isLoading = true;
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term, this.page, this.metadata.pageSize).then((results: ISearchResult) => {
+        this.quickSearchService.search(term, source, this.page, this.metadata.pageSize).then((results: ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
@@ -108,7 +111,7 @@ export class QuickSearchModalController {
         this.resetMetadata();
         this.page = 1;
         if (this.searchTerm.length) {
-            this.searchWithMetadata(this.searchTerm);
+            this.searchWithMetadata(this.searchTerm, "Header");
         }
 
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);

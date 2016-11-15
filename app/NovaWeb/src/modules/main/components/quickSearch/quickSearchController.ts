@@ -1,6 +1,7 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IQuickSearchService} from "./quickSearchService";
+import {IProjectManager} from "../../../managers/project-manager/project-manager";
 
 export interface IQuickSearchController {
     clearSearch();
@@ -12,7 +13,7 @@ export interface IQuickSearchController {
 
 export class QuickSearchController {
 
-    static $inject = ["$log", "$uibModal", "quickSearchService", "localization"];
+    static $inject = ["$log", "$uibModal", "quickSearchService", "localization", "Analytics", "projectManager"];
     animationsEnabled: boolean;
     modalSize: string;
     modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -21,7 +22,9 @@ export class QuickSearchController {
     constructor(private $log: ng.ILogService,
                 private $uibModal: ng.ui.bootstrap.IModalService,
                 private quickSearchService: IQuickSearchService,
-                private localization: ILocalizationService) {
+                private localization: ILocalizationService,
+                private Analytics,
+                private projectManager: IProjectManager) {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";
     }
@@ -61,6 +64,7 @@ export class QuickSearchController {
             this.$log.warn("invalid search");
             return null;
         }
+
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
             windowClass: "quick-search__modal",
@@ -69,7 +73,7 @@ export class QuickSearchController {
             controllerAs: "$ctrl",
             size: this.modalSize
         };
-        
+
         return this.modalInstance = this.$uibModal.open(settings);
     }
 

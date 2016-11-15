@@ -710,7 +710,15 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            return CreateArtifact(address, user, baseArtifactType, name, project, null, parentArtifactId, orderIndex, expectedStatusCodes);
+            return CreateArtifact(address, 
+                user, 
+                baseArtifactType, 
+                name, 
+                project, 
+                artifactTypeName: null, 
+                parentArtifactId: parentArtifactId, 
+                orderIndex: orderIndex, 
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>

@@ -140,19 +140,19 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase]
         [TestRail(999999)]
-        [Description("Create & publish a Process artifact.  Update a text property, save and publish.  Verify the artifact returned the test property updated.")]
-        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(BaseArtifactType baseArtifactType)
+        [Description("Create & publish a Process artifact.  Update a text property, save and publish.  Verify the artifact returned the text property updated.")]
+        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged()
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projectCustomData);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            var artifactTypeName = StandardPackArtifactName(baseArtifactType);
+            var artifactTypeName = StandardPackArtifactName(ItemTypePredefined.Process);
 
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(projectCustomData, author, ItemTypePredefined.Process, artifactTypeName: artifactTypeName);
 
@@ -659,9 +659,9 @@ namespace ArtifactStoreTests
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
 
-        private static string StandardPackArtifactName(BaseArtifactType baseArtifactType)
+        private static string StandardPackArtifactName(ItemTypePredefined itemType)
         {
-            return I18NHelper.FormatInvariant("{0}(Standard Pack)", Enum.GetName(typeof(BaseArtifactType), baseArtifactType));
+            return I18NHelper.FormatInvariant("{0}(Standard Pack)", Enum.GetName(typeof(ItemTypePredefined), itemType));
         }
 
         #endregion Private functions

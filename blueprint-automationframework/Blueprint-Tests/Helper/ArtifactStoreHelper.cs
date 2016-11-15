@@ -1,3 +1,4 @@
+using System;
 using Common;
 using Model;
 using Model.Impl;
@@ -162,20 +163,49 @@ namespace Helper
         /// <summary>
         /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
         /// </summary>
-        /// <param name="novaArtifactBase">The INovaArtifactBase to compare against.</param>
-        /// <param name="artifactBase">The IArtifactBase to compare against.</param>
+        /// <param name="expectedNovaArtifactBase">The INovaArtifactBase containing the expected properties.</param>
+        /// <param name="actualArtifactBase">The IArtifactBase containing the actual properties to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
+        public static void AssertArtifactsEqual(INovaArtifactBase expectedNovaArtifactBase, IArtifactBase actualArtifactBase, bool skipIdAndVersion = false)
         {
-            ThrowIf.ArgumentNull(novaArtifactBase, nameof(novaArtifactBase));
-            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
+            ThrowIf.ArgumentNull(expectedNovaArtifactBase, nameof(expectedNovaArtifactBase));
+            ThrowIf.ArgumentNull(actualArtifactBase, nameof(actualArtifactBase));
 
-            Assert.AreEqual(novaArtifactBase.Id, artifactBase.Id, "The Id parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.Name, artifactBase.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ParentId, artifactBase.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ItemTypeId, artifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ProjectId, artifactBase.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.Version, artifactBase.Version, "The Version  parameters don't match!");
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(expectedNovaArtifactBase.Id, actualArtifactBase.Id, "The Id parameters don't match!");
+                Assert.AreEqual(expectedNovaArtifactBase.Version, actualArtifactBase.Version, "The Version  parameters don't match!");
+            }
+
+            Assert.AreEqual(expectedNovaArtifactBase.Name, actualArtifactBase.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(expectedNovaArtifactBase.ParentId, actualArtifactBase.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(expectedNovaArtifactBase.ItemTypeId, actualArtifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(expectedNovaArtifactBase.ProjectId, actualArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
+        }
+
+        /// <summary>
+        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
+        /// </summary>
+        /// <param name="expectedArtifactBase">The IArtifactBase containing the expected properties.</param>
+        /// <param name="actualNovaArtifactBase">The INovaArtifactBase containing the actual properties to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(IArtifactBase expectedArtifactBase, INovaArtifactBase actualNovaArtifactBase, bool skipIdAndVersion = false)
+        {
+            ThrowIf.ArgumentNull(actualNovaArtifactBase, nameof(actualNovaArtifactBase));
+            ThrowIf.ArgumentNull(expectedArtifactBase, nameof(expectedArtifactBase));
+
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(expectedArtifactBase.Id, actualNovaArtifactBase.Id, "The Id parameters don't match!");
+                Assert.AreEqual(expectedArtifactBase.Version, actualNovaArtifactBase.Version, "The Version  parameters don't match!");
+            }
+
+            Assert.AreEqual(expectedArtifactBase.Name, actualNovaArtifactBase.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(expectedArtifactBase.ParentId, actualNovaArtifactBase.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(expectedArtifactBase.ArtifactTypeId, actualNovaArtifactBase.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(expectedArtifactBase.ProjectId, actualNovaArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
         }
 
         /// <summary>
@@ -365,29 +395,74 @@ namespace Helper
         }
 
         /// <summary>
-        /// Attaches file to the artifact (Save changes).
+        /// Attaches files to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
+        /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
+        ///     By default this function will lock the artifact.</param>
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddArtifactAttachmentsAndSave(
+            IUser user,
+            IArtifact artifact,
+            List<INovaFile> files,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            artifact.Lock(user);
+            if (shouldLockArtifact)
+            {
+                artifact.Lock(user);
+            }
+
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
             foreach (var file in files)
             {
                 artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
             }
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+            var attachments = artifactStore.GetAttachments(artifact, user);
+            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+            return attachments;
+        }
+
+        /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
+        ///     By default this function will lock the artifact.</param>
+        /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddArtifactAttachmentAndSave(
+            IUser user,
+            IArtifact artifact,
+            INovaFile file,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true,
+            int expectedAttachedFilesCount = 1)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+            Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+
+            return attachments;
         }
 
         /// <summary>
@@ -395,7 +470,7 @@ namespace Helper
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
-        /// <param name="artifact">SubArtifact.</param>
+        /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
@@ -548,6 +623,24 @@ namespace Helper
         }
 
         /// <summary>
+        /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
+        /// </summary>
+        /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
+        /// <param name="targetArtifact">The target artifact of the trace.</param>
+        /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
+        public static void ValidateTrace(NovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
+        {
+            ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            Assert.AreEqual(sourceArtifactTrace.ArtifactId, targetArtifact.Id, "Id from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
+        }
+
+        /// <summary>
         /// Validates inline trace link returned from artifact details
         /// </summary>
         /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
@@ -695,6 +788,5 @@ namespace Helper
                 expectedServiceErrorMessage: expectedErrorMessage);
             // TODO: add assertions about changed traces
         }
-
     }
 }

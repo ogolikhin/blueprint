@@ -12,6 +12,8 @@
     &.disabled:hover,
     &.disabled:focus,
     &.disabled:active {
+        background-color: $gray-lighter;
+        border-color: #bbb;
         color: #bbb;
         opacity: 1;
 

@@ -77,6 +77,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+            // if collection is deleted we do not need to load metadata and collection content
+            if (!collectionArtifact.artifacts) {    
+                super.onArtifactReady();
+                return;
+            }
             this.metadataService.get(collectionArtifact.projectId).then(() => {
                 this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);

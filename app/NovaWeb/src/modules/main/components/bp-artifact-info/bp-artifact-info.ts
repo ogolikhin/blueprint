@@ -67,6 +67,7 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public historicalMessage: string;
 
     constructor(public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
@@ -118,6 +119,11 @@ export class BpArtifactInfoController {
     protected onArtifactLoaded = () => {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+            if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
+                const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
+                const publishedBy = this.artifact.lastEditedBy.displayName;
+                this.historicalMessage = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
+            }
         }
     };
 
@@ -259,8 +265,12 @@ export class BpArtifactInfoController {
                         this.loadingOverlayService,
                         this.dialogService)
                 ),
-                new OpenImpactAnalysisAction(this.artifact, this.localization)
             );
+
+            //we don't want to show impact analysis on collection artifact page
+            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+                this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
+            }
         }
     }
 

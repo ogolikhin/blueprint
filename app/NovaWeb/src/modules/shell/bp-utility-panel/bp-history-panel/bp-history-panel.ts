@@ -84,6 +84,7 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         });
 
         this.clearHistoryList();
+        this.updateSelectedVersion();
 
         if (subArtifact) {
             this.subscribers.push(
@@ -105,6 +106,11 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
 
     private clearHistoryList() {
         this.artifactHistoryList = [];
+    }
+
+    private updateSelectedVersion() {
+        const state = this.navigationService.getNavigationState();
+        this.selectedVersionId = state ? state.version : undefined; 
     }
 
     private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {

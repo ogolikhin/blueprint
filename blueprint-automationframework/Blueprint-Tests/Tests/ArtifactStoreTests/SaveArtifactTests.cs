@@ -152,7 +152,7 @@ namespace ArtifactStoreTests
 
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            var artifactTypeName = GetStandardPackArtifactName(ItemTypePredefined.Process);
+            var artifactTypeName = GetStandardPackArtifactTypeName(ItemTypePredefined.Process);
 
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(projectCustomData, author, ItemTypePredefined.Process, artifactTypeName: artifactTypeName);
 
@@ -664,7 +664,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="itemType">The predefined item type</param>
         /// <returns>A string indicating the name of the Standard Pack artifact name for the predefined item type.</returns>
-        private static string GetStandardPackArtifactName(ItemTypePredefined itemType)
+        private static string GetStandardPackArtifactTypeName(ItemTypePredefined itemType)
         {
             return I18NHelper.FormatInvariant("{0}(Standard Pack)", Enum.GetName(typeof(ItemTypePredefined), itemType));
         }

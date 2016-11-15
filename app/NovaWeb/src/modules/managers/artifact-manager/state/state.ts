@@ -27,7 +27,6 @@ export interface IArtifactState extends IState, IDispose {
 }
 
 export class ArtifactState implements IArtifactState {
-
     constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IState>(undefined);
         this.initialize(artifact);
@@ -106,6 +105,7 @@ export class ArtifactState implements IArtifactState {
 
     public set deleted(value: boolean) {
         this.currentState.deleted = value;
+        this.currentState.readonly = this.currentState.readonly || value;
         this.notifyStateChange();
     }
 
@@ -162,10 +162,7 @@ export class ArtifactState implements IArtifactState {
     }
 
     public get readonly(): boolean {
-        return this.currentState.readonly || this.deleted ||
-            this.historical ||
-            this.lockedBy === Enums.LockedByEnum.OtherUser ||
-            (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+        return this.currentState.readonly;
     }
 
     public set readonly(value: boolean) {
@@ -179,6 +176,7 @@ export class ArtifactState implements IArtifactState {
 
     public set historical(value: boolean) {
         this.currentState.historical = value;
+        this.currentState.readonly = this.currentState.readonly || value;
         this.notifyStateChange();
     }
 
@@ -187,37 +185,56 @@ export class ArtifactState implements IArtifactState {
             // deleted state never can be changed from true to false
             const deleted = this.currentState.deleted;
             const historical = this.currentState.historical;
+
             this.reset();
+
+            const noReadPermission = (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+
             if (artifact.lockedByUser) {
-                const newState: IState = {};
-                newState.lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
-                    Enums.LockedByEnum.CurrentUser :
-                    Enums.LockedByEnum.OtherUser;
-                newState.lockOwner = artifact.lockedByUser.displayName;
-                newState.lockDateTime = artifact.lockedDateTime;
-                newState.deleted = deleted;
-                newState.historical = historical;
+                const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                                Enums.LockedByEnum.CurrentUser :
+                                Enums.LockedByEnum.OtherUser;
+                const newState: IState = {
+                    lockedBy: lockedBy,
+                    lockOwner: artifact.lockedByUser.displayName,
+                    lockDateTime: artifact.lockedDateTime,
+                    deleted: deleted,
+                    historical: historical,
+                    readonly: deleted || 
+                                historical || 
+                                lockedBy === Enums.LockedByEnum.OtherUser || 
+                                noReadPermission
+                };
+
                 this.setState(newState, false);
             } else {
                 this.currentState.deleted = deleted;
                 this.currentState.historical = historical;
+                this.currentState.readonly = deleted || 
+                                             historical || 
+                                             noReadPermission;
             }
         }
+
         return this;
     }
 
     public lock(value: Models.ILockResult) {
         if (value) {
             let lockInfo: IState = {};
+
             if (value.result === Enums.LockResultEnum.Success) {
                 lockInfo.lockedBy = Enums.LockedByEnum.CurrentUser;
             } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
                 lockInfo.lockedBy = Enums.LockedByEnum.OtherUser;
+                lockInfo.readonly = true;
             }
+
             if (value.info) {
                 lockInfo.lockDateTime = value.info.utcLockedDateTime;
                 lockInfo.lockOwner = value.info.lockOwnerDisplayName;
             }
+
             this.setState(lockInfo);
         }
     }
@@ -228,6 +245,7 @@ export class ArtifactState implements IArtifactState {
             lockDateTime: undefined,
             lockOwner: undefined
         };
+
         this.setState(lockInfo);
     }
 
@@ -237,5 +255,4 @@ export class ArtifactState implements IArtifactState {
             delete (this.subject);
         }
     }
-
 }

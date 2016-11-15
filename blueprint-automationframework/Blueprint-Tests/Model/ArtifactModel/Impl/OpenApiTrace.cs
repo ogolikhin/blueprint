@@ -123,23 +123,5 @@ namespace Model.ArtifactModel.Impl
             TraceType = traceType;
             IsSuspect = isSuspect;
         }
-        /*
-        /// <summary>
-        /// Compares this OpenApiTrace to another ITrace.
-        /// </summary>
-        /// <param name="trace">The other trace object to compare against.</param>
-        /// <returns>True if the ITrace object properties are identical, otherwise false.</returns>
-        public bool Equals(ITrace trace)
-        {
-            if (trace == null)
-            {
-                return false;
-            }
-
-            return ((ProjectId == trace.ProjectId) && (ArtifactId == trace.ArtifactId) 
-                && (Equals(Direction, trace.Direction)) &&
-                (Equals(TraceType, trace.TraceType)) && (IsSuspect == trace.IsSuspect));
-        }
-        */
     }
 }

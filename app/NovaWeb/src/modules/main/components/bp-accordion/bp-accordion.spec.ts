@@ -11,14 +11,14 @@ describe("Component BpAccordion", () => {
 
     let directiveTest: ComponentTest<BpAccordionCtrl>;
     let $timeout: ng.ITimeoutService;
-    /* tslint:disable */
+    /* tslint:disable:max-line-length */
     let layout = `
         <bp-accordion accordion-heading-height="33">
             <bp-accordion-panel accordion-panel-heading="Discussions" accordion-panel-class="utility-panel-discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
             <bp-accordion-panel accordion-panel-heading="Properties" accordion-panel-id="my-panel">Mauris aliquet feugiat vulputate.</bp-accordion-panel>
             <bp-accordion-panel accordion-panel-heading="Relationships" accordion-panel-heading-height="66">Etiam eget urna ullamcorper.</bp-accordion-panel>
         </bp-accordion>`;
-    /* tslint:enable */
+    /* tslint:enable:max-line-length */
 
 
     beforeEach(inject((_$timeout_: ng.ITimeoutService) => {

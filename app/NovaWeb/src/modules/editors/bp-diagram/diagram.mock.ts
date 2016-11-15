@@ -163,10 +163,8 @@ export class DiagramMock {
         return connection;
     }
 
-    /* tslint:disable:max-line-length */
     public static createRichText(plainText: string) {
+        // tslint:disable-next-line: max-line-length
         return "<html><head></head><body style=\"padding: 1px 0px 0px; font-size: 11px\"><div style=\"font-size: 11px\"><p style=\"margin: 0px; font-size: 11px; text-align: center\"><span style=\"font-size: 11px\">" + plainText + "</span></p></div></body></html>";
     }
-
-    /* tslint:enable:max-line-length */
 }

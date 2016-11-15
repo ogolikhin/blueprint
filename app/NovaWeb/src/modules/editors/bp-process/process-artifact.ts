@@ -77,10 +77,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return deferred.promise;
     }
 
-    protected validateCustomArtifactPromisesForSave(): ng.IPromise<IStatefulArtifact> {
+    protected validateCustomArtifactPromisesForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
+        if (ignoreValidation) {
+            deferred.resolve(this);
+        }
         this.getArtifactPropertyTypes().then((artifactPropertyTypes) => {
-             _.each(this.changes().customPropertyValues, (propValue) => {
+            _.each(changes.customPropertyValues, (propValue) => {
                 const itemType: Models.IPropertyType = this.artifactPropertyTypes[propValue.propertyTypeId];
                 switch (itemType.primitiveType) {
                     case Models.PrimitiveType.Number:

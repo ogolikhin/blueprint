@@ -37,7 +37,7 @@ export class ItemStateController {
         const version = parseInt($state.params["version"], 10);
 
         if (_.isFinite(id)) {
-            this.clearLockedMessages();
+            this.clearMessages();
 
             const artifact = artifactManager.get(id);
 
@@ -87,7 +87,6 @@ export class ItemStateController {
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
-
                 } else if (result.isDeleted) {
 
                     if (this.isCollection(result.predefinedType)) {
@@ -133,9 +132,9 @@ export class ItemStateController {
         return invalidTypes.indexOf(itemType) >= 0;
     }
 
-    private clearLockedMessages() {
+    private clearMessages() {
         this.messageService.messages.forEach(message => {
-            if (message.messageType === MessageType.Deleted) {
+            if (message.messageType === MessageType.Deleted || message.messageType === MessageType.Historical) {
                 this.messageService.deleteMessageById(message.id);
             }
         });

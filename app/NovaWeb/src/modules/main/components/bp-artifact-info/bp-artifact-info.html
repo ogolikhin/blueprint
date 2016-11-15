@@ -1,4 +1,11 @@
 <div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
+    <div class="container historical">
+        <span class="icon fonticon-clock"></span>
+        <div class="text">
+            <div>Version 1, published by Alexander Utkin on 10/26/2016 9:04 PM</div>
+            <a ng-click="$ctrl.navigateToLatestVersion()">Open latest version</a>
+        </div>
+    </div>
     <div class="icon" ng-class="!$ctrl.hasCustomIcon ? $ctrl.artifactClass : ''"
          bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
         <bp-item-type-icon ng-if="$ctrl.hasCustomIcon"

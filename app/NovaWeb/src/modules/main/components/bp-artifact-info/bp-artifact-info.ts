@@ -118,6 +118,13 @@ export class BpArtifactInfoController {
     protected onArtifactLoaded = () => {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+            if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
+                const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
+                const publishedBy = this.artifact.lastEditedBy.displayName;
+                const message = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
+               // &nbsp;&nbsp;&nbsp;&nbsp;<a ui-sref="main.item({ id: ${this.artifact.id} })">Open latest version</a>`;
+                this.messageService.addMessage(new Message(MessageType.Historical, message, true));
+            }
         }
     };
 
@@ -134,6 +141,10 @@ export class BpArtifactInfoController {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
+    }
+
+    public navigateToLatestVersion() {
+        this.navigationService.navigateTo({ id: this.artifact.id });
     }
 
     private initProperties() {

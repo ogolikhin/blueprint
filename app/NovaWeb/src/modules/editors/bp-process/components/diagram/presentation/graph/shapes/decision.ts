@@ -8,7 +8,7 @@ import { DiagramNode } from "./diagram-node";
 import { NodeFactorySettings } from "./node-factory-settings";
 import { Button } from "../buttons/button";
 import { DeleteShapeButton } from "../buttons/delete-shape-button";
-import { Label, LabelStyle } from "../labels/label";
+import { Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import { ProcessEvents } from "../../../process-diagram-communication";
 
 export abstract class Decision extends DiagramNode<IProcessShape> implements IDecision {
@@ -81,11 +81,9 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             this.textLabelWidth,
             "#4C4C4C"
         );
-
-
-        this.textLabel = new Label((value: string) => {
-            this.label = value;
-        },
+    
+        this.textLabel = new Label(
+            LabelType.Text,
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-B" + this.model.id.toString(),
@@ -93,13 +91,18 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly);
+            graph.viewModel.isReadonly
+        );
+
+        // handle label change event 
+        this.textLabel.onTextChange = (value: string) => {
+            this.label = value;
+        };
 
         if (!graph.viewModel.isReadonly) {
             this.showMenu(mxGraph);
         }
-
-
+        
         this.deleteShapeButton.render(
             mxGraph,
             this,

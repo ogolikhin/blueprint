@@ -3,7 +3,6 @@ import {Models, Enums, Relationships} from "../../../main/models";
 import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
 import {ArtifactProperties, SpecialProperties} from "../properties";
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet, IItemChangeSet} from "../changeset";
-import {StatefulSubArtifactCollection, ISubArtifactCollection} from "../sub-artifact";
 import {IMetaData} from "../metadata";
 import {IDocumentRefs, DocumentRefs} from "../docrefs";
 import {IStatefulArtifactServices} from "../services";
@@ -14,14 +13,13 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
-
     metadata: IMetaData;
-
     customProperties: IArtifactProperties;
     specialProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
     relationships: IArtifactRelationships;
     docRefs: IDocumentRefs;
+
     lock();
     discard();
     changes(): Models.ISubArtifact;
@@ -32,10 +30,11 @@ export interface IStatefulItem extends Models.IArtifact {
 }
 
 export interface IIStatefulItem extends IStatefulItem {
+    propertyChange:  Rx.BehaviorSubject<IItemChangeSet>;
+
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
     getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
     getServices(): IStatefulArtifactServices;
-    propertyChange:  Rx.BehaviorSubject<IItemChangeSet>;
 }
 
 export abstract class StatefulItem implements IIStatefulItem {
@@ -46,7 +45,6 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected _relationships: IArtifactRelationships;
     protected _customProperties: IArtifactProperties;
     protected _specialProperties: IArtifactProperties;
-    protected _subArtifactCollection: ISubArtifactCollection;
     protected _changesets: IChangeCollector;
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
@@ -258,13 +256,6 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this._relationships;
     }
 
-    public get subArtifactCollection() {
-        if (!this._subArtifactCollection) {
-            this._subArtifactCollection = new StatefulSubArtifactCollection(this, this.services);
-        }
-        return this._subArtifactCollection;
-    }
-
     public abstract lock();
 
     protected isFullArtifactLoadedOrLoading(): boolean {
@@ -313,9 +304,6 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
         if (this._relationships) {
             this._relationships.discard();
-        }
-        if (this._subArtifactCollection) {
-            this._subArtifactCollection.discard();
         }
     }
 

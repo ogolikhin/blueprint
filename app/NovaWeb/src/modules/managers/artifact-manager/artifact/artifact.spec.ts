@@ -148,7 +148,6 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_400_114");
         }));
@@ -304,28 +303,8 @@ describe("Artifact", () => {
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
 
-        it("error save custom", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-            // arrange
-            spyOn(artifact, "getCustomArtifactPromisesForSave").and.callFake(() => {
-                const deferred = $q.defer<any>();
-                deferred.reject({
-                    statusCode: HttpStatusCode.ServerError
-                });
-                return deferred.promise;
-            });
-
-            // act
-            let error: Error;
-            artifact.save().catch((err) => {
-                error = err;
-            });
-            $rootScope.$digest();
-
-            // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
-        }));
-
     });
+    
 
     describe("Publish", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, messageService: IMessageService) => {

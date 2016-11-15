@@ -23,6 +23,8 @@ import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import * as TestModels from "./models/test-model-factory";
 import { MetaDataService } from "../../managers/artifact-manager";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {ApplicationError} from "../../core/error/applicationError";
 
 class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
@@ -120,16 +122,11 @@ describe("When process is saved", () => {
 
     it("calls both saveProcess() and saveArtifact() methods ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
         spyOn(processArtifact, "saveProcess").and.callThrough();
-
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when(processArtifact);
         });
 
         processArtifact.save()
@@ -148,21 +145,17 @@ describe("When process is saved", () => {
                 done();
             });
 
-        $httpBackend.flush();
+            $httpBackend.flush();
 
     });
 
     it("returns temporary id map after saving ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
 
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            let deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when(processArtifact);
         });
 
         spyOn(processArtifact, "mapTempIdsAfterSave").and.callFake((tempIdMap) => {
@@ -188,17 +181,13 @@ describe("When process is saved", () => {
 
     it("replaces temporary ids with actual ids after saving ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
 
         spyOn(processArtifact, "mapTempIdsAfterSave").and.callThrough();
 
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            let deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when(processArtifact);
         });
         // before save there should be temporary ids (negative integers)
         // assigned to new shapes
@@ -268,17 +257,15 @@ describe("When process is saved", () => {
     });
 
     it("recovers if saveProcess() succeeds and saveArtifact() fails  ", (done) => {
+
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
+
         spyOn(processArtifact, "notifySubscribers").and.callThrough();
 
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            let deferred = $q.defer();
-            deferred.reject("save artifact failed");
-            return deferred.promise;
+            return $q.reject(new ApplicationError("save artifact failed"));
         });
         // before save there should be temporary ids (negative integers)
         // assigned to new shapes
@@ -323,4 +310,30 @@ describe("When process is saved", () => {
         $httpBackend.flush();
 
     });
+    
+    it("save - error save", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        // arrange
+        spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
+            return $q.when();
+        });
+
+        spyOn(services.processService, "save").and.callFake(() => {
+            const deferred = $q.defer<any>();
+            deferred.reject({
+                statusCode: HttpStatusCode.ServerError
+            });
+            return deferred.promise;
+        });
+
+        // act
+        let error: Error;
+        processArtifact.save().catch((err) => {
+            error = err;
+        });
+        $rootScope.$digest();
+
+        // assert
+        expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
+    }));
+
 });

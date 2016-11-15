@@ -12,6 +12,8 @@ import {IDialogSettings} from "../../../shared";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError, ApplicationError} from "../../../core/error/applicationError";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {SaveError} from "./custom-errors/save-error";
+import {RefreshError} from "./custom-errors/refresh-error";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     subArtifactCollection: ISubArtifactCollection;
@@ -32,7 +34,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IIStatefulItem {
 }
-
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
 
@@ -264,7 +265,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         error.statusCode = HttpStatusCode.NotFound;
         return error;
     }
-
     public unload() {
         super.unload();
         // sets initial value on subject so it doesn't send up update with old info
@@ -387,31 +387,32 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public save(): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.services.messageService.clearMessages();
 
         const changes = this.changes();
         if (changes) {
-            this.validateCustomArtifactPromisesForSave()
-            .then(() => {
-                const saveCustomArtifactPromise = this.getCustomArtifactPromisesForSave();
-                if (saveCustomArtifactPromise) {
-                    return saveCustomArtifactPromise;
-                } else {
-                    this.services.$q.resolve();
-                }
-            }).then(() => {
-                 return this.saveArtifact(changes);
-            }).then(() => {
-                deferred.resolve(this);
-            }).catch((error) => {
-                deferred.reject(error);
-            });
+            return this.validateCustomArtifactPromisesForSave()
+                .then(() => {
+                    const saveCustomArtifactPromise = this.getCustomArtifactPromisesForSave();
+                    if (saveCustomArtifactPromise) {
+                        return saveCustomArtifactPromise;
+                    } else {
+                        this.services.$q.resolve();
+                    }
+                }).then(() => {
+                    return this.saveArtifact(changes).catch((error) => {                        
+                        return this.services.$q.reject(new SaveError(error));
+                    });
+                }).catch((error) => {
+                    if (error instanceof SaveError && this.hasCustomSave) {
+                        this.customHandleSaveFailed();
+                    }
+                    return this.services.$q.reject(error);
+                });
         } else {
+            const deferred = this.services.getDeferred<IStatefulArtifact>();
             return this.set_400_114_error(deferred);
         }
-
-        return deferred.promise;
     }
 
     public set_400_114_error(deferred: ng.IDeferred<IStatefulArtifact>) {
@@ -422,30 +423,24 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
-
-        this.services.artifactService.updateArtifact(changes)
+        return this.services.artifactService.updateArtifact(changes)
             .then((artifact: Models.IArtifact) => {
                 this.discard();
-                this.refresh().then((a) => {
-                    deferred.resolve(a);
-                }).catch((error) => {
-                    deferred.reject(error);
+                return this.refresh().catch((error) => {
+                    return this.services.$q.reject(new RefreshError(error));
                 });
             }).catch((error) => {
-                if (this.hasCustomSave) {
-                    this.customHandleSaveFailed();
+                if (error instanceof RefreshError) {
+                    return this.services.$q.reject(error);
                 }
                 // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)                
                 if (error) {
-                    deferred.reject(this.handleSaveError(error));
+                    return this.services.$q.reject(this.handleSaveError(error));
                 } else {
-                    deferred.reject(error);
+                    return this.services.$q.reject(error);
                 }
             }
-        );
-
-        return deferred.promise;
+            );
     }
 
     protected handleSaveError(error: any): Error {

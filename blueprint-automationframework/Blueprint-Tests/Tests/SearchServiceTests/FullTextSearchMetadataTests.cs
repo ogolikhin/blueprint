@@ -194,7 +194,6 @@ namespace SearchServiceTests
             BaseArtifactType.UseCase,
             BaseArtifactType.UseCaseDiagram })]
         [TestRail(182253)]
-        [Explicit(IgnoreReasons.TestBug)]
         [Description("Search over specific artifact types. Executed search must return search metadata result that match only the artifact .")]
         public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(BaseArtifactType[] baseArtifactTypes)
         {
@@ -656,9 +655,9 @@ namespace SearchServiceTests
 
             selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ProjectIds.Contains(a.ProjectId)).ToList();
 
-            if (searchCriteria.PredefinedTypeIds != null)
+            if (searchCriteria.ItemTypeIds != null)
             {
-                selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.PredefinedTypeIds.Contains(a.ArtifactTypeId)).ToList();
+                selectedArtifacts = selectedArtifacts.Where(a => searchCriteria.ItemTypeIds.Contains(a.ArtifactTypeId)).ToList();
 
             }
 

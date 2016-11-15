@@ -61,9 +61,6 @@ bp-properties-panel {
                 display: block;
 
                 input.has-icon {
-                    border-bottom-right-radius: 0;
-                    border-right: 0;
-                    border-top-right-radius: 0;
                     max-width: $property-input-with-icon-width;
                     width: $property-input-with-icon-width;
                 }

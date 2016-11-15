@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <OutputSettings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GeneralInfo>
-    <InstallationPath>C:\Web\Blueprint</InstallationPath>
+    <InstallationPath>C:\Program Files\Blueprint Software Systems\Blueprint</InstallationPath>
     <IsDistributedInstallation>false</IsDistributedInstallation>
   </GeneralInfo>
   <BlueprintWebInfo>
     <SiteName>Blueprint</SiteName>
-    <SitePort>80</SitePort>
-    <SiteAuxiliaryPort>83</SiteAuxiliaryPort>
+    <SitePort>8080</SitePort>
+    <SiteAuxiliaryPort>9101</SiteAuxiliaryPort>
+    <IsHTTP>true</IsHTTP>
     <SiteHostName>deploy-installer-w12r2s14sp2.blueprintsys.net</SiteHostName>
-    <EnableHTTPSBinding>false</EnableHTTPSBinding>
-    <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
+    <IsAppPoolAccountCustom>true</IsAppPoolAccountCustom>
+    <AppPoolAccountUsername>WIN-NT2N2CHOOM4\bpadmin</AppPoolAccountUsername>
     <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
     <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
     <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>
@@ -18,8 +19,8 @@
   </BlueprintWebInfo>
   <ALMInfo>
     <IsALMEnabled>true</IsALMEnabled>
-    <ALMSiteName>Blueprint_ALMLegacyConnector</ALMSiteName>
-    <ALMPort>85</ALMPort>
+    <ALMSiteName>HPALMLegacyConnector</ALMSiteName>
+    <ALMPort>8081</ALMPort>
   </ALMInfo>
   <JobExecutorInfo>
     <AccountType>LocalSystem</AccountType>

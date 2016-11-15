@@ -181,7 +181,7 @@ export class PropertyEditor {
                 }
                 if (isModelSet) {
                     propertyContext.isFresh = true;
-                    let field = this.createPropertyField(propertyContext, statefulItem.id);
+                    let field = this.createPropertyField(propertyContext, statefulItem);
                     this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                     if (fieldsupdated) {
                         this._fields.push(field);
@@ -214,7 +214,9 @@ export class PropertyEditor {
         return this._model || {};
     }
 
-    private createPropertyField(context: IPropertyDescriptor, itemId: number, reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
+    private createPropertyField(context: IPropertyDescriptor,
+                                item: IStatefulItem,
+                                reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
 
         let field: AngularFormly.IFieldConfigurationObject = {
             key: context.fieldPropertyName,
@@ -291,7 +293,10 @@ export class PropertyEditor {
                     break;
                 case Models.PrimitiveType.DocumentFile:
                     field.type = "bpDocumentFile";
-                    field.templateOptions["artifactId"] = itemId;
+                    field.templateOptions["artifactId"] = item.id;
+                    if (item.artifactState.historical) {
+                        field.templateOptions["versionId"] = item.getEffectiveVersion();
+                    }
                     break;
                 default:
                     //case Models.PrimitiveType.Image:

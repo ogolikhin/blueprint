@@ -6,11 +6,11 @@ import {IArtifactNode} from "../../../managers/project-manager";
  * Usage:
  *
  * <bp-tree api="$ctrl.tree"
+ *          root-nodes="$ctrl.projects"
  *          grid-columns="$ctrl.columns"
- *          enable-editing-on="name"
- *          enable-dragndrop="true"
- *          on-load="$ctrl.doLoad(prms)"
- *          on-select="$ctrl.doSelect(item)">
+ *          on-select="$ctrl.doSelect(item)"
+ *          on-error="$ctrl.onError(reason)"
+ *          on-grid-reset="$ctrl.onGridReset()">
  * </bp-tree>
  */
 
@@ -22,18 +22,15 @@ export class BPTreeComponent implements ng.IComponentOptions {
         api: "=?",
         // Input
         gridClass: "@",
-        enableEditingOn: "@",
-        enableDragndrop: "<",
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
+        rootNodes: "<",
         gridColumns: "<",
         // Output
-        onLoad: "&?",
         onSelect: "&?",
-        onRowClick: "&?",
-        onRowDblClick: "&?",
-        onRowPostCreate: "&?"
+        onError: "&?",
+        onGridReset: "&?"
     };
 }
 
@@ -41,17 +38,14 @@ export interface IBPTreeController {
     // BPTreeComponent bindings
     api: IBPTreeControllerApi;
     gridClass: string;
-    enableEditingOn: string;
-    enableDragndrop: boolean;
     rowBuffer: number;
     rowHeight: number;
     headerHeight: number;
+    rootNodes: IArtifactNode[];
     gridColumns: any[];
-    onLoad?: Function;                  //to be called to load ag-grid data a data node to the datasource
     onSelect?: Function;                //to be called on time of ag-grid row selection
-    onRowClick?: Function;
-    onRowDblClick?: Function;
-    onRowPostCreate?: Function;
+    onError: (param: {reason: any}) => void;
+    onGridReset: () => void;
 }
 
 export interface IBPTreeControllerApi {
@@ -61,50 +55,42 @@ export interface IBPTreeControllerApi {
     deselectAll();
     nodeExists(id: number): boolean;
     getNodeData(id: number): Object;
-    //to reload datasource with data passed, if id specified the data will be loaded to node's children collection
-    reload(data?: any[], id?: number);
     refresh(id?: number);
 }
 
 export class BPTreeController implements IBPTreeController {
-    static $inject = ["localization", "$element"];
+    static $inject = ["$q", "localization", "$element"];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
-    public enableEditingOn: string;
-    public enableDragndrop: boolean;
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
+    public rootNodes: IArtifactNode[] = [];
     public gridColumns: any[];
-    public onLoad: Function;
     public onSelect: Function;
-    public onRowClick: Function;
-    public onRowDblClick: Function;
-    public onRowPostCreate: Function;
+    public onError: (param: {reason: any}) => void;
+    public onGridReset: () => void;
 
     // ag-grid bindings
-    public options: agGrid.GridOptions;
+    public options: agGrid.GridOptions = {};
 
-    private editableColumns: string[] = [];
     private _datasource: any[] = [];
     private selectedRowNode: agGrid.RowNode;
 
     private _innerRenderer: Function;
 
-    constructor(private localization: ILocalizationService, private $element?) {
+    constructor(private $q: ng.IQService, private localization: ILocalizationService, private $element?) {
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
-        this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
-        this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
-        if (angular.isArray(this.gridColumns)) {
+        if (_.isArray(this.gridColumns)) {
             this.gridColumns.map(function (gridCol) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
-                    if (gridCol.cellRendererParams && angular.isFunction(gridCol.cellRendererParams.innerRenderer)) {
+                    if (gridCol.cellRendererParams && _.isFunction(gridCol.cellRendererParams.innerRenderer)) {
                         this._innerRenderer = gridCol.cellRendererParams.innerRenderer;
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
@@ -137,7 +123,6 @@ export class BPTreeController implements IBPTreeController {
             onCellClicked: this.cellClicked,
             onRowSelected: this.rowSelected,
             onRowGroupOpened: this.rowGroupOpened,
-            processRowPostCreate: this.rowPostCreate,
             onGridReady: this.onGridReady,
             getBusinessKeyForNode: this.getBusinessKeyForNode,
             onViewportChanged: this.updateViewport,
@@ -145,6 +130,12 @@ export class BPTreeController implements IBPTreeController {
             localeTextFunc: (key: string, defaultValue: string) => this.localization.get("ag-Grid_" + key, defaultValue)
         };
     };
+
+    public $onChanges(onChangesObj: ng.IOnChangesObject): void {
+        if (onChangesObj["rootNodes"]) {
+            this.resetGridAsync();
+        }
+    }
 
     public $onDestroy = () => {
         this.selectedRowNode = null;
@@ -199,33 +190,6 @@ export class BPTreeController implements IBPTreeController {
             return result;
         },
 
-        //sets a new datasource or add a datasource to specific node  children collection
-        reload: (data?: IArtifactNode[], nodeId?: number) => {
-            this._datasource = this._datasource || [];
-
-            if (nodeId) {
-                const node = this.getNode(nodeId, this._datasource);
-                if (node) {
-                    node.open = true;
-                    node.loaded = true;
-                    node.children = data;
-                }
-            } else {
-                this._datasource = data;
-            }
-
-            this.options.api.setRowData(this._datasource);
-
-            if (this.selectedRowNode) {
-                this.options.api.forEachNode((node) => {
-                    if (node.data.id === this.selectedRowNode.data.id) {
-                        node.setSelected(true, true);
-                        this.selectedRowNode = node;
-                    }
-                });
-            }
-        },
-
         refresh: (id?: number) => {
             if (id) {
                 let nodes = [];
@@ -240,6 +204,41 @@ export class BPTreeController implements IBPTreeController {
             }
         }
     };
+
+    private resetGridAsync(): ng.IPromise<void> {
+        if (this.options.api) {
+            return this.$q.all(this.rootNodes.filter(n => n.open && !n.loaded).map(n => n.loadChildrenAsync())).then(() => {
+                if (this.options.api) {
+                    this.options.api.setRowData(this.rootNodes);
+
+                    if (this.selectedRowNode) {
+                        this.options.api.forEachNode(node => {
+                            const vm = node.data as IArtifactNode;
+                            if (vm.id === this.selectedRowNode.data.id) {
+                                node.setSelected(true, true);
+                            }
+                        });
+                    }
+                }
+            }).catch(reason => {
+                if (_.isFunction(this.onError)) {
+                    this.onError({reason: reason});
+                }
+            }).finally(() => {
+                if (this.options.api) {
+                    this.options.api.hideOverlay();
+                    if (this.options.api.getModel().getRowCount() === 0) {
+                        this.options.api.showNoRowsOverlay();
+                    }
+                }
+                if (_.isFunction(this.onGridReset)) {
+                    this.onGridReset();
+                }
+            });
+        }
+
+        return this.$q.resolve();
+    }
 
     private getNode(id: number, nodes?: IArtifactNode[]): IArtifactNode {
         let item: IArtifactNode;
@@ -261,10 +260,6 @@ export class BPTreeController implements IBPTreeController {
         this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
     }
 
-    private hideOverlays = () => {
-        this.options.api.hideOverlay();
-    };
-
     private updateViewport = (params?: any) => {
         const viewport = this.$element[0].querySelector(".ag-body-viewport") as HTMLElement;
         if (viewport && viewport.clientWidth) {
@@ -275,30 +270,11 @@ export class BPTreeController implements IBPTreeController {
                 this.options.api.sizeColumnsToFit();
             }
         }
-
-        if (params && params.lastRow && parseInt(params.lastRow, 10) >= 0) { // the grid contains at least one item
-            this.hideOverlays();
-        }
     };
 
     private innerRenderer = (params: any) => {
-        let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
-
-        let enableDragndrop: string;
-        if (this.enableDragndrop) {
-            let node = params.node;
-            let path = node.childIndex;
-            while (node.level) {
-                node = node.parent;
-                path = node.childIndex + "/" + path;
-            }
-            enableDragndrop = ` bp-tree-dragndrop="${path}"`;
-        } else {
-            enableDragndrop = "";
-        }
-
         let currentValue = this._innerRenderer(params) || params.value;
-        return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
+        return `<span class="ag-group-value-wrapper">${currentValue}</span>`;
     };
 
     // Callbacks
@@ -328,43 +304,30 @@ export class BPTreeController implements IBPTreeController {
         if (params && params.api) {
             params.api.sizeColumnsToFit();
         }
-
-        if (_.isFunction(this.onLoad)) {
-            //this verifies and updates current node to inject children
-            //NOTE: this method may update grid datasource using setDataSource method
-            let nodes = this.onLoad({prms: null});
-            if (_.isArray(nodes)) {
-                //this.addNode(nodes);
-                this.api.reload(nodes);
-            }
-        }
     };
 
-    private rowGroupOpened = (params: any) => {
-        let node = params.node;
+    private rowGroupOpened = (event: {node: agGrid.RowNode}) => {
+        const node = event.node;
+        const vm = node.data as IArtifactNode;
 
-        let row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${node.data.id}"]`);
-        if (row) {
-            row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
-            row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
-        }
-
-        if (node.data.hasChildren && !node.data.loaded) {
-            if (node.expanded && _.isFunction(this.onLoad)) {
+        if (vm.hasChildren) {
+            const row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.id}"]`);
+            if (row) {
+                row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
+                row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
+            }
+            if (node.expanded && !vm.loaded && _.isFunction(vm.loadChildrenAsync)) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-
-                let nodes = this.onLoad({prms: node.data});
-                //this verifes and updates current node to inject children
-                //NOTE:: this method may uppdate grid datasource using setDataSource method
-                if (_.isArray(nodes)) {
-                    this.api.reload(nodes, node.data.id); // pass nothing to just reload
-                }
+                vm.loadChildrenAsync().then(() => this.resetGridAsync()).catch(reason => {
+                    if (_.isFunction(this.onError)) {
+                        this.onError({reason: reason});
+                    }
+                });
             }
         }
-
-        node.data.open = node.expanded;
+        vm.open = node.expanded;
     };
 
     private rowSelected = (event: {node: agGrid.RowNode}) => {
@@ -395,12 +358,6 @@ export class BPTreeController implements IBPTreeController {
 
         if (_.isFunction(this.onSelect)) {
             this.onSelect({item: node.data});
-        }
-    };
-
-    private rowPostCreate = (params: any) => {
-        if (_.isFunction(this.onRowPostCreate)) {
-            this.onRowPostCreate({prms: params});
         }
     };
 }

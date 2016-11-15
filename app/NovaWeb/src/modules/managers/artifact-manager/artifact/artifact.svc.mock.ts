@@ -211,12 +211,15 @@ export class ArtifactServiceMock implements IArtifactService {
         }
         deferred.resolve(result);
         return deferred.promise;
-        
+
     }
-     public getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve(ArtifactServiceMock.createArtifact(artifactId));
+
+    public getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]> {
+        const deferred = this.$q.defer<Models.IArtifact[]>();
+        const result: Models.IArtifact[] = [];
+        result.push(ArtifactServiceMock.createArtifact(artifactId));
+        deferred.resolve(result);
         return deferred.promise;
-     }
+    }
 
 }

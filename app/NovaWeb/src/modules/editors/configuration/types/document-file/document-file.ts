@@ -88,6 +88,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                         fileGuid: uploadedFile.guid,
                         filePath: uploadedFile.url
                     };
+                    this.$scope.model[this.$scope.options["key"]] = newFileObject;
                     if (onChange) {
                         onChange(newFileObject, $scope.fields[0], $scope);
                     }
@@ -108,13 +109,17 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
             if (guid) {
                 $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
             } else {
-                artifactAttachments.getArtifactAttachments(templateOptions["artifactId"])
+                const artifactId = templateOptions["artifactId"];
+                const versionId = templateOptions["versionId"];
+                artifactAttachments.getArtifactAttachments(artifactId, undefined, versionId)
                     .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
                         if (attachmentResultSet.attachments.length) {
-                            $window.open(
-                                "/svc/components/RapidReview/artifacts/" + attachmentResultSet.artifactId
-                                + "/files/" + attachmentResultSet.attachments[0].attachmentId + "?includeDraft=true",
-                                "_blank");
+                            const attachmentId = attachmentResultSet.attachments[0].attachmentId;
+                            let url = `/svc/bpartifactstore/artifacts/${artifactId}/attachments/${attachmentId}`;
+                            if (_.isFinite(versionId)) {
+                                url += `?versionId=${versionId}`;
+                            }
+                            this.$window.open(url, "_blank");
                         } else {
                             messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
                         }
@@ -130,6 +135,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                     message: localization.get("App_UP_Attachments_Delete_Attachment", "Attachment will be deleted. Continue?")
                 };
                 dialogService.open(dialogSettings).then(() => {
+                    this.$scope.model[this.$scope.options["key"]] = null;
                     if (onChange) {
                         onChange(null, $scope.fields[0], $scope);
                     }

@@ -102,9 +102,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.selectedArtifact = artifact;
             this.selectedSubArtifact = subArtifact;
             if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
-                //TODO: implement .getObservable
-                this.onUpdate();
-                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onSubArtifactChanged);
+                this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onUpdate);
             } else {
                 this.reset();
             }
@@ -112,7 +110,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         } else if (artifact) {
             this.selectedSubArtifact = null;
             this.selectedArtifact = artifact;
-            this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onArtifactChanged);
+            this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onUpdate);
 
         } else {
             this.selectedArtifact = null;
@@ -122,20 +120,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
-
-    protected onArtifactChanged = (it) => {
-        this.onUpdate();
-        if (this.artifactSubscriber) {
-            this.artifactSubscriber.dispose();
-        }
-    };
-
-    protected onSubArtifactChanged = (it) => {
-        this.onUpdate();
-        if (this.subArtifactSubscriber) {
-            this.subArtifactSubscriber.dispose();
-        }
-    };
 
     private hasFields(): boolean {
         return ((this.systemFields || []).length +
@@ -158,7 +142,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.richTextFields = [];
     }
 
-    public onUpdate() {
+    public onUpdate = () => {
         this.reset();
 
         if (!this.editor || !this.selectedArtifact) {
@@ -180,7 +164,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         propertyDescriptorsPromise.then((propertyDescriptors) => {
             this.displayContent(selectedItem, propertyDescriptors);
         });
-    }
+    };
 
     private displayContent(selectedItem: IStatefulItem, propertyDescriptors: IPropertyDescriptor[]) {
         const propertyEditorFilter = new PropertyEditorFilters(this.localization);
@@ -203,7 +187,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
                     const isReadOnly = selectedItem.artifactState.readonly;
                     if (isReadOnly) {
-                        field.templateOptions.disabled = true;                    
+                        field.templateOptions.disabled = true;
                         if (field.key !== "documentFile" &&
                             field.type !== "bpFieldImage" &&
                             field.type !== "bpFieldInheritFrom") {
@@ -243,7 +227,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-        
+
         //here we need to update original model
         const context = $field.data as IPropertyDescriptor;
         if (!context) {
@@ -263,6 +247,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             }
         context.isFresh = false;
         
+        if ($scope["form"]) {
+            if (this.selectedSubArtifact) {
+                this.selectedSubArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
+            } else {
+                this.selectedArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
+            }
+        }
     };
 
     private getSelectedItem(): IStatefulItem {

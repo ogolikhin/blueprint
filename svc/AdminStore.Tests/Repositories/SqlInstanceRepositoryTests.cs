@@ -6,6 +6,7 @@ using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Exceptions;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -204,6 +205,100 @@ namespace AdminStore.Repositories
             // Assert
             cxn.Verify();
             Assert.AreEqual(result.First(), project);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetProjectNavigationPathAsync_InvalidProjectId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            await repository.GetProjectNavigationPathAsync(0, 10);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetProjectNavigationPathAsync_InvalidUserId()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+
+            // Act
+            await repository.GetProjectNavigationPathAsync(10, 0);
+
+            // Assert
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectNavigationPathAsync_NotFound()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            const int projectId = 99;
+            const int userId = 10;
+            cxn.SetupQueryAsync("GetProjectNavigationPath", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, new List<ArtifactsNavigationPath>());
+
+            // Act
+            await repository.GetProjectNavigationPathAsync(projectId, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task GetProjectNavigationPathAsync_includeProjectItself_Found()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            const int projectId = 99;
+            const int userId = 10;
+            var result = GetProjectNavigationPathSample();
+            cxn.SetupQueryAsync("GetProjectNavigationPath", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var navigationPaths = await repository.GetProjectNavigationPathAsync(projectId, userId);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(navigationPaths.Count, 2);
+            Assert.AreEqual(result.First().Name, navigationPaths.Last());
+        }
+
+        private List<ArtifactsNavigationPath> GetProjectNavigationPathSample()
+        {
+            return new List<ArtifactsNavigationPath>
+            {
+                new ArtifactsNavigationPath { Level = 0, ArtifactId = 1, Name = "ProjectName"},
+                new ArtifactsNavigationPath { Level = 1, ArtifactId = 2, Name = "Blueprint"}
+            };
+        }
+
+        [TestMethod]
+        public async Task GetProjectNavigationPathAsync_WithoutProjectItself_Found()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            const int projectId = 99;
+            const int userId = 10;
+            var result = GetProjectNavigationPathSample();
+            cxn.SetupQueryAsync("GetProjectNavigationPath", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, result);
+
+            // Act
+            var navigationPaths = await repository.GetProjectNavigationPathAsync(projectId, userId, false);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(navigationPaths.Count, 1);
+            Assert.AreEqual(result.Last().Name, navigationPaths.Last());
         }
     }
 }

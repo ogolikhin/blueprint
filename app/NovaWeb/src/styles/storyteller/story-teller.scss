@@ -1007,3 +1007,38 @@ body.mce-content-body a, body.mce-content-body a:hover {
 .dropdown-menu__item i:before {
     font-size: 2.0rem;
 }
+.process-form-container {
+    position: relative;
+    .btn-icon__error {
+        position: absolute;
+        bottom: 2px;
+        right: 20px;
+        color: $gray-lighter;
+        &:before {
+            font-size: 1.5rem;
+        }
+    }
+    .btn-icon__add {
+        position: absolute;
+        bottom: 2px;
+        right: 0;
+        &:before {
+            font-size: 2.0rem;
+        }
+        &:hover {
+            color: $brand-secondary;
+        }
+    }
+
+    .task-modal-details-persona__input {
+        color: $gray-dark;
+        padding-right: 50px;
+
+        &.ng-empty {
+            background: ('../../modules/main/components/dialogs/new-artifact/new-artifact-arrow.png') no-repeat center right 4px;
+            cursor: pointer;
+            padding-right: 25px;
+        }
+    }
+
+}

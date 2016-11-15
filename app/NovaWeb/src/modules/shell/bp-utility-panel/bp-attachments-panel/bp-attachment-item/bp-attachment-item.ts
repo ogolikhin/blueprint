@@ -1,12 +1,11 @@
 ﻿import {IArtifactAttachment} from "../../../../managers/artifact-manager";
-import {Models} from "../../../../main";
 import {ISelectionManager} from "../../../../managers";
 import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
-export class BPArtifactAttachmentItem implements ng.IComponentOptions {
-    public template: string = require("./bp-artifact-attachment-item.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactAttachmentItemController;
+export class BPAttachmentItem implements ng.IComponentOptions {
+    public template: string = require("./bp-attachment-item.html");
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPAttachmentItemController;
     public bindings: any = {
         attachmentInfo: "=",
         deleteItem: "&",
@@ -14,12 +13,12 @@ export class BPArtifactAttachmentItem implements ng.IComponentOptions {
     };
 }
 
-interface IBPArtifactAttachmentItemController {
+interface IBPAttachmentItemController {
     attachmentInfo: IArtifactAttachment;
     deleteItem: Function;
 }
 
-export class BPArtifactAttachmentItemController implements IBPArtifactAttachmentItemController {
+export class BPAttachmentItemController implements IBPAttachmentItemController {
     public static $inject: [string] = [
         "$log",
         "localization",
@@ -43,13 +42,16 @@ export class BPArtifactAttachmentItemController implements IBPArtifactAttachment
     }
 
     public downloadItem(): void {
-        const artifact: Models.IArtifact = this.selectionManager.getArtifact();
+        const artifact = this.selectionManager.getArtifact();
         let url: string = "";
 
         if (this.attachmentInfo.guid) {
             url = `/svc/bpfilestore/file/${this.attachmentInfo.guid}`;
         } else {
-            url = `/svc/components/RapidReview/artifacts/${artifact.id}/files/${this.attachmentInfo.attachmentId}?includeDraft=true`;
+            url = `/svc/bpartifactstore/artifacts/${artifact.id}/attachments/${this.attachmentInfo.attachmentId}`;
+            if (artifact.artifactState.historical) {
+                url += `?versionId=${artifact.getEffectiveVersion()}`;
+            }
         }
 
         this.$window.open(url, "_blank");

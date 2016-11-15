@@ -1,4 +1,3 @@
-
 import {ILocalizationService} from "../../../core/localization/localizationService";
 export interface IArtifactAttachmentsService {
     getArtifactAttachments(artifactId: number,
@@ -21,6 +20,7 @@ export interface IArtifactAttachment {
 export interface IArtifactDocRef {
     artifactName: string;
     artifactId: number;
+    versionId: number;
     userId: number;
     userName: string;
     itemTypePrefix: string;
@@ -69,7 +69,6 @@ export class ArtifactAttachmentsService implements IArtifactAttachmentsService {
 
         this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<IArtifactAttachmentsResultSet>) => {
-                // console.log("retrieved attachments: " + JSON.stringify(result));
                 defer.resolve(result.data);
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {

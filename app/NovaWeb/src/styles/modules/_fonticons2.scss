@@ -121,7 +121,9 @@ $fonticon2-process-objective: '\e845'; /* '' */
 $fonticon2-process-title: '\e846'; /* '' */
 $fonticon2-process-persona: '\e847'; /* '' */
 $fonticon2-project: '\e903'; /* '' */
-$fonticon2-artifact-deleted: '\e904';  /* '' */
+$fonticon2-artifact-deleted: '\e919';  /* '' */
+$fonticon2-move: '\e84b'; /* '' */
+$fonticon2-copy: '\e84a'; /* '' */
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -484,6 +486,12 @@ $fonticon2-artifact-deleted: '\e904';  /* '' */
 .fonticon2-artifact-deleted:before {
     content: $fonticon2-artifact-deleted;
 } /* '' */
+.fonticon2-move:before {
+    content: $fonticon2-move;
+}
+.fonticon2-copy:before {
+    content: $fonticon2-copy;
+}
 .fonticon2__action--disabled {
    color: $gray-lighter !important;
    cursor: not-allowed !important;

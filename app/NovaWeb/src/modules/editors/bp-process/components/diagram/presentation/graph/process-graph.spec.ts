@@ -1,4 +1,5 @@
-﻿import * as angular from "angular";
+﻿/* tslint:disable max-file-line-count */
+import * as angular from "angular";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import * as Enums from "../../../../models/enums";

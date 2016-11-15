@@ -43,9 +43,8 @@ export class RapidReviewAction extends BPButtonAction {
                 }
                 return true;
             },
-            undefined,
-            localization.get("Create_Rapid_Review", "Create Rapid Review"),
-            "RR"
+            "fonticon fonticon2-rapid-review",
+            localization.get("Create_Rapid_Review", "Create Rapid Review")
         );
     }
 }

@@ -1,6 +1,8 @@
 import * as angular from "angular";
 import {Models, Enums} from "../../main/models";
-import {IStatefulArtifact} from "../artifact-manager";
+import {IProjectService} from "./project-service";
+import {IArtifactManager} from "../../managers";
+import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager";
 import {IArtifactNode} from "../project-manager";
 
 export class ArtifactNode implements IArtifactNode {
@@ -9,7 +11,11 @@ export class ArtifactNode implements IArtifactNode {
     public children: IArtifactNode[];
     public parentNode: IArtifactNode;
 
-    constructor(artifact: IStatefulArtifact, parentNode?: IArtifactNode) {
+    constructor(private projectService: IProjectService,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private artifactManager: IArtifactManager,
+                artifact: IStatefulArtifact,
+                parentNode?: IArtifactNode) {
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
@@ -49,6 +55,18 @@ export class ArtifactNode implements IArtifactNode {
     public hasChildren: boolean;
     public loaded: boolean;
     public open: boolean;
+
+    public loadChildrenAsync(): ng.IPromise<any> {
+        return this.projectService.getArtifacts(this.artifact.projectId, this.artifact.id).then((data: Models.IArtifact[]) => {
+            this.children = data.map((it: Models.IArtifact) => {
+                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                this.artifactManager.add(statefulArtifact);
+                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, this);
+            });
+            this.loaded = true;
+            this.open = true;
+        });
+    }
 
     public getNode(id: number, item?: IArtifactNode): IArtifactNode {
         let found: IArtifactNode;

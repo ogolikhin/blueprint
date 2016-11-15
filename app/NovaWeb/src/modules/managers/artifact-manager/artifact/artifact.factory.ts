@@ -24,10 +24,11 @@ import {
     IStatefulProcessArtifactServices
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
-import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
+import {IPublishService, IValidationService} from "../../../managers/artifact-manager";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {StatefulProjectArtifact} from "../project/project-artifact";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: IArtifact): IStatefulArtifact;
@@ -51,7 +52,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "processService",
         "itemInfoService",
         "loadingOverlayService",
-        "publishService"
+        "publishService",
+        "validationService"
     ];
 
     private services: IStatefulArtifactServices;
@@ -68,7 +70,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private processService: IProcessService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private publishService: IPublishService) {
+                private publishService: IPublishService,
+                private validationService: IValidationService) {
 
         this.services = new StatefulArtifactServices(
             this.$q,
@@ -81,7 +84,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             this.relationshipsService,
             this.metadataService,
             this.loadingOverlayService,
-            this.publishService);
+            this.publishService,
+            this.validationService);
     }
 
     public createStatefulArtifactFromId(artifactId: number): ng.IPromise<IStatefulArtifact> {
@@ -111,6 +115,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             throw Error("Argument 'artifact' should not be null or undefined");
         }
         switch (artifact.predefinedType) {
+            case ItemTypePredefined.Project:
+                return this.createStatefulProjectArtifact(artifact);
             case ItemTypePredefined.GenericDiagram:
             case ItemTypePredefined.BusinessProcess:
             case ItemTypePredefined.DomainDiagram:
@@ -146,7 +152,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     public createStatefulGlossaryArtifact(artifact: IArtifact): IStatefulGlossaryArtifact {
         return new StatefulGlossaryArtifact(artifact, this.services);
     }
-    
+
     public createStatefulDiagramArtifact(artifact: IArtifact): IStatefulDiagramArtifact {
         return new StatefulDiagramArtifact(artifact, this.services);
     }
@@ -160,5 +166,9 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
 
         return new StatefulProcessArtifact(artifact, processServices);
+    }
+
+    private createStatefulProjectArtifact(artifact: IArtifact): IStatefulArtifact {
+        return new StatefulProjectArtifact(artifact, this.services);
     }
 }

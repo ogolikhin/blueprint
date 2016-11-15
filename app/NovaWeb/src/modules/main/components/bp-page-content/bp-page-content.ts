@@ -12,7 +12,7 @@ export class PageContent implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = PageContentCtrl;
 }
 
-class PageContentCtrl {
+export class PageContentCtrl {
     private _subscribers: Rx.IDisposable[];
     private currentArtifact: IStatefulArtifact;
 

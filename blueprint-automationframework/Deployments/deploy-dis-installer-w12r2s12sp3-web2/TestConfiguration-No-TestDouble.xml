@@ -4,9 +4,9 @@
 
   <BlueprintServices>
     <Service name="AdminStore"    address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:8088" />
-    <Service name="AccessControl" address="http://localhost:9108" />
+    <Service name="AccessControl" address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:9108" />
     <Service name="ArtifactStore" address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:8088" />
-    <Service name="ConfigControl" address="http://localhost:9108" />
+    <Service name="ConfigControl" address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:9108" />
     <Service name="FileStore"     address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:8088" />
     <Service name="Storyteller"   address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:8088" />
 	<Service name="SearchService" address="http://deploy-dis-installer-w12r2s12sp3-web2.blueprintsys.net:8088" />

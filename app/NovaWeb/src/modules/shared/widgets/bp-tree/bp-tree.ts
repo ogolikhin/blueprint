@@ -81,7 +81,7 @@ export class BPTreeController implements IBPTreeController {
     public onGridReset: () => void;
 
     // ag-grid bindings
-    public options: agGrid.GridOptions;
+    public options: agGrid.GridOptions = {};
 
     private editableColumns: string[] = [];
     private _datasource: any[] = [];

@@ -259,8 +259,12 @@ export class BpArtifactInfoController {
                         this.loadingOverlayService,
                         this.dialogService)
                 ),
-                new OpenImpactAnalysisAction(this.artifact, this.localization)
             );
+
+            //we don't want to show impact analysis on collection artifact page
+            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+                this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
+            }
         }
     }
 

@@ -81,6 +81,9 @@
     background: $white;
 
     .ag-grid{
+        .disabled, [disabled] {
+            cursor: not-allowed;
+        }
 
         .ag-header-cell:last-child{
             .ag-header-cell-label{
@@ -225,15 +228,15 @@
         .icon{
             color: $gray-light;
 
-            &.icon__action{
-                &:hover{
-                    color: $brand-secondary;
-                    cursor: pointer;
-                }
+            &::before{
+                font-size: $font-size-big;
+            }
+        }
 
-                &::before{
-                    font-size: $font-size-big;
-                }
+        .icon__action{
+            &:hover{
+                color: $brand-secondary;
+                cursor: pointer;
             }
         }
     }

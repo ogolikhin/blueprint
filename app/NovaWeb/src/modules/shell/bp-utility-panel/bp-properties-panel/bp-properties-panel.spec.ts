@@ -25,6 +25,7 @@ import {
     StatefulArtifactFactory,
     MetaDataService
 } from "../../../managers/artifact-manager";
+import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -52,6 +53,7 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", PublishServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
+        $provide.service("validationService", ValidationServiceMock);
     }));
 
     beforeEach(inject(() => {

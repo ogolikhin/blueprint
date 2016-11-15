@@ -1,7 +1,8 @@
 import {IDiagramElement, IDiagramNode} from "./../models/";
-import {IDiagramNodeElement, ILabel} from "./../models/";
+import {IDiagramNodeElement} from "./../models/";
 import {ElementType, NodeChange} from "./../models/";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import { ILabel } from "../labels/label";
 
 export class DiagramElement extends mxCell implements IDiagramElement {
     private elementType: ElementType;

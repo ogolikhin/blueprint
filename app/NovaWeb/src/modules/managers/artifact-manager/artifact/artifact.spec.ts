@@ -1,5 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "../../../shell";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, Enums} from "../../../main/models";
 import {IPublishService} from "./../publish.svc/publish.svc";
@@ -23,6 +24,7 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
 import {ApplicationError} from "../../../core/error/applicationError";
+import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -42,7 +44,7 @@ describe("Artifact", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", PublishServiceMock);
-        //$provide.service("$log", LogMock);
+        $provide.service("validationService", ValidationServiceMock);
     }));
 
     beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory) => {
@@ -59,18 +61,6 @@ describe("Artifact", () => {
     }));
 
     describe("canBeSaved", () => {
-        it("project", inject(() => {
-            // arrange
-            spyOn(artifact, "isProject").and.returnValue(true);
-
-            // act
-            let result: boolean;
-            result = artifact.canBeSaved();
-
-            // assert
-            expect(result).toEqual(false);
-        }));
-
         it("locked by current user", inject(() => {
             // arrange
             let newState: IState = {
@@ -91,18 +81,6 @@ describe("Artifact", () => {
     });
 
     describe("canBepublished", () => {
-        it("project", inject(() => {
-            // arrange
-            spyOn(artifact, "isProject").and.returnValue(true);
-
-            // act
-            let result: boolean;
-            result = artifact.canBePublished();
-
-            // assert
-            expect(result).toEqual(false);
-        }));
-
         it("locked by current user", inject(() => {
             // arrange
             let newState: IState = {
@@ -604,7 +582,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
             expect(messageService.messages[0].messageText).toEqual("Artifact_Lock_Refresh");
         }));
-        
+
         it("wrong version failure - calls subscriber's onNext to notify artifact change", inject((statefulArtifactFactory: IStatefulArtifactFactory,
                                             $rootScope: ng.IRootScopeService, messageService: IMessageService) => {
             // arrange
@@ -620,7 +598,7 @@ describe("Artifact", () => {
             artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
 
             const spyOnNext = spyOn((<any>artifact).subject, "onNext");
-            
+
             // act
             artifact.lock();
             $rootScope.$digest();
@@ -687,6 +665,93 @@ describe("Artifact", () => {
     });
 
 
+     describe("Delete", () => {
+       it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+             // arrange
+          // act
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+          
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.resolve([{
+                    id: 1, name: "TEST"
+                }]);
+                return deferred.promise;
+            });
+            let result;
+           artifact.delete().then((it) => {
+               result = it;
+           });
+           $rootScope.$digest();
+          // assert
+           expect(result).toBeDefined();
+           expect(result).toEqual(jasmine.any(Array));
+           expect(error).toBeUndefined();
+           expect(artifact.artifactState.deleted).toBeTruthy();
+         }));
+
+         it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+             // arrange
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                 const deferred = $q.defer<any>();
+                 deferred.reject({
+                     statusCode: HttpStatusCode.Conflict
+                 });
+                 return deferred.promise;
+             });
+
+             // act
+             
+             artifact.delete();
+             $rootScope.$digest();
+
+             // assert
+             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+             expect(artifact.artifactState.deleted).toBeFalsy();
+         }));
+
+         it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+             // arrange
+             let error: ApplicationError;
+             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                 error = err;
+             });
+             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                 const deferred = $q.defer<any>();
+                 deferred.reject({
+                     statusCode: HttpStatusCode.Conflict,
+                     errorContent : {
+                         id: 222,
+                         name: "TEST",
+                         prefix: "PREFIX"
+                     }
+                 });
+                 return deferred.promise;
+             });
+             const errormessage = "The artifact PREFIX222 is already locked by another user.";
+             // act
+             
+             artifact.delete();
+             $rootScope.$digest();
+
+             // assert
+             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+             expect(error.message).toEqual(errormessage);
+             expect(artifact.artifactState.deleted).toBeFalsy();
+         }));
+
+
+
+     });
+
+
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {
             // arrange
@@ -712,22 +777,6 @@ describe("Artifact", () => {
     });
 
     describe("Load", () => {
-
-        it("error is project", inject(($rootScope: ng.IRootScopeService) => {
-            // arrange
-            spyOn(artifact, "isProject").and.returnValue(true);
-
-            // act
-            let statefulArtifact: IStatefulArtifact;
-            artifact.save().then((result) => {
-                statefulArtifact = result;
-            });
-            $rootScope.$digest();
-
-            // assert
-            expect(statefulArtifact).toBeDefined();
-        }));
-
         it("error is deleted", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
             spyOn(artifact, "isHeadVersionDeleted").and.callFake(() => {

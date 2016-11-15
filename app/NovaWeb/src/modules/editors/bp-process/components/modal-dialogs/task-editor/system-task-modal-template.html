@@ -16,12 +16,23 @@
 
     <form name="systemTaskForm" novalidate>
         <div class="nova-form-group nova-floating-label">
-            <input type="text"
-                    ng-class='dialogModel.persona ? "nova-form-control input-is-dirty" : "nova-form-control"'
-                    id="storyteller-system-persona" ng-model='dialogModel.persona' ng-disabled="true"
-                    autofocus maxlength="40" autocomplete="off">
             <label for="storyteller-user" class="nova-label"><i class="fonticon2-process-persona"></i>{{::$root.config.labels['ST_System_Name_Label']}}</label>
-            <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
+            <div class="process-form-container">
+                <input type="text" class="nova-form-control new-artifact__input new-artifact__input--dropdown"
+                       id="system-task-persona" name="persona"
+                       ng-model="dialogModel.persona"
+                       uib-typeahead="persona as persona.name for persona in dialogModel.availablePersona | filter:{name:$viewValue} | limitTo: 10"
+                       typeahead-template-url="artifactTypesDropdown.html"
+                       typeahead-show-hint="true"
+                       typeahead-min-length="0" />
+                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.persona" ng-click="$ctrl.cleanPersonaField()">
+                    <span class="fonticon2-error"></span>
+                </button>
+                <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
+                    +
+                </button>
+                <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
+            </div>
         </div>
         <div class="nova-form-group nova-floating-label">
             <input type="text" ng-blur="$ctrl.nameOnBlur()" ng-focus="$ctrl.nameOnFocus()"
@@ -44,7 +55,7 @@
                     <div class="nova-form-group">
 
                         <div ng-show="!$ctrl.isIncludeResultsVisible">
-                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
                                 <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
@@ -66,6 +77,11 @@
                     </div>
     </form>
 
+    <script type="text/ng-template" id="artifactTypesDropdown.html">
+        <a>
+            <span ng-bind-html="match.label | bpEscapeAndHighlight:query"></span>
+        </a>
+    </script>
 </div>
 
 <div class="modal-footer storyteller-modal-footer">

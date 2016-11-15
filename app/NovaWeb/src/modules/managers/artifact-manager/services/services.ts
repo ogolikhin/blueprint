@@ -4,7 +4,7 @@ import {IArtifactService} from "../artifact";
 import {IMetaDataService} from "../metadata";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IArtifactRelationshipsService} from "../relationships";
-import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
+import {IPublishService, IValidationService} from "../../../managers/artifact-manager";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
@@ -23,6 +23,7 @@ export interface IStatefulArtifactServices {
     metaDataService: IMetaDataService;
     loadingOverlayService: ILoadingOverlayService;
     publishService: IPublishService;
+    validationService: IValidationService;
 }
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
@@ -36,7 +37,8 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _relationshipsService: IArtifactRelationshipsService,
                 private _metadataService: IMetaDataService,
                 private _loadingOverlayService: ILoadingOverlayService,
-                private _publishService: IPublishService) {
+                private _publishService: IPublishService,
+                private _validationService: IValidationService) {
     }
 
     public getDeferred<T>(): ng.IDeferred<T> {
@@ -81,6 +83,10 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
 
     public get publishService(): IPublishService {
         return this._publishService;
+    }
+
+    public get validationService(): IValidationService {
+        return this._validationService;
     }
 
     // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {

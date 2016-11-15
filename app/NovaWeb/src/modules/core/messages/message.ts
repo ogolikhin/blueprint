@@ -3,8 +3,7 @@
     Info = 2,
     Warning = 3,
     Lock = 4,
-    Deleted = 5,
-    Historical = 6
+    Deleted = 5
 }
 
 export interface IMessage {

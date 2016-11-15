@@ -67,6 +67,7 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public historicalMessage: string;
 
     constructor(public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
@@ -121,9 +122,7 @@ export class BpArtifactInfoController {
             if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
                 const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
                 const publishedBy = this.artifact.lastEditedBy.displayName;
-                const message = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
-               // &nbsp;&nbsp;&nbsp;&nbsp;<a ui-sref="main.item({ id: ${this.artifact.id} })">Open latest version</a>`;
-               //  this.messageService.addMessage(new Message(MessageType.Historical, message, true));
+                this.historicalMessage = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
             }
         }
     };
@@ -141,11 +140,6 @@ export class BpArtifactInfoController {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
-    }
-
-    public navigateToLatestVersion() {
-        console.log("test");
-        this.navigationService.navigateTo({ id: this.artifact.id });
     }
 
     private initProperties() {

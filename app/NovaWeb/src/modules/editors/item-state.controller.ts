@@ -37,7 +37,7 @@ export class ItemStateController {
         const version = parseInt($state.params["version"], 10);
 
         if (_.isFinite(id)) {
-            this.clearMessages();
+            this.clearLockedMessages();
 
             const artifact = artifactManager.get(id);
 
@@ -132,9 +132,9 @@ export class ItemStateController {
         return invalidTypes.indexOf(itemType) >= 0;
     }
 
-    private clearMessages() {
+    private clearLockedMessages() {
         this.messageService.messages.forEach(message => {
-            if (message.messageType === MessageType.Deleted || message.messageType === MessageType.Historical) {
+            if (message.messageType === MessageType.Deleted) {
                 this.messageService.deleteMessageById(message.id);
             }
         });

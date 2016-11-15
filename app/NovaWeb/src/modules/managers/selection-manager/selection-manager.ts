@@ -1,6 +1,6 @@
-import {IItem} from "./../../main/models/models";
+import {IItem} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
-import {IDispose} from "./../../managers/models";
+import {IDispose} from "../models";
 
 
 export interface ISelectionManager extends IDispose {
@@ -32,11 +32,7 @@ export class SelectionManager implements ISelectionManager {
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
-    static $inject: [string] = [
-        "$window"
-    ];
-
-    constructor(private $window: ng.IWindowService) {
+    constructor() {
         const selection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined
@@ -98,7 +94,6 @@ export class SelectionManager implements ISelectionManager {
         };
 
         this.setSelectionSubject(selection);
-        this.updateAppTitle();
     }
 
     public getSubArtifact(): IStatefulSubArtifact {
@@ -135,7 +130,6 @@ export class SelectionManager implements ISelectionManager {
         };
         this.setExplorerArtifact(undefined);
         this.setSelectionSubject(emptyselection);
-        this.updateAppTitle();
     }
 
     public clearSubArtifact() {
@@ -150,15 +144,6 @@ export class SelectionManager implements ISelectionManager {
 
     private distinctById(item: IItem) {
         return item ? item.id : -1;
-    }
-
-    private updateAppTitle() {
-        let title: string = "Storyteller";
-        const selection = this.selectionSubject.getValue();
-        if (selection.artifact) {
-            title = `${selection.artifact.prefix}${selection.artifact.id}: ${selection.artifact.name}`;
-        }
-        this.$window.document.title = title;
     }
 
     private unsubscribe(selection: ISelection) {
@@ -178,5 +163,4 @@ export class SelectionManager implements ISelectionManager {
         this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
     }
-
 }

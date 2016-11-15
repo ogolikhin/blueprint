@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 
-namespace ArtifactStoreTests
+namespace AdminStoreTests
 {
     [TestFixture]
     [Category(Categories.AdminStore)]
@@ -19,7 +19,7 @@ namespace ArtifactStoreTests
         private IProject _secondProject = null;
         private List<IProject> _projects = null;
 
-        private string rootFolderName = "Blueprint";
+        private const string ROOT_FOLDER_NAME = "Blueprint";
 
         [SetUp]
         public void SetUp()
@@ -27,8 +27,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2, shouldRetrievePropertyTypes: false);
-
-            Assert.IsTrue(_projects.Count >= 2, "These tests expect that Blueprint server has at least 2 projects.");
 
             _firstProject = _projects[0];
             _secondProject = _projects[1];
@@ -55,7 +53,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(2, path.Count);
-            Assert.AreEqual(rootFolderName, path[0]);
+            Assert.AreEqual(ROOT_FOLDER_NAME, path[0]);
             Assert.AreEqual(_firstProject.Name, path[1]);
         }
 
@@ -72,7 +70,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, path.Count);
-            Assert.AreEqual(rootFolderName, path[0]);
+            Assert.AreEqual(ROOT_FOLDER_NAME, path[0]);
         }
 
         [TestCase()]
@@ -88,7 +86,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(2, path.Count);
-            Assert.AreEqual(rootFolderName, path[0]);
+            Assert.AreEqual(ROOT_FOLDER_NAME, path[0]);
             Assert.AreEqual(_secondProject.Name, path[1]);
         }
 

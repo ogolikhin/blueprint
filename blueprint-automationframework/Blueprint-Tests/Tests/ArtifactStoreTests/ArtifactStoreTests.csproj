@@ -82,7 +82,6 @@
     <Compile Include="LegacyUseCaseArtifactHistoryTests.cs" />
     <Compile Include="MoveArtifactTests.cs" />
     <Compile Include="ProjectMetaTests.cs" />
-    <Compile Include="ProjectNavigationPathTests.cs" />
     <Compile Include="ProjectTests.cs" />
     <Compile Include="PublishArtifactTests.cs" />
     <Compile Include="RelationshipsTests.cs" />

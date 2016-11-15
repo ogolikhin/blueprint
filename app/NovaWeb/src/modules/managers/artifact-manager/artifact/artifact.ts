@@ -386,49 +386,40 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.services.messageService.clearMessages();
 
-        // if (!ignoreInvalidValues ) {
-        //     this.artifactState.invalid = true;
-        //     const compoundId: string = this.prefix + this.id.toString();
-        //     let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-        //     deferred.reject(new Error(message.replace("{0}", compoundId)));
-        //     return deferred.promise;
-        // }
         const changes = this.changes();
-            this.validateCustomArtifactPromisesForSave(changes, ignoreInvalidValues).then(() => {
-                const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
-                if (saveCustomArtifact) {
-                    saveCustomArtifact.then(() => {
-                        this.saveArtifact(changes).then(() => {
-                            deferred.resolve(this);
-                        })
-                            .catch((error) => {
-                                this.customHandleSaveFailed();
-                                deferred.reject(error);
-                            });
+        this.validateCustomArtifactPromisesForSave(changes, ignoreInvalidValues).then(() => {
+            const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
+            if (saveCustomArtifact) {
+                saveCustomArtifact.then(() => {
+                    this.saveArtifact(changes).then(() => {
+                        deferred.resolve(this);
                     })
                         .catch((error) => {
-                            // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
-                            if (error) {
-                                deferred.reject(this.handleSaveError(error));
-                            } else {
-                                deferred.reject(error);
-                            }
-                        });
-                } else {
-                    this.saveArtifact(changes)
-                        .then(() => {
-                            deferred.resolve(this);
-                        })
-                        .catch((error) => {
+                            this.customHandleSaveFailed();
                             deferred.reject(error);
                         });
-                }
-            })
-            .catch((err) => {
-                return this.set_400_114_error(deferred);
-            });
-        // } else {
-        //}
+                })
+                    .catch((error) => {
+                        // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                        if (error) {
+                            deferred.reject(this.handleSaveError(error));
+                        } else {
+                            deferred.reject(error);
+                        }
+                    });
+            } else {
+                this.saveArtifact(changes)
+                    .then(() => {
+                        deferred.resolve(this);
+                    })
+                    .catch((error) => {
+                        deferred.reject(error);
+                    });
+            }
+        })
+        .catch((err) => {
+            return this.set_400_114_error(deferred);
+        });
 
         return deferred.promise;
     }

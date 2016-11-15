@@ -17,7 +17,7 @@ export class BpLoadingOverlayController implements IBpLoadingOverlayController {
     }
 
     private get displayOverlay() {
-        return this.loadingOverlayService.displayOverlay
+        return this.loadingOverlayService.displayOverlay;
     }
 
     public $onDestroy() {

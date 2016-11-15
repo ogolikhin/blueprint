@@ -122,17 +122,20 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
+        // TODO: make more CSS/layout independent
         const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
 
-        if (this.slider) {
-            this.slider.recalculate();
-        }
-
-        let pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
+        const pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
-            let avaliableWidth: number = mainWindow ? mainWindow.contentWidth : pageBodyWrapper.offsetWidth;
+            const availableWidth: number = mainWindow ? mainWindow.contentWidth : pageBodyWrapper.offsetWidth;
 
-            if (avaliableWidth < minimumWidth) {
+            if (this.slider) {
+                const sliderWrapper = this.slider.getWrapperElement();
+                const offset = pageBodyWrapper.offsetWidth - sliderWrapper.offsetWidth;
+                this.slider.updateWidth(availableWidth - offset);
+            }
+
+            if (availableWidth < minimumWidth) {
                 pageBodyWrapper.classList.add("single-column-property");
             } else {
                 pageBodyWrapper.classList.remove("single-column-property");

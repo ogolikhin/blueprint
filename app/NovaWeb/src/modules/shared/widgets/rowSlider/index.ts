@@ -1,4 +1,5 @@
-﻿import * as angular from "angular";
+﻿require("./rowSlider.scss");
+
 import { RowSliderComponent } from "./rowSlider";
 import { IRowSliderControllerApi } from "./rowSlider-controller";
 

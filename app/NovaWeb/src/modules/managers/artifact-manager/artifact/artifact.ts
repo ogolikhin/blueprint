@@ -38,6 +38,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
     protected _subArtifactCollection: ISubArtifactCollection;
+    protected hasCustomSave: boolean = false;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
@@ -391,38 +392,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         const changes = this.changes();
         if (changes) {
-            this.validateCustomArtifactPromisesForSave().then(() => {
-                const saveCustomArtifact = this.getCustomArtifactPromisesForSave();
-                if (saveCustomArtifact) {
-                    saveCustomArtifact.then(() => {
-                        this.saveArtifact(changes).then(() => {
-                            deferred.resolve(this);
-                        })
-                            .catch((error) => {
-                                this.customHandleSaveFailed();
-                                deferred.reject(error);
-                            });
-                    })
-                        .catch((error) => {
-                            // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
-                            if (error) {
-                                deferred.reject(this.handleSaveError(error));
-                            } else {
-                                deferred.reject(error);
-                            }
-                        });
+            this.validateCustomArtifactPromisesForSave()
+            .then(() => {
+                const saveCustomArtifactPromise = this.getCustomArtifactPromisesForSave();
+                if (saveCustomArtifactPromise) {
+                    return saveCustomArtifactPromise;
                 } else {
-                    this.saveArtifact(changes)
-                        .then(() => {
-                            deferred.resolve(this);
-                        })
-                        .catch((error) => {
-                            deferred.reject(error);
-                        });
+                    this.services.$q.resolve();
                 }
-            })
-            .catch((err) => {
-                deferred.reject(err);
+            }).then(() => {
+                 return this.saveArtifact(changes);
+            }).then(() => {
+                deferred.resolve(this);
+            }).catch((error) => {
+                deferred.reject(error);
             });
         } else {
             return this.set_400_114_error(deferred);
@@ -450,7 +433,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     deferred.reject(error);
                 });
             }).catch((error) => {
-                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                if (this.hasCustomSave) {
+                    this.customHandleSaveFailed();
+                }
+                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)                
                 if (error) {
                     deferred.reject(this.handleSaveError(error));
                 } else {

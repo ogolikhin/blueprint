@@ -21,6 +21,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public decisionBranchDestinationLinks: IProcessLink[];
     public propertyValues: IHashMapOfPropertyValues;
     public requestedVersionInfo: IVersionInfo;
+    protected hasCustomSave: boolean = true;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
@@ -240,8 +241,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 .then((result: IProcessUpdateResult) => {
                     this.mapTempIdsAfterSave(result.tempIdMap);
                     deferred.resolve(this);
-                }).catch((err: any) => {
-                    deferred.reject(err);
+                }).catch((error: any) => { 
+                    // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                    if (error) {
+                        deferred.reject(this.handleSaveError(error));
+                    } else {
+                        deferred.reject(error);
+                    }
                 });
         } else {
             let message = new Message(MessageType.Error,
@@ -249,7 +255,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             this.services.messageService.addMessage(message);
             deferred.reject();
         }
-
+        
         return deferred.promise;
     }
 

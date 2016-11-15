@@ -140,10 +140,10 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.Process, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestRail(999999)]
         [Description("Create & publish a Process artifact.  Update a text property, save and publish.  Verify the artifact returned the test property updated.")]
-        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(BaseArtifactType baseArtifactType)
+        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(BaseArtifactType baseArtifactType, string propertyName)
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
@@ -156,13 +156,23 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(projectCustomData, author, ItemTypePredefined.Process, artifactTypeName: artifactTypeName);
 
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+
+            var property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+            //property.CustomPropertyValue =
+            //    StringUtilities.WrapInDiv(
+            //        RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces());
+
+            property.CustomPropertyValue = "<pre><span>DARREN</span></pre>";
 
             // Execute:
-            //  UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
+            artifact.Lock(author);
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }

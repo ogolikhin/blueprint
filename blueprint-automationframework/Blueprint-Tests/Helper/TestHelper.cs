@@ -576,6 +576,19 @@ namespace Helper
             return artifact;
         }
 
+        /// <summary>
+        /// Updates a Nova artifact.
+        /// </summary>
+        /// <param name="project">The project containing the artifact to be updated.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        public INovaArtifactDetails UpdateNovaArtifact(IProject project, IUser user, NovaArtifactDetails novaArtifactDetails)
+        {     
+            return Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user,
+                    project, novaArtifactDetails);
+        }
+
         #endregion Artifact Management
 
         #region Project Management

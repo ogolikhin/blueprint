@@ -100,11 +100,11 @@ export class BPTreeController implements IBPTreeController {
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
         this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
-        if (angular.isArray(this.gridColumns)) {
+        if (_.isArray(this.gridColumns)) {
             this.gridColumns.map(function (gridCol) {
                 // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
                 if (gridCol.cellRenderer === "group") {
-                    if (gridCol.cellRendererParams && angular.isFunction(gridCol.cellRendererParams.innerRenderer)) {
+                    if (gridCol.cellRendererParams && _.isFunction(gridCol.cellRendererParams.innerRenderer)) {
                         this._innerRenderer = gridCol.cellRendererParams.innerRenderer;
                         gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
                     }
@@ -235,7 +235,7 @@ export class BPTreeController implements IBPTreeController {
                     }
                 }
             }).catch(reason => {
-                if (angular.isFunction(this.onError)) {
+                if (_.isFunction(this.onError)) {
                     this.onError({reason: reason});
                 }
             }).finally(() => {
@@ -245,7 +245,7 @@ export class BPTreeController implements IBPTreeController {
                         this.options.api.showNoRowsOverlay();
                     }
                 }
-                if (this.onGridReset) {
+                if (_.isFunction(this.onGridReset)) {
                     this.onGridReset();
                 }
             });
@@ -350,7 +350,7 @@ export class BPTreeController implements IBPTreeController {
                     row.classList.add("ag-row-loading");
                 }
                 vm.loadChildrenAsync().then(() => this.resetGridAsync()).catch(reason => {
-                    if (angular.isFunction(this.onError)) {
+                    if (_.isFunction(this.onError)) {
                         this.onError({reason: reason});
                     }
                 });

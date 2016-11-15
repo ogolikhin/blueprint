@@ -8,7 +8,6 @@ export class RowSliderComponent implements ng.IComponentOptions {
         // Two-way
         api: "=?",
         // Input
-        availableWidth: "<?",
         slideSelector: "@?"
     };
 }

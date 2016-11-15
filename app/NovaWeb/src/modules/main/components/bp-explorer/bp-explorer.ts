@@ -7,6 +7,7 @@ import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-mana
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {IMessageService} from "../../../core/messages/message.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -17,9 +18,11 @@ export class ProjectExplorer implements ng.IComponentOptions {
 export interface IProjectExplorerController {
     // BpTree bindings
     tree: IBPTreeControllerApi;
+    projects: IArtifactNode[];
     columns: any[];
-    doLoad: Function;
     doSelect: Function;
+    onError: (reason: any) => any;
+    onGridReset: () => void;
 }
 
 export class ProjectExplorerController implements IProjectExplorerController {
@@ -33,13 +36,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "projectManager",
         "artifactManager",
         "navigationService",
-        "selectionManager"
+        "selectionManager",
+        "messageService"
     ];
 
     constructor(private projectManager: IProjectManager,
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
-                private selectionManager: ISelectionManager) {
+                private selectionManager: ISelectionManager,
+                private messageService: IMessageService) {
         this.isFullReLoad = true;
     }
 
@@ -104,56 +109,48 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }
 
     private onLoadProject = (projects: IArtifactNode[]) => {
-        //NOTE: this method is called during "$onInit" and as a part of "Rx.BehaviorSubject" initialization.
-        // At this point the tree component (bp-tree) is not created yet due to component hierachy (dependant)
-        // so, just need to do an extra check if the component has created
-        if (this.tree) {
+        this.projects = projects.slice(0); // create a copy
+    }
 
-            this.tree.reload(projects);
-
-            const currentSelectionId = this.selectedArtifactId;
-            let navigateToId: number;
-            if (projects && projects.length > 0) {
-                if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== projects.length) {
-                    this.setSelectedNode(projects[0].artifact.id);
-                    navigateToId = this.selectedArtifactId;
-                }
-
-                if (this.tree.nodeExists(this.selectedArtifactId)) {
-                    //if node exists in the tree
-                    if (this.isFullReLoad || this.selectedArtifactId !== this.tree.getSelectedNodeId()) {
-                        navigateToId = this.selectedArtifactId;
-                    }
-                    this.isFullReLoad = true;
-
-                    //replace with a new object from tree, since the selected object may be stale after refresh
-                    this.setSelectedNode(this.selectedArtifactId);
-                } else {
-                    //otherwise, if parent node is in the tree
-                    if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
-                        this.tree.selectNode(this.selected.parentNode.id);
-                        navigateToId = this.selected.parentNode.id;
-
-                        //replace with a new object from tree, since the selected object may be stale after refresh
-                        this.setSelectedNode(this.selected.parentNode.id);
-                    } else {
-                        //otherwise, try with project node
-                        if (this.tree.nodeExists(this.selected.artifact.projectId)) {
-                            this.tree.selectNode(this.selected.artifact.projectId);
-                            navigateToId = this.selected.artifact.projectId;
-                        }
-                    }
-                }
+    public onGridReset(): void {
+        const currentSelectionId = this.selectedArtifactId;
+        let navigateToId: number;
+        if (this.projects && this.projects.length > 0) {
+            if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+                this.setSelectedNode(this.projects[0].artifact.id);
+                navigateToId = this.selectedArtifactId;
             }
 
-            this.numberOfProjectsOnLastLoad = projects.length;
-
-            if (_.isFinite(navigateToId)) {
-                if (navigateToId !== currentSelectionId) {
-                    this.navigationService.navigateTo({ id: navigateToId });
-                } else {
-                    this.navigationService.reloadParentState();
+            if (this.tree.nodeExists(this.selectedArtifactId)) {
+                //if node exists in the tree
+                if (this.isFullReLoad || this.selectedArtifactId !== this.tree.getSelectedNodeId()) {
+                    navigateToId = this.selectedArtifactId;
                 }
+                this.isFullReLoad = true;
+
+                //replace with a new object from tree, since the selected object may be stale after refresh
+                this.setSelectedNode(this.selectedArtifactId);
+            } else if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
+                //otherwise, if parent node is in the tree
+                this.tree.selectNode(this.selected.parentNode.id);
+                navigateToId = this.selected.parentNode.id;
+
+                //replace with a new object from tree, since the selected object may be stale after refresh
+                this.setSelectedNode(this.selected.parentNode.id);
+            } else if (this.tree.nodeExists(this.selected.artifact.projectId)) {
+                //otherwise, try with project node
+                this.tree.selectNode(this.selected.artifact.projectId);
+                navigateToId = this.selected.artifact.projectId;
+            }
+        }
+
+        this.numberOfProjectsOnLastLoad = this.projects.length;
+
+        if (_.isFinite(navigateToId)) {
+            if (navigateToId !== currentSelectionId) {
+                this.navigationService.navigateTo({ id: navigateToId });
+            } else {
+                this.navigationService.reloadParentState();
             }
         }
     };
@@ -173,6 +170,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     // BpTree bindings
 
     public tree: IBPTreeControllerApi;
+    public projects: IArtifactNode[];
     public columns = [{
         headerName: "",
         field: "name",
@@ -218,21 +216,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
         suppressFiltering: true
     }];
 
-    public doLoad = (prms: IArtifactNode): any[] => {
-        //the explorer must be empty on a first load
-        if (prms) {
-            //notify the repository to load the node children
-            this.projectManager.loadArtifact(prms.id);
-            this.isFullReLoad = false;
-        } else {
-            this.isFullReLoad = true;
-        }
-
-        return null;
-    };
-
     public doSelect = (node: IArtifactNode) => {
         this.selected = node;
         this.navigationService.navigateTo({ id: node.id });
     };
+
+    public onError = (reason: any): void => {
+        if (reason) {
+            this.messageService.addError(reason["message"] || "Artifact_NotFound");
+        }
+    }
 }

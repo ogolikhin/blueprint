@@ -70,8 +70,8 @@ describe("When process is saved", () => {
         _$q_: ng.IQService,
         _$httpBackend_: ng.IHttpBackendService,
         messageService: IMessageService, 
-		artifactService: IArtifactService,
-		processService: IProcessService,
+        artifactService: IArtifactService,
+        processService: IProcessService,
         validationService: IValidationService,
         metadataService: MetaDataService,
         localization: LocalizationServiceMock) => {

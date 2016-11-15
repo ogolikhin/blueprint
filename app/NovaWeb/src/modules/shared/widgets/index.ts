@@ -17,6 +17,7 @@ import "./bp-toolbar";
 import "./bp-artifact-list";
 import "./bp-filtered-input";
 import "./bp-goto";
+import "./rowSlider";
 
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
@@ -36,7 +37,8 @@ angular.module("bp.widgets", [
     "bp.widgets.toolbar",
     "bp.widgets.artifactList",
     "bp.widgets.filtered-input",
-    "bp.widgets.goto"
+    "bp.widgets.goto",
+    "bp.widgets.rowSlider"
 ]);
 
 export {
@@ -45,7 +47,11 @@ export {
 
 export {
     IBPTreeControllerApi
-} from "./bp-tree"
+} from "./bp-tree";
+
+export {
+    IRowSliderControllerApi
+} from "./rowSlider";
 
 export {
     IDialogSettings,

@@ -3,7 +3,7 @@ import * as Rx from "rx";
 
 import "./modules/main/";
 // load our default (non specific) css
-require("./styles/screen.scss");
+require("./styles/main.scss");
 
 
 declare var appBootstrap: any;

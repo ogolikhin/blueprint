@@ -478,8 +478,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             //versionId = 1 - no attachments
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 2 - 1 attachment - _novaAttachmentFile
 
@@ -506,7 +505,7 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Glossary);
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact,
+            ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
                 new List<INovaFile> { _novaAttachmentFile, _novaAttachmentFile }, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 2 attachments - _novaAttachmentFile
@@ -555,13 +554,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 1 attachment
 
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore, expectedAttachedFilesCount: 2);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 2 - 2 attachments
 
@@ -595,8 +592,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
+                ArtifactStoreHelper.AddArtifactAttachmentAndSave(_authorUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
                 Helper.ArtifactStore.PublishArtifact(artifact, _authorUser);
                 //versionId = 2 - 1 attachment - _novaAttachmentFile
 
@@ -626,9 +622,8 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, new List<INovaFile> { _novaAttachmentFile },
-                Helper.ArtifactStore);
+
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 

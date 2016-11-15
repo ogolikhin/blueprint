@@ -67,16 +67,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    null,
-                    selectionManager,
-                    messageService,
-                    localization,
-                    dialogService,
-                    loadingOverlayService,
-                    communicationManager.processDiagramCommunication
-                );
+                new GenerateUserStoriesAction(process, null, selectionManager, messageService, localization, 
+                    dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             } catch (exception) {
                 error = exception;
             }
@@ -93,15 +85,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    userStoryService,
-                    null,
-                    messageService,
-                    localization,
-                    dialogService,
-                    loadingOverlayService,
-                    communicationManager.processDiagramCommunication
+                new GenerateUserStoriesAction(process, userStoryService, null, messageService, localization, 
+                    dialogService, loadingOverlayService, communicationManager.processDiagramCommunication
                 );
             } catch (exception) {
                 error = exception;
@@ -119,16 +104,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    userStoryService,
-                    selectionManager,
-                    null,
-                    localization,
-                    dialogService,
-                    loadingOverlayService,
-                    communicationManager.processDiagramCommunication
-                );
+                new GenerateUserStoriesAction(process, userStoryService, selectionManager, null, localization, 
+                    dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             } catch (exception) {
                 error = exception;
             }
@@ -145,16 +122,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    userStoryService,
-                    selectionManager,
-                    messageService,
-                    null,
-                    dialogService,
-                    loadingOverlayService,
-                    communicationManager.processDiagramCommunication
-                );
+                new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, null, 
+                    dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             } catch (exception) {
                 error = exception;
             }
@@ -171,16 +140,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    userStoryService,
-                    selectionManager,
-                    messageService,
-                    localization,
-                    null,
-                    loadingOverlayService,
-                    communicationManager.processDiagramCommunication
-                );
+                new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, localization, 
+                    null, loadingOverlayService, communicationManager.processDiagramCommunication);
             } catch (exception) {
                 error = exception;
             }
@@ -197,16 +158,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    userStoryService,
-                    selectionManager,
-                    messageService,
-                    localization,
-                    dialogService,
-                    null,
-                    communicationManager.processDiagramCommunication
-                );
+                new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, localization, 
+                    dialogService, null, communicationManager.processDiagramCommunication);
             } catch (exception) {
                 error = exception;
             }
@@ -223,16 +176,8 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             try {
-                new GenerateUserStoriesAction(
-                    process,
-                    userStoryService,
-                    selectionManager,
-                    messageService,
-                    localization,
-                    dialogService,
-                    loadingOverlayService,
-                    null
-                );
+                new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, localization, 
+                    dialogService, loadingOverlayService, null);
             } catch (exception) {
                 error = exception;
             }
@@ -249,16 +194,8 @@ describe("GenerateUserStoriesAction", () => {
             const process = null;
 
             // act
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
 
             // assert
             expect(action.disabled).toBe(true);
@@ -267,16 +204,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process.artifactState is null", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
 
             // act
             process["state"] = null;
@@ -288,16 +217,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process is read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
 
             // act
             process.artifactState.setState({readonly: true }, false);
@@ -313,16 +234,8 @@ describe("GenerateUserStoriesAction", () => {
             const process = null;
 
             // act
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // assert
@@ -332,16 +245,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process.artifactState is null", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -355,16 +260,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process is read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -377,16 +274,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if no process shape is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -399,16 +288,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected process shape is start", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -423,16 +304,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected process shape is end", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -447,16 +320,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected process shape is pre-condition", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -471,16 +336,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected process shape is system task", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -495,16 +352,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected process shape is user decision", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -519,16 +368,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected process shape is system decision", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -543,16 +384,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if selected user task is new", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -567,16 +400,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is enabled if selecting a saved user task", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
 
             // act
@@ -591,16 +416,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is doesn't execute if disabled", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
@@ -618,16 +435,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is executes if enabled", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
@@ -646,16 +455,8 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const version = -1; // unpublished draft
             const process = createStatefulProcessArtifact(version);
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
@@ -675,16 +476,8 @@ describe("GenerateUserStoriesAction", () => {
         it("prompts user to publish changes for published draft process", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
@@ -705,29 +498,19 @@ describe("GenerateUserStoriesAction", () => {
         it("doesn't prompt user to publish changes for published process", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => { return { then: () => {/* no op*/} }; });
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
+                });
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
@@ -745,36 +528,24 @@ describe("GenerateUserStoriesAction", () => {
         it("handles generic publish failure", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
-            spyOn(process, "publish").and.callFake(
-                () => {
+                });
+            spyOn(process, "publish").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.reject();
                     return deferred.promise;
-                }
-            );
+                });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -795,36 +566,24 @@ describe("GenerateUserStoriesAction", () => {
         it("handles publish failure due to lock by other user", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
-            spyOn(process, "publish").and.callFake(
-                () => {
+                });
+            spyOn(process, "publish").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.reject({ errorCode: ErrorCode.LockedByOtherUser });
                     return deferred.promise;
-                }
-            );
+                });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -845,36 +604,24 @@ describe("GenerateUserStoriesAction", () => {
         it("generates user stories if publish is successful", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
-            spyOn(process, "publish").and.callFake(
-                () => {
+                } );
+            spyOn(process, "publish").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
+                });
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
@@ -893,28 +640,18 @@ describe("GenerateUserStoriesAction", () => {
         it("handles generic generate user task failure", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.reject();
                     return deferred.promise;
-                }
-            );
+                });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -932,28 +669,18 @@ describe("GenerateUserStoriesAction", () => {
         it("handles generate user task failure due to lock by another user", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.reject({ errorCode: ErrorCode.ArtifactNotPublished });
                     return deferred.promise;
-                }
-            );
+                });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -971,36 +698,24 @@ describe("GenerateUserStoriesAction", () => {
         it("notifies about generated user stories if generation is successful", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const userStories = [ {} ];
             const generateFromTask = action.actions[0];
             const processShape = TestModels.createUserTask(2);
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve(userStories);
                     return deferred.promise;
-                }
-            );
-            const refreshSpy = spyOn(process, "refresh").and.callFake(
-                () => {
+                });
+            const refreshSpy = spyOn(process, "refresh").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
+                });
             const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
@@ -1025,16 +740,8 @@ describe("GenerateUserStoriesAction", () => {
             const process = null;
 
             // act
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
 
             // assert
@@ -1044,16 +751,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process.artifactState is null", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
 
             // act
@@ -1066,16 +765,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is disabled if process is read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
 
             // act
@@ -1088,16 +779,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is enabled if process is not read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
 
             // act
@@ -1110,16 +793,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is doesn't execute if disabled", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(false);
             const executeSpy = spyOn(action, "execute").and.callFake(() => {/* no op */});
@@ -1134,16 +809,8 @@ describe("GenerateUserStoriesAction", () => {
         it("is executes if enabled", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const executeSpy = spyOn(action, "execute").and.callFake(() => {/* no op */});
@@ -1158,25 +825,15 @@ describe("GenerateUserStoriesAction", () => {
         it("handles generic generate user task failure", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
-            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.reject();
                     return deferred.promise;
-                }
-            );
+                });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -1194,25 +851,15 @@ describe("GenerateUserStoriesAction", () => {
         it("handles generate user task failure due to lock by another user", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
-            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.reject({ errorCode: ErrorCode.ArtifactNotPublished });
                     return deferred.promise;
-                }
-            );
+                });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -1230,33 +877,21 @@ describe("GenerateUserStoriesAction", () => {
         it("notifies about generated user stories if generation is successful", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const action = new GenerateUserStoriesAction(
-                process,
-                userStoryService,
-                selectionManager,
-                messageService,
-                localization,
-                dialogService,
-                loadingOverlayService,
-                communicationManager.processDiagramCommunication
-            );
+            const action = new GenerateUserStoriesAction(process, userStoryService, selectionManager, messageService, 
+                localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
             const userStories = [ {}, {}, {} ];
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
-            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(
-                () => {
+            const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve(userStories);
                     return deferred.promise;
-                }
-            );
-            const refreshSpy = spyOn(process, "refresh").and.callFake(
-                () => {
+                });
+            const refreshSpy = spyOn(process, "refresh").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
-                }
-            );
+                });
             const notifySpy = spyOn(communicationManager.processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");

@@ -1,4 +1,5 @@
-﻿import {ProcessShapeType, ProcessType} from "./enums";
+﻿/* tslint:disable max-file-line-count */
+import {ProcessShapeType, ProcessType} from "./enums";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {
     IProcess, 

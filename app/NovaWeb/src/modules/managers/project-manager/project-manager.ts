@@ -23,6 +23,7 @@ export interface IArtifactNode extends IDispose {
     children?: IArtifactNode[];
     loaded?: boolean;
     open?: boolean;
+    loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
 }
@@ -38,7 +39,6 @@ export interface IProjectManager extends IDispose {
     refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
     refreshAll(): ng.IPromise<void>;
-    loadArtifact(id: number): void;
     getProject(id: number): IArtifactNode;
     getArtifactNode(id: number): IArtifactNode;
     getSelectedProject(): IArtifactNode;
@@ -261,13 +261,13 @@ export class ProjectManager implements IProjectManager {
             //create project node
             const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(result);
             this.artifactManager.add(statefulArtifact);
-            let newProjectNode: IArtifactNode = new ArtifactNode(statefulArtifact);
+            let newProjectNode: IArtifactNode = new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact);
 
             //populate it
             newProjectNode.children = data.map((it: Models.IArtifact) => {
                 const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulProject);
-                return new ArtifactNode(statefulProject, newProjectNode);
+                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulProject, newProjectNode);
             });
             newProjectNode.loaded = true;
             newProjectNode.open = true;
@@ -299,7 +299,7 @@ export class ProjectManager implements IProjectManager {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);
-                    return new ArtifactNode(statefulArtifact, node);
+                    return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, node);
                 });
                 node.loaded = true;
                 node.open = true;
@@ -330,9 +330,9 @@ export class ProjectManager implements IProjectManager {
 
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
                 this.artifactManager.add(statefulArtifact);
-                projectNode = new ArtifactNode(statefulArtifact);
+                projectNode = new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact);
                 this.projectCollection.getValue().unshift(projectNode);
-                return this.loadArtifact(project.id);
+                this.projectCollection.onNext(this.projectCollection.getValue());
             }).catch((err: any) => {
                 if (err) {
                     this.messageService.addError(err);
@@ -372,37 +372,6 @@ export class ProjectManager implements IProjectManager {
             project.dispose();
         });
         this.projectCollection.onNext([]);
-    }
-
-    public loadArtifact(id: number): ng.IPromise<any> {
-        let node: IArtifactNode = this.getArtifactNode(id);
-        if (node) {
-            return this.projectService.getArtifacts(node.artifact.projectId, node.artifact.id).then((data: Models.IArtifact[]) => {
-                node.children = data.map((it: Models.IArtifact) => {
-                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
-                    this.artifactManager.add(statefulArtifact);
-                    return new ArtifactNode(statefulArtifact, node);
-                });
-                node.loaded = true;
-                node.open = true;
-
-                this.projectCollection.onNext(this.projectCollection.getValue());
-            }).catch((error: any) => {
-                //ignore authentication errors here
-                if (error) {
-                    this.messageService.addError(error["message"] || "Artifact_NotFound");
-                    return this.$q.reject();
-                }
-
-                node.children = [];
-                node.loaded = false;
-                node.open = false;
-                //node.hasChildren = false;
-                this.projectCollection.onNext(this.projectCollection.getValue());
-            });
-        }
-
-        throw new Error("Artifact_NotFound"); // need to throw an error as mainView may not be active yet
     }
 
     public getProject(id: number): IArtifactNode {

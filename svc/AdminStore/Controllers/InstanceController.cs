@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -7,6 +8,7 @@ using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -17,21 +19,21 @@ namespace AdminStore.Controllers
     public class InstanceController : LoggableApiController
     {
         internal readonly ISqlInstanceRepository _instanceRepository;
+        internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public override string LogSource { get; } = "AdminStore.Instance";
 
-        public InstanceController() : this(new SqlInstanceRepository())
+        public InstanceController() : this(new SqlInstanceRepository(), new ServiceLogRepository(), new SqlArtifactPermissionsRepository())
         {
         }
 
-        public InstanceController(ISqlInstanceRepository instanceRepository) : base()
+        public InstanceController(
+            ISqlInstanceRepository instanceRepository,
+            IServiceLogRepository log,
+            IArtifactPermissionsRepository artifactPermissionsRepository) : base(log)
         {
             _instanceRepository = instanceRepository;
-        }
-
-        public InstanceController(ISqlInstanceRepository instanceRepository, IServiceLogRepository log) : base(log)
-        {
-            _instanceRepository = instanceRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         /// <summary>
@@ -106,6 +108,8 @@ namespace AdminStore.Controllers
         /// <returns> List of string for the navigation path of specified project id</returns>
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request. The session token is missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("projects/{projectId:int:min(1)}/navigationPath"), SessionRequired]
@@ -113,7 +117,19 @@ namespace AdminStore.Controllers
         public async Task<List<string>> GetProjectNavigationPathAsync(int projectId, bool includeProjectItself = true)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+
+            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+
+            var artifactIds = new[] { projectId };
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
+
+            RolePermissions permission;
+            if (!permissions.TryGetValue(projectId, out permission) || !permission.HasFlag(RolePermissions.Read))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+
+            return result;
         }
     }
 }

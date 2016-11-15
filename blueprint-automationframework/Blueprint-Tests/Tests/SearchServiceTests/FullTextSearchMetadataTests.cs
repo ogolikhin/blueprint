@@ -194,6 +194,7 @@ namespace SearchServiceTests
             BaseArtifactType.UseCase,
             BaseArtifactType.UseCaseDiagram })]
         [TestRail(182253)]
+        [Explicit(IgnoreReasons.TestBug)]
         [Description("Search over specific artifact types. Executed search must return search metadata result that match only the artifact .")]
         public void FullTextSearchMetadata_SearchMetadataForSpecificItemTypes_VerifySearchMetadataResultIncludesOnlyTypesSpecified(BaseArtifactType[] baseArtifactTypes)
         {

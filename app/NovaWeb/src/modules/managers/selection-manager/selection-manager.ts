@@ -32,7 +32,11 @@ export class SelectionManager implements ISelectionManager {
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
-    constructor() {
+    static $inject: [string] = [
+        "$window"
+    ];
+
+    constructor(private $window: ng.IWindowService) {
         const selection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined
@@ -94,6 +98,7 @@ export class SelectionManager implements ISelectionManager {
         };
 
         this.setSelectionSubject(selection);
+        this.updateAppTitle();
     }
 
     public getSubArtifact(): IStatefulSubArtifact {
@@ -130,6 +135,7 @@ export class SelectionManager implements ISelectionManager {
         };
         this.setExplorerArtifact(undefined);
         this.setSelectionSubject(emptyselection);
+        this.updateAppTitle();
     }
 
     public clearSubArtifact() {
@@ -146,6 +152,14 @@ export class SelectionManager implements ISelectionManager {
         return item ? item.id : -1;
     }
 
+    private updateAppTitle() {
+        let title: string = "Storyteller";
+        const selection = this.selectionSubject.getValue();
+        if (selection.artifact) {
+            title = `${selection.artifact.prefix}${selection.artifact.id}: ${selection.artifact.name}`;
+        }
+        this.$window.document.title = title;
+    }
 
     private unsubscribe(selection: ISelection) {
         const prevSelection = this.selectionSubject.getValue();

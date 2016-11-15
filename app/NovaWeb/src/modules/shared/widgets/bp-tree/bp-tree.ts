@@ -33,7 +33,6 @@ export class BPTreeComponent implements ng.IComponentOptions {
         gridColumns: "<",
         // Output
         onSelect: "&?",
-        onRowClick: "&?",
         onError: "&?",
         onGridReset: "&?"
     };
@@ -51,7 +50,6 @@ export interface IBPTreeController {
     rootNodes: IArtifactNode[];
     gridColumns: any[];
     onSelect?: Function;                //to be called on time of ag-grid row selection
-    onRowClick?: Function;
     onError: (param: {reason: any}) => void;
     onGridReset: () => void;
 }
@@ -79,7 +77,6 @@ export class BPTreeController implements IBPTreeController {
     public rootNodes: IArtifactNode[] = [];
     public gridColumns: any[];
     public onSelect: Function;
-    public onRowClick: Function;
     public onError: (param: {reason: any}) => void;
     public onGridReset: () => void;
 

@@ -1,3 +1,4 @@
+import "angular-google-analytics";
 import * as angular from "angular";
 import "angular-messages";
 import "angular-sanitize";
@@ -42,6 +43,7 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
+    "angular-google-analytics",
     "ngMessages",
     "ngSanitize",
     "app.shell",

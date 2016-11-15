@@ -8,6 +8,7 @@ import "./bp-page-content";
 import "./quickSearch";
 import "./momentDateFilter";
 import "./pagination";
+import "./analytics";
 
 angular.module("bp.components", [
     "bp.components.momentDateFilter",
@@ -19,5 +20,6 @@ angular.module("bp.components", [
     "bp.components.pagecontent",
     "bp.components.artifactpicker",
     "bp.components.quickSearch",
-    "bp.components.pagination"
+    "bp.components.pagination",
+    "bp.components.analytics"
 ]);

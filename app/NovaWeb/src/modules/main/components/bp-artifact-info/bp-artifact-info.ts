@@ -123,7 +123,7 @@ export class BpArtifactInfoController {
                 const publishedBy = this.artifact.lastEditedBy.displayName;
                 const message = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
                // &nbsp;&nbsp;&nbsp;&nbsp;<a ui-sref="main.item({ id: ${this.artifact.id} })">Open latest version</a>`;
-                this.messageService.addMessage(new Message(MessageType.Historical, message, true));
+               //  this.messageService.addMessage(new Message(MessageType.Historical, message, true));
             }
         }
     };
@@ -144,6 +144,7 @@ export class BpArtifactInfoController {
     }
 
     public navigateToLatestVersion() {
+        console.log("test");
         this.navigationService.navigateTo({ id: this.artifact.id });
     }
 

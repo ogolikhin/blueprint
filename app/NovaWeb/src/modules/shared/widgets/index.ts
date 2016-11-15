@@ -2,8 +2,6 @@ import * as angular from "angular";
 import "./bp-dialog";
 import "./bp-avatar";
 import "./bp-tree";
-import "./bp-tree-dragndrop";
-import "./bp-tree-inline-editing";
 import "./bp-tree-view";
 import "./bp-tooltip";
 import "./bp-infinite-scroll";
@@ -19,14 +17,13 @@ import "./bp-toolbar";
 import "./bp-artifact-list";
 import "./bp-filtered-input";
 import "./bp-goto";
+import "./rowSlider";
 
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
     "bp.widgets.avatar",
     "bp.widgets.tree",
-    "bp.widgets.treedraganddrop",
     "bp.widgets.treeView",
-    "bp.widgets.inlineedit",
     "bp.widgets.tooltip",
     "bp.widgets.infinitescroll",
     "bp.widgets.select",
@@ -40,7 +37,8 @@ angular.module("bp.widgets", [
     "bp.widgets.toolbar",
     "bp.widgets.artifactList",
     "bp.widgets.filtered-input",
-    "bp.widgets.goto"
+    "bp.widgets.goto",
+    "bp.widgets.rowSlider"
 ]);
 
 export {
@@ -49,7 +47,11 @@ export {
 
 export {
     IBPTreeControllerApi
-} from "./bp-tree"
+} from "./bp-tree";
+
+export {
+    IRowSliderControllerApi
+} from "./rowSlider";
 
 export {
     IDialogSettings,

@@ -118,7 +118,7 @@ export class ProjectServiceMock implements IProjectService {
 
     public getProjectNavigationPath(projectId: number, includeProjectItself: boolean): ng.IPromise<string[]> {
         const deferred = this.$q.defer<string[]>();
-        const result = {} as string[];
+        const result = ["Blueprint"];
         deferred.resolve(result);
         return deferred.promise;
     }

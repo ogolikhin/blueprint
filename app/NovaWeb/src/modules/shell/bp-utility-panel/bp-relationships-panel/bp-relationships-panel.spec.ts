@@ -25,6 +25,7 @@ import {
     ArtifactService,
     ArtifactAttachmentsService
 } from "../../../managers/artifact-manager";
+import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -51,6 +52,7 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("processService", ProcessServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("publishService", PublishServiceMock);
+        $provide.service("validationService", ValidationServiceMock);
     }));
 
     beforeEach(inject(() => {

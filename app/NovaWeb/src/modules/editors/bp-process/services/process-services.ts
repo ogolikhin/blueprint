@@ -20,7 +20,8 @@ export class StatefulProcessArtifactServices extends StatefulArtifactServices im
             statefulArtifactServices.relationshipsService,
             statefulArtifactServices.metaDataService,
             statefulArtifactServices.loadingOverlayService,
-            statefulArtifactServices.publishService
+            statefulArtifactServices.publishService,
+            statefulArtifactServices.validationService
         );
     }
 

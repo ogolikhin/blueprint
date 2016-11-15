@@ -87,7 +87,6 @@ export class ItemStateController {
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
-
                 } else if (result.isDeleted) {
                     
                     statefulArtifact.artifactState.deleted = true;

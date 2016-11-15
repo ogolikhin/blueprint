@@ -50,7 +50,7 @@ pagecontent, bp-properties-panel {
         z-index: 0;
     }
 
-    .process-page-body-wrapper { 
+    .process-page-body-wrapper {
         @extend .page-body-wrapper;
         overflow:hidden;
     }
@@ -81,11 +81,47 @@ pagecontent, bp-properties-panel {
         }
     }
 
+    .artifact-status {
+        color: $white;
+        margin: 0 0 10px;
+        padding: 10px 10px 10px 0;
+        position: relative;
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        .icon {
+            display: inline-block;
+            margin: -10px 10px;
+            font-size: 2.5rem;
+
+            &::before {
+                font-size: 2.5rem;
+                line-height: inherit;
+            }
+        }
+    }
+    .artifact-status--historical {
+        background-color: $messages-bg-warning;
+    }
+    .artifact-status__text {
+        display: inline-block;
+        font-size: $font-size-big;
+        white-space: normal;
+    }
+    .artifact-status__open-latest {
+        margin-left: 10px;
+        cursor: pointer;
+        color: $white;
+        text-decoration: underline;
+    }
+
     .artifact-heading {
         display: flex;
         //max-width: calc(100% - #{$page-top-toolbar-width});
         //min-width: $page-top-toolbar-width;
         overflow: hidden;
+
 
         .icon,
         .artifact-heading-group1 {

@@ -25,6 +25,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
+    move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
 }
@@ -644,6 +645,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return deferred.promise;
 
+    }
+
+    public move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
+        let deferred = this.services.getDeferred<void>();
+
+        this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex).then(() => {
+            deferred.resolve();
+
+        }).catch((error: IApplicationError) => {
+            this.error.onNext(error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
     }
 
     //Hook for subclasses to provide additional promises which should be run for obtaining data

@@ -1,0 +1,28 @@
+<div class="modal-header">
+    <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
+</div>
+<div class="modal-body">
+    <div>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodSelection">Selection</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodAbove">Insert above</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodBellow">Insert bellow</label>
+    </div>
+    <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
+                        selectable-item-types="$ctrl.dialogData.selectableItemTypes"
+                        selection-mode="$ctrl.dialogData.selectionMode"
+                        show-sub-artifacts="$ctrl.dialogData.showSubArtifacts"
+                        is-one-project-level="$ctrl.dialogData.isOneProjectLevel"
+                        on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
+                        on-double-click="$ctrl.onDoubleClick(vm)">
+    </bp-artifact-picker>
+</div>
+<div class="modal-footer">
+    <div class="nova-form-group nova-form-buttons">
+        <button class="btn btn-primary" ng-click="$ctrl.cancel()">
+            <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
+        </button>
+        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()" ng-disabled="$ctrl.selectedVMs.length === 0">
+            <span ng-bind="$ctrl.dialogSettings.okButton"></span>
+        </button>
+    </div>
+</div>

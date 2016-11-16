@@ -41,7 +41,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
     }
 
     public loadProperties(): ng.IPromise<IStatefulSubArtifact> {
-        if (!this.isFullArtifactLoadedOrLoading) {
+        if (!this.isFullArtifactLoadedOrLoading()) {
             return this.loadWithNotify();      
         }
         if (this.loadPromise) {

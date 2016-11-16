@@ -71,7 +71,6 @@ namespace AdminStore.Repositories
             }
         }
 
-        [Ignore]
         [TestMethod]
         public void ProcessEncodedResponse_Success()
         {
@@ -98,7 +97,6 @@ namespace AdminStore.Repositories
             Assert.AreEqual(userName, result.Identity.Name);
         }
 
-        [Ignore]
         [TestMethod]
         public void ProcessResponse_Success()
         {

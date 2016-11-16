@@ -74,9 +74,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
         if (collectionArtifact) {            
             this.collectionSubscriber = collectionArtifact.getProperyObservable()
-                //.distinctUntilChanged(changes => changes.change &&
-                //    changes.change.value &&
-                //    changes.change.key === Models.PropertyTypePredefined.CollectionContent)
+                .filter(changes => changes.change &&                   
+                    changes.change.key === Models.PropertyTypePredefined.CollectionContent)
                 .subscribeOnNext(this.onCollectionArtifactsChanged);
         }        
     }
@@ -121,12 +120,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
-    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
-        if (!changes ||
-            !changes.change ||
-            changes.change.key !== Models.PropertyTypePredefined.CollectionContent) {
-            return;
-        }
+    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {       
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);

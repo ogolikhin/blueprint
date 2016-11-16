@@ -32,7 +32,7 @@ export interface IStatefulCollectionArtifact extends IStatefulArtifact {
 
 export class StatefulCollectionArtifact extends StatefulArtifact implements IStatefulCollectionArtifact {
     
-    private _collectionContentPropertyValue: Models.IPropertyValue;    
+    private collectionContentPropertyValue: Models.IPropertyValue;    
 
     protected getArtifactModel(id: number, versionId: number): ng.IPromise<IArtifact> {
         const url = `/svc/bpartifactstore/collection/${id}`;
@@ -77,8 +77,8 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
 
     protected initialize(artifact: Models.IArtifact): IState {
         const state = super.initialize(artifact);      
-        this._collectionContentPropertyValue = this.createCollectionContentSpecificProperty();        
-        this.specialProperties.list().push(this._collectionContentPropertyValue);
+        this.collectionContentPropertyValue = this.createCollectionContentSpecificProperty();        
+        this.specialProperties.list().push(this.collectionContentPropertyValue);
         return state;
     }   
 
@@ -87,13 +87,11 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
         if (this.artifact &&
             artifacts &&
             artifacts.length > 0 &&
-            this._collectionContentPropertyValue) {
+            this.collectionContentPropertyValue) {
 
-            const collectionContentPV = this._collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;
-            const removedArtifactsClone = collectionContentPV.removedArtifacts.slice();
-            const addedArtifactsClone = collectionContentPV.addedArtifacts.slice();
-            
-            artifacts.map((artifact: IArtifact) => {
+            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;           
+
+            artifacts.forEach((artifact: IArtifact) => {
                 const newArtifact = <ICollectionArtifact>{
                     id: artifact.id,
                     description: "",
@@ -105,22 +103,22 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
                 };
                 this.artifacts.push(newArtifact);
                 
-                const index = removedArtifactsClone.indexOf(artifact.id);
+                const index = collectionContentPV.removedArtifacts.indexOf(artifact.id);
                 if (index > -1) {
-                    removedArtifactsClone.splice(index, 1);
+                    collectionContentPV.removedArtifacts.splice(index, 1);
                 } else {
-                    addedArtifactsClone.push(artifact.id);
+                    collectionContentPV.addedArtifacts.push(artifact.id);
                 }                
             });                        
 
-            this.updateCollectionContentSpecialProperty(addedArtifactsClone, removedArtifactsClone);
+            this.updateCollectionContentSpecialProperty(collectionContentPV);
         }
     }    
 
-    private updateCollectionContentSpecialProperty(addedArtifacts: number[], removedArtifacts: number[]): void {
+    private updateCollectionContentSpecialProperty(collectionContentPropertyValue: Models.ICollectionContentPropertyValue): void {
         const newPropertyValue: Models.ICollectionContentPropertyValue = {
-            addedArtifacts: addedArtifacts,
-            removedArtifacts: removedArtifacts
+            addedArtifacts: collectionContentPropertyValue.addedArtifacts,
+            removedArtifacts: collectionContentPropertyValue.removedArtifacts
         };
 
         this.specialProperties.set(Models.PropertyTypePredefined.CollectionContent, newPropertyValue);
@@ -131,30 +129,28 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
         if (this.artifact &&
             artifacts &&
             artifacts.length > 0 &&
-            this._collectionContentPropertyValue) {
+            this.collectionContentPropertyValue) {
 
-            const collectionContentPV = this._collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;
-            const removedArtifactsClone = collectionContentPV.removedArtifacts.slice();
-            const addedArtifactsClone = collectionContentPV.addedArtifacts.slice();
+            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;            
             let isSomethingDeleted: boolean = false;
-            artifacts.map((artifact: IArtifact) => {
+            artifacts.forEach((artifact: IArtifact) => {
                 
                 let index = this.artifacts.indexOf(<ICollectionArtifact>artifact, 0);
                 if (index > -1) {
                     isSomethingDeleted = true;
                     this.artifacts.splice(index, 1);
 
-                    const addedArtifactsIndex = addedArtifactsClone.indexOf(artifact.id);
+                    const addedArtifactsIndex = collectionContentPV.addedArtifacts.indexOf(artifact.id);
                     if (addedArtifactsIndex > -1) {
-                        addedArtifactsClone.splice(addedArtifactsIndex, 1);
+                        collectionContentPV.addedArtifacts.splice(addedArtifactsIndex, 1);
                     } else {
-                        removedArtifactsClone.push(artifact.id);
+                        collectionContentPV.removedArtifacts.push(artifact.id);
                     }   
                 }                                                                             
             });
 
             if (isSomethingDeleted) {
-                this.updateCollectionContentSpecialProperty(addedArtifactsClone, removedArtifactsClone);
+                this.updateCollectionContentSpecialProperty(collectionContentPV);
             }
         }
     }

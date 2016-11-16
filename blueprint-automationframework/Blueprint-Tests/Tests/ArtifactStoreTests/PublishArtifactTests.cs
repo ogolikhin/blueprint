@@ -11,6 +11,7 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -537,6 +538,35 @@ namespace ArtifactStoreTests
             }
         }
 
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(0)]
+        [Description("Create & Save collection artifact or collection folder.  Publish it.  Verify the published collection artifact or collection folder is returned with proper content.")]
+        public void PublishArtifact_CollectionOrCollectionFolder__ReturnsPublishedArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+
+            IArtifact artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
+
+            INovaArtifactsAndProjectsResponse publishResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+                    "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, publishResponse.Artifacts[0]);
+//            Assert.AreEqual(collectionFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");*/
+        }
         #endregion 200 OK Tests
 
         #region 400 Bad Request tests

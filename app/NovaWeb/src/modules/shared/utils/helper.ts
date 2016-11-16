@@ -15,16 +15,20 @@ export class Helper {
         });
     }
 
-    static limitChars(str, limit: number = 100): string {
+    static limitCharsWithStripHTML(str, limit: number = 100): string {
         if (str) {
             let text = Helper.stripHTMLTags(str);
-            if (text) {
-                if (text.length > limit) {
-                    return text.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
-                }
-                return text;
+            return Helper.limitChars(text, limit);
+        }
+        return "";
+    }
+
+    static limitChars(str, limit: number = 100): string {
+        if (str) {
+            if (str.length > limit) {
+                return str.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
             }
-            return "";
+            return str;
         }
         return "";
     }

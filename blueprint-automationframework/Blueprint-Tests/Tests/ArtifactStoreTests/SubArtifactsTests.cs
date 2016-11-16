@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -10,6 +8,8 @@ using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 
 namespace ArtifactStoreTests
@@ -177,14 +177,14 @@ namespace ArtifactStoreTests
             Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
             Helper.ArtifactStore.PublishArtifact(inlineTraceArtifact, _user);
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: true);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -236,14 +236,14 @@ namespace ArtifactStoreTests
             Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
             Helper.ArtifactStore.PublishArtifact(inlineTraceArtifact, _user);
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: true);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -285,14 +285,14 @@ namespace ArtifactStoreTests
             inlineTraceArtifact.Delete();
             inlineTraceArtifact.Publish();
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -335,14 +335,14 @@ namespace ArtifactStoreTests
             // Create user with a permission only on second project
             var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, new List<IProject> { secondProject });
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(userWithPermissionOnSecondProject, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(userWithPermissionOnSecondProject, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }

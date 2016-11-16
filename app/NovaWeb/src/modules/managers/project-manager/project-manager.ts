@@ -279,9 +279,7 @@ export class ProjectManager implements IProjectManager {
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {
         //go through each node
         _.forEach(childrenNodes, (node) => {
-            let childData = childrenData.filter(function (it) {
-                return it.id === node.model.id;
-            });
+            let childData = childrenData.filter(it => it.id === node.model.id);
             //if it has children - expand the node
             if (childData[0].hasChildren && childData[0].children) {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {

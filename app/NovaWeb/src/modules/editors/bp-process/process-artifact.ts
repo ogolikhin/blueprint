@@ -110,10 +110,45 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                             return this.set_400_114_error(deferred);
                         }
                         break;
-                    default:
-                        if (itemType.isRequired && (propValue.value == null)) {
+                    case Models.PrimitiveType.Text:
+                        if (itemType.isRichText) {
+                            if (!this.services.validationService.textRtfValidation.hasValueIfRequred(itemType.isRequired, 
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            } 
+                        } else {
+                            if (!this.services.validationService.textValidation.hasValueIfRequred(itemType.isRequired, 
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            } 
+                        }
+                        break;
+                    case Models.PrimitiveType.Choice:
+                        if (itemType.isMultipleAllowed) {
+                            if (!this.services.validationService.multiSelectValidation.hasValueIfRequred(itemType.isRequired, 
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            } 
+                        } else {
+                            if (!this.services.validationService.selectValidation.hasValueIfRequred(itemType.isRequired, 
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            } 
+                        }
+                        break;
+                    case Models.PrimitiveType.User:
+                        if (!this.services.validationService.userPickerValidation.hasValueIfRequred(itemType.isRequired, 
+                            propValue.value,
+                            propValue.value)) {
                             return this.set_400_114_error(deferred);
                         } 
+                        break;
+                    default:
+                        deferred.reject(new Error(this.services.localizationService.get("App_Save_Artifact_Error_Other")));
                         break;
                 }
             });

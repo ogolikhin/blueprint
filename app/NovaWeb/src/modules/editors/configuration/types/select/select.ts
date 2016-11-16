@@ -2,6 +2,7 @@ import "angular-formly";
 import {Enums, Models} from "../../../../main/models";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelect";
@@ -29,9 +30,11 @@ interface ISelectItem {
 }
 
 export class BpFieldSelectController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization"];
+    static $inject: [string] = ["$scope", "localization", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService) {
+    constructor(private $scope: AngularFormly.ITemplateScope, 
+                     private localization: ILocalizationService,
+                     private validationService: IValidationService) {
         super();
 
         const to: AngularFormly.ITemplateOptions = {
@@ -46,12 +49,10 @@ export class BpFieldSelectController extends BPFieldBaseController {
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if ((<AngularFormly.ITemplateScope>scope.$parent).to.required) { // TODO: find a better way to get the "required" flag
-                        const isInvalid = _.isNull($modelValue) || _.isUndefined($modelValue);
-                        scope.options.validation.show = isInvalid;
-                        return !isInvalid;
-                    }
-                    return true;
+                    return validationService.selectValidation.hasValueIfRequred(
+                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required), 
+                        $viewValue, 
+                        $modelValue);
                 }
             }
         };

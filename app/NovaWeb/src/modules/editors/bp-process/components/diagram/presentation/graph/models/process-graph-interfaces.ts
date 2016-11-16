@@ -220,6 +220,7 @@ export interface ITask extends IDiagramNode {
     persona: string;
     description: string;
     associatedArtifact: any;
+    personaReference: any;
     activateButton(itemFlag: ItemIndicatorFlags): void;
 }
 

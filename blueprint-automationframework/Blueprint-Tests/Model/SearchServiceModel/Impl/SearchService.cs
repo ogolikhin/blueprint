@@ -46,7 +46,7 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.PredefinedTypeIds, searchCriteria.Query);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FULLTEXTSEARCH,
@@ -75,7 +75,7 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.PredefinedTypeIds, searchCriteria?.Query, pageSize);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.ItemTypeIds, searchCriteria?.Query, pageSize);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchMetaDataResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FullTextSearch.METADATA,

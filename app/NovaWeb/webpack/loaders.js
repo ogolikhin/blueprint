@@ -44,6 +44,11 @@ module.exports = [
         loader: 'raw'
     },
     {
+        test: /\.xml$/,
+        exclude: /node_modules/,
+        loader: 'raw'
+    },
+    {
         test: /\.html$/,
         exclude: /node_modules/,
         loader: 'raw',

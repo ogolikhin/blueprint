@@ -109,7 +109,8 @@ pagecontent, bp-properties-panel {
         font-size: $font-size-big;
         white-space: normal;
     }
-    .artifact-status__open-latest {
+    .artifact-status__open-latest,
+    .artifact-status__open-latest:visited {
         margin-left: 10px;
         cursor: pointer;
         color: $white;

@@ -1,5 +1,19 @@
 $has-children-padding-before-arrow: 3px;
 
+.explorer__node-link,
+.explorer__node-link:visited,
+.explorer__node-link:focus,
+.explorer__node-link:hover {
+    font-weight: normal;
+    color: inherit;
+    outline: inherit;
+
+    &:hover, &:focus {
+        text-decoration: none;
+        cursor: default;
+    }
+}
+
 .project-tree,
 .project-explorer {
     .ag-grid {

@@ -300,7 +300,7 @@ describe("Artifact", () => {
             $rootScope.$digest();
 
             // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
+            expect(error.message).toEqual("App_Save_Artifact_Error_Other");
         }));
 
     });
@@ -652,7 +652,7 @@ describe("Artifact", () => {
              artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
                  error = err;
              });
-          
+
             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 deferred.resolve([{
@@ -687,7 +687,7 @@ describe("Artifact", () => {
              });
 
              // act
-             
+
              artifact.delete();
              $rootScope.$digest();
 
@@ -716,7 +716,7 @@ describe("Artifact", () => {
              });
              const errormessage = "The artifact PREFIX222 is already locked by another user.";
              // act
-             
+
              artifact.delete();
              $rootScope.$digest();
 

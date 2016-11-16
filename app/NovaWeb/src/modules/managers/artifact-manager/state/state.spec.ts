@@ -5,7 +5,6 @@ import { LockedByEnum, LockResultEnum } from "../../../main/models/enums";
 import { IArtifact, ItemTypePredefined } from "../../../main/models/models";
 import { ISession } from "../../../shell/login/session.svc";
 import { SessionSvcMock } from "../../../shell/login//mocks.spec";
-import { IState } from "./state";
 import { StatefulItem, IStatefulItem, IIStatefulItem } from "../item";
 import { StatefulArtifact, IStatefulArtifact, IIStatefulArtifact } from "../artifact/artifact";
 import { IArtifactService } from "../artifact/artifact.svc";
@@ -85,14 +84,14 @@ describe("ArtifactState", () => {
                 fail("state change error: " + err);
             });
 
-        let newState: IState = {
+        let newStateValues = {
             lockDateTime: new Date(),
             lockedBy: LockedByEnum.CurrentUser,
             lockOwner: "Default Instance Admin"
         };
 
         // act
-        artifact.artifactState.setState(newState, false);
+        artifact.artifactState.setState(newStateValues, false);
         artifact.artifactState.dirty = true;
     });
 
@@ -111,27 +110,27 @@ describe("ArtifactState", () => {
                 fail("state change error: " + err);
             });
 
-        let newState: IState = {
+        let newStateValues = {
             lockDateTime: new Date(),
             lockedBy: LockedByEnum.CurrentUser,
             lockOwner: "Default Instance Admin"
         };
 
         // act
-        artifact.artifactState.setState(newState, false);
+        artifact.artifactState.setState(newStateValues, false);
         artifact.artifactState.deleted = true;
     });
 
     it("correctly returns readonly when locked by another user", () => {
         // arrange
-        let newState: IState = {
+        let newStateValues = {
             lockDateTime: new Date(),
             lockedBy: LockedByEnum.OtherUser,
             lockOwner: "Default Instance Admin"
         };
 
         // act
-        artifact.artifactState.setState(newState, false);
+        artifact.artifactState.setState(newStateValues, false);
 
         // assert
         expect(artifact.artifactState.readonly).toBe(true);
@@ -153,14 +152,14 @@ describe("ArtifactState", () => {
             // arrange
             const draftVersion: number = 1;
             const artifact = createArtifact(null, draftVersion);
-            const newState: IState = {
+            const newStateValues = {
                 lockDateTime: new Date(),
                 lockedBy: LockedByEnum.CurrentUser,
                 lockOwner: "Default Instance Admin"
             };
 
             // act
-            artifact.artifactState.setState(newState, false);
+            artifact.artifactState.setState(newStateValues, false);
 
             // assert
             expect(artifact.artifactState.published).toBe(false);

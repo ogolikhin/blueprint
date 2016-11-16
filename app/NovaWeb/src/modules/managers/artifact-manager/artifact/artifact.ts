@@ -1,4 +1,4 @@
-import {ArtifactState, IArtifactState, IState} from "../state";
+import {ArtifactState, IArtifactState} from "../state";
 import {Models, Enums} from "../../../main/models";
 import {IStatefulArtifactServices} from "../services";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
@@ -65,7 +65,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this._subject;
     }
 
-    protected initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): void {
         let isMisplaced: boolean;
         if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
@@ -78,8 +78,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (isMisplaced) {
             this.artifactState.misplaced = true;
         }
-
-        return this.artifactState.get();
     }
 
     public get artifactState(): IArtifactState {

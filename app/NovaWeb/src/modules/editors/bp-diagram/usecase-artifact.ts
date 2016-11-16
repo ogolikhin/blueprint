@@ -1,7 +1,6 @@
 import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {IArtifact} from "../../main/models/models";
-import {IState} from "../../managers/artifact-manager/state";
 import {IDiagram, IDiagramElement} from "./impl/models";
 import {IUseCase} from "./impl/usecase/models";
 import {ItemTypePredefined} from "./../../main/models/enums";
@@ -11,7 +10,6 @@ import {StatefulDiagramArtifact} from "./diagram-artifact";
 import {UsecaseToDiagram} from "./impl/usecase/usecase-to-diagram";
 
 export class StatefulUseCaseArtifact extends StatefulDiagramArtifact {
-
     private diagram: IDiagram;
 
     public getDiagramModel() {
@@ -30,7 +28,6 @@ export class StatefulUseCaseArtifact extends StatefulDiagramArtifact {
             super.initializeSubArtifacts(this.diagram);
         } catch (error) {
             this.diagram = {id: this.artifact.id, isCompatible: false, diagramType: Diagrams.USECASE} as IDiagram;
-        }        
+        }
     }
-
 }

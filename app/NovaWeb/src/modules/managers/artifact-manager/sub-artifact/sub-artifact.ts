@@ -63,7 +63,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
             return this.services.$q.resolve(this);
         }).catch((error) => {
             this.error.onNext(error);
-            return this.services.$q.reject(this);
+            return this.services.$q.reject(error);
         }).finally(() => {
             this.loadPromise = null;
         });

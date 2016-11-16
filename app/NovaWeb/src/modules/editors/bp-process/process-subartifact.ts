@@ -44,7 +44,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         if (!this.isFullArtifactLoadedOrLoading) {
             return this.loadWithNotify();      
         }
-        else if (this.loadPromise) {
+        if (this.loadPromise) {
             return this.loadPromise;
         }
         return this.services.$q.when(this);

@@ -18,6 +18,7 @@ namespace SearchServiceTests
 {
     [TestFixture]
     [Category(Categories.SearchService)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     public class FullTextSearchTests : TestBase
     {
         const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
@@ -419,6 +420,7 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182344)]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [Description("Searching with the search criteria that matches with older version of published artifacts. Execute Search - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchOlderVersionArtifact_VerifyEmptySearchResults()
         {

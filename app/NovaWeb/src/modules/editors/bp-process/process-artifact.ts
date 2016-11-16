@@ -144,11 +144,9 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                             return this.set_400_114_error(deferred);
                         } 
                         break;
-                    // default:
-                    //     if (!this.services.validationService.dateValidation.isValid(propValue.value,
-                    //         return this.set_400_114_error(deferred);
-                    //     } 
-                    //     break;
+                    default:
+                        deferred.reject(new Error(this.services.localizationService.get("App_Save_Artifact_Error_Other")));
+                        break;
                 }
             });
             deferred.resolve();

@@ -57,7 +57,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope,
-                $sce) {
+                private $sce: ng.ISCEService) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
@@ -75,12 +75,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             this.collectionSubscriber = null;
         }
 
-        if (collectionArtifact) {            
+        if (collectionArtifact) {
             this.collectionSubscriber = collectionArtifact.getProperyObservable()
-                .filter(changes => changes.change &&                   
+                .filter(changes => changes.change &&
                     changes.change.key === Models.PropertyTypePredefined.CollectionContent)
                 .subscribeOnNext(this.onCollectionArtifactsChanged);
-        }        
+        }
     }
 
     public onArtifactReady() {
@@ -123,7 +123,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
-    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {       
+    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
@@ -207,7 +207,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const path = vm.model.artifactPath;
-                    const tooltipName = Helper.stripHTMLTags(vm.model.name).replace("\"", "");
+
+                    let tooltipName: string = "";
+
+                    if (vm.model.name) {
+                        tooltipName = vm.model.name.replace(/"/g, "&quot;");
+                        tooltipName = this.$sce.trustAsHtml(tooltipName);
+                    }
+
                     const name = Helper.escapeHTMLText(vm.model.name);
 
                     let tooltipText = "";
@@ -230,18 +237,17 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 isCheckboxHidden: true,
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
-                    const tooltip = Helper.stripHTMLTags(vm.model.description).replace("\"", "");
+                    let tooltip: string = "";
 
-                    // if (vm.model.description) {
-                    //     let tooltip = vm.model.description.replace("\"", "");
-                    //     tooltip = _.escape(tooltip);
-                    //     //Helper.escapeHTMLText(vm.model.description);
-                    // }
+                    if (vm.model.description) {
+                        tooltip = vm.model.description.replace(/"/g, "&quot;");
+                        tooltip = this.$sce.trustAsHtml(tooltip);
+                    }
 
                     const desc = Helper.escapeHTMLText(vm.model.description);
 
                     if (vm.model.description) {
-                        return `<div class="collection__description" bp-tooltip="${desc}" ` +
+                        return `<div class="collection__description" bp-tooltip="${tooltip}"` +
                             `bp-tooltip-truncated="true">${desc}</div>`;
                     }
 

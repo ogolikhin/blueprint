@@ -153,7 +153,7 @@ namespace Helper
             BaseArtifactType artifactType,
             IArtifactBase parentArtifact = null)
         {
-            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parentArtifact);
+            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             artifact.Save();

@@ -516,7 +516,7 @@ namespace Model.ArtifactModel.Impl
 
             foreach (PropertyInfo sourcePropertyInfo in sourceArtifactBase.GetType().GetProperties())
             {
-                PropertyInfo destinationPropertyInfo = destinationArtifactBase.GetType().GetProperties().First(p => p.Name == sourcePropertyInfo.Name);
+                PropertyInfo destinationPropertyInfo = destinationArtifactBase.GetType().GetProperties().FirstOrDefault(p => p.Name == sourcePropertyInfo.Name);
 
                 if (destinationPropertyInfo != null && destinationPropertyInfo.CanWrite && !propertiesNotToBeReplaced.Contains(destinationPropertyInfo.Name))
                 {

@@ -1,25 +1,25 @@
-using System.Collections.Generic;
-using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
-using System;
-using System.Globalization;
-using Model.ArtifactModel.Enums;
-using Model.StorytellerModel.Impl;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class SaveArtifactTests : TestBase

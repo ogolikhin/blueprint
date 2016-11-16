@@ -366,7 +366,6 @@ namespace ArtifactStoreTests
             const int USECASE_ID = 24;
 
             var project = ArtifactStoreHelper.GetCustomDataProject(_user);
-            Assert.IsNotNull(project, "Cannot find [CustomData] project");
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
 
@@ -447,7 +446,6 @@ namespace ArtifactStoreTests
             const int STORYBOARD_ID = 32;
 
             var project = ArtifactStoreHelper.GetCustomDataProject(_user);
-            Assert.IsNotNull(project, "Cannot find [CustomData] project");
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
 

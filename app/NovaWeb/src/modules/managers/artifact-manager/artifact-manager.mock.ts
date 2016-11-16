@@ -2,7 +2,6 @@ import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IStatefulArtifact} from "./artifact";
 import {ArtifactServiceMock} from "./artifact/artifact.svc.mock";
 import {Models} from "../../main/models";
-
 import {IArtifactManager} from "./artifact-manager";
 
 export class ArtifactManagerMock implements IArtifactManager {
@@ -16,7 +15,11 @@ export class ArtifactManagerMock implements IArtifactManager {
         //
     }
 
-    public selection = {} as ISelectionManager;
+    public selection = {
+        getArtifact: () => {
+            return <IStatefulArtifact>{};
+        }
+    } as ISelectionManager;
 
     public list(): IStatefulArtifact[] {
         return [];

@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {ISession} from "./login/session.svc";
+import { ISession}  from "./login/session.svc";
 import { IArtifactManager } from "../managers";
 import { ILicenseService } from "./license/license.svc";
 
@@ -52,7 +52,7 @@ export class AppRoutes {
 }
 
 export class MainStateController {
-    
+
     public mainState = "main";
 
     public static $inject = [
@@ -77,7 +77,6 @@ export class MainStateController {
         if (!isServerLicenseValid) {
             $state.go("licenseError");
         }
-
     }
 
     private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {

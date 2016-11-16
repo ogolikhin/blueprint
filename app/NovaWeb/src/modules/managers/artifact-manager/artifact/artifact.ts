@@ -1,4 +1,4 @@
-import {ArtifactState, IArtifactState, IState} from "../state";
+import {ArtifactState, IArtifactState} from "../state";
 import {Models, Enums} from "../../../main/models";
 import {IStatefulArtifactServices} from "../services";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
@@ -65,7 +65,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this._subject;
     }
 
-    protected initialize(artifact: Models.IArtifact): IState {
+    protected initialize(artifact: Models.IArtifact): void {
         let isMisplaced: boolean;
         if (this.parentId && this.orderIndex &&
             (this.parentId !== artifact.parentId || this.orderIndex !== artifact.orderIndex)) {
@@ -78,8 +78,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (isMisplaced) {
             this.artifactState.misplaced = true;
         }
-
-        return this.artifactState.get();
     }
 
     public get artifactState(): IArtifactState {
@@ -388,12 +386,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (changes) {
             return this.validateCustomArtifactPromiseForSave(changes, ignoreInvalidValues)
                 .then(() => {
-                    return this.getCustomArtifactPromiseForSave();                    
+                    return this.getCustomArtifactPromiseForSave();
                 }).then(() => {
-                    return this.saveArtifact(changes).catch((error) => {       
+                    return this.saveArtifact(changes).catch((error) => {
                         if (this.hasCustomSave) {
                             this.customHandleSaveFailed();
-                        }                 
+                        }
                         return this.services.$q.reject(error);
                     });
                 });
@@ -412,7 +410,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
         return this.services.artifactService.updateArtifact(changes).catch((error) => {
-            // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)                
+            // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
             if (error) {
                 return this.services.$q.reject(this.handleSaveError(error));
             }
@@ -449,7 +447,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409");
             }
         } else {
-            message = this.services.localizationService.get("App_Save_Artifact_Error_Other");
+            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
         }
 
         const compoundId: string = this.prefix + this.id.toString();
@@ -463,8 +461,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                        .catch(() => {
                             return this.services.dialogService.confirm("Autosave has failed. Continue without saving?")
                                                               .then(() => {
-                                                                  this.discard(); 
-                                                              });           
+                                                                  this.discard();
+                                                              });
                        });
         }
         return this.services.$q.resolve();

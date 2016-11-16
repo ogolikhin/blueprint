@@ -6,7 +6,12 @@ using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Utilities;
 using Utilities.Facades;
 using Newtonsoft.Json;
@@ -77,6 +82,15 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, IProject, NovaArtifactDetails, List{HttpStatusCode})"/>
+        public INovaArtifactDetails UpdateArtifact(IUser user,
+            IProject project,
+            NovaArtifactDetails novaArtifactDetails,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return UpdateArtifact(Address, user, project, novaArtifactDetails);
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -458,16 +472,16 @@ namespace Model.Impl
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }
 
-        /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
-        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetSubartifact(IUser, int, int, List{HttpStatusCode})"/>
+        public NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
+            return restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false); // TODO: need to review NovaSubArtifact model to make this valication works
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
@@ -761,6 +775,35 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.POST,
                 jsonBody,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return newArtifact;
+        }
+
+        /// <summary>
+        /// Updates a Nova artifact.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project containing the artifact to be updated.</param>
+        /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, IProject project, NovaArtifactDetails novaArtifactDetails,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(novaArtifactDetails, nameof(novaArtifactDetails));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaArtifactDetails.Id);
+
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+                path,
+                RestRequestMethod.PATCH,
+                novaArtifactDetails,
                 expectedStatusCodes: expectedStatusCodes);
 
             return newArtifact;

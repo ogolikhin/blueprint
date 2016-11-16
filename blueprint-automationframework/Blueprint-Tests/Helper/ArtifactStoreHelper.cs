@@ -8,6 +8,7 @@ using Model.Impl;
 using Model.NovaModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;

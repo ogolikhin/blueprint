@@ -558,7 +558,7 @@ namespace ArtifactStoreTests
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifactDetails(viewer, artifact.Id, subArtifacts[0].Id);
+                Helper.ArtifactStore.GetSubartifact(viewer, artifact.Id, subArtifacts[0].Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID and sub-artifact ID but the user doesn't have permission to view the artifact!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
@@ -588,7 +588,7 @@ namespace ArtifactStoreTests
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifactDetails(viewer, child.Id, subArtifacts[0].Id);
+                Helper.ArtifactStore.GetSubartifact(viewer, child.Id, subArtifacts[0].Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 

@@ -119,8 +119,6 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_DeletedProcess_ReturnsEmptySubArtifactsList(BaseArtifactType artifactType)
         {
             // Setup
-            Assert.IsNotNull(_projects[0], "Cannot find project");
-
             var project = _projects[0];
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
@@ -367,9 +365,10 @@ namespace ArtifactStoreTests
             // Setup
             const int USECASE_ID = 24;
 
-            Assert.IsNotNull(_projects[1], "Cannot find [CustomData] project");
+            var project = ArtifactStoreHelper.GetCustomDataProject(_user);
+            Assert.IsNotNull(project, "Cannot find [CustomData] project");
 
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[1]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
 
             // Execute
             List<INovaSubArtifact> subArtifacts = null;
@@ -447,9 +446,10 @@ namespace ArtifactStoreTests
             // Setup
             const int STORYBOARD_ID = 32;
 
-            Assert.IsNotNull(_projects[1], "Cannot find [CustomData] project");
+            var project = ArtifactStoreHelper.GetCustomDataProject(_user);
+            Assert.IsNotNull(project, "Cannot find [CustomData] project");
 
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[1]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
 
             // Execute
             List<INovaSubArtifact> subArtifacts = null;
@@ -501,8 +501,6 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            Assert.IsNotNull(_projects[0], "Cannot find project!");
-
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
 
             IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
@@ -526,8 +524,6 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            Assert.IsNotNull(_projects[0], "Cannot find project!");
-
             IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
 
@@ -551,8 +547,6 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            Assert.IsNotNull(_projects[0], "Cannot find project!");
-
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
 
             IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
@@ -561,6 +555,7 @@ namespace ArtifactStoreTests
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
 
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -581,8 +576,6 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            Assert.IsNotNull(_projects[0], "Cannot find project!");
-
             IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
 
@@ -592,6 +585,7 @@ namespace ArtifactStoreTests
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, child.Id);
 
             Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
 
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>

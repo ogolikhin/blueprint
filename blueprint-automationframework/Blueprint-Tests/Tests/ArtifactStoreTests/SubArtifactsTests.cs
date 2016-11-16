@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -10,6 +8,8 @@ using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -182,14 +182,14 @@ namespace ArtifactStoreTests
             Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
             Helper.ArtifactStore.PublishArtifact(inlineTraceArtifact, _user);
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: true);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -241,14 +241,14 @@ namespace ArtifactStoreTests
             Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
             Helper.ArtifactStore.PublishArtifact(inlineTraceArtifact, _user);
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: true);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -290,14 +290,14 @@ namespace ArtifactStoreTests
             inlineTraceArtifact.Delete();
             inlineTraceArtifact.Publish();
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(_user, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -340,14 +340,14 @@ namespace ArtifactStoreTests
             // Create user with a permission only on second project
             var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, new List<IProject> { secondProject });
 
-            // Get process subartifact details via Nova call
-            NovaSubArtifactDetails subArtifactDetails = null;
+            // Get process subartifact via Nova call
+            NovaSubArtifact subArtifact = null;
 
-            Assert.DoesNotThrow(() => subArtifactDetails = Helper.ArtifactStore.GetSubartifactDetails(userWithPermissionOnSecondProject, updatedProcess.Id,
+            Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(userWithPermissionOnSecondProject, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
@@ -558,7 +558,7 @@ namespace ArtifactStoreTests
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifactDetails(viewer, artifact.Id, subArtifacts[0].Id);
+                Helper.ArtifactStore.GetSubartifact(viewer, artifact.Id, subArtifacts[0].Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID and sub-artifact ID but the user doesn't have permission to view the artifact!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
@@ -588,7 +588,7 @@ namespace ArtifactStoreTests
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifactDetails(viewer, child.Id, subArtifacts[0].Id);
+                Helper.ArtifactStore.GetSubartifact(viewer, child.Id, subArtifacts[0].Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 

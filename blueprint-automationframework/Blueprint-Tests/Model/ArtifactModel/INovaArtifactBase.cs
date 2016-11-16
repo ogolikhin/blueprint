@@ -120,9 +120,9 @@ namespace Model.ArtifactModel
         #region Serialized JSON Properties
         int Id { get; set; }
 
-        int ParentId { get; set; }
+        int? ParentId { get; set; }
 
-        int ItemTypeId { get; set; }
+        int? ItemTypeId { get; set; }
 
         string DisplayName { get; set; }
 

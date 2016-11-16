@@ -4,9 +4,8 @@ import {ModalServiceInstanceMock, ModalServiceMock} from "../../../../../shell/l
 
 describe("Zoomable Image Directive", () => {
 
-    /* tslint:disable:max-line-length */
+    // tslint:disable-next-line: max-line-length
     const directiveTemplate = `<zoomable-image class="img-responsive preview-image-placeholder" enable-zoom="true" image-src="image.png" image-alt="test alt text"></zoomable-image>`;
-    /* tslint:enable:max-line-length */
     let element: ng.IAugmentedJQuery;
     let scope;
 

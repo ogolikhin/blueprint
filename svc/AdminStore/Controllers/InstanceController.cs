@@ -118,6 +118,8 @@ namespace AdminStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
+            var result = await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+
             var artifactIds = new[] { projectId };
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
 
@@ -127,7 +129,7 @@ namespace AdminStore.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            return await _instanceRepository.GetProjectNavigationPathAsync(projectId, session.UserId, includeProjectItself);
+            return result;
         }
     }
 }

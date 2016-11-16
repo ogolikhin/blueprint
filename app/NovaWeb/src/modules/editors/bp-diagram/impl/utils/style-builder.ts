@@ -133,7 +133,6 @@ export class StyleBuilder {
 
         let fontStyle = mxConstants.DEFAULT_FONTSTYLE;
 
-        /* tslint:disable */
         if (labelStyle.isItalic) {
             fontStyle |= mxConstants.FONT_ITALIC;
         }
@@ -143,7 +142,6 @@ export class StyleBuilder {
         if (labelStyle.isUnderline) {
             fontStyle |= mxConstants.FONT_UNDERLINE;
         }
-        /* tslint:enable */
 
         if (fontStyle !== mxConstants.DEFAULT_FONTSTYLE) {
             style[mxConstants.STYLE_FONTSTYLE] = fontStyle;

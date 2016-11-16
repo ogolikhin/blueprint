@@ -33,6 +33,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private isFullReLoad: boolean;
 
     public static $inject: [string] = [
+        "$q",
         "projectManager",
         "artifactManager",
         "navigationService",
@@ -40,7 +41,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "messageService"
     ];
 
-    constructor(private projectManager: IProjectManager,
+    constructor(private $q: ng.IQService,
+                private projectManager: IProjectManager,
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
@@ -70,20 +72,32 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }
 
     private setSelectedNode(artifactId: number) {
-        if (this.tree.nodeExists(artifactId)) {
-            this.tree.selectNode(artifactId);
+        const setSelectedNodeInternal = (artifactId: number) => {
+            if (this.tree.nodeExists(artifactId)) {
+                this.tree.selectNode(artifactId);
 
-            if (!this.selected || this.selected.id !== artifactId) {
-                let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifactId);
-                if (selectedObjectInTree) {
-                    this.selected = selectedObjectInTree;
+                if (!this.selected || this.selected.id !== artifactId) {
+                    let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifactId);
+                    if (selectedObjectInTree) {
+                        this.selected = selectedObjectInTree;
+                    }
                 }
-            }
-        } else {
-            this.tree.deselectAll();
+            } else {
+                this.tree.deselectAll();
 
-            this.selected = null;
+                this.selected = null;
+            }
+        };
+
+        // If this method is called after onLoadProject, but before onGridReset, the action will be
+        // deferred until after onGridReset. This allows code that refreshes explorer, then
+        // navigates to a new artifact, to work as expected.
+        if (this.isLoading) {
+            this.isLoading.promise.then(() => setSelectedNodeInternal(artifactId));
+        } else {
+            setSelectedNodeInternal(artifactId);
         }
+
     }
 
     private _selected: IArtifactNode;
@@ -108,11 +122,22 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
+    // Indicates loading in progress and allows actions to be deferred until it is complete
+    private isLoading: ng.IDeferred<void>;
+
     private onLoadProject = (projects: IArtifactNode[]) => {
+        if (!this.isLoading) {
+            this.isLoading = this.$q.defer<void>();
+        }
         this.projects = projects.slice(0); // create a copy
     }
 
     public onGridReset(): void {
+        if (this.isLoading) {
+            this.isLoading.resolve();
+            this.isLoading = undefined;
+        }
+
         const currentSelectionId = this.selectedArtifactId;
         let navigateToId: number;
         if (this.projects && this.projects.length > 0) {
@@ -198,14 +223,13 @@ export class ProjectExplorerController implements IProjectExplorerController {
         cellRendererParams: {
             innerRenderer: (params) => {
                 const node = params.data as IArtifactNode;
-                let icon = "<i ng-drag-handle></i>";
+                let icon = "<i></i>";
                 const name = Helper.escapeHTMLText(node.name);
                 const artifact = node.artifact;
                 if (_.isFinite(artifact.itemTypeIconId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifact.itemTypeId}"
-                                item-type-icon-id="${artifact.itemTypeIconId}"
-                                ng-drag-handle></bp-item-type-icon>`;
+                                item-type-icon-id="${artifact.itemTypeIconId}"></bp-item-type-icon>`;
                 }
                 return `${icon}<span>${name}</span>`;
             },

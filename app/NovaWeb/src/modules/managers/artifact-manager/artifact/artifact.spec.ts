@@ -148,7 +148,6 @@ describe("Artifact", () => {
                 error = err;
             });
             $rootScope.$digest();
-
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_400_114");
         }));
@@ -301,31 +300,11 @@ describe("Artifact", () => {
             $rootScope.$digest();
 
             // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
-        }));
-
-        it("error save custom", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-            // arrange
-            spyOn(artifact, "getCustomArtifactPromisesForSave").and.callFake(() => {
-                const deferred = $q.defer<any>();
-                deferred.reject({
-                    statusCode: HttpStatusCode.ServerError
-                });
-                return deferred.promise;
-            });
-
-            // act
-            let error: Error;
-            artifact.save().catch((err) => {
-                error = err;
-            });
-            $rootScope.$digest();
-
-            // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
+            expect(error.message).toEqual("App_Save_Artifact_Error_Other");
         }));
 
     });
+    
 
     describe("Publish", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, messageService: IMessageService) => {
@@ -673,7 +652,7 @@ describe("Artifact", () => {
              artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
                  error = err;
              });
-          
+
             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 deferred.resolve([{
@@ -708,7 +687,7 @@ describe("Artifact", () => {
              });
 
              // act
-             
+
              artifact.delete();
              $rootScope.$digest();
 
@@ -737,7 +716,7 @@ describe("Artifact", () => {
              });
              const errormessage = "The artifact PREFIX222 is already locked by another user.";
              // act
-             
+
              artifact.delete();
              $rootScope.$digest();
 

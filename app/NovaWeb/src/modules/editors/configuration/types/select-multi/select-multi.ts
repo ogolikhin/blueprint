@@ -2,6 +2,7 @@ import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IPropertyDescriptor} from "./../../property-descriptor-builder";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelectMulti";
@@ -33,9 +34,12 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "$timeout"];
+    static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private $timeout: ng.ITimeoutService) {
+    constructor(private $scope: AngularFormly.ITemplateScope, 
+                     private localization: ILocalizationService, 
+                     private $timeout: ng.ITimeoutService,
+                     private validationService: IValidationService) {
         super();
 
         const to: AngularFormly.ITemplateOptions = {
@@ -50,12 +54,10 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if ((<AngularFormly.ITemplateScope>scope.$parent).to.required) { // TODO: find a better way to get the "required" flag
-                        if (angular.isArray($modelValue) && $modelValue.length === 0) {
-                            return false;
-                        }
-                    }
-                    return true;
+                    return validationService.multiSelectValidation.hasValueIfRequred(
+                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required), 
+                        $viewValue, 
+                        $modelValue);
                 }
             }
         };

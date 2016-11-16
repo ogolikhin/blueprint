@@ -145,11 +145,10 @@ export enum PropertyTypePredefined {
     LastEditedBy = 4126,
     LastEditedOn = 4127,
     ActorInheritance = 4128,
-    Persona = 4130,
+    PersonaReference = 4130,
     StoryLink = 4131,
     ImageId = 4132,
     AssociatedArtifact = 4133,
-    PersonaReference = 4134,
     CollectionContent = 4135,
 
     VisualizationGroup = 8192,

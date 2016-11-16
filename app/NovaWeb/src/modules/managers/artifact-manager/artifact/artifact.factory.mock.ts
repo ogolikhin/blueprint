@@ -43,8 +43,7 @@ export class StatefulArtifactFactoryMock implements IStatefulArtifactFactoryMock
             const specialProperties = [];
             for (const propertyValue in shape.propertyValues) {
                 const property = shape.propertyValues[propertyValue];
-                if (property.typePredefined === Models.PropertyTypePredefined.Persona ||
-                    property.typePredefined === Models.PropertyTypePredefined.Label ||
+                if (property.typePredefined === Models.PropertyTypePredefined.Label ||
                     property.typePredefined === Models.PropertyTypePredefined.AssociatedArtifact ||
                     property.typePredefined === Models.PropertyTypePredefined.ImageId) {
                     const newProperty = {
@@ -64,7 +63,16 @@ export class StatefulArtifactFactoryMock implements IStatefulArtifactFactoryMock
                 isReuseReadOnly: false,
                 value: shape.associatedArtifact ? shape.associatedArtifact.id : null
             };
+
+            const personaReferenceProperty = {
+                propertyTypeId: Models.PropertyTypePredefined.PersonaReference,
+                propertyTypeVersionId: -1,
+                propertyTypePredefined: Models.PropertyTypePredefined.PersonaReference,
+                isReuseReadOnly: false,
+                value: shape.personaReference ? shape.personaReference.id : null
+            };
             specialProperties.push(associatedArtifactProperty);
+            specialProperties.push(personaReferenceProperty);
             statefulShape.specialProperties.initialize(specialProperties);
             statefulArtifact.shapes.push(statefulShape);
             statefulSubArtifacts.push(statefulShape);

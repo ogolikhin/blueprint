@@ -27,9 +27,8 @@ export class ServerLoggerMock implements IServerLogger {
 describe("Logger", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("$log", LogMock);
-        /* tslint:disable - we are calling this to initialize decorators */
+        // we are calling this to initialize decorators
         new Logger($provide);
-        /* tslint:enable */
         $provide.service("serverLogger", ServerLoggerMock);
     }));
 

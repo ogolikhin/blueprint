@@ -138,5 +138,5 @@ module.exports = {
             lowerCaseAttributeNames: false
         }
     },
-    devtool: 'eval'
+    devtool: 'cheap-module-eval-source-map'
 };

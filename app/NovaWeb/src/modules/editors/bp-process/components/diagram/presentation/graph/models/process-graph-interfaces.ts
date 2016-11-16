@@ -3,7 +3,7 @@ import {IArtifactProperty, ItemIndicatorFlags} from "./";
 import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {SourcesAndDestinations, IUserStory} from "../../../../../models/process-models";
+import {SourcesAndDestinations, IUserStory, IArtifactReference} from "../../../../../models/process-models";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
 
 export interface IDeletable {
@@ -219,8 +219,8 @@ export interface IDiagramNodeElement extends IDiagramElement {
 export interface ITask extends IDiagramNode {
     persona: string;
     description: string;
-    associatedArtifact: any;
-    personaReference: any;
+    associatedArtifact: IArtifactReference;
+    personaReference: IArtifactReference;
     activateButton(itemFlag: ItemIndicatorFlags): void;
 }
 

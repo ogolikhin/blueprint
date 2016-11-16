@@ -1,16 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Utilities;
 using Utilities.Facades;
-using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -466,16 +465,16 @@ namespace Model.Impl
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }
 
-        /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
-        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetSubartifact(IUser, int, int, List{HttpStatusCode})"/>
+        public NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
+            return restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false); // TODO: need to review NovaSubArtifact model to make this valication works
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>

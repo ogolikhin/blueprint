@@ -16,6 +16,7 @@ using Utilities.Factories;
 using System;
 using System.Globalization;
 using Model.ArtifactModel.Enums;
+using Model.StorytellerModel.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -340,6 +341,42 @@ namespace ArtifactStoreTests
         }
 
         #endregion Artifact Properties tests
+
+        #region Subartifact Propertiese tests
+
+        [TestCase]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(191148)]
+        [Description("Create a process artifact. Update and publish artifact. Update sub artifact properties with UpdateArtifact. Verify that sub artifact returned has the updated properties.")]
+        public void UpdateArtifact_UpdateSubArtifactCustomProperties_CanGetSubArtifactsWithChanges()
+        {
+            // Setup:
+            var customProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            customProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(ItemTypePredefined.Process);
+            var processArtifact = Helper.CreateWrapAndPublishNovaArtifact(customProject, _user, ItemTypePredefined.Process, artifactTypeName: artifactTypeName);
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            var defaultUserTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var subArtifact = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, defaultUserTask.Id);
+
+            // Execute: Update using PATCH UpdateArtifact with changeset for subartifact
+            processArtifact.Lock(_user);
+            var targetCustomPropertyName = "Std-Text-Required-RT-Multi-HasDefault";
+            var subArtifactChangeset = CreateSubartifactChangeset(subArtifact, targetCustomPropertyName);
+            var artifactDetailsChangeSet = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
+            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactChangeset };
+            artifactDetailsChangeSet.SubArtifacts = subArtifacts;
+            Assert.DoesNotThrow(() => Artifact.UpdateArtifact(processArtifact, _user, artifactDetailsChangeSet),
+                "Exception caught while trying to update an artifact of type: '{0}'!", BaseArtifactType.Process);
+
+            // Verify: The returned subartifact contains the change made using the PATCH UpdateArtifact
+            var returnedSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, defaultUserTask.Id);
+            var requestedSubartifactCustomPropertyValue = subArtifactChangeset.CustomPropertyValues.Find(cp => cp.Name.Equals(targetCustomPropertyName)).CustomPropertyValue.ToString();
+            var updatedSubartifactCustomPropertyValue = returnedSubArtifact.CustomPropertyValues.Find(cp => cp.Name.Equals(targetCustomPropertyName)).CustomPropertyValue.ToString();
+            Assert.AreEqual(updatedSubartifactCustomPropertyValue, requestedSubartifactCustomPropertyValue);
+        }
+
+        #endregion Subartifact Properties tests
 
         #endregion 200 OK tests
 
@@ -823,6 +860,16 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+        }
+
+        private static NovaSubArtifact CreateSubartifactChangeset(NovaSubArtifact subArtifact, string customPropertyName)
+        {
+            var targetCustomPropertyValue = subArtifact.CustomPropertyValues.Find(custP => custP.Name.Equals(customPropertyName));
+            targetCustomPropertyValue.CustomPropertyValue = StringUtilities.WrapInHTML("TestString_" + RandomGenerator.RandomAlphaNumeric(5));
+            subArtifact.CustomPropertyValues.Clear();
+            subArtifact.SpecificPropertyValues.Clear();
+            subArtifact.CustomPropertyValues.Add(targetCustomPropertyValue);
+            return subArtifact;
         }
 
         #endregion Private functions

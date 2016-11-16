@@ -24,7 +24,6 @@ namespace ArtifactStoreTests
         private IProjectRole _viewerRole = null;
 
         private const int INVALID_VERSIONID = -1;
-        private const int NONEXSITING_VERSIONID = int.MaxValue;
         private const int INVALID_REVISIONID = -1;
         private const int NONEXSITING_REVISIONID = int.MaxValue;
 
@@ -62,11 +61,11 @@ namespace ArtifactStoreTests
         /// <param name="trace1">The first Trace to compare.</param>
         /// <param name="trace2">The second Trace to compare.</param>
         /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
-        private static void AssertTracesAreEqual(ITrace trace1, ITrace trace2, bool checkDirection=true)
+        private static void AssertTracesAreEqual(OpenApiTrace trace1, NovaTrace trace2, bool checkDirection=true)
         {
             Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
             Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
+            Assert.AreEqual(trace1.TraceType.ToString(), trace2.TraceType.ToString(), "The Trace Types don't match!");
             Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
 
             if (checkDirection)
@@ -820,7 +819,7 @@ namespace ArtifactStoreTests
             Assert.IsFalse(trace.HasAccess, "User with no access rights should have no access to the target artifact.");
             Assert.IsNull(trace.ArtifactName, "User with no access rights should receive empty target artifact name.");
             Assert.AreEqual(false, trace.IsSuspect, "Returned trace mustn't be suspected.");
-            Assert.AreEqual(traces[0].TraceType, trace.TraceType, "Returned trace must have proper TraceType.");
+            Assert.AreEqual(traces[0].TraceType.ToString(), trace.TraceType.ToString(), "Returned trace must have proper TraceType.");
             Assert.AreEqual(traces[0].Direction, trace.Direction, "Returned trace must have proper Direction.");
         }
 

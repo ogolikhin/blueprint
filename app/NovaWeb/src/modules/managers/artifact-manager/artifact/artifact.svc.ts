@@ -146,15 +146,15 @@ export class ArtifactService implements IArtifactService {
     public getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]> {
         const deferred = this.$q.defer();
 
-            const url = `/svc/artifactstore/artifacts/${artifactId}/navigationPath`;
+        const url = `/svc/artifactstore/artifacts/${artifactId}/navigationPath`;
 
-            this.$http.get(url)
-                .then((result) => {
-                    deferred.resolve(result.data);
-                })
-                .catch((error) => {
-                    deferred.reject(error);
-                });
+        this.$http.get(url)
+            .then((result) => {
+                deferred.resolve(result.data);
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                deferred.reject(result.data);
+            });
 
         return deferred.promise;
     }

@@ -145,7 +145,6 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
         // typescript trick
         const controller: any = <any>options.controller;
 
-        /* tslint:disable:no-unused-variable */
         const ctrl = new controller(
             new LocalizationServiceMock(this.$rootScope),
             this.instanceMock,
@@ -154,7 +153,6 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
             new SettingsMock()
         );
         return this.instanceMock;
-        /* tslint:enable:no-unused-variable */
     }
 }
 

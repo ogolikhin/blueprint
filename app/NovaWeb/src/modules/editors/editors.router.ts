@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import {ItemStateController} from "./item-state.controller";
-
+import {ISelectionManager} from "./../managers/selection-manager/selection-manager";
+import {IDialogService} from "../shared/";
 export class ArtifactRoutes {
 
     public static $inject = [
@@ -19,7 +20,10 @@ export class ArtifactRoutes {
                 url: "/{id:int}?{version:int}&{path:string}",
                 template: "<div ui-view class='artifact-state'></div>",
                 reloadOnSearch: false,
-                controller: ItemStateController
+                controller: ItemStateController,
+                resolve: {
+                    saved: ["$q",  "selectionManager", "dialogService", ArtifactRoutes.autoSave]      
+                }          
             })
 
             .state("main.item.process", {
@@ -41,4 +45,13 @@ export class ArtifactRoutes {
                 template: require("./bp-diagram/diagram.state.html")
             });
     }
+
+    public static autoSave($q: ng.IQService, selection: ISelectionManager, dialogService: IDialogService): ng.IPromise<void> {
+        let artifact = selection.getArtifact();
+        if (artifact) {
+            return artifact.autosave();
+        }
+        return $q.resolve();
+    }  
+
 }

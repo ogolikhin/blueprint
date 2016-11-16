@@ -18,9 +18,9 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 
     // Unload full weight artifact
     unload();
-    save(): ng.IPromise<IStatefulArtifact>;
+    save(ignoreInvalidValues?: boolean ): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
-    autosave(): ng.IPromise<IStatefulArtifact>;
+    autosave(): ng.IPromise<void>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
@@ -342,9 +342,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public changes(): Models.IArtifact {
-        if (this.artifactState.invalid) {
-            return null;
-        }
 
         const delta = {} as Models.IArtifact;
 
@@ -384,12 +381,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return subArtifactChanges;
     }
 
-    public save(): ng.IPromise<IStatefulArtifact> {
+    public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
 
         const changes = this.changes();
         if (changes) {
-            return this.validateCustomArtifactPromiseForSave()
+            return this.validateCustomArtifactPromiseForSave(changes, ignoreInvalidValues)
                 .then(() => {
                     return this.getCustomArtifactPromiseForSave();                    
                 }).then(() => {
@@ -460,11 +457,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return new Error(message);
     }
 
-    //TODO: stub - replace with implementation
-    public autosave(): ng.IPromise<IStatefulArtifact> {
-        let deffered = this.services.getDeferred<IStatefulArtifact>();
-        deffered.resolve();
-        return deffered.promise;
+    public autosave(): ng.IPromise<void> {
+        if (this.canBeSaved() ) {
+            return this.save()
+                       .catch(() => {
+                            return this.services.dialogService.confirm("Autosave has failed. Continue without saving?")
+                                                              .then(() => {
+                                                                  this.discard(); 
+                                                              });           
+                       });
+        }
+        return this.services.$q.resolve();
     }
 
     public publish(): ng.IPromise<void> {
@@ -625,8 +628,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.services.$q.when(this);
     }
 
-    protected validateCustomArtifactPromiseForSave(): ng.IPromise <IStatefulArtifact> {
+    protected validateCustomArtifactPromiseForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise <IStatefulArtifact> {
         let deferred = this.services.getDeferred<IStatefulArtifact>();
+        const changesToValidate = this.artifactState.invalid ? changes : undefined;
+        if (this.artifactState.invalid && !ignoreValidation) {
+            deferred.reject(this);
+        }
+        //TODO: add logic to validate a changesets
         deferred.resolve();
         return deferred.promise;
     }

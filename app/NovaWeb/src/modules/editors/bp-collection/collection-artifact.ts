@@ -4,12 +4,11 @@ import {ItemTypePredefined, PropertyTypePredefined} from "../../main/models/enum
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
 import {Helper} from "../../shared/utils/helper";
 import {Models} from "../../main/models";
-import {IState} from "../../managers/artifact-manager/state";
 
 export interface ICollection extends IArtifact {
     reviewName: string;
-    isCreated: boolean;        
-    artifacts: ICollectionArtifact[];    
+    isCreated: boolean;
+    artifacts: ICollectionArtifact[];
 }
 
 export interface ICollectionArtifact {
@@ -17,22 +16,21 @@ export interface ICollectionArtifact {
     name: string;
     prefix: string;
     description: string;
-    itemTypeId: number;    
+    itemTypeId: number;
     artifactPath: string[];
-    itemTypePredefined: ItemTypePredefined;   
+    itemTypePredefined: ItemTypePredefined;
 }
 
 export interface IStatefulCollectionArtifact extends IStatefulArtifact {
     rapidReviewCreated: boolean;
-    reviewName: string;      
+    reviewName: string;
     artifacts: ICollectionArtifact[];
     addArtifactsToCollection(artifactIds: IArtifact[]);
-    removeArtifacts(artifactIds: IArtifact[]);    
+    removeArtifacts(artifactIds: IArtifact[]);
 }
 
 export class StatefulCollectionArtifact extends StatefulArtifact implements IStatefulCollectionArtifact {
-    
-    private collectionContentPropertyValue: Models.IPropertyValue;    
+    private collectionContentPropertyValue: Models.IPropertyValue;
 
     protected getArtifactModel(id: number, versionId: number): ng.IPromise<IArtifact> {
         const url = `/svc/bpartifactstore/collection/${id}`;
@@ -67,20 +65,20 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
         };
 
         let collectionContentProperty = <Models.IPropertyValue>{
-            name: "CollectionContent",           
+            name: "CollectionContent",
             propertyTypeId: -1,
-            propertyTypePredefined: PropertyTypePredefined.CollectionContent,            
+            propertyTypePredefined: PropertyTypePredefined.CollectionContent,
             value: collectionContent
         };
         return collectionContentProperty;
     }    
 
-    protected initialize(artifact: Models.IArtifact): IState {
-        const state = super.initialize(artifact);      
-        this.collectionContentPropertyValue = this.createCollectionContentSpecificProperty();        
+    protected initialize(artifact: Models.IArtifact): void {
+        const state = super.initialize(artifact);
+        this.collectionContentPropertyValue = this.createCollectionContentSpecificProperty();
         this.specialProperties.list().push(this.collectionContentPropertyValue);
         return state;
-    }   
+    }
 
     public addArtifactsToCollection(artifacts: IArtifact[]) {
 
@@ -108,8 +106,8 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
                     collectionContentPV.removedArtifacts.splice(index, 1);
                 } else {
                     collectionContentPV.addedArtifacts.push(artifact.id);
-                }                
-            });                        
+                }
+            });
 
             this.updateCollectionContentSpecialProperty(collectionContentPV);
         }
@@ -125,7 +123,6 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
     }
 
     public removeArtifacts(artifacts: IArtifact[]) {
-
         if (this.artifact &&
             artifacts &&
             artifacts.length > 0 &&
@@ -145,8 +142,8 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
                         collectionContentPV.addedArtifacts.splice(addedArtifactsIndex, 1);
                     } else {
                         collectionContentPV.removedArtifacts.push(artifact.id);
-                    }   
-                }                                                                             
+                    }
+                }
             });
 
             if (isSomethingDeleted) {

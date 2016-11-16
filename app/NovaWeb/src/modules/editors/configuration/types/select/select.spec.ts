@@ -7,6 +7,7 @@ import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {createFormlyModule} from "../../formly-config.mock";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly Select", () => {
     let fieldsDefinition = [
@@ -51,6 +52,10 @@ describe("Formly Select", () => {
         "formly",
         "formlyBootstrap"
     ], fieldsDefinition);
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {        
+        $provide.service("validationService", ValidationService);
+    }));
 
     beforeEach(angular.mock.module(moduleName));
 

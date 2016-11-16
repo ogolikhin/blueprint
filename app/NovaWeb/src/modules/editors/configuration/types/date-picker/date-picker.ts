@@ -113,35 +113,12 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 expression: function ($viewValue, $modelValue, scope) {
                     return validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
                                                                                           localization, scope.options.data.isValidated);
-                    // if (!scope.options.data.isValidated) {
-                    //     return true;
-                    // }
-
-                    // let date = localization.current.toDate($modelValue || $viewValue, true);
-                    // let minDate = localization.current.toDate(scope.to.datepickerOptions.minDate, true);
-
-                    // if (date && minDate) {
-                    //     return date.getTime() >= minDate.getTime();
-                    // }
-                    // return true;
                 }
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
                     return validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
                                                                                           localization, scope.options.data.isValidated);
-                    // if (!scope.options.data.isValidated) {
-                    //     return true;
-                    // }
-
-                    // let date = localization.current.toDate($modelValue || $viewValue, true);
-                    // let maxDate = localization.current.toDate(scope.to.datepickerOptions.maxDate, true);
-
-                    // if (date && maxDate) {
-                    //     return date.getTime() <= maxDate.getTime();
-                    // }
-
-                    // return true;
                 }
             }
         };

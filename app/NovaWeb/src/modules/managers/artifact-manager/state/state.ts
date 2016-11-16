@@ -9,8 +9,6 @@ interface IState {
     lockOwner: string;
     readonly: boolean;
     dirty: boolean;
-    published: boolean;
-    everPublished: boolean;
     deleted: boolean;
     historical: boolean;
     misplaced: boolean;
@@ -18,6 +16,8 @@ interface IState {
 }
 
 export interface IArtifactState extends IState, IDispose {
+    published: boolean;
+    everPublished: boolean;
     onStateChange: Rx.Observable<IArtifactState>;
 
     initialize(artifact: Models.IArtifact): IArtifactState;
@@ -27,36 +27,27 @@ export interface IArtifactState extends IState, IDispose {
 }
 
 export class ArtifactState implements IArtifactState {
+    private subject: Rx.BehaviorSubject<IArtifactState>;
+    private currentState: IState = this.createDefaultState();
+
     constructor(private artifact: IIStatefulArtifact) {
         this.subject = new Rx.BehaviorSubject<IArtifactState>(undefined);
         this.initialize(artifact);
     }
 
-    private currentState: IState = this.newState();
-    private prevState: IState = _.cloneDeep(this.currentState);
-
-    private subject: Rx.BehaviorSubject<IArtifactState>;
-
-    private newState(): IState {
-        // create a new state object with defaults
-        return {
+    // create a new state object with defaults
+    private createDefaultState(): IState {
+        return <IState>{
             lockedBy: Enums.LockedByEnum.None,
             lockDateTime: null,
             lockOwner: null,
             readonly: false,
             dirty: false,
-            published: false,
-            everPublished: false,
             deleted: false,
             historical: false,
             misplaced: false,
             invalid: false
         };
-    }
-
-    private reset() {
-        this.currentState = this.newState();
-        this.prevState = _.cloneDeep(this.currentState);
     }
 
     public get onStateChange(): Rx.Observable<IArtifactState> {
@@ -69,25 +60,28 @@ export class ArtifactState implements IArtifactState {
         // this function can set 1 or more state properties at once
         // if notifyChange flag is false observers will not be notified
         if (newStateValues) {
+            let changed: boolean = false;
+
             for (const key in newStateValues) {
                 if (this.currentState.hasOwnProperty(key)) {
-                    this.currentState[key] = newStateValues[key];
+                    const newValue = newStateValues[key];
+                    const oldValue = this.currentState[key];
+
+                    if (!_.isEqual(oldValue, newValue)) {
+                        this.currentState[key] = newValue;
+                        changed = true;
+                    }
                 }
             }
             
-            if (notifyChange) {
+            if (changed && notifyChange) {
                 this.notifyStateChange();
-            } else {
-                this.prevState = _.cloneDeep(this.currentState);
             }
         }
     }
 
     private notifyStateChange() {
-        if (!_.isEqual(this.prevState, this.currentState)) {
-            this.subject.onNext(this);
-            this.prevState = _.cloneDeep(this.currentState);
-        }
+        this.subject.onNext(this);
     }
 
     public get deleted(): boolean {
@@ -95,6 +89,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set deleted(value: boolean) {
+        if (this.currentState.deleted === value) {
+            return;
+        }
+
         this.currentState.deleted = value;
         this.currentState.readonly = this.currentState.readonly || value;
         this.notifyStateChange();
@@ -105,6 +103,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set dirty(value: boolean) {
+        if (this.currentState.dirty === value) {
+            return;
+        }
+
         this.currentState.dirty = value;
         this.notifyStateChange();
     }
@@ -114,6 +116,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set invalid(value: boolean) {
+        if (this.currentState.invalid === value) {
+            return;
+        }
+
         this.currentState.invalid = value;
         this.notifyStateChange();
     }
@@ -135,6 +141,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set misplaced(value: boolean) {
+        if (this.currentState.misplaced === value) {
+            return;
+        }
+
         this.currentState.misplaced = value;
         this.notifyStateChange();
     }
@@ -157,6 +167,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set readonly(value: boolean) {
+        if (this.currentState.readonly === value) {
+            return;
+        }
+
         this.currentState.readonly = value;
         this.notifyStateChange();
     }
@@ -166,6 +180,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set historical(value: boolean) {
+        if (this.currentState.historical === value) {
+            return;
+        }
+
         this.currentState.historical = value;
         this.currentState.readonly = this.currentState.readonly || value;
         this.notifyStateChange();
@@ -177,7 +195,8 @@ export class ArtifactState implements IArtifactState {
             const deleted = this.currentState.deleted;
             const historical = this.currentState.historical;
 
-            this.reset();
+            // reset to default state
+            this.currentState = this.createDefaultState();
 
             const noReadPermission = (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
 

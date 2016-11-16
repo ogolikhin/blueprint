@@ -365,7 +365,7 @@ describe("Item State Controller tests", () => {
                 expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
 
-            it("should redirect to a Main state if deleted artifact is an Artifact Collection", () => {
+            it("should redirect to a historical version and add a message if deleted artifact is an Artifact Collection", () => {
                 // arrange
                 const artifactId = 10;
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
@@ -378,9 +378,10 @@ describe("Item State Controller tests", () => {
                         deletedByUser: {}
                     });
                     return deferred.promise;
-                });
-                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
-                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
+                });               
+
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void (0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
@@ -388,14 +389,16 @@ describe("Item State Controller tests", () => {
                 $rootScope.$digest();
 
                 // assert
-                expect(stateSpy).not.toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
+                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(stateSpy).toHaveBeenCalled();
+                expect(navigationSpy).not.toHaveBeenCalled();
                 expect(messageSpy).toHaveBeenCalled();
-                expect(selectionSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
 
-            it("should redirect to a Main state if deleted artifact is a Collection Folder", () => {
+            it("should redirect to a historical version and add a message if deleted artifact is a Collection Folder", () => {
                 // arrange
                 const artifactId = 10;
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
@@ -408,9 +411,10 @@ describe("Item State Controller tests", () => {
                         deletedByUser: {}
                     });
                     return deferred.promise;
-                });
-                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
-                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void(0));
+                });               
+
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void (0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
@@ -418,11 +422,13 @@ describe("Item State Controller tests", () => {
                 $rootScope.$digest();
 
                 // assert
-                expect(stateSpy).not.toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
+                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(stateSpy).toHaveBeenCalled();
+                expect(navigationSpy).not.toHaveBeenCalled();
                 expect(messageSpy).toHaveBeenCalled();
-                expect(selectionSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
 
         });

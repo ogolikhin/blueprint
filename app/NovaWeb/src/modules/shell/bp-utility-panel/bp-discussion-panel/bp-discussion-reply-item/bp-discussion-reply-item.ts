@@ -64,7 +64,6 @@ export class BPDiscussionReplyItemController {
         }
     }
 
-    /* tslint:disable:no-unused-variable */
     public editReply(comment: string): ng.IPromise<IReply> {
         return this._artifactDiscussionsRepository.editDiscussionReply(this.artifactId, this.replyInfo.discussionId, this.replyInfo.replyId, comment)
             .then((reply: IReply) => {
@@ -78,6 +77,4 @@ export class BPDiscussionReplyItemController {
                 return null;
             });
     }
-
-    /* tslint:disable:no-unused-variable */
 }

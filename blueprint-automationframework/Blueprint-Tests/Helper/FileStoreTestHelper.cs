@@ -120,7 +120,7 @@ namespace Helper
         public static IFile CreateFileWithRandomByteArray(string fileType = "text/plain")
         {
             uint fileSize = (uint)RandomGenerator.RandomNumber(4096);
-            string fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "txt");
+            string fileName = I18NHelper.FormatInvariant("{0}.txt", RandomGenerator.RandomAlphaNumeric(10));
             return CreateFileWithRandomByteArray(fileSize, fileName, fileType);
         }
 
@@ -147,7 +147,7 @@ namespace Helper
         /// <param name="file1">First file to compare.</param>
         /// <param name="file2">Second file to compare.</param>
         /// <param name="compareIds">(optional) Pass false if you don't want to include the File IDs in the comparisons.</param>
-        /// <param name="compareContentLenth">(optional) Pass false if you don't want to compare file content Length</param>
+        /// <param name="compareContentLength">(optional) Pass false if you don't want to compare file content Length</param>
         /// <exception cref="AssertionException">If file1 is not identical to file2.</exception>
         public static void AssertNovaFilesAreIdentical(INovaFile file1, INovaFile file2, bool compareIds = true, bool compareContentLength = true)
         {
@@ -171,14 +171,25 @@ namespace Helper
         /// <summary>
         /// Create a file consisting of a random byte array.
         /// </summary>
-        /// <param name="fileSize">The size of the file being created.</param>
-        /// <param name="fakeFileName">The filename of the file being created.</param>
-        /// <param name="fileType">The mime filetype of the file being created.</param>
+        /// <param name="fileSize">(optional) The size of the file being created.  Defaults to a random size.</param>
+        /// <param name="fakeFileName">(optional) The filename of the file being created.  Defaults to a random string.</param>
+        /// <param name="fileType">(optional) The mime filetype of the file being created.</param>
         /// <returns>The created file.</returns>
-        public static INovaFile CreateNovaFileWithRandomByteArray(uint fileSize, string fakeFileName, string fileType)
+        public static INovaFile CreateNovaFileWithRandomByteArray(uint? fileSize = null, string fakeFileName = null, string fileType = "text/plain")
         {
-            string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
+            if (fileSize == null)
+            {
+                fileSize = (uint)RandomGenerator.RandomNumber(4096);
+            }
+
+            if (fakeFileName == null)
+            {
+                fakeFileName = I18NHelper.FormatInvariant("{0}.txt", RandomGenerator.RandomAlphaNumeric(10));
+            }
+
+            string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize.Value);
             byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
+
             INovaFile file = FileFactory.CreateNovaFile(fakeFileName, fileType, DateTime.Now, fileContents);
             return file;
         }

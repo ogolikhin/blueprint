@@ -185,10 +185,10 @@ describe("ManageTracesController", () => {
             //Arrange
             let selectedVM = {
                 key: "19",
-                isExpandable: true,
-                isExpanded: false,
+                group: true,
+                expanded: false,
                 children: [],
-                isSelectable: true,
+                selectable: true,
                 getCellClass: () => {
                     return ["test"];
                 },

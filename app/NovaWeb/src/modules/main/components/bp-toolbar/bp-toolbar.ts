@@ -171,14 +171,14 @@ export class BPToolbarController implements IBPToolbarController {
         const artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             const projectId = artifact.projectId;
-            const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.id !== projectId);
+            const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.model.id !== projectId);
             if (isOpened) {
                 this.projectManager.remove(artifact.projectId);
             }
             const nextProject = _.first(this.projectManager.projectCollection.getValue());
             if (nextProject) {
                 this.artifactManager.selection.clearAll();
-                this.navigationService.navigateTo({id: nextProject.id});
+                this.navigationService.navigateTo({id: nextProject.model.id});
             } else {
                 this.navigationService.navigateToMain();
             }
@@ -210,7 +210,7 @@ export class BPToolbarController implements IBPToolbarController {
             <IConfirmPublishDialogData>{
                 artifactList: data.artifacts,
                 projectList: data.projects,
-                selectedProject: selectedProject ? selectedProject.id : undefined
+                selectedProject: selectedProject ? selectedProject.model.id : undefined
             })
             .then(() => {
                 this.discardAll(data);
@@ -246,7 +246,7 @@ export class BPToolbarController implements IBPToolbarController {
             <IConfirmPublishDialogData>{
                 artifactList: data.artifacts,
                 projectList: data.projects,
-                selectedProject: selectedProject ? selectedProject.id : undefined
+                selectedProject: selectedProject ? selectedProject.model.id : undefined
             })
             .then(() => {
                 this.saveAndPublishAll(data);

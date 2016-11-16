@@ -55,17 +55,23 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         });
         return deferred.promise;
     }
+    
+    protected loadWithNotify(): ng.IPromise<IStatefulSubArtifact> {
+        this.loadPromise = this.load();
+        return this.loadPromise.then(() => {
+            this.subject.onNext(this);
+            return this.services.$q.resolve(this);
+        }).catch((error) => {
+            this.error.onNext(error);
+            return this.services.$q.reject(error);
+        }).finally(() => {
+            this.loadPromise = null;
+        });
+    }
 
     public getObservable(): Rx.Observable<IStatefulSubArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
-            this.loadPromise = this.load();
-            this.loadPromise.then(() => {
-                this.subject.onNext(this);
-            }).catch((error) => {
-                this.error.onNext(error);
-            }).finally(() => {
-                this.loadPromise = null;
-            });
+            this.loadWithNotify();
         }
         return this.subject.filter(it => !!it).asObservable();
     }

@@ -12,18 +12,18 @@ export interface IViewModel<T> {
 export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeViewNode {
     constructor(public model: T,
                 public key: string,
-                public isExpandable: boolean,
+                public group: boolean,
                 public children: TreeViewNodeVM<any>[],
-                public isExpanded: boolean,
-                public isSelectable: boolean) {
+                public expanded: boolean,
+                public selectable: boolean) {
     }
 
     public getCellClass(): string[] {
         const result = [] as string[];
-        if (this.isExpandable) {
+        if (this.group) {
             result.push("has-children");
         }
-        if (!this.isSelectable) {
+        if (!this.selectable) {
             result.push("not-selectable");
         }
         return result;

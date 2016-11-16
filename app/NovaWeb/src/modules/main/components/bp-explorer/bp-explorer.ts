@@ -33,6 +33,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private isFullReLoad: boolean;
 
     public static $inject: [string] = [
+        "$q",
         "projectManager",
         "artifactManager",
         "navigationService",
@@ -40,7 +41,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "messageService"
     ];
 
-    constructor(private projectManager: IProjectManager,
+    constructor(private $q: ng.IQService,
+                private projectManager: IProjectManager,
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
@@ -70,20 +72,32 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }
 
     private setSelectedNode(artifactId: number) {
-        if (this.tree.nodeExists(artifactId)) {
-            this.tree.selectNode(artifactId);
+        const setSelectedNodeInternal = (artifactId: number) => {
+            if (this.tree.nodeExists(artifactId)) {
+                this.tree.selectNode(artifactId);
 
-            if (!this.selected || this.selected.id !== artifactId) {
-                let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifactId);
-                if (selectedObjectInTree) {
-                    this.selected = selectedObjectInTree;
+                if (!this.selected || this.selected.model.id !== artifactId) {
+                    let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifactId);
+                    if (selectedObjectInTree) {
+                        this.selected = selectedObjectInTree;
+                    }
                 }
-            }
-        } else {
-            this.tree.deselectAll();
+            } else {
+                this.tree.deselectAll();
 
-            this.selected = null;
+                this.selected = null;
+            }
+        };
+
+        // If this method is called after onLoadProject, but before onGridReset, the action will be
+        // deferred until after onGridReset. This allows code that refreshes explorer, then
+        // navigates to a new artifact, to work as expected.
+        if (this.isLoading) {
+            this.isLoading.promise.then(() => setSelectedNodeInternal(artifactId));
+        } else {
+            setSelectedNodeInternal(artifactId);
         }
+
     }
 
     private _selected: IArtifactNode;
@@ -100,24 +114,35 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
 
         if (value) {
-            this.selectedArtifactId = value.id;
+            this.selectedArtifactId = value.model.id;
 
-            this.selectedArtifactSubscriber = value.artifact.getProperyObservable()
+            this.selectedArtifactSubscriber = value.model.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
                         .subscribeOnNext(this.onSelectedArtifactChange);
         }
     }
 
+    // Indicates loading in progress and allows actions to be deferred until it is complete
+    private isLoading: ng.IDeferred<void>;
+
     private onLoadProject = (projects: IArtifactNode[]) => {
+        if (!this.isLoading) {
+            this.isLoading = this.$q.defer<void>();
+        }
         this.projects = projects.slice(0); // create a copy
     }
 
     public onGridReset(): void {
+        if (this.isLoading) {
+            this.isLoading.resolve();
+            this.isLoading = undefined;
+        }
+
         const currentSelectionId = this.selectedArtifactId;
         let navigateToId: number;
         if (this.projects && this.projects.length > 0) {
             if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
-                this.setSelectedNode(this.projects[0].artifact.id);
+                this.setSelectedNode(this.projects[0].model.id);
                 navigateToId = this.selectedArtifactId;
             }
 
@@ -130,17 +155,17 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
                 //replace with a new object from tree, since the selected object may be stale after refresh
                 this.setSelectedNode(this.selectedArtifactId);
-            } else if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.id)) {
+            } else if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.model.id)) {
                 //otherwise, if parent node is in the tree
-                this.tree.selectNode(this.selected.parentNode.id);
-                navigateToId = this.selected.parentNode.id;
+                this.tree.selectNode(this.selected.parentNode.model.id);
+                navigateToId = this.selected.parentNode.model.id;
 
                 //replace with a new object from tree, since the selected object may be stale after refresh
-                this.setSelectedNode(this.selected.parentNode.id);
-            } else if (this.tree.nodeExists(this.selected.artifact.projectId)) {
+                this.setSelectedNode(this.selected.parentNode.model.id);
+            } else if (this.tree.nodeExists(this.selected.model.projectId)) {
                 //otherwise, try with project node
-                this.tree.selectNode(this.selected.artifact.projectId);
-                navigateToId = this.selected.artifact.projectId;
+                this.tree.selectNode(this.selected.model.projectId);
+                navigateToId = this.selected.model.projectId;
             }
         }
 
@@ -161,8 +186,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         if (changes.item) {
             const node = this.tree.getNodeData(changes.item.id) as IArtifactNode;
             if (node) {
-                node.name = changes.item.name;
-                this.tree.refresh(node.id);
+                this.tree.refresh(node.model.id);
             }
         }
     };
@@ -178,15 +202,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
             const node = params.data as IArtifactNode;
             let css: string[] = [];
 
-            if (node.hasChildren) {
+            if (node.group) {
                 css.push("has-children");
             }
             let typeName: string;
-            if (node.artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
-                node.parentNode.artifact.predefinedType === Models.ItemTypePredefined.Project) {
+            if (node.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
+                node.parentNode.model.predefinedType === Models.ItemTypePredefined.Project) {
                 typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
             } else {
-                typeName = Models.ItemTypePredefined[node.artifact.predefinedType];
+                typeName = Models.ItemTypePredefined[node.model.predefinedType];
             }
             if (typeName) {
                 css.push("is-" + _.kebabCase(typeName));
@@ -199,8 +223,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
             innerRenderer: (params) => {
                 const node = params.data as IArtifactNode;
                 let icon = "<i></i>";
-                const name = Helper.escapeHTMLText(node.name);
-                const artifact = node.artifact;
+                const artifact = node.model;
+                const name = Helper.escapeHTMLText(artifact.name);
                 if (_.isFinite(artifact.itemTypeIconId)) {
                     icon = `<bp-item-type-icon
                                 item-type-id="${artifact.itemTypeId}"
@@ -217,7 +241,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     public doSelect = (node: IArtifactNode) => {
         this.selected = node;
-        this.navigationService.navigateTo({ id: node.id });
+        this.navigationService.navigateTo({ id: node.model.id });
     };
 
     public onError = (reason: any): void => {

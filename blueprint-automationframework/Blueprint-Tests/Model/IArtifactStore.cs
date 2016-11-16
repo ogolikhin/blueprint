@@ -101,6 +101,18 @@ namespace Model
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Updates a Nova artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project containing the artifact to be updated.</param>
+        /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        INovaArtifactDetails UpdateArtifact(IUser user, IProject project,
+            NovaArtifactDetails novaArtifactDetails,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
         /// (Runs: DELETE {server}/svc/bpartifactstore/artifacts/{artifactId})
         /// </summary>

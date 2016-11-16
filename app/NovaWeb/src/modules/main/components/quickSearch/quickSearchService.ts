@@ -33,7 +33,7 @@ export class QuickSearchService implements IQuickSearchService {
     searchTerm: string;
 
     canSearch(): boolean {
-        return !(this.projectManager.projectCollection.getValue().map(project => project.id).length > 0);
+        return !(this.projectManager.projectCollection.getValue().length > 0);
     }
     private appendParameters(url: string, page: number, pageSize: number): string {
         if (page) {
@@ -41,19 +41,19 @@ export class QuickSearchService implements IQuickSearchService {
             if (pageSize) {
                 url = url + `&pageSize=${pageSize}`;
             }
-        } else if (pageSize) {            
+        } else if (pageSize) {
             url = url + `?pageSize=${pageSize}`;
         }
         return url;
     }
 
     private getSearchUrl(page: number, pageSize: number): string {
-        const url = `/svc/searchservice/itemsearch/fulltext/`;        
+        const url = `/svc/searchservice/itemsearch/fulltext/`;
         return this.appendParameters(url, page, pageSize);
     }
-    
+
     private getMetadataUrl(page: number, pageSize: number): string {
-        const url = `/svc/searchservice/itemsearch/fulltextmetadata/`;        
+        const url = `/svc/searchservice/itemsearch/fulltextmetadata/`;
         return this.appendParameters(url, page, pageSize);
     }
 
@@ -66,12 +66,12 @@ export class QuickSearchService implements IQuickSearchService {
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.id)
+                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.model.id)
             }
         };
 
         this.$http(request).then(
-            (result) => {           
+            (result) => {
                 deferred.resolve(result.data);
             },
             (error) => {
@@ -94,7 +94,7 @@ export class QuickSearchService implements IQuickSearchService {
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.id)
+                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.model.id)
             }
         };
 

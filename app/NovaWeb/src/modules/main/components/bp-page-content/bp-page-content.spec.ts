@@ -97,7 +97,7 @@ describe("Component BPPageContent", () => {
             artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             const spy = spyOn(mainbreadcrumbService, "reloadBreadcrumbs");
-            artifactManager.selection.setArtifact(artifact);
+            artifactManager.selection.setSubArtifact(artifact);
 
             // Assert
             const breadcrumbs = mainbreadcrumbService.breadcrumbLinks;

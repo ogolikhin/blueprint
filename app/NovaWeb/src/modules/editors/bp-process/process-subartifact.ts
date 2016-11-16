@@ -40,26 +40,14 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         return this.baseItemTypePredefined;
     }
 
-    public loadProperties(): ng.IPromise<IStatefulSubArtifact> {      
-        const deferred = this.services.getDeferred<IStatefulSubArtifact>();  
+    public loadProperties(): ng.IPromise<IStatefulSubArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
-            this.loadPromise = this.load();
-            this.loadPromise.then(() => {
-                deferred.resolve(this);
-            }).catch((error) => {
-                this.error.onNext(error);
-                deferred.reject(error);
-            }).finally(() => {
-                this.loadPromise = null;
-            });
-        } else {
-            if (this.loadPromise) {
-                return this.loadPromise;
-            } else {
-                deferred.resolve(this);
-            }
+            return this.loadWithNotify();      
         }
-        return deferred.promise;
+        if (this.loadPromise) {
+            return this.loadPromise;
+        }
+        return this.services.$q.when(this);
     }
 
     protected isFullArtifactLoadedOrLoading(): boolean {

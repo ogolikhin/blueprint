@@ -47,8 +47,11 @@ namespace Model.ArtifactModel.Impl
 
         #region Additional Properties
 
+        [JsonIgnore]
         public int? SubArtifactId { get; set; }
+        [JsonIgnore]
         public string Message { get; set; }
+        [JsonIgnore]
         public int? ResultCode { get; set; }
 
         #endregion Additional Properties

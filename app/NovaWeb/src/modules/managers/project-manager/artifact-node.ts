@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {Models, Enums} from "../../main/models";
+import {Models, Enums, TreeViewModels} from "../../main/models";
 import {IProjectService} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager";
@@ -7,7 +7,7 @@ import {IArtifactNode} from "../project-manager";
 
 export class ArtifactNode implements IArtifactNode {
     private _artifact: IStatefulArtifact;
-    public name: string;
+    public key: string;
     public children: IArtifactNode[];
     public parentNode: IArtifactNode;
 
@@ -20,14 +20,14 @@ export class ArtifactNode implements IArtifactNode {
             throw new Error("Artifact_Not_Found");
         }
         this._artifact = artifact;
-        this.name = artifact ? artifact.name : null;
+        this.key = String(artifact.id);
         this.parentNode = parentNode;
         if (parentNode) {
-            this.hasChildren = artifact.hasChildren;
+            this.group = artifact.hasChildren;
         } else {
             // for projects
-            this.hasChildren = true;
-            this.open = true;
+            this.group = true;
+            this.expanded = true;
         }
     };
 
@@ -40,31 +40,23 @@ export class ArtifactNode implements IArtifactNode {
         delete this._artifact;
     }
 
-    public get artifact(): IStatefulArtifact {
+    public get model(): IStatefulArtifact {
         return this._artifact;
     }
 
-    public get id(): number {
-        return !this._artifact ? null : this._artifact.id;
-    }
-
-    public get parentId(): number {
-        return !this._artifact ? null : this._artifact.parentId;
-    }
-
-    public hasChildren: boolean;
+    public group: boolean;
     public loaded: boolean;
-    public open: boolean;
+    public expanded: boolean;
 
     public loadChildrenAsync(): ng.IPromise<any> {
-        return this.projectService.getArtifacts(this.artifact.projectId, this.artifact.id).then((data: Models.IArtifact[]) => {
+        return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((data: Models.IArtifact[]) => {
             this.children = data.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulArtifact);
                 return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, this);
             });
-            this.loaded = true;
-            this.open = true;
+           this.loaded = true;
+           this.expanded = true;
         });
     }
 
@@ -73,7 +65,7 @@ export class ArtifactNode implements IArtifactNode {
         if (!item) {
             item = this;
         }
-        if (item.id === id) {
+        if (item.model.id === id) {
             found = item;
         } else if (item.children) {
             for (let i = 0, it: IArtifactNode; !found && (it = item.children[i++]); ) {

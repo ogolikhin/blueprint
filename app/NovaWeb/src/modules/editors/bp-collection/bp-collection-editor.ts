@@ -311,7 +311,7 @@ class CollectionNodeVM implements ITreeViewNode {
     public key: string;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService,
-                public isSelectable: boolean = true) {
+                public selectable: boolean = true) {
         this.key = String(model.id);
     }
 

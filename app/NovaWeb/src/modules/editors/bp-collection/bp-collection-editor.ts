@@ -6,7 +6,7 @@ import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
 import {Helper, IDialogService} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {ChangeTypeEnum, IChangeSet} from "../../managers/artifact-manager/changeset";
+import {ChangeTypeEnum, IChangeSet, IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -71,7 +71,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             this.collectionSubscriber.dispose();
             this.collectionSubscriber = null;
         }
-        this.collectionSubscriber = collectionArtifact.collectionObservable().subscribe(this.onCollectionArtifactsChanged);
+
+        if (collectionArtifact) {            
+            this.collectionSubscriber = collectionArtifact.getProperyObservable()
+                .filter(changes => changes.change &&                   
+                    changes.change.key === Models.PropertyTypePredefined.CollectionContent)
+                .subscribeOnNext(this.onCollectionArtifactsChanged);
+        }        
     }
 
     public onArtifactReady() {
@@ -114,32 +120,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
-    private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
-        if (!changes || changes.length === 0) {
-            return;
-        }
-
-        let collectionArtifacts = this.rootNode.slice();
-        this.visibleArtifact = undefined;
-        changes.map((change: IChangeSet) => {
-            if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
-                collectionArtifacts.push(addedTreeVM);
-                if (!this.visibleArtifact) {
-                    this.visibleArtifact = addedTreeVM;
-                }
-
-            }
-            else if (change.type === ChangeTypeEnum.Delete) {
-                const removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => nodeVM.model.id === change.key);
-
-                if (removingNodeIndex > -1) {
-                    collectionArtifacts.splice(removingNodeIndex, 1);
-                }
-            }
+    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {       
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+        this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+            return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
         });
-
-        this.rootNode = collectionArtifacts;
     };
 
     private headerCellRendererSelectAll(params: IHeaderCellRendererParams, isArtifactReadOnly: boolean) {

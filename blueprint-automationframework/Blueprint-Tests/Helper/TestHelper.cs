@@ -360,6 +360,22 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates, Wraps and Publishes a Nova Artifact for a Specific Artifact Type
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user creating the artifact.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
+        public IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        {
+
+            var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
+
+            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
+                artifactTypeName: artifactTypeName);
+        }
+
+        /// <summary>
         /// Create and save multiple artifacts using the Blueprint application server address from the TestConfiguration file.
         /// </summary>
         /// <param name="project">The target project.</param>

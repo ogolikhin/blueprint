@@ -140,21 +140,28 @@ namespace ArtifactStoreTests
 
         #region Artifact Properties tests
 
-        [TestCase("Std-Text-Required-RT-Multi-HasDefault")]
-        [TestRail(999999)]
-        [Description("Create & publish a Process artifact.  Update a text property, save and publish.  Verify the artifact returned the test property updated.")]
-        public void UpdateProcessArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(string propertyName)
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.Actor, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.Document, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestRail(191102)]
+        [Description("Create & publish an artifact.  Update a text property, save and publish.  Verify the artifact returned the text property updated.")]
+        public void UpdateArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName)
         {
             // Setup:
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, ItemTypePredefined.Process);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             CustomProperty property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
+            // Change custom property text value
             property.CustomPropertyValue =
                 StringUtilities.WrapInHTML(
                     RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces());
@@ -169,24 +176,31 @@ namespace ArtifactStoreTests
 
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            AssertCustomPropertiesAreEqual(property, returnedProperty);
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        [TestCase("Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
-        [TestRail(999999)]
-        [Description("Create & publish a Process artifact.  Update a number property, save and publish.  Verify the artifact returned the number property updated.")]
-        public void UpdateProcessArtifact_ChangeNumberPropertySaveAndPublish_VerifyPropertyChanged(string propertyName, double newNumber)
+        [TestCase(ItemTypePredefined.Process, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Actor, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Document, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestRail(191103)]
+        [Description("Create & publish anrtifact.  Update a number property, save and publish.  Verify the artifact returned the number property updated.")]
+        public void UpdateArtifact_ChangeNumberPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName, double newNumber)
         {
             // Setup:
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, ItemTypePredefined.Process);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             CustomProperty property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
+            // Change custom property number value
             property.CustomPropertyValue = newNumber;
 
             // Execute:
@@ -199,25 +213,32 @@ namespace ArtifactStoreTests
 
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            AssertCustomPropertiesAreEqual(property, returnedProperty);
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        [TestCase("Std-Date-Required-Validated-Min-Max-HasDefault")]
-        [TestRail(999999)]
-        [Description("Create & publish a Process artifact.  Update a date property, save and publish.  Verify the artifact returned the date property updated.")]
-        public void UpdateProcessArtifact_ChangeDatePropertySaveAndPublish_VerifyPropertyChanged(string propertyName)
+        [TestCase(ItemTypePredefined.Process, "Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestCase(ItemTypePredefined.Actor, "Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestCase(ItemTypePredefined.Document, "Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestRail(191104)]
+        [Description("Create & publish an artifact.  Update a date property, save and publish.  Verify the artifact returned the date property updated.")]
+        public void UpdateArtifact_ChangeDatePropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName)
         {
             // Setup:
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, ItemTypePredefined.Process);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             CustomProperty property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            property.CustomPropertyValue = ConvertDateTimeToSortableDateTime(DateTime.Now);
+            // Change custom property date value
+            property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now);
 
             // Execute:
             artifact.Lock(author);
@@ -229,20 +250,25 @@ namespace ArtifactStoreTests
 
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            AssertCustomPropertiesAreEqual(property, returnedProperty);
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        //       [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase("Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
-        [TestRail(999999)]
-        [Description("Create & publish a Process artifact.  Update a choice property, save and publish.  Verify the artifact returned the choice property updated.")]
-        public void UpdateProcessArtifact_ChangeChoicePropertySaveAndPublish_VerifyPropertyChanged(string propertyName, string newChoiceValue)
+        [TestCase(ItemTypePredefined.Process, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Actor, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Document, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestRail(191105)]
+        [Description("Create & publish an artifact.  Update a choice property, save and publish.  Verify the artifact returned the choice property updated.")]
+        public void UpdateArtifact_ChangeChoicePropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName, string newChoiceValue)
         {
             // Setup:
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, ItemTypePredefined.Process);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
@@ -253,8 +279,8 @@ namespace ArtifactStoreTests
 
             var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> {newPropertyValue};
 
-            // Change choice property value
-            property.CustomPropertyValue = new ChoiceValues() {ValidValues = newChoicePropertyValue};
+            // Change custom property choice value
+            property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues() {ValidValues = newChoicePropertyValue};
 
             // Execute:
             artifact.Lock(author);
@@ -266,20 +292,26 @@ namespace ArtifactStoreTests
 
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            AssertCustomPropertiesAreEqual(property, returnedProperty);
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        //       [Explicit(IgnoreReasons.UnderDevelopment)]
-        [TestCase("Std-User-Required-HasDefault-User")]
-        [TestRail(999999)]
-        [Description("Create & publish a Process artifact.  Update a user property, save and publish.  Verify the artifact returned the user property updated.")]
-        public void UpdateProcessArtifact_ChangeUserPropertySaveAndPublish_VerifyPropertyChanged(string propertyName)
+
+        [TestRail(191106)]
+        [TestCase(ItemTypePredefined.Process, "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.Actor, "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.Document, "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-User-Required-HasDefault-User")]
+        [Description("Create & publish an artifact.  Update a user property, save and publish.  Verify the artifact returned the user property updated.")]
+        public void UpdateArtifact_ChangeUserPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName)
         {
             // Setup:
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, ItemTypePredefined.Process);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
@@ -288,8 +320,8 @@ namespace ArtifactStoreTests
             var newIdentification = new Identification() {DisplayName = author.DisplayName, Id = author.Id};
             var newUserPropertyValue = new List<Identification> {newIdentification};
 
-            // Change choice property value
-            property.CustomPropertyValue = new UserGroupValues() { UsersGroups = newUserPropertyValue };
+            // Change custom property user value
+            property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues() { UsersGroups = newUserPropertyValue };
 
             // Execute:
             artifact.Lock(author);
@@ -301,7 +333,7 @@ namespace ArtifactStoreTests
 
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            AssertCustomPropertiesAreEqual(property, returnedProperty);
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
         #endregion Artifact Properties tests
@@ -414,7 +446,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             const string expectedMessage = "Unauthorized call.";
-            AssertStringMessaceIsCorrect(ex.RestResponse, expectedMessage);
+            AssertStringMessaGeIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -434,7 +466,7 @@ namespace ArtifactStoreTests
 
             // Verify
             const string expectedMessage = "Unauthorized call";
-            AssertStringMessaceIsCorrect(ex.RestResponse, expectedMessage);
+            AssertStringMessaGeIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -789,126 +821,13 @@ namespace ArtifactStoreTests
         /// <param name="restReponse">The RestResponse that contains the message.</param>
         /// <param name="expectedMessage">The expected error message.</param>
         /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
-        private static void AssertStringMessaceIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
+        private static void AssertStringMessaGeIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
         {
             string result = JsonConvert.DeserializeObject<string>(restReponse.Content);
 
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
-
-        /// <summary>
-        /// Gets the Standard Pack Artifact Type that matches the given ItemTypePredefined
-        /// </summary>
-        /// <param name="itemType">The Nova base ItemType to create.</param>
-        /// <returns>A string indicating the name of the Standard Pack artifact name for the predefined item type.</returns>
-        private static string GetStandardPackArtifactTypeName(ItemTypePredefined itemType)
-        {
-            return I18NHelper.FormatInvariant("{0}(Standard Pack)", Enum.GetName(typeof(ItemTypePredefined), itemType));
-        }
-
-        /// <summary>
-        /// Creates, Wraps and Publishes a Nova Artifact for a Specific Artifact Type
-        /// </summary>
-        /// <param name="project">The project where the artifact is to be created.</param>
-        /// <param name="user">The user creating the artifact.</param>
-        /// <param name="itemType">The Nova base ItemType to create.</param>
-        /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
-        private IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
-        {
-            project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-            var artifactTypeName = GetStandardPackArtifactTypeName(itemType);
-
-            return Helper.CreateWrapAndPublishNovaArtifact(project, user, itemType,
-                artifactTypeName: artifactTypeName);
-        }
-
-
-        /// <summary>
-        /// Compares Two Custom Properties for Equality
-        /// </summary>
-        /// <param name="firstProperty">The first custom property to comapare.</param>
-        /// <param name="secondProperty">The second custom property to compare.</param>
-        private static void AssertCustomPropertiesAreEqual(CustomProperty firstProperty, CustomProperty secondProperty)
-       {
-            Assert.IsNotNull(firstProperty.PrimitiveType);
-            Assert.IsNotNull(secondProperty.PrimitiveType);
-
-            var primitiveType = (PropertyPrimitiveType)firstProperty.PrimitiveType;
-
-            switch (primitiveType)
-            {
-                case PropertyPrimitiveType.Text:
-                case PropertyPrimitiveType.Number:
-                    Assert.AreEqual(firstProperty.CustomPropertyValue, secondProperty.CustomPropertyValue);
-                    break;
-
-                case PropertyPrimitiveType.Date:
-                    var secondCustomPropertyValue = ConvertDateTimeToSortableDateTime((DateTime)secondProperty.CustomPropertyValue);
-                    Assert.AreEqual(firstProperty.CustomPropertyValue, secondCustomPropertyValue);
-                    break;
-
-                case PropertyPrimitiveType.Choice:
-                    var validValues1 = ((ChoiceValues)firstProperty.CustomPropertyValue).ValidValues;
-                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(secondProperty.CustomPropertyValue.ToString()).ValidValues;
-
-                    Assert.AreEqual(validValues1.Count, validValues2.Count);
-
-                    for (int i = 0; i < validValues1.Count; i++)
-                    {
-                        var choiceValue1 = validValues1[i];
-                        var choiceValue2 = validValues2[i];
-
-                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id);
-                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value);
-                    }
-                    break;
-
-                case PropertyPrimitiveType.User:
-                    var userGroups1 = ((UserGroupValues)firstProperty.CustomPropertyValue).UsersGroups;
-                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(secondProperty.CustomPropertyValue.ToString()).UsersGroups;
-
-                    Assert.AreEqual(userGroups1.Count, userGroups2.Count);
-
-                    for (int i = 0; i < userGroups1.Count; i++)
-                    {
-                        var userGroupValue1 = userGroups1[i];
-                        var userGroupValue2 = userGroups2[i];
-
-                        Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id);
-                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName);
-                    }
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType));
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dateTime"></param>
-        /// <returns></returns>
-        private static string ConvertDateTimeToSortableDateTime(DateTime dateTime)
-        {
-            return dateTime.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern, CultureInfo.InvariantCulture);
-        }
-
-        public class ChoiceValues
-        {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-            [JsonProperty("validValues")]
-            public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
-        }
-
-        public class UserGroupValues
-        {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-            [JsonProperty("usersGroups")]
-            public List<Identification> UsersGroups { get; set; }
-        }
-
 
         #endregion Private functions
     }

@@ -3,6 +3,7 @@ using Common;
 using Model;
 using Model.Impl;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.NovaModel;
@@ -341,6 +342,70 @@ namespace Helper
             {
                 Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+            }
+        }
+
+        /// <summary>
+        /// Compares Two Custom Properties for Equality
+        /// </summary>
+        /// <param name="firstProperty">The first custom property to comapare.</param>
+        /// <param name="secondProperty">The second custom property to compare.</param>
+        public static void AssertCustomPropertiesAreEqual(CustomProperty firstProperty, CustomProperty secondProperty)
+        {
+            ThrowIf.ArgumentNull(firstProperty,nameof(firstProperty));
+            ThrowIf.ArgumentNull(secondProperty, nameof(secondProperty));
+
+            Assert.IsNotNull(firstProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
+            Assert.IsNotNull(secondProperty.PrimitiveType, "The primitive type for the second custom property was not present!");
+
+            var primitiveType = (PropertyPrimitiveType)firstProperty.PrimitiveType;
+
+            switch (primitiveType)
+            {
+                case PropertyPrimitiveType.Text:
+                case PropertyPrimitiveType.Number:
+                    Assert.AreEqual(firstProperty.CustomPropertyValue, secondProperty.CustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    break;
+
+                case PropertyPrimitiveType.Date:
+                    var secondCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime((DateTime)secondProperty.CustomPropertyValue);
+                    Assert.AreEqual(firstProperty.CustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    break;
+
+                case PropertyPrimitiveType.Choice:
+                    var validValues1 = ((ChoiceValues)firstProperty.CustomPropertyValue).ValidValues;
+                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(secondProperty.CustomPropertyValue.ToString()).ValidValues;
+
+                    Assert.AreEqual(validValues1.Count, validValues2.Count, "The custom {0} property counts are not equal.", primitiveType);
+
+                    for (int i = 0; i < validValues1.Count; i++)
+                    {
+                        var choiceValue1 = validValues1[i];
+                        var choiceValue2 = validValues2[i];
+
+                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
+                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.", primitiveType);
+                    }
+                    break;
+
+                case PropertyPrimitiveType.User:
+                    var userGroups1 = ((UserGroupValues)firstProperty.CustomPropertyValue).UsersGroups;
+                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(secondProperty.CustomPropertyValue.ToString()).UsersGroups;
+
+                    Assert.AreEqual(userGroups1.Count, userGroups2.Count, "The custom {0} property counts are not equal.", primitiveType);
+
+                    for (int i = 0; i < userGroups1.Count; i++)
+                    {
+                        var userGroupValue1 = userGroups1[i];
+                        var userGroupValue2 = userGroups2[i];
+
+                        Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
+                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName, "The custom {0} Display Names are not equal.", primitiveType);
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType.ToString()));
             }
         }
 
@@ -787,6 +852,93 @@ namespace Helper
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address,
                 expectedServiceErrorMessage: expectedErrorMessage);
             // TODO: add assertions about changed traces
+        }
+
+        /// <summary>
+        /// Gets the Standard Pack Artifact Type that matches the given ItemTypePredefined
+        /// </summary>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>A string indicating the name of the Standard Pack artifact name for the predefined item type.</returns>
+        public static string GetStandardPackArtifactTypeName(ItemTypePredefined itemType)
+        {
+            ThrowIf.ArgumentNull(itemType, nameof(itemType));
+
+            string artifactTypeNameBase;
+
+            switch (itemType)
+            {
+                case ItemTypePredefined.Actor:
+                    artifactTypeNameBase = "Actor";
+                    break;
+
+                case ItemTypePredefined.BusinessProcess:
+                    artifactTypeNameBase = "Business Process";
+                    break;
+
+                case ItemTypePredefined.Document:
+                    artifactTypeNameBase = "Document";
+                    break;
+
+                case ItemTypePredefined.DomainDiagram:
+                    artifactTypeNameBase = "Domain Diagram";
+                    break;
+
+                case ItemTypePredefined.GenericDiagram:
+                    artifactTypeNameBase = "Generic Diagram";
+                    break;
+
+                case ItemTypePredefined.Glossary:
+                    artifactTypeNameBase = "Glossary";
+                    break;
+
+                case ItemTypePredefined.PrimitiveFolder:
+                    artifactTypeNameBase = "Folder";
+                    break;
+
+                case ItemTypePredefined.Process:
+                    artifactTypeNameBase = "Process";
+                    break;
+
+                case ItemTypePredefined.Storyboard:
+                    artifactTypeNameBase = "Storyboard";
+                    break;
+
+                case ItemTypePredefined.TextualRequirement:
+                    artifactTypeNameBase = "Textual Requirement";
+                    break;
+
+                case ItemTypePredefined.UIMockup:
+                    artifactTypeNameBase = "UI Mockup";
+                    break;
+
+                case ItemTypePredefined.UseCase:
+                    artifactTypeNameBase = "Use Case";
+                    break;
+
+                case ItemTypePredefined.UseCaseDiagram:
+                    artifactTypeNameBase = "Use Case Diagram";
+                    break;
+
+                default:
+                    artifactTypeNameBase = "";
+                    break;
+            }
+
+            return I18NHelper.FormatInvariant("{0}(Standard Pack)", artifactTypeNameBase);
+        }
+
+        public class ChoiceValues
+        {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [JsonProperty("validValues")]
+            public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
+        }
+
+        public class UserGroupValues
+        {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [JsonProperty("usersGroups")]
+            public List<Identification> UsersGroups { get; set; }
         }
     }
 }

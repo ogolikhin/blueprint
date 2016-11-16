@@ -65,7 +65,7 @@ namespace SearchServiceTests
                 partialName = partialName.Remove(partialName.Length - endCharsToRemove);
             }
 
-            var searchCriteria = new FullTextSearchCriteria(partialName, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(partialName, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -89,7 +89,7 @@ namespace SearchServiceTests
 
             Assert.AreNotEqual(artifact.Name, artifact2.Name, "Random artifacts should have different names.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -113,7 +113,7 @@ namespace SearchServiceTests
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             string nonExistingArtifactName = RandomGenerator.RandomLowerCase(50);
-            var searchCriteria = new FullTextSearchCriteria(nonExistingArtifactName, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(nonExistingArtifactName, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -132,7 +132,7 @@ namespace SearchServiceTests
         {
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_firstProject, _authorUser, BaseArtifactType.Process);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, _firstProject.Id);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, _firstProject.Id);
             ItemSearchResult results = null;
 
             string separatorString = " > ";
@@ -158,7 +158,7 @@ namespace SearchServiceTests
             artifact.Publish(_adminUser);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -181,7 +181,7 @@ namespace SearchServiceTests
             Helper.CreateAndPublishArtifact(_secondProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -206,7 +206,7 @@ namespace SearchServiceTests
             Helper.CreateAndPublishArtifact(_secondProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -240,8 +240,8 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
 
             // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
-            var nameSearchCriteria       = new FullTextSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
-            var itemTypeIdSearchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds, (int)ItemTypePredefined.Actor);  // Search by name and TypeId across all projects.
+            var nameSearchCriteria       = new ItemNameSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
+            var itemTypeIdSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds, (int)ItemTypePredefined.Actor);  // Search by name and TypeId across all projects.
 
             ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
@@ -284,7 +284,7 @@ namespace SearchServiceTests
             artifact.Save(_authorUser);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
             ItemSearchResult results = null;
 
@@ -311,7 +311,7 @@ namespace SearchServiceTests
             var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Actor, parentArtifact);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
             ItemSearchResult results = null;
 
@@ -345,7 +345,7 @@ namespace SearchServiceTests
             }
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds);
             ItemSearchResult results = null;
 
             // Execute:
@@ -370,7 +370,7 @@ namespace SearchServiceTests
             }
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifactName, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds);
             ItemSearchResult results = null;
             int pageSize = 3;
             
@@ -392,7 +392,7 @@ namespace SearchServiceTests
             var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = false;
             ItemSearchResult results = null;
 

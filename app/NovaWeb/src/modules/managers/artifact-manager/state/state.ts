@@ -3,7 +3,7 @@ import {Models, Enums} from "../../../main/models";
 import {IDispose} from "../../models";
 import {IIStatefulArtifact} from "../artifact";
 
-interface IState {
+interface IState extends INewStateValues {
     lockedBy: Enums.LockedByEnum;
     lockDateTime: Date;
     lockOwner: string;
@@ -15,15 +15,27 @@ interface IState {
     invalid: boolean;
 }
 
+interface INewStateValues {
+    lockedBy?: Enums.LockedByEnum;
+    lockDateTime?: Date;
+    lockOwner?: string;
+    readonly?: boolean;
+    dirty?: boolean;
+    deleted?: boolean;
+    historical?: boolean;
+    misplaced?: boolean;
+    invalid?: boolean;
+}
+
 export interface IArtifactState extends IState, IDispose {
     published: boolean;
     everPublished: boolean;
     onStateChange: Rx.Observable<IArtifactState>;
 
-    initialize(artifact: Models.IArtifact): IArtifactState;
-    setState(newState: Object, notifyChange?: boolean);
+    initialize(artifact: Models.IArtifact): void;
+    setState(newStateValues: INewStateValues, notifyChange?: boolean): void;
     lock(value: Models.ILockResult): void;
-    unlock();
+    unlock(): void;
 }
 
 export class ArtifactState implements IArtifactState {
@@ -56,31 +68,31 @@ export class ArtifactState implements IArtifactState {
         return this.subject.filter(state => !!state).asObservable();
     }
 
-    public setState(newStateValues: Object, notifyChange: boolean = true) {
-        // this function can set 1 or more state properties at once
-        // if notifyChange flag is false observers will not be notified
-        if (newStateValues) {
-            let changed: boolean = false;
+    // this function can set 1 or more state properties at once
+    // if notifyChange flag is false observers will not be notified
+    public setState(newStateValues: INewStateValues, notifyChange: boolean = true): void {
+        if (!newStateValues) {
+            throw new Error("newStateValues are invalid");
+        }
 
-            for (const key in newStateValues) {
-                if (this.currentState.hasOwnProperty(key)) {
-                    const newValue = newStateValues[key];
-                    const oldValue = this.currentState[key];
+        let changed: boolean = false;
 
-                    if (!_.isEqual(oldValue, newValue)) {
-                        this.currentState[key] = newValue;
-                        changed = true;
-                    }
+        _.forOwn(
+            newStateValues, 
+            (value, key, object) => {
+                if (this.currentState.hasOwnProperty(key) && !_.isEqual(this.currentState[key], value)) {
+                    this.currentState[key] = value;
+                    changed = true;
                 }
             }
-            
-            if (changed && notifyChange) {
-                this.notifyStateChange();
-            }
+        );
+        
+        if (changed && notifyChange) {
+            this.notifyStateChange();
         }
     }
 
-    private notifyStateChange() {
+    private notifyStateChange(): void {
         this.subject.onNext(this);
     }
 
@@ -189,44 +201,44 @@ export class ArtifactState implements IArtifactState {
         this.notifyStateChange();
     }
 
-    public initialize(artifact: Models.IArtifact): IArtifactState {
-        if (artifact) {
-            // deleted state never can be changed from true to false
-            const deleted = this.currentState.deleted;
-            const historical = this.currentState.historical;
-
-            // reset to default state
-            this.currentState = this.createDefaultState();
-
-            const noReadPermission = (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
-
-            if (artifact.lockedByUser) {
-                const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
-                                Enums.LockedByEnum.CurrentUser :
-                                Enums.LockedByEnum.OtherUser;
-                const newState = {
-                    lockedBy: lockedBy,
-                    lockOwner: artifact.lockedByUser.displayName,
-                    lockDateTime: artifact.lockedDateTime,
-                    deleted: deleted,
-                    historical: historical,
-                    readonly: deleted || 
-                                historical || 
-                                lockedBy === Enums.LockedByEnum.OtherUser || 
-                                noReadPermission
-                };
-
-                this.setState(newState, false);
-            } else {
-                this.currentState.deleted = deleted;
-                this.currentState.historical = historical;
-                this.currentState.readonly = deleted || 
-                                             historical || 
-                                             noReadPermission;
-            }
+    public initialize(artifact: Models.IArtifact): void {
+        if (!artifact) {
+            throw new Error("artifact is invalid");
         }
 
-        return this;
+        // deleted state never can be changed from true to false
+        const deleted = this.currentState.deleted;
+        const historical = this.currentState.historical;
+
+        // reset to default state
+        this.currentState = this.createDefaultState();
+
+        const noReadPermission = (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+
+        if (artifact.lockedByUser) {
+            const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                            Enums.LockedByEnum.CurrentUser :
+                            Enums.LockedByEnum.OtherUser;
+            const newStateValues: INewStateValues = {
+                lockedBy: lockedBy,
+                lockOwner: artifact.lockedByUser.displayName,
+                lockDateTime: artifact.lockedDateTime,
+                deleted: deleted,
+                historical: historical,
+                readonly: deleted || 
+                            historical || 
+                            lockedBy === Enums.LockedByEnum.OtherUser || 
+                            noReadPermission
+            };
+
+            this.setState(newStateValues, false);
+        } else {
+            this.currentState.deleted = deleted;
+            this.currentState.historical = historical;
+            this.currentState.readonly = deleted || 
+                                            historical || 
+                                            noReadPermission;
+        }
     }
 
     public lock(value: Models.ILockResult): void {
@@ -234,31 +246,31 @@ export class ArtifactState implements IArtifactState {
             return;
         }
 
-        let lockInfo = {};
+        let newStateValues: INewStateValues = {};
 
         if (value.result === Enums.LockResultEnum.Success) {
-            lockInfo["lockedBy"] = Enums.LockedByEnum.CurrentUser;
+            newStateValues.lockedBy = Enums.LockedByEnum.CurrentUser;
         } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-            lockInfo["lockedBy"] = Enums.LockedByEnum.OtherUser;
-            lockInfo["readonly"] = true;
+            newStateValues.lockedBy = Enums.LockedByEnum.OtherUser;
+            newStateValues.readonly = true;
         }
 
         if (value.info) {
-            lockInfo["lockDateTime"] = value.info.utcLockedDateTime;
-            lockInfo["lockOwner"] = value.info.lockOwnerDisplayName;
+            newStateValues.lockDateTime = value.info.utcLockedDateTime;
+            newStateValues.lockOwner = value.info.lockOwnerDisplayName;
         }
 
-        this.setState(lockInfo);
+        this.setState(newStateValues);
     }
 
-    public unlock() {
-        let lockInfo = {
+    public unlock(): void {
+        let newStateValues: INewStateValues = {
             lockedBy: Enums.LockedByEnum.None,
             lockDateTime: undefined,
             lockOwner: undefined
         };
 
-        this.setState(lockInfo);
+        this.setState(newStateValues);
     }
 
     public dispose() {

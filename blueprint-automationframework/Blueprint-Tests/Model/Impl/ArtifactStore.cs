@@ -750,9 +750,6 @@ namespace Model.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
-            // Set expectedStatusCodes to 200 OK by default if it's null.
-            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.OK };
-
             var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,

@@ -348,33 +348,36 @@ namespace Helper
         /// <summary>
         /// Compares Two Custom Properties for Equality
         /// </summary>
-        /// <param name="firstProperty">The first custom property to comapare.</param>
-        /// <param name="secondProperty">The second custom property to compare.</param>
-        public static void AssertCustomPropertiesAreEqual(CustomProperty firstProperty, CustomProperty secondProperty)
+        /// <param name="expectedProperty">The first custom property to compare.</param>
+        /// <param name="actualProperty">The second custom property to compare.</param>
+        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
         {
-            ThrowIf.ArgumentNull(firstProperty,nameof(firstProperty));
-            ThrowIf.ArgumentNull(secondProperty, nameof(secondProperty));
+            ThrowIf.ArgumentNull(expectedProperty,nameof(expectedProperty));
+            ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
 
-            Assert.IsNotNull(firstProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
-            Assert.IsNotNull(secondProperty.PrimitiveType, "The primitive type for the second custom property was not present!");
+            Assert.IsNotNull(expectedProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
+            Assert.IsNotNull(actualProperty.PrimitiveType, "The primitive type for the second custom property was not present!");
+            Assert.AreEqual(expectedProperty.PrimitiveType, actualProperty.PrimitiveType, "PrimitiveType properties don't match!");
 
-            var primitiveType = (PropertyPrimitiveType)firstProperty.PrimitiveType;
+            var primitiveType = (PropertyPrimitiveType)expectedProperty.PrimitiveType;
 
             switch (primitiveType)
             {
                 case PropertyPrimitiveType.Text:
                 case PropertyPrimitiveType.Number:
-                    Assert.AreEqual(firstProperty.CustomPropertyValue, secondProperty.CustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    Assert.AreEqual(expectedProperty.CustomPropertyValue, actualProperty.CustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
                     break;
 
+                //TODO:  Investigate if the DateTimeUtility can be applied to both properties
                 case PropertyPrimitiveType.Date:
-                    var secondCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime((DateTime)secondProperty.CustomPropertyValue);
-                    Assert.AreEqual(firstProperty.CustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    var secondCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime((DateTime)actualProperty.CustomPropertyValue);
+                    Assert.AreEqual(expectedProperty.CustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
                     break;
 
+                //TODO: Investigate if the JsonConvert could be done for both
                 case PropertyPrimitiveType.Choice:
-                    var validValues1 = ((ChoiceValues)firstProperty.CustomPropertyValue).ValidValues;
-                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(secondProperty.CustomPropertyValue.ToString()).ValidValues;
+                    var validValues1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).ValidValues;
+                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).ValidValues;
 
                     Assert.AreEqual(validValues1.Count, validValues2.Count, "The custom {0} property counts are not equal.", primitiveType);
 
@@ -386,11 +389,19 @@ namespace Helper
                         Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
                         Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.", primitiveType);
                     }
+
+                    if (!string.IsNullOrEmpty(((ChoiceValues) expectedProperty.CustomPropertyValue).CustomValue))
+                    {
+                        var customValue1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue;
+                        var customValue2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue;
+
+                        Assert.AreEqual(customValue1, customValue2, "The custom {0} property CustomValues are not equal.", primitiveType);
+                    }
                     break;
 
                 case PropertyPrimitiveType.User:
-                    var userGroups1 = ((UserGroupValues)firstProperty.CustomPropertyValue).UsersGroups;
-                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(secondProperty.CustomPropertyValue.ToString()).UsersGroups;
+                    var userGroups1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).UsersGroups;
+                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).UsersGroups;
 
                     Assert.AreEqual(userGroups1.Count, userGroups2.Count, "The custom {0} property counts are not equal.", primitiveType);
 
@@ -401,6 +412,19 @@ namespace Helper
 
                         Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
                         Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName, "The custom {0} Display Names are not equal.", primitiveType);
+
+                        if (userGroupValue1.IsGroup != null)
+                        {
+                            Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup, "The custom {0} property IsGroup flags are not equal.", primitiveType);
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label))
+                    {
+                        var customValue1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).Label;
+                        var customValue2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label;
+
+                        Assert.AreEqual(customValue1, customValue2, "The custom {0} property Labels are not equal.", primitiveType);
                     }
                     break;
 
@@ -854,6 +878,7 @@ namespace Helper
             // TODO: add assertions about changed traces
         }
 
+        //TODO: Refactor and add to ItemTypePredefinedExtensions.ca
         /// <summary>
         /// Gets the Standard Pack Artifact Type that matches the given ItemTypePredefined
         /// </summary>
@@ -932,6 +957,10 @@ namespace Helper
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("validValues")]
             public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [JsonProperty("customValue")]
+            public string CustomValue { get; set; }
         }
 
         public class UserGroupValues
@@ -939,6 +968,10 @@ namespace Helper
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("usersGroups")]
             public List<Identification> UsersGroups { get; set; }
+
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [JsonProperty("label")]
+            public string Label { get; set; }
         }
     }
 }

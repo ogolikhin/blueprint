@@ -179,11 +179,12 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-        [TestCase(ItemTypePredefined.Process, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Process, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 5)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -5)]
         [TestCase(ItemTypePredefined.Actor, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
-        [TestCase(ItemTypePredefined.Document, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
-        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Document, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -3)]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 0)]
         [TestRail(191103)]
         [Description("Create & publish anrtifact.  Update a number property, save and publish.  Verify the artifact returned the number property updated.")]
         public void UpdateArtifact_ChangeNumberPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName, double newNumber)
@@ -216,6 +217,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
+        [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "Std-Date-Required-Validated-Min-Max-HasDefault")]
         [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Date-Required-Validated-Min-Max-HasDefault")]
         [TestCase(ItemTypePredefined.Actor, "Std-Date-Required-Validated-Min-Max-HasDefault")]
@@ -253,11 +255,12 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
+        [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
-        [TestCase(ItemTypePredefined.Actor, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
-        [TestCase(ItemTypePredefined.Document, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
-        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Choice-Required-AllowMultiple-DefaultValue", "Green")]
+        [TestCase(ItemTypePredefined.Actor, "Std-Choice-Required-AllowMultiple-DefaultValue", "Yellow")]
+        [TestCase(ItemTypePredefined.Document, "Std-Choice-Required-AllowMultiple-DefaultValue", "Purple")]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Std-Choice-Required-AllowMultiple-DefaultValue", "Orange")]
         [TestRail(191105)]
         [Description("Create & publish an artifact.  Update a choice property, save and publish.  Verify the artifact returned the choice property updated.")]
         public void UpdateArtifact_ChangeChoicePropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, string propertyName, string newChoiceValue)
@@ -295,7 +298,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
-
+        [Category(Categories.CustomData)]
         [TestRail(191106)]
         [TestCase(ItemTypePredefined.Process, "Std-User-Required-HasDefault-User")]
         [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-User-Required-HasDefault-User")]
@@ -446,7 +449,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             const string expectedMessage = "Unauthorized call.";
-            AssertStringMessaGeIsCorrect(ex.RestResponse, expectedMessage);
+            AssertStringMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -466,7 +469,7 @@ namespace ArtifactStoreTests
 
             // Verify
             const string expectedMessage = "Unauthorized call";
-            AssertStringMessaGeIsCorrect(ex.RestResponse, expectedMessage);
+            AssertStringMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -791,14 +794,7 @@ namespace ArtifactStoreTests
             Assert.IsNotNull(objectToSearchCustomProperty, "Object send to this function cannot be null!");
             var properties = (List<CustomProperty>)objectToSearchCustomProperty.GetType().GetProperty(propertyName).GetValue(objectToSearchCustomProperty);
 
-            foreach (CustomProperty property in properties)
-            {
-                if (property.PropertyTypeId == propertyTypeId)
-                {
-                    return property;
-                }
-            }
-            return null;
+            return properties.FirstOrDefault(property => property.PropertyTypeId == propertyTypeId);
         }
 
         /// <summary>
@@ -818,12 +814,12 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Asserts that the specified RestResponse contains the expected error message.
         /// </summary>
-        /// <param name="restReponse">The RestResponse that contains the message.</param>
+        /// <param name="restResponse">The RestResponse that contains the message.</param>
         /// <param name="expectedMessage">The expected error message.</param>
         /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
-        private static void AssertStringMessaGeIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
+        private static void AssertStringMessageIsCorrect(RestResponse restResponse, string expectedMessage, string requestMethod = "PATCH")
         {
-            string result = JsonConvert.DeserializeObject<string>(restReponse.Content);
+            string result = JsonConvert.DeserializeObject<string>(restResponse.Content);
 
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);

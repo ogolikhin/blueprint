@@ -467,7 +467,7 @@ namespace Model.ArtifactModel.Impl
 
         public int PropertyTypeId { get; set; }
 
-        public int PropertyTypeVersionId { get; set; }
+        public int? PropertyTypeVersionId { get; set; }
 
         [JsonProperty("PropertyTypePredefined")]
         public PropertyTypePredefined PropertyType { get; set; }

@@ -8,7 +8,7 @@ import {IValidationService} from "../../../../managers/artifact-manager/validati
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
-    public template: string = require("./text-rtf-inline.template.html");
+    public template: string = require("./text-rtf-inline.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
@@ -27,8 +27,8 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     static $inject: [string] = ["$scope", "navigationService", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, 
-                     navigationService: INavigationService, 
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                     navigationService: INavigationService,
                      private validationService: IValidationService) {
         super(navigationService);
 
@@ -256,7 +256,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 }
             }
         };
-        angular.merge($scope.to, to);
+        _.assign($scope.to, to);
 
         $scope.options["validators"] = {
             // tinyMCE may leave empty tags that cause the value to appear not empty

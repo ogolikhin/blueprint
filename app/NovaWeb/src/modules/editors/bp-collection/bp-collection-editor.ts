@@ -42,6 +42,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
+    public activeTab: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -56,6 +57,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        this.activeTab = 0;
     }
 
     public get reviewUrl(): string {
@@ -72,19 +74,19 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             this.collectionSubscriber = null;
         }
 
-        if (collectionArtifact) {            
+        if (collectionArtifact) {
             this.collectionSubscriber = collectionArtifact.getProperyObservable()
-                .filter(changes => changes.change &&                   
+                .filter(changes => changes.change &&
                     changes.change.key === Models.PropertyTypePredefined.CollectionContent)
                 .subscribeOnNext(this.onCollectionArtifactsChanged);
-        }        
+        }
     }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
             // if collection is deleted we do not need to load metadata and collection content
-            if (!collectionArtifact.artifacts) {    
+            if (!collectionArtifact.artifacts) {
                 super.onArtifactReady();
                 return;
             }
@@ -120,7 +122,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
-    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {       
+    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);

@@ -39,6 +39,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;
+    public activeTab: number;
 
     public isLoading: boolean = false;
 
@@ -61,6 +62,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 public bpAccordionPanel: IBpAccordionPanelController) {
         super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
+        this.activeTab = 0;
     }
 
     public $onDestroy() {
@@ -246,7 +248,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 break;
             }
         context.isFresh = false;
-        
+
         if ($scope["form"]) {
             if (this.selectedSubArtifact) {
                 this.selectedSubArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;

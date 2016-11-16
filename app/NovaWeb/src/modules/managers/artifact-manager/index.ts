@@ -34,7 +34,7 @@ import {
 import {IMetaData, MetaDataService, IMetaDataService} from "./metadata";
 import {ValidationService, IValidationService} from "./validation/validation.svc";
 
-export {IArtifactState, IState} from "./state/state";
+export {IArtifactState} from "./state/state";
 
 
 angular.module("bp.managers.artifact", [])

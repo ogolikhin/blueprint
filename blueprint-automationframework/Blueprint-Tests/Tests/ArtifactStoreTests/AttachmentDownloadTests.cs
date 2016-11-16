@@ -131,6 +131,37 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(191157)]
+        [Description("Publish artifact, attach file and publish (version 2), delete artifact and publish changes, download attached file for version 2, check that file has expected name and content.")]
+        public void GetAttachmentFile_ForHistoricalVersionOfDeletedArtifact_FileIsReturned()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
+            artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
+            artifact.Publish(_adminUser);
+            // now artifact has attachment in version 2
+            int versionId = 2;
+
+            Attachments attachment = null;
+            attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
+            int fileId = attachment.AttachedFiles[0].AttachmentId;
+
+            artifact.Delete(_adminUser);
+            artifact.Publish(_adminUser);
+
+            IFile downloadedFile = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                downloadedFile = Helper.ArtifactStore.GetAttachmentFile(_adminUser, artifact.Id, fileId, versionId: versionId);
+            }, "Getting attached file shouldn't return any error.");
+
+            // Verify:
+            FileStoreTestHelper.AssertFilesAreIdentical(_attachmentFile, downloadedFile, compareIds: false);
+        }
+
+        [TestCase]
         [TestRail(191151)]
         [Description("Add attachment to subartifact, publish it, download attached file, check that file has expected name and content.")]
         public void GetAttachmentFile_SubArtifactWithAttachment_ReturnsExpectedFile()

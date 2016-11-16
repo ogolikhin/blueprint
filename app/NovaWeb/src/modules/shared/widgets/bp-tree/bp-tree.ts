@@ -274,7 +274,9 @@ export class BPTreeController implements IBPTreeController {
 
     private innerRenderer = (params: any) => {
         let currentValue = this._innerRenderer(params) || params.value;
-        return `<span class="ag-group-value-wrapper">${currentValue}</span>`;
+        return `<span class="ag-group-value-wrapper">
+                    <a ui-sref="main.item({ id: ${params.node.data.id} })" ng-click="$event.preventDefault()" class="explorer__node-link">${currentValue}</a>
+                </span>`;
     };
 
     // Callbacks

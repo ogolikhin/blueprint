@@ -71,7 +71,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     public getObservable(): Rx.Observable<IStatefulSubArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
-            this.loadWithNotify().then(null, null);
+            this.loadWithNotify();
         }
         return this.subject.filter(it => !!it).asObservable();
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace Utilities
 {
@@ -14,6 +15,16 @@ namespace Utilities
         public static bool CompareTimePlusOrMinus(this DateTime firstTime, DateTime secondTime, double seconds)
         {
             return ((firstTime.AddSeconds(seconds) > secondTime) && (firstTime < secondTime.AddSeconds(seconds)));
+        }
+
+        /// <summary>
+        /// Converts a datetime to a sortable datetime
+        /// </summary>
+        /// <param name="dateTime">A datetime value.</param>
+        /// <returns>A sortable datetime value</returns>
+        public static string ConvertDateTimeToSortableDateTime(DateTime dateTime)
+        {
+            return dateTime.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern, CultureInfo.InvariantCulture);
         }
     }
 }

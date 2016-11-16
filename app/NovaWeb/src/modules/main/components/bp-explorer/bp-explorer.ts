@@ -89,6 +89,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             }
         };
 
+        // If this method is called after onLoadProject, but before onGridReset, the action will be
+        // deferred until after onGridReset. This allows code that refreshes explorer, then
+        // navigates to a new artifact, to work as expected.
         if (this.isLoading) {
             this.isLoading.promise.then(() => setSelectedNodeInternal(artifactId));
         } else {
@@ -119,6 +122,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
+    // Indicates loading in progress and allows actions to be deferred until it is complete
     private isLoading: ng.IDeferred<void>;
 
     private onLoadProject = (projects: IArtifactNode[]) => {

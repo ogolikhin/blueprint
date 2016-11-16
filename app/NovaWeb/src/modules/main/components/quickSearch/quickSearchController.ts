@@ -13,7 +13,7 @@ export interface IQuickSearchController {
 
 export class QuickSearchController {
 
-    static $inject = ["$log", "$uibModal", "quickSearchService", "localization", "Analytics", "projectManager"];
+    static $inject = ["$log", "$uibModal", "quickSearchService", "localization"];
     animationsEnabled: boolean;
     modalSize: string;
     modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -22,9 +22,7 @@ export class QuickSearchController {
     constructor(private $log: ng.ILogService,
                 private $uibModal: ng.ui.bootstrap.IModalService,
                 private quickSearchService: IQuickSearchService,
-                private localization: ILocalizationService,
-                private Analytics,
-                private projectManager: IProjectManager) {
+                private localization: ILocalizationService) {
         this.animationsEnabled = false;
         this.modalSize = "full-screen";
     }

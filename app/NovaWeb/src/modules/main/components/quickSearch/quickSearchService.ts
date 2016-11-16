@@ -53,8 +53,7 @@ export class QuickSearchService implements IQuickSearchService {
         "$timeout",
         "$log",
         "projectManager",
-        "metadataService",
-        "Analytics"
+        "metadataService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -62,8 +61,7 @@ export class QuickSearchService implements IQuickSearchService {
                 private $timeout: ng.ITimeoutService,
                 private $log: ng.ILogService,
                 private projectManager: IProjectManager,
-                private metadataService: IMetaDataService,
-                private Analytics) {
+                private metadataService: IMetaDataService) {
     }
 
     searchTerm: string;
@@ -137,12 +135,11 @@ export class QuickSearchService implements IQuickSearchService {
         };
 
 
-        this.Analytics.trackEvent("Event", "Quick Search", eventSource, term, false,
-            {
-                projectIds: projectIds,
-                page: 1,
-                pageSize: 10
-            });
+        this.$log.debug("search", eventSource + " search", term, 1, true, {
+            dimension1: projectIds.toString(),
+            metric1: 1,
+            metric2: 10
+        });
 
 
         this.$http(request).then((result) => {

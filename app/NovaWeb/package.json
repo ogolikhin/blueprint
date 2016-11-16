@@ -59,7 +59,6 @@
         "angular": "~1.5.7",
         "angular-formly": "^8.2.1",
         "angular-formly-templates-bootstrap": "^6.4.0",
-        "angular-google-analytics": "^1.1.7",
         "angular-messages": "~1.5.7",
         "angular-mocks": "~1.5.2",
         "angular-module-mocks": "~1.2.19",

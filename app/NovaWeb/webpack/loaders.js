@@ -42,12 +42,20 @@ module.exports = [
     {
         test: /\.json$/,
         exclude: /node_modules/,
-        loader: "raw"
+        loader: "raw",
+        includes: [
+            path.join(__dirname, "../src")
+
+        ]
     },
     {
         test: /\.xml$/,
         exclude: /node_modules/,
-        loader: "raw"
+        loader: "raw",
+        includes: [
+            path.join(__dirname, "../libs/mxClient")
+
+        ]
     },
     {
         test: /\.html$/,
@@ -61,11 +69,15 @@ module.exports = [
     },
     {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: "url?limit=10000&mimetype=application/font-woff"
+        loader: "url?limit=10000&mimetype=application/font-woff",
+        include: [
+            path.join(__dirname, "../src/fonts"),
+            path.join(__dirname, "../node_modules")
+        ]
     },
     {
         test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: "file"
+        loader: "url?limit=10000"
     },
     {
         test: /\.jpg$/,

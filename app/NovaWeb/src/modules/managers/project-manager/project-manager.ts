@@ -3,7 +3,7 @@ import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {ArtifactNode} from "./artifact-node";
 import {IDispose} from "../models";
-import {Models, AdminStoreModels, Enums} from "../../main/models";
+import {Models, AdminStoreModels, Enums, TreeViewModels} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
@@ -13,16 +13,15 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
-export interface IArtifactNode extends IDispose {
-    artifact: IStatefulArtifact;
-
-    id: number;
-    name: string;
-    hasChildren: boolean;
-    parentNode?: IArtifactNode;
+export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifact>, IDispose {
+    // agGrid.NodeChildDetails
+    group?: boolean;
     children?: IArtifactNode[];
+    expanded?: boolean;
+    key: string; // Each row in the dom will have an attribute row-id='key'
+
+    parentNode?: IArtifactNode;
     loaded?: boolean;
-    open?: boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
@@ -167,13 +166,13 @@ export class ProjectManager implements IProjectManager {
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact.id);
 
         //if the artifact provided is not in the current project - just expand project node
-        if (expandToArtifact.projectId !== project.id) {
-            expandToArtifact = this.getArtifact(project.id);
+        if (expandToArtifact.projectId !== project.model.id) {
+            expandToArtifact = this.getArtifact(project.model.id);
         }
 
         //try with selected artifact
-        const loadChildren = forceOpen || (selectedArtifactNode ? selectedArtifactNode.open : false);
-        return this.projectService.getProjectTree(project.id, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {
+        const loadChildren = forceOpen || (selectedArtifactNode ? selectedArtifactNode.expanded : false);
+        return this.projectService.getProjectTree(project.model.id, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {
             return this.processProjectTree(project, data).catch(() => {
                 this.clearProject(project);
                 return this.$q.reject();
@@ -188,12 +187,12 @@ export class ProjectManager implements IProjectManager {
                 //if we're selecting project
                 if (expandToArtifact.id === expandToArtifact.projectId) {
                     this.dialogService.alert("Refresh_Project_NotFound");
-                    this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.id)), 1);
+                    this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
                     return this.$q.reject();
                 }
 
                 //try with selected artifact's parent
-                return this.projectService.getProjectTree(project.id, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
+                return this.projectService.getProjectTree(project.model.id, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
                     this.messageService.addInfo("Refresh_Artifact_Deleted");
                     return this.processProjectTree(project, data).catch(() => {
                         this.clearProject(project);
@@ -202,7 +201,7 @@ export class ProjectManager implements IProjectManager {
                 }).catch((innerError: any) => {
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
-                        return this.projectService.getArtifacts(project.id).then((data: Models.IArtifact[]) => {
+                        return this.projectService.getArtifacts(project.model.id).then((data: Models.IArtifact[]) => {
                             this.messageService.addInfo("Refresh_Artifact_Deleted");
                             return this.processProjectTree(project, data).catch(() => {
                                 this.clearProject(project);
@@ -210,7 +209,7 @@ export class ProjectManager implements IProjectManager {
                             });
                         }).catch((err: any) => {
                             this.dialogService.alert("Refresh_Project_NotFound");
-                            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.id)), 1);
+                            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
                             return this.$q.reject();
                         });
                     }
@@ -228,7 +227,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     private processProjectTree(project: IArtifactNode, data: Models.IArtifact[]): ng.IPromise<void> {
-        const oldProjectId: number = project.id;
+        const oldProjectId: number = project.model.id;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
 
@@ -259,7 +258,7 @@ export class ProjectManager implements IProjectManager {
                 return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulProject, newProjectNode);
             });
             newProjectNode.loaded = true;
-            newProjectNode.open = true;
+            newProjectNode.expanded = true;
 
             //open any children that have children
             this.openChildNodes(newProjectNode.children, data);
@@ -273,7 +272,7 @@ export class ProjectManager implements IProjectManager {
     private clearProject(project: IArtifactNode) {
         project.children = [];
         project.loaded = false;
-        project.open = false;
+        project.expanded = false;
         //this.projectCollection.onNext(this.projectCollection.getValue());
     }
 
@@ -281,7 +280,7 @@ export class ProjectManager implements IProjectManager {
         //go through each node
         _.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(function (it) {
-                return it.id === node.id;
+                return it.id === node.model.id;
             });
             //if it has children - expand the node
             if (childData[0].hasChildren && childData[0].children) {
@@ -291,7 +290,7 @@ export class ProjectManager implements IProjectManager {
                     return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, node);
                 });
                 node.loaded = true;
-                node.open = true;
+                node.expanded = true;
 
                 //process its children
                 this.openChildNodes(node.children, childData[0].children);
@@ -337,7 +336,7 @@ export class ProjectManager implements IProjectManager {
     private removeArtifact(artifact: IStatefulArtifact) {
         let node: IArtifactNode = this.getArtifactNode(artifact.id);
         if (node) {
-            node.parentNode.children = node.parentNode.children.filter((child) => child.id !== artifact.id);
+            node.parentNode.children = node.parentNode.children.filter((child) => child.model.id !== artifact.id);
             this.projectCollection.onNext(this.projectCollection.getValue());
         }
     }
@@ -345,7 +344,7 @@ export class ProjectManager implements IProjectManager {
     public remove(projectId: number) {
         this.artifactManager.removeAll(projectId);
         const projects = this.projectCollection.getValue().filter((project) => {
-            if (project.artifact.projectId === projectId) {
+            if (project.model.projectId === projectId) {
                 project.dispose();
                 return false;
             }
@@ -357,7 +356,7 @@ export class ProjectManager implements IProjectManager {
 
     public removeAll() {
         this.projectCollection.getValue().forEach((project) => {
-            this.artifactManager.removeAll(project.artifact.projectId);
+            this.artifactManager.removeAll(project.model.projectId);
             project.dispose();
         });
         this.projectCollection.onNext([]);
@@ -365,7 +364,7 @@ export class ProjectManager implements IProjectManager {
 
     public getProject(id: number): IArtifactNode {
         for (let project of this.projectCollection.getValue()) {
-            if (project.id === id) {
+            if (project.model.id === id) {
                 return project;
             }
         }
@@ -392,7 +391,7 @@ export class ProjectManager implements IProjectManager {
 
     private getArtifact(id: number): IStatefulArtifact {
         let found = this.getArtifactNode(id);
-        return found ? found.artifact : null;
+        return found ? found.model : null;
     };
 
     public getDescendantsToBeDeleted(artifact: IStatefulArtifact):  ng.IPromise<Models.IArtifactWithProject[]> {

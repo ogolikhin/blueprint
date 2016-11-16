@@ -17,6 +17,12 @@ namespace Model.ArtifactModel.Impl
     //TODO  Remove "sendAuthorizationAsCookie" since this does not apply to OpenAPI
     public class OpenApiArtifact : ArtifactBase, IOpenApiArtifact
     {
+        #region Serialized JSON Properties
+
+        public List<OpenApiTrace> Traces { get; }
+
+        #endregion Serialized JSON Properties
+
         #region Enums
 
         public enum ArtifactTraceType
@@ -132,11 +138,11 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, TraceTypes, bool, int?, bool?, List{HttpStatusCode})" />
+        /// <seealso cref="IOpenApiArtifact.AddTrace(IUser, IArtifactBase, TraceDirection, OpenApiTraceTypes, bool, int?, bool?, List{HttpStatusCode})" />
         public List<OpenApiTrace> AddTrace(IUser user,
             IArtifactBase targetArtifact,
             TraceDirection traceDirection,
-            TraceTypes traceType = TraceTypes.Manual,
+            OpenApiTraceTypes traceType = OpenApiTraceTypes.Manual,
             bool isSuspect = false,
             int? subArtifactId = null,
             bool? reconcileWithTwoWay = null,
@@ -422,6 +428,7 @@ namespace Model.ArtifactModel.Impl
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifact;
@@ -856,7 +863,7 @@ namespace Model.ArtifactModel.Impl
             IArtifactBase targetArtifact,   // TODO: Create an AddTrace() that takes a list of target artifacts.
             TraceDirection traceDirection,
             IUser user,
-            TraceTypes traceType = TraceTypes.Manual,
+            OpenApiTraceTypes traceType = OpenApiTraceTypes.Manual,
             bool isSuspect = false,
             int? subArtifactId = null,
             bool? reconcileWithTwoWay = null,
@@ -928,7 +935,7 @@ namespace Model.ArtifactModel.Impl
             IArtifactBase targetArtifact,   // TODO: Create an DeleteTrace() that takes a list of target artifacts.
             TraceDirection traceDirection,
             IUser user,
-            TraceTypes traceType = TraceTypes.Manual,
+            OpenApiTraceTypes traceType = OpenApiTraceTypes.Manual,
             bool isSuspect = false,
             int? subArtifactId = null,
             bool? reconcileWithTwoWay = null,

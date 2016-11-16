@@ -76,14 +76,14 @@ describe("Breadcrumb service unsuccessful", () => {
     describe("reload breadcrumb", () => {
 
         it("reload artifact breadcrumb unsuccessful",
-            inject(($httpBackend: ng.IHttpBackendService, $timeout: ng.ITimeoutService, mainbreadcrumbService: IMainBreadcrumbService) => {
+            inject(($httpBackend: ng.IHttpBackendService, mainbreadcrumbService: IMainBreadcrumbService) => {
 
                 // Arrange
                 mainbreadcrumbService.breadcrumbLinks = [];
                 $httpBackend.expectGET("/svc/artifactstore/artifacts/100/navigationPath")
-                .respond(HttpStatusCode.NotFound, {
-                    statusCode: HttpStatusCode.NotFound
-                });
+                    .respond(HttpStatusCode.NotFound, {
+                        statusCode: HttpStatusCode.NotFound
+                    });
 
                 // Act
                 let error: any;
@@ -93,7 +93,7 @@ describe("Breadcrumb service unsuccessful", () => {
                 };
                 data.artifactState = artifactState;
                 mainbreadcrumbService.reloadBreadcrumbs(data);
-                $timeout.flush();
+                $httpBackend.flush();
 
                 // Assert
                 expect(error).toBeUndefined();
@@ -102,21 +102,21 @@ describe("Breadcrumb service unsuccessful", () => {
             }));
 
         it("reload project breadcrumb unsuccessful",
-            inject(($httpBackend: ng.IHttpBackendService, $timeout: ng.ITimeoutService, mainbreadcrumbService: IMainBreadcrumbService) => {
+            inject(($httpBackend: ng.IHttpBackendService, mainbreadcrumbService: IMainBreadcrumbService) => {
 
                 // Arrange
                 mainbreadcrumbService.breadcrumbLinks = [];
                 $httpBackend.expectGET("/svc/adminstore/instance/projects/100/navigationPath?includeProjectItself=false")
-                .respond(HttpStatusCode.NotFound, {
-                    statusCode: HttpStatusCode.NotFound
-                });
+                    .respond(HttpStatusCode.NotFound, {
+                        statusCode: HttpStatusCode.NotFound
+                    });
 
                 // Act
                 let error: any;
                 let data = ArtifactServiceMock.createArtifact(100);
                 data.predefinedType = ItemTypePredefined.Project;
                 mainbreadcrumbService.reloadBreadcrumbs(data);
-                $timeout.flush();
+                $httpBackend.flush();
 
                 // Assert
                 expect(error).toBeUndefined();

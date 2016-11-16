@@ -5,24 +5,45 @@ using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
+    // Found in:  blueprint-current/Source/BluePrintSys.RC.Api.Business/Models/TraceTypes.cs
+    [Flags]
+    public enum OpenApiTraceTypes
+    {
+        None = 0x0,
+        Parent = 0x1,
+        Child = 0x2,
+        Manual = 0x4,
+        Other = 0x8,
+        Reuse = 0x10,
+        All = 31    //None | Parent | Child | Manual | Other | Reuse
+    }
+
     public class OpenApiTrace : ITrace
     {
-        #region Inherited from ITrace
+        #region Inherited Serialized JSON Properties from ITrace
+
+        [JsonProperty("Type")]
+        [JsonConverter(typeof(StringEnumConverter))]
+        public OpenApiTraceTypes TraceType { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public TraceDirection Direction { get; set; }
 
         public int ProjectId { get; set; }
 
         public int ArtifactId { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
-        public TraceDirection Direction { get; set; }
+        public string ArtifactPropertyName { get; set; }
 
-        [JsonProperty("Type")]
-        [JsonConverter(typeof(StringEnumConverter))]
-        public TraceTypes TraceType { get; set; }
+        public string Label { get; set; }
+
+        public Uri BlueprintUrl { get; set; }
+
+        public Uri Link { get; set; }
 
         public bool IsSuspect { get; set; }
 
-        #endregion Inherited from ITrace
+        #endregion Inherited Serialized JSON Properties from ITrace
 
         #region Additional Properties
 
@@ -45,7 +66,7 @@ namespace Model.ArtifactModel.Impl
         public OpenApiTrace(IProject project,
             IArtifactBase artifact,
             TraceDirection direction,
-            TraceTypes traceType,
+            OpenApiTraceTypes traceType,
             bool isSuspect,
             int? subArtifactId)
             : this(project?.Id, artifact, direction, traceType, isSuspect, subArtifactId)
@@ -66,7 +87,7 @@ namespace Model.ArtifactModel.Impl
         public OpenApiTrace(int? projectId,
             IArtifactBase artifact,
             TraceDirection direction,
-            TraceTypes traceType,
+            OpenApiTraceTypes traceType,
             bool isSuspect,
             int? subArtifactId)
             : this(projectId, artifact?.Id, direction, traceType, isSuspect, subArtifactId)
@@ -88,7 +109,7 @@ namespace Model.ArtifactModel.Impl
         public OpenApiTrace(int? projectId,
             int? artifactId,
             TraceDirection direction,
-            TraceTypes traceType,
+            OpenApiTraceTypes traceType,
             bool isSuspect,
             int? subArtifactId)
         {
@@ -101,23 +122,6 @@ namespace Model.ArtifactModel.Impl
             Direction = direction;
             TraceType = traceType;
             IsSuspect = isSuspect;
-        }
-
-        /// <summary>
-        /// Compares this OpenApiTrace to another ITrace.
-        /// </summary>
-        /// <param name="trace">The other trace object to compare against.</param>
-        /// <returns>True if the ITrace object properties are identical, otherwise false.</returns>
-        public bool Equals(ITrace trace)
-        {
-            if (trace == null)
-            {
-                return false;
-            }
-
-            return ((ProjectId == trace.ProjectId) && (ArtifactId == trace.ArtifactId) 
-                && (Equals(Direction, trace.Direction)) &&
-                (Equals(TraceType, trace.TraceType)) && (IsSuspect == trace.IsSuspect));
         }
     }
 }

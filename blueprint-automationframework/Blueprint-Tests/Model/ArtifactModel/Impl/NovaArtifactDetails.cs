@@ -469,12 +469,6 @@ namespace Model.ArtifactModel.Impl
 
         public int PropertyTypeVersionId { get; set; }
 
-        //this function is used by Newtonsoft.Json to determine when to serialize property. See help for Newtonsoft.Json.Serialization
-        public bool ShouldSerializePropertyTypeVersionId()
-        {
-            return PropertyTypeVersionId != 0;
-        }
-
         [JsonProperty("PropertyTypePredefined")]
         public PropertyTypePredefined PropertyType { get; set; }
 

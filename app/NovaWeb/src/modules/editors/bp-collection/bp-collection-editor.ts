@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import * as _ from "lodash";
 import {Models} from "../../main";
 import {IColumn, ITreeViewNode, IColumnRendererParams, IHeaderCellRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
@@ -31,7 +32,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "metadataService",
         "$location",
         "$window",
-        "$scope"
+        "$scope",
+        "$sce"
     ];
 
     public selectAll: boolean = false;
@@ -54,7 +56,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService,
-                private $scope: ng.IScope) {
+                private $scope: ng.IScope,
+                $sce) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
@@ -78,7 +81,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
             // if collection is deleted we do not need to load metadata and collection content
-            if (!collectionArtifact.artifacts) {    
+            if (!collectionArtifact.artifacts) {
                 super.onArtifactReady();
                 return;
             }
@@ -219,6 +222,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const path = vm.model.artifactPath;
+                    const tooltipName = Helper.stripHTMLTags(vm.model.name).replace("\"", "");
+                    const name = Helper.escapeHTMLText(vm.model.name);
 
                     let tooltipText = "";
                     path.map((collectionArtifact: string, index: number) => {
@@ -229,8 +234,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
-                    return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
-                        `${vm.model.name}</div>` +
+                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">` +
+                        `${name}</div>` +
                         `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
                 }
             },
@@ -240,9 +245,19 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 isCheckboxHidden: true,
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
+                    const tooltip = Helper.stripHTMLTags(vm.model.description).replace("\"", "");
+
+                    // if (vm.model.description) {
+                    //     let tooltip = vm.model.description.replace("\"", "");
+                    //     tooltip = _.escape(tooltip);
+                    //     //Helper.escapeHTMLText(vm.model.description);
+                    // }
+
+                    const desc = Helper.escapeHTMLText(vm.model.description);
+
                     if (vm.model.description) {
-                        return `<div class="collection__description" bp-tooltip="${vm.model.description}" ` +
-                            `bp-tooltip-truncated="true">${vm.model.description}</div>`;
+                        return `<div class="collection__description" bp-tooltip="${desc}" ` +
+                            `bp-tooltip-truncated="true">${desc}</div>`;
                     }
 
                     return "";

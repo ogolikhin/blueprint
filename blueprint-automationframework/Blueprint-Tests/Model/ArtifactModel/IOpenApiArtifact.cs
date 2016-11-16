@@ -6,6 +6,12 @@ namespace Model.ArtifactModel
 {
     public interface IOpenApiArtifact : IArtifactBase
     {
+        #region Serialized JSON Properties
+
+        List<OpenApiTrace> Traces { get; }
+
+        #endregion Serialized JSON Properties
+
         /// <summary>
         /// Save the artifact on Blueprint server.
         /// </summary>
@@ -85,7 +91,7 @@ namespace Model.ArtifactModel
         List<OpenApiTrace> AddTrace(IUser user,
             IArtifactBase targetArtifact,
             TraceDirection traceDirection,
-            TraceTypes traceType = TraceTypes.Manual,
+            OpenApiTraceTypes traceType = OpenApiTraceTypes.Manual,
             bool isSuspect = false,
             int? subArtifactId = null,
             bool? reconcileWithTwoWay = null,

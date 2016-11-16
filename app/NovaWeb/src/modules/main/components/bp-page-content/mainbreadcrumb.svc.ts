@@ -5,6 +5,7 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {Models} from "../../../main/models";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {ApplicationError} from "../../../core/error/applicationError";
 
 export interface IMainBreadcrumbService {
     breadcrumbLinks: IBreadcrumbLink[];
@@ -46,8 +47,8 @@ export class MainBreadcrumbService implements IMainBreadcrumbService {
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
-            }, (reason: ng.IHttpPromiseCallbackArg<any>) => {
-                if (reason.status === HttpStatusCode.NotFound) {
+            }, (reason: ApplicationError) => {
+                if (reason.statusCode === HttpStatusCode.NotFound) {
                     this.breadcrumbLinks = [];
                 }
             });
@@ -65,8 +66,8 @@ export class MainBreadcrumbService implements IMainBreadcrumbService {
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
-            }, (reason: ng.IHttpPromiseCallbackArg<any>) => {
-                if (reason.status === HttpStatusCode.NotFound) {
+            }, (reason: ApplicationError) => {
+                if (reason.statusCode === HttpStatusCode.NotFound) {
                     this.breadcrumbLinks = [];
                 }
             });

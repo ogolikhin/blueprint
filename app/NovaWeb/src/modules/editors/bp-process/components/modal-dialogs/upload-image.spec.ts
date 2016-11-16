@@ -60,9 +60,8 @@ describe("UploadImage Directive", () => {
 
             scope["systemTaskModel"] = new SystemTask(sampleSystemTask, fakeRootScope, shapesFactory.NEW_SYSTEM_TASK_LABEL, null, shapesFactory);
 
-            /* tslint:disable:max-line-length */
+            // tslint:disable-next-line: max-line-length
             element = $compile("<upload-image data-image-container-class=\"file-upload_preview\" data-system-task-model=\"systemTaskModel\"  data-image-uploaded=\"imageUploaded\"></upload-image>")(scope);
-            /* tslint:enable:max-line-length */
 
             scope.$digest();
             imageUpload = $injector.get("uploadImageDirective")[0].__proto__;

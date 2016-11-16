@@ -1,6 +1,7 @@
 import { ILocalizationService } from "../../../core/localization/localizationService";
+import { IBaseValidation, BaseValidation } from "./base-validation";
 
-export interface IDateValidation {
+export interface IDateValidation extends IBaseValidation {
     minDate(newValue: string,
         oldValue: string,
         minDate: any,
@@ -20,7 +21,7 @@ export interface IDateValidation {
         isRequired: boolean): boolean;
 }
 
-export class DateValidation implements IDateValidation {
+export class DateValidation extends BaseValidation implements IDateValidation {
     public minDate(newValue: string,
         oldValue: string,
         _minDate: any,
@@ -66,8 +67,8 @@ export class DateValidation implements IDateValidation {
         isValidated: boolean,
         isRequired: boolean): boolean {
         return this.maxDate(newValue, oldValue, maxDate, localization, isValidated) &&
-            this.minDate(newValue, oldValue, minDate, localization, isValidated) &&
-            (isRequired ? (!!newValue || !!oldValue) : true);
+            this.minDate(newValue, oldValue, minDate, localization, isValidated) && 
+            super.hasValueIfRequred(isRequired, newValue, oldValue);
     }
 
 }

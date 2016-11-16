@@ -11,6 +11,7 @@ import {Helper} from "../../../../shared";
 import {BpFieldTextRTFInlineController} from "./text-rtf-inline";
 import {createFormlyModule} from "../../formly-config.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly Text RTF Inline", () => {
     let fieldsDefinition = [
@@ -35,8 +36,10 @@ describe("Formly Text RTF Inline", () => {
 
     beforeEach(angular.mock.module(moduleName));
 
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("validationService", ValidationService);
     }));
 
     afterEach(() => {

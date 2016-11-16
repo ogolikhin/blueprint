@@ -71,7 +71,7 @@ namespace Helper
             ArtifactBase.PublishArtifacts(artifacts, artifacts.First().Address, user);
 
             // Wait for all artifacts to be available to the search service
-            var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projectsSubset.Select(p => p.Id));
+            var searchCriteria = new FullTextSearchCriteria(randomArtifactDescription, projectIds: projectsSubset.Select(p => p.Id));
             WaitForFullTextSearchIndexerToUpdate(user, testHelper, searchCriteria, artifacts.Count, timeoutInMilliseconds: timeoutInMilliseconds);
 
             Logger.WriteInfo("{0} {1} artifacts created.", nameof(SearchServiceTestHelper), artifacts.Count);

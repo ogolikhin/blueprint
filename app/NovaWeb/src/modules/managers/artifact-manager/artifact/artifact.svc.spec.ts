@@ -114,7 +114,7 @@ describe("Artifact Repository", () => {
 
         it("Single -> successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
-            
+
             $httpBackend.expectDELETE("svc/bpartifactstore/artifacts/100")
                 .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(99, 1));
 
@@ -155,11 +155,11 @@ describe("Artifact Repository", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
-        
+
 
         it("5 artifact -> successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
-            
+
             $httpBackend.expectDELETE("svc/bpartifactstore/artifacts/200")
                 .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(200, 5));
 
@@ -181,6 +181,51 @@ describe("Artifact Repository", () => {
         }));
     });
 
+    describe("Get Navigation Path", () => {
 
+        it("successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+
+            $httpBackend.expectGET("/svc/artifactstore/artifacts/100/navigationPath")
+                .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(99, 1));
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.getArtifactNavigationPath(100).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toEqual(jasmine.any(Array));
+            expect(data.length).toEqual(1);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            $httpBackend.expectGET("/svc/artifactstore/artifacts/100/navigationPath")
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.getArtifactNavigationPath(100).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
 
 });

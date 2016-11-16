@@ -240,9 +240,9 @@ export class ProjectService implements IProjectService {
         this.$http.get(url)
             .then((result) => {
                 deferred.resolve(result.data);
-            })
-            .catch((error) => {
-                deferred.reject(error);
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                deferred.reject(result.data);
             });
 
         return deferred.promise;

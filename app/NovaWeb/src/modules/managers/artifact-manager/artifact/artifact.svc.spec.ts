@@ -181,7 +181,7 @@ describe("Artifact Repository", () => {
         }));
     });
 
-    describe("Get Navigation Path -> successful", () => {
+    describe("Get Navigation Path", () => {
 
         it("successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
@@ -205,7 +205,7 @@ describe("Artifact Repository", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("Single -> unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+        it("unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
             $httpBackend.expectGET("/svc/artifactstore/artifacts/100/navigationPath")
                 .respond(HttpStatusCode.NotFound, {
@@ -222,7 +222,7 @@ describe("Artifact Repository", () => {
 
             // Assert
             expect(error).toBeDefined();
-            expect(error.data.statusCode).toEqual(HttpStatusCode.NotFound);
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

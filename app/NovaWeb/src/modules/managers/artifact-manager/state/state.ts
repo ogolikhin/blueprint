@@ -198,7 +198,7 @@ export class ArtifactState implements IArtifactState {
         // reset to default state
         this.currentState = this.createDefaultState();
 
-        const noReadPermission = (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
+        const noEditPermission = (artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
 
         if (artifact.lockedByUser) {
             const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
@@ -213,7 +213,7 @@ export class ArtifactState implements IArtifactState {
                 readonly: deleted || 
                             historical || 
                             lockedBy === Enums.LockedByEnum.OtherUser || 
-                            noReadPermission
+                            noEditPermission
             };
 
             this.setState(newState, false);
@@ -222,7 +222,7 @@ export class ArtifactState implements IArtifactState {
             this.currentState.historical = historical;
             this.currentState.readonly = deleted || 
                                             historical || 
-                                            noReadPermission;
+                                            noEditPermission;
         }
     }
 

@@ -1,16 +1,12 @@
-/* tslint:disable */
-/*Keen Keys
- Project ID
- 582cb85c8db53dfda8a78767
+import {AnalyticsConfig} from "./analyticsConfig";
+import {AnalyticsProvider} from "./analyticsProvider";
+import {KeenTrackEvent} from "./analyticsDirective";
+import {KeenIO} from "./keenIoConstant";
+import {AnalyticsRun} from "./analyticsRun";
 
- Master Key
- BD1B17F1F77B34A46DA3C848382747A086696C08685868073B048FDA8E90F1AD
-
- Write Key
- E011AFC42952D3500532FA364DA5DC06BB962F988B2F171CB252201B357F48BCBA671F8A8E62060148129B391FE2D1B3A4E8D9BD6F0629DFF66C9C7C2C1F8F612A80E44ACDEA4F6B1408AAF403649EFF9394A399844C744E0E4F72CA204A0E13
-
- Read Key
- E8C0904107F31C3CB28CC1A0D4050E03F5F397815707B01EBB152BE3ED6B4AC4F81A43D1A5A56712CC4F4AD10D2DA5847D098E12185B6DF9A7656D65339E8810757BB1DC47105E4DE2E6EC8D76C39CAB34B87F4D689BB141BEDBA3AA92E730B2
- */
-/* tslint:enable */
-angular.module("bp.components.analytics", []);
+angular.module("bp.components.analytics", [])
+    .provider("Analytics", AnalyticsProvider)
+    .directive("keenTrackEvent", KeenTrackEvent.instance())
+    .constant("KeenIO", KeenIO.Default)
+    .config(AnalyticsConfig)
+    .run(AnalyticsRun);

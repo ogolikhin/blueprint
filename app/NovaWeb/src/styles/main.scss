@@ -1,0 +1,96 @@
+/**
+*
+* Main
+*
+**/
+/*------------------------------------*\
+    #SETTINGS
+    global variables
+\*------------------------------------*/
+@import "settings/_colors";
+@import "settings/_variables";
+/*------------------------------------*\
+    #TOOLS
+    sass mixins and functions
+\*------------------------------------*/
+/*------------------------------------*\
+    #BOOTSTRAP
+    import BS styles from npm folder
+\*------------------------------------*/
+@import "node_modules/bootstrap-sass/assets/stylesheets/_bootstrap.scss";
+/*------------------------------------*\
+    #GENERIC
+    low-specificity, far-reaching
+    rulesets e.g. global resets,
+    box-sizing, or print styles
+\*------------------------------------*/
+/*------------------------------------*\
+    #BASE
+    un-classed selectors e.g. p, h1
+    and ul
+\*------------------------------------*/
+/*------------------------------------*\
+    #OBJECTS
+    design-free objects, abstractions
+    and patterns e.g. layout, wrappers
+    and containers
+\*------------------------------------*/
+/*------------------------------------*\
+    #MODULES
+\*------------------------------------*/
+@import 'modules/normalize';
+@import 'modules/hamburgers/hamburgers';
+@import 'modules/variables';
+@import 'modules/mixins';
+@import 'modules/animations';
+@import 'modules/typography';
+@import 'modules/fonticons';
+@import 'modules/fonticons2';
+@import 'modules/icons';
+/*------------------------------------*\
+    #COMPONENTS
+\*------------------------------------*/
+@import 'partials/navbar';
+@import 'partials/toolbar';
+@import 'partials/modal';
+@import 'partials/form';
+@import 'partials/button';
+@import 'partials/unsupported';
+@import 'partials/pagecontent';
+@import 'partials/sidebar';
+@import 'partials/breadcrumbs';
+@import 'partials/properties';
+@import 'partials/tabs';
+@import 'partials/accordion';
+@import 'partials/tooltips';
+@import 'partials/resize';
+@import 'partials/aggrid';
+@import 'partials/utility-panel';
+@import 'partials/avatar';
+@import 'partials/select';
+@import 'partials/tinymce';
+@import 'partials/error-messages';
+@import 'partials/diagram';
+@import 'partials/glossary';
+@import 'partials/browser-specific';
+@import 'partials/mobile-only';
+@import 'partials/tour-modal';
+@import 'partials/collapsible';
+@import 'partials/autocomplete';
+@import 'partials/file-upload-status';
+@import 'partials/loading-overlay';
+@import 'partials/manage-traces';
+@import 'partials/toolbar2';
+@import 'storyteller/story-teller';
+/*------------------------------------*\
+    #VENDORS
+    3rd party vendor styles
+
+\*------------------------------------*/
+/*------------------------------------*\
+    #TRUMPS
+    high-specificity selectors
+    e.g. utility classes and overrides
+\*------------------------------------*/
+@import "trumps/_utilities";
+@import "trumps/_shame";

@@ -114,7 +114,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public discard() {
         super.discard();
-        
+
         if (this._subArtifactCollection) {
             this._subArtifactCollection.discard();
         }
@@ -486,7 +486,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409");
             }
         } else {
-            message = this.services.localizationService.get("App_Save_Artifact_Error_Other") + error.statusCode;
+            message = this.services.localizationService.get("App_Save_Artifact_Error_Other");
         }
 
         const compoundId: string = this.prefix + this.id.toString();
@@ -635,7 +635,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         }).catch((error: IApplicationError) => {
             if (error.statusCode === HttpStatusCode.Conflict && error.errorContent) {
-                error.message = 
+                error.message =
                 `The artifact ${error.errorContent.prefix || ""}${error.errorContent.id} is already locked by another user.`;
             }
             this.error.onNext(error);

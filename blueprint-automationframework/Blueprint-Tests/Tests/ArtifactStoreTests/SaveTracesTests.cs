@@ -59,8 +59,8 @@ namespace ArtifactStoreTests
             Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
-            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
-            ValidateTrace(targetRelationships.ManualTraces[0], artifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], artifact);
         }
 
         [TestCase]
@@ -91,7 +91,7 @@ namespace ArtifactStoreTests
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
                 addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
         }
 
         [TestCase]
@@ -200,7 +200,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(finalDirection, relationships.ManualTraces[0].Direction, "Relationships should have expected direction.");
-            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
         }
 
         [TestCase]
@@ -267,12 +267,12 @@ namespace ArtifactStoreTests
                 addDrafts: true);
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact1);
+            ArtifactStoreHelper.ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact1);
             Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact2);
+            ArtifactStoreHelper.ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact2);
             Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(relationships.ManualTraces[0], targetArtifact3);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact3);
         }
 
         [TestCase]
@@ -309,12 +309,12 @@ namespace ArtifactStoreTests
                 addDrafts: true);
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact);
             Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(subArtifact2Relationships.ManualTraces[0], targetArtifact);
             Assert.AreEqual(0, subArtifact3Relationships.ManualTraces.Count, "No manual trace should be created for the 3rd subartifact.");
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
         }
 
         [TestCase]
@@ -344,7 +344,7 @@ namespace ArtifactStoreTests
             Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
                 addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "1 manual trace should be created.");
-            ValidateTrace(relationships.ManualTraces[0], artifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], artifact);
         }
 
         [TestCase]
@@ -369,8 +369,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
-            ValidateTrace(relationships.ManualTraces[0], targetArtifact);
-            ValidateTrace(targetRelationships.ManualTraces[0], artifact);
+            ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], artifact);
         }
         #endregion Positive Tests
 
@@ -608,15 +608,6 @@ namespace ArtifactStoreTests
             artifactDetails.Traces = updatedTraces;
 
             return artifactDetails;
-        }
-
-        private static void ValidateTrace(NovaTrace trace, IArtifact artifact)
-        {
-            Assert.AreEqual(trace.ArtifactId, artifact.Id, "Id from trace and artifact should be equal to each other.");
-            Assert.AreEqual(trace.ArtifactName, artifact.Name, "Name from trace and artifact should be equal to each other.");
-            Assert.AreEqual(trace.ItemId, artifact.Id, "itemId from trace and artifact should be equal to each other.");
-            Assert.AreEqual(trace.ProjectId, artifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
-            Assert.AreEqual(trace.ProjectName, artifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
         }
 
         private static void ValidateTrace(NovaTrace trace, INovaSubArtifact subArtifact)

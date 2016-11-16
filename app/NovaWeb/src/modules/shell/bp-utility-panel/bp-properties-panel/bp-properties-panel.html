@@ -43,13 +43,16 @@
                 </div>
             </div>
 
-            <uib-tabset ng-if="$ctrl.isRichTextPropertyAvailable">
-                <uib-tab ng-repeat="field in $ctrl.richTextFields"
-                         heading="{{field.data.name}}">
-                    <formly-form model="$ctrl.model" fields="[field]">
-                    </formly-form>
-                </uib-tab>
-            </uib-tabset>
+            <row-slider slide-selector=".uib-tab__tab" ng-if="$ctrl.isRichTextPropertyAvailable">
+                <uib-tabset>
+                    <uib-tab ng-repeat="field in $ctrl.richTextFields"
+                             heading="{{field.data.name}}"
+                             class="uib-tab__tab">
+                        <formly-form model="$ctrl.model" fields="[field]">
+                        </formly-form>
+                    </uib-tab>
+                </uib-tabset>
+            </row-slider>
 
         </form>
     </div>

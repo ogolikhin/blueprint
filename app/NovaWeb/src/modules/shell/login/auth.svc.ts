@@ -285,12 +285,10 @@ export class AuthSvc implements IAuth {
             chr2 = input.charCodeAt(i++);
             chr3 = input.charCodeAt(i++);
 
-            /* tslint:disable:no-bitwise */
             enc1 = chr1 >> 2;
             enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
             enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
             enc4 = chr3 & 63;
-            /* tslint:enable:no-bitwise */
 
             if (isNaN(chr2)) {
                 enc3 = enc4 = 64;
@@ -317,16 +315,12 @@ export class AuthSvc implements IAuth {
             if (c < 128) {
                 output += String.fromCharCode(c);
             } else if ((c > 127) && (c < 2048)) {
-                /* tslint:disable:no-bitwise */
                 output += String.fromCharCode((c >> 6) | 192);
                 output += String.fromCharCode((c & 63) | 128);
-                /* tslint:enable:no-bitwise */
             } else {
-                /* tslint:disable:no-bitwise */
                 output += String.fromCharCode((c >> 12) | 224);
                 output += String.fromCharCode(((c >> 6) & 63) | 128);
                 output += String.fromCharCode((c & 63) | 128);
-                /* tslint:enable:no-bitwise */
             }
         }
 

@@ -236,6 +236,23 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
+        public async Task GetProjectNavigationPathAsync_NotFound()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlInstanceRepository(cxn.Object);
+            const int projectId = 99;
+            const int userId = 10;
+            cxn.SetupQueryAsync("GetProjectNavigationPath", new Dictionary<string, object> { { "projectId", projectId }, { "userId", userId } }, new List<ArtifactsNavigationPath>());
+
+            // Act
+            await repository.GetProjectNavigationPathAsync(projectId, userId);
+
+            // Assert
+        }
+
+        [TestMethod]
         public async Task GetProjectNavigationPathAsync_includeProjectItself_Found()
         {
             // Arrange

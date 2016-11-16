@@ -1,7 +1,9 @@
 @import '../../../../../styles/modules/variables';
 
 .new-artifact {
-    padding: 20px 32px;
+    &.modal-body {
+        padding: 20px 32px;
+    }
 
     .dropdown-menu {
         border: 0;
@@ -12,10 +14,13 @@
 
         > li > a {
             color: $gray-dark;
+            cursor: default;
             padding: 3px 15px;
         }
 
-        > .active > a {
+        > .active > a,
+        > .active > a:hover,
+        > .active > a:focus {
             background: $brand-secondary;
             color: $white;
         }

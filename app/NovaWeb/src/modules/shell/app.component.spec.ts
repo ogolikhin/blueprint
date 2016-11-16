@@ -82,9 +82,8 @@ describe("Component AppComponent", () => {
             vm.navigateToHelpUrl(event);
 
             //Assert
-            /* tslint:disable */
+            // tslint:disable-next-line: max-line-length
             const expectedOptions: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = 1300, height = 800, top = 160, left = 150";
-            /* tslint:enable */
             expect($window.open).toHaveBeenCalledWith("http://HelpURL", "_blank", expectedOptions);
             expect(event.defaultPrevented).toBeTruthy();
 
@@ -134,5 +133,5 @@ class SessionSvcMock {
     public ensureAuthenticated() {
         return this.$q.when([]);
     }
-    
+
 }

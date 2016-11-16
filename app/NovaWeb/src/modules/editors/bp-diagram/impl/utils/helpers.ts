@@ -275,7 +275,6 @@ export class Color {
         return "rgba(" + this.r + "," + this.g + "," + this.b + "," + this.a + ")";
     }
 
-    /* tslint:disable */
     public static parseHex(hex: string): Color {
         if (hex != null) {
             hex = hex.replace("#", "");
@@ -287,8 +286,6 @@ export class Color {
         }
         return new Color(0, 0, 0);
     }
-
-    /* tslint:enable */
 
     public static isTransparent(color: string) {
         if (color != null && color.toLowerCase() === "transparent") {

@@ -46,7 +46,7 @@ export function formlyConfig(formlyConfig: AngularFormly.IFormlyConfig,
     formlyConfig.setType(new BPFieldImage());
     formlyConfig.setType(new BPFieldInheritFrom());
 
-    /* tslint:disable */
+    /* tslint:disable:max-line-length */
     /* not using this template (yet)
      formlyConfig.setWrapper({
      name: "bpFieldHasError",
@@ -69,5 +69,5 @@ export function formlyConfig(formlyConfig: AngularFormly.IFormlyConfig,
     formlyValidationMessages.addTemplateOptionValueMessage("minDateSQL", "minDateSQL", localization.get("Property_Date_Must_Be"), localization.get("Property_Suffix_Or_Later"), "Date too small for SQL");
     formlyValidationMessages.addTemplateOptionValueMessage("requiredCustom", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
     formlyValidationMessages.addTemplateOptionValueMessage("required", "", localization.get("Property_Cannot_Be_Empty"), "", localization.get("Property_Cannot_Be_Empty"));
-    /* tslint:enable */
+    /* tslint:enable:max-line-length */
 }

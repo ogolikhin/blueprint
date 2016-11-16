@@ -1,6 +1,6 @@
-import {IItem} from "./../../main/models/models";
+import {IItem} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
-import {IDispose} from "./../../managers/models";
+import {IDispose} from "../models";
 
 
 export interface ISelectionManager extends IDispose {
@@ -146,7 +146,6 @@ export class SelectionManager implements ISelectionManager {
         return item ? item.id : -1;
     }
 
-
     private unsubscribe(selection: ISelection) {
         const prevSelection = this.selectionSubject.getValue();
 
@@ -164,5 +163,4 @@ export class SelectionManager implements ISelectionManager {
         this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
     }
-
 }

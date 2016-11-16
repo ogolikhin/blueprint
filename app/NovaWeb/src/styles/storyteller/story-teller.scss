@@ -1029,4 +1029,16 @@ body.mce-content-body a, body.mce-content-body a:hover {
             color: $brand-secondary;
         }
     }
+
+    .task-modal-details-persona__input {
+        color: $gray-dark;
+        padding-right: 50px;
+
+        &.ng-empty {
+            background: ('../../modules/main/components/dialogs/new-artifact/new-artifact-arrow.png') no-repeat center right 4px;
+            cursor: pointer;
+            padding-right: 25px;
+        }
+    }
+
 }

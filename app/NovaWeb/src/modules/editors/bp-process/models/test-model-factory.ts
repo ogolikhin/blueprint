@@ -12558,10 +12558,6 @@ function populatePropertyValues(shape: any, labelValue: string, x: number, y: nu
     shape.propertyValues["y"] = shapesFactory.createYValue(y);
     shape.propertyValues["clientType"] = shapesFactory.createClientTypeValue(clientType);
 
-    if (clientType === ProcessShapeType.UserTask || clientType === ProcessShapeType.SystemTask) {
-        shape.propertyValues["persona"] = shapesFactory.createPersonaValue("Persona");
-    }
-
     if (clientType === ProcessShapeType.SystemTask) {
         shape.propertyValues["associatedImageUrl"] = shapesFactory.createAssociatedImageUrlValue("");
     }

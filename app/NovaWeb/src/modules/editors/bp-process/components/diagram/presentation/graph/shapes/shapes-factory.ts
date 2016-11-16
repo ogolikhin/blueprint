@@ -266,8 +266,7 @@ export class ShapesFactory {
                                                 objective: string = "",
                                                 include: IArtifactReference = null): IHashMapOfPropertyValues {
         const propertyValues: IHashMapOfPropertyValues = {};
-
-        propertyValues[this.Persona.key] = this.createPersonaValue(persona);
+        
         propertyValues[this.Label.key] = this.createLabelValue(label);
         propertyValues[this.Description.key] = this.createDescriptionValue(description);
         propertyValues[this.X.key] = this.createXValue(x);
@@ -293,8 +292,7 @@ export class ShapesFactory {
                                                   objective: string = "",
                                                   include: IArtifactReference = null): IHashMapOfPropertyValues {
         const propertyValues: IHashMapOfPropertyValues = {};
-
-        propertyValues[this.Persona.key] = this.createPersonaValue(persona);
+        
         propertyValues[this.AssociatedImageUrl.key] = this.createAssociatedImageUrlValue();
         propertyValues[this.ImageId.key] = this.createImageIdValue();
         propertyValues[this.Label.key] = this.createLabelValue(label);
@@ -466,16 +464,6 @@ export class ShapesFactory {
             typePredefined: PropertyTypePredefined.ImageId,
             typeId: -1,
             value: imageId
-        };
-    }
-
-    public createPersonaValue(persona: string): IPropertyValueInformation {
-        return {
-            propertyName: this.Persona.name,
-            typePredefined: PropertyTypePredefined.Persona,
-            typeId: -1,
-            value: persona
-
         };
     }
 

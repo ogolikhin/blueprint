@@ -3,39 +3,39 @@ import {Models, Enums} from "../../../main/models";
 import {IDispose} from "../../models";
 import {IIStatefulArtifact} from "../artifact";
 
-export interface IState {
-    lockedBy?: Enums.LockedByEnum;
-    lockDateTime?: Date;
-    lockOwner?: string;
-    readonly?: boolean;
-    dirty?: boolean;
-    published?: boolean;
-    everPublished?: boolean;
-    deleted?: boolean;
-    historical?: boolean;
-    misplaced?: boolean;
-    invalid?: boolean;
+interface IState {
+    lockedBy: Enums.LockedByEnum;
+    lockDateTime: Date;
+    lockOwner: string;
+    readonly: boolean;
+    dirty: boolean;
+    published: boolean;
+    everPublished: boolean;
+    deleted: boolean;
+    historical: boolean;
+    misplaced: boolean;
+    invalid: boolean;
 }
 
 export interface IArtifactState extends IState, IDispose {
+    onStateChange: Rx.Observable<IArtifactState>;
+
     initialize(artifact: Models.IArtifact): IArtifactState;
+    setState(newState: Object, notifyChange?: boolean);
     lock(value: Models.ILockResult): void;
     unlock();
-    onStateChange: Rx.Observable<IState>;
-    get(): IState;
-    setState(newState: IState, notifyChange: boolean);
 }
 
 export class ArtifactState implements IArtifactState {
     constructor(private artifact: IIStatefulArtifact) {
-        this.subject = new Rx.BehaviorSubject<IState>(undefined);
+        this.subject = new Rx.BehaviorSubject<IArtifactState>(undefined);
         this.initialize(artifact);
     }
 
     private currentState: IState = this.newState();
     private prevState: IState = _.cloneDeep(this.currentState);
 
-    private subject: Rx.BehaviorSubject<IState>;
+    private subject: Rx.BehaviorSubject<IArtifactState>;
 
     private newState(): IState {
         // create a new state object with defaults
@@ -48,6 +48,7 @@ export class ArtifactState implements IArtifactState {
             published: false,
             everPublished: false,
             deleted: false,
+            historical: false,
             misplaced: false,
             invalid: false
         };
@@ -58,23 +59,22 @@ export class ArtifactState implements IArtifactState {
         this.prevState = _.cloneDeep(this.currentState);
     }
 
-    public get onStateChange(): Rx.Observable<IState> {
+    public get onStateChange(): Rx.Observable<IArtifactState> {
         // returns the subject as an observable that can be subscribed to
         // subscribers will get notified when the state changes
         return this.subject.filter(state => !!state).asObservable();
     }
 
-    public get(): IState {
-        return this.currentState;
-    }
-
-    public setState(newState: IState, notifyChange: boolean = true) {
+    public setState(newStateValues: Object, notifyChange: boolean = true) {
         // this function can set 1 or more state properties at once
         // if notifyChange flag is false observers will not be notified
-        if (newState) {
-            Object.keys(newState).forEach((item) => {
-                this.currentState[item] = newState[item];
-            });
+        if (newStateValues) {
+            for (const key in newStateValues) {
+                if (this.currentState.hasOwnProperty(key)) {
+                    this.currentState[key] = newStateValues[key];
+                }
+            }
+            
             if (notifyChange) {
                 this.notifyStateChange();
             } else {
@@ -85,8 +85,8 @@ export class ArtifactState implements IArtifactState {
 
     private notifyStateChange() {
         if (!_.isEqual(this.prevState, this.currentState)) {
+            this.subject.onNext(this);
             this.prevState = _.cloneDeep(this.currentState);
-            this.subject.onNext(this.currentState);
         }
     }
 
@@ -185,7 +185,7 @@ export class ArtifactState implements IArtifactState {
                 const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                                 Enums.LockedByEnum.CurrentUser :
                                 Enums.LockedByEnum.OtherUser;
-                const newState: IState = {
+                const newState = {
                     lockedBy: lockedBy,
                     lockOwner: artifact.lockedByUser.displayName,
                     lockDateTime: artifact.lockedDateTime,
@@ -210,28 +210,30 @@ export class ArtifactState implements IArtifactState {
         return this;
     }
 
-    public lock(value: Models.ILockResult) {
-        if (value) {
-            let lockInfo: IState = {};
-
-            if (value.result === Enums.LockResultEnum.Success) {
-                lockInfo.lockedBy = Enums.LockedByEnum.CurrentUser;
-            } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                lockInfo.lockedBy = Enums.LockedByEnum.OtherUser;
-                lockInfo.readonly = true;
-            }
-
-            if (value.info) {
-                lockInfo.lockDateTime = value.info.utcLockedDateTime;
-                lockInfo.lockOwner = value.info.lockOwnerDisplayName;
-            }
-
-            this.setState(lockInfo);
+    public lock(value: Models.ILockResult): void {
+        if (!value) {
+            return;
         }
+
+        let lockInfo = {};
+
+        if (value.result === Enums.LockResultEnum.Success) {
+            lockInfo["lockedBy"] = Enums.LockedByEnum.CurrentUser;
+        } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
+            lockInfo["lockedBy"] = Enums.LockedByEnum.OtherUser;
+            lockInfo["readonly"] = true;
+        }
+
+        if (value.info) {
+            lockInfo["lockDateTime"] = value.info.utcLockedDateTime;
+            lockInfo["lockOwner"] = value.info.lockOwnerDisplayName;
+        }
+
+        this.setState(lockInfo);
     }
 
     public unlock() {
-        let lockInfo: IState = {
+        let lockInfo = {
             lockedBy: Enums.LockedByEnum.None,
             lockDateTime: undefined,
             lockOwner: undefined

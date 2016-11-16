@@ -3,19 +3,7 @@ import {Models, Enums} from "../../../main/models";
 import {IDispose} from "../../models";
 import {IIStatefulArtifact} from "../artifact";
 
-interface IState extends INewStateValues {
-    lockedBy: Enums.LockedByEnum;
-    lockDateTime: Date;
-    lockOwner: string;
-    readonly: boolean;
-    dirty: boolean;
-    deleted: boolean;
-    historical: boolean;
-    misplaced: boolean;
-    invalid: boolean;
-}
-
-interface INewStateValues {
+interface IState {
     lockedBy?: Enums.LockedByEnum;
     lockDateTime?: Date;
     lockOwner?: string;
@@ -33,7 +21,7 @@ export interface IArtifactState extends IState, IDispose {
     onStateChange: Rx.Observable<IArtifactState>;
 
     initialize(artifact: Models.IArtifact): void;
-    setState(newStateValues: INewStateValues, notifyChange?: boolean): void;
+    setState(newState: IState, notifyChange?: boolean): void;
     lock(value: Models.ILockResult): void;
     unlock(): void;
 }
@@ -70,22 +58,19 @@ export class ArtifactState implements IArtifactState {
 
     // this function can set 1 or more state properties at once
     // if notifyChange flag is false observers will not be notified
-    public setState(newStateValues: INewStateValues, notifyChange: boolean = true): void {
-        if (!newStateValues) {
-            throw new Error("newStateValues are invalid");
+    public setState(newState: IState, notifyChange: boolean = true): void {
+        if (!newState) {
+            throw new Error("newState is invalid");
         }
 
         let changed: boolean = false;
 
-        _.forOwn(
-            newStateValues, 
-            (value, key, object) => {
-                if (this.currentState.hasOwnProperty(key) && !_.isEqual(this.currentState[key], value)) {
-                    this.currentState[key] = value;
-                    changed = true;
-                }
+        Object.keys(newState).forEach(key => {
+            if (!_.isEqual(this.currentState[key], newState[key])) {
+                this.currentState[key] = newState[key];
+                changed = true;
             }
-        );
+        });
         
         if (changed && notifyChange) {
             this.notifyStateChange();
@@ -219,7 +204,7 @@ export class ArtifactState implements IArtifactState {
             const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
                             Enums.LockedByEnum.CurrentUser :
                             Enums.LockedByEnum.OtherUser;
-            const newStateValues: INewStateValues = {
+            const newState: IState = {
                 lockedBy: lockedBy,
                 lockOwner: artifact.lockedByUser.displayName,
                 lockDateTime: artifact.lockedDateTime,
@@ -231,7 +216,7 @@ export class ArtifactState implements IArtifactState {
                             noReadPermission
             };
 
-            this.setState(newStateValues, false);
+            this.setState(newState, false);
         } else {
             this.currentState.deleted = deleted;
             this.currentState.historical = historical;
@@ -246,31 +231,31 @@ export class ArtifactState implements IArtifactState {
             return;
         }
 
-        let newStateValues: INewStateValues = {};
+        let newState: IState = {};
 
         if (value.result === Enums.LockResultEnum.Success) {
-            newStateValues.lockedBy = Enums.LockedByEnum.CurrentUser;
+            newState.lockedBy = Enums.LockedByEnum.CurrentUser;
         } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-            newStateValues.lockedBy = Enums.LockedByEnum.OtherUser;
-            newStateValues.readonly = true;
+            newState.lockedBy = Enums.LockedByEnum.OtherUser;
+            newState.readonly = true;
         }
 
         if (value.info) {
-            newStateValues.lockDateTime = value.info.utcLockedDateTime;
-            newStateValues.lockOwner = value.info.lockOwnerDisplayName;
+            newState.lockDateTime = value.info.utcLockedDateTime;
+            newState.lockOwner = value.info.lockOwnerDisplayName;
         }
 
-        this.setState(newStateValues);
+        this.setState(newState);
     }
 
     public unlock(): void {
-        let newStateValues: INewStateValues = {
+        let newState: IState = {
             lockedBy: Enums.LockedByEnum.None,
             lockDateTime: undefined,
             lockOwner: undefined
         };
 
-        this.setState(newStateValues);
+        this.setState(newState);
     }
 
     public dispose() {

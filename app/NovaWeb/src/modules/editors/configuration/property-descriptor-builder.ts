@@ -170,7 +170,7 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
         }
     }
 
-    private createArtifactSystemPropertyDescriptors(artifact: IStatefulArtifact) {
+    private createArtifactSystemPropertyDescriptors(artifact: IStatefulArtifact): IPropertyDescriptor[] {
         const properties: IPropertyType[] = [];
 
         //add system properties
@@ -247,15 +247,10 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             default:
                 break;
         }
-        const propertyContexts = [];
-        properties.forEach(propertyType => {
-            propertyContexts.push(PropertyDescriptor.createFromPropertyType(propertyType));
-        });
-
-        return propertyContexts;
+        return properties.map(propertyType => PropertyDescriptor.createFromPropertyType(propertyType));
     }
 
-    private createSubArtifactSystemPropertyDescriptors(subArtifact: IStatefulSubArtifact) {
+    private createSubArtifactSystemPropertyDescriptors(subArtifact: IStatefulSubArtifact): IPropertyDescriptor[] {
         const properties: IPropertyType[] = [];
 
         properties.push(<IPropertyType>{
@@ -334,6 +329,7 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
                 primitiveType: PrimitiveType.Number
             });
         }
-        return properties;
+
+        return properties.map(propertyType => PropertyDescriptor.createFromPropertyType(propertyType));
     }
 }

@@ -358,4 +358,51 @@ describe("Project Repository", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
     });
+
+    describe("Get Navigation Path", () => {
+
+        it("successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+            // Arrange
+
+            $httpBackend.expectGET("/svc/adminstore/instance/projects/100/navigationPath?includeProjectItself=false")
+                .respond(HttpStatusCode.Success, ["Blueprint"]);
+
+            // Act
+            let error: any;
+            let data: string[];
+            projectService.getProjectNavigationPath(100, false).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toEqual(jasmine.any(Array));
+            expect(data.length).toEqual(1);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("unsuccessful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+            // Arrange
+            $httpBackend.expectGET("/svc/adminstore/instance/projects/100/navigationPath?includeProjectItself=false")
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
+
+            // Act
+            let error: any;
+            let data: string[];
+            projectService.getProjectNavigationPath(100, false).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
 });

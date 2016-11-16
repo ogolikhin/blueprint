@@ -4,6 +4,7 @@ import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -24,9 +25,11 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService"];
+    static $inject: [string] = ["$scope", "navigationService", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, navigationService: INavigationService) {
+    constructor(private $scope: AngularFormly.ITemplateScope, 
+                     navigationService: INavigationService, 
+                     private validationService: IValidationService) {
         super(navigationService);
 
         let contentBuffer: string = undefined;
@@ -269,12 +272,11 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         triggerChange(value);
                     }
 
-                    let isEmpty = false;
-                    if (scope.to && scope.to.required) {
-                        isEmpty = !Helper.tagsContainText($modelValue);
-                    }
-                    scope.options.validation.show = isEmpty;
-                    return !isEmpty;
+                    const isValid = validationService.textRtfValidation.hasValueIfRequred(scope.to.required, $viewValue, $modelValue);
+
+                    scope.to["isInvalid"] = !isValid;
+                    scope.options.validation.show = !isValid;
+                    return isValid;
                 }
             }
         };

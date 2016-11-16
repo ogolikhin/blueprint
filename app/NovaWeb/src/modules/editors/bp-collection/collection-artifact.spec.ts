@@ -28,15 +28,13 @@ describe("StatefulCollectionArtifact", () => {
     })); 
 
 
-    it("Add artifacts to collection", () => {
-                
+    it("Add artifacts to collection", () => {       
+
         const collection = <ICollection> {
             reviewName: "Review",
-            isCreated: false,        
+            isCreated: false,
             artifacts: []
         };
-
-        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);        
 
         const artifact = {
             id: 1,
@@ -45,12 +43,15 @@ describe("StatefulCollectionArtifact", () => {
             predefinedType: Models.ItemTypePredefined.Actor
         } as Models.IArtifact;
 
+        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);             
+        collectionArtifact["initialize"](collection);
+
         // Act
         collectionArtifact.addArtifactsToCollection([artifact]);
 
         //Assert
-        expect(collectionArtifact.artifacts.length === 1).toBeTruthy();      
-        expect(collectionArtifact.changesets.get().length === 1).toBeTruthy();
+        expect(collectionArtifact.artifacts.length === 1).toBeTruthy();
+        expect(collectionArtifact.specialProperties.changes().length === 1).toBeTruthy();
     });    
 
     it("Remove artifacts from collection", () => {
@@ -68,14 +69,15 @@ describe("StatefulCollectionArtifact", () => {
             artifacts: [artifact]
         };
 
-        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);                
+        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);      
+        collectionArtifact["initialize"](collection);          
 
         // Act
         collectionArtifact.removeArtifacts([artifact]);
 
         //Assert
         expect(collectionArtifact.artifacts.length === 0).toBeTruthy(); 
-        expect(collectionArtifact.changesets.get().length === 1).toBeTruthy();     
+        expect(collectionArtifact.specialProperties.changes().length === 1).toBeTruthy();     
     });    
 
   });

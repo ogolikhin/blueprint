@@ -4,6 +4,7 @@ import {Models} from "../../../../main/models";
 import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 interface IUserGroup extends Models.IUserGroup {
     isImported?: boolean;
@@ -53,12 +54,12 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile"];
+    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
 
     constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private usersAndGroupsService: IUsersAndGroupsService,
-                private $compile: ng.ICompileService) {
+                private $compile: ng.ICompileService, private validationService: IValidationService) {
         super();
 
         const to: AngularFormly.ITemplateOptions = {
@@ -73,12 +74,9 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    if ((<AngularFormly.ITemplateScope>scope.$parent).to.required) { // TODO: find a better way to get the "required" flag
-                        if (angular.isArray($modelValue) && $modelValue.length === 0) {
-                            return false;
-                        }
-                    }
-                    return true;
+                    return validationService.userPickerValidation.hasValueIfRequred(
+                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required), 
+                        $viewValue, $modelValue); 
                 }
             }
         };

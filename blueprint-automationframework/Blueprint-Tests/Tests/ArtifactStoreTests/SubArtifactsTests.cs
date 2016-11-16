@@ -11,6 +11,7 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -22,12 +23,10 @@ namespace ArtifactStoreTests
 
         private List<IProject> _projects;
 
-        private int useCaseId = 24;
         private int businessProcessDiagramId = 33;
         private int domainDiagramId = 31;
         private int genericDiagramId = 49;
         private int glossaryId = 40;
-        private int storyboardId = 32;
         private int uiMockupId = 22;
         private int useCaseDiagramId = 29;
 
@@ -114,23 +113,29 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
 
-        [TestCase]
+        [TestCase(BaseArtifactType.Process)]
         [TestRail(165967)]
         [Description("Create default process, delete it, get list of subartifacts - check that it is empty.")]
-        public void GetSubArtifacts_DeletedProcess_ReturnsEmptySubArtifactsList()
+        public void GetSubArtifacts_DeletedProcess_ReturnsEmptySubArtifactsList(BaseArtifactType artifactType)
         {
-            // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _projects.FirstOrDefault(), _user);
+            // Setup
+            var project = _projects[0];
 
-            Helper.Storyteller.Artifacts[0].Delete(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
 
+            var process = Helper.CreateAndPublishArtifact(project, author, artifactType);
+
+            process.Delete(author);
+
+            // Execute
             List<INovaSubArtifact> subArtifacts = null;
             Assert.DoesNotThrow(() =>
             {
-                subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, returnedProcess.Id);
-            }, "GetSubartifacts shouldn't throw an error.");
+                subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, process.Id);
+            }, "GetSubartifacts should return 200 OK when sent with valid parameters!");
 
-            Assert.AreEqual(0, subArtifacts.Count, "For deleted process GetSubartifacts must return empty list (for Instance Admin).");
+            // Verify
+            Assert.AreEqual(0, subArtifacts.Count, "For deleted process GetSubartifacts must return empty list.");
         }
 
         [Explicit(IgnoreReasons.UnderDevelopment)] // will be updated under User Story 3419:[Nova] Backend for editing properties (properties and sub-artifacts)
@@ -357,17 +362,26 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Use Case from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectUseCase_ReturnsCorrectSubArtifactsList()
         {
+            // Setup
+            const int USECASE_ID = 24;
+
+            var project = ArtifactStoreHelper.GetCustomDataProject(_user);
+
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
+
+            // Execute
             List<INovaSubArtifact> subArtifacts = null;
             Assert.DoesNotThrow(() =>
             {
-                subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, useCaseId);
-            }, "GetSubartifacts shouldn't throw an error.");
+                subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, USECASE_ID);
+            }, "GetSubartifacts should return 200 OK when sent with valid parameters!");
 
-            //Test that returned JSON corresponds to the Use Case structure
+            // Verify
+            // Test that returned JSON corresponds to the Use Case structure
             Assert.AreEqual(4, subArtifacts.Count, "Use Case must have 4 subartifacts - Pre Condition, Post Condition and 2 steps.");
             foreach (var s in subArtifacts)
             {
-                Assert.AreEqual(useCaseId, s.ParentId, "ParentId for subartifact of Use Case must be equal to Use Case Id.");
+                Assert.AreEqual(USECASE_ID, s.ParentId, "ParentId for subartifact of Use Case must be equal to Use Case Id.");
             }
             Assert.AreEqual(UseCaseDisplayNames.PRECONDITION, subArtifacts[0].DisplayName,
                 "DisplayName for Precondition should have expected name.");
@@ -428,17 +442,26 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectStoryboard_ReturnsCorrectSubArtifactsList()
         {
+            // Setup
+            const int STORYBOARD_ID = 32;
+
+            var project = ArtifactStoreHelper.GetCustomDataProject(_user);
+
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
+
+            // Execute
             List<INovaSubArtifact> subArtifacts = null;
             Assert.DoesNotThrow(() =>
             {
-                subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, storyboardId);
-            }, "GetSubartifacts shouldn't throw an error.");
+                subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, STORYBOARD_ID);
+            }, "GetSubartifacts should return 200 OK when sent with valid parameters");
 
-            //Test that returned JSON corresponds to the Generic Diagram structure
+            // Verify
+            // Test that returned JSON corresponds to the Generic Diagram structure
             Assert.AreEqual(3, subArtifacts.Count, ".");
             foreach (var s in subArtifacts)
             {
-                Assert.AreEqual(storyboardId, s.ParentId, "..");
+                Assert.AreEqual(STORYBOARD_ID, s.ParentId, "..");
             }
             Assert.IsTrue(subArtifacts[1].HasChildren, "This subartifact should have child.");
             Assert.AreEqual(subArtifacts[1].Id, subArtifacts[1].Children[0].ParentId, "ParentId of subartifact's child must be equal to subartifact's Id.");
@@ -468,8 +491,119 @@ namespace ArtifactStoreTests
 
         #endregion Custom Data
 
+        #region 403 Forbidden
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191097)]
+        [Description("Create & publish an artifact with sub-artifacts, GetSubArtifacts with a user that doesn't have access to the artifact.  Verify it returns 403 Forbidden.")]
+        public void GetSubArtifacts_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
+
+            // Execute
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifacts(viewer, artifact.Id);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS);
+
+            // Verify
+            // TODO : Currently impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3571
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191098)]
+        [Description("Create & publish parent & child artifacts.  Make sure viewer does not have access to parent.  Viewer request GetSubArtifacts from child artifact.  " +
+            "Verify it returns 403 Forbidden.")]
+        public void GetSubArtifacts_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup
+            IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
+
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
+
+            // Execute
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifacts(viewer, child.Id);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
+                            RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS);
+
+            // Verify
+            // TODO : Currently impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3571
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191099)]
+        [Description("Create & publish an artifact with sub-artifacts, GetSubArtifactDetails with a user that doesn't have access to the artifact.  Verify it returns 403 Forbidden.")]
+        public void GetSubArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+
+            // Execute
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifactDetails(viewer, artifact.Id, subArtifacts[0].Id);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID and sub-artifact ID but the user doesn't have permission to view the artifact!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
+
+            // Verify
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, 
+                I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id));
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191100)]
+        [Description("Create & publish parent & child artifacts.  Make sure viewer does not have access to parent.  Viewer request GetSubArtifactDetails from child artifact.  " +
+            "Verify it returns 403 Forbidden.")]
+        public void GetSubArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup
+            IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
+
+            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, child.Id);
+
+            Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+
+            // Execute
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifactDetails(viewer, child.Id, subArtifacts[0].Id);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
+               RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
+
+            // Verify
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+                I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", child.Id));
+        }
+
+        #endregion 403 Forbidden
+
         #region Private Methods
 
+        /// <summary>
+        /// Possible use case display names
+        /// </summary>
         private static class UseCaseDisplayNames
         {
             public const string PRECONDITION = "Pre Condition";
@@ -477,6 +611,12 @@ namespace ArtifactStoreTests
             public const string STEP = "Step {0}";
         }
 
+        /// <summary>
+        /// Checks sub-artifacts within an artifact for number of sub-artifacts, sub-artifact parent Id and if sub-artifact has children
+        /// </summary>
+        /// <param name="user">User to authenticate with</param>
+        /// <param name="artifactId">artifact Id</param>
+        /// <param name="expectedSubArtifactsNumber">Number of expected sub-artifacts in the artifact</param>
         private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber)
         {
             List<INovaSubArtifact> subArtifacts = null;

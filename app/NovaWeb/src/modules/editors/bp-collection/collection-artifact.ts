@@ -4,6 +4,7 @@ import {ItemTypePredefined, PropertyTypePredefined} from "../../main/models/enum
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
 import {Helper} from "../../shared/utils/helper";
 import {Models} from "../../main/models";
+import {IState} from "../../managers/artifact-manager/state";
 
 export interface ICollection extends IArtifact {
     reviewName: string;
@@ -26,39 +27,17 @@ export interface IStatefulCollectionArtifact extends IStatefulArtifact {
     reviewName: string;      
     artifacts: ICollectionArtifact[];
     addArtifactsToCollection(artifactIds: IArtifact[]);
-    removeArtifacts(artifactIds: IArtifact[]);
-    collectionObservable(): Rx.Observable<IChangeSet[]>;
+    removeArtifacts(artifactIds: IArtifact[]);    
 }
 
 export class StatefulCollectionArtifact extends StatefulArtifact implements IStatefulCollectionArtifact {
-
-    private _collectionSubject: Rx.Subject<IChangeSet[]>;
+    
+    private collectionContentPropertyValue: Models.IPropertyValue;    
 
     protected getArtifactModel(id: number, versionId: number): ng.IPromise<IArtifact> {
         const url = `/svc/bpartifactstore/collection/${id}`;
         return this.services.artifactService.getArtifactModel<ICollection>(url, id, versionId);
-    }
-
-    public unsubscribe() {
-        super.unsubscribe();
-        this.collectionSubject.onCompleted();
-        delete this._collectionSubject;
-    }
-   
-    protected get collectionSubject(): Rx.Subject<IChangeSet[]> {
-        if (!this._collectionSubject) {
-            this._collectionSubject = new Rx.Subject<IChangeSet[]>();
-        }
-        return this._collectionSubject;
-    }
-
-    protected updateCollectionSubject(changes: IChangeSet[]) {
-        this.collectionSubject.onNext(changes);
-    }
-
-    public collectionObservable(): Rx.Observable<IChangeSet[]> {
-        return this.collectionSubject.asObservable();
-    }
+    }    
 
     public get rapidReviewCreated() {
         if (this.artifact) {
@@ -79,72 +58,40 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
             return (<ICollection>this.artifact).artifacts;
         }
         return undefined;
-    }   
-
-    public changes(): IArtifact {
-        let artifactChanges = super.changes();
-        if (!artifactChanges || !artifactChanges.specificPropertyValues) {
-            return artifactChanges;
-        }
-
-        const changesets = this.changesets.get();
-        if (changesets.length > 0) {
-
-            const addedArtifactIds: number[] = [];
-            const removedArtifactIds: number[] = [];
-            changesets.map((changeset: IChangeSet) => {
-                if (changeset.type === ChangeTypeEnum.Add) {
-                    const id = changeset.key as number;
-                    const index = removedArtifactIds.indexOf(id);
-                    if (index > -1) {
-                        removedArtifactIds.splice(index);
-                    } else {
-                        addedArtifactIds.push(changeset.key as number);
-                    }
-                }
-                else if (changeset.type === ChangeTypeEnum.Delete) {
-                    const id = changeset.key as number;
-                    const index = addedArtifactIds.indexOf(id);
-                    if (index > -1) {
-                        addedArtifactIds.splice(index);
-                    } else {
-                        removedArtifactIds.push(changeset.key as number);
-                    }
-                }
-            });
-
-            if (addedArtifactIds.length > 0 || removedArtifactIds.length > 0) {
-
-                let collectionContent = <Models.ICollectionContentPropertyValue>{
-                    addedArtifacts: addedArtifactIds,
-                    removedArtifacts: removedArtifactIds
-                };
-
-                let collectionContentProperty = <Models.IPropertyValue>{
-                    name: "CollectionContent",
-                    primitiveType: Models.PrimitiveType.Text,
-                    propertyTypeId: -1,
-                    propertyTypePredefined: PropertyTypePredefined.CollectionContent,
-                    isRichText: false,
-                    isMultipleAllowed: false,
-                    isReuseReadOnly: false,
-                    propertyTypeVersionId: -1,
-                    value: collectionContent
-                };
-                artifactChanges.specificPropertyValues.push(collectionContentProperty);
-            }
-        }
-        return artifactChanges;
     }
+
+    private createCollectionContentSpecificProperty(): Models.IPropertyValue {
+        let collectionContent = <Models.ICollectionContentPropertyValue>{
+            addedArtifacts: [],
+            removedArtifacts: []
+        };
+
+        let collectionContentProperty = <Models.IPropertyValue>{
+            name: "CollectionContent",           
+            propertyTypeId: -1,
+            propertyTypePredefined: PropertyTypePredefined.CollectionContent,            
+            value: collectionContent
+        };
+        return collectionContentProperty;
+    }    
+
+    protected initialize(artifact: Models.IArtifact): IState {
+        const state = super.initialize(artifact);      
+        this.collectionContentPropertyValue = this.createCollectionContentSpecificProperty();        
+        this.specialProperties.list().push(this.collectionContentPropertyValue);
+        return state;
+    }   
 
     public addArtifactsToCollection(artifacts: IArtifact[]) {
 
         if (this.artifact &&
             artifacts &&
-            artifacts.length > 0) {
+            artifacts.length > 0 &&
+            this.collectionContentPropertyValue) {
 
-            let changesets: IChangeSet[] = [];
-            artifacts.map((artifact: IArtifact) => {
+            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;           
+
+            artifacts.forEach((artifact: IArtifact) => {
                 const newArtifact = <ICollectionArtifact>{
                     id: artifact.id,
                     description: "",
@@ -155,48 +102,55 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
                     artifactPath: Helper.getArtifactPath(artifact)
                 };
                 this.artifacts.push(newArtifact);
-                const changeset = {
-                    type: ChangeTypeEnum.Add,
-                    key: artifact.id,
-                    value: newArtifact
-                } as IChangeSet;
-                changesets.push(changeset);
-                this.changesets.add(changeset);
-            });
+                
+                const index = collectionContentPV.removedArtifacts.indexOf(artifact.id);
+                if (index > -1) {
+                    collectionContentPV.removedArtifacts.splice(index, 1);
+                } else {
+                    collectionContentPV.addedArtifacts.push(artifact.id);
+                }                
+            });                        
 
-            this.lock();
-
-            this.updateCollectionSubject(changesets);
+            this.updateCollectionContentSpecialProperty(collectionContentPV);
         }
     }    
+
+    private updateCollectionContentSpecialProperty(collectionContentPropertyValue: Models.ICollectionContentPropertyValue): void {
+        const newPropertyValue: Models.ICollectionContentPropertyValue = {
+            addedArtifacts: collectionContentPropertyValue.addedArtifacts,
+            removedArtifacts: collectionContentPropertyValue.removedArtifacts
+        };
+
+        this.specialProperties.set(Models.PropertyTypePredefined.CollectionContent, newPropertyValue);
+    }
 
     public removeArtifacts(artifacts: IArtifact[]) {
 
         if (this.artifact &&
             artifacts &&
-            artifacts.length > 0) {
+            artifacts.length > 0 &&
+            this.collectionContentPropertyValue) {
 
-            let changesets: IChangeSet[] = [];
-            artifacts.map((artifact: IArtifact) => {
+            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;            
+            let isSomethingDeleted: boolean = false;
+            artifacts.forEach((artifact: IArtifact) => {
                 
                 let index = this.artifacts.indexOf(<ICollectionArtifact>artifact, 0);
                 if (index > -1) {
+                    isSomethingDeleted = true;
                     this.artifacts.splice(index, 1);
 
-                    const changeset = {
-                    type: ChangeTypeEnum.Delete,
-                    key: artifact.id,
-                    value: artifact
-                    } as IChangeSet;    
-
-                    changesets.push(changeset);            
-                    this.changesets.add(changeset);
+                    const addedArtifactsIndex = collectionContentPV.addedArtifacts.indexOf(artifact.id);
+                    if (addedArtifactsIndex > -1) {
+                        collectionContentPV.addedArtifacts.splice(addedArtifactsIndex, 1);
+                    } else {
+                        collectionContentPV.removedArtifacts.push(artifact.id);
+                    }   
                 }                                                                             
             });
 
-            if (changesets.length > 0) {
-                this.lock();
-                this.updateCollectionSubject(changesets);
+            if (isSomethingDeleted) {
+                this.updateCollectionContentSpecialProperty(collectionContentPV);
             }
         }
     }

@@ -20,6 +20,7 @@ using Model.StorytellerModel.Impl;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class SaveArtifactTests : TestBase

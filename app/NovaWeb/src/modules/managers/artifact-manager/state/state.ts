@@ -3,7 +3,7 @@ import {Models, Enums} from "../../../main/models";
 import {IDispose} from "../../models";
 import {IIStatefulArtifact} from "../artifact";
 
-interface IState {
+export interface IState {
     lockedBy?: Enums.LockedByEnum;
     lockDateTime?: Date;
     lockOwner?: string;

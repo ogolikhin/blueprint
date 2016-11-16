@@ -299,11 +299,11 @@ describe("Artifact", () => {
             $rootScope.$digest();
 
             // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_Other");
+            expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
 
     });
-    
+
 
     describe("Publish", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, messageService: IMessageService) => {

@@ -70,7 +70,7 @@ describe("When process is saved", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _$httpBackend_: ng.IHttpBackendService,
-        messageService: IMessageService, 
+        messageService: IMessageService,
         artifactService: IArtifactService,
         processService: IProcessService,
         validationService: IValidationService,
@@ -83,8 +83,8 @@ describe("When process is saved", () => {
 
         session = new SessionSvcMock($q);
 
-        processModel = JSON.parse(require("./mocks/process-model-1.mock.json")); 
-        
+        processModel = JSON.parse(require("./mocks/process-model-1.mock.json"));
+
         const artifactServices = new StatefulArtifactServices(
             _$q_, session, messageService, null, localization, artifactService, null, null, metadataService, null, null, validationService);
 
@@ -111,7 +111,7 @@ describe("When process is saved", () => {
 
         processArtifact.artifactState.setState(newStateValues, false);
 
-        // Setup the data we wish to return for the http call  
+        // Setup the data we wish to return for the http call
         result = JSON.parse(require("./mocks/process-model-2.mock.json"));
 
         $httpBackend.when("PATCH", `/svc/components/storyteller/processes/${processArtifact.id}`)
@@ -309,7 +309,7 @@ describe("When process is saved", () => {
         $httpBackend.flush();
 
     });
-    
+
     it("save - error save", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         // arrange
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
@@ -332,7 +332,7 @@ describe("When process is saved", () => {
         $rootScope.$digest();
 
         // assert
-        expect(error.message).toEqual("App_Save_Artifact_Error_Other");
+        expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
     }));
 
 });

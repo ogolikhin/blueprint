@@ -15,15 +15,7 @@ export class Helper {
         });
     }
 
-    static limitCharsWithStripHTML(str, limit: number = 100): string {
-        if (str) {
-            let text = Helper.stripHTMLTags(str);
-            return Helper.limitChars(text, limit);
-        }
-        return "";
-    }
-
-    static limitChars(str, limit: number = 100): string {
+    static limitChars(str: string, limit: number = 100): string {
         if (str) {
             if (str.length > limit) {
                 return str.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;

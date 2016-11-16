@@ -43,15 +43,11 @@ namespace Model.ArtifactModel.Impl
 
         public bool IsSuspect { get; set; }
 
+        public int? SubArtifactId { get; set; } // Returned by the Add-Trace call.
+        public string Message { get; set; }     // Returned by the Add-Trace call.
+        public int? ResultCode { get; set; }    // Returned by the Add-Trace call.
+
         #endregion Inherited Serialized JSON Properties from ITrace
-
-        #region Additional Properties
-
-        public int? SubArtifactId { get; set; }
-        public string Message { get; set; }
-        public int? ResultCode { get; set; }
-
-        #endregion Additional Properties
 
         /// <summary>
         /// Contructor.

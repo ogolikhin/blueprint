@@ -8,7 +8,6 @@ import "angular-ui-tinymce";
 import "ui-select";
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
-import "ng-draggable";
 import "tinymce";
 import "../shell";
 import "../shared";
@@ -53,7 +52,6 @@ angular.module("app.main", [
     "ui.select",
     "ui.tinymce",
     "agGrid",
-    "ngDraggable",
     "bp.managers",
     "bp.editors",
     "bp.components",

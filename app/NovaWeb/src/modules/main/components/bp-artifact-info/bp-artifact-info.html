@@ -1,3 +1,10 @@
+<div ng-if="$ctrl.historicalMessage" class="artifact-status artifact-status--historical">
+    <span class="icon fonticon-clock"></span>
+    <span class="artifact-status__text">
+        {{:: $ctrl.historicalMessage }}
+        <a class="artifact-status__open-latest" ui-sref="main.item({ id: $ctrl.artifact.id, version: undefined })">Open latest version</a>
+    </span>
+</div>
 <div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
     <div class="icon" ng-class="!$ctrl.hasCustomIcon ? $ctrl.artifactClass : ''"
          bp-tooltip="{{ $ctrl.artifactTypeDescription }}">

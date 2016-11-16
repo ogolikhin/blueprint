@@ -1,5 +1,19 @@
 $has-children-padding-before-arrow: 3px;
 
+.explorer__node-link,
+.explorer__node-link:visited,
+.explorer__node-link:focus,
+.explorer__node-link:hover {
+    font-weight: normal;
+    color: inherit;
+    outline: inherit;
+
+    &:hover, &:focus {
+        text-decoration: none;
+        cursor: default;
+    }
+}
+
 .project-tree,
 .project-explorer {
     .ag-grid {
@@ -47,7 +61,6 @@ $has-children-padding-before-arrow: 3px;
                 border-width: 1px 0 1px 1px;
             }
 
-            .ag-group-inline-edit,
             .ag-group-value {
                 border-color: transparent;
                 border-style: solid;
@@ -69,19 +82,6 @@ $has-children-padding-before-arrow: 3px;
             }
         }
 
-        .ag-group-inline-edit input {
-            border: 0;
-            box-sizing: border-box;
-            color: $body-color;
-            height: calc(#{$aggrid-row-height} - 2px);
-            line-height: calc(#{$aggrid-row-height} - 2px);
-            padding: 0 1px 1px 0;
-            width: calc(100% - 20px); // 20px is the width of the icon
-        }
-
-        .has-children .ag-group-inline-edit input {
-            width: calc(100% + 5px); // 5px is the padding due to the children indicator
-        }
         // ag-grid has a bug which causes ag-row-group-expanded/contracted not to reflect the actual status
         .ag-group-contracted[style*='inline'],
         .ag-group-expanded[style*='inline'] {
@@ -130,7 +130,6 @@ $has-children-padding-before-arrow: 3px;
                         color: $white;
                     }
 
-                    span .ag-group-inline-edit::before,
                     span .ag-group-value::before {
                         color: $white;
                     }
@@ -138,7 +137,6 @@ $has-children-padding-before-arrow: 3px;
                     .ag-group-checkbox,
                     .ag-group-contracted,
                     .ag-group-expanded,
-                    .ag-group-inline-edit,
                     .ag-group-value {
                         border-color: $brand-secondary;
                     }
@@ -211,10 +209,6 @@ $has-children-padding-before-arrow: 3px;
             .ag-checkbox-indeterminate::before {
                 background-position: -16px 0;
             }
-        }
-
-        &.ag-cell-inline-editing .ag-group-value-wrapper span:not(.ag-group-inline-edit) {
-            display: none !important;
         }
     }
     // vertical alignment adjustments
@@ -408,83 +402,5 @@ $has-children-padding-before-arrow: 3px;
 
     .ag-row-group.ag-row-level-0 .ag-cell {
         margin-left: 0;
-    }
-}
-
-//drag and drop related styles
-.project-explorer {
-    .ag-row-draggable {
-        .ag-group-value .ag-group-value-wrapper i::before,
-        .ag-group-value .ag-group-value-wrapper bp-item-type-icon img {
-            cursor: move;
-        }
-    }
-
-    .ag-row:not(.drag-over) .ag-cell {
-        z-index: 100;
-
-        &.drag-enter {
-            .ag-group-contracted,
-            .ag-group-expanded,
-            .ag-group-value {
-                border-color: $body-color;
-                border-style: dashed;
-            }
-        }
-    }
-
-    .ag-row.drag-over {
-        cursor: move;
-        opacity: .5;
-    }
-
-    .ag-row-dnd-pre,
-    .ag-row-dnd-post {
-        background: transparent;
-        font-size: 0;
-        height: 2px;
-        position: absolute;
-        width: calc(100% - 10px);
-    }
-
-    .ag-row-dnd-pre {
-        top: -1px;
-        z-index: 200;
-    }
-
-    .ag-row-dnd-post {
-        bottom: -1px;
-        z-index: 300;
-    }
-
-    .ag-row:not(.drag-over) .ag-row-dnd-pre.drag-enter,
-    .ag-row:not(.drag-over) .ag-row-dnd-post.drag-enter {
-        //generated with http://png-pixel.com/
-        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPk+Q8AAR0BDcnX0+sAAAAASUVORK5CYII=) left repeat-x;
-    }
-
-    .ag-row:not(.drag-over) .ag-row-dnd-pre.drag-enter::before,
-    .ag-row:not(.drag-over) .ag-row-dnd-post.drag-enter::before {
-        border: solid 5px transparent;
-        border-left: solid 5px $body-color;
-        content: '';
-        position: relative;
-        top: 1px;
-    }
-
-    $aggrid-dnd-max-level: 5;
-
-    @for $i from 0 through $aggrid-dnd-max-level - 1 {
-        .ag-row-level-#{$i} + .ag-row-level-#{$i + 1} .ag-row-dnd-pre {
-            z-index: 400;
-        }
-    }
-
-    @for $i from $aggrid-dnd-max-level through 1 {
-        @for $j from 0 through ($i - 1) {
-            .ag-row-level-#{$i} + .ag-row-level-#{$j} .ag-row-dnd-pre {
-                display: none;
-            }
-        }
     }
 }

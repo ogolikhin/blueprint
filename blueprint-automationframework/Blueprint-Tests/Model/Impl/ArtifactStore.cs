@@ -537,7 +537,8 @@ namespace Model.Impl
             return artifactBaseInfo.ConvertAll(o => (INovaVersionControlArtifactInfo)o);
         }
 
-        public IFile GetAttachmentFile(IUser user, int itemId, int fileId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetAttachmentFile(IUser, int, int, int?, List{HttpStatusCode})"/>
+        public IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(itemId, nameof(itemId));
             ThrowIf.ArgumentNull(fileId, nameof(fileId));
@@ -550,7 +551,15 @@ namespace Model.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
             var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT_id_, itemId, fileId);
 
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            Dictionary<string, string> queryParams = null;
+
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
 
             // TODO: implementation copied from FileStore.cs - fix after call will be implemented
             if (response.StatusCode == HttpStatusCode.OK)
@@ -561,10 +570,9 @@ namespace Model.Impl
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
-                    Guid = fileId.ToString(),
                     LastModifiedDate =
-                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null),
+                    DateTime.ParseExact(response.Headers.First(h => h.Key == "Date").Value.ToString(), "r", 
+                            null), //'r' allow parse "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'"
                     FileType = response.ContentType,
                     FileName = filename
                 };

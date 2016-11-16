@@ -333,7 +333,7 @@ describe("When process is saved", () => {
         $rootScope.$digest();
 
         // assert
-        expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
+        expect(error.message).toEqual("App_Save_Artifact_Error_Other");
     }));
 
 });

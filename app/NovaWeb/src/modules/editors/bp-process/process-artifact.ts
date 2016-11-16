@@ -50,7 +50,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return [this.loadProcessPromise];
     }
 
-    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact> {
+    protected getCustomArtifactPromiseForSave(): angular.IPromise<IStatefulArtifact> {
         let saveProcessPromise = this.saveProcess();
         return saveProcessPromise;
     }
@@ -78,7 +78,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return deferred.promise;
     }
 
-    protected validateCustomArtifactPromisesForSave(): ng.IPromise<IStatefulArtifact> {
+    protected validateCustomArtifactPromiseForSave(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.getArtifactPropertyTypes().then((artifactPropertyTypes) => {
              _.each(this.changes().customPropertyValues, (propValue) => {

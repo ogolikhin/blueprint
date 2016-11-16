@@ -16,7 +16,8 @@ module.exports = [
     },
     {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css!postcss'),
+        loader: ExtractTextPlugin.extract('style-loader',
+            ["css-loader", "postcss-loader"]),
 
         include: [
             //important for performance!
@@ -27,7 +28,7 @@ module.exports = [
     {
         test: /\.scss$/,
         loader: ExtractTextPlugin.extract('style-loader',
-            'css?sourceMap!postcss!sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true'),
+            ['css-loader?sourceMap', 'postcss-loader', 'sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true']),
         exclude: [
             path.join(__dirname, "../src/fonts"),
             path.join(__dirname, "../src/images")

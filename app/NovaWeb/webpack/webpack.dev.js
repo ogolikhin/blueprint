@@ -62,6 +62,8 @@ module.exports = {
     plugins: [
         new webpack.NoErrorsPlugin(),
         new ProgressBarPlugin(),
+
+
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',
@@ -138,5 +140,5 @@ module.exports = {
             lowerCaseAttributeNames: false
         }
     },
-    devtool: 'cheap-module-eval-source-map'
+    devtool: 'source-map'
 };

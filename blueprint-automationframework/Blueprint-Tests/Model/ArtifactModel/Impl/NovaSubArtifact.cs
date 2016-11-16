@@ -26,9 +26,9 @@ namespace Model.ArtifactModel.Impl
 
         public string Prefix { get; set; }
 
-        public List<SubArtifactCustomProperty> CustomPropertyValues { get; } = new List<SubArtifactCustomProperty>();
+        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
 
-        public List<SubArtifactCustomProperty> SpecificPropertyValues { get; } = new List<SubArtifactCustomProperty>();
+        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
 
         public int PredefinedType { get; set; }
 
@@ -55,26 +55,5 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Serialized JSON Properties
-
-        public class SubArtifactCustomProperty
-        {
-            public string Name { get; set; }
-
-            public int PropertyTypeId { get; set; }
-
-            public int? PropertyTypeVersionId { get; set; }
-
-            public int PropertyTypePredefined { get; set; }
-
-            public bool? IsMultipleAllowed { get; set; }
-
-            public bool? IsRichText { get; set; }
-
-            public int? PrimitiveType { get; set; }
-
-            public object Value { get; set; }
-
-            public bool? IsReuseReadOnly { get; set; }
-        }
     }
 }

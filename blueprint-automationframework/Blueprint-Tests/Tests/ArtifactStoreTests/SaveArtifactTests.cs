@@ -48,7 +48,7 @@ namespace ArtifactStoreTests
         private static NovaSubArtifact CreateSubartifactChangeset(NovaSubArtifact subArtifact, string customPropertyName)
         {
             var targetCustomPropertyValue = subArtifact.CustomPropertyValues.Find(custP => custP.Name.Equals(customPropertyName));
-            targetCustomPropertyValue.Value = StringUtilities.WrapInHTML("TestString_" + RandomGenerator.RandomAlphaNumeric(5));
+            targetCustomPropertyValue.CustomPropertyValue = StringUtilities.WrapInHTML("TestString_" + RandomGenerator.RandomAlphaNumeric(5));
             subArtifact.CustomPropertyValues.Clear();
             subArtifact.SpecificPropertyValues.Clear();
             subArtifact.CustomPropertyValues.Add(targetCustomPropertyValue);
@@ -86,8 +86,8 @@ namespace ArtifactStoreTests
 
             // Verify: The returned subartifact contains the change made using the PATCH UpdateArtifact
             var returnedSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, defaultUserTask.Id);
-            var requestedSubartifactCustomPropertyValue = subArtifactChangeset.CustomPropertyValues.Find(cp => cp.Name.Equals(targetCustomPropertyName)).Value.ToString();
-            var updatedSubartifactCustomPropertyValue = returnedSubArtifact.CustomPropertyValues.Find(cp => cp.Name.Equals(targetCustomPropertyName)).Value.ToString();
+            var requestedSubartifactCustomPropertyValue = subArtifactChangeset.CustomPropertyValues.Find(cp => cp.Name.Equals(targetCustomPropertyName)).CustomPropertyValue.ToString();
+            var updatedSubartifactCustomPropertyValue = returnedSubArtifact.CustomPropertyValues.Find(cp => cp.Name.Equals(targetCustomPropertyName)).CustomPropertyValue.ToString();
             Assert.AreEqual(updatedSubartifactCustomPropertyValue, requestedSubartifactCustomPropertyValue);
         }
 

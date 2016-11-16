@@ -8,13 +8,8 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Utilities;
 using Utilities.Facades;
-using Newtonsoft.Json;
 using System.Web;
 using System.Net.Mime;
 

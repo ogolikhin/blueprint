@@ -22,24 +22,32 @@ namespace Model.ArtifactModel.Impl
 
         public int? ItemTypeId { get; set; }
 
+        public string DisplayName { get; set; }
+
         public int? ItemTypeVersionId { get; set; }
+
+        public int PredefinedType { get; set; }
 
         public string Prefix { get; set; }
 
+        public bool ShouldSerializeCustomPropertyValues()
+        {
+            return CustomPropertyValues.Count > 0;
+        }
         public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
 
+        public bool ShouldSerializeSpecificPropertyValues()
+        {
+            return SpecificPropertyValues.Count > 0;
+        }
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
-
-        public int PredefinedType { get; set; }
 
         public bool ShouldSerializeAttachmentValues()
         {
             return AttachmentValues.Count > 0;
         }
         public List<AttachmentValue> AttachmentValues { get; } = new List<AttachmentValue>();
-
-        public string DisplayName { get; set; }
-
+        
         public bool HasChildren { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

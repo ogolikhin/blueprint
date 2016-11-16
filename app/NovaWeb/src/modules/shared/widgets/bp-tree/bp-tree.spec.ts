@@ -63,9 +63,9 @@ describe("Embedded ag-grid events", () => {
     it("getNodeChildDetails", () => {
         // Arrange
         const rowItemMock = {
-            hasChildren: true,
-            open: true,
-            id: 1
+            group: true,
+            expanded: true,
+            key: "1"
         };
 
         const rowItemMockNoChildren = {};
@@ -76,7 +76,7 @@ describe("Embedded ag-grid events", () => {
         const nodeNoChildren = options.getNodeChildDetails(rowItemMockNoChildren);
 
         // Assert
-        expect(node.key).toEqual(1);
+        expect(node.key).toEqual("1");
         expect(node.expanded).toBeTruthy();
         expect(nodeNoChildren).toBeNull();
     });

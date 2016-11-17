@@ -3,6 +3,15 @@
             ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>
+    <select ng-model="$ctrl.filterItemType" 
+            ng-options="x.name for x in $ctrl.itemTypes"
+            ng-change="$ctrl.search()">
+    </select>
+
+    <div ng-show="$ctrl.filterItemType.name">
+        {{$ctrl.filterItemType.name}}
+        <button ng-click="$ctrl.clearFilter()">x</button>
+    </div>
     <div class="search-input">
         <input type="text" class="form-control" ng-if="!$ctrl.project"
                placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText"/>

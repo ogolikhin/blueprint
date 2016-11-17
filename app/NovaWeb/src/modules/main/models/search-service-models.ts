@@ -22,6 +22,7 @@ export interface IProjectSearchResultSet extends ISearchResultSet<ISearchResult>
 export interface IItemNameSearchCriteria extends ISearchCriteria {
     projectIds: number[];
     predefinedTypeIds?: ItemTypePredefined[];
+    itemTypeIds?: number[];
     includeArtifactPath?: boolean;
 }
 

@@ -44,15 +44,14 @@ export class ShapesFactory {
 
     private _idGenerator = new IdGenerator();
 
-    public NEW_USER_TASK_LABEL: string;
-    public NEW_USER_TASK_PERSONAREFERENCE: IArtifactReference;
-    public NEW_SYSTEM_TASK_LABEL: string;
-    public NEW_SYSTEM_TASK_PERSONAREFERENCE: IArtifactReference;
-    public NEW_USER_DECISION_LABEL: string;
-    public NEW_SYSTEM_DECISION_LABEL: string;
-    public NEW_MERGE_NODE_NAME: string;
-
-    public Persona: IPropertyNameConstantsInformation = {key: "persona", name: "Persona"};
+    public readonly NEW_USER_TASK_LABEL: string;
+    public readonly NEW_USER_TASK_PERSONAREFERENCE: IArtifactReference;
+    public readonly NEW_SYSTEM_TASK_LABEL: string;
+    public readonly NEW_SYSTEM_TASK_PERSONAREFERENCE: IArtifactReference;
+    public readonly NEW_USER_DECISION_LABEL: string;
+    public readonly NEW_SYSTEM_DECISION_LABEL: string;
+    public readonly NEW_MERGE_NODE_NAME: string;
+    
     public ClientType: IPropertyNameConstantsInformation = {key: "clientType", name: "ClientType"};
     public X: IPropertyNameConstantsInformation = {key: "x", name: "X"};
     public Y: IPropertyNameConstantsInformation = {key: "y", name: "Y"};

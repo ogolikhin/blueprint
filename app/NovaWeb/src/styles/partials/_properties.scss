@@ -228,7 +228,7 @@ pagecontent, bp-properties-panel {
 
             .ui-select-single {
                 .ui-select-search {
-                    min-width: 100%;
+                    min-width: $property-input-width;
                 }
 
                 &.no-custom {

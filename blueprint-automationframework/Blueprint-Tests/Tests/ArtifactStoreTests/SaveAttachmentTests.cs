@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.NovaModel;
 using Model.Factories;
+using Model.NovaModel;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
-using Common;
-using Utilities.Factories;
 using Utilities;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -25,6 +25,8 @@ namespace ArtifactStoreTests
         private const string _fileType = "text/plain";
         private INovaFile _attachmentFile = null;
         private System.DateTime defaultExpireTime = System.DateTime.Now.AddDays(2);//Currently Nova set ExpireTime 2 days from today for newly uploaded file
+
+        #region Setup and Cleanup
 
         [SetUp]
         public void SetUp()
@@ -46,6 +48,10 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #endregion Setup and Cleanup
+
+        #region 200 OK Tests
+
         [TestCase]
         [TestRail(182360)]
         [Description("Add attachment to the published artifact, check that it throws no error, check that attachement has expected value.")]
@@ -56,13 +62,14 @@ namespace ArtifactStoreTests
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
                 "Artifact shouldn't have attachments at this point.");
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore),
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, artifact, _attachmentFile, Helper.ArtifactStore),
                 "Exception caught while trying to update an artifact!");
 
             // Verify:
-            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, author);
             Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count,
                 "Artifact should have 1 attachments at this point.");
             Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
@@ -79,11 +86,12 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_user);
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(_user, artifact,
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.DeleteArtifactAttachmentAndSave(author, artifact,
                 attachment.AttachedFiles[0].AttachmentId, Helper.ArtifactStore), "Exception caught while trying to update an artifact!");
-            attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            attachment = Helper.ArtifactStore.GetAttachments(artifact, author);
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
@@ -103,18 +111,23 @@ namespace ArtifactStoreTests
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
                 "Artifact shouldn't have attachments at this point.");
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_user, artifact,
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(author, artifact,
                 new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
                 "Exception caught while trying to update an artifact!");
 
             // Verify:
-            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, author);
             Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count,
                 "Artifact should have 2 attachments at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
+
+        #endregion 200 OK Tests
+
+        #region 409 Conflict Tests
 
         [TestCase]
         [TestRail(182404)]
@@ -138,5 +151,30 @@ namespace ArtifactStoreTests
                 "Artifact shouldn't have at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
+
+        [TestCase]
+        [TestRail(191166)]
+        [Description("Add attachment to the published artifact using the user that doesn't have a write permission. Verified that locking and saving artifact, and adding attachment failed.")]
+        public void AddAttachment_AddAttachmentWithUserHasNoWritePermissionToArtifact_409Conflict()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
+                "Artifact shouldn't have attachments at this point.");
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute: Expected Lock request gets denied (Access Denied) and Save failed with 409 Conflict 
+            Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(viewer, artifact, _attachmentFile, Helper.ArtifactStore, expectedLockResult: Model.ArtifactModel.Impl.LockResult.AccessDenied),
+                "Exception caught while trying to update an artifact!");
+
+            // Verify:
+            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, viewer);
+            Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count,
+                "Artifact should have no attachment at this point.");
+            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+        }
+
+        #endregion 409 Conflict Tests
     }
 }

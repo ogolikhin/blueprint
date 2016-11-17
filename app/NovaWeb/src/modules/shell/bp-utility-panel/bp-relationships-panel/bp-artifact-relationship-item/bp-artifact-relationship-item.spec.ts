@@ -109,7 +109,6 @@ describe("BPArtifactRelationshipItem", () => {
     describe("select artifact", () => {
 
         beforeEach(() => {
-            vm.selectable = true;
             vm.relationship = <IRelationship>{
                 "artifactId": 1,
                 "itemId": 3

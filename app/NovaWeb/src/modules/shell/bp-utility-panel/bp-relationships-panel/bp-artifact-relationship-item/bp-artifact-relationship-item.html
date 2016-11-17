@@ -17,7 +17,7 @@
             </div>
         </div>
     </div>
-    <div class="details" ng-show="$ctrl.relationship.hasAccess" ng-class="{'selected' : $ctrl.isSelected}"
+    <div class="details" ng-show="$ctrl.relationship.hasAccess" ng-class="{selected : $ctrl.relationship.isSelected}"
          ng-click="$ctrl.select()">
         <div class="trace-icon"
              data-ng-class="{'false': 'trace-icon-regular', 'true' : 'trace-icon-suspect'}[$ctrl.relationship.suspect]">
@@ -65,7 +65,7 @@
 
     <div class="icons" ng-show="$ctrl.relationship.hasAccess && $ctrl.selectable">
         <div>
-            <input type="checkbox" ng-checked="$ctrl.isSelected"
+            <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"
                    ng-disabled="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>

@@ -96,8 +96,8 @@ export class QuickSearchService implements IQuickSearchService {
         return this.appendParameters(url, page, pageSize);
     }
 
-    private projectIds(){
-        return  _.map(this.projectManager.projectCollection.getValue(), "model.id");
+    private projectIds() {
+        return _.map(this.projectManager.projectCollection.getValue(), "model.id");
     }
 
     metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchMetadata> {
@@ -110,7 +110,7 @@ export class QuickSearchService implements IQuickSearchService {
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds":this.projectIds()
+                "ProjectIds": this.projectIds()
             }
         };
 

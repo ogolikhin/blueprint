@@ -130,8 +130,8 @@ export class AnalyticsProvider implements ng.IServiceProvider {
         };
         this._trackPage = () => {
             const track = this.canEmit();
-            if(!track.canTrack){
-                return $log.warn(track.message)
+            if (!track.canTrack) {
+                return $log.warn(track.message);
             }
             let pageView = _baseKeenEvent();
             let event = "pageView";
@@ -155,8 +155,8 @@ export class AnalyticsProvider implements ng.IServiceProvider {
          */
         this._trackEvent = (eventCollection, action, label?, value?, custom?, jQEvent?) => {
             const track = this.canEmit();
-            if(!track.canTrack){
-                return $log.warn(track.message)
+            if (!track.canTrack) {
+                return $log.warn(track.message);
             }
             //send the event type
             let eventType;

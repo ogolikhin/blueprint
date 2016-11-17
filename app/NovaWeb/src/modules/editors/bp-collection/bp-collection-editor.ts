@@ -90,7 +90,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 return;
             }
             this.metadataService.get(collectionArtifact.projectId).then(() => {
-                this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+                this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
                 });
 
@@ -123,7 +123,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-        this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+        this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
         });
     };
@@ -275,7 +275,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }];
     }
 
-    public rootNode: CollectionNodeVM[] = [];
+    public rowData: CollectionNodeVM[] = [];
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;

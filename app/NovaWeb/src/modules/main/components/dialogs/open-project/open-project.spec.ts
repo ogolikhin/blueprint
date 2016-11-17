@@ -31,12 +31,12 @@ describe("OpenProjectController", () => {
         // Act
 
         // Assert
-        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
+        expect(controller.rowData).toEqual([controller.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
             hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true));
+        } as AdminStoreModels.IInstanceItem, true)]);
     });
 
     describe("columns", () => {

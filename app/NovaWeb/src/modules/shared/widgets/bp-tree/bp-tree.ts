@@ -6,7 +6,7 @@ import {IArtifactNode} from "../../../managers/project-manager";
  * Usage:
  *
  * <bp-tree api="$ctrl.tree"
- *          root-nodes="$ctrl.projects"
+ *          row-datas="$ctrl.projects"
  *          grid-columns="$ctrl.columns"
  *          on-select="$ctrl.doSelect(item)"
  *          on-error="$ctrl.onError(reason)"
@@ -25,7 +25,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
-        rootNodes: "<",
+        rowData: "<",
         gridColumns: "<",
         // Output
         onSelect: "&?",
@@ -41,7 +41,7 @@ export interface IBPTreeController {
     rowBuffer: number;
     rowHeight: number;
     headerHeight: number;
-    rootNodes: IArtifactNode[];
+    rowData: IArtifactNode[];
     gridColumns: any[];
     onSelect?: Function;                //to be called on time of ag-grid row selection
     onError: (param: {reason: any}) => void;
@@ -66,7 +66,7 @@ export class BPTreeController implements IBPTreeController {
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
-    public rootNodes: IArtifactNode[] = [];
+    public rowData: IArtifactNode[] = [];
     public gridColumns: any[];
     public onSelect: Function;
     public onError: (param: {reason: any}) => void;
@@ -84,6 +84,7 @@ export class BPTreeController implements IBPTreeController {
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
+        this.rowData = this.rowData ? this.rowData : [];
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
 
         if (_.isArray(this.gridColumns)) {
@@ -132,7 +133,7 @@ export class BPTreeController implements IBPTreeController {
     };
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["rootNodes"]) {
+        if (onChangesObj["rowData"]) {
             this.resetGridAsync();
         }
     }
@@ -214,9 +215,9 @@ export class BPTreeController implements IBPTreeController {
 
     private resetGridAsync(): ng.IPromise<void> {
         if (this.options.api) {
-            return this.$q.all(this.rootNodes.filter(n => n.expanded && !n.loaded).map(n => n.loadChildrenAsync())).then(() => {
+            return this.$q.all(this.rowData.filter(vm => this.isLazyLoaded(vm)).map(vm => this.loadExpanded(vm))).then(() => {
                 if (this.options.api) {
-                    this.options.api.setRowData(this.rootNodes);
+                    this.options.api.setRowData(this.rowData);
 
                     if (this.selectedVM && this.selectedVM.model) {
                         this.options.api.forEachNode(node => {
@@ -245,6 +246,17 @@ export class BPTreeController implements IBPTreeController {
         }
 
         return this.$q.resolve();
+    }
+
+    private isLazyLoaded(vm: IArtifactNode): boolean {
+        return vm.expanded && !_.isArray(vm.children) && _.isFunction(vm.loadChildrenAsync);
+    }
+
+    private loadExpanded(vm: IArtifactNode): ng.IPromise<any> {
+        return vm.loadChildrenAsync().then(children => {
+            vm.children = children;
+            return this.$q.all(children.filter(this.isLazyLoaded).map(this.loadExpanded));
+        });
     }
 
     private getNode(id: number, nodes?: IArtifactNode[]): IArtifactNode {
@@ -325,18 +337,18 @@ export class BPTreeController implements IBPTreeController {
                 row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
-            if (node.expanded && !vm.loaded && _.isFunction(vm.loadChildrenAsync)) {
+            vm.expanded = node.expanded;
+            if (this.isLazyLoaded(vm)) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                vm.loadChildrenAsync().then(() => this.resetGridAsync()).catch(reason => {
+                this.loadExpanded(vm).then(() => this.resetGridAsync()).catch(reason => {
                     if (_.isFunction(this.onError)) {
                         this.onError({reason: reason});
                     }
                 });
             }
         }
-        vm.expanded = node.expanded;
     };
 
     private rowSelected = (event: {node: agGrid.RowNode}) => {

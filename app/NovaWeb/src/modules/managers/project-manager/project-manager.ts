@@ -21,8 +21,7 @@ export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifa
     key: string; // Each row in the dom will have an attribute row-id='key'
 
     parentNode?: IArtifactNode;
-    loaded?: boolean;
-    loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
+    loadChildrenAsync?(): ng.IPromise<IArtifactNode[]>;
 
     getNode(id: number, item?: IArtifactNode): IArtifactNode;
 }
@@ -257,7 +256,6 @@ export class ProjectManager implements IProjectManager {
                 this.artifactManager.add(statefulProject);
                 return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulProject, newProjectNode);
             });
-            newProjectNode.loaded = true;
             newProjectNode.expanded = true;
 
             //open any children that have children
@@ -270,8 +268,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     private clearProject(project: IArtifactNode) {
-        project.children = [];
-        project.loaded = false;
+        project.children = undefined;
         project.expanded = false;
         //this.projectCollection.onNext(this.projectCollection.getValue());
     }
@@ -287,7 +284,6 @@ export class ProjectManager implements IProjectManager {
                     this.artifactManager.add(statefulArtifact);
                     return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, node);
                 });
-                node.loaded = true;
                 node.expanded = true;
 
                 //process its children

@@ -36,7 +36,7 @@
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"
-                     ng-if="$ctrl.rootNode && $ctrl.rootNode.length > 0">
+                     ng-if="$ctrl.rowData && $ctrl.rowData.length > 0">
                     <div class="collection__bulk__actions text-right" ng-show="$ctrl.selectedVMs.length">
                         {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon-delete-filled" ng-click="$ctrl.bulkDelete()"
                                                    bp-tooltip=" {{::$ctrl.localization.get('Artifact_Collection_Delete_Selected')}}"></i>
@@ -46,7 +46,7 @@
                           api="$ctrl.api"
                           selection-mode="'checkbox'"
                           row-height="53"
-                          root-node="$ctrl.rootNode"
+                          row-data="$ctrl.rowData"
                           columns="$ctrl.columns"
                           header-height="30"
                           size-columns-to-fit="'true'"
@@ -55,7 +55,7 @@
                 </div>
                 <div class="specific-properties content"
                      uib-collapse="isSpecificPropertiesCollapsed"
-                     ng-hide="$ctrl.rootNode && $ctrl.rootNode.length > 0">
+                     ng-hide="$ctrl.rowData && $ctrl.rowData.length > 0">
                         <div class="empty-collection text-center" >
                             {{::$ctrl.localization.get('Artifact_Collection_No_Artifacts_In_Collection')}}
                         </div>

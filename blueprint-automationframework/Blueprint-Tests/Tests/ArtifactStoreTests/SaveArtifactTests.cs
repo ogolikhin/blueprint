@@ -12,6 +12,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
@@ -163,9 +164,8 @@ namespace ArtifactStoreTests
             CustomProperty property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
             // Change custom property text value
-            property.CustomPropertyValue =
-                StringUtilities.WrapInHTML(
-                    RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces());
+            property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(
+                RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()));
 
             // Execute:
             artifact.Lock(author);
@@ -404,9 +404,8 @@ namespace ArtifactStoreTests
             CustomProperty property = subArtifact.CustomPropertyValues.Find(p => p.Name == propertyName);
 
             // Change custom property text value
-            property.CustomPropertyValue =
-                StringUtilities.WrapInHTML(
-                    RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces());
+            property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(
+                RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()));
 
             artifactDetails.SubArtifacts = new List<INovaSubArtifact>() { subArtifact };
 

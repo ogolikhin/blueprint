@@ -19,11 +19,6 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     };
 }
 
-export interface IResult {
-    found: boolean;
-    index: number;
-}
-
 interface IBPArtifactRelationshipItemController {
     setItemDirection: Function;
     toggleItemFlag: Function;
@@ -85,16 +80,16 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public selectTrace() {
         if (!this.relationship.isSelected) {
             if (this.selectedTraces) {
-                let res = this.inArray(this.selectedTraces);
-                if (!res.found) {
+                const found = _.find(this.selectedTraces, {itemId: this.relationship.itemId});
+                if (!found) {
                     this.selectedTraces.push(this.relationship);
                 }
             }
         } else {
             if (this.selectedTraces) {
-                let res = this.inArray(this.selectedTraces);
-                if (res.found) {
-                    this.selectedTraces.splice(res.index, 1);
+                const foundIndex = _.findIndex(this.selectedTraces, {itemId: this.relationship.itemId});
+                if (foundIndex > -1) {
+                    this.selectedTraces.splice(foundIndex, 1);
                 }
             }
         }
@@ -110,22 +105,6 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         }
         $event.cancelBubble = true;
         $event.returnValue = false;
-    }
-
-    public inArray(array) {
-        let found = false,
-            index = -1;
-        if (array) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].itemId === this.relationship.itemId) {
-                    found = true;
-                    index = i;
-                    break;
-                }
-            }
-        }
-
-        return <IResult>{"found": found, "index": index};
     }
 
     public limitChars(str) {

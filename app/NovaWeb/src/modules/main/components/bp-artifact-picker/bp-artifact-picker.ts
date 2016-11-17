@@ -137,7 +137,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             if (this.selectableItemTypes) {
                 artifactTypes = artifactTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
             } else {
-            artifactTypes = artifactTypes.filter(a => 
+            artifactTypes = artifactTypes.filter(a =>
                 a.predefinedType !== Models.ItemTypePredefined.Project
                 && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
                 && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
@@ -195,11 +195,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     private resetItemTypes(): void {
-        this.itemTypes =                 
+        this.itemTypes =
                 [{
-                    name : "", 
-                    id : null, 
-                    prefix : "", 
+                    name : "",
+                    id : null,
+                    prefix : "",
                     predefinedType : null,
                     iconImageId: null,
                     usedInThisProject: null,
@@ -297,6 +297,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public clearFilter(): void {
         this.filterItemType = this.itemTypes[0];
         this.search();
+    }
+
+    public setName(type): void {
+        this.filterItemType = type;
     }
 
     public search(): void {

@@ -153,6 +153,70 @@ $modal-open-project-height: 450px;
                 border-bottom-left-radius: 0;
             }
 
+            .btn-search {
+                border-radius: 0;
+            }
+
+            .btn-atrifact-type {
+                width: auto;
+                min-width: 20px;
+                background: $brand-secondary;
+                color: $white;
+            }
+
+            .dropdown-menu{
+                right: 0;
+                top: 31px;
+                border-radius: 0;
+                list-style: none;
+                border: none;
+                width:200px;
+                padding: 0;
+            }
+            .dropdown-menu__atrifact-type{
+                border-radius: 0;
+                font-size: $font-size-normal;
+                padding-left: 15px;
+                padding-right: 15px;
+                max-height: 180px;
+                overflow: auto;
+                list-style: none;
+                border: 1px solid $gray-lighter;
+                margin-bottom: 0;
+            }
+
+            .dropdown-menu__tooltip {
+                border-radius: 0;
+                border: 1px solid $gray-lighter;
+                font-size: $font-size-small;
+                padding: 4px;
+                color: $gray-light;
+                text-align: right;
+            }
+
+            .dropdown-menu__atrifact-type-item{
+                cursor: pointer;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .filter {
+                width: 100%;
+                font-size: $font-size-normal;
+                background: $white;
+                border: 1px solid $gray-lighter;
+                padding: 2px 2px 2px 12px;
+                margin-top: 1px;
+                margin-bottom: -14px;
+                position: relative;
+                color: $gray-light;
+            }
+
+            .filter-icon-clear-search {
+                padding-top: 2px;
+            }
+
             .fonticon2-search::before {
                 display: inline;
             }

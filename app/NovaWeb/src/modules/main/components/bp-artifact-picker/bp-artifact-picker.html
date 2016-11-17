@@ -1,17 +1,27 @@
 <form class="search-form">
-    <button type="submit" class="btn btn-small btn-promoted-action" ng-click="$ctrl.search()"
+    <div uib-dropdown class="dropdown-wrapper">
+        <button type="button" uib-dropdown-toggle class="btn btn-atrifact-type dropdown-toggle" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only"></span>
+        </button>
+
+        <div class="dropdown-menu">
+            <div class="dropdown-menu__tooltip">
+                Filter by type
+            </div>
+            <ul class="dropdown-menu__atrifact-type">
+                <li class="dropdown-menu__atrifact-type-item" ng-repeat="x in $ctrl.itemTypes track by $index" ng-click="$ctrl.search();$ctrl.setName(x);">{{::x.name}}</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <button type="submit" class="btn btn-small btn-search btn-promoted-action" ng-click="$ctrl.search()"
             ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>
-    <select ng-model="$ctrl.filterItemType" 
-            ng-options="x.name for x in $ctrl.itemTypes"
-            ng-change="$ctrl.search()">
-    </select>
 
-    <div ng-show="$ctrl.filterItemType.name">
-        {{$ctrl.filterItemType.name}}
-        <button ng-click="$ctrl.clearFilter()">x</button>
-    </div>
     <div class="search-input">
         <input type="text" class="form-control" ng-if="!$ctrl.project"
                placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText"/>
@@ -19,6 +29,12 @@
                placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText"/>
         <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
+
+    <div ng-show="$ctrl.filterItemType.name" class="filter">
+        Filter by type: <strong>{{$ctrl.filterItemType.name}}</strong>
+        <i class="fonticon-error filter-icon-clear-search" ng-click="$ctrl.clearFilter()"></i>
+    </div>
+
 </form>
 <div class="project-wrapper">
     <div class="artifact-picker-container">

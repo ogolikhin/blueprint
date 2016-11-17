@@ -35,68 +35,6 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        #region private functions
-
-        /// <summary>
-        /// Creates an expected ArtifactHistoryVersion that tests can compare against.
-        /// </summary>
-        /// <param name="versionId">(optional) Default is 1.</param>
-        /// <param name="userId">(optional) Default is _user.UserId.</param>
-        /// <param name="displayName">(optional) Default is _user.DisplayName.</param>
-        /// <param name="hasUserIcon">(optional) Default is false.</param>
-        /// <param name="timestamp">(optional) Default is now.</param>
-        /// <param name="artifactState">(optional) Default is Published.</param>
-        /// <returns>An ArtifactHistoryVersion with the values specified.</returns>
-        private ArtifactHistoryVersion CreateArtifactHistoryVersion(
-            long? versionId = null,
-            int? userId = null,
-            string displayName = null,
-            bool? hasUserIcon = null,
-            DateTime? timestamp = null,
-            ArtifactState? artifactState = null)
-        {
-            var expectedArtifactHistory = new ArtifactHistoryVersion
-            {
-                VersionId = versionId ?? 1,
-                UserId = userId ?? _user.Id,
-                DisplayName = displayName ?? _user.DisplayName,
-                HasUserIcon = hasUserIcon ?? false,
-                Timestamp = timestamp ?? DateTime.Now.ToUniversalTime(),
-                ArtifactState = artifactState ?? ArtifactState.Published
-            };
-
-            return expectedArtifactHistory;
-        }
-
-        /// <summary>
-        /// Asserts that the returned artifact history version is equal to the expected one.
-        /// </summary>
-        /// <param name="artifactHistoryVersion">The ArtifactHistoryVersion that was returned.</param>
-        /// <param name="expectedArtifactHistoryVersion">The expected ArtifactHistoryVersion values.</param>
-        /// <param name="plusOrMinusSeconds">(optional) Compare Timestamps leniently with +/- this many seconds.</param>
-        private static void AssertArtifactHistory(
-            ArtifactHistoryVersion artifactHistoryVersion,
-            ArtifactHistoryVersion expectedArtifactHistoryVersion,
-            double plusOrMinusSeconds = 60.0)
-        {
-            Assert.AreEqual(artifactHistoryVersion.VersionId, expectedArtifactHistoryVersion.VersionId,
-                "VersionId should be {0}, but it is {1}", artifactHistoryVersion.VersionId, expectedArtifactHistoryVersion.VersionId);
-            Assert.AreEqual(artifactHistoryVersion.HasUserIcon, expectedArtifactHistoryVersion.HasUserIcon,
-                "HasUserIcon should be {0}, but it is {1}", artifactHistoryVersion.HasUserIcon, expectedArtifactHistoryVersion.HasUserIcon);
-            Assert.AreEqual(artifactHistoryVersion.DisplayName, expectedArtifactHistoryVersion.DisplayName,
-                "DisplayName should be {0}, but it is {1}", artifactHistoryVersion.DisplayName, expectedArtifactHistoryVersion.DisplayName);
-            Assert.AreEqual(artifactHistoryVersion.ArtifactState, expectedArtifactHistoryVersion.ArtifactState,
-                "ArtifactState should be {0}, but it is {1}", artifactHistoryVersion.ArtifactState, expectedArtifactHistoryVersion.ArtifactState);
-            Assert.AreEqual(artifactHistoryVersion.UserId, expectedArtifactHistoryVersion.UserId,
-                "UserId should be {0}, but it is {1}", artifactHistoryVersion.UserId, expectedArtifactHistoryVersion.UserId);
-
-            // Compare the Timestamps +/- plusOrMinusSeconds because we don't know what the exact time of creation was.
-            Assert.That(artifactHistoryVersion.Timestamp.CompareTimePlusOrMinus(expectedArtifactHistoryVersion.Timestamp, plusOrMinusSeconds),
-                "Timestamp should be approximately {0}, but it is {1}", expectedArtifactHistoryVersion.Timestamp, artifactHistoryVersion.Timestamp);
-        }
-
-        #endregion private functions
-
         [TestCase]
         [TestRail(145867)]
         [Description("Create artifact, publish it, get history.  Verify 1 published artifact history is returned with the expected values.")]
@@ -105,13 +43,15 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<ArtifactHistoryVersion> artifactHistory = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shouldn't throw any error.");
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, viewer);
+            }, "GetArtifactHistory shouldn return 200 OK when sent with valid parameters!");
 
             // Verify:
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
@@ -126,21 +66,25 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactInDraft_VerifyHistoryHasExpectedValue()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Save(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            IArtifact artifact = Helper.CreateArtifact(_project, author, BaseArtifactType.Actor);
+
+            artifact.Save(author);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
-            }, "GetArtifactHistory shouldn't throw any error.");
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, author);
+            }, "GetArtifactHistory shouldn return 200 OK when sent with valid parameters!");
 
             // Verify:
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
 
-            var expectedArtifactHistoryVersion = CreateArtifactHistoryVersion(versionId: Int32.MaxValue, artifactState: ArtifactState.Draft, timestamp: new DateTime());
+            var expectedArtifactHistoryVersion = CreateArtifactHistoryVersion(versionId: Int32.MaxValue, userId: author.Id, displayName: author.DisplayName, artifactState: ArtifactState.Draft,
+                timestamp: new DateTime());
             AssertArtifactHistory(artifactHistory[0], expectedArtifactHistoryVersion);
         }
 
@@ -234,33 +178,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(10, artifactHistory.Count, "Artifact history must have 10 items, but it has {0} items", artifactHistory.Count);//By default versions returns 10 versions
             Assert.AreEqual(12, artifactHistory[0].VersionId, "The first version in the list should be 12!");
             Assert.AreEqual(3, artifactHistory[artifactHistory.Count - 1].VersionId, "The last version in the list should be 3!");
-        }
-
-        /// <summary>
-        /// Helper for tests that get versions with the limit parameter.
-        /// </summary>
-        /// <param name="numberOfVersions">The number of versions to publish.</param>
-        /// <param name="limit">The limit to pass to the GetArtifactHistory call.</param>
-        private void GetArtifactHistoryWithLimitHelper(int numberOfVersions, int limit)
-        {
-            // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
-
-            List<ArtifactHistoryVersion> artifactHistory = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: limit);
-            }, "GetArtifactHistory shouldn't throw any error.");
-
-            // Verify:
-            Assert.AreEqual(limit, artifactHistory.Count, "Artifact history must have {0} items, but it has {1} items!", limit, artifactHistory.Count);
-            Assert.AreEqual(numberOfVersions, artifactHistory[0].VersionId, "The first version in the list should be {0}!", numberOfVersions);
-
-            int expectedLastVersion = numberOfVersions - limit + 1;
-            Assert.AreEqual(expectedLastVersion, artifactHistory[artifactHistory.Count - 1].VersionId,
-                "The last version in the list should be {0}!", expectedLastVersion);
         }
 
         [TestCase]
@@ -387,13 +304,15 @@ namespace ArtifactStoreTests
             // Setup:
             IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             List<ArtifactHistoryVersion> artifactHistory = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 //sortByDateAsc: true, offset: 3, limit: 1 for history with 5 versions must return version 4
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, sortByDateAsc: true, offset: 3, limit: 1);
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, viewer, sortByDateAsc: true, offset: 3, limit: 1);
             }, "GetArtifactHistory shouldn't throw any error.");
 
             // Verify:
@@ -402,5 +321,118 @@ namespace ArtifactStoreTests
             var expectedFirstVersion = CreateArtifactHistoryVersion(versionId: 4);
             AssertArtifactHistory(artifactHistory[0], expectedFirstVersion);
         }
+
+        [TestCase]
+        [TestRail(0)]
+        [Description("Create process artifact with 4 versions.  Verify 'GET /artifacts/{artifactId}/version' returns ......")]
+        public void GetArtifactHistory_ArtifactWithSubArtifacts_2PublishedVersions_SendSubArtifactId_VerifyReturn()
+        {
+            // Setup:
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Process, numberOfVersions: 2);
+
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, artifact.Id);
+            Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(subArtifacts[0].Id, viewer);
+            }, "GetArtifactHistory shouldn return 200 OK when sent with valid parameters!");
+
+            // Verify:
+            Assert.AreEqual(0, artifactHistory.Count, "Artifact history must have no items, but it has {0} items", artifactHistory.Count);
+        }
+
+        #region private functions
+
+        /// <summary>
+        /// Creates an expected ArtifactHistoryVersion that tests can compare against.
+        /// </summary>
+        /// <param name="versionId">(optional) Default is 1.</param>
+        /// <param name="userId">(optional) Default is _user.UserId.</param>
+        /// <param name="displayName">(optional) Default is _user.DisplayName.</param>
+        /// <param name="hasUserIcon">(optional) Default is false.</param>
+        /// <param name="timestamp">(optional) Default is now.</param>
+        /// <param name="artifactState">(optional) Default is Published.</param>
+        /// <returns>An ArtifactHistoryVersion with the values specified.</returns>
+        private ArtifactHistoryVersion CreateArtifactHistoryVersion(
+            long? versionId = null,
+            int? userId = null,
+            string displayName = null,
+            bool? hasUserIcon = null,
+            DateTime? timestamp = null,
+            ArtifactState? artifactState = null)
+        {
+            var expectedArtifactHistory = new ArtifactHistoryVersion
+            {
+                VersionId = versionId ?? 1,
+                UserId = userId ?? _user.Id,
+                DisplayName = displayName ?? _user.DisplayName,
+                HasUserIcon = hasUserIcon ?? false,
+                Timestamp = timestamp ?? DateTime.Now.ToUniversalTime(),
+                ArtifactState = artifactState ?? ArtifactState.Published
+            };
+
+            return expectedArtifactHistory;
+        }
+
+        /// <summary>
+        /// Asserts that the returned artifact history version is equal to the expected one.
+        /// </summary>
+        /// <param name="artifactHistoryVersion">The ArtifactHistoryVersion that was returned.</param>
+        /// <param name="expectedArtifactHistoryVersion">The expected ArtifactHistoryVersion values.</param>
+        /// <param name="plusOrMinusSeconds">(optional) Compare Timestamps leniently with +/- this many seconds.</param>
+        private static void AssertArtifactHistory(
+            ArtifactHistoryVersion artifactHistoryVersion,
+            ArtifactHistoryVersion expectedArtifactHistoryVersion,
+            double plusOrMinusSeconds = 60.0)
+        {
+            Assert.AreEqual(artifactHistoryVersion.VersionId, expectedArtifactHistoryVersion.VersionId,
+                "VersionId should be {0}, but it is {1}", artifactHistoryVersion.VersionId, expectedArtifactHistoryVersion.VersionId);
+            Assert.AreEqual(artifactHistoryVersion.HasUserIcon, expectedArtifactHistoryVersion.HasUserIcon,
+                "HasUserIcon should be {0}, but it is {1}", artifactHistoryVersion.HasUserIcon, expectedArtifactHistoryVersion.HasUserIcon);
+            Assert.AreEqual(artifactHistoryVersion.DisplayName, expectedArtifactHistoryVersion.DisplayName,
+                "DisplayName should be {0}, but it is {1}", artifactHistoryVersion.DisplayName, expectedArtifactHistoryVersion.DisplayName);
+            Assert.AreEqual(artifactHistoryVersion.ArtifactState, expectedArtifactHistoryVersion.ArtifactState,
+                "ArtifactState should be {0}, but it is {1}", artifactHistoryVersion.ArtifactState, expectedArtifactHistoryVersion.ArtifactState);
+            Assert.AreEqual(artifactHistoryVersion.UserId, expectedArtifactHistoryVersion.UserId,
+                "UserId should be {0}, but it is {1}", artifactHistoryVersion.UserId, expectedArtifactHistoryVersion.UserId);
+
+            // Compare the Timestamps +/- plusOrMinusSeconds because we don't know what the exact time of creation was.
+            Assert.That(artifactHistoryVersion.Timestamp.CompareTimePlusOrMinus(expectedArtifactHistoryVersion.Timestamp, plusOrMinusSeconds),
+                "Timestamp should be approximately {0}, but it is {1}", expectedArtifactHistoryVersion.Timestamp, artifactHistoryVersion.Timestamp);
+        }
+
+        /// <summary>
+        /// Helper for tests that get versions with the limit parameter.
+        /// </summary>
+        /// <param name="numberOfVersions">The number of versions to publish.</param>
+        /// <param name="limit">The limit to pass to the GetArtifactHistory call.</param>
+        private void GetArtifactHistoryWithLimitHelper(int numberOfVersions, int limit)
+        {
+            // Setup:
+            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
+
+            List<ArtifactHistoryVersion> artifactHistory = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user, limit: limit);
+            }, "GetArtifactHistory shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(limit, artifactHistory.Count, "Artifact history must have {0} items, but it has {1} items!", limit, artifactHistory.Count);
+            Assert.AreEqual(numberOfVersions, artifactHistory[0].VersionId, "The first version in the list should be {0}!", numberOfVersions);
+
+            int expectedLastVersion = numberOfVersions - limit + 1;
+            Assert.AreEqual(expectedLastVersion, artifactHistory[artifactHistory.Count - 1].VersionId,
+                "The last version in the list should be {0}!", expectedLastVersion);
+        }
+        #endregion private functions
     }
 }

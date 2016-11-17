@@ -15,6 +15,11 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldNumberController;
+
+    constructor() {
+        //fixme: empty constructors can be removed
+
+    }
 }
 
 export class BpFieldNumberController extends BPFieldBaseController {
@@ -26,34 +31,26 @@ export class BpFieldNumberController extends BPFieldBaseController {
         let validators = {
             decimalPlaces: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.numberValidation.decimalPlaces($viewValue, $modelValue, scope.to.decimalPlaces,
+                    return validationService.numberValidation.decimalPlaces($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                     localization, scope.options.data.isValidated);
-                    handleValidationMessage("decimalPlaces", isValid, scope);
-                    return true;
                 }
             },
             wrongFormat: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces,
+                    return validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                      localization, scope.options.data.isValidated);
-                    handleValidationMessage("wrongFormat", isValid, scope);
-                    return true;
                 }
             },
             max: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.numberValidation.isMax($viewValue, $modelValue, scope.to.max,
+                    return validationService.numberValidation.isMax($viewValue, $modelValue, scope.to.max,
                                                                                         localization, scope.options.data.isValidated);
-                    handleValidationMessage("max", isValid, scope);
-                    return true;
                 }
             },
             min: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.numberValidation.isMin($viewValue, $modelValue, scope.to.min,
+                    return validationService.numberValidation.isMin($viewValue, $modelValue, scope.to.min,
                                                                                        localization, scope.options.data.isValidated);
-                    handleValidationMessage("min", isValid, scope);
-                    return true;
                 }
             }
         };
@@ -62,16 +59,6 @@ export class BpFieldNumberController extends BPFieldBaseController {
         $scope["bpFieldNumber"] = {
             keyup: this.blurOnKey
         };
-
-        function handleValidationMessage(validationCheck: string, isValid: boolean, scope) {
-            if (scope.fc && scope.fc.$error) {
-                scope.$applyAsync(() => {
-                    scope.fc.$error[validationCheck] = !isValid;
-                    const failedValidations = Object.keys(scope.fc.$error).filter(validation => scope.fc.$error[validation]);
-                    scope.showError = !!failedValidations.length;
-                });
-            }
-        }
     }
 }
 

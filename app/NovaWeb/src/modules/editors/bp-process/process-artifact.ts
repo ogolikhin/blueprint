@@ -88,7 +88,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 const itemType: Models.IPropertyType = this.artifactPropertyTypes[propValue.propertyTypeId];
                 switch (itemType.primitiveType) {
                     case Models.PrimitiveType.Number:
-                        if (!this.services.validationService.numberValidation.isValid(propValue.value, 
+                        if (!this.services.validationService.numberValidation.isValid(propValue.value,
                             propValue.value,
                             itemType.decimalPlaces,
                             this.services.localizationService,
@@ -112,40 +112,40 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                         break;
                     case Models.PrimitiveType.Text:
                         if (itemType.isRichText) {
-                            if (!this.services.validationService.textRtfValidation.hasValueIfRequred(itemType.isRequired, 
+                            if (!this.services.validationService.textRtfValidation.hasValueIfRequired(itemType.isRequired,
                                 propValue.value,
                                 propValue.value)) {
                                 return this.set_400_114_error(deferred);
-                            } 
+                            }
                         } else {
-                            if (!this.services.validationService.textValidation.hasValueIfRequred(itemType.isRequired, 
+                            if (!this.services.validationService.textValidation.hasValueIfRequired(itemType.isRequired,
                                 propValue.value,
                                 propValue.value)) {
                                 return this.set_400_114_error(deferred);
-                            } 
+                            }
                         }
                         break;
                     case Models.PrimitiveType.Choice:
                         if (itemType.isMultipleAllowed) {
-                            if (!this.services.validationService.multiSelectValidation.hasValueIfRequred(itemType.isRequired, 
+                            if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(itemType.isRequired,
                                 propValue.value,
                                 propValue.value)) {
                                 return this.set_400_114_error(deferred);
-                            } 
+                            }
                         } else {
-                            if (!this.services.validationService.selectValidation.hasValueIfRequred(itemType.isRequired, 
+                            if (!this.services.validationService.selectValidation.hasValueIfRequired(itemType.isRequired,
                                 propValue.value,
                                 propValue.value)) {
                                 return this.set_400_114_error(deferred);
-                            } 
+                            }
                         }
                         break;
                     case Models.PrimitiveType.User:
-                        if (!this.services.validationService.userPickerValidation.hasValueIfRequred(itemType.isRequired, 
+                        if (!this.services.validationService.userPickerValidation.hasValueIfRequired(itemType.isRequired,
                             propValue.value,
                             propValue.value)) {
                             return this.set_400_114_error(deferred);
-                        } 
+                        }
                         break;
                     default:
                         deferred.reject(new Error(this.services.localizationService.get("App_Save_Artifact_Error_Other")));
@@ -279,7 +279,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 .then((result: IProcessUpdateResult) => {
                     this.mapTempIdsAfterSave(result.tempIdMap);
                     deferred.resolve(this);
-                }).catch((error: any) => { 
+                }).catch((error: any) => {
                     // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                     if (error) {
                         deferred.reject(this.handleSaveError(error));
@@ -293,7 +293,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             this.services.messageService.addMessage(message);
             deferred.reject();
         }
-        
+
         return deferred.promise;
     }
 

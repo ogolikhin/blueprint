@@ -45,10 +45,11 @@
 
             <row-slider slide-selector=".uib-tab__tab" ng-if="$ctrl.isRichTextPropertyAvailable">
                 <uib-tabset>
-                    <uib-tab ng-repeat="field in $ctrl.richTextFields"
+                    <uib-tab ng-repeat="field in $ctrl.richTextFields track by $index"
+                             select="$ctrl.activeTab = $index"
                              heading="{{field.data.name}}"
-                             class="uib-tab__tab">
-                        <formly-form model="$ctrl.model" fields="[field]">
+                             class="uib-tab__tab {{field.templateOptions['isInvalid'] ? 'invalid' : ''}}">
+                        <formly-form model="$ctrl.model" fields="[field]" ng-if="$ctrl.activeTab === $index" class="rich-text-wrapper">
                         </formly-form>
                     </uib-tab>
                 </uib-tabset>

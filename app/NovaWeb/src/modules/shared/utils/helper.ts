@@ -25,6 +25,14 @@ export class Helper {
         return "";
     }
 
+    static escapeQuot = (stringToEscape: string): string => {
+        if (stringToEscape) {
+            return stringToEscape.replace(/"/g, "&quot;");
+        }
+
+        return "";
+    };
+
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");
         stringSanitizer.innerHTML = stringToSanitize;

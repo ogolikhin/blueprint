@@ -12,7 +12,6 @@ export abstract class SubArtifactTaskDialogModel implements IModalDialogModel {
 
 export class UserTaskDialogModel extends SubArtifactTaskDialogModel {
     originalItem: UserTask;
-    persona: string;
     action: string;
     associatedArtifact: IArtifactReference;
     personaReference: IArtifactReference;
@@ -23,7 +22,6 @@ export class UserTaskDialogModel extends SubArtifactTaskDialogModel {
 
 export class SystemTaskDialogModel extends SubArtifactTaskDialogModel {
     originalItem: SystemTask;
-    persona: string;
     action: string;
     associatedArtifact: IArtifactReference;
     personaReference: IArtifactReference;

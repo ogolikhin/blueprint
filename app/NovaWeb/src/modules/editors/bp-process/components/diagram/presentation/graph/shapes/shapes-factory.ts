@@ -44,15 +44,14 @@ export class ShapesFactory {
 
     private _idGenerator = new IdGenerator();
 
-    public NEW_USER_TASK_LABEL: string;
-    public NEW_USER_TASK_PERSONA: string;
-    public NEW_SYSTEM_TASK_LABEL: string;
-    public NEW_SYSTEM_TASK_PERSONA: string;
-    public NEW_USER_DECISION_LABEL: string;
-    public NEW_SYSTEM_DECISION_LABEL: string;
-    public NEW_MERGE_NODE_NAME: string;
-
-    public Persona: IPropertyNameConstantsInformation = {key: "persona", name: "Persona"};
+    public readonly NEW_USER_TASK_LABEL: string;
+    public readonly NEW_USER_TASK_PERSONAREFERENCE: IArtifactReference;
+    public readonly NEW_SYSTEM_TASK_LABEL: string;
+    public readonly NEW_SYSTEM_TASK_PERSONAREFERENCE: IArtifactReference;
+    public readonly NEW_USER_DECISION_LABEL: string;
+    public readonly NEW_SYSTEM_DECISION_LABEL: string;
+    public readonly NEW_MERGE_NODE_NAME: string;
+    
     public ClientType: IPropertyNameConstantsInformation = {key: "clientType", name: "ClientType"};
     public X: IPropertyNameConstantsInformation = {key: "x", name: "X"};
     public Y: IPropertyNameConstantsInformation = {key: "y", name: "Y"};
@@ -90,12 +89,20 @@ export class ShapesFactory {
             }
         }
 
-        if (this.NEW_USER_TASK_PERSONA == null) {
+        if (this.NEW_USER_TASK_PERSONAREFERENCE == null) {
+            this.NEW_USER_TASK_PERSONAREFERENCE = {
+                id: this._idGenerator.getUserPeronaId(),
+                projectId: null,
+                name: "",
+                typePrefix: null,
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: null,
+                link: null,
+                version: null
+            };
             if (definedSconfig) {
-                this.NEW_USER_TASK_PERSONA = (<any>this.$rootScope).config.labels["ST_New_User_Task_Persona"]; //"User";
-            } else {
-                this.NEW_USER_TASK_PERSONA = "";
-            }
+                this.NEW_USER_TASK_PERSONAREFERENCE.name = (<any>this.$rootScope).config.labels["ST_New_User_Task_Persona"]; //"User";
+            } 
         }
 
         if (this.NEW_SYSTEM_TASK_LABEL == null) {
@@ -106,12 +113,21 @@ export class ShapesFactory {
             }
         }
 
-        if (this.NEW_SYSTEM_TASK_PERSONA == null) {
+        if (this.NEW_SYSTEM_TASK_PERSONAREFERENCE == null) {
+            this.NEW_SYSTEM_TASK_PERSONAREFERENCE = {
+                id: this._idGenerator.getUserPeronaId(),
+                projectId: null,
+                name: "",
+                typePrefix: null,
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: null,
+                link: null,
+                version: null
+            };
+
             if (definedSconfig) {
-                this.NEW_SYSTEM_TASK_PERSONA = (<any>this.$rootScope).config.labels["ST_New_System_Task_Persona"]; //"System";
-            } else {
-                this.NEW_SYSTEM_TASK_PERSONA = "";
-            }
+                this.NEW_SYSTEM_TASK_PERSONAREFERENCE.name = (<any>this.$rootScope).config.labels["ST_New_System_Task_Persona"]; //"User";
+            } 
         }
 
         if (this.NEW_USER_DECISION_LABEL == null) {
@@ -167,7 +183,7 @@ export class ShapesFactory {
         const defaultUserPersonaReference = {
             id: this._idGenerator.getUserPeronaId(),
             projectId: null,
-            name: this.NEW_USER_TASK_PERSONA,
+            name: this.NEW_USER_TASK_PERSONAREFERENCE.name,
             typePrefix: null,
             baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: null,
@@ -188,7 +204,7 @@ export class ShapesFactory {
         const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
             ItemTypePredefined.PROShape, null, defaultUserPersonaReference);
 
-        obj.propertyValues = this.createPropertyValuesForUserTaskShape(defaultUserPersonaReference.name, [], "",
+        obj.propertyValues = this.createPropertyValuesForUserTaskShape([], "",
             "", x, y, -1, -1, "");
 
         return obj;
@@ -200,7 +216,7 @@ export class ShapesFactory {
         const defaultSystemPersonaReference = {
             id: this._idGenerator.getSystemPeronaId(),
             projectId: null,
-            name: this.NEW_SYSTEM_TASK_PERSONA,
+            name: this.NEW_SYSTEM_TASK_PERSONAREFERENCE.name,
             typePrefix: null,
             baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: null,
@@ -219,7 +235,7 @@ export class ShapesFactory {
         const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, 
         ItemTypePredefined.PROShape, null, defaultSystemPersonaReference);
 
-        obj.propertyValues = this.createPropertyValuesForSystemTaskShape(defaultSystemPersonaReference.name, [], -1,
+        obj.propertyValues = this.createPropertyValuesForSystemTaskShape([], -1,
             null, "", "", x, y, -1, -1, "", null);
 
         return obj;
@@ -255,8 +271,7 @@ export class ShapesFactory {
         return model;
     }
 
-    public createPropertyValuesForUserTaskShape(persona: string = this.NEW_USER_TASK_PERSONA,
-                                                inputParameters: string[] = [],
+    public createPropertyValuesForUserTaskShape(inputParameters: string[] = [],
                                                 label: string = this.NEW_USER_TASK_LABEL,
                                                 description: string = "",
                                                 x: number = 0,
@@ -279,8 +294,7 @@ export class ShapesFactory {
         return propertyValues;
     }
 
-    public createPropertyValuesForSystemTaskShape(persona: string = this.NEW_SYSTEM_TASK_PERSONA,
-                                                  outputParameters: string[] = [],
+    public createPropertyValuesForSystemTaskShape(outputParameters: string[] = [],
                                                   userTaskId: number = -1,
                                                   associatedImageUrl: string = "",
                                                   label: string = this.NEW_SYSTEM_TASK_LABEL,

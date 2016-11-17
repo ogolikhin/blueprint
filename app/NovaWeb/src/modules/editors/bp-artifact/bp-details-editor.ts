@@ -24,6 +24,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        this.activeTab = 0;
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -35,6 +36,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public isRichTextPropertyAvailable: boolean;
     public isSpecificPropertyAvailable: boolean;
     public specificPropertiesHeading: string;
+    public activeTab: number;
 
     public $onDestroy() {
         delete this.systemFields;

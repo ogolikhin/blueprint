@@ -38,6 +38,7 @@ export class AppController {
                 //Show a Stay/Leave confirmation dialog if the current artifact is unsaved.
                 e = e || window.event;
                 if (e) {
+                    //Only displayed in IE
                     e.returnValue = localization.get("App_CloseTabWithUnsavedChanges");
                 }
             }

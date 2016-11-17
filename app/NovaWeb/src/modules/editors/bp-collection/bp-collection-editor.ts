@@ -11,6 +11,7 @@ import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
+import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -25,6 +26,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "windowManager",
         "localization",
         "propertyDescriptorBuilder",
+        "validationService",
         "dialogService",
         "collectionService",
         "metadataService",
@@ -49,13 +51,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                validationService: IValidationService,
                 private dialogService: IDialogService,
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
         this.activeTab = 0;
     }
 

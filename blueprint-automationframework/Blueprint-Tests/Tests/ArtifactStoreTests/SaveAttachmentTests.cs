@@ -152,29 +152,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
 
-        [TestCase]
-        [TestRail(191166)]
-        [Description("Add attachment to the published artifact using the user that doesn't have a write permission. Verified that locking and saving artifact, and adding attachment failed.")]
-        public void AddAttachment_AddAttachmentWithUserHasNoWritePermissionToArtifact_409Conflict()
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
-            var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
-                "Artifact shouldn't have attachments at this point.");
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-
-            // Execute: Expected Lock request gets denied (Access Denied) and Save failed with 409 Conflict 
-            Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(viewer, artifact, _attachmentFile, Helper.ArtifactStore, expectedLockResult: Model.ArtifactModel.Impl.LockResult.AccessDenied),
-                "Exception caught while trying to update an artifact!");
-
-            // Verify:
-            var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, viewer);
-            Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count,
-                "Artifact should have no attachment at this point.");
-            Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
-        }
-
         #endregion 409 Conflict Tests
     }
 }

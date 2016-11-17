@@ -18,6 +18,7 @@ import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
 import { StatefulProcessArtifact } from "../../../../../process-artifact";
 import { Models } from "../../../../../../../main/models/";
 import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ItemTypePredefined} from "../../../../../../../main/models/enums";
 
 describe("SystemTask", () => {
     let statefulArtifactFactory: IStatefulArtifactFactoryMock;
@@ -166,6 +167,17 @@ describe("SystemTask", () => {
             node: ISystemTask,
             graph: ProcessGraph,
             statefulSubArtifact: StatefulProcessSubArtifact;
+        
+        const newPersonaReference = {
+            id: 1,
+            projectId: 1,
+            name: "new persona",
+            typePrefix: "PRO",
+            baseItemTypePredefined: ItemTypePredefined.Actor,
+            projectName: "test project",
+            link: null,
+            version: null
+        };
         beforeEach(() => {
             // arrange
             const processModel = new ProcessModel();
@@ -185,7 +197,7 @@ describe("SystemTask", () => {
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
         });
 
-        it("when modifying persona - persona matches", () => {
+        it("when modifying personaReference - personaReference matches", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -195,13 +207,13 @@ describe("SystemTask", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
-            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.Persona).value).toBe(node.persona);
+            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.PersonaReference).value).toBe(node.personaReference.id);
         });
 
-        it("when modifying persona - attempt lock is called", () => {
+        it("when modifying personaReference - attempt lock is called", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -211,13 +223,13 @@ describe("SystemTask", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
             expect(lockSpy).toHaveBeenCalled();
         });
 
-       it("when modifying persona - artifact state is dirty", () => {
+        it("when modifying personaReference - artifact state is dirty", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -227,7 +239,7 @@ describe("SystemTask", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
             expect(statefulArtifact.artifactState.dirty).toBeTruthy();

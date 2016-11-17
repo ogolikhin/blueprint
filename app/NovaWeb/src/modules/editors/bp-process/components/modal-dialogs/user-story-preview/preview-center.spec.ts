@@ -34,9 +34,8 @@ xdescribe("PreviewCenter Directive", () => {
             };
             scope["systemTaskModel"] = ShapeModelMock.instance().SystemTaskMock();
             scope["userTaskModel"] = ShapeModelMock.instance().UserTaskMock();
-            /* tslint:disable:max-line-length */
+            // tslint:disable-next-line: max-line-length
             directiveWrapper = "<div><preview-center user-task-model='true' previous-system-task=\"systemTaskModel\" next-system-task=\"systemTaskModel\" is-user-system-process='true' user-task-model=\"userTaskModel\" /></div>";
-            /* tslint:enable:max-line-length */
             element = $compile(directiveWrapper)(scope);
             scope.$digest();
             controller = element.find("preview-center").isolateScope()["centerCtrl"];

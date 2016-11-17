@@ -75,7 +75,6 @@ export class BPArtifactDiscussionItemController {
         }
     }
 
-    /* tslint:disable:no-unused-variable */
     public editDiscussion(comment: string): ng.IPromise<IDiscussion> {
         return this.artifactDiscussions.editDiscussion(this.artifactId, this.discussionInfo.discussionId, comment)
             .then((discussion: IDiscussion) => {
@@ -90,6 +89,4 @@ export class BPArtifactDiscussionItemController {
                 return null;
             });
     }
-
-    /* tslint:disable:no-unused-variable */
 }

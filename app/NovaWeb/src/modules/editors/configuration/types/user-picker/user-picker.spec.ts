@@ -8,6 +8,7 @@ import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {UsersAndGroupsServiceMock} from "../../../../core/services/users-and-groups.svc.mock";
 import {createFormlyModule} from "../../formly-config.mock";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly User Picker", () => {
     let fieldsDefinition = [
@@ -95,6 +96,7 @@ describe("Formly User Picker", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("usersAndGroupsService", UsersAndGroupsServiceMock);
+        $provide.service("validationService", ValidationService);
     }));
 
     afterEach(() => {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Model.NovaModel;
 using Utilities;
 using Model.Impl;
+using NUnit.Framework;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -37,6 +38,24 @@ namespace Model.ArtifactModel.Impl
         public int AttachmentId { get; set; }
 
         public DateTime? UploadedDate { get; set; }
+
+        /// <summary>
+        /// Asserts that the two AttachedFiles are equal.
+        /// </summary>
+        /// <param name="expectedFile">The expected AttachedFile.</param>
+        /// <param name="actualFile">The actual AttachedFile.</param>
+        /// <exception cref="AssertionException">If any properties are different.</exception>
+        public static void AssertEquals(AttachedFile expectedFile, AttachedFile actualFile)
+        {
+            ThrowIf.ArgumentNull(expectedFile, nameof(expectedFile));
+            ThrowIf.ArgumentNull(actualFile, nameof(actualFile));
+
+            Assert.AreEqual(expectedFile.AttachmentId, actualFile.AttachmentId, "The AttachmentId properties don't match!");
+            Assert.AreEqual(expectedFile.FileName, actualFile.FileName, "The FileName properties don't match!");
+            Assert.AreEqual(expectedFile.UploadedDate, actualFile.UploadedDate, "The UploadedDate properties don't match!");
+            Assert.AreEqual(expectedFile.UserId, actualFile.UserId, "The UserId properties don't match!");
+            Assert.AreEqual(expectedFile.UserName, actualFile.UserName, "The UserName properties don't match!");
+        }
     }
 
     /// <summary>

@@ -95,6 +95,25 @@ describe("OpenImpactAnalysisAction", () => {
         expect(openImpactAnalysisAction.disabled).toBe(true);
     }));
 
+    it("is disabled for historical artifact", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                                               localization: ILocalizationService) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.Actor,
+                permissions: RolePermissions.Edit,
+                version: 555
+            });
+        artifact.artifactState.historical = true;
+
+        // act
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(artifact, localization);
+
+        // assert
+        expect(openImpactAnalysisAction.disabled).toBe(true);
+    }));
+
     it("is enabled for published artifact", inject((statefulArtifactFactory: IStatefulArtifactFactory,
                                                     localization: ILocalizationService) => {
         // arrange

@@ -87,14 +87,8 @@ export class ItemStateController {
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
-
                 } else if (result.isDeleted) {
-
-                    if (this.isCollection(result.predefinedType)) {
-                        this.messageService.addError("HttpError_Collection_NotFound", true);
-                        this.navigationService.navigateToMain(true);
-                        return;
-                    }
+                    
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
 

@@ -34,9 +34,9 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The details of the artifact that we copied.</returns>
-        INovaArtifactDetails CopyArtifact(
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
+        CopyNovaArtifactResultSet CopyArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
@@ -98,6 +98,18 @@ namespace Model
             IProject project,
             INovaArtifactBase parentArtifact = null,
             double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Updates a Nova artifact.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project containing the artifact to be updated.</param>
+        /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        INovaArtifactDetails UpdateArtifact(IUser user, IProject project,
+            NovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -337,7 +349,7 @@ namespace Model
         List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets subartifact details.
+        /// Gets subartifact.
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts/{subArtifactId})
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
@@ -345,7 +357,7 @@ namespace Model
         /// <param name="subArtifactId">Id of the subArtifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested subArtifact</returns>
-        NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
+        NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of unpublished changes for the specified user.
@@ -412,5 +424,17 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An artifact path</returns>
         List<INovaVersionControlArtifactInfo>GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets file attached to the artifact
+        /// Runs svc/bpartifactstore/artifacts/{0}/attachments/{1}
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">Id of artifact or sub-artifact.</param>
+        /// <param name="fileId">Id of file.</param>
+        /// <param name="versionId">Id of version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>File</returns>
+        IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

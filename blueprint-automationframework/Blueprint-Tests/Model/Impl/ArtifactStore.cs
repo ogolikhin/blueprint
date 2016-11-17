@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
-using Newtonsoft.Json;
+using System.Web;
+using System.Net.Mime;
 
 namespace Model.Impl
 {
@@ -30,7 +31,7 @@ namespace Model.Impl
         #region Members inherited from IArtifactStore
 
         /// <seealso cref="IArtifactStore.CopyArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
-        public INovaArtifactDetails CopyArtifact(
+        public CopyNovaArtifactResultSet CopyArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent,
             IUser user = null,
@@ -76,6 +77,15 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, IProject, NovaArtifactDetails, List{HttpStatusCode})"/>
+        public INovaArtifactDetails UpdateArtifact(IUser user,
+            IProject project,
+            NovaArtifactDetails novaArtifactDetails,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return UpdateArtifact(Address, user, project, novaArtifactDetails);
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -355,50 +365,9 @@ namespace Model.Impl
             int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifact.Id);
-            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            if (versionId != null)
-            {
-                queryParameters.Add("versionId", versionId.ToString());
-            }
-
-            if (subArtifactId != null)
-            {
-                queryParameters.Add("subArtifactId", subArtifactId.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-
-            try
-            {
-                var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
-
-                return attachment;
-            }
-            catch (Exception)
-            {
-                Logger.WriteDebug("Content = '{0}'", restApi.Content);
-
-                if (expectedServiceErrorMessage != null)
-                {
-                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
-                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
-                }
-
-                throw;
-            }
+            
+            return GetAttachments(Address, artifact.Id, user, addDrafts, versionId, subArtifactId,
+                expectedStatusCodes, expectedServiceErrorMessage);
         }
 
         /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, List{HttpStatusCode})"/>
@@ -409,36 +378,9 @@ namespace Model.Impl
             int? versionId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifact.Id);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (subArtifactId != null)
-            {
-                queryParameters.Add("subArtifactId", subArtifactId.ToString());
-            }
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            if (versionId !=  null)
-            {
-                queryParameters.Add("versionId", versionId.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
-
-            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
-
-            return relationships;
+            return GetRelationships(Address, user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, bool?, int?, List{HttpStatusCode})"/>
@@ -520,21 +462,21 @@ namespace Model.Impl
             var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false);
 
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }
 
-        /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
-        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetSubartifact(IUser, int, int, List{HttpStatusCode})"/>
+        public NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
+            return restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false); // TODO: need to review NovaSubArtifact model to make this valication works
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
@@ -604,6 +546,50 @@ namespace Model.Impl
             return artifactBaseInfo.ConvertAll(o => (INovaVersionControlArtifactInfo)o);
         }
 
+        /// <seealso cref="IArtifactStore.GetAttachmentFile(IUser, int, int, int?, List{HttpStatusCode})"/>
+        public IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(itemId, nameof(itemId));
+            ThrowIf.ArgumentNull(fileId, nameof(fileId));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            File file = null;
+
+            string tokenValue = user.Token?.AccessControlToken;
+            
+            var restApi = new RestApiFacade(Address, tokenValue);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT_id_, itemId, fileId);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // TODO: implementation copied from FileStore.cs - fix after call will be implemented
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string filename = HttpUtility.UrlDecode(new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName);
+
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    LastModifiedDate =
+                    DateTime.ParseExact(response.Headers.First(h => h.Key == "Date").Value.ToString(), "r", 
+                            null), //'r' allow parse "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'"
+                    FileType = response.ContentType,
+                    FileName = filename
+                };
+            }
+
+            return file;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable
@@ -654,9 +640,9 @@ namespace Model.Impl
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The details of the artifact that we copied.</returns>
-        public static INovaArtifactDetails CopyArtifact(string address,
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
+        public static CopyNovaArtifactResultSet CopyArtifact(string address,
             IArtifactBase artifact,
             int newParentId,
             IUser user = null,
@@ -676,7 +662,10 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
             }
 
-            var copiedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
+            var copiedArtifact = restApi.SendRequestAndDeserializeObject<CopyNovaArtifactResultSet>(
                 path,
                 RestRequestMethod.POST,
                 queryParameters: queryParams,
@@ -787,6 +776,35 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Updates a Nova artifact.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project containing the artifact to be updated.</param>
+        /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, IProject project, NovaArtifactDetails novaArtifactDetails,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(novaArtifactDetails, nameof(novaArtifactDetails));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaArtifactDetails.Id);
+
+            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
+                path,
+                RestRequestMethod.PATCH,
+                novaArtifactDetails,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return newArtifact;
+        }
+
+        /// <summary>
         /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
@@ -846,6 +864,75 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Gets attachments for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactId">The ID of the artifact that has the attachment to get.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true.</param>
+        /// <param name="versionId">(optional) The version of the attachment to retrieve.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of this artifact that has the attachment to get.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedServiceErrorMessage">(optional) Expected error message for the request.</param>
+        /// <returns>Attachment object for the specified artifact/subartifact.</returns>
+        public static Attachments GetAttachments(string address,
+            int artifactId,
+            IUser user,
+            bool? addDrafts = null,
+            int? versionId = null,
+            int? subArtifactId = null,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            IServiceErrorMessage expectedServiceErrorMessage = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifactId);
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            try
+            {
+                var attachment = restApi.SendRequestAndDeserializeObject<Attachments>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+                return attachment;
+            }
+            catch (Exception)
+            {
+                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+
+                if (expectedServiceErrorMessage != null)
+                {
+                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
+                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
+                }
+
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Gets all children artifacts for specified by id project.
         /// (Runs: GET /projects/{projectId}/children)
         /// </summary>
@@ -866,6 +953,57 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Gets relationships for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
+        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
+        public static Relationships GetRelationships(string address,
+            IUser user,
+            int artifactId,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return relationships;
         }
 
         /// <summary>

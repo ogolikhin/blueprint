@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {ISession} from "./login/session.svc";
+import { ISession}  from "./login/session.svc";
 import { IArtifactManager } from "../managers";
 import { ILicenseService } from "./license/license.svc";
 
@@ -52,11 +52,12 @@ export class AppRoutes {
 }
 
 export class MainStateController {
-    
+
     public mainState = "main";
 
     public static $inject = [
         "$rootScope",
+        "$window",
         "$state",
         "$log",
         "artifactManager",
@@ -64,21 +65,25 @@ export class MainStateController {
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
+                private $window: ng.IWindowService,
                 private $state: angular.ui.IStateService,
                 private $log: ng.ILogService,
                 private artifactManager: IArtifactManager,
                 private isServerLicenseValid: boolean) {
 
        $rootScope.$on("$stateChangeStart", this.stateChangeStart);
+       $rootScope.$on("$stateChangeSuccess", this.stateChangeSuccess);
 
         if (!isServerLicenseValid) {
             $state.go("licenseError");
         }
-
     }
 
+    private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
+        this.updateAppTitle();
+    };
+
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
-    
         this.$log.info(
                 "state transition: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
                 , "color: blue", "color: black", "color: blue", "color: black"
@@ -94,5 +99,17 @@ export class MainStateController {
             this.$log.info("SelectionManager.clearAll()");
             this.artifactManager.selection.clearAll();
         }
+    };
+
+    private updateAppTitle() {
+        const artifact = this.artifactManager.selection.getArtifact();
+
+        let title: string;
+        if (artifact) {
+            title = `${artifact.prefix}${artifact.id}: ${artifact.name}`;
+        } else {
+            title = "Storyteller";
+        }
+        this.$window.document.title = title;
     }
 }

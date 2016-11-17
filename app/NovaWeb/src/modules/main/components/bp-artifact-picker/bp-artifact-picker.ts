@@ -115,10 +115,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             const project = this.projectManager.getProject(projectId);
             if (project) {
                 this.project = {
-                    id: project.id,
+                    id: project.model.id,
                     type: AdminStoreModels.InstanceItemType.Project,
-                    name: project.name,
-                    hasChildren: project.hasChildren
+                    name: project.model.name,
+                    hasChildren: project.group
                 } as AdminStoreModels.IInstanceItem;
             } else {
                 this.projectService.getProject(projectId)

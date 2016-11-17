@@ -393,6 +393,17 @@ describe("UserTask test", () => {
             node: IUserTask,
             graph: ProcessGraph,
             statefulSubArtifact: StatefulProcessSubArtifact;
+
+        const newPersonaReference = {
+            id: 1,
+            projectId: 1,
+            name: "new persona",
+            typePrefix: "PRO",
+            baseItemTypePredefined: ItemTypePredefined.Actor,
+            projectName: "test project",
+            link: null,
+            version: null
+        };
         beforeEach(() => {
             // arrange
             const processModel = new ProcessModel();
@@ -412,7 +423,7 @@ describe("UserTask test", () => {
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });
 
-        it("when modifying persona - persona matches", () => {
+        it("when modifying personaReference - persona matches", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -422,13 +433,13 @@ describe("UserTask test", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
-            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.Persona).value).toBe(node.persona);
+            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.PersonaReference).value).toBe(node.personaReference.id);
         });
 
-        it("when modifying persona - attempt lock is called", () => {
+        it("when modifying personaReference - attempt lock is called", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -438,13 +449,13 @@ describe("UserTask test", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
             expect(lockSpy).toHaveBeenCalled();
         });
 
-        it("when modifying persona - artifact state is dirty", () => {
+        it("when modifying personaReference - artifact state is dirty", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -454,7 +465,7 @@ describe("UserTask test", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
             expect(statefulArtifact.artifactState.dirty).toBeTruthy();

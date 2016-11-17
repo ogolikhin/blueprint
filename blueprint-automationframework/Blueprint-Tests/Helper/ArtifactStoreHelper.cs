@@ -1,17 +1,19 @@
 using Common;
 using Model;
-using Model.Impl;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Model.NovaModel;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
-using Newtonsoft.Json;
 
 namespace Helper
 {
@@ -162,20 +164,49 @@ namespace Helper
         /// <summary>
         /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
         /// </summary>
-        /// <param name="novaArtifactBase">The INovaArtifactBase to compare against.</param>
-        /// <param name="artifactBase">The IArtifactBase to compare against.</param>
+        /// <param name="expectedNovaArtifactBase">The INovaArtifactBase containing the expected properties.</param>
+        /// <param name="actualArtifactBase">The IArtifactBase containing the actual properties to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase, IArtifactBase artifactBase)
+        public static void AssertArtifactsEqual(INovaArtifactBase expectedNovaArtifactBase, IArtifactBase actualArtifactBase, bool skipIdAndVersion = false)
         {
-            ThrowIf.ArgumentNull(novaArtifactBase, nameof(novaArtifactBase));
-            ThrowIf.ArgumentNull(artifactBase, nameof(artifactBase));
+            ThrowIf.ArgumentNull(expectedNovaArtifactBase, nameof(expectedNovaArtifactBase));
+            ThrowIf.ArgumentNull(actualArtifactBase, nameof(actualArtifactBase));
 
-            Assert.AreEqual(novaArtifactBase.Id, artifactBase.Id, "The Id parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.Name, artifactBase.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ParentId, artifactBase.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ItemTypeId, artifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.ProjectId, artifactBase.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase.Version, artifactBase.Version, "The Version  parameters don't match!");
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(expectedNovaArtifactBase.Id, actualArtifactBase.Id, "The Id parameters don't match!");
+                Assert.AreEqual(expectedNovaArtifactBase.Version, actualArtifactBase.Version, "The Version  parameters don't match!");
+            }
+
+            Assert.AreEqual(expectedNovaArtifactBase.Name, actualArtifactBase.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(expectedNovaArtifactBase.ParentId, actualArtifactBase.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(expectedNovaArtifactBase.ItemTypeId, actualArtifactBase.ArtifactTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(expectedNovaArtifactBase.ProjectId, actualArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
+        }
+
+        /// <summary>
+        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
+        /// </summary>
+        /// <param name="expectedArtifactBase">The IArtifactBase containing the expected properties.</param>
+        /// <param name="actualNovaArtifactBase">The INovaArtifactBase containing the actual properties to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(IArtifactBase expectedArtifactBase, INovaArtifactBase actualNovaArtifactBase, bool skipIdAndVersion = false)
+        {
+            ThrowIf.ArgumentNull(actualNovaArtifactBase, nameof(actualNovaArtifactBase));
+            ThrowIf.ArgumentNull(expectedArtifactBase, nameof(expectedArtifactBase));
+
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(expectedArtifactBase.Id, actualNovaArtifactBase.Id, "The Id parameters don't match!");
+                Assert.AreEqual(expectedArtifactBase.Version, actualNovaArtifactBase.Version, "The Version  parameters don't match!");
+            }
+
+            Assert.AreEqual(expectedArtifactBase.Name, actualNovaArtifactBase.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(expectedArtifactBase.ParentId, actualNovaArtifactBase.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(expectedArtifactBase.ArtifactTypeId, actualNovaArtifactBase.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(expectedArtifactBase.ProjectId, actualNovaArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
         }
 
         /// <summary>
@@ -314,6 +345,107 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Compares Two Custom Properties for Equality
+        /// </summary>
+        /// <param name="expectedProperty">The first custom property to compare.</param>
+        /// <param name="actualProperty">The second custom property to compare.</param>
+        public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
+        {
+            ThrowIf.ArgumentNull(expectedProperty,nameof(expectedProperty));
+            ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
+
+            Assert.IsNotNull(expectedProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
+            Assert.IsNotNull(actualProperty.PrimitiveType, "The primitive type for the second custom property was not present!");
+            Assert.AreEqual(expectedProperty.PrimitiveType, actualProperty.PrimitiveType, "PrimitiveType properties don't match!");
+
+            var primitiveType = (PropertyPrimitiveType)expectedProperty.PrimitiveType;
+
+            switch (primitiveType)
+            {
+                case PropertyPrimitiveType.Text:
+                case PropertyPrimitiveType.Number:
+                    Assert.AreEqual(expectedProperty.CustomPropertyValue, actualProperty.CustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    break;
+
+                //TODO:  Investigate if the DateTimeUtility can be applied to both properties
+                case PropertyPrimitiveType.Date:
+                    var secondCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime((DateTime)actualProperty.CustomPropertyValue);
+                    Assert.AreEqual(expectedProperty.CustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    break;
+
+                //TODO: Investigate if the JsonConvert could be done for both
+                case PropertyPrimitiveType.Choice:
+                    var validValues1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).ValidValues;
+                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).ValidValues;
+
+                    Assert.AreEqual(validValues1.Count, validValues2.Count, "The custom {0} property counts are not equal.", primitiveType);
+
+                    for (int i = 0; i < validValues1.Count; i++)
+                    {
+                        var choiceValue1 = validValues1[i];
+                        var choiceValue2 = validValues2[i];
+
+                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
+                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.", primitiveType);
+                    }
+
+                    if (!string.IsNullOrEmpty(((ChoiceValues) expectedProperty.CustomPropertyValue).CustomValue))
+                    {
+                        var customValue1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue;
+                        var customValue2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue;
+
+                        Assert.AreEqual(customValue1, customValue2, "The custom {0} property CustomValues are not equal.", primitiveType);
+                    }
+                    else if(string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue) &&
+                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue))
+                    {
+                        Assert.Fail("The custom {0} property CustomValue was null for the expected property but the CustomValue " +
+                                    "for the actual property was not null.", primitiveType);
+                    }
+                    
+                    break;
+
+                case PropertyPrimitiveType.User:
+                    var userGroups1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).UsersGroups;
+                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).UsersGroups;
+
+                    Assert.AreEqual(userGroups1.Count, userGroups2.Count, "The custom {0} property counts are not equal.", primitiveType);
+
+                    for (int i = 0; i < userGroups1.Count; i++)
+                    {
+                        var userGroupValue1 = userGroups1[i];
+                        var userGroupValue2 = userGroups2[i];
+
+                        Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
+                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName, "The custom {0} Display Names are not equal.", primitiveType);
+
+                        if ((userGroupValue1.IsGroup != null) || (userGroupValue2.IsGroup != null))
+                        {
+                            Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup, "The custom {0} property IsGroup flags are not equal.", primitiveType);
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label))
+                    {
+                        var customValue1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).Label;
+                        var customValue2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label;
+
+                        Assert.AreEqual(customValue1, customValue2, "The custom {0} property Labels are not equal.", primitiveType);
+                    }
+                    else if (string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label) &&
+                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label))
+                    {
+                        Assert.Fail("The custom {0} property Label was null for the expected property but the Label " +
+                                    "for the actual property was not null.", primitiveType);
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType.ToString()));
+            }
+        }
+
         #endregion Custom Asserts
 
         /// <summary>
@@ -365,29 +497,74 @@ namespace Helper
         }
 
         /// <summary>
-        /// Attaches file to the artifact (Save changes).
+        /// Attaches files to the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddArtifactAttachmentAndSave(IUser user, IArtifact artifact, List<INovaFile> files, IArtifactStore artifactStore)
+        /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
+        ///     By default this function will lock the artifact.</param>
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddArtifactAttachmentsAndSave(
+            IUser user,
+            IArtifact artifact,
+            List<INovaFile> files,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(files, nameof(files));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            artifact.Lock(user);
+            if (shouldLockArtifact)
+            {
+                artifact.Lock(user);
+            }
+
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
             foreach (var file in files)
             {
                 artifactDetails.AttachmentValues.Add(new AttachmentValue(user, file));
             }
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsTrue(attachment.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+            var attachments = artifactStore.GetAttachments(artifact, user);
+            Assert.IsTrue(attachments.AttachedFiles.Count >= files.Count, "All attachments should be added.");
+
+            return attachments;
+        }
+
+        /// <summary>
+        /// Attaches file to the artifact (Save changes).
+        /// </summary>
+        /// <param name="user">User to perform an operation.</param>
+        /// <param name="artifact">Artifact.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
+        ///     By default this function will lock the artifact.</param>
+        /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
+        /// <returns>The attachments that were added.</returns>
+        public static Attachments AddArtifactAttachmentAndSave(
+            IUser user,
+            IArtifact artifact,
+            INovaFile file,
+            IArtifactStore artifactStore,
+            bool shouldLockArtifact = true,
+            int expectedAttachedFilesCount = 1)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(file, nameof(file));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+            Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
+
+            return attachments;
         }
 
         /// <summary>
@@ -395,7 +572,7 @@ namespace Helper
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
-        /// <param name="artifact">SubArtifact.</param>
+        /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
         public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
@@ -548,6 +725,24 @@ namespace Helper
         }
 
         /// <summary>
+        /// Validates that the NovaTrace from the source artifact has the correct properties to point to the target artifact.
+        /// </summary>
+        /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
+        /// <param name="targetArtifact">The target artifact of the trace.</param>
+        /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
+        public static void ValidateTrace(NovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
+        {
+            ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            Assert.AreEqual(sourceArtifactTrace.ArtifactId, targetArtifact.Id, "Id from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ArtifactName, targetArtifact.Name, "Name from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ItemId, targetArtifact.Id, "itemId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectId, targetArtifact.ProjectId, "ProjectId from trace and artifact should be equal to each other.");
+            Assert.AreEqual(sourceArtifactTrace.ProjectName, targetArtifact.Project.Name, "ProjectName from trace and artifact should be equal to each other.");
+        }
+
+        /// <summary>
         /// Validates inline trace link returned from artifact details
         /// </summary>
         /// <param name="artifactdetails">The artifact details containing the inline trace link which needs validation</param>
@@ -575,30 +770,30 @@ namespace Helper
         }
 
         /// <summary>
-        /// Validates inline trace link returned from subartifact details
+        /// Validates inline trace link returned from subartifact
         /// </summary>
-        /// <param name="subArtifactdetails">The subartifact details containing the inline trace link which needs validation</param>
+        /// <param name="subArtifact">The subartifact containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifactDetails subArtifactdetails,
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifact subArtifact,
             IArtifactBase inlineTraceArtifact,
             bool validInlineTraceLink)
         {
-            ThrowIf.ArgumentNull(subArtifactdetails, nameof(subArtifactdetails));
+            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
             // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid
             // inline trace information (name of the inline trace artifact).
-            Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name),
+            Assert.That(subArtifact.Description.Contains(inlineTraceArtifact.Name),
                 "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.",
                 inlineTraceArtifact.Name,
-                subArtifactdetails.Description);
+                subArtifact.Description);
 
-            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifactdetails.Description),
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifact.Description),
                 "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
                 validInlineTraceLink,
                 !validInlineTraceLink,
-                subArtifactdetails.Description);
+                subArtifact.Description);
         }
 
         /// <summary>
@@ -696,5 +891,98 @@ namespace Helper
             // TODO: add assertions about changed traces
         }
 
+        //TODO: Refactor and add to ItemTypePredefinedExtensions.ca
+        /// <summary>
+        /// Gets the Standard Pack Artifact Type that matches the given ItemTypePredefined
+        /// </summary>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>A string indicating the name of the Standard Pack artifact name for the predefined item type.</returns>
+        public static string GetStandardPackArtifactTypeName(ItemTypePredefined itemType)
+        {
+            ThrowIf.ArgumentNull(itemType, nameof(itemType));
+
+            string artifactTypeNameBase;
+
+            switch (itemType)
+            {
+                case ItemTypePredefined.Actor:
+                    artifactTypeNameBase = "Actor";
+                    break;
+
+                case ItemTypePredefined.BusinessProcess:
+                    artifactTypeNameBase = "Business Process";
+                    break;
+
+                case ItemTypePredefined.Document:
+                    artifactTypeNameBase = "Document";
+                    break;
+
+                case ItemTypePredefined.DomainDiagram:
+                    artifactTypeNameBase = "Domain Diagram";
+                    break;
+
+                case ItemTypePredefined.GenericDiagram:
+                    artifactTypeNameBase = "Generic Diagram";
+                    break;
+
+                case ItemTypePredefined.Glossary:
+                    artifactTypeNameBase = "Glossary";
+                    break;
+
+                case ItemTypePredefined.PrimitiveFolder:
+                    artifactTypeNameBase = "Folder";
+                    break;
+
+                case ItemTypePredefined.Process:
+                    artifactTypeNameBase = "Process";
+                    break;
+
+                case ItemTypePredefined.Storyboard:
+                    artifactTypeNameBase = "Storyboard";
+                    break;
+
+                case ItemTypePredefined.TextualRequirement:
+                    artifactTypeNameBase = "Textual Requirement";
+                    break;
+
+                case ItemTypePredefined.UIMockup:
+                    artifactTypeNameBase = "UI Mockup";
+                    break;
+
+                case ItemTypePredefined.UseCase:
+                    artifactTypeNameBase = "Use Case";
+                    break;
+
+                case ItemTypePredefined.UseCaseDiagram:
+                    artifactTypeNameBase = "Use Case Diagram";
+                    break;
+
+                default:
+                    artifactTypeNameBase = "";
+                    break;
+            }
+
+            return I18NHelper.FormatInvariant("{0}(Standard Pack)", artifactTypeNameBase);
+        }
+
+        public class ChoiceValues
+        {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [JsonProperty("validValues")]
+            public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
+
+            [JsonProperty("customValue")]
+            public string CustomValue { get; set; }
+        }
+
+        public class UserGroupValues
+        {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [JsonProperty("usersGroups")]
+            public List<Identification> UsersGroups { get; set; }
+
+            [JsonProperty("label")]
+            public string Label { get; set; }
+        }
     }
 }

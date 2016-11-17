@@ -9,8 +9,6 @@ export interface IState {
     lockOwner?: string;
     readonly?: boolean;
     dirty?: boolean;
-    published?: boolean;
-    everPublished?: boolean;
     deleted?: boolean;
     historical?: boolean;
     misplaced?: boolean;
@@ -18,76 +16,69 @@ export interface IState {
 }
 
 export interface IArtifactState extends IState, IDispose {
-    initialize(artifact: Models.IArtifact): IArtifactState;
+    published: boolean;
+    everPublished: boolean;
+    onStateChange: Rx.Observable<IArtifactState>;
+
+    initialize(artifact: Models.IArtifact): void;
+    setState(newState: IState, notifyChange?: boolean): void;
     lock(value: Models.ILockResult): void;
-    unlock();
-    onStateChange: Rx.Observable<IState>;
-    get(): IState;
-    setState(newState: IState, notifyChange: boolean);
+    unlock(): void;
 }
 
 export class ArtifactState implements IArtifactState {
+    private subject: Rx.BehaviorSubject<IArtifactState>;
+    private currentState: IState = this.createDefaultState();
+
     constructor(private artifact: IIStatefulArtifact) {
-        this.subject = new Rx.BehaviorSubject<IState>(undefined);
+        this.subject = new Rx.BehaviorSubject<IArtifactState>(undefined);
         this.initialize(artifact);
     }
 
-    private currentState: IState = this.newState();
-    private prevState: IState = _.cloneDeep(this.currentState);
-
-    private subject: Rx.BehaviorSubject<IState>;
-
-    private newState(): IState {
-        // create a new state object with defaults
-        return {
+    // create a new state object with defaults
+    private createDefaultState(): IState {
+        return <IState>{
             lockedBy: Enums.LockedByEnum.None,
             lockDateTime: null,
             lockOwner: null,
             readonly: false,
             dirty: false,
-            published: false,
-            everPublished: false,
             deleted: false,
+            historical: false,
             misplaced: false,
             invalid: false
         };
     }
 
-    private reset() {
-        this.currentState = this.newState();
-        this.prevState = _.cloneDeep(this.currentState);
-    }
-
-    public get onStateChange(): Rx.Observable<IState> {
+    public get onStateChange(): Rx.Observable<IArtifactState> {
         // returns the subject as an observable that can be subscribed to
         // subscribers will get notified when the state changes
         return this.subject.filter(state => !!state).asObservable();
     }
 
-    public get(): IState {
-        return this.currentState;
-    }
+    // this function can set 1 or more state properties at once
+    // if notifyChange flag is false observers will not be notified
+    public setState(newState: IState, notifyChange: boolean = true): void {
+        if (!newState) {
+            throw new Error("newState is invalid");
+        }
 
-    public setState(newState: IState, notifyChange: boolean = true) {
-        // this function can set 1 or more state properties at once
-        // if notifyChange flag is false observers will not be notified
-        if (newState) {
-            Object.keys(newState).forEach((item) => {
-                this.currentState[item] = newState[item];
-            });
-            if (notifyChange) {
-                this.notifyStateChange();
-            } else {
-                this.prevState = _.cloneDeep(this.currentState);
+        let changed: boolean = false;
+
+        Object.keys(newState).forEach(key => {
+            if (!_.isEqual(this.currentState[key], newState[key])) {
+                this.currentState[key] = newState[key];
+                changed = true;
             }
+        });
+        
+        if (changed && notifyChange) {
+            this.notifyStateChange();
         }
     }
 
-    private notifyStateChange() {
-        if (!_.isEqual(this.prevState, this.currentState)) {
-            this.prevState = _.cloneDeep(this.currentState);
-            this.subject.onNext(this.currentState);
-        }
+    private notifyStateChange(): void {
+        this.subject.onNext(this);
     }
 
     public get deleted(): boolean {
@@ -95,6 +86,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set deleted(value: boolean) {
+        if (this.currentState.deleted === value) {
+            return;
+        }
+
         this.currentState.deleted = value;
         this.currentState.readonly = this.currentState.readonly || value;
         this.notifyStateChange();
@@ -105,6 +100,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set dirty(value: boolean) {
+        if (this.currentState.dirty === value) {
+            return;
+        }
+
         this.currentState.dirty = value;
         this.notifyStateChange();
     }
@@ -114,6 +113,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set invalid(value: boolean) {
+        if (this.currentState.invalid === value) {
+            return;
+        }
+
         this.currentState.invalid = value;
         this.notifyStateChange();
     }
@@ -135,6 +138,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set misplaced(value: boolean) {
+        if (this.currentState.misplaced === value) {
+            return;
+        }
+
         this.currentState.misplaced = value;
         this.notifyStateChange();
     }
@@ -157,6 +164,10 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set readonly(value: boolean) {
+        if (this.currentState.readonly === value) {
+            return;
+        }
+
         this.currentState.readonly = value;
         this.notifyStateChange();
     }
@@ -166,78 +177,85 @@ export class ArtifactState implements IArtifactState {
     }
 
     public set historical(value: boolean) {
+        if (this.currentState.historical === value) {
+            return;
+        }
+
         this.currentState.historical = value;
         this.currentState.readonly = this.currentState.readonly || value;
         this.notifyStateChange();
     }
 
-    public initialize(artifact: Models.IArtifact): IArtifactState {
-        if (artifact) {
-            // deleted state never can be changed from true to false
-            const deleted = this.currentState.deleted;
-            const historical = this.currentState.historical;
-
-            this.reset();
-
-            const noReadPermission = (this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
-
-            if (artifact.lockedByUser) {
-                const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
-                                Enums.LockedByEnum.CurrentUser :
-                                Enums.LockedByEnum.OtherUser;
-                const newState: IState = {
-                    lockedBy: lockedBy,
-                    lockOwner: artifact.lockedByUser.displayName,
-                    lockDateTime: artifact.lockedDateTime,
-                    deleted: deleted,
-                    historical: historical,
-                    readonly: deleted || 
-                                historical || 
-                                lockedBy === Enums.LockedByEnum.OtherUser || 
-                                noReadPermission
-                };
-
-                this.setState(newState, false);
-            } else {
-                this.currentState.deleted = deleted;
-                this.currentState.historical = historical;
-                this.currentState.readonly = deleted || 
-                                             historical || 
-                                             noReadPermission;
-            }
+    public initialize(artifact: Models.IArtifact): void {
+        if (!artifact) {
+            throw new Error("artifact is invalid");
         }
 
-        return this;
-    }
+        // deleted state never can be changed from true to false
+        const deleted = this.currentState.deleted;
+        const historical = this.currentState.historical;
 
-    public lock(value: Models.ILockResult) {
-        if (value) {
-            let lockInfo: IState = {};
+        // reset to default state
+        this.currentState = this.createDefaultState();
 
-            if (value.result === Enums.LockResultEnum.Success) {
-                lockInfo.lockedBy = Enums.LockedByEnum.CurrentUser;
-            } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
-                lockInfo.lockedBy = Enums.LockedByEnum.OtherUser;
-                lockInfo.readonly = true;
-            }
+        const noEditPermission = (artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
 
-            if (value.info) {
-                lockInfo.lockDateTime = value.info.utcLockedDateTime;
-                lockInfo.lockOwner = value.info.lockOwnerDisplayName;
-            }
+        if (artifact.lockedByUser) {
+            const lockedBy = artifact.lockedByUser.id === this.artifact.getServices().session.currentUser.id ?
+                            Enums.LockedByEnum.CurrentUser :
+                            Enums.LockedByEnum.OtherUser;
+            const newState: IState = {
+                lockedBy: lockedBy,
+                lockOwner: artifact.lockedByUser.displayName,
+                lockDateTime: artifact.lockedDateTime,
+                deleted: deleted,
+                historical: historical,
+                readonly: deleted || 
+                            historical || 
+                            lockedBy === Enums.LockedByEnum.OtherUser || 
+                            noEditPermission
+            };
 
-            this.setState(lockInfo);
+            this.setState(newState, false);
+        } else {
+            this.currentState.deleted = deleted;
+            this.currentState.historical = historical;
+            this.currentState.readonly = deleted || 
+                                            historical || 
+                                            noEditPermission;
         }
     }
 
-    public unlock() {
-        let lockInfo: IState = {
+    public lock(value: Models.ILockResult): void {
+        if (!value) {
+            return;
+        }
+
+        let newState: IState = {};
+
+        if (value.result === Enums.LockResultEnum.Success) {
+            newState.lockedBy = Enums.LockedByEnum.CurrentUser;
+        } else if (value.result === Enums.LockResultEnum.AlreadyLocked) {
+            newState.lockedBy = Enums.LockedByEnum.OtherUser;
+            newState.readonly = true;
+        }
+
+        if (value.info) {
+            newState.lockDateTime = value.info.utcLockedDateTime;
+            newState.lockOwner = value.info.lockOwnerDisplayName;
+        }
+
+        this.setState(newState);
+    }
+
+    public unlock(): void {
+        let newState: IState = {
             lockedBy: Enums.LockedByEnum.None,
             lockDateTime: undefined,
             lockOwner: undefined
         };
 
-        this.setState(lockInfo);
+        this.setState(newState);
     }
 
     public dispose() {

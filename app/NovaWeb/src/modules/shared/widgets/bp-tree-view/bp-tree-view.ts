@@ -65,11 +65,13 @@ export interface IBPTreeViewController extends ng.IComponentController {
 }
 
 export interface ITreeViewNode {
-    key: string; // Each row in the dom will have an attribute row-id='key'
-    isExpandable?: boolean;
+    // agGrid.NodeChildDetails
+    group?: boolean;
     children?: ITreeViewNode[];
-    isExpanded?: boolean;
-    isSelectable: boolean;
+    expanded?: boolean;
+    key: string; // Each row in the dom will have an attribute row-id='key'
+
+    selectable: boolean;
     loadChildrenAsync?(): ng.IPromise<any>; // To lazy-load children
 }
 
@@ -236,7 +238,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                    cellRenderer: column.isGroup ? "group" : column.innerRenderer,
                    cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
-                            (params: any) => (params.data as ITreeViewNode).isSelectable : undefined,
+                            (params: any) => (params.data as ITreeViewNode).selectable : undefined,
                         innerRenderer: column.innerRenderer ?
                             (params: any) => column.innerRenderer(params as IColumnRendererParams) : undefined,
                         padding: 20
@@ -323,11 +325,11 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public getNodeChildDetails(dataItem: any): agGrid.NodeChildDetails {
         const vm = dataItem as ITreeViewNode;
-        if (vm.isExpandable) {
+        if (vm.group) {
             return {
                 group: true,
                 children: vm.children,
-                expanded: vm.isExpanded,
+                expanded: vm.expanded,
                 key: vm.key
             } as agGrid.NodeChildDetails;
         }
@@ -345,7 +347,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const vm = node.data as ITreeViewNode;
 
-        if (vm.isExpandable) {
+        if (vm.group) {
             const row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.key}"]`);
             if (row) {
                 row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
@@ -361,7 +363,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     }
                 });
             }
-            vm.isExpanded = node.expanded;
+            vm.expanded = node.expanded;
         }
     };
 
@@ -399,7 +401,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             } else {
                 node.setSelectedParams({newValue: true, clearSelection: true});
             }
-        } else if (vm.isSelectable) {
+        } else if (vm.selectable) {
             node.setSelectedParams({
                 newValue: true,
                 clearSelection: !multiSelectKeyPressed,
@@ -412,7 +414,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         const node = event.node;
         const isSelected = node.isSelected();
         const vm = node.data as ITreeViewNode;
-        if (isSelected && (!vm.isSelectable || !this.isVisible(node))) {
+        if (isSelected && (!vm.selectable || !this.isVisible(node))) {
             node.setSelected(false);
         } else if (_.isFunction(this.onSelect)) {
             this.onSelect({vm: vm, isSelected: isSelected});
@@ -430,7 +432,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public onRowDoubleClicked = (event: {data: ITreeViewNode}) => {
         const vm = event.data;
-        if (_.isFunction(this.onDoubleClick) && vm.isSelectable && !vm.isExpandable) {
+        if (_.isFunction(this.onDoubleClick) && vm.selectable && !vm.group) {
             this.onDoubleClick({vm: vm});
         }
     };

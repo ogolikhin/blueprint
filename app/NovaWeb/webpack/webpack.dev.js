@@ -3,6 +3,8 @@ var path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+var ProgressBarPlugin = require('progress-bar-webpack-plugin');
+var autoprefixer = require('autoprefixer');
 
 var loaders = require("./loaders");
 var proxy_config = require('./proxy.dev');
@@ -25,15 +27,8 @@ if (process.argv.some(function (argument) {
     is_public = true;
 }
 
-function isDebug(argument) {
-    return argument === '--debug';
-}
-
-if (process.argv.some(isDebug)) {
-    console.log("Is Debug");
-}
-
 module.exports = {
+    cache: true,
     context: _APP,
     entry: {
         app: ['webpack/hot/dev-server', './index.ts'],
@@ -57,6 +52,8 @@ module.exports = {
         historyApiFallback: true
     },
     plugins: [
+        new webpack.NoErrorsPlugin(),
+        new ProgressBarPlugin(),
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
         new HtmlWebpackPlugin({
             template: './index.html',
@@ -65,7 +62,6 @@ module.exports = {
         }),
         new ExtractTextPlugin('[name].css', {allChunks: true}),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: './web.config'},
@@ -83,21 +79,22 @@ module.exports = {
             {from: '../libs/mxClient/css', to: './libs/mxClient/css'},
             {from: '../libs/mxClient/js', to: './libs/mxClient/js'},
 
+
             {from: '../assets', to: './static'},
             {from: './unsupported-browser', to: './static'},
 
+            {from: '../node_modules/bootstrap-sass/assets/fonts', to: './fonts'},
             {from: '../src/fonts', to: './fonts'},
             {from: '../src/images', to: './static/images'},
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
-            {from: '../src/styles/images/icons', to: './static/images/icons'}
+            {from: '../src/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })
     ],
-    watch: false,
     resolve: {
         root: __dirname,
         extensions: ['', '.webpack.js', '.ts', '.js', '.json'],
@@ -121,6 +118,9 @@ module.exports = {
             }
         ]
     },
+    postcss: [
+        autoprefixer({browsers: ['last 2 versions']})
+    ],
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },

@@ -1,13 +1,14 @@
 import "../../../";
 import * as angular from "angular";
-import * as _ from "lodash";
 import "angular-mocks";
 import {CreateNewArtifactController} from "./new-artifact";
 import {ModalServiceInstanceMock} from "../../../../shell/login/mocks.spec";
 import {DialogSettingsMock, DataMock} from "./new-artifact.mock";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-import {IProjectMeta, IItemType} from "../../../../main/models/models";
-import {MetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
+import {IItemType} from "../../../../main/models/models";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {MetaDataServiceMock} from "../../../../managers/artifact-manager/metadata/metadata.svc.mock";
 
 describe("CreateNewArtifactController", () => {
 
@@ -18,14 +19,13 @@ describe("CreateNewArtifactController", () => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("dialogSettings", DialogSettingsMock);
         $provide.service("dialogData", DataMock);
-        $provide.service("metadataService", MetaDataService);
-        // $provide.service("localization", LocalizationServiceMock);
-        // $provide.service("dialogService", DialogServiceMock);
-        // $provide.service("dialogSettings", DialogSettingsMock);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("metadataService", MetaDataServiceMock);
     }));
 
     it("filters ItemTypePredefined by parent",
-        inject(($rootScope: ng.IRootScopeService, ctrl: CreateNewArtifactController) => {
+        inject((ctrl: CreateNewArtifactController) => {
             let types: ItemTypePredefined[];
 
             //Arrange
@@ -43,7 +43,7 @@ describe("CreateNewArtifactController", () => {
         }));
 
     it("list available types",
-        inject(($rootScope: ng.IRootScopeService, ctrl: CreateNewArtifactController) => {
+        inject((ctrl: CreateNewArtifactController) => {
             let types: IItemType[];
 
             //Arrange
@@ -51,5 +51,47 @@ describe("CreateNewArtifactController", () => {
 
             //Assert
             expect(types.length).toBe(0);
+        }));
+
+    it("create button is disabled if type empty",
+        inject((ctrl: CreateNewArtifactController) => {
+            ctrl.newArtifactName = "New artifact";
+            //Assert
+            expect(ctrl.isCreateButtonDisabled).toBeTruthy();
+        }));
+
+    it("create button is disabled if name empty",
+        inject((ctrl: CreateNewArtifactController) => {
+            ctrl.newArtifactType = {
+                id: 195,
+                name: "Actor",
+                projectId: 1,
+                versionId: 33,
+                prefix: "AC",
+                predefinedType: 4104,
+                iconImageId: 1,
+                usedInThisProject: true,
+                customPropertyTypeIds: []
+            };
+            //Assert
+            expect(ctrl.isCreateButtonDisabled).toBeTruthy();
+        }));
+
+    it("create button is enabled if both filled",
+        inject((ctrl: CreateNewArtifactController) => {
+            ctrl.newArtifactName = "New artifact";
+            ctrl.newArtifactType = {
+                id: 195,
+                name: "Actor",
+                projectId: 1,
+                versionId: 33,
+                prefix: "AC",
+                predefinedType: 4104,
+                iconImageId: 1,
+                usedInThisProject: true,
+                customPropertyTypeIds: []
+            };
+            //Assert
+            expect(ctrl.isCreateButtonDisabled).toBeFalsy();
         }));
 });

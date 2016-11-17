@@ -2,6 +2,8 @@ import {IProjectManager} from "../../../managers/project-manager/project-manager
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
 import {IItemType} from "../../models/models";
 import {Models} from "../../models";
+import {IAnalyticsService} from "../analytics/analyticsProvider";
+
 export interface ISearchMetadata {
     totalCount: number;
     totalPages: number;
@@ -53,7 +55,8 @@ export class QuickSearchService implements IQuickSearchService {
         "$timeout",
         "$log",
         "projectManager",
-        "metadataService"
+        "metadataService",
+        "Analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -61,7 +64,8 @@ export class QuickSearchService implements IQuickSearchService {
                 private $timeout: ng.ITimeoutService,
                 private $log: ng.ILogService,
                 private projectManager: IProjectManager,
-                private metadataService: IMetaDataService) {
+                private metadataService: IMetaDataService,
+                private Analytics: IAnalyticsService) {
     }
 
     searchTerm: string;
@@ -134,13 +138,11 @@ export class QuickSearchService implements IQuickSearchService {
             }
         };
 
-
-        this.$log.debug("search", eventSource + " search", term, 1, true, {
-            dimension1: projectIds.toString(),
-            metric1: 1,
-            metric2: 10
+        this.Analytics.trackEvent("search", "quick search", eventSource, term, {
+            projectIds: projectIds,
+            page: page,
+            pageSize: pageSize
         });
-
 
         this.$http(request).then((result) => {
                 let p = [];

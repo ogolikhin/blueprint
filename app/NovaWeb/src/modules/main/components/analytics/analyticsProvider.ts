@@ -1,21 +1,5 @@
-import "angular";
-
-//some good insights from: https://github.com/onefrankguy/frankmitchell.org/blob/master/drafts/replacing-google-analytics-with-keen-io.md
-//depends on: https://github.com/keen/keen-jsa
-
-//START: Polyfill
-//
-// This is a polyfill untill a keen.d.ts file exists
 const Keen = require("keen-js");
-//END: polyfill
-
-export interface IKeenEvent {
-    category: string;
-    action: string;
-    label: string;
-    value: any;
-    custom: Object;
-}
+import "lodash";
 
 export interface IKeenEventObject {
     referrer: {
@@ -41,9 +25,16 @@ export interface IAnalyticsService {
     enableLocalhostTracking: boolean;
 }
 
+interface IKeenClient {
+    config: IKeenAccount;
+    addEvent(event: string, pageView: IKeenEventObject, callback: Function): void;
+}
+
 export interface IKeenAccount {
     projectId: string;
     writeKey: string;
+    globalProperties?: any;
+    masterKey?: string;
     readKey?: string;
     protocol?: string;       // protocol: 'https',         // String (optional: https | http | auto)
     host?: string;           // host: 'api.keen.io/3.0',   // String (optional)
@@ -51,7 +42,7 @@ export interface IKeenAccount {
 }
 // The following class represents the provider
 export class AnalyticsProvider implements ng.IServiceProvider {
-    private client: any;
+    private client: IKeenClient;
     private _trackPage: any;
     private _trackEvent: any;
 
@@ -70,10 +61,29 @@ export class AnalyticsProvider implements ng.IServiceProvider {
         (<any>window).Keen = this.client;
     }
 
+
     $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService) {
-        $log.warn("Analytics Tracking ", this.enableLocalhostTracking ? "Enabled" : "Disabled");
+        let track: boolean = true;
+        if (!this.client) {
+            track = false;
+            $log.warn("Please configure your Keen client first using Analytics.setAccount()");
+        }
+        if (!this.client.config.projectId) {
+            track = false;
+            $log.warn("Please configure your Keen projectId using Analytics.setAccount()");
+        }
+        if (!this.client.config.writeKey) {
+            track = false;
+            $log.warn("Please configure your Keen writeKey using Analytics.setAccount()");
+        }
+        if (track) {
+            $log.warn("Analytics Tracking ", this.enableLocalhostTracking ? "Enabled" : "Disabled");
+        }
+        else {
+            return;
+        }
         let _baseKeenEvent = () => {
-            let baseKeenObject: IKeenEventObject = {
+            return <IKeenEventObject> {
                 referrer: {
                     url: $window.document.referrer
                 },
@@ -114,15 +124,13 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                     ]
                 }
             };
-
-            return baseKeenObject;
         };
         this._trackPage = () => {
             let pageView = _baseKeenEvent();
             let event = "pageView";
-            $log.debug("Tracking Page view: ", pageView);
+            $log.info("Tracking Page view: ", pageView);
             if (this.enableLocalhostTracking) {
-                this.client.addEvent(event, pageView, function (error) {
+                this.client.addEvent(event, pageView, (error) => {
                     if (error) {
                         $log.warn("KeenIO:  ", error);
                     }
@@ -157,7 +165,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             if (label && !_.isEmpty(label)) {
                 customEventData.label = label;
             }
-            if (value && (_.isNaN(value) || _.isEmpty(value))) {
+            if (value && !_.isEmpty(value)) {
                 customEventData.value = value;
             }
             if (eventType !== undefined && !_.isEmpty(eventType)) {
@@ -167,7 +175,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                 customEventData.custom = custom;
             }
             newEvent = _.extend(newEvent, customEventData);
-            $log.debug("tracking eventCollection \'" + eventCollection + "\': ", newEvent);
+            $log.info("tracking eventCollection \'" + eventCollection + "\': ", newEvent);
             if (this.enableLocalhostTracking) {
                 this.client.addEvent(eventCollection, newEvent, function (error) {
                     if (error) {

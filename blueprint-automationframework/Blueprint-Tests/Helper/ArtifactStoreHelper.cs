@@ -1,19 +1,19 @@
-using System;
 using Common;
 using Model;
-using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Model.NovaModel;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Utilities;
 using Utilities.Facades;
-using Newtonsoft.Json;
 
 namespace Helper
 {
@@ -397,6 +397,13 @@ namespace Helper
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property CustomValues are not equal.", primitiveType);
                     }
+                    else if(string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue) &&
+                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue))
+                    {
+                        Assert.Fail("The custom {0} property CustomValue was null for the expected property but the CustomValue " +
+                                    "for the actual property was not null.", primitiveType);
+                    }
+                    
                     break;
 
                 case PropertyPrimitiveType.User:
@@ -413,7 +420,7 @@ namespace Helper
                         Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
                         Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName, "The custom {0} Display Names are not equal.", primitiveType);
 
-                        if (userGroupValue1.IsGroup != null)
+                        if ((userGroupValue1.IsGroup != null) || (userGroupValue2.IsGroup != null))
                         {
                             Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup, "The custom {0} property IsGroup flags are not equal.", primitiveType);
                         }
@@ -425,6 +432,12 @@ namespace Helper
                         var customValue2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label;
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property Labels are not equal.", primitiveType);
+                    }
+                    else if (string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label) &&
+                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label))
+                    {
+                        Assert.Fail("The custom {0} property Label was null for the expected property but the Label " +
+                                    "for the actual property was not null.", primitiveType);
                     }
                     break;
 
@@ -757,30 +770,30 @@ namespace Helper
         }
 
         /// <summary>
-        /// Validates inline trace link returned from subartifact details
+        /// Validates inline trace link returned from subartifact
         /// </summary>
-        /// <param name="subArtifactdetails">The subartifact details containing the inline trace link which needs validation</param>
+        /// <param name="subArtifact">The subartifact containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifactDetails subArtifactdetails,
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifact subArtifact,
             IArtifactBase inlineTraceArtifact,
             bool validInlineTraceLink)
         {
-            ThrowIf.ArgumentNull(subArtifactdetails, nameof(subArtifactdetails));
+            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
 
             // Validation: Verify that the subArtifactDetails' description field which contain inline trace link contains the valid
             // inline trace information (name of the inline trace artifact).
-            Assert.That(subArtifactdetails.Description.Contains(inlineTraceArtifact.Name),
+            Assert.That(subArtifact.Description.Contains(inlineTraceArtifact.Name),
                 "Expected outcome does not contain {0} on returned artifactdetails. Returned inline trace content is {1}.",
                 inlineTraceArtifact.Name,
-                subArtifactdetails.Description);
+                subArtifact.Description);
 
-            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifactdetails.Description),
+            Assert.AreEqual(validInlineTraceLink, IsValidInlineTrace(subArtifact.Description),
                 "Expected {0} for valid inline trace but {1} was returned. The returned inlinetrace link is {2}.",
                 validInlineTraceLink,
                 !validInlineTraceLink,
-                subArtifactdetails.Description);
+                subArtifact.Description);
         }
 
         /// <summary>
@@ -958,7 +971,6 @@ namespace Helper
             [JsonProperty("validValues")]
             public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("customValue")]
             public string CustomValue { get; set; }
         }
@@ -969,7 +981,6 @@ namespace Helper
             [JsonProperty("usersGroups")]
             public List<Identification> UsersGroups { get; set; }
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("label")]
             public string Label { get; set; }
         }

@@ -60,7 +60,7 @@ bp-toolbar {
             }
 
             &.open > a {
-                background: $gray-lightest;
+                background: $gray-lightest !important;
                 color: $brand-secondary !important;
             }
 

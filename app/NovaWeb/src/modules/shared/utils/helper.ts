@@ -15,19 +15,23 @@ export class Helper {
         });
     }
 
-    static limitChars(str, limit: number = 100): string {
+    static limitChars(str: string, limit: number = 100): string {
         if (str) {
-            let text = Helper.stripHTMLTags(str);
-            if (text) {
-                if (text.length > limit) {
-                    return text.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
-                }
-                return text;
+            if (str.length > limit) {
+                return str.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
             }
-            return "";
+            return str;
         }
         return "";
     }
+
+    static escapeQuot = (stringToEscape: string): string => {
+        if (stringToEscape) {
+            return stringToEscape.replace(/"/g, "&quot;");
+        }
+
+        return "";
+    };
 
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");

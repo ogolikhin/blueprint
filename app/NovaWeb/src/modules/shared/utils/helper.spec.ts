@@ -93,6 +93,22 @@ Popup`);
         });
     });
 
+    describe("escapeQuote", () => {
+        it("escapes the text content of quotes", () => {
+            // Arrange
+            let text = `test"test`;
+            let text2 = `test"test"`;
+
+            // Act
+            text = Helper.escapeQuot(text);
+            text2 = Helper.escapeQuot(text2);
+
+            // Assert
+            expect(text).toEqual(`test&quot;test`);
+            expect(text2).toEqual(`test&quot;test&quot;`);
+        });
+    });
+
     describe("stripWingdings", () => {
         it("removes CSS style definition for Wingdings font", () => {
             // Act

@@ -218,7 +218,7 @@ export class BPTreeController implements IBPTreeController {
                 if (this.options.api) {
                     this.options.api.setRowData(this.rootNodes);
 
-                    if (this.selectedVM) {
+                    if (this.selectedVM && this.selectedVM.model) {
                         this.options.api.forEachNode(node => {
                             const vm = node.data as IArtifactNode;
                             if (vm.model.id === this.selectedVM.model.id) {
@@ -345,7 +345,7 @@ export class BPTreeController implements IBPTreeController {
         const isSelected = node.isSelected();
 
         if (isSelected) {
-            if (!this.selectedVM || this.selectedVM.model.id !== vm.model.id) {
+            if (!this.selectedVM || (this.selectedVM.model && this.selectedVM.model.id !== vm.model.id)) {
                 this.selectedVM = vm;
                 this.clearFocus();
             }

@@ -64,7 +64,7 @@ describe("DiagramNode", () => {
                 "ST_Persona_Label": "Persona",
                 "ST_Colors_Label": "Color",
                 "ST_Comments_Label": "Comments",
-                "ST_New_User_Task_Label": "New User Task",
+               "ST_New_User_Task_Label": "New User Task",
                 "ST_New_User_Task_Persona": "User",
                 "ST_New_User_Decision_Label": "New Decision",
                 "ST_New_System_Task_Label": "New System Task",
@@ -397,7 +397,7 @@ describe("DiagramNode", () => {
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
             statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
 
-            node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, "", null, shapesFactory);
+            node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, null, null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 

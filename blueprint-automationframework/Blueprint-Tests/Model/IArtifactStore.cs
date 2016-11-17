@@ -349,7 +349,7 @@ namespace Model
         List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets subartifact details.
+        /// Gets subartifact.
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts/{subArtifactId})
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
@@ -357,7 +357,7 @@ namespace Model
         /// <param name="subArtifactId">Id of the subArtifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The requested subArtifact</returns>
-        NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
+        NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of unpublished changes for the specified user.
@@ -424,5 +424,17 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An artifact path</returns>
         List<INovaVersionControlArtifactInfo>GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets file attached to the artifact
+        /// Runs svc/bpartifactstore/artifacts/{0}/attachments/{1}
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">Id of artifact or sub-artifact.</param>
+        /// <param name="fileId">Id of file.</param>
+        /// <param name="versionId">Id of version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>File</returns>
+        IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

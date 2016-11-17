@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
-using Newtonsoft.Json;
+using System.Web;
+using System.Net.Mime;
 
 namespace Model.Impl
 {
@@ -461,21 +462,21 @@ namespace Model.Impl
             var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false);
 
             return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
         }
 
-        /// <seealso cref="IArtifactStore.GetSubartifactDetails(IUser, int, int, List{HttpStatusCode})"/>
-        public NovaSubArtifactDetails GetSubartifactDetails(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetSubartifact(IUser, int, int, List{HttpStatusCode})"/>
+        public NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<NovaSubArtifactDetails>(
+            return restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false); // TODO: need to review NovaSubArtifact model to make this valication works
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
@@ -543,6 +544,50 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return artifactBaseInfo.ConvertAll(o => (INovaVersionControlArtifactInfo)o);
+        }
+
+        /// <seealso cref="IArtifactStore.GetAttachmentFile(IUser, int, int, int?, List{HttpStatusCode})"/>
+        public IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(itemId, nameof(itemId));
+            ThrowIf.ArgumentNull(fileId, nameof(fileId));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            File file = null;
+
+            string tokenValue = user.Token?.AccessControlToken;
+            
+            var restApi = new RestApiFacade(Address, tokenValue);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT_id_, itemId, fileId);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // TODO: implementation copied from FileStore.cs - fix after call will be implemented
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string filename = HttpUtility.UrlDecode(new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName);
+
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    LastModifiedDate =
+                    DateTime.ParseExact(response.Headers.First(h => h.Key == "Date").Value.ToString(), "r", 
+                            null), //'r' allow parse "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'"
+                    FileType = response.ContentType,
+                    FileName = filename
+                };
+            }
+
+            return file;
         }
 
         #endregion Members inherited from IArtifactStore

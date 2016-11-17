@@ -59,10 +59,10 @@ export class TreeNodeVMFactory {
         return new SubArtifactNodeVM(this, project, model, this.isSelectable(model));
     }
 
-    public static processChildArtifacts(children: Models.IArtifact[], parent: Models.IArtifact): Models.IArtifact[] {
+    public static processChildArtifacts(children: Models.IArtifact[], artifactPath: string[]): Models.IArtifact[] {
         children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);
         children.forEach((value: Models.IArtifact) => {
-            value.parent = parent;
+            value.artifactPath = artifactPath;
         });
         return children;
     }
@@ -107,7 +107,7 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
                 });
             case AdminStoreModels.InstanceItemType.Project:
                 return this.factory.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
-                    return TreeNodeVMFactory.processChildArtifacts(children, this.model)
+                    return TreeNodeVMFactory.processChildArtifacts(children, [this.model.name])
                         .map(child => this.factory.createArtifactNodeVM(this.model, child));
                 });
             default:
@@ -149,7 +149,7 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
 
     public loadChildrenAsync(): ng.IPromise<ITreeViewNode[]> {
         return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
-            const result: ITreeViewNode[] = TreeNodeVMFactory.processChildArtifacts(children, this.model)
+            const result: ITreeViewNode[] = TreeNodeVMFactory.processChildArtifacts(children, _.concat(this.model.artifactPath, this.model.name))
                 .map(child => this.factory.createArtifactNodeVM(this.project, child));
             if (this.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);

@@ -49,7 +49,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         function deleteBaseActor() {
             currentModelVal = null;
             $scope.model[$scope.options["key"]] = null;
-        }        
+        }
 
         function isArtifactactPathFitToControl(prefix: string, name: string, id: number, artifactPath: string[]): boolean {
             if (!artifactPath || !prefix || !id || !name) {
@@ -72,7 +72,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                 showSubArtifacts: false
             };
 
-            dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {
+            dialogService.open(dialogSettings, dialogData).then((items: Models.IArtifact[]) => {
                 if (items.length === 1) {
                     const artifact = items[0];
                     let selected = selectionManager.getArtifact();
@@ -86,7 +86,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
                         deleteBaseActor();
 
                     }
-                    const artifactPath = Helper.getArtifactPath(artifact);
+                    const artifactPath = artifact.artifactPath;
                     $scope.model[$scope.options["key"]] = {
                         actorName: artifact.name,
                         actorId: artifact.id,

@@ -1,6 +1,7 @@
-﻿import "../../../";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "../../../";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
 import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
@@ -9,20 +10,17 @@ import {SelectionManager} from "../../../../managers/selection-manager/selection
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-import {Relationships} from "../../../../main";
 import {Helper} from "../../../../shared";
-
-import {
-    ArtifactManager,
-    StatefulArtifactFactory,
-    MetaDataService,
-    ArtifactService,
-    ArtifactAttachmentsService
-} from "../../../../managers/artifact-manager";
 import {HttpStatusCode} from "../../../../core/http/http-status-code";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
+import {ArtifactManager} from "../../../../managers/artifact-manager/artifact-manager";
+import {MetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
+import {StatefulArtifactFactory} from "../../../../managers/artifact-manager/artifact/artifact.factory";
+import {ArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
+import {ArtifactAttachmentsService} from "../../../../managers/artifact-manager/attachments/attachments.svc";
+import {IRelationship} from "../../../../main/models/relationshipModels";
 
-describe("Component BPDiscussionReplyItem", () => {
+describe("BPArtifactRelationshipItem", () => {
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -46,7 +44,7 @@ describe("Component BPDiscussionReplyItem", () => {
 
 
     beforeEach(inject(() => {
-        let template = `<bp-artifact-relationship-item artifact="::artifact"></bp-artifact-relationship-item>`;
+        let template = `<bp-artifact-relationship-item relationship="::artifact"></bp-artifact-relationship-item>`;
         directiveTest = new ComponentTest<BPArtifactRelationshipItemController>(template, "bp-artifact-relationship-item");
         vm = directiveTest.createComponent({});
     }));
@@ -71,7 +69,7 @@ describe("Component BPDiscussionReplyItem", () => {
                     "pathToProject": [{"itemId": 1, "itemName": "Item1", "parentId": 0}]
                 });
 
-            vm.artifact = <Relationships.IRelationship>{
+            vm.relationship = <IRelationship>{
                 "artifactId": 1
             };
 
@@ -110,7 +108,7 @@ describe("Component BPDiscussionReplyItem", () => {
 
     it("inArray, contains an artifact", () => {
         //Arrange
-        vm.artifact = <Relationships.IRelationship>{
+        vm.relationship = <IRelationship>{
             "artifactId": 1,
             "itemId": 1
         };
@@ -127,7 +125,7 @@ describe("Component BPDiscussionReplyItem", () => {
     });
     it("inArray, doesn't contain an artifact", () => {
         //Arrange
-        vm.artifact = <Relationships.IRelationship>{
+        vm.relationship = <IRelationship>{
             "artifactId": 1,
             "itemId": 3
         };
@@ -145,7 +143,7 @@ describe("Component BPDiscussionReplyItem", () => {
 
     it("inArray, null array", () => {
         //Arrange
-        vm.artifact = <Relationships.IRelationship>{
+        vm.relationship = <IRelationship>{
             "artifactId": 1,
             "itemId": 3
         };
@@ -161,7 +159,7 @@ describe("Component BPDiscussionReplyItem", () => {
 
     it("inArray, empty array", () => {
         //Arrange
-        vm.artifact = <Relationships.IRelationship>{
+        vm.relationship = <IRelationship>{
             "artifactId": 1,
             "itemId": 3
         };
@@ -179,7 +177,7 @@ describe("Component BPDiscussionReplyItem", () => {
 
         beforeEach(() => {
             vm.selectable = true;
-            vm.artifact = <Relationships.IRelationship>{
+            vm.relationship = <IRelationship>{
                 "artifactId": 1,
                 "itemId": 3
             };
@@ -189,52 +187,52 @@ describe("Component BPDiscussionReplyItem", () => {
 
         it("select, select artifact", () => {
             //Arrange
-            vm.artifact.isSelected = false;
+            vm.relationship.isSelected = false;
 
             //Act
             vm.selectTrace();
 
             //Assert
             expect(vm.selectedTraces.length).toBe(1);
-            expect(vm.artifact.isSelected).toBe(true);
+            expect(vm.relationship.isSelected).toBe(true);
 
         });
 
         it("select, select artifact that already in the array", () => {
             //Arrange
-            vm.artifact.isSelected = false;
-            vm.selectedTraces.push(vm.artifact);
+            vm.relationship.isSelected = false;
+            vm.selectedTraces.push(vm.relationship);
 
             //Act
             vm.selectTrace();
 
             //Assert
             expect(vm.selectedTraces.length).toBe(1);
-            expect(vm.artifact.isSelected).toBe(true);
+            expect(vm.relationship.isSelected).toBe(true);
 
         });
 
         it("select, unselect artifact", () => {
             //Arrange
-            vm.artifact.isSelected = true;
-            vm.selectedTraces.push(vm.artifact);
+            vm.relationship.isSelected = true;
+            vm.selectedTraces.push(vm.relationship);
 
             //Act
             vm.selectTrace();
 
             //Assert
             expect(vm.selectedTraces.length).toBe(0);
-            expect(vm.artifact.isSelected).toBe(false);
+            expect(vm.relationship.isSelected).toBe(false);
 
         });
 
         it("select, unselect artifact that is not in the array", () => {
             //Arrange
-            let artifact = <Relationships.IRelationship>{
+            let artifact = <IRelationship>{
                 "artifactId": 1,
                 "itemId": 4
             };
-            vm.artifact.isSelected = true;
+            vm.relationship.isSelected = true;
 
             //Act
             vm.selectedTraces.push(artifact);
@@ -242,7 +240,7 @@ describe("Component BPDiscussionReplyItem", () => {
 
             //Assert
             expect(vm.selectedTraces.length).toBe(1);
-            expect(vm.artifact.isSelected).toBe(false);
+            expect(vm.relationship.isSelected).toBe(false);
 
         });
     });

@@ -1,23 +1,22 @@
 import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {
     MoveArtifactPickerDialogController, 
     MoveArtifactResult, 
-    MoveArtifactInsertMethod
+    MoveArtifactInsertMethod,
+    IMoveArtifactPickerOptions
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
-import {Models} from "../../../../main/models";
+import {Models, Enums} from "../../../../main/models";
 
 export class MoveAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
+    constructor($q: ng.IQService, 
+                artifact: IStatefulArtifact,
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 projectManager: IProjectManager,
-                loadingOverlayService: ILoadingOverlayService,
                 dialogService: IDialogService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
@@ -32,30 +31,63 @@ export class MoveAction extends BPButtonAction {
                     header: localization.get("Move_Artifacts_Picker_Header")
                 };
 
-                const dialogData: IArtifactPickerOptions = {
+                const dialogData: IMoveArtifactPickerOptions = {
                     showSubArtifacts: false,
                     selectionMode: "single",
                     isOneProjectLevel: true,
-                    isItemSelectable: (item: Models.IArtifact | Models.ISubArtifactNode) => true
-                    /*isItemSelectable: (item: Models.IArtifact | Models.ISubArtifactNode) => {
-                        let excludedArtifacts = _.map(artifact.artifacts, (artifact) => artifact.id);
-                        return excludedArtifacts.indexOf(item.id) === -1;
-
-                    }*/
+                    currentArtifact: artifact 
                 };
 
                 dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
                     if (result && result.length === 1) {
+                        let orderIndex: number;
+                        let selectedArtifact: Models.IArtifact = result[0].artifacts[0];
+                        let parentArtifact = projectManager.getArtifactNode(selectedArtifact.parentId);
+                        let siblings = _.sortBy(parentArtifact.children, (a) => a.artifact.orderIndex); 
+                        let index = siblings.findIndex((a) => a.artifact.id === selectedArtifact.id);
+                        let insertMethod = result[0].insertMethod;
+                        
+                        if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
+                            orderIndex = selectedArtifact.orderIndex / 2;
+                        } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+                            orderIndex = selectedArtifact.orderIndex + 10;
+                        } else {    //in between
+                            if (insertMethod === MoveArtifactInsertMethod.Above) {
+                                orderIndex = (siblings[index - 1].artifact.orderIndex + selectedArtifact.orderIndex) / 2;
+                            } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                                orderIndex = (siblings[index + 1].artifact.orderIndex + selectedArtifact.orderIndex) / 2;
+                            } else {
+                                //leave undefined
+                            }
+                        }
+
                         const artifacts: Models.IArtifact[] = result[0].artifacts;
                         if (artifacts && artifacts.length > 0) {
-                            artifact.move(artifacts[0].id, result[0].orderIndex);
+                            let lockSavePromise: ng.IPromise<any>;
+
+                            if (!artifact.artifactState.dirty) {
+                                //lock
+                                lockSavePromise = artifact.lock();
+                                if (!lockSavePromise) {
+                                    lockSavePromise = $q.resolve();
+                                }
+                            } else if (artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+                                //save
+                                lockSavePromise = artifact.save();
+                            } else {
+                                lockSavePromise = $q.resolve();
+                            }
+
+                            lockSavePromise.then(() => {
+                                artifact.move(insertMethod === MoveArtifactInsertMethod.Selection ? artifacts[0].id : artifacts[0].parentId, orderIndex)
+                                .then(() => {
+                                    projectManager.refresh(artifact.projectId).then(() => {
+                                        projectManager.triggerProjectCollectionRefresh();
+                                    });
+                                });
+                            });
                         }
                     }
-                    
-                    //console.log(result[0].insertMethod);                      
-                    /*if (artifacts && artifacts.length > 0) {
-                        artifact.addArtifactsToCollection(artifacts);
-                    }*/
                 });                
                 
             },

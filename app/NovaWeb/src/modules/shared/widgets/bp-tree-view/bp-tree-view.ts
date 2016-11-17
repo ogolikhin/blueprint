@@ -100,6 +100,7 @@ export interface IHeaderCellRendererParams {
 export interface IBPTreeViewControllerApi {
     ensureNodeVisible(node: ITreeViewNode): void;
     deselectAll(): void;
+    updateSelectableNodes(isItemSelectable: (item) => boolean): void;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -220,6 +221,12 @@ export class BPTreeViewController implements IBPTreeViewController {
         },
         deselectAll: (): void => {
             this.options.api.deselectAll();
+        },
+        updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {
+            this.options.api.forEachNode(node => {
+                node.data.isSelectable = isItemSelectable(node.data.model);
+            });
+            this.options.api.refreshView();
         }
     };
 

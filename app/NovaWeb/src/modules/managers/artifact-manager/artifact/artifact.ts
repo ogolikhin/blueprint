@@ -650,12 +650,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
         let deferred = this.services.getDeferred<void>();
 
+        let moveOverlayId = this.services.loadingOverlayService.beginLoading();
+
         this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex).then(() => {
             deferred.resolve();
-
         }).catch((error: IApplicationError) => {
             this.error.onNext(error);
             deferred.reject(error);
+        }).finally(() => {
+            this.services.loadingOverlayService.endLoading(moveOverlayId);
         });
 
         return deferred.promise;

@@ -165,9 +165,9 @@ export class ArtifactService implements IArtifactService {
 
         let url: string;
         if (orderIndex) {
-            url = `/svc/artifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}`;
+            url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}`;
         } else {
-            url = `/svc/artifactstore/artifacts/${artifactId}/moveTo/${newParentId}`;
+            url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}`;
         }
 
         const requestObj: ng.IRequestConfig = {

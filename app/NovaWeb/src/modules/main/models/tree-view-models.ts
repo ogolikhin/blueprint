@@ -159,6 +159,10 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
             }
         });
     }
+
+    public setSelectable(value: boolean) {
+        this.isSelectable = value;
+    }
 }
 
 export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact> {

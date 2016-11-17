@@ -3,9 +3,9 @@
 </div>
 <div class="modal-body">
     <div>
-        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodSelection">Selection</label>
-        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodAbove">Insert above</label>
-        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodBellow">Insert bellow</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodSelection" ng-change="$ctrl.onInsertMethodChange()">Selection</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodAbove" ng-change="$ctrl.onInsertMethodChange()">Insert above</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodBelow" ng-change="$ctrl.onInsertMethodChange()">Insert below</label>
     </div>
     <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
                         selectable-item-types="$ctrl.dialogData.selectableItemTypes"
@@ -13,6 +13,7 @@
                         show-sub-artifacts="$ctrl.dialogData.showSubArtifacts"
                         is-one-project-level="$ctrl.dialogData.isOneProjectLevel"
                         on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
+                        api="$ctrl.api"
                         on-double-click="$ctrl.onDoubleClick(vm)">
     </bp-artifact-picker>
 </div>

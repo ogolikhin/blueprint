@@ -1,5 +1,3 @@
-import * as angular from "angular";
-import * as _ from "lodash";
 import {Models} from "../../main";
 import {IColumn, ITreeViewNode, IColumnRendererParams, IHeaderCellRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
@@ -217,9 +215,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         pathName = pathName + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
-                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">` +
-                        `${name}</div>` +
-                        `<div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
+                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">${name}</div>
+                        <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
                 }
             },
             {
@@ -232,8 +229,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     const desc = Helper.escapeHTMLText(vm.model.description);
 
                     if (vm.model.description) {
-                        return `<div class="collection__description" bp-tooltip="${tooltip}"` +
-                            `bp-tooltip-truncated="true">${desc}</div>`;
+                        return `<div class="collection__description" bp-tooltip="${tooltip}" bp-tooltip-truncated="true">${desc}</div>`;
                     }
 
                     return "";

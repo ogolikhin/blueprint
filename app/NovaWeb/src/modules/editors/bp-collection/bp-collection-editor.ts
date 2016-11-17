@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import {Models} from "../../main";
 import {IColumn, ITreeViewNode, IColumnRendererParams, IHeaderCellRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
@@ -6,7 +5,7 @@ import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
 import {Helper, IDialogService} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {ChangeTypeEnum, IChangeSet} from "../../managers/artifact-manager/changeset";
+import {ChangeTypeEnum, IChangeSet, IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -42,6 +41,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
+    public activeTab: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -56,6 +56,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        this.activeTab = 0;
     }
 
     public get reviewUrl(): string {
@@ -71,14 +72,20 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             this.collectionSubscriber.dispose();
             this.collectionSubscriber = null;
         }
-        this.collectionSubscriber = collectionArtifact.collectionObservable().subscribe(this.onCollectionArtifactsChanged);
+
+        if (collectionArtifact) {
+            this.collectionSubscriber = collectionArtifact.getProperyObservable()
+                .filter(changes => changes.change &&
+                    changes.change.key === Models.PropertyTypePredefined.CollectionContent)
+                .subscribeOnNext(this.onCollectionArtifactsChanged);
+        }
     }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
             // if collection is deleted we do not need to load metadata and collection content
-            if (!collectionArtifact.artifacts) {    
+            if (!collectionArtifact.artifacts) {
                 super.onArtifactReady();
                 return;
             }
@@ -114,32 +121,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
-    private onCollectionArtifactsChanged = (changes: IChangeSet[]) => {
-        if (!changes || changes.length === 0) {
-            return;
-        }
-
-        let collectionArtifacts = this.rootNode.slice();
-        this.visibleArtifact = undefined;
-        changes.map((change: IChangeSet) => {
-            if (change.type === ChangeTypeEnum.Add) {
-                let addedTreeVM = new CollectionNodeVM(change.value, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
-                collectionArtifacts.push(addedTreeVM);
-                if (!this.visibleArtifact) {
-                    this.visibleArtifact = addedTreeVM;
-                }
-
-            }
-            else if (change.type === ChangeTypeEnum.Delete) {
-                const removingNodeIndex = collectionArtifacts.findIndex((nodeVM: CollectionNodeVM) => nodeVM.model.id === change.key);
-
-                if (removingNodeIndex > -1) {
-                    collectionArtifacts.splice(removingNodeIndex, 1);
-                }
-            }
+    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+        this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+            return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
         });
-
-        this.rootNode = collectionArtifacts;
     };
 
     private headerCellRendererSelectAll(params: IHeaderCellRendererParams, isArtifactReadOnly: boolean) {
@@ -219,19 +205,20 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const path = vm.model.artifactPath;
+                    const name = Helper.escapeHTMLText(vm.model.name);
+                    const tooltipName: string = Helper.escapeQuot(vm.model.name);
 
-                    let tooltipText = "";
+                    let pathName = "";
                     path.map((collectionArtifact: string, index: number) => {
                         if (index !== 0) {
-                            tooltipText += " > ";
+                            pathName += " > ";
                         }
 
-                        tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
+                        pathName = pathName + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
-                    return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
-                        `${vm.model.name}</div>` +
-                        `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
+                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">${name}</div>
+                        <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
                 }
             },
             {
@@ -240,9 +227,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 isCheckboxHidden: true,
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
+                    const tooltip: string = Helper.escapeQuot(vm.model.description);
+                    const desc = Helper.escapeHTMLText(vm.model.description);
+
                     if (vm.model.description) {
-                        return `<div class="collection__description" bp-tooltip="${vm.model.description}" ` +
-                            `bp-tooltip-truncated="true">${vm.model.description}</div>`;
+                        return `<div class="collection__description" bp-tooltip="${tooltip}" bp-tooltip-truncated="true">${desc}</div>`;
                     }
 
                     return "";
@@ -326,7 +315,7 @@ class CollectionNodeVM implements ITreeViewNode {
     public key: string;
 
     constructor(public model: ICollectionArtifact, private projectId: number, private metadataService: IMetaDataService,
-                public isSelectable: boolean = true) {
+                public selectable: boolean = true) {
         this.key = String(model.id);
     }
 

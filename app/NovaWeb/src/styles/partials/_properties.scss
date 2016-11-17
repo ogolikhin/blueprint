@@ -14,6 +14,7 @@ $property-choice-height: 24px;
 
 $richtext-fontcolor: #000;
 $richtext-linkcolor: #00f;
+$richtext-min-height: 150px;
 $richtext-fontsize: 9pt;
 $richtext-fontfamily: $font-family-base;
 
@@ -636,7 +637,7 @@ pagecontent, bp-properties-panel {
 
                 &.richtext {
                     max-height: 350px;
-                    min-height: 150px;
+                    min-height: $richtext-min-height;
                     min-width: $property-input-width;
                     overflow: auto;
 
@@ -1309,6 +1310,10 @@ pagecontent, bp-properties-panel {
     border: solid 1px $gray-lighter;
     border-radius: $border-radius-amount;
     padding: 18px 20px;
+
+    .rich-text-wrapper {
+        min-height: $richtext-min-height;
+    }
 
     .formly {
         margin: 0;

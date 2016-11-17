@@ -20,7 +20,7 @@ describe("BpArtifactPicker", () => {
             }
         }));
         $provide.service("projectManager", () => ({
-            getProject: (id: number) => ({id: id, name: "default"})
+            getProject: (id: number) => ({model: {id: id, name: "default"}, group: true})
         }));
         $provide.service("projectService", () => ({
             abort: () => { return; }
@@ -66,7 +66,7 @@ describe("BpArtifactPickerController", () => {
     let $scope: ng.IScope;
     let projectService: IProjectService;
     let controller: BpArtifactPickerController;
-    const project = {id: 1, name: "default", hasChildren: true};
+    const project = {model: {id: 1, name: "default"}, group: true};
 
     beforeEach(inject(($rootScope: ng.IRootScopeService) => {
         $scope = $rootScope.$new();
@@ -87,10 +87,10 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.project).toEqual({
-            id: project.id,
+            id: project.model.id,
             type: AdminStoreModels.InstanceItemType.Project,
-            name: project.name,
-            hasChildren: project.hasChildren
+            name: project.model.name,
+            hasChildren: project.group
         });
     });
 

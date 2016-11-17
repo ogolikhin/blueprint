@@ -52,11 +52,11 @@ describe("Application toolbar:", () => {
         loadingOverlayService: LoadingOverlayService
         ) => {
         toolbarCtrl = new BPToolbarController($q, localization,
-            dialogService, projectManager, artifactManager, publishService, 
+            dialogService, projectManager, artifactManager, publishService,
             messageService, navigationService, loadingOverlayService);
-        artifactManager.selection = { 
+        artifactManager.selection = {
             getArtifact: () => { return; },
-            clearAll: () => { return; } 
+            clearAll: () => { return; }
         } as ISelectionManager;
     }));
 
@@ -96,10 +96,10 @@ describe("Application toolbar:", () => {
                     id: "projectclose"
                 }
             };
-            const openedProjects = [{ id: 1}];
+            const openedProjects = [{ model: { id: 1} }];
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
             spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 1 });
-            
+
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
@@ -125,10 +125,10 @@ describe("Application toolbar:", () => {
                     id: "projectclose"
                 }
             };
-            const openedProjects = [{ id: 1}];
+            const openedProjects = [{ model: { id: 1} }];
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
             spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 555 });
-            
+
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove");
@@ -157,10 +157,10 @@ describe("Application toolbar:", () => {
                     id: "projectclose"
                 }
             };
-            const openedProjects = [{ id: 2}, { id: 1}];
+            const openedProjects = [{ model: { id: 2} }, { model: { id: 1} }];
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
             spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 1 });
-            
+
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
@@ -194,7 +194,7 @@ describe("Application toolbar:", () => {
             const openedProjects = [{ id: 2}, { id: 1}];
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
             spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 1 });
-            
+
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeAllProjectSpy = spyOn(projectManager, "removeAll").and.callFake(() => { return; });

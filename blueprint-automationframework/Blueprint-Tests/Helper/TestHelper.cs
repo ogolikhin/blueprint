@@ -153,7 +153,7 @@ namespace Helper
             BaseArtifactType artifactType,
             IArtifactBase parentArtifact = null)
         {
-            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parentArtifact);
+            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             artifact.Save();
@@ -357,6 +357,22 @@ namespace Helper
             var artifact = CreateWrapAndSaveNovaArtifact(project, user, itemType, parentId, orderIndex, baseType, name, artifactTypeName);
             ArtifactStore.PublishArtifact(artifact, user);
             return artifact;
+        }
+
+        /// <summary>
+        /// Creates, Wraps and Publishes a Nova Artifact for a Specific Artifact Type
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user creating the artifact.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
+        public IArtifact CreateWrapAndPublishNovaArtifactForStandardArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        {
+
+            var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
+
+            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
+                artifactTypeName: artifactTypeName);
         }
 
         /// <summary>
@@ -574,6 +590,19 @@ namespace Helper
             Artifacts.Add(artifact);
 
             return artifact;
+        }
+
+        /// <summary>
+        /// Updates a Nova artifact.
+        /// </summary>
+        /// <param name="project">The project containing the artifact to be updated.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
+        /// <returns>The new Nova artifact that was created.</returns>
+        public INovaArtifactDetails UpdateNovaArtifact(IProject project, IUser user, NovaArtifactDetails novaArtifactDetails)
+        {     
+            return Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user,
+                    project, novaArtifactDetails);
         }
 
         #endregion Artifact Management

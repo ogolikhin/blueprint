@@ -71,7 +71,7 @@ export class QuickSearchService implements IQuickSearchService {
     searchTerm: string;
 
     canSearch(): boolean {
-        return !(this.projectManager.projectCollection.getValue().map(project => project.id).length > 0);
+        return !(this.projectManager.projectCollection.getValue().length > 0);
     }
 
     private appendParameters(url: string, page: number, pageSize: number): string {
@@ -105,7 +105,7 @@ export class QuickSearchService implements IQuickSearchService {
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.id)
+                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.model.id)
             }
         };
 

@@ -1,27 +1,21 @@
 ﻿import {Helper, IDialogService} from "../../../../shared";
 import {Relationships} from "../../../../main";
-import {IArtifactManager} from "../../../../managers";
-import {IRelationshipDetailsService} from "../../../";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IArtifactManager} from "../../../../managers/artifact-manager/artifact-manager";
+import {IRelationshipDetailsService} from "./relationship-details.svc";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-relationship-item.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPArtifactRelationshipItemController;
     public bindings: any = {
-        artifact: "=",
+        relationship: "=",
         selectedTraces: "=",
-        selectable: "@",
         setItemDirection: "&",
         toggleItemFlag: "&",
         deleteItem: "&",
         isItemReadOnly: "<"
     };
-}
-
-export interface IResult {
-    found: boolean;
-    index: number;
 }
 
 interface IBPArtifactRelationshipItemController {
@@ -41,30 +35,24 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public expanded: boolean = false;
     public relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo;
-    public artifact: Relationships.IRelationship;
+    public relationship: Relationships.IRelationship;
     public isItemReadOnly: boolean;
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;
-    public selectable: boolean = false;
     public setItemDirection: Function;
     public toggleItemFlag: Function;
     public deleteItem: Function;
+
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService) {
-
-
-    }
-
-    public get isSelected() {
-        return this.selectable.toString() === "true" && this.artifact.isSelected;
     }
 
     public setDirection(direction: Relationships.TraceDirection) {
-        if (this.artifact.hasAccess) {
-            this.artifact.traceDirection = direction;
+        if (this.relationship.hasAccess) {
+            this.relationship.traceDirection = direction;
             this.setItemDirection();
         }
     }
@@ -72,7 +60,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public expand($event) {
         this.remove($event);
         if (!this.expanded) {
-            this.getRelationshipDetails(this.artifact.artifactId)
+            this.getRelationshipDetails(this.relationship.artifactId)
                 .then(relationshipExtendedInfo => {
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
@@ -84,22 +72,22 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     }
 
     public selectTrace() {
-        if (!this.artifact.isSelected) {
+        if (!this.relationship.isSelected) {
             if (this.selectedTraces) {
-                let res = this.inArray(this.selectedTraces);
-                if (!res.found) {
-                    this.selectedTraces.push(this.artifact);
+                const found = _.find(this.selectedTraces, {itemId: this.relationship.itemId});
+                if (!found) {
+                    this.selectedTraces.push(this.relationship);
                 }
             }
         } else {
             if (this.selectedTraces) {
-                let res = this.inArray(this.selectedTraces);
-                if (res.found) {
-                    this.selectedTraces.splice(res.index, 1);
+                const foundIndex = _.findIndex(this.selectedTraces, {itemId: this.relationship.itemId});
+                if (foundIndex > -1) {
+                    this.selectedTraces.splice(foundIndex, 1);
                 }
             }
         }
-        this.artifact.isSelected = !this.artifact.isSelected;
+        this.relationship.isSelected = !this.relationship.isSelected;
     }
 
     public remove($event) {
@@ -113,40 +101,24 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         $event.returnValue = false;
     }
 
-    public inArray(array) {
-        let found = false,
-            index = -1;
-        if (array) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].itemId === this.artifact.itemId) {
-                    found = true;
-                    index = i;
-                    break;
-                }
-            }
-        }
-
-        return <IResult>{"found": found, "index": index};
-    }
-
     public limitChars(str) {
-        return Helper.limitChars(str);
+        return Helper.limitChars(Helper.stripHTMLTags(str));
     }
 
     private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         return this.relationshipDetailsService.getRelationshipDetails(artifactId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
-                    this.artifact.projectId = relationshipExtendedInfo.pathToProject[0].itemId;
-                    this.artifact.projectName = relationshipExtendedInfo.pathToProject[0].itemName;
+                    this.relationship.projectId = relationshipExtendedInfo.pathToProject[0].itemId;
+                    this.relationship.projectName = relationshipExtendedInfo.pathToProject[0].itemName;
                 }
                 return relationshipExtendedInfo;
             });
     }
 
-    public navigateToArtifact(relationship: Relationships.IRelationship) {
-        if (relationship.hasAccess) {
-            this.navigationService.navigateTo({ id: relationship.itemId });
+    public navigateToArtifact(id: number) {
+        if (this.relationship.hasAccess) {
+            this.navigationService.navigateTo({ id: id });
         }
     }
 }

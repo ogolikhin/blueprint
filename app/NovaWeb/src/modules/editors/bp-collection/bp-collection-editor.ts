@@ -32,8 +32,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "metadataService",
         "$location",
         "$window",
-        "$scope",
-        "$sce"
+        "$scope"
     ];
 
     public selectAll: boolean = false;
@@ -56,8 +55,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService,
-                private $scope: ng.IScope,
-                private $sce: ng.ISCEService) {
+                private $scope: ng.IScope) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 

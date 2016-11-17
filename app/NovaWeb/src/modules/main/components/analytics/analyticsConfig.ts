@@ -31,8 +31,5 @@ export class AnalyticsConfig {
             AnalyticsProvider.pageEvent = "$stateChangeSuccess";
             AnalyticsProvider.enableLocalhostTracking = true;
         }
-
-
     }
-
 }

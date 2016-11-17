@@ -64,22 +64,25 @@ export class AnalyticsProvider implements ng.IServiceProvider {
 
     $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService) {
         let track: boolean = true;
+        let response: string;
         if (!this.client) {
             track = false;
-            $log.warn("Please configure your Keen client first using Analytics.setAccount()");
+            response = "Please configure your Keen client first";
         }
-        if (!this.client.config.projectId) {
+        if (this.client && this.client.config && !this.client.config.projectId) {
             track = false;
-            $log.warn("Please configure your Keen projectId using Analytics.setAccount()");
+            response = "Please configure your Keen projectId";
         }
-        if (!this.client.config.writeKey) {
+        if (this.client && this.client.config && !this.client.config.writeKey) {
             track = false;
-            $log.warn("Please configure your Keen writeKey using Analytics.setAccount()");
+            response = "Please configure your Keen writeKey";
         }
         if (track) {
             $log.warn("Analytics Tracking ", this.enableLocalhostTracking ? "Enabled" : "Disabled");
         }
         else {
+            $log.warn("Analytics Tracking Disabled");
+            $log.warn(response);
             return;
         }
         let _baseKeenEvent = () => {

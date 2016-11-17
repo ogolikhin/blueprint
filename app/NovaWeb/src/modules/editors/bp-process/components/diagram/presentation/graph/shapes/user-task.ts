@@ -139,24 +139,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.header.setVertex(true);
     }
 
-    public get persona(): string {
-        if (this.model.personaReference) {
-            return this.model.personaReference.name;
-        } else {
-            return undefined;
-        }
-    }
-
-    public set persona(value: string) {
-        const valueChanged = this.setPropertyValue("persona", value);
-        if (valueChanged) {
-            if (this.personaLabel) {
-                this.personaLabel.text = value;
-                this.shapesFactoryService.setUserTaskPersona(value);
-            }
-        }
-    }
-
     public get description(): string {
         return this.getPropertyValue("description");
     }
@@ -198,6 +180,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         if (this.model != null && this.model.personaReference !== value) {
             this.model.personaReference = value;
             this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value.id);
+            if (this.personaLabel) {
+                this.personaLabel.text = value.name;
+                this.shapesFactoryService.setUserTaskPersona(value.name);
+            }
         }
     }
 
@@ -334,7 +320,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
-            this.persona,
+            this.personaReference.name,
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,

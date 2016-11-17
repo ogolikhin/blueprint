@@ -95,9 +95,6 @@ describe("UserTask test", () => {
         testUserTask.propertyValues["clientType"] = {
             propertyName: "clientType", value: NodeType.UserTask.toString(), typeId: 1, typePredefined: 0
         };
-        testUserTask.propertyValues["persona"] = {
-            propertyName: "persona", value: "Persona", typeId: 2, typePredefined: 0
-        };
         testUserTask.propertyValues["description"] = {
             propertyName: "description", value: "Description", typeId: 3, typePredefined: 0
         };
@@ -117,7 +114,6 @@ describe("UserTask test", () => {
         node.renderLabels();
 
         node.label = "test label";
-        node.persona = "test persona";
         node.description = "test description";
         node.objective = "test objective";
         node.associatedArtifact = testArtifactReference;
@@ -126,7 +122,6 @@ describe("UserTask test", () => {
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.UserTask);
         expect(node.userStoryId).toEqual(1);
         expect(node.label).toEqual("test label");
-        expect(node.persona).toEqual("test persona");
         expect(node.description).toEqual("test description");
         expect(node.objective).toEqual("test objective");
         expect(node.associatedArtifact).toEqual(testArtifactReference);
@@ -139,7 +134,7 @@ describe("UserTask test", () => {
 
         const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-        spyOn(node, "getSources").and.returnValue([new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)]);
+        spyOn(node, "getSources").and.returnValue([new SystemTask(testSytemTask, rootScope, null, null, shapesFactory)]);
 
         // Act
         const systemTasks: ISystemTask[] = node.getPreviousSystemTasks(graph);
@@ -155,7 +150,7 @@ describe("UserTask test", () => {
 
         const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-        spyOn(node, "getTargets").and.returnValue([new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)]);
+        spyOn(node, "getTargets").and.returnValue([new SystemTask(testSytemTask, rootScope, null, null, shapesFactory)]);
 
         // Act
         const systemTasks: ISystemTask[] = node.getNextSystemTasks(graph);
@@ -176,8 +171,8 @@ describe("UserTask test", () => {
         spyOn(UserTaskNode, "getTargets").and.returnValue([SystemDecisionNode]);
         spyOn(SystemDecisionNode, "getTargets").and.returnValue(
             [
-                new SystemTask(testSytemTask, rootScope, "", null, shapesFactory),
-                new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)
+                new SystemTask(testSytemTask, rootScope, null, null, shapesFactory),
+                new SystemTask(testSytemTask, rootScope, null, null, shapesFactory)
             ]
         );
 
@@ -202,13 +197,13 @@ describe("UserTask test", () => {
         spyOn(SystemDecisionNode1, "getTargets").and.returnValue(
             [
                 SystemDecisionNode2,
-                new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)
+                new SystemTask(testSytemTask, rootScope, null, null, shapesFactory)
             ]
         );
         spyOn(SystemDecisionNode2, "getTargets").and.returnValue(
             [
-                new SystemTask(testSytemTask, rootScope, "", null, shapesFactory),
-                new SystemTask(testSytemTask, rootScope, "", null, shapesFactory)
+                new SystemTask(testSytemTask, rootScope, null, null, shapesFactory),
+                new SystemTask(testSytemTask, rootScope, null, null, shapesFactory)
             ]
         );
 
@@ -248,18 +243,27 @@ describe("UserTask test", () => {
 
     describe("Test text elements", () => {
 
-        it("Test latest persona value reuse", () => {
+        it("Test latest personaReference value reuse", () => {
             // Arrange
             const testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
-            node.persona = "12345";
+            node.personaReference = {
+                id: 1,
+                projectId: 1,
+                name: "new persona",
+                typePrefix: "PRO",
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: "test project",
+                link: null,
+                version: null
+            };
 
             // Act
             const node1 = new UserTask(testUserTask, rootScope, null, shapesFactory);
 
             //Assert
-            expect(node1.persona).toEqual(node.persona);
+            expect(node1.personaReference).toEqual(node.personaReference);
         });
     });
 
@@ -423,7 +427,7 @@ describe("UserTask test", () => {
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });
 
-        it("when modifying personaReference - persona matches", () => {
+        it("when modifying personaReference - personaReference matches", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();

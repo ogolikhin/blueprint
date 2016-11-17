@@ -207,28 +207,21 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const path = vm.model.artifactPath;
-
-                    let tooltipName: string = "";
-
-                    if (vm.model.name) {
-                        tooltipName = vm.model.name.replace(/"/g, "&quot;");
-                        tooltipName = this.$sce.trustAsHtml(tooltipName);
-                    }
-
                     const name = Helper.escapeHTMLText(vm.model.name);
+                    const tooltipName: string = Helper.escapeQuot(vm.model.name);
 
-                    let tooltipText = "";
+                    let pathName = "";
                     path.map((collectionArtifact: string, index: number) => {
                         if (index !== 0) {
-                            tooltipText += " > ";
+                            pathName += " > ";
                         }
 
-                        tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
+                        pathName = pathName + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
                     return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">` +
                         `${name}</div>` +
-                        `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
+                        `<div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
                 }
             },
             {
@@ -237,13 +230,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 isCheckboxHidden: true,
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
-                    let tooltip: string = "";
-
-                    if (vm.model.description) {
-                        tooltip = vm.model.description.replace(/"/g, "&quot;");
-                        tooltip = this.$sce.trustAsHtml(tooltip);
-                    }
-
+                    const tooltip: string = Helper.escapeQuot(vm.model.description);
                     const desc = Helper.escapeHTMLText(vm.model.description);
 
                     if (vm.model.description) {

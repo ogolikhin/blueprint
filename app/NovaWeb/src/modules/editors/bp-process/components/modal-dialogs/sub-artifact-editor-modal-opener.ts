@@ -142,7 +142,6 @@ export class SubArtifactEditorModalOpener {
         model.associatedArtifact = model.originalItem.associatedArtifact;
         model.objective = model.originalItem.objective;
         model.label = model.originalItem.label;
-        model.persona = model.originalItem.persona;
         model.availablePersona = [{ "name": "test actor 1" }, { "name": "test actor 2" }];
         model.personaReference = model.originalItem.personaReference;
 
@@ -172,7 +171,6 @@ export class SubArtifactEditorModalOpener {
         model.associatedArtifact = model.originalItem.associatedArtifact;
         model.imageId = model.originalItem.imageId;
         model.label = model.originalItem.label;
-        model.persona = model.originalItem.persona;
         model.associatedImageUrl = model.originalItem.associatedImageUrl;
         model.availablePersona = [{ "name": "test actor 1" }, { "name": "test actor 2" }];
         model.personaReference = model.originalItem.personaReference;

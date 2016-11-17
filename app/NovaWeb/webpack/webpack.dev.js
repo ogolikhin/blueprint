@@ -27,14 +27,6 @@ if (process.argv.some(function (argument) {
     is_public = true;
 }
 
-function isDebug(argument) {
-    return argument === '--debug';
-}
-
-if (process.argv.some(isDebug)) {
-    console.log("Is Debug");
-}
-
 module.exports = {
     cache: true,
     context: _APP,
@@ -138,5 +130,5 @@ module.exports = {
             lowerCaseAttributeNames: false
         }
     },
-    devtool: 'cheap-module-eval-source-map'
+    devtool: 'source-map'
 };

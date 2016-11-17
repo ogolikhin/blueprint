@@ -153,6 +153,7 @@ namespace Model
                 public static class Artifacts_id_
                 {
                     public const string ATTACHMENT                  = "svc/artifactstore/artifacts/{0}/attachment";
+                    public const string ATTACHMENT_id_              = "svc/bpartifactstore/artifacts/{0}/attachments/{1}";
                     public const string COPY_TO_id_                 = "svc/bpartifactstore/artifacts/{0}/copyTo/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string DISCUSSIONS                 = "svc/artifactstore/artifacts/{0}/discussions";
                     public const string MOVE_TO_id_                 = "svc/bpartifactstore/artifacts/{0}/moveTo/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!

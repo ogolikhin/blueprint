@@ -129,7 +129,7 @@ describe("Formly Text RTF", () => {
         expect(fieldScope).toBeDefined();
     });
 
-    xit("should fail if empty", function () {
+    it("should fail if empty", function () {
         compileAndSetupStuff({model: {textRtf: ""}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];
@@ -140,7 +140,7 @@ describe("Formly Text RTF", () => {
         expect((<any>fieldScope).fc.$error.required).toBeTruthy();
     });
 
-    xit("should succeed if empty, as not required", function () {
+    it("should succeed if empty, as not required", function () {
         compileAndSetupStuff({model: {textRtfNotVal: ""}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[1];
@@ -152,7 +152,7 @@ describe("Formly Text RTF", () => {
         expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
     });
 
-    xit("should fail if empty-like (empty HTML tags)", function () {
+    it("should fail if empty-like (empty HTML tags)", function () {
         compileAndSetupStuff({model: {textRtf: "<div><br> </div>"}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldTextRTF")[0];

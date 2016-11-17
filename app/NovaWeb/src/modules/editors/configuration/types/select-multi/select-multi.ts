@@ -36,8 +36,8 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 export class BpFieldSelectMultiController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, 
-                     private localization: ILocalizationService, 
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                     private localization: ILocalizationService,
                      private $timeout: ng.ITimeoutService,
                      private validationService: IValidationService) {
         super();
@@ -54,9 +54,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.multiSelectValidation.hasValueIfRequred(
-                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required), 
-                        $viewValue, 
+                    return validationService.multiSelectValidation.hasValueIfRequired(
+                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
+                        $viewValue,
                         $modelValue);
                 }
             }

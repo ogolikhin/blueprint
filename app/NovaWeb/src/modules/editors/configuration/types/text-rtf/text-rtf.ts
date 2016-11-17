@@ -343,11 +343,11 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         triggerChange(value);
                     }
 
-                    const isValid = validationService.textRtfValidation.hasValueIfRequred(scope.to.required, $viewValue, $modelValue);
+                    const isValid = validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
 
                     scope.to["isInvalid"] = !isValid;
                     scope.options.validation.show = !isValid;
-                    return true;
+                    return isValid;
                 }
             }
         };

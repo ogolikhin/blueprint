@@ -56,7 +56,7 @@ export interface IArtifactPickerController {
 
     // BpTreeView bindings
     currentSelectionMode: "single" | "multiple" | "checkbox";
-    rootNode: TreeViewModels.InstanceItemNodeVM;
+    rowData: TreeViewModels.InstanceItemNodeVM[];
     columns: IColumn[];
     onSelect: (vm: TreeViewModels.IViewModel<any>, isSelected: boolean) => any;
 
@@ -152,12 +152,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectedVMs = [];
         this._project = project;
         this.currentSelectionMode = project ? this.selectionMode : "single";
-        this.rootNode = this.factory.createInstanceItemNodeVM(project || {
+        this.rowData = [this.factory.createInstanceItemNodeVM(project || {
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
             hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true);
+        } as AdminStoreModels.IInstanceItem, true)];
     }
 
     private _selectedVMs: TreeViewModels.IViewModel<any>[] = [];
@@ -182,7 +182,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     // BpTreeView bindings
 
     public currentSelectionMode: "single" | "multiple" | "checkbox";
-    public rootNode: TreeViewModels.InstanceItemNodeVM;
+    public rowData: TreeViewModels.InstanceItemNodeVM[];
     public columns: IColumn[] = [{
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
         isGroup: true,

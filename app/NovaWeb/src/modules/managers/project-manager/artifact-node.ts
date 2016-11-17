@@ -6,53 +6,41 @@ import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager";
 import {IArtifactNode} from "../project-manager";
 
 export class ArtifactNode implements IArtifactNode {
-    private _artifact: IStatefulArtifact;
-    public key: string;
+    private _model: IStatefulArtifact;
+    public group: boolean;
     public children: IArtifactNode[];
-    public parentNode: IArtifactNode;
+    public key: string;
 
     constructor(private projectService: IProjectService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private artifactManager: IArtifactManager,
                 artifact: IStatefulArtifact,
-                parentNode?: IArtifactNode) {
+                public expanded: boolean) {
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
-        this._artifact = artifact;
+        this._model = artifact;
         this.key = String(artifact.id);
-        this.parentNode = parentNode;
-        if (parentNode) {
-            this.group = artifact.hasChildren;
-        } else {
-            // for projects
-            this.group = true;
-            this.expanded = true;
-        }
+        this.group = artifact.hasChildren;
     };
 
-    public dispose() {
+    public unloadChildren() {
         if (angular.isArray(this.children)) {
-            this.children.forEach((it: IArtifactNode) => it.dispose);
+            this.children.forEach((it: IArtifactNode) => it.unloadChildren);
         }
-        delete this.children;
-        delete this.parentNode;
-        delete this._artifact;
+        this.children = undefined;
     }
 
     public get model(): IStatefulArtifact {
-        return this._artifact;
+        return this._model;
     }
-
-    public group: boolean;
-    public expanded: boolean;
 
     public loadChildrenAsync(): ng.IPromise<IArtifactNode[]> {
         return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
             return children.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulArtifact);
-                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, this);
+                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, false);
             });
         });
     }

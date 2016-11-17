@@ -143,7 +143,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                     case Models.PrimitiveType.User:
                         // user group values gets wrapped in this [usersGroup] property in bp-property-editor.ts, in 'convertToModelValue' method.
                         const userOrGroupValue = propValue.value ? propValue.value.usersGroups : propValue.value;
-                        if (!this.services.validationService.userPickerValidation.hasValueIfRequred(itemType.isRequired,
+                        if (!this.services.validationService.userPickerValidation.hasValueIfRequired(itemType.isRequired,
                             userOrGroupValue,
                             userOrGroupValue)) {
                             return this.set_400_114_error(deferred);

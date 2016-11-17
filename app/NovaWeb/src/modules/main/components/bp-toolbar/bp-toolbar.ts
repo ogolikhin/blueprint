@@ -384,17 +384,30 @@ export class BPToolbarController implements IBPToolbarController {
                             });
                     })
                     .catch((error: IApplicationError) => {
-                        if (error.statusCode === 404 && error.errorCode === 102) { // project not found, we refresh all
+                        if (error.statusCode === 404 && error.errorCode === 102) {
+                            // project not found, we refresh all
                             this.projectManager.refreshAll()
                                 .then(() => {
                                     this.messageService.addError("Create_New_Artifact_Error_404_102", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
-                        } else if (error.statusCode === 404) { // parent or artifact type not found, we refresh the single project
+                        } else if (error.statusCode === 404 && error.errorCode === 101) {
+                            // parent not found, we refresh the single project and move to the root
+                            this.navigationService.navigateTo({id: projectId})
+                                .finally(() => {
+                                    this.projectManager.refresh(projectId)
+                                        .then(() => {
+                                            this.projectManager.triggerProjectCollectionRefresh();
+                                            this.messageService.addError("Create_New_Artifact_Error_404_101", true);
+                                            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                        });
+                                });
+                        } else if (error.statusCode === 404 && error.errorCode === 109) {
+                            // artifact type not found, we refresh the single project
                             this.projectManager.refresh(projectId)
                                 .then(() => {
                                     this.projectManager.triggerProjectCollectionRefresh();
-                                    this.messageService.addError(`Create_New_Artifact_Error_404_${error.errorCode.toString()}`, true);
+                                    this.messageService.addError("Create_New_Artifact_Error_404_109", true);
                                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                                 });
                         } else if (!error.handled) {

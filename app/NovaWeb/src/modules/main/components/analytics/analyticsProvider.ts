@@ -77,8 +77,6 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                 referrer: {
                     url: $window.document.referrer
                 },
-                //login GUID
-                //session GUID
                 ip_address: "${keen.ip}",
                 user_agent: "${keen.user_agent}",
                 page_url: $window.location.href,

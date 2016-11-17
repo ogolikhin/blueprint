@@ -165,6 +165,15 @@ export class ItemStateController {
             case Models.ItemTypePredefined.Project:           
                 stateName = "main.item.general";
                 break;
+            case Models.ItemTypePredefined.CollectionFolder:
+                // Temporary decision while collections root description is not editable.
+                // if artifact is Collections root node
+                if (artifact.itemTypeId === ItemTypePredefined.Collections) {
+                    stateName = "main.item.general";
+                } else {
+                    stateName = "main.item.details";
+                }
+                break;
             case Models.ItemTypePredefined.ArtifactCollection:
                 stateName = "main.item.collection";
                 break;

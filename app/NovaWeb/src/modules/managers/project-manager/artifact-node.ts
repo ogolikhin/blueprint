@@ -45,18 +45,15 @@ export class ArtifactNode implements IArtifactNode {
     }
 
     public group: boolean;
-    public loaded: boolean;
     public expanded: boolean;
 
-    public loadChildrenAsync(): ng.IPromise<any> {
-        return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((data: Models.IArtifact[]) => {
-            this.children = data.map((it: Models.IArtifact) => {
+    public loadChildrenAsync(): ng.IPromise<IArtifactNode[]> {
+        return this.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
+            return children.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulArtifact);
                 return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, this);
             });
-           this.loaded = true;
-           this.expanded = true;
         });
     }
 

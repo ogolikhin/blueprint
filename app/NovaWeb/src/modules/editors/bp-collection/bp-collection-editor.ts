@@ -11,6 +11,7 @@ import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
+import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -25,6 +26,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "windowManager",
         "localization",
         "propertyDescriptorBuilder",
+        "validationService",
         "dialogService",
         "collectionService",
         "metadataService",
@@ -49,13 +51,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                validationService: IValidationService,
                 private dialogService: IDialogService,
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
         this.activeTab = 0;
     }
 
@@ -90,7 +93,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 return;
             }
             this.metadataService.get(collectionArtifact.projectId).then(() => {
-                this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+                this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
                 });
 
@@ -115,6 +118,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private visibleArtifact: CollectionNodeVM;
 
     public onGridReset(): void {
+        this.selectedVMs = []; 
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);
             this.visibleArtifact = undefined;
@@ -123,7 +127,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-        this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+        this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
         });
     };
@@ -275,7 +279,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }];
     }
 
-    public rootNode: CollectionNodeVM[] = [];
+    public rowData: CollectionNodeVM[] = [];
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;

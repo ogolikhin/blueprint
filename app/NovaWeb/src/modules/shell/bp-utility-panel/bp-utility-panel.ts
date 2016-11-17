@@ -122,7 +122,8 @@ export class BPUtilityPanelController {
     private toggleDiscussionsPanel(selection: ISelection) {
         const artifact = selection.artifact;
         if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection)) {
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
+            || artifact.predefinedType === ItemTypePredefined.Project)) {
                 this.hidePanel(PanelType.Discussions);
             } else {
                 this.showPanel(PanelType.Discussions);
@@ -135,7 +136,8 @@ export class BPUtilityPanelController {
         if (subArtifact
             || (artifact &&
             (artifact.predefinedType === ItemTypePredefined.CollectionFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection))) {
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
+            || artifact.predefinedType === ItemTypePredefined.Project))) {
             this.hidePanel(PanelType.History);
         } else {
             this.showPanel(PanelType.History);

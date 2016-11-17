@@ -249,8 +249,16 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         
         if ($scope["form"]) {
             if (this.selectedSubArtifact) {
-                this.selectedSubArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
+                this.selectedSubArtifact.validate().then((result: boolean) => {
+                    this.selectedSubArtifact.artifactState.invalid = !result;
+                });
+                
+//                this.selectedSubArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
             } else {
+                this.selectedArtifact.validate().then((result: boolean) => {
+                    this.selectedArtifact.artifactState.invalid = !result;
+                });
+                
                 this.selectedArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
             }
         }

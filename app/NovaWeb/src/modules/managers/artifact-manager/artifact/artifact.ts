@@ -27,6 +27,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
+    validate(): ng.IPromise<boolean>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -639,6 +640,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
+
     protected customHandleSaveFailed(): void {
         ;
     }
@@ -647,4 +649,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
+                
+    public validate(): ng.IPromise<boolean> {
+        return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
+            const isItemValid = this.validateItem(propertyTypes);
+            
+            return this.subArtifactCollection.validate().then((isSubArtifactValid: boolean) => {
+                return isItemValid && isSubArtifactValid;
+            });
+        });
+    }
+    
+
 }
+

@@ -7,10 +7,12 @@ import {MetaData} from "../metadata";
 import {IChangeSet} from "../changeset";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
+
 }
 
 export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
     getObservable(): Rx.Observable<IStatefulSubArtifact>;
+    validate(): ng.IPromise<boolean>;
 }
 
 export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArtifact, IIStatefulSubArtifact {
@@ -137,4 +139,12 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         return this.services.relationshipsService.getRelationships(this.parentArtifact.id, this.id, this.getEffectiveVersion());
     }
 
+    public validate(): ng.IPromise<boolean> {
+        return this.services.propertyDescriptor.createSubArtifactPropertyDescriptors(this).then((propertyTypes) => {
+            const result = this.validateItem(propertyTypes);
+            return this.services.$q.resolve(result);
+        });
+
+
+    }
 }

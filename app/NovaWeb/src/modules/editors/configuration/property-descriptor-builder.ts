@@ -1,6 +1,6 @@
 import {PropertyTypePredefined, PropertyLookupEnum, ItemTypePredefined} from "../../main/models/enums";
 import {IPropertyType, IPropertyValue, IOption, PrimitiveType} from "../../main/models/models";
-import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface IPropertyDescriptorBuilder {

@@ -12,6 +12,7 @@ export interface ISubArtifactCollection {
     get(id: number): IStatefulSubArtifact;
     remove(id: number): IStatefulSubArtifact;
     discard();
+    validate(): ng.IPromise<boolean>;
 }
 
 export class StatefulSubArtifactCollection implements ISubArtifactCollection {
@@ -83,5 +84,17 @@ export class StatefulSubArtifactCollection implements ISubArtifactCollection {
 
     public update(id: number) {
         // TODO:
+    }
+
+    public validate(): ng.IPromise<boolean> {
+        let p = [];
+        let all = true;
+        _.each(this.subArtifactList, (item) => {
+            p.push(item.validate());
+        });
+        return this.services.$q.all(p).then((results: boolean[]) => {
+            return  _.every(results);
+        });
+
     }
 }

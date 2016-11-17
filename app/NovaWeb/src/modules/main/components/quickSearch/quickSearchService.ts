@@ -42,7 +42,7 @@ export interface ISearchResult {
     pageSize: number;
 }
 export interface IQuickSearchService {
-    search(term: string, eventSource: string, page?: number, pageSize?: number): ng.IPromise<ISearchResult>;
+    search(term: string, eventSource?: string, page?: number, pageSize?: number): ng.IPromise<ISearchResult>;
     metadata(term: string, page?: number, pageSize?: number): ng.IPromise<ISearchMetadata>;
     searchTerm: string;
     canSearch(): boolean;
@@ -96,16 +96,21 @@ export class QuickSearchService implements IQuickSearchService {
         return this.appendParameters(url, page, pageSize);
     }
 
+    private projectIds(){
+        return  _.map(this.projectManager.projectCollection.getValue(), "model.id");
+    }
+
     metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchMetadata> {
 
         const deferred = this.$q.defer();
+
         const request: ng.IRequestConfig = {
             method: "POST",
             url: this.getMetadataUrl(page, pageSize),
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds": this.projectManager.projectCollection.getValue().map(project => project.model.id)
+                "ProjectIds":this.projectIds()
             }
         };
 
@@ -126,7 +131,6 @@ export class QuickSearchService implements IQuickSearchService {
 
 
         const deferred = this.$q.defer();
-        const projectIds = this.projectManager.projectCollection.getValue().map(project => project.id);
 
         const request: ng.IRequestConfig = {
             method: "POST",
@@ -134,12 +138,12 @@ export class QuickSearchService implements IQuickSearchService {
             params: {},
             data: {
                 "Query": term,
-                "ProjectIds": projectIds
+                "ProjectIds": this.projectIds()
             }
         };
 
         this.Analytics.trackEvent("search", "quick search", eventSource, term, {
-            projectIds: projectIds,
+            projectIds: this.projectIds(),
             page: page,
             pageSize: pageSize
         });

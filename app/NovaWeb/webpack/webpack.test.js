@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var path = require('path');
 var FailPlugin = require('webpack-fail-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var autoprefixer = require('autoprefixer');
 
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
@@ -63,6 +64,9 @@ module.exports = {
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })
+    ],
+    postcss: [
+        autoprefixer({browsers: ['last 2 versions']})
     ],
     module: {
         loaders: loaders,

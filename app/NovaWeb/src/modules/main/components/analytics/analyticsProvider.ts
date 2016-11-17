@@ -25,7 +25,7 @@ export interface IAnalyticsService {
     enableLocalhostTracking: boolean;
 }
 
-interface IKeenClient {
+export interface IKeenClient {
     config: IKeenAccount;
     addEvent(event: string, pageView: IKeenEventObject, callback: Function): void;
 }
@@ -61,10 +61,9 @@ export class AnalyticsProvider implements ng.IServiceProvider {
         (<any>window).Keen = this.client;
     }
 
-
-    $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService) {
-        let track: boolean = true;
-        let response: string;
+    public canEmit() {
+        let track = true;
+        let response = "";
         if (!this.client) {
             track = false;
             response = "Please configure your Keen client first";
@@ -77,14 +76,15 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             track = false;
             response = "Please configure your Keen writeKey";
         }
-        if (track) {
-            $log.warn("Analytics Tracking ", this.enableLocalhostTracking ? "Enabled" : "Disabled");
-        }
-        else {
-            $log.warn("Analytics Tracking Disabled");
-            $log.warn(response);
-            return;
-        }
+
+        return {
+            canTrack: track,
+            message: response
+        };
+
+    }
+
+    $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService) {
         let _baseKeenEvent = () => {
             return <IKeenEventObject> {
                 referrer: {
@@ -129,6 +129,10 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             };
         };
         this._trackPage = () => {
+            const track = this.canEmit();
+            if(!track.canTrack){
+                return $log.warn(track.message)
+            }
             let pageView = _baseKeenEvent();
             let event = "pageView";
             $log.info("Tracking Page view: ", pageView);
@@ -150,6 +154,10 @@ export class AnalyticsProvider implements ng.IServiceProvider {
          *
          */
         this._trackEvent = (eventCollection, action, label?, value?, custom?, jQEvent?) => {
+            const track = this.canEmit();
+            if(!track.canTrack){
+                return $log.warn(track.message)
+            }
             //send the event type
             let eventType;
             if (jQEvent) {

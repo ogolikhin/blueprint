@@ -162,8 +162,7 @@ export class ItemStateController {
             case Models.ItemTypePredefined.Glossary:
                 stateName = "main.item.glossary";
                 break;
-            case Models.ItemTypePredefined.Project:
-            case Models.ItemTypePredefined.CollectionFolder:
+            case Models.ItemTypePredefined.Project:           
                 stateName = "main.item.general";
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:

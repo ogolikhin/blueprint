@@ -47,7 +47,7 @@
                     <uib-tab ng-repeat="field in $ctrl.richTextFields track by $index"
                              select="$ctrl.activeTab = $index"
                              heading="{{field.data.name}}"
-                             class="uib-tab__tab {{field.templateOptions['isInvalid'] ? 'invalid' : ''}}">
+                             class="uib-tab__tab {{field.templateOptions['isInvalid'] || !$ctrl.isRtfFieldValid(field) ? 'invalid' : ''}}">
                         <formly-form model="$ctrl.model" fields="[field]" ng-if="$ctrl.activeTab === $index" class="rich-text-wrapper">
                         </formly-form>
                     </uib-tab>

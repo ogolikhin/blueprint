@@ -208,7 +208,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(fileStore, nameof(fileStore));
             var fileToUpload = CreateNovaFileWithRandomByteArray((uint)2048, fileName, fileType);
-            var uploadedFile = fileStore.AddFile(fileToUpload, user, expireTime: expireTime, useMultiPartMime: true);
+            var uploadedFile = fileStore.AddFile(fileToUpload, user, expireTime: expireTime);
             Assert.IsNotNull(fileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
             return uploadedFile;
         }

@@ -1431,19 +1431,16 @@ export function createSimpleCaseModelWithoutXandY() {
 
 
     testModel.shapes[1].propertyValues["label"] = {key: "label", value: "System Task 1"};
-    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
-    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[2].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[2].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[3].propertyValues["label"] = {key: "label", value: "System Task 2"};
-    testModel.shapes[3].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[3].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[3].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -1454,25 +1451,21 @@ export function createSimpleCaseModelWithoutXandY() {
     testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
     testModel.shapes[5].propertyValues["label"] = {key: "label", value: "User Task 1"};
-    testModel.shapes[5].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[5].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[5].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 2"};
-    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[6].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[6].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[7].propertyValues["label"] = {key: "label", value: "User Task 11"};
-    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[7].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[7].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[8].propertyValues["label"] = {key: "label", value: "System Task 12"};
-    testModel.shapes[8].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[8].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[8].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -1557,19 +1550,16 @@ export function createSimpleCaseModelAfterAutoLayout() {
     testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
     testModel.shapes[1].propertyValues["label"] = {key: "label", value: "System Task 1"};
-    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
-    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};
     testModel.shapes[2].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[3].propertyValues["label"] = {key: "label", value: "System Task 2"};
-    testModel.shapes[3].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[3].propertyValues["x"] = {key: "x", value: 3};
     testModel.shapes[3].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -1580,25 +1570,21 @@ export function createSimpleCaseModelAfterAutoLayout() {
     testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
     testModel.shapes[5].propertyValues["label"] = {key: "label", value: "User Task 1"};
-    testModel.shapes[5].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[5].propertyValues["x"] = {key: "x", value: 5};
     testModel.shapes[5].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 2"};
-    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[6].propertyValues["x"] = {key: "x", value: 6};
     testModel.shapes[6].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[7].propertyValues["label"] = {key: "label", value: "User Task 11"};
-    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[7].propertyValues["x"] = {key: "x", value: 5};
     testModel.shapes[7].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[8].propertyValues["label"] = {key: "label", value: "System Task 12"};
-    testModel.shapes[8].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[8].propertyValues["x"] = {key: "x", value: 6};
     testModel.shapes[8].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -1837,7 +1823,6 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
     testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
     testModel.shapes[1].propertyValues["label"] = {key: "label", value: "Precondition"};
-    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[1].propertyValues["clientType"] = {
@@ -1846,7 +1831,6 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
     };
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
-    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[2].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[2].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
@@ -1857,7 +1841,6 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
     testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
     testModel.shapes[4].propertyValues["label"] = {key: "label", value: "System Task 1"};
-    testModel.shapes[4].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[4].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[4].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -1868,13 +1851,11 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
     testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
     testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 1"};
-    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[6].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[6].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[7].propertyValues["label"] = {key: "label", value: "System Task 2"};
-    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[7].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[7].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -1885,25 +1866,21 @@ export function createSystemDecisionBeforeUserDecisionInBranchModelWithoutXAndY(
     testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
     testModel.shapes[9].propertyValues["label"] = {key: "label", value: "User Task 2"};
-    testModel.shapes[9].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[9].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[9].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[10].propertyValues["label"] = {key: "label", value: "System Task 3"};
-    testModel.shapes[10].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[10].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[10].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[10].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[11].propertyValues["label"] = {key: "label", value: "User Task 3"};
-    testModel.shapes[11].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[11].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[11].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[11].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[12].propertyValues["label"] = {key: "label", value: "System Task 4"};
-    testModel.shapes[12].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[12].propertyValues["x"] = {key: "x", value: -1};
     testModel.shapes[12].propertyValues["y"] = {key: "y", value: -1};
     testModel.shapes[12].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -2141,13 +2118,11 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
     testModel.shapes[0].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.Start};
 
     testModel.shapes[1].propertyValues["label"] = {key: "label", value: "Precondition"};
-    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "User Task 1"};
-    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};
     testModel.shapes[2].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
@@ -2158,7 +2133,6 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
     testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
     testModel.shapes[4].propertyValues["label"] = {key: "label", value: "System Task 1"};
-    testModel.shapes[4].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[4].propertyValues["x"] = {key: "x", value: 4};
     testModel.shapes[4].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -2169,13 +2143,11 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
     testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemDecision};
 
     testModel.shapes[6].propertyValues["label"] = {key: "label", value: "System Task 1"};
-    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[6].propertyValues["x"] = {key: "x", value: 5};
     testModel.shapes[6].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[7].propertyValues["label"] = {key: "label", value: "System Task 2"};
-    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[7].propertyValues["x"] = {key: "x", value: 5};
     testModel.shapes[7].propertyValues["y"] = {key: "y", value: 2};
     testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -2186,25 +2158,21 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
     testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
     testModel.shapes[9].propertyValues["label"] = {key: "label", value: "User Task 2"};
-    testModel.shapes[9].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[9].propertyValues["x"] = {key: "x", value: 8};
     testModel.shapes[9].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[9].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[10].propertyValues["label"] = {key: "label", value: "System Task 3"};
-    testModel.shapes[10].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[10].propertyValues["x"] = {key: "x", value: 9};
     testModel.shapes[10].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[10].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[11].propertyValues["label"] = {key: "label", value: "User Task 3"};
-    testModel.shapes[11].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[11].propertyValues["x"] = {key: "x", value: 8};
     testModel.shapes[11].propertyValues["y"] = {key: "y", value: 2};
     testModel.shapes[11].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[12].propertyValues["label"] = {key: "label", value: "System Task 4"};
-    testModel.shapes[12].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[12].propertyValues["x"] = {key: "x", value: 9};
     testModel.shapes[12].propertyValues["y"] = {key: "y", value: 2};
     testModel.shapes[12].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -3265,19 +3233,16 @@ export function createLargeTestModel() {
 
 
     testModel.shapes[1].propertyValues["label"] = {key: "label", value: "15"};
-    testModel.shapes[1].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "20"};
-    testModel.shapes[2].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};
     testModel.shapes[2].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[2].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[3].propertyValues["label"] = {key: "label", value: "25"};
-    testModel.shapes[3].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[3].propertyValues["x"] = {key: "x", value: 3};
     testModel.shapes[3].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[3].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -3288,25 +3253,21 @@ export function createLargeTestModel() {
     testModel.shapes[4].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserDecision};
 
     testModel.shapes[5].propertyValues["label"] = {key: "label", value: "26"};
-    testModel.shapes[5].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[5].propertyValues["x"] = {key: "x", value: 5};
     testModel.shapes[5].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[5].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[6].propertyValues["label"] = {key: "label", value: "27"};
-    testModel.shapes[6].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[6].propertyValues["x"] = {key: "x", value: 6};
     testModel.shapes[6].propertyValues["y"] = {key: "y", value: 0};
     testModel.shapes[6].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[7].propertyValues["label"] = {key: "label", value: "36"};
-    testModel.shapes[7].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[7].propertyValues["x"] = {key: "x", value: 5};
     testModel.shapes[7].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[7].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.UserTask};
 
     testModel.shapes[8].propertyValues["label"] = {key: "label", value: "37"};
-    testModel.shapes[8].propertyValues["persona"] = {key: "persona", value: "test"};
     testModel.shapes[8].propertyValues["x"] = {key: "x", value: 6};
     testModel.shapes[8].propertyValues["y"] = {key: "y", value: 1};
     testModel.shapes[8].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
@@ -3625,12 +3586,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -3708,12 +3663,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -3785,12 +3734,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -3992,12 +3935,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -4069,12 +4006,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -4152,12 +4083,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -4229,12 +4154,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -4312,12 +4231,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -4389,12 +4302,6 @@ export function createMultiDecisionBranchModelWithoutXAndY() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -4668,12 +4575,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -4751,12 +4652,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -4828,12 +4723,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -5035,12 +4924,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -5112,12 +4995,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -5195,12 +5072,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -5272,12 +5143,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -5355,12 +5220,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -5432,12 +5291,6 @@ export function createMultiDecisionBranchModel() {
                 "parentId": 603978,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -5692,12 +5545,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -5775,12 +5622,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -5852,12 +5693,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -6124,12 +5959,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -6201,12 +6030,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -6284,12 +6107,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -6361,12 +6178,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -6444,12 +6255,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -6521,12 +6326,6 @@ export function createTwoMergePointsModel() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -6785,12 +6584,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -6868,12 +6661,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -6945,12 +6732,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -7217,12 +6998,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -7294,12 +7069,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -7377,12 +7146,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -7454,12 +7217,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -7537,12 +7294,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -7614,12 +7365,6 @@ export function createTwoMergePointsModelWithoutXAndY() {
                 "parentId": 604714,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -7959,12 +7704,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -8036,12 +7775,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -8184,12 +7917,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -8261,12 +7988,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -8344,12 +8065,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -8421,12 +8136,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -8504,12 +8213,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -8581,12 +8284,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -8664,12 +8361,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -8741,12 +8432,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -8889,12 +8574,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -8966,12 +8645,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -9049,12 +8722,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -9126,12 +8793,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -9274,12 +8935,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -9351,12 +9006,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -9434,12 +9083,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -9511,12 +9154,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -9653,12 +9290,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -9736,12 +9367,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -9813,12 +9438,6 @@ export function createMultipleMergePointsWithMultipleBranchesModel() {
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -10315,12 +9934,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -10392,12 +10005,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -10540,12 +10147,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -10617,12 +10218,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -10700,12 +10295,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -10777,12 +10366,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -10860,12 +10443,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -10937,12 +10514,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -11020,12 +10591,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -11097,12 +10662,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -11245,12 +10804,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -11322,12 +10875,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -11405,12 +10952,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -11482,12 +11023,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -11630,12 +11165,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -11707,12 +11236,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -11790,12 +11313,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -11867,12 +11384,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -12009,12 +11520,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,
@@ -12092,12 +11597,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "User"
-                    },
                     "storyLinks": {
                         "propertyName": "StoryLinks",
                         "typePredefined": 0,
@@ -12169,12 +11668,6 @@ export function createMultipleMergePointsWithMultipleBranchesModelWithoutXAndY()
                 "parentId": 195,
                 "baseItemTypePredefined": 8228,
                 "propertyValues": {
-                    "persona": {
-                        "propertyName": "Persona",
-                        "typePredefined": 0,
-                        "typeId": null,
-                        "value": "System"
-                    },
                     "associatedImageUrl": {
                         "propertyName": "AssociatedImageUrl",
                         "typePredefined": 0,

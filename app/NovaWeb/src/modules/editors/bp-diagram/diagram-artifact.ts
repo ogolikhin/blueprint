@@ -1,7 +1,6 @@
 import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {IArtifact} from "../../main/models/models";
-import {IState} from "../../managers/artifact-manager/state";
 import {IDiagram, IDiagramElement} from "./impl/models";
 import {ItemTypePredefined} from "./../../main/models/enums";
 import {IItem} from "./../../main/models/models";
@@ -22,14 +21,15 @@ export class StatefulDiagramArtifact extends StatefulArtifact implements IStatef
         return this.services.artifactService.getArtifactModel<IDiagram>(url, id, versionId);
     }
 
-    protected initialize(artifact: IDiagram): IState {
+    protected initialize(artifact: IDiagram): void {
         if (artifact.libraryVersion === 0 && artifact.shapes && artifact.shapes.length > 0) {
             artifact.isCompatible = false;
         } else {
             artifact.isCompatible = true;
         }
+        
         this.initializeSubArtifacts(artifact);
-        return super.initialize(artifact);
+        super.initialize(artifact);
     }
 
     protected initializeSubArtifacts(artifact: IDiagram) {

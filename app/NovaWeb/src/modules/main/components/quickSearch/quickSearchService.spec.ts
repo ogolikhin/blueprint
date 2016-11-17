@@ -38,18 +38,18 @@ describe("Service: Quick Search", () => {
 
     it("search is only enabled if you have at least one open project", () => {
         expect(service.canSearch()).toBe(true);
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         expect(service.canSearch()).toBe(false);
     });
 
     it("searchmetadata - no parameters", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
         const totalCount = 100;
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltextmetadata/`, data)
@@ -73,12 +73,12 @@ describe("Service: Quick Search", () => {
 
     it("searchmetadata - with pageSize", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const pageSize = 10;
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
         const totalCount = 100;
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltextmetadata/?pageSize=${pageSize}`, data)
@@ -102,13 +102,13 @@ describe("Service: Quick Search", () => {
 
     it("searchmetadata - with page and page size", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const page = 1;
         const pageSize = 10;
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
         const totalCount = 100;
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltextmetadata/?page=${page}&pageSize=${pageSize}`, data)
@@ -133,11 +133,11 @@ describe("Service: Quick Search", () => {
 
     it("search - no parameters", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
 
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/`, data)
@@ -162,13 +162,13 @@ describe("Service: Quick Search", () => {
 
     it("search - with page and page size", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const page = 1;
         const pageSize = 10;
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
 
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/?page=${page}&pageSize=${pageSize}`, data)
@@ -193,12 +193,12 @@ describe("Service: Quick Search", () => {
 
     it("search - with page", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const page = 1;
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
 
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/?page=${page}`, data)
@@ -223,12 +223,12 @@ describe("Service: Quick Search", () => {
 
     it("search - with pageSize", () => {
         // arrange
-        const project = {id: 123} as IArtifactNode;
+        const project = {model: {id: 123}} as IArtifactNode;
         projectManager.projectCollection.getValue().push(project);
         const pageSize = 10;
         const data =  {
             "Query": "abc",
-            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.id)
+            "ProjectIds": projectManager.projectCollection.getValue().map(project => project.model.id)
         };
 
         $httpBackend.expectPOST(`/svc/searchservice/itemsearch/fulltext/?pageSize=${pageSize}`, data)

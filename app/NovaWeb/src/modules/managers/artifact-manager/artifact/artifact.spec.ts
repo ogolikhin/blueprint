@@ -13,7 +13,6 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {IState} from "../../../managers/artifact-manager/state";
 import {
     ArtifactManager,
     IStatefulArtifactFactory,
@@ -63,13 +62,13 @@ describe("Artifact", () => {
     describe("canBeSaved", () => {
         it("locked by current user", inject(() => {
             // arrange
-            let newState: IState = {
+            let newStateValues = {
                 lockDateTime: new Date(),
                 lockedBy: Enums.LockedByEnum.CurrentUser,
                 lockOwner: "Default Instance Admin",
                 dirty: true
             };
-            artifact.artifactState.setState(newState, false);
+            artifact.artifactState.setState(newStateValues, false);
 
             // act
             let result: boolean;
@@ -83,12 +82,12 @@ describe("Artifact", () => {
     describe("canBepublished", () => {
         it("locked by current user", inject(() => {
             // arrange
-            let newState: IState = {
+            let newStateValues = {
                 lockDateTime: new Date(),
                 lockedBy: Enums.LockedByEnum.CurrentUser,
                 lockOwner: "Default Instance Admin"
             };
-            artifact.artifactState.setState(newState, false);
+            artifact.artifactState.setState(newStateValues, false);
 
             // act
             let result: boolean;
@@ -300,11 +299,11 @@ describe("Artifact", () => {
             $rootScope.$digest();
 
             // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_Other");
+            expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
 
     });
-    
+
 
     describe("Publish", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, messageService: IMessageService) => {
@@ -322,13 +321,13 @@ describe("Artifact", () => {
 
         it("with failed save", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
             // arrange
-            let newState: IState = {
+            let newStateValues = {
                 lockDateTime: new Date(),
                 lockedBy: Enums.LockedByEnum.CurrentUser,
                 lockOwner: "Default Instance Admin",
                 dirty: true
             };
-            artifact.artifactState.setState(newState, false);
+            artifact.artifactState.setState(newStateValues, false);
             spyOn(artifactService, "updateArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 deferred.reject({

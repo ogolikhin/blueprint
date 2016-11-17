@@ -217,7 +217,6 @@ export interface IDiagramNodeElement extends IDiagramElement {
 }
 
 export interface ITask extends IDiagramNode {
-    persona: string;
     description: string;
     associatedArtifact: IArtifactReference;
     personaReference: IArtifactReference;

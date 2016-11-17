@@ -1,4 +1,4 @@
-import {IArtifactState, IState} from "../state";
+import {IArtifactState} from "../state";
 import {Models, Enums, Relationships} from "../../../main/models";
 import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
 import {ArtifactProperties, SpecialProperties} from "../properties";
@@ -310,13 +310,10 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
-    protected initialize(artifact: Models.IArtifact): IState {
-
+    protected initialize(artifact: Models.IArtifact): void {
         this.artifact = artifact;
         this.customProperties.initialize(artifact.customPropertyValues);
         this.specialProperties.initialize(artifact.specificPropertyValues);
-
-        return {} as IState;
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {

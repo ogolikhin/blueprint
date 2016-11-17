@@ -21,7 +21,7 @@ export class ValidationServiceMock implements IValidationService {
         this.dateValidation = new DateValidationMock();
         this.selectValidation = new SelectValidationMock();
         this.multiSelectValidation = new MultiSelectValidationMock();
-        this.textRtfValidation = new TextRtfValidationMock(); 
+        this.textRtfValidation = new TextRtfValidationMock();
         this.userPickerValidation = new UserPickerValidationMock();
         this.textValidation = new TextValidationMock();
     }
@@ -102,31 +102,31 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
 }
 
 class SelectValidationMock extends BaseValidation implements ISelectValidation {
-    hasValueIfRequred(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
         return true;
     }
 }
 
 class MultiSelectValidationMock extends BaseValidation implements IMultiSelectValidation {
-    hasValueIfRequred(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
         return true;
     }
 }
 
 class TextRtfValidationMock extends BaseValidation implements ITextRtfValidation {
-    hasValueIfRequred(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
         return true;
     }
 }
 
 class UserPickerValidationMock extends BaseValidation implements IUserPickerValidation {
-    hasValueIfRequred(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
         return true;
     }
 }
 
 class TextValidationMock extends BaseValidation implements ITextValidation {
-    hasValueIfRequred(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
         return true;
     }
 }

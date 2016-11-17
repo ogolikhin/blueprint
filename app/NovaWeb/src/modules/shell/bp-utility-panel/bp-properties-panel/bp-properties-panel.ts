@@ -14,6 +14,7 @@ import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -31,7 +32,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "selectionManager",
         "messageService",
         "localization",
-        "propertyDescriptorBuilder"
+        "propertyDescriptorBuilder",
+        "validationService"
     ];
 
     public form: angular.IFormController;
@@ -39,6 +41,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public fields: AngularFormly.IFieldConfigurationObject[];
 
     public editor: PropertyEditor;
+    public activeTab: number;
 
     public isLoading: boolean = false;
 
@@ -58,9 +61,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 public messageService: IMessageService,
                 public localization: ILocalizationService,
                 protected propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                protected validationService: IValidationService,
                 public bpAccordionPanel: IBpAccordionPanelController) {
         super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
+        this.activeTab = 0;
+        this.validationService = validationService;
     }
 
     public $onDestroy() {
@@ -246,7 +252,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 break;
             }
         context.isFresh = false;
-        
+
         if ($scope["form"]) {
             if (this.selectedSubArtifact) {
                 this.selectedSubArtifact.validate().then((result: boolean) => {
@@ -292,4 +298,18 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.specificFields = [];
         this.richTextFields = [];
     }
+
+    public isRtfFieldValid = (field: AngularFormly.IFieldConfigurationObject): boolean => {
+        const propertyContext = field.data as IPropertyDescriptor;
+        if (!propertyContext) {
+            return true;
+        }
+
+        if (propertyContext.isRichText && propertyContext.isRequired) {
+            const value = this.model[field.key];
+            return this.validationService.textRtfValidation.hasValueIfRequired(true, value, value);
+        } else {
+            return true;
+        }
+    };
 }

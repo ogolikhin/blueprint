@@ -285,7 +285,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, _project.Id, userWithBadToken);
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, newParentArtifact.Id, userWithBadToken);
             }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", SVC_PATH);
 
             // Verify:

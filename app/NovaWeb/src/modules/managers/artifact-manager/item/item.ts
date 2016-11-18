@@ -421,28 +421,28 @@ export abstract class StatefulItem implements IIStatefulItem {
                         break;
                 case Models.PrimitiveType.Text:
                     if (propertyType.isRichText) {
-                        isValid =  this.services.validationService.textRtfValidation.hasValueIfRequred(propertyType.isRequired, 
+                        isValid =  this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired, 
                             value,
                             value);
                     } else {
-                        isValid = this.services.validationService.textValidation.hasValueIfRequred(propertyType.isRequired, 
+                        isValid = this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired, 
                                 value,
                                 value);
                     }
                     break;
                 case Models.PrimitiveType.Choice:
                     if (propertyType.isMultipleAllowed) {
-                        isValid =  this.services.validationService.multiSelectValidation.hasValueIfRequred(propertyType.isRequired, 
+                        isValid =  this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired, 
                             value,
                             value);
                     } else {
-                        isValid =  this.services.validationService.selectValidation.hasValueIfRequred(propertyType.isRequired, 
+                        isValid =  this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired, 
                             value,
                             value);
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    isValid =  this.services.validationService.userPickerValidation.hasValueIfRequred(propertyType.isRequired, 
+                    isValid =  this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, 
                         value,
                         value);
                     break;

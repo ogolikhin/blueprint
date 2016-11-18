@@ -8,6 +8,7 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
@@ -42,13 +43,15 @@ namespace ArtifactStoreTests
         public void GetUnpublishedChanges_SavedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author);
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -63,14 +66,16 @@ namespace ArtifactStoreTests
         public void GetUnpublishedChanges_PublishedArtifactWithDraft_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Save();
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            artifact.Save(author);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author);
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -105,14 +110,16 @@ namespace ArtifactStoreTests
         public void GetUnpublishedChanges_PublishedArtifactThenDeleted_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Delete();
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            artifact.Delete(author);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author);
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -145,7 +152,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(182338)]
-        [Description("Call GetUnpublishedChanges by a user without permission to any projects.  Verify it returns 401 Unauthorized.")]
+        [Description("Call GetUnpublishedChanges by a user without permission to any projects.  Verify an empty list is returned.")]
         public void GetUnpublishedChanges_UserWithNoPermissions_ReturnsEmptyList()
         {
             // Setup:
@@ -170,12 +177,15 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projects);
+
             var artifacts = new List<IArtifactBase>();
 
             // Create artifacts in different projects.
             foreach (IProject project in projects)
             {
-                IArtifact artifact = Helper.CreateAndSaveArtifact(project, _user, artifactType);
+                IArtifact artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
                 artifacts.Add(artifact);
             }
 
@@ -186,7 +196,7 @@ namespace ArtifactStoreTests
 
             foreach (IProject project in projectsInReverse)
             {
-                IArtifact artifact = Helper.CreateAndSaveArtifact(project, _user, artifactType);
+                IArtifact artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
                 artifacts.Add(artifact);
             }
 
@@ -195,7 +205,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(_user);
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(author);
             }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -244,6 +254,32 @@ namespace ArtifactStoreTests
 
             // Verify - Order by the project name and then by the artifact integer Id.
             AssertArtifactsAndProjectsResponseIsOrderedByProjectNameThenByArtifactId(unpublishedChanges);
+        }
+
+        [TestCase(3)]
+        [TestRail(191164)]
+        [Description("Create & save multiple artifacts. Change user permissions to None to one of them. GetUnpublishedChanges.  Verify the draft artifacts are returned.")]
+        public void GetUnpublishedChanges_PublishedMultipleArtifacts_UserLosesPermissionsToOneOfThem_ReturnsArtifactDetails(int numberOfArtifacts)
+        {
+            // Setup:
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, user, BaseArtifactType.Process, numberOfArtifacts);
+
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, _project, artifacts.Last());
+
+            INovaArtifactsAndProjectsResponse unpublishedChanges = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                unpublishedChanges = Helper.ArtifactStore.GetUnpublishedChanges(user);
+            }, "'GET {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(unpublishedChanges.Projects, _project);
+            Assert.AreEqual(3, unpublishedChanges.Artifacts.Count, I18NHelper.FormatInvariant("There should be {0} artifacts in the list of unpublished changes!", numberOfArtifacts));
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(unpublishedChanges, artifacts, expectedVersion: 1);
         }
 
         #endregion 200 OK tests

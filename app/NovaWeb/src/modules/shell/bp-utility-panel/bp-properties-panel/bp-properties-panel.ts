@@ -254,23 +254,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         context.isFresh = false;
 
 
-        //TODO: check if we need to do it for subartifact
-        if (this.selectedSubArtifact) {
-            this.selectedSubArtifact.validate().then(()  => {
-                this.selectedSubArtifact.artifactState.invalid = false;
-            }).catch(() => {
-                this.selectedSubArtifact.artifactState.invalid = true;
-            });
+        //TODO: REMOVE seems we don't need the following block of code since we never check INVALID state 
+        this.selectedArtifact.validate().then(()  => {
+            this.selectedArtifact.artifactState.invalid = false;
+        }).catch(() => {
+            this.selectedArtifact.artifactState.invalid = true;
+        });
             
-        } else {
-            this.selectedArtifact.validate().then(()  => {
-                this.selectedArtifact.artifactState.invalid = false;
-            }).catch(() => {
-                this.selectedArtifact.artifactState.invalid = true;
-            });
-            
-            this.selectedArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
-        }
     };
 
     private getSelectedItem(): IStatefulItem {

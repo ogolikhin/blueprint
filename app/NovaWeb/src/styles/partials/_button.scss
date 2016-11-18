@@ -167,8 +167,21 @@
 }
 .btn--absolute-right {
     position: absolute;
-    right: 0px;
+    right: 0;
     top: 5px;
+}
+
+.btn-action{
+    float: right;
+    height: 34px;
+    font-size: 1.4rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border: none;
+}
+
+.btn-search {
+    border-radius: 0;
 }
 
 .btn-dropdown-toggle {
@@ -180,6 +193,6 @@
     color: $white;
 }
 
-.btn-dropdown-toggle-caret{
+.btn-dropdown-toggle__caret{
     color:white;
 }

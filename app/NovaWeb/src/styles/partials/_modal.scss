@@ -135,7 +135,7 @@ $modal-open-project-height: 450px;
             .fonticon-error {
                 position: absolute;
                 color: $gray-light;
-                top: 0px;
+                top: 0;
                 right: 0;
                 height: 34px;
                 padding-top: 8px;
@@ -143,18 +143,6 @@ $modal-open-project-height: 450px;
                 &::before {
                     font-size: 2.2rem;
                 }
-            }
-
-            .btn {
-                float: right;
-                height: 34px;
-                font-size: 1.4rem;
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
-            }
-
-            .btn-search {
-                border-radius: 0;
             }
 
             .filter {
@@ -169,7 +157,7 @@ $modal-open-project-height: 450px;
                 color: $gray-light;
             }
 
-            .filter-icon-clear-search {
+            .filter__icon-clear-search {
                 padding-top: 2px;
             }
 

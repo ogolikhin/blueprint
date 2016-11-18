@@ -253,7 +253,7 @@ export class ProjectManager implements IProjectManager {
             newProjectNode.children = data.map((it: Models.IArtifact) => {
                 const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulProject);
-                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulProject, false);
+                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulProject);
             });
 
             //open any children that have children
@@ -280,7 +280,7 @@ export class ProjectManager implements IProjectManager {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);
-                    return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, false);
+                    return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact);
                 });
                 node.expanded = true;
 
@@ -303,7 +303,6 @@ export class ProjectManager implements IProjectManager {
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
                     itemTypeName: "Project",
-                    permissions: project.permissions,
                     predefinedType: Enums.ItemTypePredefined.Project,
                     hasChildren: true
                 });

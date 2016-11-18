@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import {Models, Enums, TreeViewModels} from "../../main/models";
 import {IProjectService} from "./project-service";
 import {IArtifactManager} from "../../managers";
@@ -15,7 +14,7 @@ export class ArtifactNode implements IArtifactNode {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private artifactManager: IArtifactManager,
                 artifact: IStatefulArtifact,
-                public expanded: boolean) {
+                public expanded: boolean = false) {
         if (!artifact) {
             throw new Error("Artifact_Not_Found");
         }
@@ -25,7 +24,7 @@ export class ArtifactNode implements IArtifactNode {
     };
 
     public unloadChildren() {
-        if (angular.isArray(this.children)) {
+        if (_.isArray(this.children)) {
             this.children.forEach((it: IArtifactNode) => it.unloadChildren);
         }
         this.children = undefined;
@@ -40,7 +39,7 @@ export class ArtifactNode implements IArtifactNode {
             return children.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulArtifact);
-                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, false);
+                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact);
             });
         });
     }

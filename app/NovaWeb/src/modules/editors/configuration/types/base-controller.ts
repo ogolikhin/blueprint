@@ -53,4 +53,14 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             angular.element(target).triggerHandler("click");
         }
     };
+
+    public handleValidationMessage(validationCheck: string, isValid: boolean, scope) {
+//            if (scope.fc && scope.fc.$error) {
+                scope.$applyAsync(() => {
+                    scope.fc.$error[validationCheck] = !isValid;
+                    const failedValidations = Object.keys(scope.fc.$error).filter(validation => scope.fc.$error[validation]);
+                    scope.showError = !!failedValidations.length;
+                });
+//            }
+        }
 }

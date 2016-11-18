@@ -40,29 +40,11 @@ export class MoveAction extends BPButtonAction {
 
                 dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
                     if (result && result.length === 1) {
-                        let orderIndex: number;
-                        let selectedArtifact: Models.IArtifact = result[0].artifacts[0];
-                        let parentArtifact = projectManager.getArtifactNode(selectedArtifact.parentId);
-                        let siblings = _.sortBy(parentArtifact.children, (a) => a.model.orderIndex); 
-                        let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
-                        let insertMethod = result[0].insertMethod;
-                        
-                        if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
-                            orderIndex = selectedArtifact.orderIndex / 2;
-                        } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
-                            orderIndex = selectedArtifact.orderIndex + 10;
-                        } else {    //in between
-                            if (insertMethod === MoveArtifactInsertMethod.Above) {
-                                orderIndex = (siblings[index - 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
-                            } else if (insertMethod === MoveArtifactInsertMethod.Below) {
-                                orderIndex = (siblings[index + 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
-                            } else {
-                                //leave undefined
-                            }
-                        }
-
                         const artifacts: Models.IArtifact[] = result[0].artifacts;
-                        if (artifacts && artifacts.length > 0) {
+                        if (artifacts && artifacts.length === 1) {
+                            let insertMethod: MoveArtifactInsertMethod = result[0].insertMethod;
+                            let orderIndex: number = this.calculateOrderIndex(insertMethod, result[0].artifacts[0], projectManager);
+
                             let lockSavePromise: ng.IPromise<any>;
 
                             if (!artifact.artifactState.dirty) {
@@ -75,15 +57,20 @@ export class MoveAction extends BPButtonAction {
                                 //save
                                 lockSavePromise = artifact.save();
                             } else {
+                                //do nothing
                                 lockSavePromise = $q.resolve();
                             }
 
                             lockSavePromise.then(() => {
-                                artifact.move(insertMethod === MoveArtifactInsertMethod.Selection ? artifacts[0].id : artifacts[0].parentId, orderIndex)
+                                artifact
+                                .move(insertMethod === MoveArtifactInsertMethod.Selection ? artifacts[0].id : artifacts[0].parentId, orderIndex)
                                 .then(() => {
                                     projectManager.refresh(artifact.projectId).then(() => {
                                         projectManager.triggerProjectCollectionRefresh();
                                     });
+                                })
+                                .catch((err) => {
+                                    messageService.addError(err);
                                 });
                             });
                         }
@@ -95,5 +82,26 @@ export class MoveAction extends BPButtonAction {
             "fonticon2-move",
             localization.get("App_Toolbar_Discard")
         );
+    }
+
+    private calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact, projectManager: IProjectManager) {
+        let orderIndex: number;
+        let siblings = _.sortBy(projectManager.getArtifactNode(selectedArtifact.parentId).children, (a) => a.model.orderIndex); 
+        let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
+        
+        if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
+            orderIndex = selectedArtifact.orderIndex / 2;
+        } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+            orderIndex = selectedArtifact.orderIndex + 10;
+        } else {    //in between
+            if (insertMethod === MoveArtifactInsertMethod.Above) {
+                orderIndex = (siblings[index - 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
+            } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                orderIndex = (siblings[index + 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
+            } else {
+                //leave undefined
+            }
+        }
+        return orderIndex;
     }
 }

@@ -158,10 +158,6 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
             return result;
         });
     }
-
-    /*public setSelectable(value: boolean) {
-        this.selectable = value;
-    }*/
 }
 
 export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact> {

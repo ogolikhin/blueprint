@@ -43,8 +43,8 @@ export class MoveAction extends BPButtonAction {
                         let orderIndex: number;
                         let selectedArtifact: Models.IArtifact = result[0].artifacts[0];
                         let parentArtifact = projectManager.getArtifactNode(selectedArtifact.parentId);
-                        let siblings = _.sortBy(parentArtifact.children, (a) => a.artifact.orderIndex); 
-                        let index = siblings.findIndex((a) => a.artifact.id === selectedArtifact.id);
+                        let siblings = _.sortBy(parentArtifact.children, (a) => a.model.orderIndex); 
+                        let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
                         let insertMethod = result[0].insertMethod;
                         
                         if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
@@ -53,9 +53,9 @@ export class MoveAction extends BPButtonAction {
                             orderIndex = selectedArtifact.orderIndex + 10;
                         } else {    //in between
                             if (insertMethod === MoveArtifactInsertMethod.Above) {
-                                orderIndex = (siblings[index - 1].artifact.orderIndex + selectedArtifact.orderIndex) / 2;
+                                orderIndex = (siblings[index - 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
                             } else if (insertMethod === MoveArtifactInsertMethod.Below) {
-                                orderIndex = (siblings[index + 1].artifact.orderIndex + selectedArtifact.orderIndex) / 2;
+                                orderIndex = (siblings[index + 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
                             } else {
                                 //leave undefined
                             }

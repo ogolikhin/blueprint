@@ -34,13 +34,24 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
     }
 
     public isItemSelectable(item: Models.IArtifact) {
-        if (item.id === this._currentArtifact.id) {
+        if (MoveArtifactPickerDialogController.checkParent(item, this._currentArtifact.id)) {
             return false;
         }
         if (this.insertMethod === this.InsertMethodSelection && this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
             return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
         } else {
             return item.predefinedType !== Enums.ItemTypePredefined.Collections;
+        }
+    }
+
+    private static checkParent(item: Models.IArtifact, id: number): boolean {
+        if (!item.parent) {
+            return false;
+        }
+        if (item.id === id) {
+            return true;
+        } else {
+            return this.checkParent(item.parent, id);
         }
     }
 

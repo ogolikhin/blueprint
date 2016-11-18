@@ -233,7 +233,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         },
         updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {
             this.options.api.forEachNode(node => {
-                node.data.isSelectable = isItemSelectable(node.data.model);
+                node.data.selectable = isItemSelectable(node.data.model);
             });
             this.options.api.refreshView();
         }

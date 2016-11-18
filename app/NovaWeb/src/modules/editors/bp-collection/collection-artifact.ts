@@ -35,7 +35,7 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
     protected getArtifactModel(id: number, versionId: number): ng.IPromise<IArtifact> {
         const url = `/svc/bpartifactstore/collection/${id}`;
         return this.services.artifactService.getArtifactModel<ICollection>(url, id, versionId);
-    }    
+    }
 
     public get rapidReviewCreated() {
         if (this.artifact) {
@@ -71,7 +71,7 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
             value: collectionContent
         };
         return collectionContentProperty;
-    }    
+    }
 
     protected initialize(artifact: Models.IArtifact): void {
         const state = super.initialize(artifact);
@@ -87,7 +87,7 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
             artifacts.length > 0 &&
             this.collectionContentPropertyValue) {
 
-            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;           
+            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;
 
             artifacts.forEach((artifact: IArtifact) => {
                 const newArtifact = <ICollectionArtifact>{
@@ -97,10 +97,10 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
                     itemTypePredefined: artifact.predefinedType,
                     name: artifact.name,
                     prefix: artifact.prefix,
-                    artifactPath: Helper.getArtifactPath(artifact)
+                    artifactPath: artifact.artifactPath
                 };
                 this.artifacts.push(newArtifact);
-                
+
                 const index = collectionContentPV.removedArtifacts.indexOf(artifact.id);
                 if (index > -1) {
                     collectionContentPV.removedArtifacts.splice(index, 1);
@@ -111,7 +111,7 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
 
             this.updateCollectionContentSpecialProperty(collectionContentPV);
         }
-    }    
+    }
 
     private updateCollectionContentSpecialProperty(collectionContentPropertyValue: Models.ICollectionContentPropertyValue): void {
         const newPropertyValue: Models.ICollectionContentPropertyValue = {
@@ -128,10 +128,10 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
             artifacts.length > 0 &&
             this.collectionContentPropertyValue) {
 
-            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;            
+            const collectionContentPV = this.collectionContentPropertyValue.value as Models.ICollectionContentPropertyValue;
             let isSomethingDeleted: boolean = false;
             artifacts.forEach((artifact: IArtifact) => {
-                
+
                 let index = this.artifacts.indexOf(<ICollectionArtifact>artifact, 0);
                 if (index > -1) {
                     isSomethingDeleted = true;

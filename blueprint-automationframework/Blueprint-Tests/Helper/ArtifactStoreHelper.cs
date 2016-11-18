@@ -505,13 +505,16 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentsAndSave(
             IUser user,
             IArtifact artifact,
             List<INovaFile> files,
             IArtifactStore artifactStore,
-            bool shouldLockArtifact = true)
+            bool shouldLockArtifact = true,
+            LockResult expectedLockResult = LockResult.Success)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -520,7 +523,7 @@ namespace Helper
 
             if (shouldLockArtifact)
             {
-                artifact.Lock(user);
+                artifact.Lock(user, expectedLockResult: expectedLockResult);
             }
 
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
@@ -547,6 +550,8 @@ namespace Helper
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
         /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
+        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentAndSave(
             IUser user,
@@ -554,14 +559,15 @@ namespace Helper
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
-            int expectedAttachedFilesCount = 1)
+            int expectedAttachedFilesCount = 1,
+            LockResult expectedLockResult = LockResult.Success)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, expectedLockResult);
             Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
 
             return attachments;

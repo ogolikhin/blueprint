@@ -11,7 +11,6 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {IArtifactNode} from "../../../managers/project-manager";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
@@ -195,7 +194,7 @@ export class BPToolbarController implements IBPToolbarController {
     }
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
-        const selectedProject: IArtifactNode = this.projectManager.getSelectedProject();
+        const selectedProjectId: number = this.projectManager.getSelectedProjectId();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -210,7 +209,7 @@ export class BPToolbarController implements IBPToolbarController {
             <IConfirmPublishDialogData>{
                 artifactList: data.artifacts,
                 projectList: data.projects,
-                selectedProject: selectedProject ? selectedProject.model.id : undefined
+                selectedProject: selectedProjectId
             })
             .then(() => {
                 this.discardAll(data);
@@ -221,7 +220,11 @@ export class BPToolbarController implements IBPToolbarController {
         const publishAllLoadingId = this.loadingOverlayService.beginLoading();
         //perform publish all
         this.publishService.discardAll()
-            .then(() => {
+            .then(() => {                
+                const statefulArtifact = this.artifactManager.selection.getArtifact();
+                if (statefulArtifact) {
+                    statefulArtifact.discard();
+                }                
                 //refresh all after discard all finishes
                 this.projectManager.refreshAll();
 
@@ -233,7 +236,7 @@ export class BPToolbarController implements IBPToolbarController {
     }
 
     private confirmPublishAll(data: Models.IPublishResultSet) {
-        const selectedProject: IArtifactNode = this.projectManager.getSelectedProject();
+        const selectedProjectId: number = this.projectManager.getSelectedProjectId();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Publish_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -246,7 +249,7 @@ export class BPToolbarController implements IBPToolbarController {
             <IConfirmPublishDialogData>{
                 artifactList: data.artifacts,
                 projectList: data.projects,
-                selectedProject: selectedProject ? selectedProject.model.id : undefined
+                selectedProject: selectedProjectId
             })
             .then(() => {
                 this.saveAndPublishAll(data);
@@ -332,7 +335,7 @@ export class BPToolbarController implements IBPToolbarController {
     }
 
     public get canRefreshAll(): boolean {
-        return !!this.projectManager.getSelectedProject();
+        return !!this.projectManager.getSelectedProjectId();
     }
 
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
@@ -343,7 +346,7 @@ export class BPToolbarController implements IBPToolbarController {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
         return currArtifact &&
-            !!this.projectManager.getSelectedProject() &&
+            !!this.projectManager.getSelectedProjectId() &&
             !currArtifact.artifactState.historical &&
             !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;

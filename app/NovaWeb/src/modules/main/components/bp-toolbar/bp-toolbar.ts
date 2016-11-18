@@ -222,7 +222,10 @@ export class BPToolbarController implements IBPToolbarController {
         //perform publish all
         this.publishService.discardAll()
             .then(() => {                
-                this.artifactManager.selection.getArtifact().discard();                
+                const statefulArtifact = this.artifactManager.selection.getArtifact();
+                if (statefulArtifact) {
+                    statefulArtifact.discard();
+                }                
                 //refresh all after discard all finishes
                 this.projectManager.refreshAll();
 

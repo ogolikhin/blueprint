@@ -134,6 +134,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             let overlayId: number = this.services.loadingOverlayService.beginLoading();
             this.services.publishService.discardArtifacts([this.id])
             .then(() => {
+                this.discard();
                 this.services.messageService.addInfo("Discard_Success_Message");
                 deffered.resolve();
             })

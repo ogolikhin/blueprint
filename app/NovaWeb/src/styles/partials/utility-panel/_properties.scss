@@ -58,7 +58,7 @@ bp-properties-panel {
         .formly-field {
             display: block;
             width: 100%;
-            margin: 0 0 6px;
+            margin: 0 0 12px;
 
             .has-messages {
                 display: block;
@@ -72,6 +72,7 @@ bp-properties-panel {
             label {
                 font-weight: 600;
                 width: $property-input-width;
+                margin-top: 0px;
             }
 
             input,

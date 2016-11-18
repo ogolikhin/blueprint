@@ -182,7 +182,7 @@ namespace ArtifactStoreTests
             NovaTrace actorInheritanceTrace = actorRelationships.OtherTraces[0];
 
             Assert.AreEqual(expectedBaseActor.Id, actorInheritanceTrace.ArtifactId, "ArtifactId must be the same, but it doesn't.");
-            Assert.AreEqual(TraceTypes.ActorInherits, actorInheritanceTrace.TraceType, "Trace should have Actor Inheritance trace type, but it doesn't.");
+            Assert.AreEqual(TraceType.ActorInherits, actorInheritanceTrace.TraceType, "Trace should have Actor Inheritance trace type, but it doesn't.");
             Assert.AreEqual(TraceDirection.To, actorInheritanceTrace.Direction, "Trace should have 'To' trace direction, but it doesn't.");
             Assert.AreEqual(expectedBaseActor.Name, actorInheritanceTrace.ArtifactName, "Trace should have expected Base Actor name, but it doesn't.");
 

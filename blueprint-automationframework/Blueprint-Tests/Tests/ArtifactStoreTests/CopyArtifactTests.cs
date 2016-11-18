@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Model.NovaModel;
 using NUnit.Framework;
 using TestCommon;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -157,7 +154,7 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
             // Create & add manual trace to the source artifact:
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact, targetArtifact, ArtifactUpdateChangeType.Add,
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(author, sourceArtifact, targetArtifact, ChangeType.Create,
                 Helper.ArtifactStore, direction, isSuspect);
 
             if (shouldPublishTrace)

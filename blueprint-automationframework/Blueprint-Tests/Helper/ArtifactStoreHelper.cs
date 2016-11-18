@@ -581,7 +581,7 @@ namespace Helper
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
+        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
             List<INovaFile> files, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -601,7 +601,7 @@ namespace Helper
                 subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(user, file));
             }
 
-            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactToAdd };
+            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
             artifactDetails.SubArtifacts = subArtifacts;
 
@@ -644,7 +644,7 @@ namespace Helper
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
+        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
             int fileId, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -667,7 +667,7 @@ namespace Helper
             subArtifactToAdd.Id = subArtifact.Id;
             subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
-            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactToAdd };
+            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
             artifactDetails.SubArtifacts = subArtifacts;
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
@@ -781,7 +781,7 @@ namespace Helper
         /// <param name="subArtifact">The subartifact containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifact subArtifact,
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaItem subArtifact,
             IArtifactBase inlineTraceArtifact,
             bool validInlineTraceLink)
         {
@@ -867,8 +867,8 @@ namespace Helper
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
         /// <param name="expectedErrorMessage">(optional)Expected error message.</param>
         public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
-            ArtifactUpdateChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
-            bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
+            ChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null, NovaItem targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -883,7 +883,7 @@ namespace Helper
             traceToCreate.ArtifactId = traceTarget.Id;
             traceToCreate.ProjectId = traceTarget.ProjectId;
             traceToCreate.Direction = traceDirection;
-            traceToCreate.TraceType = TraceTypes.Manual;
+            traceToCreate.TraceType = TraceType.Manual;
             traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;

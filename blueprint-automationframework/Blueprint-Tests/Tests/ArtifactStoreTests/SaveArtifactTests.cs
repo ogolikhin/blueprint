@@ -142,6 +142,7 @@ namespace ArtifactStoreTests
 
         #region Artifact Properties tests
 
+        [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestCase(ItemTypePredefined.Actor, "Std-Text-Required-RT-Multi-HasDefault")]
@@ -365,7 +366,7 @@ namespace ArtifactStoreTests
             var targetCustomPropertyName = "Std-Text-Required-RT-Multi-HasDefault";
             var subArtifactChangeset = CreateSubartifactChangeset(subArtifact, targetCustomPropertyName);
             var artifactDetailsChangeSet = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactChangeset };
+            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactChangeset };
             artifactDetailsChangeSet.SubArtifacts = subArtifacts;
             Assert.DoesNotThrow(() => Artifact.UpdateArtifact(processArtifact, _user, artifactDetailsChangeSet),
                 "Exception caught while trying to update an artifact of type: '{0}'!", BaseArtifactType.Process);
@@ -377,6 +378,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(updatedSubartifactCustomPropertyValue, requestedSubartifactCustomPropertyValue);
         }
 
+        [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "UT", "Std-Text-Required-RT-Multi-HasDefault")]
         [TestRail(191159)]
         [Description("Create & publish an artifact.  Update a text property in a subartifact, save and publish.  " +
@@ -395,7 +397,7 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
 
             var subArtifactToUpdate = subArtifacts.Find(sa => sa.DisplayName == subArtifactDisplayName);
 
@@ -407,7 +409,7 @@ namespace ArtifactStoreTests
             property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(
                 RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()));
 
-            artifactDetails.SubArtifacts = new List<INovaSubArtifact>() { subArtifact };
+            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifact };
 
             // Execute:
             artifact.Lock(author);
@@ -415,7 +417,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+            Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id.Value);
 
             CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
@@ -446,7 +449,7 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
 
             var subArtifactToUpdate = subArtifacts.Find(sa => sa.DisplayName == subArtifactDisplayName);
 
@@ -457,7 +460,7 @@ namespace ArtifactStoreTests
             // Change custom property number value
             property.CustomPropertyValue = newNumber;
 
-            artifactDetails.SubArtifacts = new List<INovaSubArtifact>() { subArtifact };
+            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifact };
 
             // Execute:
             artifact.Lock(author);
@@ -465,7 +468,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+            Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id.Value);
 
             CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
@@ -491,7 +495,7 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
 
             var subArtifactToUpdate = subArtifacts.Find(sa => sa.DisplayName == subArtifactDisplayName);
 
@@ -502,7 +506,7 @@ namespace ArtifactStoreTests
             // Change custom property date value
             property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now);
 
-            artifactDetails.SubArtifacts = new List<INovaSubArtifact>() { subArtifact };
+            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifact };
 
             // Execute:
             artifact.Lock(author);
@@ -510,7 +514,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+            Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id.Value);
 
             CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
@@ -541,7 +546,7 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
 
             var subArtifactToUpdate = subArtifacts.Find(sa => sa.DisplayName == subArtifactDisplayName);
 
@@ -557,7 +562,7 @@ namespace ArtifactStoreTests
             // Change custom property choice value
             property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues() { ValidValues = newChoicePropertyValue };
 
-            artifactDetails.SubArtifacts = new List<INovaSubArtifact>() { subArtifact };
+            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifact };
 
             // Execute:
             artifact.Lock(author);
@@ -565,7 +570,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+            Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id.Value);
 
             CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
@@ -591,7 +597,7 @@ namespace ArtifactStoreTests
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
 
             var subArtifactToUpdate = subArtifacts.Find(sa => sa.DisplayName == subArtifactDisplayName);
 
@@ -605,7 +611,7 @@ namespace ArtifactStoreTests
             // Change custom property user value
             property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues() { UsersGroups = newUserPropertyValue };
 
-            artifactDetails.SubArtifacts = new List<INovaSubArtifact>() { subArtifact };
+            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifact };
 
             // Execute:
             artifact.Lock(author);
@@ -613,7 +619,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+            Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id.Value);
 
             CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 

@@ -20,6 +20,8 @@ namespace ArtifactStoreTests
         private IUser _user2 = null;
         private IProject _project = null;
 
+        private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.VERSION;
+
         [SetUp]
         public void SetUp()
         {
@@ -323,9 +325,9 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(0)]
-        [Description("Create process artifact with 4 versions.  Verify 'GET /artifacts/{artifactId}/version' returns ......")]
-        public void GetArtifactHistory_ArtifactWithSubArtifacts_2PublishedVersions_SendSubArtifactId_VerifyReturn()
+        [TestRail(191175)]
+        [Description("Create process artifact with two versions.  User tryes to get artifact versions using sub-artifact Id.  Verify empty list of artifact versions returned")]
+        public void GetArtifactHistory_ArtifactWithSubArtifacts_PublishedVersions_SendSubArtifactId_VerifyReturn()
         {
             // Setup:
             IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Process, numberOfVersions: 2);
@@ -346,6 +348,71 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, artifactHistory.Count, "Artifact history must have no items, but it has {0} items", artifactHistory.Count);
         }
+
+        #region 403 Forbidden
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191190)]
+        [Description("Create & publish an artifact.  User that does not have permissions to artifact tries to get artifact version. Verify 403 Forbidden error code returned.")]
+        public void GetArtifactHistory_PublishedArtifact_UserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute:
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactHistory(artifact.Id, user),
+                "'GET {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
+
+            // Verify:
+            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=35668
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191191)]
+        [Description("Create & publish parent & child artifacts.  User that does not have permissions to parent artifact tries to get artifact version.  Verify 403 Forbidden error code returned.")]
+        public void GetArtifactHistory_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup
+            IArtifact parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent);
+
+            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, parent);
+
+            // Execute
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactHistory(parent.Id, user),
+                "'GET {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
+
+            // Verify
+            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=35668
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191192)]
+        [Description("Create & publish an artifact with sub-artifacts.  User that does not have permissions to artifact tries to get version of artifact using sub-artifact Id.  " +
+            "Verify 403 Forbidden error code returned.")]
+        public void GetSubArtifactDetails_PublishedArtifact_UserWithoutPermissionsUsingSubArtifactId_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+
+            // Execute
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactHistory(subArtifacts[0].Id, user),
+                "'GET {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
+
+            // Verify
+            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=35668
+        }
+
+        #endregion 403 Forbidden
 
         #region private functions
 

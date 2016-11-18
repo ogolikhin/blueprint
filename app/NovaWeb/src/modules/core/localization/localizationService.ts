@@ -94,11 +94,13 @@ export class BPLocale {
             if (this.decimalSeparator !== ".") {
                 stringValue = stringValue.replace(new RegExp(ds), ".");
             }
+            let returnValue: number;
             if (stringValue.indexOf(".") >= 0) {
-                return parseFloat(stringValue);
+                returnValue = parseFloat(stringValue);
             } else {
-                return parseInt(stringValue, 10);
+                returnValue = parseInt(stringValue, 10);
             }
+            return _.isNaN(returnValue) ? null : returnValue;
         } else {
             return null;
         }

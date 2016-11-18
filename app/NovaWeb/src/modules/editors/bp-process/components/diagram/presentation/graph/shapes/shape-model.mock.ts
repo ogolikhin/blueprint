@@ -81,8 +81,7 @@ export class ShapeModelMock {
 
         this.shapesFactory = new ShapesFactory(this.rootScope, new StatefulArtifactFactoryMock());
 
-        this.sampleUserTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.UserTask);
-        this.sampleUserTask.propertyValues["persona"] = this.shapesFactory.createPersonaValue("Persona");
+        this.sampleUserTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.UserTask)
 
         this.sampleUserTask.propertyValues["x"] = this.shapesFactory.createXValue(2);
         this.sampleUserTask.propertyValues["y"] = this.shapesFactory.createXValue(0);
@@ -139,7 +138,6 @@ export class ShapeModelMock {
         };
 
         this.sampleSystemTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.SystemTask);
-        this.sampleSystemTask.propertyValues["persona"] = this.shapesFactory.createPersonaValue("Persona");
         this.sampleSystemTask.propertyValues["associatedImageUrl"] = this.shapesFactory.createAssociatedImageUrlValue();
 
         this.sampleSystemTask.propertyValues["label"] = this.shapesFactory.createLabelValue("");

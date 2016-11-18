@@ -18,6 +18,7 @@ import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
 import { StatefulProcessArtifact } from "../../../../../process-artifact";
 import { Models } from "../../../../../../../main/models/";
 import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ItemTypePredefined} from "../../../../../../../main/models/enums";
 
 describe("SystemTask", () => {
     let statefulArtifactFactory: IStatefulArtifactFactoryMock;
@@ -74,12 +75,11 @@ describe("SystemTask", () => {
         // Act
         const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
 
-        const node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, "", null, shapesFactory);
+        const node = new SystemTask(ShapeModelMock.instance().SystemTaskMock(), rootScope, null, null, shapesFactory);
         node.render(graph, 80, 120, false);
         node.renderLabels();
 
         node.label = "test label";
-        node.persona = "test persona";
         node.description = "test description";
         node.associatedImageUrl = "test.jpg";
         node.imageId = "2";
@@ -88,7 +88,6 @@ describe("SystemTask", () => {
         //Assert
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.SystemTask);
         expect(node.label).toEqual("test label");
-        expect(node.persona).toEqual("test persona");
         expect(node.description).toEqual("test description");
         expect(node.associatedImageUrl).toEqual("test.jpg");
         expect(node.imageId).toEqual("2");
@@ -97,19 +96,28 @@ describe("SystemTask", () => {
 
     describe("Test text elements", () => {
 
-        it("Test latest persona value reuse", () => {
+        it("Test latest personaReference value reuse", () => {
             // Arrange
             const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
-            const node = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
-            node.persona = "12345";
+            const node = new SystemTask(testSystemTask, rootScope, null, null, shapesFactory);
+            node.personaReference =  {
+                id: 1,
+                projectId: 1,
+                name: "new persona",
+                typePrefix: "PRO",
+                baseItemTypePredefined: ItemTypePredefined.Actor,
+                projectName: "test project",
+                link: null,
+                version: null
+            };
 
 
             // Act
-            const node1 = new SystemTask(testSystemTask, rootScope, "", null, shapesFactory);
+            const node1 = new SystemTask(testSystemTask, rootScope, null, null, shapesFactory);
 
             //Assert
-            expect(node1.persona).toEqual(node.persona);
+            expect(node1.personaReference).toEqual(node.personaReference);
         });
 
     });
@@ -166,6 +174,17 @@ describe("SystemTask", () => {
             node: ISystemTask,
             graph: ProcessGraph,
             statefulSubArtifact: StatefulProcessSubArtifact;
+        
+        const newPersonaReference = {
+            id: 1,
+            projectId: 1,
+            name: "new persona",
+            typePrefix: "PRO",
+            baseItemTypePredefined: ItemTypePredefined.Actor,
+            projectName: "test project",
+            link: null,
+            version: null
+        };
         beforeEach(() => {
             // arrange
             const processModel = new ProcessModel();
@@ -178,14 +197,14 @@ describe("SystemTask", () => {
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
             statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
 
-            node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, "", null, shapesFactory);
+            node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, null, null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
         });
 
-        it("when modifying persona - persona matches", () => {
+        it("when modifying personaReference - personaReference matches", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -195,13 +214,13 @@ describe("SystemTask", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
-            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.Persona).value).toBe(node.persona);
+            expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.PersonaReference).value).toBe(node.personaReference.id);
         });
 
-        it("when modifying persona - attempt lock is called", () => {
+        it("when modifying personaReference - attempt lock is called", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -211,13 +230,13 @@ describe("SystemTask", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
             expect(lockSpy).toHaveBeenCalled();
         });
 
-       it("when modifying persona - artifact state is dirty", () => {
+        it("when modifying personaReference - artifact state is dirty", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -227,7 +246,7 @@ describe("SystemTask", () => {
             node.render(graph, 80, 120, false);
             node.renderLabels();
 
-            node.persona = "test persona";
+            node.personaReference = newPersonaReference;
 
             // assert
             expect(statefulArtifact.artifactState.dirty).toBeTruthy();

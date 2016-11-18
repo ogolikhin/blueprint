@@ -1,6 +1,7 @@
 import { ILocalizationService } from "../../../core/localization/localizationService";
+import { IBaseValidation, BaseValidation } from "./base-validation";
 
-export interface INumberValidation {
+export interface INumberValidation extends IBaseValidation {
     decimalPlaces(newValue: number,
         oldValue: number,
         decimalPlaces: number,
@@ -31,7 +32,7 @@ export interface INumberValidation {
         isRequired: boolean): boolean;
 }
 
-export class NumberValidation implements INumberValidation {
+export class NumberValidation extends BaseValidation implements INumberValidation {
 
     public decimalPlaces(newValue: number,
         oldValue: number,
@@ -108,6 +109,6 @@ export class NumberValidation implements INumberValidation {
             this.wrongFormat(newValue, oldValue, decimalPlaces, localization, isValidated) &&
             this.isMin(newValue, oldValue, _min, localization, isValidated) &&
             this.isMax(newValue, oldValue, _max, localization, isValidated) &&
-            (isRequired ? (!!newValue || !!oldValue) : true);
+            super.hasValueIfRequired(isRequired, newValue, oldValue);
     }
 }

@@ -7,7 +7,12 @@ bp-properties-panel {
     $property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px; // 345px
     $property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width + 15px; // 240px
     $property-left-margin: 11px;
-
+    $property-input-icon-width: 40px;
+    $property-input-with-icon-width: $property-input-width - $property-input-icon-width;
+    
+    .tinymce-body-wrapper {
+        max-width: $property-input-width;
+    }
     .properties {
         min-width: 100%;
     }
@@ -53,10 +58,15 @@ bp-properties-panel {
         .formly-field {
             display: block;
             width: 100%;
-            margin: 0;
+            margin: 0 0 6px;
 
             .has-messages {
                 display: block;
+
+                input.has-icon {
+                    max-width: $property-input-with-icon-width;
+                    width: $property-input-with-icon-width;
+                }
             }
 
             label {
@@ -86,7 +96,7 @@ bp-properties-panel {
                 }
 
                 .ui-select-search {
-                    //min-width: $property-input-width;
+                    min-width: 100%;
                 }
             }
 
@@ -122,6 +132,24 @@ bp-properties-panel {
 
             .form-tinymce {
                 //min-width: $property-input-width;
+            }
+        }
+
+        .formly-field-bpFieldTextRTF {
+            .mce-toolbar-grp {
+                min-width: 244px;
+                top: -25px;
+
+                .mce-btn button {
+                    line-height: 15px;
+                    padding: 2px 1px;
+                }
+            }
+        }
+        .formly-field-bpFieldTextRTFInline {
+            .mce-panel {
+                // since it's hidden on init, tinyMCE cannot calculate the dimensions by itself
+                width: #{$property-input-width - 2px} !important;
             }
         }
     }

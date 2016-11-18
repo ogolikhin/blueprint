@@ -8,7 +8,7 @@ describe("findAncestorByCssClass", () => {
             </div>
             <div class="uncle">
                 <span id="cousin"></span>
-            </div>    
+            </div>
         </div>
     </div>`;
 
@@ -93,6 +93,22 @@ Popup`);
         });
     });
 
+    describe("escapeQuote", () => {
+        it("escapes the text content of quotes", () => {
+            // Arrange
+            let text = `test"test`;
+            let text2 = `test"test"`;
+
+            // Act
+            text = Helper.escapeQuot(text);
+            text2 = Helper.escapeQuot(text2);
+
+            // Assert
+            expect(text).toEqual(`test&quot;test`);
+            expect(text2).toEqual(`test&quot;test&quot;`);
+        });
+    });
+
     describe("stripWingdings", () => {
         it("removes CSS style definition for Wingdings font", () => {
             // Act
@@ -158,7 +174,6 @@ describe("addTableBorders", () => {
     it("should add default borders to cells with no borders", () => {
         // Arrange/Act
         let node = document.createElement("div");
-        /* tslint:disable */
         node.innerHTML = `<table>
 <tr>
     <td>A</td>
@@ -169,7 +184,6 @@ describe("addTableBorders", () => {
     <td style="border-color: green;">C</td>
 </tr>
 </table>`;
-        /* tslint:enable */
 
         Helper.addTableBorders(node);
 
@@ -190,7 +204,6 @@ describe("setFontFamilyOrOpenSans", () => {
     it("should add Open Sans if the tags don't have a font definition", () => {
         // Arrange/Act
         let node = document.createElement("div");
-        /* tslint:disable */
         node.innerHTML = "<table><tr><td>Table</td></tr></table>" +
             "<p style='font-family: Arial, sans-serif'>Arial Default</p>" +
             "<p style='font-family: Arial, sans-serif'><em>Arial Em</em></p>" +
@@ -201,7 +214,6 @@ describe("setFontFamilyOrOpenSans", () => {
             "<p style='font-family: Arial, sans-serif'><strong><span style='font-size: 18px'>Bold 18px</span></strong></p>" +
             "<p style='font-family: Arial, sans-serif'><em><span style='font-family: Verdana, sans-serif'>Verdana Em</span></em></p>" +
             "<p style='font-family: Arial, sans-serif'><em><span style='font-family: Invalid Font'>Verdana Em</span></em></p>";
-        /* tslint:enable */
 
         Helper.setFontFamilyOrOpenSans(node, ["Arial", "Verdana"]);
 
@@ -225,7 +237,7 @@ describe("autoLinkURLText", () => {
     it("should find and replace text URLs in nested HTML elements", () => {
         // Arrange/Act
         let node = document.createElement("div");
-        /* tslint:disable */
+        /* tslint:disable:max-line-length */
         node.innerHTML = `
 <p>
     <span>This is an inline trace:&nbsp;</span>
@@ -242,7 +254,7 @@ describe("autoLinkURLText", () => {
 <p>
     <span>Let's see if https://www.cnn.com, http://127.<span>0.0.1</span>, http://www.google.com, or even ftp://filehippo.com get recognized</span>
 </p>`;
-        /* tslint:enable */
+        /* tslint:enable:max-line-length */
         Helper.autoLinkURLText(node);
 
         // Assert

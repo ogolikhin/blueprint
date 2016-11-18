@@ -2,8 +2,6 @@ import * as angular from "angular";
 import "./bp-dialog";
 import "./bp-avatar";
 import "./bp-tree";
-import "./bp-tree-dragndrop";
-import "./bp-tree-inline-editing";
 import "./bp-tree-view";
 import "./bp-tooltip";
 import "./bp-infinite-scroll";
@@ -25,9 +23,7 @@ angular.module("bp.widgets", [
     "bp.widgets.dialog",
     "bp.widgets.avatar",
     "bp.widgets.tree",
-    "bp.widgets.treedraganddrop",
     "bp.widgets.treeView",
-    "bp.widgets.inlineedit",
     "bp.widgets.tooltip",
     "bp.widgets.infinitescroll",
     "bp.widgets.select",

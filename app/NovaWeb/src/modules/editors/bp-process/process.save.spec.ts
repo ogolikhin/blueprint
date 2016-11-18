@@ -3,7 +3,6 @@ require("script!mxClient");
 import "rx/dist/rx.lite";
 import { Models, Enums } from "../../main/models";
 import { IProcess } from "./models/process-models";
-import { IState } from "../../managers/artifact-manager/state/state";
 import { IArtifactService } from "../../managers/artifact-manager/";
 import { ArtifactServiceMock } from "../../managers/artifact-manager/artifact/artifact.svc.mock";
 import { ValidationServiceMock } from  "../../managers/artifact-manager/validation/validation.mock";
@@ -23,6 +22,8 @@ import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import * as TestModels from "./models/test-model-factory";
 import { MetaDataService } from "../../managers/artifact-manager";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {ApplicationError} from "../../core/error/applicationError";
 
 class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
@@ -69,7 +70,7 @@ describe("When process is saved", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _$httpBackend_: ng.IHttpBackendService,
-        messageService: IMessageService, 
+        messageService: IMessageService,
         artifactService: IArtifactService,
         processService: IProcessService,
         validationService: IValidationService,
@@ -82,8 +83,8 @@ describe("When process is saved", () => {
 
         session = new SessionSvcMock($q);
 
-        processModel = JSON.parse(require("./mocks/process-model-1.mock.json")); 
-        
+        processModel = JSON.parse(require("./mocks/process-model-1.mock.json"));
+
         const artifactServices = new StatefulArtifactServices(
             _$q_, session, messageService, null, localization, artifactService, null, null, metadataService, null, null, validationService);
 
@@ -100,7 +101,7 @@ describe("When process is saved", () => {
         processArtifact = new StatefulProcessArtifact(artifactModel, services);
         processArtifact["onLoad"](processModel);
 
-        let newState: IState = {
+        let newStateValues = {
             lockDateTime: new Date(),
             lockedBy: Enums.LockedByEnum.CurrentUser,
             lockOwner: "Default Instance Admin",
@@ -108,9 +109,9 @@ describe("When process is saved", () => {
             dirty: true
         };
 
-        processArtifact.artifactState.setState(newState, false);
+        processArtifact.artifactState.setState(newStateValues, false);
 
-        // Setup the data we wish to return for the http call  
+        // Setup the data we wish to return for the http call
         result = JSON.parse(require("./mocks/process-model-2.mock.json"));
 
         $httpBackend.when("PATCH", `/svc/components/storyteller/processes/${processArtifact.id}`)
@@ -120,16 +121,11 @@ describe("When process is saved", () => {
 
     it("calls both saveProcess() and saveArtifact() methods ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
         spyOn(processArtifact, "saveProcess").and.callThrough();
-
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when(processArtifact);
         });
 
         processArtifact.save()
@@ -148,21 +144,17 @@ describe("When process is saved", () => {
                 done();
             });
 
-        $httpBackend.flush();
+            $httpBackend.flush();
 
     });
 
     it("returns temporary id map after saving ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
 
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            let deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when(processArtifact);
         });
 
         spyOn(processArtifact, "mapTempIdsAfterSave").and.callFake((tempIdMap) => {
@@ -188,17 +180,13 @@ describe("When process is saved", () => {
 
     it("replaces temporary ids with actual ids after saving ", (done) => {
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
 
         spyOn(processArtifact, "mapTempIdsAfterSave").and.callThrough();
 
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            let deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when(processArtifact);
         });
         // before save there should be temporary ids (negative integers)
         // assigned to new shapes
@@ -268,17 +256,15 @@ describe("When process is saved", () => {
     });
 
     it("recovers if saveProcess() succeeds and saveArtifact() fails  ", (done) => {
+
         spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
-            const deferred = $q.defer();
-            deferred.resolve();
-            return deferred.promise;
+            return $q.when();
         });
+
         spyOn(processArtifact, "notifySubscribers").and.callThrough();
 
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
-            let deferred = $q.defer();
-            deferred.reject("save artifact failed");
-            return deferred.promise;
+            return $q.reject(new ApplicationError("save artifact failed"));
         });
         // before save there should be temporary ids (negative integers)
         // assigned to new shapes
@@ -323,4 +309,30 @@ describe("When process is saved", () => {
         $httpBackend.flush();
 
     });
+
+    it("save - error save", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        // arrange
+        spyOn(services.metaDataService, "getArtifactPropertyTypes").and.callFake(() => {
+            return $q.when();
+        });
+
+        spyOn(services.processService, "save").and.callFake(() => {
+            const deferred = $q.defer<any>();
+            deferred.reject({
+                statusCode: HttpStatusCode.ServerError
+            });
+            return deferred.promise;
+        });
+
+        // act
+        let error: Error;
+        processArtifact.save().catch((err) => {
+            error = err;
+        });
+        $rootScope.$digest();
+
+        // assert
+        expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
+    }));
+
 });

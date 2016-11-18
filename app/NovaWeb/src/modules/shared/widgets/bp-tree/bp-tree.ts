@@ -6,10 +6,8 @@ import {IArtifactNode} from "../../../managers/project-manager";
  * Usage:
  *
  * <bp-tree api="$ctrl.tree"
- *          root-nodes="$ctrl.projects"
+ *          row-datas="$ctrl.projects"
  *          grid-columns="$ctrl.columns"
- *          enable-editing-on="name"
- *          enable-dragndrop="true"
  *          on-select="$ctrl.doSelect(item)"
  *          on-error="$ctrl.onError(reason)"
  *          on-grid-reset="$ctrl.onGridReset()">
@@ -24,12 +22,10 @@ export class BPTreeComponent implements ng.IComponentOptions {
         api: "=?",
         // Input
         gridClass: "@",
-        enableEditingOn: "@",
-        enableDragndrop: "<",
         rowHeight: "<",
         rowBuffer: "<",
         headerHeight: "<",
-        rootNodes: "<",
+        rowData: "<",
         gridColumns: "<",
         // Output
         onSelect: "&?",
@@ -42,12 +38,10 @@ export interface IBPTreeController {
     // BPTreeComponent bindings
     api: IBPTreeControllerApi;
     gridClass: string;
-    enableEditingOn: string;
-    enableDragndrop: boolean;
     rowBuffer: number;
     rowHeight: number;
     headerHeight: number;
-    rootNodes: IArtifactNode[];
+    rowData: IArtifactNode[];
     gridColumns: any[];
     onSelect?: Function;                //to be called on time of ag-grid row selection
     onError: (param: {reason: any}) => void;
@@ -69,12 +63,10 @@ export class BPTreeController implements IBPTreeController {
 
     // BPTreeViewComponent bindings
     public gridClass: string;
-    public enableEditingOn: string;
-    public enableDragndrop: boolean;
     public rowBuffer: number;
     public rowHeight: number;
     public headerHeight: number;
-    public rootNodes: IArtifactNode[] = [];
+    public rowData: IArtifactNode[] = [];
     public gridColumns: any[];
     public onSelect: Function;
     public onError: (param: {reason: any}) => void;
@@ -83,19 +75,17 @@ export class BPTreeController implements IBPTreeController {
     // ag-grid bindings
     public options: agGrid.GridOptions = {};
 
-    private editableColumns: string[] = [];
     private _datasource: any[] = [];
-    private selectedRowNode: agGrid.RowNode;
+    private selectedVM: IArtifactNode;
 
     private _innerRenderer: Function;
 
     constructor(private $q: ng.IQService, private localization: ILocalizationService, private $element?) {
         this.gridClass = this.gridClass ? this.gridClass : "project-explorer";
-        this.enableDragndrop = this.enableDragndrop ? true : false;
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
+        this.rowData = this.rowData ? this.rowData : [];
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
-        this.editableColumns = this.enableEditingOn && this.enableEditingOn !== "" ? this.enableEditingOn.split(",") : [];
 
         if (_.isArray(this.gridColumns)) {
             this.gridColumns.map(function (gridCol) {
@@ -143,13 +133,13 @@ export class BPTreeController implements IBPTreeController {
     };
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["rootNodes"]) {
+        if (onChangesObj["rowData"]) {
             this.resetGridAsync();
         }
     }
 
     public $onDestroy = () => {
-        this.selectedRowNode = null;
+        this.selectedVM = null;
         this.api = null;
         //this.reload(null);
         this.options.api.destroy();
@@ -157,17 +147,21 @@ export class BPTreeController implements IBPTreeController {
 
     public api: IBPTreeControllerApi = {
         getSelectedNodeId: () => {
-            return this.selectedRowNode ? this.selectedRowNode.data.id : null;
+            return this.selectedVM ? this.selectedVM.model.id : null;
         },
 
         //to select a tree node in ag grid
         selectNode: (id: number) => {
-            this.options.api.getModel().forEachNode((it: agGrid.RowNode) => {
-                if (it.data.id === id) {
-                    it.setSelected(true, true);
+            this.options.api.getModel().forEachNode((node: agGrid.RowNode) => {
+                const vm = node.data as IArtifactNode;
+                if (vm.model.id === id) {
+                    node.setSelected(true, true);
                 }
             });
-            this.options.api.ensureNodeVisible((it: agGrid.RowNode) => it.data.id === id);
+            this.options.api.ensureNodeVisible((node: agGrid.RowNode) => {
+                const vm = node.data as IArtifactNode;
+                return vm.model.id === id;
+            });
         },
 
         deselectAll: () => {
@@ -182,8 +176,9 @@ export class BPTreeController implements IBPTreeController {
 
         nodeExists: (id: number) => {
             let found: boolean = false;
-            this.options.api.getModel().forEachNode(function (it) {
-                if (it.data.id === id) {
+            this.options.api.getModel().forEachNode((node: agGrid.RowNode) => {
+                const vm = node.data as IArtifactNode;
+                if (vm.model.id === id) {
                     found = true;
                 }
             });
@@ -193,9 +188,10 @@ export class BPTreeController implements IBPTreeController {
 
         getNodeData: (id: number) => {
             let result: Object = null;
-            this.options.api.getModel().forEachNode(function (it) {
-                if (it.data.id === id) {
-                    result = it.data;
+            this.options.api.getModel().forEachNode((node: agGrid.RowNode) => {
+                const vm = node.data as IArtifactNode;
+                if (vm.model.id === id) {
+                    result = vm;
                 }
             });
             return result;
@@ -204,8 +200,9 @@ export class BPTreeController implements IBPTreeController {
         refresh: (id?: number) => {
             if (id) {
                 let nodes = [];
-                this.options.api.getModel().forEachNode(function (node) {
-                    if (node.data.id === id) {
+                this.options.api.getModel().forEachNode((node: agGrid.RowNode) => {
+                    const vm = node.data as IArtifactNode;
+                    if (vm.model.id === id) {
                         nodes.push(node);
                     }
                 });
@@ -218,14 +215,14 @@ export class BPTreeController implements IBPTreeController {
 
     private resetGridAsync(): ng.IPromise<void> {
         if (this.options.api) {
-            return this.$q.all(this.rootNodes.filter(n => n.open && !n.loaded).map(n => n.loadChildrenAsync())).then(() => {
+            return this.$q.all(this.rowData.filter(vm => this.isLazyLoaded(vm)).map(vm => this.loadExpanded(vm))).then(() => {
                 if (this.options.api) {
-                    this.options.api.setRowData(this.rootNodes);
+                    this.options.api.setRowData(this.rowData);
 
-                    if (this.selectedRowNode) {
+                    if (this.selectedVM && this.selectedVM.model) {
                         this.options.api.forEachNode(node => {
                             const vm = node.data as IArtifactNode;
-                            if (vm.id === this.selectedRowNode.data.id) {
+                            if (vm.model.id === this.selectedVM.model.id) {
                                 node.setSelected(true, true);
                             }
                         });
@@ -251,12 +248,23 @@ export class BPTreeController implements IBPTreeController {
         return this.$q.resolve();
     }
 
+    private isLazyLoaded(vm: IArtifactNode): boolean {
+        return vm.expanded && !_.isArray(vm.children) && _.isFunction(vm.loadChildrenAsync);
+    }
+
+    private loadExpanded(vm: IArtifactNode): ng.IPromise<any> {
+        return vm.loadChildrenAsync().then(children => {
+            vm.children = children;
+            return this.$q.all(children.filter(this.isLazyLoaded).map(this.loadExpanded));
+        });
+    }
+
     private getNode(id: number, nodes?: IArtifactNode[]): IArtifactNode {
         let item: IArtifactNode;
 
         if (nodes) {
             nodes.map(function (node: IArtifactNode) {
-                if (!item && node.id === id) {  ///needs to be changed toCamelCase
+                if (!item && node.model.id === id) {
                     item = node;
                 } else if (!item && node.children) {
                     item = this.getNode(id, node.children);
@@ -284,35 +292,22 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private innerRenderer = (params: any) => {
-        let inlineEditing = this.editableColumns.indexOf(params.colDef.field) !== -1 ? `bp-tree-inline-editing="` + params.colDef.field + `"` : "";
-
-        let enableDragndrop: string;
-        if (this.enableDragndrop) {
-            let node = params.node;
-            let path = node.childIndex;
-            while (node.level) {
-                node = node.parent;
-                path = node.childIndex + "/" + path;
-            }
-            enableDragndrop = ` bp-tree-dragndrop="${path}"`;
-        } else {
-            enableDragndrop = "";
-        }
-
+        const vm = params.node.data as IArtifactNode;
         let currentValue = this._innerRenderer(params) || params.value;
-        return `<span class="ag-group-value-wrapper" ${inlineEditing}${enableDragndrop}>${currentValue}</span>`;
+        return `<span class="ag-group-value-wrapper">
+                    <a ui-sref="main.item({ id: ${vm.model.id} })" ng-click="$event.preventDefault()" class="explorer__node-link">${currentValue}</a>
+                </span>`;
     };
 
     // Callbacks
 
     private getNodeChildDetails(node: IArtifactNode) {
-        if (node.hasChildren) {
+        if (node.group) {
             return {
                 group: true,
-                expanded: node.open,
                 children: node.children || [],
-                field: "name",
-                key: node.id // the key is used by the default group cellRenderer
+                expanded: node.expanded,
+                key: node.key // the key is used by the default group cellRenderer
             };
         } else {
             return null;
@@ -320,8 +315,8 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private getBusinessKeyForNode(node: agGrid.RowNode) {
-        return node.data.id;
-        //return node.key; //it is initially undefined for non folder???
+        const vm = node.data as IArtifactNode;
+        return vm.key;
     };
 
     // Event handlers
@@ -336,33 +331,34 @@ export class BPTreeController implements IBPTreeController {
         const node = event.node;
         const vm = node.data as IArtifactNode;
 
-        if (vm.hasChildren) {
-            const row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.id}"]`);
+        if (vm.group) {
+            const row = this.$element[0].querySelector(`.ag-body .ag-body-viewport-wrapper .ag-row[row-id="${vm.key}"]`);
             if (row) {
                 row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
-            if (node.expanded && !vm.loaded && _.isFunction(vm.loadChildrenAsync)) {
+            vm.expanded = node.expanded;
+            if (this.isLazyLoaded(vm)) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                vm.loadChildrenAsync().then(() => this.resetGridAsync()).catch(reason => {
+                this.loadExpanded(vm).then(() => this.resetGridAsync()).catch(reason => {
                     if (_.isFunction(this.onError)) {
                         this.onError({reason: reason});
                     }
                 });
             }
         }
-        vm.open = node.expanded;
     };
 
     private rowSelected = (event: {node: agGrid.RowNode}) => {
         const node = event.node;
+        const vm = node.data as IArtifactNode;
         const isSelected = node.isSelected();
 
         if (isSelected) {
-            if (!this.selectedRowNode || this.selectedRowNode.data.id !== node.data.id) {
-                this.selectedRowNode = node;
+            if (!this.selectedVM || (this.selectedVM.model && this.selectedVM.model.id !== vm.model.id)) {
+                this.selectedVM = vm;
                 this.clearFocus();
             }
         }

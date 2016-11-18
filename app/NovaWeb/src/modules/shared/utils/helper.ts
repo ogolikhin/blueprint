@@ -9,27 +9,29 @@ export class Helper {
 
     static get UID(): string {
         return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-            /* tslint:disable:no-bitwise */
             const r = Math.random() * 16 | 0;
             const v = c === "x" ? r : (r & 0x3 | 0x8);
-            /* tslint:enable:no-bitwise */
             return v.toString(16);
         });
     }
 
-    static limitChars(str, limit: number = 100): string {
+    static limitChars(str: string, limit: number = 100): string {
         if (str) {
-            let text = Helper.stripHTMLTags(str);
-            if (text) {
-                if (text.length > limit) {
-                    return text.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
-                }
-                return text;
+            if (str.length > limit) {
+                return str.substring(0, limit - 1) + Helper.ELLIPSIS_SYMBOL;
             }
-            return "";
+            return str;
         }
         return "";
     }
+
+    static escapeQuot = (stringToEscape: string): string => {
+        if (stringToEscape) {
+            return stringToEscape.replace(/"/g, "&quot;");
+        }
+
+        return "";
+    };
 
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");
@@ -68,9 +70,8 @@ export class Helper {
         return JSON.stringify(obj, Helper.serializer(replacer, cycleReplacer), spaces);
     };
 
-    /* tslint:disable */
     static serializer = (replacer, cycleReplacer): any => {
-        var stack = [], keys = [];
+        const stack = [], keys = [];
 
         if (cycleReplacer == null) {
             cycleReplacer = function (key, value) {
@@ -83,7 +84,7 @@ export class Helper {
 
         return function (key, value) {
             if (stack.length > 0) {
-                var thisPos = stack.indexOf(this);
+                const thisPos = stack.indexOf(this);
                 ~thisPos ? stack.splice(thisPos + 1) : stack.push(this);
                 ~thisPos ? keys.splice(thisPos, Infinity, key) : keys.push(key);
                 if (~stack.indexOf(value)) {
@@ -96,7 +97,6 @@ export class Helper {
             return replacer == null ? value : replacer.call(this, key, value);
         };
     };
-    /* tslint:enable */
 
     static stripWingdings(htmlText: string): string {
         let _htmlText = htmlText || "";
@@ -105,11 +105,11 @@ export class Helper {
     };
 
     static autoLinkURLText(node: Node) {
-        /* tslint:disable */
+        /* tslint:disable:max-line-length */
         // const urlPattern: RegExp = /(?:(?:ht|f)tp(?:s?)\:\/\/|~\/|\/)?(?:\w+:\w+@)?((?:(?:[-\w\d{1-3}]+\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|edu|co\.uk|ac\.uk|it|fr|tv|museum|asia|local|travel|[a-z]{2}))|((\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)(\.(\b25[0-5]\b|\b[2][0-4][0-9]\b|\b[0-1]?[0-9]?[0-9]\b)){3}))(?::[\d]{1,5})?(?:(?:(?:\/(?:[-\w~!$+|.,=]|%[a-f\d]{2})+)+|\/)+|\?|#)?(?:(?:\?(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)(?:&(?:[-\w~!$+|.,*:]|%[a-f\d{2}])+=?(?:[-\w~!$+|.,*:=]|%[a-f\d]{2})*)*)*(?:#(?:[-\w~!$ |\/.,*:;=]|%[a-f\d]{2})*)?/gi;
         const urlPattern: RegExp = /((www\.)|(https?|ftp):\/\/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|([a-zA-Z][-a-zA-Z0-9@:%_\+~#=]{2,256}(\.[a-z]{2,6})?)))(:\d{2,5})?\b([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/gi;
         const protocolPattern: RegExp = /((?:ht|f)tp(?:s?)\:\/\/)/;
-        /* tslint:enable */
+        /* tslint:enable:max-line-length */
 
         // if it's already an A tag we exit
         if (node.nodeType === 1 && node.nodeName.toUpperCase() === "A") {
@@ -286,7 +286,7 @@ export class Helper {
         }
         let currentArtifact = artifact.parent;
         let path: string[] = [];
-        while (currentArtifact) {            
+        while (currentArtifact) {
             path.push(currentArtifact.name);
             currentArtifact = currentArtifact.parent;
         }

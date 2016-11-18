@@ -11,6 +11,7 @@ export class MainBreadcrumbServiceMock implements IMainBreadcrumbService {
     }
 
     public reloadBreadcrumbs(artifact: IStatefulArtifact) {
-        this.breadcrumbLinks = [];
+        const breadcrumb: IBreadcrumbLink = { id: artifact.id, isEnabled: true, name: artifact.name};
+        this.breadcrumbLinks = [breadcrumb];
     }
 }

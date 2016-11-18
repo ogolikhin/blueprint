@@ -69,6 +69,7 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
                 public $scope: ng.IScope,
@@ -121,6 +122,11 @@ export class BpArtifactInfoController {
     protected onArtifactLoaded = () => {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+            if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
+                const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
+                const publishedBy = this.artifact.lastEditedBy.displayName;
+                this.historicalMessage = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
+            }
         }
     };
 

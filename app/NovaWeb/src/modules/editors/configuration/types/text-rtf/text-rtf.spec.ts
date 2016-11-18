@@ -12,6 +12,7 @@ import {BpFieldTextRTFController} from "./text-rtf";
 import {createFormlyModule} from "../../formly-config.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly Text RTF", () => {
     let fieldsDefinition = [
@@ -38,6 +39,7 @@ describe("Formly Text RTF", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("validationService", ValidationService);
     }));
 
     afterEach(() => {

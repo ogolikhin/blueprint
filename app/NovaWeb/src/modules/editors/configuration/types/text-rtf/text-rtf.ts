@@ -4,10 +4,11 @@ import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {Helper} from "../../../../shared";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
-    public template: string = require("./text-rtf.template.html");
+    public template: string = require("./text-rtf.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
@@ -24,9 +25,11 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService"];
+    static $inject: [string] = ["$scope", "navigationService", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, navigationService: INavigationService) {
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                     navigationService: INavigationService,
+                     private validationService: IValidationService) {
         super(navigationService);
 
         let contentBuffer: string = undefined;
@@ -324,7 +327,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 }
             }
         };
-        angular.merge($scope.to, to);
+        _.assign($scope.to, to);
 
         $scope.options["validators"] = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
@@ -340,13 +343,11 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         triggerChange(value);
                     }
 
-                    let isEmpty = false;
-                    if (scope.to && scope.to.required) {
-                        isEmpty = !Helper.tagsContainText($modelValue);
-                    }
-                    scope.to["isInvalid"] = isEmpty;
-                    scope.options.validation.show = isEmpty;
-                    return !isEmpty;
+                    const isValid = validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
+
+                    scope.to["isInvalid"] = !isValid;
+                    scope.options.validation.show = !isValid;
+                    return isValid;
                 }
             }
         };

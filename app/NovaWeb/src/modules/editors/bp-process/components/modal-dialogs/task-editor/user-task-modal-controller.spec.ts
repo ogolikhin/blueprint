@@ -63,7 +63,6 @@ describe("UserTaskModalController", () => {
             model.action = "Custom Action";
             model.objective = "Custom Objective";
             model.label = "Custom Label";
-            model.persona = "PM/PO";
             model.associatedArtifact = <IArtifactReference>{
                 id: 5,
                 name: "associated",
@@ -101,7 +100,7 @@ describe("UserTaskModalController", () => {
             expect(model.originalItem.associatedArtifact).toEqual(model.associatedArtifact);
             expect(model.originalItem.objective).toEqual(model.objective);
             expect(model.originalItem.label).toEqual(null);
-            expect(model.originalItem.persona).toEqual(model.persona);
+            expect(model.originalItem.personaReference).toEqual(model.personaReference);
         });
 
     });

@@ -21,6 +21,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public decisionBranchDestinationLinks: IProcessLink[];
     public propertyValues: IHashMapOfPropertyValues;
     public requestedVersionInfo: IVersionInfo;
+    protected hasCustomSave: boolean = true;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
@@ -49,7 +50,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return [this.loadProcessPromise];
     }
 
-    protected getCustomArtifactPromisesForSave(): angular.IPromise<IStatefulArtifact> {
+    protected getCustomArtifactPromiseForSave(): angular.IPromise<IStatefulArtifact> {
         let saveProcessPromise = this.saveProcess();
         return saveProcessPromise;
     }
@@ -77,14 +78,17 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return deferred.promise;
     }
 
-    protected validateCustomArtifactPromisesForSave(): ng.IPromise<IStatefulArtifact> {
+    protected validateCustomArtifactPromiseForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
+        if (ignoreValidation) {
+            deferred.resolve(this);
+        }
         this.getArtifactPropertyTypes().then((artifactPropertyTypes) => {
-             _.each(this.changes().customPropertyValues, (propValue) => {
+            _.each(changes.customPropertyValues, (propValue) => {
                 const itemType: Models.IPropertyType = this.artifactPropertyTypes[propValue.propertyTypeId];
                 switch (itemType.primitiveType) {
                     case Models.PrimitiveType.Number:
-                        if (!this.services.validationService.numberValidation.isValid(propValue.value, 
+                        if (!this.services.validationService.numberValidation.isValid(propValue.value,
                             propValue.value,
                             itemType.decimalPlaces,
                             this.services.localizationService,
@@ -106,10 +110,47 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                             return this.set_400_114_error(deferred);
                         }
                         break;
-                    default:
-                        if (itemType.isRequired && (propValue.value == null)) {
+                    case Models.PrimitiveType.Text:
+                        if (itemType.isRichText) {
+                            if (!this.services.validationService.textRtfValidation.hasValueIfRequired(itemType.isRequired,
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            }
+                        } else {
+                            if (!this.services.validationService.textValidation.hasValueIfRequired(itemType.isRequired,
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            }
+                        }
+                        break;
+                    case Models.PrimitiveType.Choice:
+                        if (itemType.isMultipleAllowed) {
+                            if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(itemType.isRequired,
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            }
+                        } else {
+                            if (!this.services.validationService.selectValidation.hasValueIfRequired(itemType.isRequired,
+                                propValue.value,
+                                propValue.value)) {
+                                return this.set_400_114_error(deferred);
+                            }
+                        }
+                        break;
+                    case Models.PrimitiveType.User:
+                        // user group values gets wrapped in this [usersGroup] property in bp-property-editor.ts, in 'convertToModelValue' method.
+                        const userOrGroupValue = propValue.value ? propValue.value.usersGroups : propValue.value;
+                        if (!this.services.validationService.userPickerValidation.hasValueIfRequired(itemType.isRequired,
+                            userOrGroupValue,
+                            userOrGroupValue)) {
                             return this.set_400_114_error(deferred);
-                        } 
+                        }
+                        break;
+                    default:
+                        deferred.reject(new Error(this.services.localizationService.get("App_Save_Artifact_Error_Other")));
                         break;
                 }
             });
@@ -240,8 +281,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 .then((result: IProcessUpdateResult) => {
                     this.mapTempIdsAfterSave(result.tempIdMap);
                     deferred.resolve(this);
-                }).catch((err: any) => {
-                    deferred.reject(err);
+                }).catch((error: any) => {
+                    // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                    if (error) {
+                        deferred.reject(this.handleSaveError(error));
+                    } else {
+                        deferred.reject(error);
+                    }
                 });
         } else {
             let message = new Message(MessageType.Error,

@@ -87,14 +87,8 @@ export class ItemStateController {
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
-
                 } else if (result.isDeleted) {
-
-                    if (this.isCollection(result.predefinedType)) {
-                        this.messageService.addError("HttpError_Collection_NotFound", true);
-                        this.navigationService.navigateToMain(true);
-                        return;
-                    }
+                    
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
 
@@ -168,8 +162,7 @@ export class ItemStateController {
             case Models.ItemTypePredefined.Glossary:
                 stateName = "main.item.glossary";
                 break;
-            case Models.ItemTypePredefined.Project:
-            case Models.ItemTypePredefined.CollectionFolder:
+            case Models.ItemTypePredefined.Project:           
                 stateName = "main.item.general";
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:

@@ -1,6 +1,4 @@
-/* tslint:disable */
-module.exports =
-{
+module.exports = {
     "page": 1,
     "pageSize": 10,
     "pageItemCount": 10,
@@ -51,6 +49,7 @@ module.exports =
             "itemId": 16,
             "name": "New Actor 1 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
             "propertyName": "Name",
+            // tslint:disable-next-line: max-line-length
             "searchableValue": "New Actor 1 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
             "propertyTypeId": 32,
             "subartifactId": null,

@@ -7,7 +7,7 @@ using Utilities;
 namespace Model.ArtifactModel.Impl
 {
     // Taken from:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaTrace.cs
-    public class NovaTrace : ITrace
+    public class NovaTrace : ITrace, INovaTrace
     {
         #region Serialized JSON properties
 
@@ -50,12 +50,37 @@ namespace Model.ArtifactModel.Impl
         }
     }
 
+    // Found in:  blueprint/svc/ArtifactStore/Models/RelationshipResultSet.cs
     public class Relationships
     {
-        public List<NovaTrace> ManualTraces { get; } = new List<NovaTrace>();
-        public List<NovaTrace> OtherTraces { get; } = new List<NovaTrace>();
+        public List<Relationship> ManualTraces { get; } = new List<Relationship>();
+        public List<Relationship> OtherTraces { get; } = new List<Relationship>();
         public bool CanEdit { get; set; }
         public int RevisionId { get; set; }
+    }
+
+    // Found in:  blueprint/svc/ArtifactStore/Models/RelationshipResultSet.cs
+    public class Relationship : ITrace, INovaTrace
+    {
+        public int ArtifactId { get; set; }
+        public string ArtifactTypePrefix { get; set; }
+        public string ArtifactName { get; set; }
+        public int ItemId { get; set; }
+        public string ItemTypePrefix { get; set; }
+        public string ItemName { get; set; }
+        public string ItemLabel { get; set; }
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; }
+
+        [JsonProperty("TraceDirection")]
+        public TraceDirection Direction { get; set; }
+        public LinkType TraceType { get; set; }
+
+        [JsonProperty("Suspect")]
+        public bool IsSuspect { get; set; }
+        public bool HasAccess { get; set; } = true;
+        public bool ReadOnly { get; set; }
+        public int PrimitiveItemTypePredefined { get; set; }
     }
 
     public class TracePathItem
@@ -133,7 +158,8 @@ namespace Model.ArtifactModel.Impl
 
         // below there are all OTHER link types
         Association = 0x8,
-        ActorInheritsFrom = 0x10,
+        [JsonProperty("ActorInheritsFrom")]
+        ActorInherits = 0x10,
         DocumentReference = 0x20,
 
         GlossaryReference = 0x40,

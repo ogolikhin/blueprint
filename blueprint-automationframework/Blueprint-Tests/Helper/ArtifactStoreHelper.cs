@@ -736,7 +736,7 @@ namespace Helper
         /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
         /// <param name="targetArtifact">The target artifact of the trace.</param>
         /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
-        public static void ValidateTrace(NovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
+        public static void ValidateTrace(INovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
         {
             ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));

@@ -160,11 +160,14 @@ $modal-open-project-height: 450px;
             .btn-atrifact-type {
                 width: auto;
                 min-width: 20px;
+                padding-left: 9px;
+                padding-right: 9px;
                 background: $brand-secondary;
                 color: $white;
             }
 
             .dropdown-menu{
+                left:auto;
                 right: 0;
                 top: 31px;
                 border-radius: 0;
@@ -199,6 +202,7 @@ $modal-open-project-height: 450px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                padding-bottom: 7px;
             }
 
             .filter {

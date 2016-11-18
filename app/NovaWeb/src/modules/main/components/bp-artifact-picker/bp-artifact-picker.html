@@ -11,7 +11,8 @@
                 Filter by type
             </div>
             <ul class="dropdown-menu__atrifact-type">
-                <li class="dropdown-menu__atrifact-type-item" ng-repeat="x in $ctrl.itemTypes track by $index" ng-click="$ctrl.search();$ctrl.setName(x);">{{::x.name}}</li>
+                <li class="dropdown-menu__atrifact-type-item"
+                    ng-repeat="x in $ctrl.itemTypes track by $index" ng-click="$ctrl.searchByFilter(x);">{{::x.name}}</li>
             </ul>
         </div>
 

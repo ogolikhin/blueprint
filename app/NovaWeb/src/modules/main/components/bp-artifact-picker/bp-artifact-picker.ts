@@ -299,8 +299,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.search();
     }
 
-    public setName(type): void {
+    public searchByFilter(type): void {
         this.filterItemType = type;
+        this.search();
+
     }
 
     public search(): void {

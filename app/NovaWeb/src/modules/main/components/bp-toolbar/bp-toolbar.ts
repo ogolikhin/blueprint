@@ -224,9 +224,14 @@ export class BPToolbarController implements IBPToolbarController {
                 const statefulArtifact = this.artifactManager.selection.getArtifact();
                 if (statefulArtifact) {
                     statefulArtifact.discard();
-                }                
-                //refresh all after discard all finishes
-                this.projectManager.refreshAll();
+                }    
+
+                if (this.projectManager.projectCollection.getValue().length > 0) {
+                    //refresh all after discard all finishes
+                    this.projectManager.refreshAll();
+                } else {
+                    statefulArtifact.refresh();
+                }
 
                 this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })

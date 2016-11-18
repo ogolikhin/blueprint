@@ -10,11 +10,13 @@
                 {{::$ctrl.localization.get('Label_Filter_By_Type')}}
             </div>
             <ul class="dropdown-menu__atrifact-type">
-                <li class="dropdown-menu__atrifact-type-item"
-                    ng-repeat="type in $ctrl.itemTypes track by type.id" ng-click="$ctrl.searchByFilter(type);">{{type.name}}</li>
+                <li class="dropdown-menu__atrifact-type-item" ng-if="type.id"
+                    ng-repeat="type in $ctrl.itemTypes track by type.id">
+                        <button  ng-click="$ctrl.searchByFilter(type);"
+                                 class="dropdown-menu__atrifact-type-item-btn">{{type.name}}</button>
+                </li>
             </ul>
         </div>
-
     </div>
 
     <button type="submit" class="btn btn-small btn-search btn-promoted-action" ng-click="$ctrl.search()"

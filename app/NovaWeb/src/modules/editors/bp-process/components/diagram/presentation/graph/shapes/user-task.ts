@@ -176,15 +176,15 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return this.model.personaReference;
     }
 
-    public set personaReference(value: IArtifactReference) {
-        if (this.model != null && this.model.personaReference !== value) {
-            this.model.personaReference = value;
+    public set personaReference(reference: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== reference) {
+            this.model.personaReference = reference;
 
-            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value.id);
-            
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, reference.id);
+
             if (this.personaLabel) {
-                this.personaLabel.text = value.name;
-                this.shapesFactoryService.setUserTaskPersona(value.name);
+                this.personaLabel.text = reference.name;
+                this.shapesFactoryService.setUserTaskPersona(reference);
             }
         }
     }

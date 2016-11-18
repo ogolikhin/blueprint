@@ -35,6 +35,8 @@ App_Project_Open,"Open Project"
 App_Project_Name,"Name"
 App_Project_Description,"Description"
 
+App_CloseTabWithUnsavedChanges,"You have unsaved or unpublished changes that will be lost if you leave."
+
 App_Toolbar_Project,"Project"
 App_Toolbar_Open_Project,"Open Project"
 App_Toolbar_Open_Recent_Projects,"Open Recent Projects"

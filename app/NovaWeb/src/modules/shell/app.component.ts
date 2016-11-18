@@ -4,6 +4,7 @@ import {IProjectManager} from "./../managers/project-manager/";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
+import {ILocalizationService} from "../core/localization/localizationService";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -20,14 +21,29 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["navigationService", "projectManager", "selectionManager", "session", "settings", "$window"];
+    static $inject: [string] = ["navigationService", "projectManager", "selectionManager", "session", "settings", "$window", "localization"];
 
     constructor(private navigation: INavigationService,
                 private projectManager: IProjectManager,
                 private selectionManager: ISelectionManager,
                 private session: ISession,
                 private settings: ISettingsService,
-                private $window: ng.IWindowService) {
+                private $window: ng.IWindowService,
+                private localization: ILocalizationService) {
+
+
+        this.$window.onbeforeunload = (e) => {
+            const currentArtifact = selectionManager.getArtifact();
+            if (currentArtifact && currentArtifact.artifactState.dirty) {
+                //Show a Stay/Leave confirmation dialog if the current artifact is unsaved.
+                //The message is only displayed in IE
+                const windowMessage = localization.get("App_CloseTabWithUnsavedChanges");
+                e = e || this.$window.event;
+                e.returnValue = localization.get("App_CloseTabWithUnsavedChanges");
+                return windowMessage;
+            }
+        };
+
     }
 
     public get currentUser(): IUser {

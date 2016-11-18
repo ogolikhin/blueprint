@@ -305,7 +305,7 @@ describe("BpArtifactPickerController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBe(newProject);
-        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM(newProject, true));
+        expect(controller.rowData).toEqual([controller.factory.createInstanceItemNodeVM(newProject, true)]);
     }));
 
     it("set project, when project is undefined, clears selection and project and sets root node", inject(($browser) => {
@@ -319,11 +319,11 @@ describe("BpArtifactPickerController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.onSelectionChanged).toHaveBeenCalledWith({selectedVMs: []});
         expect(controller.project).toBeUndefined();
-        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
+        expect(controller.rowData).toEqual([controller.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
             hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true));
+        } as AdminStoreModels.IInstanceItem, true)]);
     }));
 });

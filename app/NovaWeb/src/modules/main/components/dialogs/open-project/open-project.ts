@@ -11,7 +11,7 @@ export interface IOpenProjectController {
     selectedDescription: string;
 
     // BpTreeView bindings
-    rootNode: TreeViewModels.InstanceItemNodeVM;
+    rowData: TreeViewModels.InstanceItemNodeVM[];
     columns: IColumn[];
     onSelect: (vm: TreeViewModels.IViewModel<any>, isSelected: boolean) => any;
     onDoubleClick: (vm: TreeViewModels.IViewModel<any>) => any;
@@ -35,12 +35,12 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
         this.factory = new TreeViewModels.TreeNodeVMFactory(projectService);
-        this.rootNode = this.factory.createInstanceItemNodeVM({
+        this.rowData = [this.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
             hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true);
+        } as AdminStoreModels.IInstanceItem, true)];
     };
 
     //Dialog return value
@@ -96,7 +96,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
 
     // BpTreeView bindings
 
-    public rootNode: TreeViewModels.InstanceItemNodeVM;
+    public rowData: TreeViewModels.InstanceItemNodeVM[];
     public columns: IColumn[] = [{
         headerName: this.localization.get("App_Header_Name"),
         cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),

@@ -1,5 +1,5 @@
 bp-properties-panel {
-
+    $property-min-height: 28px;
     $page-body-min-width: 335px;
     $properties-min-width: $page-body-min-width - 40px - 30px - 2px; //263px
     $property-horiz-spacing: 10px;
@@ -62,6 +62,7 @@ bp-properties-panel {
 
             .has-messages {
                 display: block;
+                min-height: $property-min-height;
 
                 input.has-icon {
                     max-width: $property-input-with-icon-width;

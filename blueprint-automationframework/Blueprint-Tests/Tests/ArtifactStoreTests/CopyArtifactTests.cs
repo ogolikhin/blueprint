@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;

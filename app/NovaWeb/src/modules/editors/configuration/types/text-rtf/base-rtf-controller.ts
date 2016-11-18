@@ -3,6 +3,7 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {Helper} from "../../../../shared/utils/helper";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -69,6 +70,23 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         if (typeof this.onChange === "function") {
             this.onChange(newContent, $scope.options, $scope);
         }
+    };
+
+    protected updateModel = () => {
+        const $scope = this.$scope;
+        if (this.mceEditor) {
+            this.contentBuffer = this.mceEditor.getContent();
+            $scope.model[$scope.options["key"]] = this.contentBuffer ;
+            $scope.options["data"].isFresh = false;
+        }
+    };
+
+    protected prepBody(body: Node, allowedFonts: string[], hasTables: boolean = false) {
+        Helper.autoLinkURLText(body);
+        if (hasTables) {
+            Helper.addTableBorders(body);
+        }
+        Helper.setFontFamilyOrOpenSans(body, allowedFonts);
     };
 
     public handleClick = (event: Event) => {

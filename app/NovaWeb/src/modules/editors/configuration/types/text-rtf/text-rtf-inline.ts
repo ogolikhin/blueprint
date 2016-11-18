@@ -2,7 +2,6 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {Helper} from "../../../../shared";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
@@ -68,7 +67,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    prepBody(args.node);
+                    this.prepBody(args.node, allowedFonts);
                 },
                 init_instance_callback: (editor) => {
                     this.mceEditor = editor;
@@ -111,8 +110,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     });
 
                     this.editorBody = editor.getBody();
-                    prepBody(this.editorBody);
-                    updateModel();
+                    this.prepBody(this.editorBody, allowedFonts);
+                    this.updateModel();
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
@@ -147,8 +146,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                                 this.triggerChange(value);
                             }
                         } else { // this will get called when refreshing the artifact
-                            prepBody(editor.getBody());
-                            updateModel();
+                            this.prepBody(editor.getBody(), allowedFonts);
+                            this.updateModel();
                         }
                     });
 
@@ -261,19 +260,6 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     scope.options.validation.show = !isValid;
                     return isValid;
                 }
-            }
-        };
-
-        function prepBody(body: Node) {
-            Helper.autoLinkURLText(body);
-            Helper.setFontFamilyOrOpenSans(body, allowedFonts);
-        }
-
-        let updateModel = () => {
-            if (this.mceEditor) {
-                this.contentBuffer = this.mceEditor.getContent();
-                $scope.model[$scope.options["key"]] = this.contentBuffer ;
-                $scope.options["data"].isFresh = false;
             }
         };
     }

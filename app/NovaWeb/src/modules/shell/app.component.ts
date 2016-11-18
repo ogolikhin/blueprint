@@ -32,15 +32,15 @@ export class AppController {
                 private localization: ILocalizationService) {
 
 
-        window.onbeforeunload = (e) => {
+        this.$window.onbeforeunload = (e) => {
             const currentArtifact = selectionManager.getArtifact();
             if (currentArtifact && currentArtifact.artifactState.dirty) {
                 //Show a Stay/Leave confirmation dialog if the current artifact is unsaved.
-                e = e || window.event;
-                if (e) {
-                    //Only displayed in IE
-                    e.returnValue = localization.get("App_CloseTabWithUnsavedChanges");
-                }
+                //The message is only displayed in IE
+                const windowMessage = localization.get("App_CloseTabWithUnsavedChanges");
+                e = e || this.$window.event;
+                e.returnValue = localization.get("App_CloseTabWithUnsavedChanges");
+                return windowMessage;
             }
         };
 

@@ -7,10 +7,8 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Model.NovaModel;
 using NUnit.Framework;
 using TestCommon;
-using Utilities.Factories;
 using Utilities;
 using Model.ArtifactModel.Enums;
 

@@ -253,6 +253,7 @@ describe("RefreshAction", () => {
         let refreshSpy: jasmine.Spy;
         let projectRefreshSpy: jasmine.Spy;
         let endLoadingSpy: jasmine.Spy;
+        let reloadBreadcrumbSpy: jasmine.Spy;
 
         beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory,
                            localization: ILocalizationService,
@@ -314,8 +315,72 @@ describe("RefreshAction", () => {
         });
 
         describe("and refresh succeeds", () => {
-            beforeEach(() => {
+            beforeEach(inject((mainBreadcrumbService: IMainBreadcrumbService) => {
                 refreshSpy.and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                });
+                reloadBreadcrumbSpy = spyOn(mainBreadcrumbService, "reloadBreadcrumbs");
+
+                // act
+                refreshAction.execute();
+                $scope.$digest();
+            }));
+
+            it("shows loading screen", () => {
+                // assert
+                expect(beginLoadingSpy).toHaveBeenCalled();
+            });
+
+            it("calls refresh on artifact", () => {
+                // assert
+                expect(refreshSpy).toHaveBeenCalled();
+            });
+
+            it("hides loading screen", () => {
+                // assert
+                expect(endLoadingSpy).toHaveBeenCalled();
+            });
+
+            it("reloads breadcrumb", () => {
+                // assert
+                expect(reloadBreadcrumbSpy).toHaveBeenCalled();
+            });
+        });
+    });
+
+    describe("when project refresh executed", () => {
+        let refreshAction: RefreshAction;
+        let beginLoadingSpy: jasmine.Spy;
+        let projectRefreshSpy: jasmine.Spy;
+        let endLoadingSpy: jasmine.Spy;
+
+        beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                           localization: ILocalizationService,
+                           projectManager: IProjectManager,
+                           loadingOverlayService: ILoadingOverlayService,
+                           metaDataService: IMetaDataService,
+                           mainBreadcrumbService: IMainBreadcrumbService) => {
+            // arrange
+            artifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Project,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbService);
+            beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
+            projectRefreshSpy = spyOn(projectManager, "refreshCurrent").and.callThrough();
+            endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
+        }));
+
+
+        describe("and refresh succeeds", () => {
+            beforeEach(() => {
+                projectRefreshSpy.and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
                     return deferred.promise;
@@ -331,9 +396,9 @@ describe("RefreshAction", () => {
                 expect(beginLoadingSpy).toHaveBeenCalled();
             });
 
-            it("calls refresh on artifact", () => {
+            it("calls refresh on Project", () => {
                 // assert
-                expect(refreshSpy).toHaveBeenCalled();
+                expect(projectRefreshSpy).toHaveBeenCalled();
             });
 
             it("hides loading screen", () => {

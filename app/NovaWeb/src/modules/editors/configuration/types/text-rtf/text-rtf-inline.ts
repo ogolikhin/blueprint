@@ -3,7 +3,9 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -19,12 +21,20 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService", "validationService"];
+    static $inject: [string] = [
+        "$scope",
+        "navigationService",
+        "validationService",
+        "localization",
+        "dialogService"
+    ];
 
     constructor($scope: AngularFormly.ITemplateScope,
                 navigationService: INavigationService,
-                validationService: IValidationService) {
-        super($scope, navigationService, validationService);
+                validationService: IValidationService,
+                localization: ILocalizationService,
+                dialogService: IDialogService) {
+        super($scope, navigationService, validationService, localization, dialogService);
 
         const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 
@@ -134,7 +144,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
                             if (this.contentBuffer !== value) {
-                                this.triggerChange(value);
+                                this.triggerChange();
                             }
                         }
                     });
@@ -143,7 +153,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
                             if (this.contentBuffer !== value) {
-                                this.triggerChange(value);
+                                this.triggerChange();
                             }
                         } else { // this will get called when refreshing the artifact
                             this.prepBody(editor.getBody(), allowedFonts);
@@ -174,63 +184,63 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                                 text: "8",
                                 onclick: () => {
                                     editor.formatter.apply("font8");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "9",
                                 onclick: () => {
                                     editor.formatter.apply("font9");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "10",
                                 onclick: () => {
                                     editor.formatter.apply("font10");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "11",
                                 onclick: () => {
                                     editor.formatter.apply("font11");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "12",
                                 onclick: () => {
                                     editor.formatter.apply("font12");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "14",
                                 onclick: () => {
                                     editor.formatter.apply("font14");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "16",
                                 onclick: () => {
                                     editor.formatter.apply("font16");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "18",
                                 onclick: () => {
                                     editor.formatter.apply("font18");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "20",
                                 onclick: () => {
                                     editor.formatter.apply("font20");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             }
                         ]

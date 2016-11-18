@@ -2,8 +2,15 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {Helper} from "../../../../shared/utils/helper";
+import {IDialogSettings, IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {
+    ArtifactPickerDialogController,
+    IArtifactPickerOptions
+} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog";
+import {Models} from "../../../../main/models";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -14,7 +21,13 @@ export interface IBPFieldBaseRTFController {
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService", "validationService"];
+    static $inject: [string] = [
+        "$scope",
+        "navigationService",
+        "validationService",
+        "localization",
+        "dialogService"
+    ];
 
     public editorBody: HTMLElement;
     public observer: MutationObserver;
@@ -25,7 +38,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     constructor(public $scope: AngularFormly.ITemplateScope,
                 public navigationService: INavigationService,
-                public validationService: IValidationService) {
+                public validationService: IValidationService,
+                public localization: ILocalizationService,
+                public dialogService: IDialogService) {
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -44,14 +59,10 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     }
 
                     if (this.contentBuffer !== value) {
-                        this.triggerChange(value);
+                        this.triggerChange();
                     }
 
-                    const isValid = this.validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
-
-                    scope.to["isInvalid"] = !isValid;
-                    scope.options.validation.show = !isValid;
-                    return isValid;
+                    return true;
                 }
             }
         };
@@ -63,6 +74,18 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             }
         });
     }
+
+    private handleValidationMessage = (isValid: boolean) => {
+        console.log("validation");
+        this.$scope["$applyAsync"](() => {
+            const formControl = this.$scope.fc as ng.IFormController;
+            if (formControl) {
+                formControl.$setValidity("requiredCustom", isValid, formControl);
+
+                this.$scope.to["isInvalid"] = !isValid;
+            }
+        });
+    };
 
     private removeObserver = () => {
         if (this.observer) {
@@ -80,14 +103,13 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         return fontFormats;
     }
 
-    protected triggerChange = (newContent: string) => {
+    protected triggerChange = () => {
+        console.log("change");
+        const newContent = this.mceEditor.getContent();
         const $scope = this.$scope;
         const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, newContent, newContent);
 
-        if ($scope.fc) {
-            const fc = $scope.fc as ng.IFormController;
-            fc.$setValidity("requiredCustom", isValid, fc);
-        }
+        this.handleValidationMessage(isValid);
 
         this.contentBuffer = newContent;
         if (typeof this.onChange === "function") {
@@ -110,6 +132,37 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             Helper.addTableBorders(body);
         }
         Helper.setFontFamilyOrOpenSans(body, allowedFonts);
+    };
+
+    public openArtifactPicker = () => {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Add"),
+            template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: this.localization.get("Property_RTF_Add_InlineTrace")
+        };
+
+        const dialogOption: IArtifactPickerOptions = {
+            showSubArtifacts: true
+        };
+
+        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                const artifactId: number = items[0].id;
+                const artifactName: string = items[0].name;
+                const artifactPrefix: string = items[0].prefix;
+                /* tslint:disable:max-line-length */
+                const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
+                    `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
+                    `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
+                    `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
+                /* tslint:enable:max-line-length */
+
+                this.mceEditor["selection"].setContent(inlineTrace);
+                this.triggerChange();
+            }
+        });
     };
 
     public handleClick = (event: Event) => {

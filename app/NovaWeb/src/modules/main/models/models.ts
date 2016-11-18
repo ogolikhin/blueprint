@@ -98,7 +98,7 @@ export interface IArtifact extends IItem {
     children?: IArtifact[];
     loaded?: boolean;
     // for artifact picker use
-    parent?: IArtifact;
+    artifactPath?: string[];
 }
 export interface IOption {
     id: number;

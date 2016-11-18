@@ -1,4 +1,6 @@
-﻿import "angular-mocks";
+﻿import "angular";
+import "angular-mocks";
+import "lodash";
 import {LocalizationService, BPLocale} from "./localizationService";
 
 // Some of the following tests can be only run in interactive mode (i.e. with Chrome) as PhantomJS

@@ -44,11 +44,12 @@ export class RefreshAction extends BPButtonAction {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 } else {
+                    //project is getting refreshed in project-manager doRefresh part
+                    mainBreadcrumbService.reloadBreadcrumbs(artifact);
                     artifact.refresh().finally(() => {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 }
-                mainBreadcrumbService.reloadBreadcrumbs(artifact);
             },
             (): boolean => {
 

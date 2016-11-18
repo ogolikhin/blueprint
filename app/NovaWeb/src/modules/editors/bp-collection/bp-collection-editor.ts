@@ -93,7 +93,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 return;
             }
             this.metadataService.get(collectionArtifact.projectId).then(() => {
-                this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+                this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
                 });
 
@@ -118,6 +118,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private visibleArtifact: CollectionNodeVM;
 
     public onGridReset(): void {
+        this.selectedVMs = []; 
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);
             this.visibleArtifact = undefined;
@@ -126,7 +127,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-        this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+        this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
         });
     };
@@ -278,7 +279,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }];
     }
 
-    public rootNode: CollectionNodeVM[] = [];
+    public rowData: CollectionNodeVM[] = [];
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;

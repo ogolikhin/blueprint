@@ -9,7 +9,7 @@
         <div class="project-tree-container">
             <bp-tree-view grid-class="project-tree"
                           row-height="20"
-                          root-node="$ctrl.rootNode"
+                          row-data="$ctrl.rowData"
                           root-node-visible="false"
                           columns="$ctrl.columns"
                           header-height="20"
@@ -32,7 +32,7 @@
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
-        <button class="btn btn-primary" ng-click="$ctrl.cancel()">
+        <button class="btn btn-cancel" ng-click="$ctrl.cancel()">
             <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
         <button class="btn btn-promoted-action" ng-disabled="!$ctrl.isProjectSelected" ng-click="$ctrl.ok()">

@@ -33,6 +33,29 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
 
+        $scope.options["validators"] = {
+            // tinyMCE may leave empty tags that cause the value to appear not empty
+            requiredCustom: {
+                expression: ($viewValue, $modelValue, scope) => {
+                    let value = this.mceEditor ? this.mceEditor.getContent() : $modelValue;
+                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
+                        this.contentBuffer = value;
+                        scope.options.data.isFresh = false;
+                    }
+
+                    if (this.contentBuffer !== value) {
+                        this.triggerChange(value);
+                    }
+
+                    const isValid = this.validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
+
+                    scope.to["isInvalid"] = !isValid;
+                    scope.options.validation.show = !isValid;
+                    return isValid;
+                }
+            }
+        };
+
         $scope["$on"]("$destroy", () => {
             this.removeObserver();
             if (this.editorBody) {

@@ -5,12 +5,15 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
+using Model.Impl;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -516,11 +519,7 @@ namespace ArtifactStoreTests
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
-                var expectedProjects = new List<IProject>();
-                expectedProjects.Add(projects[0]);
-                expectedProjects.Add(projects[1]);
-
-                ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+                ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, projects);
                 Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should be {0} published artifacts returned!", allArtifacts.Count);
 
@@ -535,6 +534,149 @@ namespace ArtifactStoreTests
                     allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
                 }
             }
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(191154)]
+        [Description("Create collection artifact or collection folder.  Publish it.  Verify the published collection artifact or collection folder is returned with proper content.")]
+        public void PublishArtifact_CollectionOrCollectionFolder_ReturnsPublishedArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
+
+            INovaArtifactsAndProjectsResponse publishResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+                    "'POST {0} should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
+
+            // Verify:
+            var expectedProjects = new List<IProject> { _project };
+
+            ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == artifact.Id), artifactDetails);
+        }
+
+        [TestCase()]
+        [TestRail(191155)]
+        [Description("Create & save collection artifact and collection folder.  Publish them with all=true.  " + 
+            "Verify the published collection artifact and collection folder have been returned with proper content.")]
+        public void PublishAllArtifacts_CollectionAndCollectionFolder_ReturnsPublishedArtifact()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author, defaultCollectionFolder.Id);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
+
+            INovaArtifactsAndProjectsResponse publishResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                    "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
+
+            // Verify:
+            var expectedProjects = new List<IProject>();
+            expectedProjects.Add(_project);
+
+            ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionFolder.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionFolder.Id), artifactDetails);
+            artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionArtifact.Id), artifactDetails);
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
+        [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestRail(191156)]
+        [Description("Create & Save collection artifact or collection folder.  Publish it.  Verify the published collection artifact or collection folder is returned with proper content.")]
+        public void PublishArtifact_UpdateCollectionOrCollectionFolder_ReturnsPublishedArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            var novaArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
+                _project, defaultCollectionFolder.Id);
+
+            IArtifact artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
+
+            novaArtifact.Description = "Changed";
+
+            Artifact.UpdateArtifact(artifact, author, (NovaArtifactDetails)novaArtifact);
+
+            INovaArtifactsAndProjectsResponse publishResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+                    "'POST {0} should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
+
+            // Verify:
+            var expectedProjects = new List<IProject>();
+            expectedProjects.Add(_project);
+
+            ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)] // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3611
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase]
+        [TestRail(191158)]
+        [Description("Change co llection folder.  Publish it.  Verify the published collection artifact or collection folder is returned with proper content.")]
+        public void PublishArtifact_UpdateDefaultCollectionFolder_ReturnsPublishedArtifact()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+
+            NovaArtifactDetails novaArtifact = Helper.ArtifactStore.GetArtifactDetails(author, defaultCollectionFolder.Id);
+
+            IArtifact artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
+
+            novaArtifact.Description = "Changed";
+
+            artifact.Lock(author);
+
+            Artifact.UpdateArtifact(artifact, author, novaArtifact);
+
+            INovaArtifactsAndProjectsResponse publishResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+                    "'POST {0} should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
+
+            // Verify:
+            var expectedProjects = new List<IProject>();
+            expectedProjects.Add(_project);
+
+            ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
         #endregion 200 OK Tests

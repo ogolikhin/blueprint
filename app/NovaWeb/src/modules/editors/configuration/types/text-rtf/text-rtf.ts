@@ -2,7 +2,6 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {Helper} from "../../../../shared";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
@@ -14,11 +13,6 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
             ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
-
-            let tinymceBody = $element[0].querySelector(".tinymce-body");
-            if (tinymceBody) {
-                $scope["tinymceBody"] = tinymceBody;
-            }
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
@@ -27,24 +21,12 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = ["$scope", "navigationService", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
-                     navigationService: INavigationService,
-                     private validationService: IValidationService) {
-        super(navigationService);
-
-        let contentBuffer: string = undefined;
-        let mceEditor: TinyMceEditor;
-
-        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
-        //we override the default onChange as we need to deal with changes differently when using tinymce
-        $scope.to.onChange = undefined;
+    constructor($scope: AngularFormly.ITemplateScope,
+                navigationService: INavigationService,
+                validationService: IValidationService) {
+        super($scope, navigationService, validationService);
 
         const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
-        let fontFormats = "";
-        allowedFonts.forEach(function (font) {
-            fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
-        });
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss
         /* tslint:disable:max-line-length */
         // pencil icon
@@ -54,7 +36,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 menubar: false,
-                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | link table",
+                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table",
                 statusbar: false,
                 content_style: `html { height: 100%; overflow: auto !important; }
                 body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px;
@@ -69,7 +51,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     "*": "background-image"
                 },
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
-                font_formats: fontFormats,
+                font_formats: this.fontFormats(allowedFonts),
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
@@ -111,10 +93,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    prepBody(args.node);
+                    this.prepBody(args.node, allowedFonts, true);
                 },
                 init_instance_callback: (editor) => {
-                    mceEditor = editor;
+                    this.mceEditor = editor;
 
                     editor.formatter.register("font8", {
                         inline: "span",
@@ -154,8 +136,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     });
 
                     this.editorBody = editor.getBody();
-                    prepBody(this.editorBody);
-                    updateModel();
+                    this.prepBody(this.editorBody, allowedFonts, true);
+                    this.updateModel();
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
@@ -177,8 +159,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     editor.on("Dirty", (e) => {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
-                            if (contentBuffer !== value) {
-                                triggerChange(value);
+                            if (this.contentBuffer !== value) {
+                                this.triggerChange(value);
                             }
                         }
                     });
@@ -186,12 +168,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     editor.on("Change", (e) => {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
-                            if (contentBuffer !== value) {
-                                triggerChange(value);
+                            if (this.contentBuffer !== value) {
+                                this.triggerChange(value);
                             }
                         } else { // this will get called when refreshing the artifact
-                            prepBody(editor.getBody());
-                            updateModel();
+                            this.prepBody(editor.getBody(), allowedFonts, true);
+                            this.updateModel();
                         }
                     });
 
@@ -207,7 +189,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         }
                     });
                 },
-                setup: function (editor) {
+                setup: (editor) => {
                     editor.addButton("format", {
                         title: "Format",
                         type: "menubutton",
@@ -217,28 +199,28 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             {
                                 icon: "bullist",
                                 text: " Bulleted list",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("InsertUnorderedList");
                                 }
                             },
                             {
                                 icon: "numlist",
                                 text: " Numeric list",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("InsertOrderedList");
                                 }
                             },
                             {
                                 icon: "outdent",
                                 text: " Outdent",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("Outdent");
                                 }
                             },
                             {
                                 icon: "indent",
                                 text: " Indent",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("Indent");
                                 }
                             },
@@ -246,9 +228,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             {
                                 icon: "removeformat",
                                 text: " Clear formatting",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("RemoveFormat");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -261,65 +243,87 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         menu: [
                             {
                                 text: "8",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font8");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "9",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font9");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "10",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font10");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "11",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font11");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "12",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font12");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "14",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font14");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "16",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font16");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "18",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font18");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "20",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font20");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
+                                }
+                            }
+                        ]
+                    });
+                    editor.addButton("linkstraces", {
+                        title: "Links",
+                        type: "menubutton",
+                        text: "",
+                        icon: "link",
+                        menu: [
+                            {
+                                icon: "link",
+                                text: " Links",
+                                onclick: () => {
+                                    editor.editorCommands.execCommand("mceLink");
+                                }
+                            },
+                            {
+                                icon: "numlist",
+                                text: " Inline traces",
+                                onclick: () => {
+                                    editor.editorCommands.execCommand("InsertOrderedList");
                                 }
                             }
                         ]
@@ -328,54 +332,5 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             }
         };
         _.assign($scope.to, to);
-
-        $scope.options["validators"] = {
-            // tinyMCE may leave empty tags that cause the value to appear not empty
-            requiredCustom: {
-                expression: ($viewValue, $modelValue, scope) => {
-                    let value = mceEditor ? mceEditor.getContent() : $modelValue;
-                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
-                        contentBuffer = value;
-                        scope.options.data.isFresh = false;
-                    }
-
-                    if (contentBuffer !== value) {
-                        triggerChange(value);
-                    }
-
-                    const isValid = validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
-
-                    scope.to["isInvalid"] = !isValid;
-                    scope.options.validation.show = !isValid;
-                    return isValid;
-                }
-            }
-        };
-
-        $scope["$on"]("$destroy", () => {
-            this.removeObserver();
-            this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
-        });
-
-        function triggerChange(newContent: string) {
-            contentBuffer = newContent;
-            if (typeof onChange === "function") {
-                onChange(newContent, $scope.options, $scope);
-            }
-        }
-
-        function prepBody(body: Node) {
-            Helper.autoLinkURLText(body);
-            Helper.addTableBorders(body);
-            Helper.setFontFamilyOrOpenSans(body, allowedFonts);
-        }
-
-        function updateModel() {
-            if (mceEditor) {
-                contentBuffer = mceEditor.getContent();
-                $scope.model[$scope.options["key"]] = contentBuffer;
-                $scope.options["data"].isFresh = false;
-            }
-        }
     }
 }

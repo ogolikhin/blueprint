@@ -74,9 +74,13 @@ export class BPLocale {
             return value;
         }
 
+        if (_.isString(value) && value === "") {
+            return null;
+        }
+
         let ts = this.thousandSeparator === "." ? "\\." : ",";
         let ds = this.decimalSeparator === "." ? "\\." : ",";
-        let expression = "^-?(?!0" + ts + ")(\\d{1,3}(" + ts + "\\d{3})*|\\d+)";
+        let expression = "^-?(?!0" + ts + ")(\\d{1,3}(" + ts + "\\d{3})*|\\d+|)";
 
         if (_.isNumber(fraction)) {
             if (fraction > 0) {
@@ -94,7 +98,7 @@ export class BPLocale {
             if (this.decimalSeparator !== ".") {
                 stringValue = stringValue.replace(new RegExp(ds), ".");
             }
-            if (stringValue.indexOf(".") > 0) {
+            if (stringValue.indexOf(".") >= 0) {
                 return parseFloat(stringValue);
             } else {
                 return parseInt(stringValue, 10);

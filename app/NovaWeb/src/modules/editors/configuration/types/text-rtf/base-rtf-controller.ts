@@ -1,20 +1,116 @@
+import "angular-formly";
+import "angular-ui-tinymce";
+import "tinymce";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {Helper} from "../../../../shared/utils/helper";
+
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
     observer: MutationObserver;
     handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
-    removeObserver(): void;
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
-    constructor(public navigationService: INavigationService) {
-
-    }
+    static $inject: [string] = ["$scope", "navigationService", "validationService"];
 
     public editorBody: HTMLElement;
     public observer: MutationObserver;
+
+    protected contentBuffer: string;
+    protected mceEditor: TinyMceEditor;
+    protected onChange: AngularFormly.IExpressionFunction;
+
+    constructor(public $scope: AngularFormly.ITemplateScope,
+                public navigationService: INavigationService,
+                public validationService: IValidationService) {
+        this.contentBuffer = undefined;
+
+        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
+        this.onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
+        //we override the default onChange as we need to deal with changes differently when using tinymce
+        $scope.to.onChange = undefined;
+
+        $scope.options["validators"] = {
+            // tinyMCE may leave empty tags that cause the value to appear not empty
+            requiredCustom: {
+                expression: ($viewValue, $modelValue, scope) => {
+                    let value = this.mceEditor ? this.mceEditor.getContent() : $modelValue;
+                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
+                        this.contentBuffer = value;
+                        scope.options.data.isFresh = false;
+                    }
+
+                    if (this.contentBuffer !== value) {
+                        this.triggerChange(value);
+                    }
+
+                    const isValid = this.validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
+
+                    scope.to["isInvalid"] = !isValid;
+                    scope.options.validation.show = !isValid;
+                    return isValid;
+                }
+            }
+        };
+
+        $scope["$on"]("$destroy", () => {
+            this.removeObserver();
+            if (this.editorBody) {
+                this.handleLinks(this.editorBody.querySelectorAll("a"), true);
+            }
+        });
+    }
+
+    private removeObserver = () => {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    };
+
+    protected fontFormats(allowedFonts: string[]): string {
+        let fontFormats = "";
+        if (_.isArray(allowedFonts) && allowedFonts.length) {
+            allowedFonts.forEach(function (font) {
+                fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
+            });
+        }
+        return fontFormats;
+    }
+
+    protected triggerChange = (newContent: string) => {
+        const $scope = this.$scope;
+        const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, newContent, newContent);
+
+        if ($scope.fc) {
+            const fc = $scope.fc as ng.IFormController;
+            fc.$setValidity("requiredCustom", isValid, fc);
+        }
+
+        this.contentBuffer = newContent;
+        if (typeof this.onChange === "function") {
+            this.onChange(newContent, $scope.options, $scope);
+        }
+    };
+
+    protected updateModel = () => {
+        const $scope = this.$scope;
+        if (this.mceEditor) {
+            this.contentBuffer = this.mceEditor.getContent();
+            $scope.model[$scope.options["key"]] = this.contentBuffer ;
+            $scope.options["data"].isFresh = false;
+        }
+    };
+
+    protected prepBody(body: Node, allowedFonts: string[], hasTables: boolean = false) {
+        Helper.autoLinkURLText(body);
+        if (hasTables) {
+            Helper.addTableBorders(body);
+        }
+        Helper.setFontFamilyOrOpenSans(body, allowedFonts);
+    };
 
     public handleClick = (event: Event) => {
         const navigationService = this.navigationService;
@@ -95,12 +191,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public enableEditability = (e) => {
         if (this.editorBody) {
             this.editorBody.setAttribute("contentEditable", "true");
-        }
-    };
-
-    public removeObserver = () => {
-        if (this.observer) {
-            this.observer.disconnect();
         }
     };
 }

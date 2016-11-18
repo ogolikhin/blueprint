@@ -12,7 +12,7 @@
             </div>
             <ul class="dropdown-menu__atrifact-type">
                 <li class="dropdown-menu__atrifact-type-item"
-                    ng-repeat="x in $ctrl.itemTypes track by $index" ng-click="$ctrl.searchByFilter(x);">{{::x.name}}</li>
+                    ng-repeat="type in $ctrl.itemTypes track by type.id" ng-click="$ctrl.searchByFilter(type);">{{type.name}}</li>
             </ul>
         </div>
 

@@ -13,8 +13,8 @@
     &.disabled:focus,
     &.disabled:active {
         background-color: $gray-lighter;
-        border-color: #aaa;
-        color: #aaa;
+        border-color: $gray-light;
+        color: $gray-light;
         opacity: 1;
 
         &.active {

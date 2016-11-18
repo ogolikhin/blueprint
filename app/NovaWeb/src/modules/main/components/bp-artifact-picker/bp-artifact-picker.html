@@ -1,19 +1,19 @@
 <form class="search-form">
-    <div uib-dropdown class="dropdown-wrapper">
+    <div uib-dropdown>
         <button type="button" uib-dropdown-toggle class="btn btn-dropdown-toggle dropdown-toggle" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
             <span class="caret btn-dropdown-toggle-caret"></span>
         </button>
 
-        <div class="dropdown-menu">
-            <div class="dropdown-menu__tooltip">
+        <div class="dropdown-menu dropdown-menu__filter">
+            <div class="dropdown-menu__filter-tooltip">
                 {{::$ctrl.localization.get('Label_Filter_By_Type')}}
             </div>
-            <ul class="dropdown-menu__atrifact-type">
-                <li class="dropdown-menu__atrifact-type-item" ng-if="type.id"
+            <ul class="dropdown-menu__filter-type">
+                <li class="dropdown-menu__filter-item" ng-if="type.id"
                     ng-repeat="type in $ctrl.itemTypes track by type.id">
                         <button  ng-click="$ctrl.searchByFilter(type);"
-                                 class="dropdown-menu__atrifact-type-item-btn">{{type.name}}</button>
+                                 class="dropdown-menu__filter-item-btn">{{type.name}}</button>
                 </li>
             </ul>
         </div>

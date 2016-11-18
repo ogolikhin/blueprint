@@ -11,8 +11,8 @@ export class TextValidation extends BaseValidation implements ITextValidation {
 }
 
 export class TextRtfValidation extends BaseValidation implements ITextRtfValidation {
-    public hasValueIfRequred(isRequired: boolean, newValue: any, oldValue: any) {
-        return isRequired ? 
+    public hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+        return isRequired ?
                     Helper.tagsContainText(newValue) ||
                     Helper.tagsContainText(oldValue)
                     : true;

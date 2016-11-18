@@ -31,25 +31,25 @@ export class BpFieldNumberController extends BPFieldBaseController {
         let validators = {
             decimalPlaces: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.numberValidation.decimalPlaces($viewValue, $modelValue, scope.to.decimalPlaces, 
+                    return validationService.numberValidation.decimalPlaces($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                     localization, scope.options.data.isValidated);
                 }
             },
             wrongFormat: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces, 
+                    return validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                      localization, scope.options.data.isValidated);
                 }
             },
             max: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.numberValidation.isMax($viewValue, $modelValue, scope.to.max, 
+                    return validationService.numberValidation.isMax($viewValue, $modelValue, scope.to.max,
                                                                                         localization, scope.options.data.isValidated);
                 }
             },
             min: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.numberValidation.isMin($viewValue, $modelValue, scope.to.min, 
+                    return validationService.numberValidation.isMin($viewValue, $modelValue, scope.to.min,
                                                                                        localization, scope.options.data.isValidated);
                 }
             }

@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import {Models} from "../../main";
 import {IColumn, ITreeViewNode, IColumnRendererParams, IHeaderCellRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
@@ -12,6 +11,7 @@ import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
+import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -26,6 +26,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "windowManager",
         "localization",
         "propertyDescriptorBuilder",
+        "validationService",
         "dialogService",
         "collectionService",
         "metadataService",
@@ -42,6 +43,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
+    public activeTab: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -49,13 +51,15 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                validationService: IValidationService,
                 private dialogService: IDialogService,
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
+        this.activeTab = 0;
     }
 
     public get reviewUrl(): string {
@@ -72,24 +76,24 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             this.collectionSubscriber = null;
         }
 
-        if (collectionArtifact) {            
+        if (collectionArtifact) {
             this.collectionSubscriber = collectionArtifact.getProperyObservable()
-                .filter(changes => changes.change &&                   
+                .filter(changes => changes.change &&
                     changes.change.key === Models.PropertyTypePredefined.CollectionContent)
                 .subscribeOnNext(this.onCollectionArtifactsChanged);
-        }        
+        }
     }
 
     public onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
             // if collection is deleted we do not need to load metadata and collection content
-            if (!collectionArtifact.artifacts) {    
+            if (!collectionArtifact.artifacts) {
                 super.onArtifactReady();
                 return;
             }
             this.metadataService.get(collectionArtifact.projectId).then(() => {
-                this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+                this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
                     return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
                 });
 
@@ -114,15 +118,16 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private visibleArtifact: CollectionNodeVM;
 
     public onGridReset(): void {
+        this.selectedVMs = []; 
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);
             this.visibleArtifact = undefined;
         }
     }
 
-    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {       
+    private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
-        this.rootNode = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
+        this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
         });
     };
@@ -204,19 +209,20 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const path = vm.model.artifactPath;
+                    const name = Helper.escapeHTMLText(vm.model.name);
+                    const tooltipName: string = Helper.escapeQuot(vm.model.name);
 
-                    let tooltipText = "";
+                    let pathName = "";
                     path.map((collectionArtifact: string, index: number) => {
                         if (index !== 0) {
-                            tooltipText += " > ";
+                            pathName += " > ";
                         }
 
-                        tooltipText = tooltipText + `${Helper.escapeHTMLText(collectionArtifact)}`;
+                        pathName = pathName + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
-                    return `<div bp-tooltip="${vm.model.name}" bp-tooltip-truncated="true" class="collection__name">` +
-                        `${vm.model.name}</div>` +
-                        `<div bp-tooltip="${tooltipText}" bp-tooltip-truncated="true" class="path">` + tooltipText + `</div>`;
+                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">${name}</div>
+                        <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
                 }
             },
             {
@@ -225,9 +231,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 isCheckboxHidden: true,
                 innerRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
+                    const tooltip: string = Helper.escapeQuot(vm.model.description);
+                    const desc = Helper.escapeHTMLText(vm.model.description);
+
                     if (vm.model.description) {
-                        return `<div class="collection__description" bp-tooltip="${vm.model.description}" ` +
-                            `bp-tooltip-truncated="true">${vm.model.description}</div>`;
+                        return `<div class="collection__description" bp-tooltip="${tooltip}" bp-tooltip-truncated="true">${desc}</div>`;
                     }
 
                     return "";
@@ -271,7 +279,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             }];
     }
 
-    public rootNode: CollectionNodeVM[] = [];
+    public rowData: CollectionNodeVM[] = [];
 
     public toggleAll(): void {
         this.selectAll = !this.selectAll;

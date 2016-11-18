@@ -25,6 +25,14 @@ export class Helper {
         return "";
     }
 
+    static escapeQuot = (stringToEscape: string): string => {
+        if (stringToEscape) {
+            return stringToEscape.replace(/"/g, "&quot;");
+        }
+
+        return "";
+    };
+
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = window.document.createElement("DIV");
         stringSanitizer.innerHTML = stringToSanitize;
@@ -270,18 +278,5 @@ export class Helper {
 
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;
-    }
-
-    public static getArtifactPath(artifact: Models.IArtifact): string[] {
-        if (!artifact) {
-            return [];
-        }
-        let currentArtifact = artifact.parent;
-        let path: string[] = [];
-        while (currentArtifact) {
-            path.push(currentArtifact.name);
-            currentArtifact = currentArtifact.parent;
-        }
-        return path.reverse();
     }
 }

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Net;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Utilities;
 using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -11,6 +11,8 @@ namespace Model.ArtifactModel.Impl
     {
         Success,
         AlreadyLocked,
+        DoesNotExist,
+        AccessDenied,
         Failure
     }
 

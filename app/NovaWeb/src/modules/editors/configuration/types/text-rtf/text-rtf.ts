@@ -8,7 +8,7 @@ import {IValidationService} from "../../../../managers/artifact-manager/validati
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
-    public template: string = require("./text-rtf.template.html");
+    public template: string = require("./text-rtf.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
@@ -27,8 +27,8 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = ["$scope", "navigationService", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, 
-                     navigationService: INavigationService, 
+    constructor(private $scope: AngularFormly.ITemplateScope,
+                     navigationService: INavigationService,
                      private validationService: IValidationService) {
         super(navigationService);
 
@@ -327,7 +327,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 }
             }
         };
-        angular.merge($scope.to, to);
+        _.assign($scope.to, to);
 
         $scope.options["validators"] = {
             // tinyMCE may leave empty tags that cause the value to appear not empty
@@ -343,7 +343,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         triggerChange(value);
                     }
 
-                    const isValid = validationService.textRtfValidation.hasValueIfRequred(scope.to.required, $viewValue, $modelValue);
+                    const isValid = validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
 
                     scope.to["isInvalid"] = !isValid;
                     scope.options.validation.show = !isValid;

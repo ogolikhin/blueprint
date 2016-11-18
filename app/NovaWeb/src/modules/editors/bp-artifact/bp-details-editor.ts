@@ -3,6 +3,7 @@ import {BpArtifactEditor, IArtifactManager, IWindowManager} from "./bp-artifact-
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
@@ -15,15 +16,19 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "artifactManager",
         "windowManager",
         "localization",
-        "propertyDescriptorBuilder"
+        "propertyDescriptorBuilder",
+        "validationService"
     ];
 
     constructor(messageService: IMessageService,
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
-                propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
+                propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                validationService: IValidationService) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        this.activeTab = 0;
+        this.validationService = validationService;
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
@@ -35,6 +40,9 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public isRichTextPropertyAvailable: boolean;
     public isSpecificPropertyAvailable: boolean;
     public specificPropertiesHeading: string;
+    public activeTab: number;
+
+    private validationService: IValidationService;
 
     public $onDestroy() {
         delete this.systemFields;
@@ -95,4 +103,18 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             this.specificFields.push(field);
         }
     }
+
+    public isRtfFieldValid = (field: AngularFormly.IFieldConfigurationObject): boolean => {
+        const propertyContext = field.data as IPropertyDescriptor;
+        if (!propertyContext) {
+            return true;
+        }
+
+        if (propertyContext.isRichText && propertyContext.isRequired) {
+            const value = this.model[field.key];
+            return this.validationService.textRtfValidation.hasValueIfRequired(true, value, value);
+        } else {
+            return true;
+        }
+    };
 }

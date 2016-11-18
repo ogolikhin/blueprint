@@ -4,7 +4,6 @@ import {IDateValidation, DateValidation} from "./date-validation";
 import {ISelectValidation, SelectValidation, IMultiSelectValidation, MultiSelectValidation} from "./select-validation";
 import {ITextValidation, TextValidation, ITextRtfValidation, TextRtfValidation} from "./text-validation";
 import {IUserPickerValidation, UserPickerValidation} from "./user-picker-validation";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 
 export interface IValidationService {
     numberValidation: INumberValidation;
@@ -17,9 +16,6 @@ export interface IValidationService {
 }
 
 export class ValidationService implements IValidationService {
-    public static $inject = [
-        "propertyDescriptorBuilder"
-    ];
     public numberValidation: INumberValidation;
     public dateValidation: IDateValidation;
     public selectValidation: ISelectValidation;
@@ -28,7 +24,7 @@ export class ValidationService implements IValidationService {
     public userPickerValidation: IUserPickerValidation;
     public textValidation: ITextValidation;
 
-    constructor(private propertyDescriptor: IPropertyDescriptorBuilder) {
+    constructor() {
         this.numberValidation = new NumberValidation();
         this.dateValidation = new DateValidation();
         this.selectValidation = new SelectValidation();

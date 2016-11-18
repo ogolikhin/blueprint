@@ -135,7 +135,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
                             if (this.contentBuffer !== value) {
-                                triggerChange(value);
+                                this.triggerChange(value);
                             }
                         }
                     });
@@ -144,7 +144,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
                             if (this.contentBuffer !== value) {
-                                triggerChange(value);
+                                this.triggerChange(value);
                             }
                         } else { // this will get called when refreshing the artifact
                             prepBody(editor.getBody());
@@ -164,7 +164,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         }
                     });
                 },
-                setup: function (editor) {
+                setup: (editor) => {
                     editor.addButton("fontsize", {
                         title: "Font Size",
                         type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/
@@ -173,65 +173,65 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         menu: [
                             {
                                 text: "8",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font8");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "9",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font9");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "10",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font10");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "11",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font11");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "12",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font12");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "14",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font14");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "16",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font16");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "18",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font18");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "20",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font20");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -252,7 +252,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     }
 
                     if (this.contentBuffer !== value) {
-                        triggerChange(value);
+                        this.triggerChange(value);
                     }
 
                     const isValid = this.validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
@@ -261,13 +261,6 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     scope.options.validation.show = !isValid;
                     return isValid;
                 }
-            }
-        };
-
-        let triggerChange = (newContent: string) => {
-            this.contentBuffer = newContent;
-            if (typeof this.onChange === "function") {
-                this.onChange(newContent, $scope.options, $scope);
             }
         };
 

@@ -10,7 +10,6 @@ export interface IBPFieldBaseRTFController {
     handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
-    removeObserver(): void;
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
@@ -41,6 +40,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         });
     }
 
+    private removeObserver = () => {
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+    };
+
     protected fontFormats(allowedFonts: string[]): string {
         let fontFormats = "";
         if (_.isArray(allowedFonts) && allowedFonts.length) {
@@ -50,6 +55,21 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         }
         return fontFormats;
     }
+
+    protected triggerChange = (newContent: string) => {
+        const $scope = this.$scope;
+        const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, newContent, newContent);
+
+        if ($scope.fc) {
+            const fc = $scope.fc as ng.IFormController;
+            fc.$setValidity("requiredCustom", isValid, fc);
+        }
+
+        this.contentBuffer = newContent;
+        if (typeof this.onChange === "function") {
+            this.onChange(newContent, $scope.options, $scope);
+        }
+    };
 
     public handleClick = (event: Event) => {
         const navigationService = this.navigationService;
@@ -130,12 +150,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public enableEditability = (e) => {
         if (this.editorBody) {
             this.editorBody.setAttribute("contentEditable", "true");
-        }
-    };
-
-    public removeObserver = () => {
-        if (this.observer) {
-            this.observer.disconnect();
         }
     };
 }

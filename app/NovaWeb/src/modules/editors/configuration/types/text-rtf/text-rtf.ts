@@ -161,7 +161,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
                             if (this.contentBuffer !== value) {
-                                triggerChange(value);
+                                this.triggerChange(value);
                             }
                         }
                     });
@@ -170,7 +170,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         if (!$scope.options["data"].isFresh) {
                             const value = editor.getContent();
                             if (this.contentBuffer !== value) {
-                                triggerChange(value);
+                                this.triggerChange(value);
                             }
                         } else { // this will get called when refreshing the artifact
                             prepBody(editor.getBody());
@@ -190,7 +190,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         }
                     });
                 },
-                setup: function (editor) {
+                setup: (editor) => {
                     editor.addButton("format", {
                         title: "Format",
                         type: "menubutton",
@@ -200,28 +200,28 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             {
                                 icon: "bullist",
                                 text: " Bulleted list",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("InsertUnorderedList");
                                 }
                             },
                             {
                                 icon: "numlist",
                                 text: " Numeric list",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("InsertOrderedList");
                                 }
                             },
                             {
                                 icon: "outdent",
                                 text: " Outdent",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("Outdent");
                                 }
                             },
                             {
                                 icon: "indent",
                                 text: " Indent",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("Indent");
                                 }
                             },
@@ -229,9 +229,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             {
                                 icon: "removeformat",
                                 text: " Clear formatting",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("RemoveFormat");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -244,65 +244,65 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         menu: [
                             {
                                 text: "8",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font8");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "9",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font9");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "10",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font10");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "11",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font11");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "12",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font12");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "14",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font14");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "16",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font16");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "18",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font18");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             },
                             {
                                 text: "20",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.formatter.apply("font20");
-                                    triggerChange(editor.getContent());
+                                    this.triggerChange(editor.getContent());
                                 }
                             }
                         ]
@@ -316,14 +316,14 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             {
                                 icon: "link",
                                 text: " Links",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("mceLink");
                                 }
                             },
                             {
                                 icon: "numlist",
                                 text: " Inline traces",
-                                onclick: function () {
+                                onclick: () => {
                                     editor.editorCommands.execCommand("InsertOrderedList");
                                 }
                             }
@@ -345,7 +345,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     }
 
                     if (this.contentBuffer !== value) {
-                        triggerChange(value);
+                        this.triggerChange(value);
                     }
 
                     const isValid = this.validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
@@ -354,13 +354,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     scope.options.validation.show = !isValid;
                     return isValid;
                 }
-            }
-        };
-
-        let triggerChange = (newContent: string) => {
-            this.contentBuffer = newContent;
-            if (typeof this.onChange === "function") {
-                this.onChange(newContent, $scope.options, $scope);
             }
         };
 

@@ -1211,6 +1211,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Artif
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Results', 'en-US', N'Displaying top {0} results.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Refine', 'en-US', N'Try a more specific search term to refine your search.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Searching', 'en-US', N'Searching...')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Filter_By_Type', 'en-US', N'Filter by type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_No_Results_Found', 'en-US', N'No results found.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_X', 'en-US', N'X')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Y', 'en-US', N'Y')

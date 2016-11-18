@@ -23,9 +23,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
 
-    constructor(protected $scope: AngularFormly.ITemplateScope,
-                protected navigationService: INavigationService,
-                protected validationService: IValidationService) {
+    constructor(public $scope: AngularFormly.ITemplateScope,
+                public navigationService: INavigationService,
+                public validationService: IValidationService) {
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place

@@ -72,10 +72,7 @@ export class BPToolbarController implements IBPToolbarController {
                 this.closeProject();
                 break;
             case `projectcloseall`:
-                this.projectManager.removeAll();
-                this.artifactManager.selection.clearAll();
-                this.clearLockedMessages();
-                this.navigationService.navigateToMain();
+                this.closeAllProjects();
                 break;
             case `openproject`:
                 this.dialogService.open(<IDialogSettings>{
@@ -184,6 +181,13 @@ export class BPToolbarController implements IBPToolbarController {
             }
             this.clearLockedMessages();
         }
+    }
+
+    private closeAllProjects() {
+        this.projectManager.removeAll();
+        this.artifactManager.selection.clearAll();
+        this.clearLockedMessages();
+        this.navigationService.navigateToMain();
     }
 
     private clearLockedMessages() {

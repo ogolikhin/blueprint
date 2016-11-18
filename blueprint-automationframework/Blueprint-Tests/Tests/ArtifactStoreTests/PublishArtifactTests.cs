@@ -519,11 +519,7 @@ namespace ArtifactStoreTests
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
-                var expectedProjects = new List<IProject>();
-                expectedProjects.Add(projects[0]);
-                expectedProjects.Add(projects[1]);
-
-                ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
+                ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, projects);
                 Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should be {0} published artifacts returned!", allArtifacts.Count);
 
@@ -568,7 +564,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == artifact.Id), artifactDetails);
         }
 
         [TestCase()]
@@ -600,9 +596,9 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
             INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionFolder.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionFolder.Id), artifactDetails);
             artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[1], artifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionArtifact.Id), artifactDetails);
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]

@@ -155,13 +155,13 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
                 //replace with a new object from tree, since the selected object may be stale after refresh
                 this.setSelectedNode(this.selectedArtifactId);
-            } else if (this.selected.parentNode && this.tree.nodeExists(this.selected.parentNode.model.id)) {
+            } else if (this.tree.nodeExists(this.selected.model.parentId)) {
                 //otherwise, if parent node is in the tree
-                this.tree.selectNode(this.selected.parentNode.model.id);
-                navigateToId = this.selected.parentNode.model.id;
+                this.tree.selectNode(this.selected.model.parentId);
+                navigateToId = this.selected.model.parentId;
 
                 //replace with a new object from tree, since the selected object may be stale after refresh
-                this.setSelectedNode(this.selected.parentNode.model.id);
+                this.setSelectedNode(this.selected.model.parentId);
             } else if (this.tree.nodeExists(this.selected.model.projectId)) {
                 //otherwise, try with project node
                 this.tree.selectNode(this.selected.model.projectId);
@@ -207,7 +207,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
             }
             let typeName: string;
             if (node.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
-                node.parentNode.model.predefinedType === Models.ItemTypePredefined.Project) {
+                node.model.itemTypeId === Models.ItemTypePredefined.Collections) {
                 typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
             } else {
                 typeName = Models.ItemTypePredefined[node.model.predefinedType];

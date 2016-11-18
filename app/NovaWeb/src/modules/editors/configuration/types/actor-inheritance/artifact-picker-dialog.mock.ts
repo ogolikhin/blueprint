@@ -23,7 +23,7 @@ export class ArtifactPickerDialogServiceMock implements IDialogService {
             id: 10,
             prefix: "prefix",
             name: "actor name",
-            parent: parentArtifact
+            artifactPath: ["parent"]
         };
         deferred.resolve([artifact]);
         return deferred.promise;

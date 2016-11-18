@@ -168,7 +168,7 @@ export class BPToolbarController implements IBPToolbarController {
         const artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             const projectId = artifact.projectId;
-            const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.model.id !== projectId);
+            const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
             if (isOpened) {
                 this.projectManager.remove(artifact.projectId);
             }

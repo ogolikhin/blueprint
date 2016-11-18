@@ -235,8 +235,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
             if (this.personaLabel) {
                 this.personaLabel.text = reference.name;
-                this.shapesFactory.setSystemTaskPersona(reference);
             }
+
+            this.shapesFactory.setSystemTaskPersona(reference);
         }
     }
 

@@ -168,13 +168,11 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 }
                 context.isFresh = false;
                 
-                this.artifact.validate().then((isValid: boolean) => {
-                    this.artifact.artifactState.invalid = !isValid;
+                this.artifact.validate().then(()  => {
+                    this.artifact.artifactState.invalid = false;
+                }).catch(() => {
+                    this.artifact.artifactState.invalid = true;
                 });
-
-                // if ($scope["form"]) {
-                //     this.artifact.artifactState.invalid = $scope["form"].$$parentForm.$invalid;
-                // }
 
             } catch (err) {
                 this.messageService.addError(err);

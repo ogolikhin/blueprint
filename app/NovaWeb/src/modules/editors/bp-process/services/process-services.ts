@@ -22,8 +22,7 @@ export class StatefulProcessArtifactServices extends StatefulArtifactServices im
             statefulArtifactServices.loadingOverlayService,
             statefulArtifactServices.publishService,
             statefulArtifactServices.validationService,
-            statefulArtifactServices.propertyDescriptor,
-
+            statefulArtifactServices.propertyDescriptor
         );
     }
 

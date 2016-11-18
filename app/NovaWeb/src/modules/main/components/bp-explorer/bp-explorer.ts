@@ -148,7 +148,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
             if (this.tree.nodeExists(this.selectedArtifactId)) {
                 //if node exists in the tree
-                if (this.isFullReLoad || this.selectedArtifactId !== this.tree.getSelectedNodeId()) {
+                if (this.isFullReLoad || this.selectedArtifactId !== this.selected.model.id) {
                     navigateToId = this.selectedArtifactId;
                 }
                 this.isFullReLoad = true;

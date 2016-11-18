@@ -49,7 +49,6 @@ export interface IBPTreeController {
 }
 
 export interface IBPTreeControllerApi {
-    getSelectedNodeId(): number;
     //to select a row in in ag-grid (by id)
     selectNode(id: number);
     deselectAll();
@@ -74,9 +73,6 @@ export class BPTreeController implements IBPTreeController {
 
     // ag-grid bindings
     public options: agGrid.GridOptions = {};
-
-    private _datasource: any[] = [];
-    private selectedVM: IArtifactNode;
 
     private _innerRenderer: Function;
 
@@ -139,17 +135,12 @@ export class BPTreeController implements IBPTreeController {
     }
 
     public $onDestroy = () => {
-        this.selectedVM = null;
         this.api = null;
         //this.reload(null);
         this.options.api.destroy();
     };
 
     public api: IBPTreeControllerApi = {
-        getSelectedNodeId: () => {
-            return this.selectedVM ? this.selectedVM.model.id : null;
-        },
-
         //to select a tree node in ag grid
         selectNode: (id: number) => {
             this.options.api.getModel().forEachNode((node: agGrid.RowNode) => {
@@ -215,14 +206,19 @@ export class BPTreeController implements IBPTreeController {
 
     private resetGridAsync(): ng.IPromise<void> {
         if (this.options.api) {
+            // Save selection
+            const selectedVMs = this.options.api.getSelectedRows() as IArtifactNode[];
+            const selectedVM = selectedVMs.length ? selectedVMs[0] : undefined;
+
             return this.$q.all(this.rowData.filter(vm => this.isLazyLoaded(vm)).map(vm => this.loadExpanded(vm))).then(() => {
                 if (this.options.api) {
                     this.options.api.setRowData(this.rowData);
 
-                    if (this.selectedVM && this.selectedVM.model) {
+                    // Restore selection
+                    if (selectedVM && selectedVM.model) {
                         this.options.api.forEachNode(node => {
                             const vm = node.data as IArtifactNode;
-                            if (vm.model.id === this.selectedVM.model.id) {
+                            if (vm.model.id === selectedVM.model.id) {
                                 node.setSelected(true, true);
                             }
                         });
@@ -357,8 +353,8 @@ export class BPTreeController implements IBPTreeController {
         const isSelected = node.isSelected();
 
         if (isSelected) {
-            if (!this.selectedVM || (this.selectedVM.model && this.selectedVM.model.id !== vm.model.id)) {
-                this.selectedVM = vm;
+            if (_.isFunction(this.onSelect)) {
+                this.onSelect({item: node.data});
                 this.clearFocus();
             }
         }
@@ -377,9 +373,5 @@ export class BPTreeController implements IBPTreeController {
         const node = model.getRow(params.rowIndex);
 
         node.setSelected(true, true);
-
-        if (_.isFunction(this.onSelect)) {
-            this.onSelect({item: node.data});
-        }
     };
 }

@@ -15,28 +15,28 @@ export interface IPropertyNameConstantsInformation {
 }
 
 export class ShapesFactorySettings {
-    private _userTaskPersona = null;
-    private _systemTaskPersona = null;
+    private _userTaskPersona: string;
+    private _systemTaskPersona: string;
 
-    public getUserTaskPersona(): string {
+    public get userTaskPersona(): string {
         return this._userTaskPersona;
     }
 
-    public setUserTaskPersona(value): void {
+    public set userTaskPersona(value: string) {
         this._userTaskPersona = value;
     }
 
-    public getSystemTaskPersona(): string {
+    public get systemTaskPersona(): string {
         return this._systemTaskPersona;
     }
 
-    public setSystemTaskPersona(value): void {
+    public set systemTaskPersona(value: string) {
         this._systemTaskPersona = value;
     }
 
     public destroy() {
-        this._userTaskPersona = null;
-        this._systemTaskPersona = null;
+        delete this._userTaskPersona;
+        delete this._systemTaskPersona;
     }
 }
 
@@ -155,12 +155,12 @@ export class ShapesFactory {
         }
     }
 
-    public setUserTaskPersona(value) {
-        this.settings.setUserTaskPersona(value);
+    public setUserTaskPersona(value: string): void {
+        this.settings.userTaskPersona = value;
     }
 
-    public setSystemTaskPersona(value) {
-        this.settings.setSystemTaskPersona(value);
+    public setSystemTaskPersona(value: string): void {
+        this.settings.systemTaskPersona = value;
     }
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
@@ -197,8 +197,8 @@ export class ShapesFactory {
 
         const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
 
-        if (!!this.settings.getUserTaskPersona()) {
-            defaultUserPersonaReference.name = this.settings.getUserTaskPersona();
+        if (!!this.settings.userTaskPersona) {
+            defaultUserPersonaReference.name = this.settings.userTaskPersona;
         }
 
         const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
@@ -224,8 +224,8 @@ export class ShapesFactory {
             version: null
         };        
 
-        if (!!this.settings.getSystemTaskPersona()) {
-            defaultSystemPersonaReference.name = this.settings.getSystemTaskPersona();
+        if (!!this.settings.systemTaskPersona) {
+            defaultSystemPersonaReference.name = this.settings.systemTaskPersona;
         }
 
         // hard coded strings, if change, please search above chars and replace the other place on server side

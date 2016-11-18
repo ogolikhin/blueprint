@@ -170,3 +170,16 @@
     right: 0px;
     top: 5px;
 }
+
+.btn-dropdown-toggle {
+    width: auto;
+    min-width: 20px;
+    padding-left: 9px;
+    padding-right: 9px;
+    background: $brand-secondary;
+    color: $white;
+}
+
+.btn-dropdown-toggle-caret{
+    color:white;
+}

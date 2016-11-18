@@ -221,7 +221,8 @@ export class BPToolbarController implements IBPToolbarController {
         const publishAllLoadingId = this.loadingOverlayService.beginLoading();
         //perform publish all
         this.publishService.discardAll()
-            .then(() => {
+            .then(() => {                
+                this.artifactManager.selection.getArtifact().discard();                
                 //refresh all after discard all finishes
                 this.projectManager.refreshAll();
 

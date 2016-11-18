@@ -25,6 +25,11 @@ namespace Model.ArtifactModel.Impl
         public string TypePrefix { get; set; }
 
         /// <summary>
+        /// The name of the project
+        /// </summary>
+        public string ProjectName { get; set; }
+
+        /// <summary>
         /// The base item type for the artifact
         /// </summary>
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
@@ -33,5 +38,10 @@ namespace Model.ArtifactModel.Impl
         /// The link to navigate to the artifact
         /// </summary>
         public string Link { get; set; }
+
+        /// <summary>
+        /// The version of the artifact
+        /// </summary>
+        public int? Version { get; set; }
     }
 }

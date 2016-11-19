@@ -89,10 +89,10 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     }
 
     protected triggerChange = (newContent?: string) => {
-        if (_.isUndefined(newContent)) {
+        if (_.isUndefined(newContent) && this.mceEditor) {
             newContent = this.mceEditor.getContent();
         }
-        this.contentBuffer = newContent;
+        this.contentBuffer = newContent || "";
 
         this.handleValidation();
 

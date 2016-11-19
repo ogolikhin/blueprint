@@ -5,6 +5,8 @@ import "lodash";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 describe("Formly Base RTF Controller", () => {
     let $rootScope: ng.IRootScopeService;
@@ -29,6 +31,8 @@ describe("Formly Base RTF Controller", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("validationService", ValidationServiceMock);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
     }));
 
     beforeEach(

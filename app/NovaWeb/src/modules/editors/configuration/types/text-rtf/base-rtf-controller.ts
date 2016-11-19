@@ -15,7 +15,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {IRelationship, LinkType} from "../../../../main/models/relationshipModels";
+import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -206,14 +206,42 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 if (this.currentArtifact.id === artifactId) {
                     this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
                 } else {
-                    let manualTraces: IRelationship[];
                     this.currentArtifact.relationships.get()
                         .then((relationships: IRelationship[]) => {
-                        // get the pre-existing manual traces
-                            manualTraces = relationships
+                            // get the pre-existing manual traces
+                            const manualTraces: IRelationship[] = relationships
                                 .filter((relationship: IRelationship) =>
                                 relationship.traceType === LinkType.Manual);
-                            console.log(manualTraces);
+
+                            // if the pre-existing manual traces already include the artifact we want to link
+                            // (with either To or TwoWay direction) we don't need to add the manual trace.
+                            const isArtifactAlreadyLinkedTo: boolean = manualTraces
+                                .some((relationship: IRelationship) => {
+                                    return relationship.itemId === artifactId &&
+                                        (relationship.traceDirection === TraceDirection.To || relationship.traceDirection === TraceDirection.TwoWay);
+                                });
+
+                            if (!isArtifactAlreadyLinkedTo) {
+                                // if the pre-existing manual traces already include the artifact we want to link
+                                // (with From direction) we just update the direction
+                                const isArtifactAlreadyLinkedFrom = manualTraces
+                                    .some((relationship: IRelationship) => {
+                                        return relationship.itemId === artifactId && relationship.traceDirection === TraceDirection.From;
+                                    });
+
+                                if (isArtifactAlreadyLinkedFrom) {
+                                    manualTraces.forEach((relationship: IRelationship) => {
+                                        if (relationship.itemId === artifactId) {
+                                            relationship.traceDirection = TraceDirection.TwoWay;
+                                        }
+                                    });
+                                } else {
+                                    //
+                                }
+
+                                this.currentArtifact.relationships.updateManual(manualTraces);
+                            }
+                            // console.log(manualTraces);
                         })
                         .finally(() => {
                             /* tslint:disable:max-line-length */

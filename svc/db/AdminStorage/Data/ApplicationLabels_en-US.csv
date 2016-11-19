@@ -348,6 +348,7 @@ Property_UserPicker_Searching,"Searching..."
 Property_UserPicker_ShowMore,"Show more"
 Property_UserPicker_Display_Top_N_Results,"Displaying first {0} results"
 Property_RTF_Add_InlineTrace,"Add Inline Trace"
+Property_RTF_InlineTrace_Error_Itself,"Cannot add an inline trace to itself"
 
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."

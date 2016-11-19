@@ -248,93 +248,14 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/
                         text: "",
                         icon: "font-size",
-                        menu: [
-                            {
-                                text: "8",
-                                onclick: () => {
-                                    editor.formatter.apply("font8");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "9",
-                                onclick: () => {
-                                    editor.formatter.apply("font9");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "10",
-                                onclick: () => {
-                                    editor.formatter.apply("font10");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "11",
-                                onclick: () => {
-                                    editor.formatter.apply("font11");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "12",
-                                onclick: () => {
-                                    editor.formatter.apply("font12");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "14",
-                                onclick: () => {
-                                    editor.formatter.apply("font14");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "16",
-                                onclick: () => {
-                                    editor.formatter.apply("font16");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "18",
-                                onclick: () => {
-                                    editor.formatter.apply("font18");
-                                    this.triggerChange();
-                                }
-                            },
-                            {
-                                text: "20",
-                                onclick: () => {
-                                    editor.formatter.apply("font20");
-                                    this.triggerChange();
-                                }
-                            }
-                        ]
+                        menu: this.fontSizeMenu(editor)
                     });
                     editor.addButton("linkstraces", {
                         title: "Links",
                         type: "menubutton",
                         text: "",
                         icon: "link",
-                        menu: [
-                            {
-                                icon: "link",
-                                text: " Links",
-                                onclick: () => {
-                                    editor.editorCommands.execCommand("mceLink");
-                                }
-                            },
-                            {
-                                icon: "numlist",
-                                text: " Inline traces",
-                                onclick: () => {
-                                    this.openArtifactPicker();
-                                }
-                            }
-                        ]
+                        menu: this.linksMenu(editor)
                     });
                 }
             }

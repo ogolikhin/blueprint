@@ -11,6 +11,10 @@ import {
     IArtifactPickerOptions
 } from "../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog";
 import {Models} from "../../../../main/models";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -25,23 +29,32 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         "$scope",
         "navigationService",
         "validationService",
+        "messageService",
         "localization",
-        "dialogService"
+        "dialogService",
+        "selectionManager",
+        "artifactRelationships"
     ];
 
     public editorBody: HTMLElement;
     public observer: MutationObserver;
 
+    protected currentArtifact: IStatefulArtifact;
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
 
-    constructor(public $scope: AngularFormly.ITemplateScope,
+    constructor(protected $scope: AngularFormly.ITemplateScope,
                 public navigationService: INavigationService,
-                public validationService: IValidationService,
-                public localization: ILocalizationService,
-                public dialogService: IDialogService) {
+                protected validationService: IValidationService,
+                protected messageService: IMessageService,
+                protected localization: ILocalizationService,
+                protected dialogService: IDialogService,
+                protected selectionManager: ISelectionManager,
+                protected artifactRelationships: IArtifactRelationships) {
+        this.currentArtifact = selectionManager.getArtifact();
+
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -74,6 +87,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             if (formControl) {
                 formControl.$setValidity("requiredCustom", isValid, formControl);
                 $scope.to["isInvalid"] = !isValid;
+                $scope.showError = !isValid;
             }
         });
     };
@@ -136,17 +150,22 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
             if (items.length === 1) {
                 const artifactId: number = items[0].id;
-                const artifactName: string = items[0].name;
-                const artifactPrefix: string = items[0].prefix;
-                /* tslint:disable:max-line-length */
-                const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
-                    `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
-                    `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
-                    `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
-                /* tslint:enable:max-line-length */
 
-                this.mceEditor["selection"].setContent(inlineTrace);
-                this.triggerChange();
+                if (this.currentArtifact.id === artifactId) {
+                    this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
+                } else {
+                    const artifactName: string = items[0].name;
+                    const artifactPrefix: string = items[0].prefix;
+                    /* tslint:disable:max-line-length */
+                    const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
+                        `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
+                        `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
+                        `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
+                    /* tslint:enable:max-line-length */
+
+                    this.mceEditor["selection"].setContent(inlineTrace);
+                    this.triggerChange();
+                }
             }
         });
     };

@@ -15,6 +15,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {IRelationship, LinkType} from "../../../../main/models/relationshipModels";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -22,6 +23,16 @@ export interface IBPFieldBaseRTFController {
     handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
+}
+
+interface IArtifactOrSubArtifact extends Models.IArtifact {
+    displayName?: string;
+}
+
+interface ITinyMceMenu {
+    icon?: string;
+    text: string;
+    onclick: Function;
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
@@ -134,6 +145,45 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         }
     };
 
+    protected fontSizeMenu = (editor): ITinyMceMenu[] => {
+        const fontSizes = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
+        return fontSizes.map((size) => {
+            return {
+                text: size,
+                onclick: () => {
+                    editor.formatter.apply(`font${size}`);
+                    this.triggerChange();
+                }
+            } as ITinyMceMenu;
+        });
+    };
+
+    protected linksMenu = (editor): ITinyMceMenu[] => {
+        const menuItems: ITinyMceMenu[] = [{
+            icon: "link",
+            text: " Links",
+            onclick: () => {
+                editor.editorCommands.execCommand("mceLink");
+            }
+        }];
+        if (this.canManageTraces()) {
+            menuItems.push({
+                icon: "inlinetrace",
+                text: " Inline traces",
+                onclick: () => {
+                    this.openArtifactPicker();
+                }
+            });
+        }
+        return menuItems;
+    };
+
+    private canManageTraces(): boolean {
+        // if artifact is locked by other user we still can add/manage traces
+        return this.currentArtifact ? !this.currentArtifact.artifactState.readonly &&
+            this.currentArtifact.relationships.canEdit : false;
+    }
+
     public openArtifactPicker = () => {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Add"),
@@ -147,24 +197,35 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             showSubArtifacts: true
         };
 
-        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+        this.dialogService.open(dialogSettings, dialogOption).then((items: IArtifactOrSubArtifact[]) => {
             if (items.length === 1) {
                 const artifactId: number = items[0].id;
+                const artifactName: string = items[0].name || items[0].displayName;
+                const artifactPrefix: string = items[0].prefix;
 
                 if (this.currentArtifact.id === artifactId) {
                     this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
                 } else {
-                    const artifactName: string = items[0].name;
-                    const artifactPrefix: string = items[0].prefix;
-                    /* tslint:disable:max-line-length */
-                    const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
-                        `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
-                        `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
-                        `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
-                    /* tslint:enable:max-line-length */
+                    let manualTraces: IRelationship[];
+                    this.currentArtifact.relationships.get()
+                        .then((relationships: IRelationship[]) => {
+                        // get the pre-existing manual traces
+                            manualTraces = relationships
+                                .filter((relationship: IRelationship) =>
+                                relationship.traceType === LinkType.Manual);
+                            console.log(manualTraces);
+                        })
+                        .finally(() => {
+                            /* tslint:disable:max-line-length */
+                            const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
+                                `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
+                                `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
+                                `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
+                            /* tslint:enable:max-line-length */
+                            this.mceEditor["selection"].setContent(inlineTrace);
 
-                    this.mceEditor["selection"].setContent(inlineTrace);
-                    this.triggerChange();
+                            this.triggerChange();
+                        });
                 }
             }
         });

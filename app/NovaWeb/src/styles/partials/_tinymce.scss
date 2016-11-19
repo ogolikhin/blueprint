@@ -59,6 +59,11 @@ body {
         font-family: 'bp-font2' !important;
     }
 
+    i.mce-ico.mce-i-inlinetrace::before {
+        content: $fonticon2-relationship-right;
+        font-family: 'bp-font2' !important;
+    }
+
     bp-comment-edit,
     bp-properties-panel {
         .mce-btn-group:nth-child(2) .mce-listbox.mce-btn-has-text button {

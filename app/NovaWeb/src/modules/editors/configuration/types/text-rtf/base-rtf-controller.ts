@@ -2,8 +2,15 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {Helper} from "../../../../shared/utils/helper";
+import {IDialogSettings, IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {
+    ArtifactPickerDialogController,
+    IArtifactPickerOptions
+} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog";
+import {Models} from "../../../../main/models";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -14,7 +21,13 @@ export interface IBPFieldBaseRTFController {
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService", "validationService"];
+    static $inject: [string] = [
+        "$scope",
+        "navigationService",
+        "validationService",
+        "localization",
+        "dialogService"
+    ];
 
     public editorBody: HTMLElement;
     public observer: MutationObserver;
@@ -22,10 +35,13 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
+    protected allowedFonts: string[];
 
     constructor(public $scope: AngularFormly.ITemplateScope,
                 public navigationService: INavigationService,
-                public validationService: IValidationService) {
+                public validationService: IValidationService,
+                public localization: ILocalizationService,
+                public dialogService: IDialogService) {
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -33,30 +49,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
 
-        $scope.options["validators"] = {
-            // tinyMCE may leave empty tags that cause the value to appear not empty
-            requiredCustom: {
-                expression: ($viewValue, $modelValue, scope) => {
-                    let value = this.mceEditor ? this.mceEditor.getContent() : $modelValue;
-                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
-                        this.contentBuffer = value;
-                        scope.options.data.isFresh = false;
-                    }
-
-                    if (this.contentBuffer !== value) {
-                        this.triggerChange(value);
-                    }
-
-                    const isValid = this.validationService.textRtfValidation.hasValueIfRequired(scope.to.required, $viewValue, $modelValue);
-
-                    scope.to["isInvalid"] = !isValid;
-                    scope.options.validation.show = !isValid;
-                    return isValid;
-                }
-            }
-        };
-
         $scope["$on"]("$destroy", () => {
+            $scope.to.onChange = this.onChange;
+
             this.removeObserver();
             if (this.editorBody) {
                 this.handleLinks(this.editorBody.querySelectorAll("a"), true);
@@ -70,46 +65,90 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         }
     };
 
-    protected fontFormats(allowedFonts: string[]): string {
+    protected handleValidation = () => {
+        const $scope = this.$scope;
+        $scope["$applyAsync"](() => {
+            const content = this.contentBuffer || "";
+            const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, content, content);
+            const formControl = $scope.fc as ng.IFormController;
+            if (formControl) {
+                formControl.$setValidity("requiredCustom", isValid, formControl);
+                $scope.to["isInvalid"] = !isValid;
+            }
+        });
+    };
+
+    protected fontFormats(): string {
         let fontFormats = "";
-        if (_.isArray(allowedFonts) && allowedFonts.length) {
-            allowedFonts.forEach(function (font) {
+        if (_.isArray(this.allowedFonts) && this.allowedFonts.length) {
+            this.allowedFonts.forEach(function (font) {
                 fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
             });
         }
         return fontFormats;
     }
 
-    protected triggerChange = (newContent: string) => {
-        const $scope = this.$scope;
-        const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, newContent, newContent);
-
-        if ($scope.fc) {
-            const fc = $scope.fc as ng.IFormController;
-            fc.$setValidity("requiredCustom", isValid, fc);
+    protected triggerChange = (newContent?: string) => {
+        if (_.isUndefined(newContent) && this.mceEditor) {
+            newContent = this.mceEditor.getContent();
         }
+        this.contentBuffer = newContent || "";
 
-        this.contentBuffer = newContent;
+        this.handleValidation();
+
+        const $scope = this.$scope;
         if (typeof this.onChange === "function") {
             this.onChange(newContent, $scope.options, $scope);
         }
     };
 
-    protected updateModel = () => {
-        const $scope = this.$scope;
-        if (this.mceEditor) {
-            this.contentBuffer = this.mceEditor.getContent();
-            $scope.model[$scope.options["key"]] = this.contentBuffer ;
-            $scope.options["data"].isFresh = false;
-        }
+    protected prepRTF = (hasTables: boolean = false) => {
+        this.editorBody = this.mceEditor.getBody() as HTMLElement;
+        this.normalizeHtml(this.editorBody, hasTables);
+        this.contentBuffer = this.mceEditor.getContent();
+        this.handleValidation();
+        this.$scope.options["data"].isFresh = false;
     };
 
-    protected prepBody(body: Node, allowedFonts: string[], hasTables: boolean = false) {
+    protected normalizeHtml(body: Node, hasTables: boolean = false) {
         Helper.autoLinkURLText(body);
         if (hasTables) {
             Helper.addTableBorders(body);
         }
-        Helper.setFontFamilyOrOpenSans(body, allowedFonts);
+        if (_.isArray(this.allowedFonts) && this.allowedFonts.length) {
+            Helper.setFontFamilyOrOpenSans(body, this.allowedFonts);
+        }
+    };
+
+    public openArtifactPicker = () => {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Add"),
+            template: require("../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: this.localization.get("Property_RTF_Add_InlineTrace")
+        };
+
+        const dialogOption: IArtifactPickerOptions = {
+            showSubArtifacts: true
+        };
+
+        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                const artifactId: number = items[0].id;
+                const artifactName: string = items[0].name;
+                const artifactPrefix: string = items[0].prefix;
+                /* tslint:disable:max-line-length */
+                const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
+                    `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
+                    `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
+                    `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
+                /* tslint:enable:max-line-length */
+
+                this.mceEditor["selection"].setContent(inlineTrace);
+                this.triggerChange();
+            }
+        });
     };
 
     public handleClick = (event: Event) => {
@@ -152,8 +191,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     public handleMutation = (mutation: MutationRecord) => {
-        let addedNodes = mutation.addedNodes;
-        let removedNodes = mutation.removedNodes;
+        const addedNodes = mutation.addedNodes;
+        const removedNodes = mutation.removedNodes;
         if (addedNodes) {
             for (let i = 0; i < addedNodes.length; i++) {
                 let node = addedNodes[i];

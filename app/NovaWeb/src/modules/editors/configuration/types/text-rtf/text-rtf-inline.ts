@@ -3,7 +3,9 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -19,14 +21,22 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService", "validationService"];
+    static $inject: [string] = [
+        "$scope",
+        "navigationService",
+        "validationService",
+        "localization",
+        "dialogService"
+    ];
 
     constructor($scope: AngularFormly.ITemplateScope,
                 navigationService: INavigationService,
-                validationService: IValidationService) {
-        super($scope, navigationService, validationService);
+                validationService: IValidationService,
+                localization: ILocalizationService,
+                dialogService: IDialogService) {
+        super($scope, navigationService, validationService, localization, dialogService);
 
-        const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
+        this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 
         const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
@@ -44,7 +54,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 },
                 object_resizing: false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
-                font_formats: this.fontFormats(allowedFonts),
+                font_formats: this.fontFormats(),
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
@@ -67,7 +77,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    this.prepBody(args.node, allowedFonts);
+                    this.normalizeHtml(args.node);
                 },
                 init_instance_callback: (editor) => {
                     this.mceEditor = editor;
@@ -109,13 +119,11 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         styles: {"font-size": "20pt"}
                     });
 
-                    this.editorBody = editor.getBody();
-                    this.prepBody(this.editorBody, allowedFonts);
-                    this.updateModel();
+                    this.prepRTF();
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
-                    if (!angular.isUndefined(mutationObserver)) {
+                    if (!_.isUndefined(mutationObserver)) {
                         // create an observer instance
                         this.observer = new MutationObserver((mutations) => {
                             mutations.forEach(this.handleMutation);
@@ -130,24 +138,14 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    editor.on("Dirty", (e) => {
-                        if (!$scope.options["data"].isFresh) {
-                            const value = editor.getContent();
-                            if (this.contentBuffer !== value) {
-                                this.triggerChange(value);
-                            }
-                        }
-                    });
-
                     editor.on("Change", (e) => {
-                        if (!$scope.options["data"].isFresh) {
-                            const value = editor.getContent();
-                            if (this.contentBuffer !== value) {
-                                this.triggerChange(value);
+                        const currentContent = editor.getContent();
+                        if (currentContent !== this.contentBuffer) {
+                            if (!$scope.options["data"].isFresh) {
+                                this.triggerChange(currentContent);
+                            } else { // this will get called when refreshing the artifact
+                                this.prepRTF();
                             }
-                        } else { // this will get called when refreshing the artifact
-                            this.prepBody(editor.getBody(), allowedFonts);
-                            this.updateModel();
                         }
                     });
 
@@ -174,63 +172,85 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                                 text: "8",
                                 onclick: () => {
                                     editor.formatter.apply("font8");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "9",
                                 onclick: () => {
                                     editor.formatter.apply("font9");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "10",
                                 onclick: () => {
                                     editor.formatter.apply("font10");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "11",
                                 onclick: () => {
                                     editor.formatter.apply("font11");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "12",
                                 onclick: () => {
                                     editor.formatter.apply("font12");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "14",
                                 onclick: () => {
                                     editor.formatter.apply("font14");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "16",
                                 onclick: () => {
                                     editor.formatter.apply("font16");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "18",
                                 onclick: () => {
                                     editor.formatter.apply("font18");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
                                 }
                             },
                             {
                                 text: "20",
                                 onclick: () => {
                                     editor.formatter.apply("font20");
-                                    this.triggerChange(editor.getContent());
+                                    this.triggerChange();
+                                }
+                            }
+                        ]
+                    });
+                    editor.addButton("linkstraces", {
+                        title: "Links",
+                        type: "menubutton",
+                        text: "",
+                        icon: "link",
+                        menu: [
+                            {
+                                icon: "link",
+                                text: " Links",
+                                onclick: () => {
+                                    editor.editorCommands.execCommand("mceLink");
+                                }
+                            },
+                            {
+                                icon: "numlist",
+                                text: " Inline traces",
+                                onclick: () => {
+                                    this.openArtifactPicker();
                                 }
                             }
                         ]

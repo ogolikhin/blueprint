@@ -83,7 +83,7 @@ describe("Component BPPageContent", () => {
             expect(spy).not.toHaveBeenCalled();
         }));
 
-    it("should not load breadcrumb when selected artifact is same as current artifact",
+    xit("should not load breadcrumb when selected artifact is same as current artifact",
         inject(($rootScope: ng.IRootScopeService,
             artifactManager: IArtifactManager,
             statefulArtifactFactory: IStatefulArtifactFactory,
@@ -97,7 +97,7 @@ describe("Component BPPageContent", () => {
             artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             const spy = spyOn(mainbreadcrumbService, "reloadBreadcrumbs");
-            artifactManager.selection.setSubArtifact(artifact);
+            //artifactManager.selection.setSubArtifact(artifact);
 
             // Assert
             const breadcrumbs = mainbreadcrumbService.breadcrumbLinks;

@@ -86,7 +86,8 @@ describe("When process is saved", () => {
         processModel = JSON.parse(require("./mocks/process-model-1.mock.json"));
 
         const artifactServices = new StatefulArtifactServices(
-            _$q_, session, messageService, null, localization, artifactService, null, null, metadataService, null, null, validationService);
+            _$q_, session, messageService, null, localization, artifactService, null, null, 
+            metadataService, null, null, validationService, null);
 
         services = new StatefulProcessArtifactServices(artifactServices, _$q_, processService);
 
@@ -100,6 +101,9 @@ describe("When process is saved", () => {
 
         processArtifact = new StatefulProcessArtifact(artifactModel, services);
         processArtifact["onLoad"](processModel);
+        spyOn(processArtifact, "validate").and.callFake(() => {
+            return $q.resolve();
+        });
 
         let newStateValues = {
             lockDateTime: new Date(),
@@ -127,7 +131,7 @@ describe("When process is saved", () => {
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
             return $q.when(processArtifact);
         });
-
+ 
         processArtifact.save()
             .then((processArtifact) => {
                 // assert

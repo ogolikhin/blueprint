@@ -29,8 +29,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
-    private selectedArtifactId: number;
-    private isFullReLoad: boolean;
 
     public static $inject: [string] = [
         "$q",
@@ -47,7 +45,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private messageService: IMessageService) {
-        this.isFullReLoad = true;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -72,32 +69,16 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }
 
     private setSelectedNode(artifactId: number) {
-        const setSelectedNodeInternal = (artifactId: number) => {
-            if (this.tree.nodeExists(artifactId)) {
-                this.tree.selectNode(artifactId);
-
-                if (!this.selected || this.selected.model.id !== artifactId) {
-                    let selectedObjectInTree: IArtifactNode = <IArtifactNode>this.tree.getNodeData(artifactId);
-                    if (selectedObjectInTree) {
-                        this.selected = selectedObjectInTree;
-                    }
-                }
-            } else {
-                this.tree.deselectAll();
-
-                this.selected = null;
-            }
-        };
-
-        // If this method is called after onLoadProject, but before onGridReset, the action will be
-        // deferred until after onGridReset. This allows code that refreshes explorer, then
-        // navigates to a new artifact, to work as expected.
+        // If this method is called after onLoadProject, but before onGridReset, the artifact will be
+        // selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
+        // artifact, to work as expected.
         if (this.isLoading) {
-            this.isLoading.promise.then(() => setSelectedNodeInternal(artifactId));
+            this.pendingSelectedArtifactId = artifactId;
+        } else if (this.tree.nodeExists(artifactId)) {
+            this.tree.selectNode(artifactId);
         } else {
-            setSelectedNodeInternal(artifactId);
+            this.tree.deselectAll();
         }
-
     }
 
     private _selected: IArtifactNode;
@@ -114,57 +95,36 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
 
         if (value) {
-            this.selectedArtifactId = value.model.id;
-
             this.selectedArtifactSubscriber = value.model.getProperyObservable()
                         .distinctUntilChanged(changes => changes.item && changes.item.name)
                         .subscribeOnNext(this.onSelectedArtifactChange);
         }
     }
 
-    // Indicates loading in progress and allows actions to be deferred until it is complete
-    private isLoading: ng.IDeferred<void>;
+    private isLoading: boolean;
+    private pendingSelectedArtifactId: number;
 
     private onLoadProject = (projects: IArtifactNode[]) => {
-        if (!this.isLoading) {
-            this.isLoading = this.$q.defer<void>();
-        }
+        this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
 
     public onGridReset(): void {
-        if (this.isLoading) {
-            this.isLoading.resolve();
-            this.isLoading = undefined;
-        }
+        this.isLoading = false;
 
-        const currentSelectionId = this.selectedArtifactId;
+        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
         let navigateToId: number;
         if (this.projects && this.projects.length > 0) {
-            if (!this.selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
-                this.setSelectedNode(this.projects[0].model.id);
-                navigateToId = this.selectedArtifactId;
-            }
-
-            if (this.tree.nodeExists(this.selectedArtifactId)) {
-                //if node exists in the tree
-                if (this.isFullReLoad || this.selectedArtifactId !== this.selected.model.id) {
-                    navigateToId = this.selectedArtifactId;
-                }
-                this.isFullReLoad = true;
-
-                //replace with a new object from tree, since the selected object may be stale after refresh
-                this.setSelectedNode(this.selectedArtifactId);
+            if (this.pendingSelectedArtifactId) {
+                navigateToId = this.pendingSelectedArtifactId;
+                this.pendingSelectedArtifactId = undefined;
+            } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+                navigateToId = this.projects[0].model.id;
+            } else if (this.tree.nodeExists(selectedArtifactId)) {
+                navigateToId = selectedArtifactId;
             } else if (this.tree.nodeExists(this.selected.model.parentId)) {
-                //otherwise, if parent node is in the tree
-                this.tree.selectNode(this.selected.model.parentId);
                 navigateToId = this.selected.model.parentId;
-
-                //replace with a new object from tree, since the selected object may be stale after refresh
-                this.setSelectedNode(this.selected.model.parentId);
             } else if (this.tree.nodeExists(this.selected.model.projectId)) {
-                //otherwise, try with project node
-                this.tree.selectNode(this.selected.model.projectId);
                 navigateToId = this.selected.model.projectId;
             }
         }
@@ -172,8 +132,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.numberOfProjectsOnLastLoad = this.projects.length;
 
         if (_.isFinite(navigateToId)) {
-            if (navigateToId !== currentSelectionId) {
-                this.navigationService.navigateTo({ id: navigateToId });
+            if (navigateToId !== selectedArtifactId) {
+                this.tree.selectNode(navigateToId);
             } else {
                 this.navigationService.reloadParentState();
             }
@@ -184,10 +144,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item) {
-            const node = this.tree.getNodeData(changes.item.id) as IArtifactNode;
-            if (node) {
-                this.tree.refresh(node.model.id);
-            }
+            this.tree.refresh(changes.item.id);
         }
     };
 

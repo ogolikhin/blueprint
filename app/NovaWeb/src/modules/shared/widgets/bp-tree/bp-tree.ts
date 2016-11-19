@@ -53,7 +53,6 @@ export interface IBPTreeControllerApi {
     selectNode(id: number);
     deselectAll();
     nodeExists(id: number): boolean;
-    getNodeData(id: number): Object;
     refresh(id?: number);
 }
 
@@ -177,17 +176,6 @@ export class BPTreeController implements IBPTreeController {
             return found;
         },
 
-        getNodeData: (id: number) => {
-            let result: Object = null;
-            this.options.api.getModel().forEachNode((node: agGrid.RowNode) => {
-                const vm = node.data as IArtifactNode;
-                if (vm.model.id === id) {
-                    result = vm;
-                }
-            });
-            return result;
-        },
-
         refresh: (id?: number) => {
             if (id) {
                 let nodes = [];
@@ -214,14 +202,16 @@ export class BPTreeController implements IBPTreeController {
                 if (this.options.api) {
                     this.options.api.setRowData(this.rowData);
 
-                    // Restore selection
+                    // Restore selection (don't raise selection events)
                     if (selectedVM && selectedVM.model) {
+                        this.options.onRowSelected = undefined;
                         this.options.api.forEachNode(node => {
                             const vm = node.data as IArtifactNode;
                             if (vm.model.id === selectedVM.model.id) {
                                 node.setSelected(true, true);
                             }
                         });
+                        this.options.onRowSelected = this.rowSelected;
                     }
                 }
             }).catch(reason => {

@@ -54,7 +54,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
         }
     };
 
-    public handleValidationMessage(validationCheck: string, isValid: boolean, scope) {
+    public static handleValidationMessage(validationCheck: string, isValid: boolean, scope) {
 //            if (scope.fc && scope.fc.$error) {
                 scope.$applyAsync(() => {
                     scope.fc.$error[validationCheck] = !isValid;

@@ -101,6 +101,9 @@ describe("When process is saved", () => {
 
         processArtifact = new StatefulProcessArtifact(artifactModel, services);
         processArtifact["onLoad"](processModel);
+        spyOn(processArtifact, "validate").and.callFake(() => {
+            return $q.resolve();
+        });
 
         let newStateValues = {
             lockDateTime: new Date(),
@@ -128,7 +131,7 @@ describe("When process is saved", () => {
         spyOn(processArtifact, "saveArtifact").and.callFake(() => {
             return $q.when(processArtifact);
         });
-
+ 
         processArtifact.save()
             .then((processArtifact) => {
                 // assert

@@ -1204,6 +1204,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicke
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Searching', 'en-US', N'Searching...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_ShowMore', 'en-US', N'Show more')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Display_Top_N_Results', 'en-US', N'Displaying first {0} results')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_Add_InlineTrace', 'en-US', N'Add Inline Trace')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The artifact cannot be opened. It is no longer accessible by you.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Sorry, but the artifact cannot be found. It has likely been deleted or moved.')

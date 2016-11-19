@@ -8,6 +8,7 @@ import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
+import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -17,7 +18,7 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export interface IProjectExplorerController {
     // BpTree bindings
-    tree: IBPTreeControllerApi;
+    treeApi: IBPTreeControllerApi;
     projects: IArtifactNode[];
     columns: any[];
     doSelect: Function;
@@ -74,10 +75,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
         // artifact, to work as expected.
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
-        } else if (this.tree.nodeExists(artifactId)) {
-            this.tree.selectNode(artifactId);
+        } else if (this.treeApi.nodeExists(artifactId)) {
+            this.treeApi.selectNode(artifactId);
         } else {
-            this.tree.deselectAll();
+            this.treeApi.deselectAll();
         }
     }
 
@@ -120,11 +121,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 this.pendingSelectedArtifactId = undefined;
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;
-            } else if (this.tree.nodeExists(selectedArtifactId)) {
+            } else if (this.treeApi.nodeExists(selectedArtifactId)) {
                 navigateToId = selectedArtifactId;
-            } else if (this.tree.nodeExists(this.selected.model.parentId)) {
+            } else if (this.treeApi.nodeExists(this.selected.model.parentId)) {
                 navigateToId = this.selected.model.parentId;
-            } else if (this.tree.nodeExists(this.selected.model.projectId)) {
+            } else if (this.treeApi.nodeExists(this.selected.model.projectId)) {
                 navigateToId = this.selected.model.projectId;
             }
         }
@@ -133,7 +134,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
         if (_.isFinite(navigateToId)) {
             if (navigateToId !== selectedArtifactId) {
-                this.tree.selectNode(navigateToId);
+                this.treeApi.selectNode(navigateToId);
             } else {
                 this.navigationService.reloadParentState();
             }
@@ -144,56 +145,46 @@ export class ProjectExplorerController implements IProjectExplorerController {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item) {
-            this.tree.refresh(changes.item.id);
+            this.treeApi.refresh(changes.item.id);
         }
     };
 
     // BpTree bindings
 
-    public tree: IBPTreeControllerApi;
+    public treeApi: IBPTreeControllerApi;
     public projects: IArtifactNode[];
-    public columns = [{
-        headerName: "",
-        field: "name",
-        cellClass: function (params) {
-            const node = params.data as IArtifactNode;
-            let css: string[] = [];
+    public columns: IColumn[] = [{
+        cellClass: (vm: IArtifactNode) => {
+            const result = [] as string[];
 
-            if (node.group) {
-                css.push("has-children");
+            if (vm.group) {
+                result.push("has-children");
             }
             let typeName: string;
-            if (node.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
-                node.model.itemTypeId === Models.ItemTypePredefined.Collections) {
+            if (vm.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
+                vm.model.itemTypeId === Models.ItemTypePredefined.Collections) {
                 typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
             } else {
-                typeName = Models.ItemTypePredefined[node.model.predefinedType];
+                typeName = Models.ItemTypePredefined[vm.model.predefinedType];
             }
             if (typeName) {
-                css.push("is-" + _.kebabCase(typeName));
+                result.push("is-" + _.kebabCase(typeName));
             }
-            return css;
+            return result;
         },
-
-        cellRenderer: "group",
-        cellRendererParams: {
-            innerRenderer: (params) => {
-                const node = params.data as IArtifactNode;
-                let icon = "<i></i>";
-                const artifact = node.model;
-                const name = Helper.escapeHTMLText(artifact.name);
-                if (_.isFinite(artifact.itemTypeIconId)) {
-                    icon = `<bp-item-type-icon
-                                item-type-id="${artifact.itemTypeId}"
-                                item-type-icon-id="${artifact.itemTypeIconId}"></bp-item-type-icon>`;
-                }
-                return `${icon}<span>${name}</span>`;
-            },
-            padding: 20
-        },
-        suppressMenu: true,
-        suppressSorting: true,
-        suppressFiltering: true
+        isGroup: true,
+        innerRenderer: (params: IColumnRendererParams) => {
+            const vm = params.data as IArtifactNode;
+            let icon = "<i></i>";
+            const artifact = vm.model;
+            const label = Helper.escapeHTMLText(artifact.name);
+            if (_.isFinite(artifact.itemTypeIconId)) {
+                icon = `<bp-item-type-icon
+                            item-type-id="${artifact.itemTypeId}"
+                            item-type-icon-id="${artifact.itemTypeIconId}"></bp-item-type-icon>`;
+            }
+            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
+        }
     }];
 
     public doSelect = (node: IArtifactNode) => {

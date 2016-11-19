@@ -1,7 +1,6 @@
-﻿<bp-tree api="$ctrl.tree"
+﻿<bp-tree api="$ctrl.treeApi"
          row-data="$ctrl.projects"
-         grid-columns="$ctrl.columns"
-         on-load="$ctrl.doLoad(prms)"
+         columns="$ctrl.columns"
          on-select="$ctrl.doSelect(item)"
          on-error="$ctrl.onError(reason)"
          on-grid-reset="$ctrl.onGridReset()">

@@ -7,7 +7,7 @@ import {IArtifactNode} from "../../../managers/project-manager";
  *
  * <bp-tree api="$ctrl.tree"
  *          row-datas="$ctrl.projects"
- *          grid-columns="$ctrl.columns"
+ *          columns="$ctrl.columns"
  *          on-select="$ctrl.doSelect(item)"
  *          on-error="$ctrl.onError(reason)"
  *          on-grid-reset="$ctrl.onGridReset()">
@@ -26,7 +26,7 @@ export class BPTreeComponent implements ng.IComponentOptions {
         rowBuffer: "<",
         headerHeight: "<",
         rowData: "<",
-        gridColumns: "<",
+        columns: "<",
         // Output
         onSelect: "&?",
         onError: "&?",
@@ -42,10 +42,30 @@ export interface IBPTreeController {
     rowHeight: number;
     headerHeight: number;
     rowData: IArtifactNode[];
-    gridColumns: any[];
+    columns: any[];
     onSelect?: Function;                //to be called on time of ag-grid row selection
     onError: (param: {reason: any}) => void;
     onGridReset: () => void;
+}
+
+export interface IColumn {
+    headerCellRenderer?: Function;
+    headerName?: string;
+    field?: string;
+    width?: number;
+    colWidth?: number;
+    minColWidth?: number;
+    isGroup?: boolean;
+    isCheckboxSelection?: boolean;
+    isCheckboxHidden?: boolean;
+    cellClass?: (vm: IArtifactNode) => string[];
+    innerRenderer?: (params: IColumnRendererParams) => string;
+}
+
+export interface IColumnRendererParams {
+    data: IArtifactNode;
+    eGridCell: HTMLElement;
+    $scope: ng.IScope;
 }
 
 export interface IBPTreeControllerApi {
@@ -65,7 +85,7 @@ export class BPTreeController implements IBPTreeController {
     public rowHeight: number;
     public headerHeight: number;
     public rowData: IArtifactNode[] = [];
-    public gridColumns: any[];
+    public columns: IColumn[];
     public onSelect: Function;
     public onError: (param: {reason: any}) => void;
     public onGridReset: () => void;
@@ -80,21 +100,8 @@ export class BPTreeController implements IBPTreeController {
         this.rowBuffer = this.rowBuffer ? this.rowBuffer : 200;
         this.rowHeight = this.rowHeight ? this.rowHeight : 24;
         this.rowData = this.rowData ? this.rowData : [];
+        this.columns = this.columns ? this.columns : [];
         this.headerHeight = this.headerHeight ? this.headerHeight : 0;
-
-        if (_.isArray(this.gridColumns)) {
-            this.gridColumns.map(function (gridCol) {
-                // if we are grouping and the caller doesn't provide the innerRenderer, we use the default one
-                if (gridCol.cellRenderer === "group") {
-                    if (gridCol.cellRendererParams && _.isFunction(gridCol.cellRendererParams.innerRenderer)) {
-                        this._innerRenderer = gridCol.cellRendererParams.innerRenderer;
-                        gridCol.cellRendererParams.innerRenderer = this.innerRenderer;
-                    }
-                }
-            }.bind(this));
-        } else {
-            this.gridColumns = [];
-        }
     }
 
     public $onInit = () => {
@@ -110,7 +117,7 @@ export class BPTreeController implements IBPTreeController {
             rowBuffer: this.rowBuffer,
             rowHeight: this.rowHeight,
             enableColResize: true,
-            columnDefs: this.gridColumns,
+            columnDefs: [],
             icons: {
                 groupExpanded: "<i />",
                 groupContracted: "<i />"
@@ -128,7 +135,7 @@ export class BPTreeController implements IBPTreeController {
     };
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["rowData"]) {
+        if (onChangesObj["rowData"] || onChangesObj["columns"]) {
             this.resetGridAsync();
         }
     }
@@ -194,6 +201,23 @@ export class BPTreeController implements IBPTreeController {
 
     private resetGridAsync(): ng.IPromise<void> {
         if (this.options.api) {
+            this.options.api.setColumnDefs(this.columns.map(column => ({
+                   headerName: column.headerName ? column.headerName : "",
+                   field: column.field,
+                   width: column.width,
+                   cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as IArtifactNode) : undefined,
+                   cellRenderer: column.isGroup ? "group" : column.innerRenderer,
+                   cellRendererParams: column.isGroup ? {
+                        innerRenderer: column.innerRenderer ?
+                            (params: IColumnRendererParams) => this.innerRenderer(params, column.innerRenderer(params)) : undefined,
+                        padding: 20
+                    } : undefined,
+                    checkboxSelection: column.isCheckboxSelection,
+                    suppressMenu: true,
+                    suppressSorting: true,
+                    headerCellRenderer: column.headerCellRenderer
+                } as agGrid.ColDef)));
+
             // Save selection
             const selectedVMs = this.options.api.getSelectedRows() as IArtifactNode[];
             const selectedVM = selectedVMs.length ? selectedVMs[0] : undefined;
@@ -262,7 +286,7 @@ export class BPTreeController implements IBPTreeController {
     };
 
     private clearFocus() {
-        this.options.api.setFocusedCell(-1, this.gridColumns[0].field);
+        this.options.api.setFocusedCell(-1, this.columns[0].field);
     }
 
     private updateViewport = (params?: any) => {
@@ -277,9 +301,8 @@ export class BPTreeController implements IBPTreeController {
         }
     };
 
-    private innerRenderer = (params: any) => {
-        const vm = params.node.data as IArtifactNode;
-        let currentValue = this._innerRenderer(params) || params.value;
+    private innerRenderer = (params: IColumnRendererParams, currentValue: string) => {
+        const vm = params.data as IArtifactNode;
         return `<span class="ag-group-value-wrapper">
                     <a ui-sref="main.item({ id: ${vm.model.id} })" ng-click="$event.preventDefault()" class="explorer__node-link">${currentValue}</a>
                 </span>`;

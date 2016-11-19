@@ -6,6 +6,9 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -25,16 +28,22 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         "$scope",
         "navigationService",
         "validationService",
+        "messageService",
         "localization",
-        "dialogService"
+        "dialogService",
+        "selectionManager",
+        "artifactRelationships"
     ];
 
     constructor($scope: AngularFormly.ITemplateScope,
                 navigationService: INavigationService,
                 validationService: IValidationService,
+                messageService: IMessageService,
                 localization: ILocalizationService,
-                dialogService: IDialogService) {
-        super($scope, navigationService, validationService, localization, dialogService);
+                dialogService: IDialogService,
+                selectionManager: ISelectionManager,
+                artifactRelationships: IArtifactRelationships) {
+        super($scope, navigationService, validationService, messageService, localization, dialogService, selectionManager, artifactRelationships);
 
         this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 

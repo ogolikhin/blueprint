@@ -15,6 +15,8 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 
 describe("Formly Text RTF Inline", () => {
     const fieldsDefinition = [
@@ -42,7 +44,12 @@ describe("Formly Text RTF Inline", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("validationService", ValidationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
+        $provide.service("selectionManager", () => ({
+            getArtifact: () => { return undefined; }
+        }));
+        $provide.service("artifactRelationships", ArtifactRelationshipsMock);
     }));
 
     afterEach(() => {

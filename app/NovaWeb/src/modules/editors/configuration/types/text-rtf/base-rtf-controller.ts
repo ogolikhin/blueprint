@@ -12,6 +12,7 @@ import {
 } from "../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog";
 import {Models} from "../../../../main/models";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
@@ -37,13 +38,16 @@ interface ITinyMceMenu {
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     static $inject: [string] = [
+        "$q",
         "$scope",
+        "$window",
         "navigationService",
         "validationService",
         "messageService",
         "localization",
         "dialogService",
         "selectionManager",
+        "artifactService",
         "artifactRelationships"
     ];
 
@@ -56,13 +60,16 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
 
-    constructor(protected $scope: AngularFormly.ITemplateScope,
+    constructor(protected $q: ng.IQService,
+                protected $scope: AngularFormly.ITemplateScope,
+                protected $window: ng.IWindowService,
                 public navigationService: INavigationService,
                 protected validationService: IValidationService,
                 protected messageService: IMessageService,
                 protected localization: ILocalizationService,
                 protected dialogService: IDialogService,
                 protected selectionManager: ISelectionManager,
+                protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
 
@@ -87,6 +94,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         if (this.observer) {
             this.observer.disconnect();
         }
+    };
+
+    private getAppBaseUrl = (): string => {
+        const location = this.$window.location as Location;
+
+        let origin: string = location.origin;
+        if (!origin) {
+            origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
+        }
+
+        return origin + "/";
     };
 
     protected handleValidation = () => {
@@ -197,19 +215,28 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             showSubArtifacts: true
         };
 
-        this.dialogService.open(dialogSettings, dialogOption).then((items: IArtifactOrSubArtifact[]) => {
-            if (items.length === 1) {
-                const artifactId: number = items[0].id;
-                const artifactName: string = items[0].name || items[0].displayName;
-                const artifactPrefix: string = items[0].prefix;
+        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IArtifact[] | Models.ISubArtifactNode[]) => {
+            if (items.length !== 1) {
+                this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Invalid_Selection"));
+                return;
+            }
 
-                if (this.currentArtifact.id === artifactId) {
-                    this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
-                } else {
+            if (this.currentArtifact.id === items[0].id) {
+                this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
+            } else {
+                const isSubArtifact: boolean = !items[0].hasOwnProperty("projectId");
+                this.$q.when(isSubArtifact ? this.artifactService.getArtifact(items[0].parentId) : items[0] as Models.IArtifact)
+                .then((artifact: Models.IArtifact) => {
+                    let subArtifact: Models.ISubArtifactNode = isSubArtifact ? items[0] as Models.ISubArtifactNode : undefined;
+                    const itemId: number = isSubArtifact ? subArtifact.id : artifact.id;
+
+                    const itemName: string = isSubArtifact ? subArtifact.displayName : artifact.name;
+                    const itemPrefix: string = isSubArtifact ? subArtifact.prefix : artifact.prefix;
+
                     this.currentArtifact.relationships.get()
                         .then((relationships: IRelationship[]) => {
                             // get the pre-existing manual traces
-                            const manualTraces: IRelationship[] = relationships
+                            let manualTraces: IRelationship[] = relationships
                                 .filter((relationship: IRelationship) =>
                                 relationship.traceType === LinkType.Manual);
 
@@ -217,7 +244,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                             // (with either To or TwoWay direction) we don't need to add the manual trace.
                             const isArtifactAlreadyLinkedTo: boolean = manualTraces
                                 .some((relationship: IRelationship) => {
-                                    return relationship.itemId === artifactId &&
+                                    return relationship.itemId === itemId &&
                                         (relationship.traceDirection === TraceDirection.To || relationship.traceDirection === TraceDirection.TwoWay);
                                 });
 
@@ -226,35 +253,60 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                 // (with From direction) we just update the direction
                                 const isArtifactAlreadyLinkedFrom = manualTraces
                                     .some((relationship: IRelationship) => {
-                                        return relationship.itemId === artifactId && relationship.traceDirection === TraceDirection.From;
+                                        return relationship.itemId === itemId && relationship.traceDirection === TraceDirection.From;
                                     });
 
                                 if (isArtifactAlreadyLinkedFrom) {
                                     manualTraces.forEach((relationship: IRelationship) => {
-                                        if (relationship.itemId === artifactId) {
+                                        if (relationship.itemId === itemId) {
                                             relationship.traceDirection = TraceDirection.TwoWay;
                                         }
                                     });
                                 } else {
-                                    //
+                                    const newTrace: IRelationship = {
+                                        artifactId: artifact.id,
+                                        artifactTypePrefix: artifact.prefix,
+                                        artifactName: artifact.name,
+                                        itemId: itemId,
+                                        itemTypePrefix: isSubArtifact ? subArtifact.prefix : artifact.prefix,
+                                        itemName: artifact.name,
+                                        itemLabel: isSubArtifact ? subArtifact.displayName : undefined,
+                                        projectId: artifact.projectId,
+                                        projectName: artifact.artifactPath && artifact.artifactPath.length ?
+                                            artifact.artifactPath[0] : undefined, //
+                                        traceDirection: TraceDirection.To,
+                                        traceType: LinkType.Manual,
+                                        suspect: false,
+                                        hasAccess: true,
+                                        primitiveItemTypePredefined: undefined, //
+                                        isSelected: false,
+                                        readOnly: false //
+                                    };
+
+                                    manualTraces = manualTraces.concat([newTrace]);
                                 }
 
                                 this.currentArtifact.relationships.updateManual(manualTraces);
                             }
-                            // console.log(manualTraces);
                         })
                         .finally(() => {
                             /* tslint:disable:max-line-length */
+                            // we run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
+                            const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + itemId.toString();
+                            const linkText: string = itemPrefix + itemId.toString() + ": " + itemName;
+                            const escapedLinkText: string = _.escape(linkText);
                             const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
-                                `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
-                                `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
-                                `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
+                                `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
+                                `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
+                                `href="${linkUrl}" target="_blank" artifactid="${itemId.toString()}" ` +
+                                `data-mce-contenteditable="false" class="mceNonEditable">` +
+                                `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span></a>`;
                             /* tslint:enable:max-line-length */
                             this.mceEditor["selection"].setContent(inlineTrace);
 
                             this.triggerChange();
                         });
-                }
+                });
             }
         });
     };

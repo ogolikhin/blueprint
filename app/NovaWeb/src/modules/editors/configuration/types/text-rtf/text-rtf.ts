@@ -7,6 +7,7 @@ import {ILocalizationService} from "../../../../core/localization/localizationSe
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IMessageService} from "../../../../core/messages/message.svc";
 
@@ -25,25 +26,32 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = [
+        "$q",
         "$scope",
+        "$window",
         "navigationService",
         "validationService",
         "messageService",
         "localization",
         "dialogService",
         "selectionManager",
+        "artifactService",
         "artifactRelationships"
     ];
 
-    constructor($scope: AngularFormly.ITemplateScope,
+    constructor($q: ng.IQService,
+                $scope: AngularFormly.ITemplateScope,
+                $window: ng.IWindowService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
                 messageService: IMessageService,
                 localization: ILocalizationService,
                 dialogService: IDialogService,
                 selectionManager: ISelectionManager,
+                artifactService: IArtifactService,
                 artifactRelationships: IArtifactRelationships) {
-        super($scope, navigationService, validationService, messageService, localization, dialogService, selectionManager, artifactRelationships);
+        super($q, $scope, $window, navigationService, validationService, messageService,
+            localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss
         /* tslint:disable:max-line-length */

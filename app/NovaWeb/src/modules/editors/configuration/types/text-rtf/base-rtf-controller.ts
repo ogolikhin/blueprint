@@ -55,6 +55,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
+    protected isSingleLine: boolean = false;
 
     constructor(protected $q: ng.IQService,
                 protected $scope: AngularFormly.ITemplateScope,

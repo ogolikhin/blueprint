@@ -1206,6 +1206,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicke
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_UserPicker_Display_Top_N_Results', 'en-US', N'Displaying first {0} results')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_Add_InlineTrace', 'en-US', N'Add Inline Trace')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Itself', 'en-US', N'Cannot add an inline trace to itself')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Invalid_Selection', 'en-US', N'Invalid selection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Permissions', 'en-US', N'You cannot add inline traces')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The artifact cannot be opened. It is no longer accessible by you.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Sorry, but the artifact cannot be found. It has likely been deleted or moved.')

@@ -10,7 +10,7 @@ import {
     ArtifactPickerDialogController,
     IArtifactPickerOptions
 } from "../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog";
-import {Models} from "../../../../main/models";
+import {Models, Enums} from "../../../../main/models";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
@@ -24,10 +24,6 @@ export interface IBPFieldBaseRTFController {
     handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
-}
-
-interface IArtifactOrSubArtifact extends Models.IArtifact {
-    displayName?: string;
 }
 
 interface ITinyMceMenu {
@@ -183,23 +179,24 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             onclick: () => {
                 editor.editorCommands.execCommand("mceLink");
             }
-        }];
-        if (this.canManageTraces()) {
-            menuItems.push({
-                icon: "inlinetrace",
-                text: " Inline traces",
-                onclick: () => {
+        }, {
+            icon: "inlinetrace",
+            text: " Inline traces",
+            onclick: () => {
+                if (this.canManageTraces()) {
                     this.openArtifactPicker();
+                } else {
+                    this.messageService.addError("Property_RTF_InlineTrace_Error_Permissions");
                 }
-            });
-        }
+            }
+        }];
         return menuItems;
     };
 
     private canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
-        return this.currentArtifact ? !this.currentArtifact.artifactState.readonly &&
-            this.currentArtifact.relationships.canEdit : false;
+        return this.currentArtifact ? this.currentArtifact.relationships.canEdit &&
+            (this.currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit : false;
     }
 
     public openArtifactPicker = () => {
@@ -273,14 +270,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                         itemLabel: isSubArtifact ? subArtifact.displayName : undefined,
                                         projectId: artifact.projectId,
                                         projectName: artifact.artifactPath && artifact.artifactPath.length ?
-                                            artifact.artifactPath[0] : undefined, //
+                                            artifact.artifactPath[0] : undefined, //TODO: find project name when subartifact
                                         traceDirection: TraceDirection.To,
                                         traceType: LinkType.Manual,
                                         suspect: false,
                                         hasAccess: true,
-                                        primitiveItemTypePredefined: undefined, //
+                                        primitiveItemTypePredefined: undefined, //TODO: put proper value
                                         isSelected: false,
-                                        readOnly: false //
+                                        readOnly: false //TODO: put proper value
                                     };
 
                                     manualTraces = manualTraces.concat([newTrace]);
@@ -300,7 +297,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                 `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
                                 `href="${linkUrl}" target="_blank" artifactid="${itemId.toString()}" ` +
                                 `data-mce-contenteditable="false" class="mceNonEditable">` +
-                                `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span></a>`;
+                                `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
+                                `</a>&#65279;`;
                             /* tslint:enable:max-line-length */
                             this.mceEditor["selection"].setContent(inlineTrace);
 

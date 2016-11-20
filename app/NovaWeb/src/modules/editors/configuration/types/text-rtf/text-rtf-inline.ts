@@ -60,7 +60,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "bold italic underline strikethrough | fontselect forecolor | link | removeformat",
+                toolbar: "bold italic underline strikethrough | fontselect forecolor | linkstraces | removeformat",
                 statusbar: false,
                 valid_elements: "span[*],a[*],strong/b,em/i,u,sup,sub",
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +

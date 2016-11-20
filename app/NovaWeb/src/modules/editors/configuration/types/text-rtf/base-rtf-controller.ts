@@ -26,10 +26,6 @@ export interface IBPFieldBaseRTFController {
     handleMutation(mutation: MutationRecord): void;
 }
 
-interface IArtifactOrSubArtifact extends Models.IArtifact {
-    displayName?: string;
-}
-
 interface ITinyMceMenu {
     icon?: string;
     text: string;
@@ -273,14 +269,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                         itemLabel: isSubArtifact ? subArtifact.displayName : undefined,
                                         projectId: artifact.projectId,
                                         projectName: artifact.artifactPath && artifact.artifactPath.length ?
-                                            artifact.artifactPath[0] : undefined, //
+                                            artifact.artifactPath[0] : undefined, //TODO: find project name when subartifact
                                         traceDirection: TraceDirection.To,
                                         traceType: LinkType.Manual,
                                         suspect: false,
                                         hasAccess: true,
-                                        primitiveItemTypePredefined: undefined, //
+                                        primitiveItemTypePredefined: undefined, //TODO: put proper value
                                         isSelected: false,
-                                        readOnly: false //
+                                        readOnly: false //TODO: put proper value
                                     };
 
                                     manualTraces = manualTraces.concat([newTrace]);

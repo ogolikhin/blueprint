@@ -16,6 +16,7 @@ import {IArtifactRelationships} from "../../../../managers/artifact-manager/rela
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -27,6 +28,7 @@ export interface IBPFieldBaseRTFController {
 
 interface IArtifactOrSubArtifact extends Models.IArtifact {
     displayName?: string;
+    isSubArtifact?: boolean;
 }
 
 interface ITinyMceMenu {
@@ -38,6 +40,7 @@ interface ITinyMceMenu {
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     static $inject: [string] = [
         "$scope",
+        "$window",
         "navigationService",
         "validationService",
         "messageService",
@@ -57,6 +60,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected allowedFonts: string[];
 
     constructor(protected $scope: AngularFormly.ITemplateScope,
+                protected $window: ng.IWindowService,
                 public navigationService: INavigationService,
                 protected validationService: IValidationService,
                 protected messageService: IMessageService,
@@ -87,6 +91,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         if (this.observer) {
             this.observer.disconnect();
         }
+    };
+
+    private getAppBaseUrl = (): string => {
+        const location = this.$window.location as Location;
+
+        let origin: string = location.origin;
+        if (!origin) {
+            origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
+        }
+
+        return origin + "/";
     };
 
     protected handleValidation = () => {
@@ -199,17 +214,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         this.dialogService.open(dialogSettings, dialogOption).then((items: IArtifactOrSubArtifact[]) => {
             if (items.length === 1) {
-                const artifactId: number = items[0].id;
-                const artifactName: string = items[0].name || items[0].displayName;
-                const artifactPrefix: string = items[0].prefix;
+                const selectedArtifact: IArtifactOrSubArtifact = items[0];
+                selectedArtifact.isSubArtifact = _.isUndefined(selectedArtifact.projectId) && _.isSet(selectedArtifact.displayName);
+                const artifactName: string = selectedArtifact.name || selectedArtifact.displayName;
 
-                if (this.currentArtifact.id === artifactId) {
+                if (this.currentArtifact.id === selectedArtifact.id) {
                     this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
                 } else {
                     this.currentArtifact.relationships.get()
                         .then((relationships: IRelationship[]) => {
                             // get the pre-existing manual traces
-                            const manualTraces: IRelationship[] = relationships
+                            let manualTraces: IRelationship[] = relationships
                                 .filter((relationship: IRelationship) =>
                                 relationship.traceType === LinkType.Manual);
 
@@ -217,7 +232,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                             // (with either To or TwoWay direction) we don't need to add the manual trace.
                             const isArtifactAlreadyLinkedTo: boolean = manualTraces
                                 .some((relationship: IRelationship) => {
-                                    return relationship.itemId === artifactId &&
+                                    return relationship.itemId === selectedArtifact.id &&
                                         (relationship.traceDirection === TraceDirection.To || relationship.traceDirection === TraceDirection.TwoWay);
                                 });
 
@@ -226,17 +241,39 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                 // (with From direction) we just update the direction
                                 const isArtifactAlreadyLinkedFrom = manualTraces
                                     .some((relationship: IRelationship) => {
-                                        return relationship.itemId === artifactId && relationship.traceDirection === TraceDirection.From;
+                                        return relationship.itemId === selectedArtifact.id && relationship.traceDirection === TraceDirection.From;
                                     });
 
                                 if (isArtifactAlreadyLinkedFrom) {
                                     manualTraces.forEach((relationship: IRelationship) => {
-                                        if (relationship.itemId === artifactId) {
+                                        if (relationship.itemId === selectedArtifact.id) {
                                             relationship.traceDirection = TraceDirection.TwoWay;
                                         }
                                     });
                                 } else {
-                                    //
+                                    const typeName = ItemTypePredefined[selectedArtifact.predefinedType];
+
+                                    const newTrace: IRelationship = {
+                                        artifactId: !selectedArtifact.isSubArtifact ? selectedArtifact.id : selectedArtifact.parentId,
+                                        artifactTypePrefix: selectedArtifact.prefix,
+                                        artifactName: artifactName,
+                                        itemId: selectedArtifact.id,
+                                        itemTypePrefix: selectedArtifact.prefix,
+                                        itemName: artifactName,
+                                        itemLabel: artifactName,
+                                        projectId: !selectedArtifact.isSubArtifact ? selectedArtifact.projectId : undefined, //
+                                        projectName: selectedArtifact.artifactPath && selectedArtifact.artifactPath.length ?
+                                            selectedArtifact.artifactPath[0] : undefined, //
+                                        traceDirection: TraceDirection.To,
+                                        traceType: LinkType.Manual,
+                                        suspect: false,
+                                        hasAccess: true,
+                                        primitiveItemTypePredefined: undefined, //
+                                        isSelected: false,
+                                        readOnly: false //
+                                    };
+
+                                    manualTraces = manualTraces.concat([newTrace]);
                                 }
 
                                 this.currentArtifact.relationships.updateManual(manualTraces);
@@ -245,10 +282,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                         })
                         .finally(() => {
                             /* tslint:disable:max-line-length */
+                            const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + selectedArtifact.id.toString();
+                            const linkText: string = selectedArtifact.prefix + selectedArtifact.id.toString() + ": " + artifactName;
+                            const escapedLinkText: string = _.escape(linkText);
                             const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
-                                `BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null" ` +
-                                `canclick="True" isvalid="True" href="/?ArtifactId=${artifactId}" target="_blank" artifactid="${artifactId}">` +
-                                `<span>${artifactPrefix}${artifactId}: ${artifactName}</span></a>`;
+                                `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
+                                `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
+                                `href="${linkUrl}" target="_blank" artifactid="${selectedArtifact.id}">` +
+                                `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span></a>`;
                             /* tslint:enable:max-line-length */
                             this.mceEditor["selection"].setContent(inlineTrace);
 

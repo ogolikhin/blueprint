@@ -26,6 +26,7 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     static $inject: [string] = [
         "$scope",
+        "$window",
         "navigationService",
         "validationService",
         "messageService",
@@ -36,6 +37,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     ];
 
     constructor($scope: AngularFormly.ITemplateScope,
+                $window: ng.IWindowService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
                 messageService: IMessageService,
@@ -43,7 +45,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 dialogService: IDialogService,
                 selectionManager: ISelectionManager,
                 artifactRelationships: IArtifactRelationships) {
-        super($scope, navigationService, validationService, messageService, localization, dialogService, selectionManager, artifactRelationships);
+        super($scope, $window, navigationService, validationService, messageService,
+            localization, dialogService, selectionManager, artifactRelationships);
 
         this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 

@@ -45,59 +45,6 @@ export class Helper {
         return stringEscaper.innerHTML;
     };
 
-    static findAncestorByCssClass = (elem: Element, selector: string): Element => {
-        let el = elem.parentElement;
-        while (el && !el.classList.contains(selector)) {
-            el = el.parentElement;
-        }
-
-        return el;
-    };
-
-    static isIE11 = (): boolean => {
-        /* references:
-         * https://blogs.msdn.microsoft.com/ieinternals/2013/09/21/internet-explorer-11s-many-user-agent-strings/
-         */
-        let _isIE11 = false;
-        if (window && window.navigator) {
-            const ua = window.navigator.userAgent;
-            _isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
-        }
-        return _isIE11;
-    };
-
-    static stringifySafe = (obj, replacer?, spaces?, cycleReplacer?): any => {
-        return JSON.stringify(obj, Helper.serializer(replacer, cycleReplacer), spaces);
-    };
-
-    static serializer = (replacer, cycleReplacer): any => {
-        const stack = [], keys = [];
-
-        if (cycleReplacer == null) {
-            cycleReplacer = function (key, value) {
-                if (stack[0] === value) {
-                    return "[Circular ~]";
-                }
-                return "[Circular ~." + keys.slice(0, stack.indexOf(value)).join(".") + "]";
-            };
-        }
-
-        return function (key, value) {
-            if (stack.length > 0) {
-                const thisPos = stack.indexOf(this);
-                ~thisPos ? stack.splice(thisPos + 1) : stack.push(this);
-                ~thisPos ? keys.splice(thisPos, Infinity, key) : keys.push(key);
-                if (~stack.indexOf(value)) {
-                    value = cycleReplacer.call(this, key, value);
-                }
-            } else {
-                stack.push(value);
-            }
-
-            return replacer == null ? value : replacer.call(this, key, value);
-        };
-    };
-
     static stripWingdings(htmlText: string): string {
         let _htmlText = htmlText || "";
         let wingdingsRegEx = /font-family:[ ]?['"]?Wingdings['"]?/gi;
@@ -242,23 +189,6 @@ export class Helper {
         div.innerHTML = html || "";
 
         return div.innerHTML;
-    }
-
-    public static toFlat(root: any): any[] {
-        const stack: any[] = angular.isArray(root) ? root.slice() : [root], array: any[] = [];
-        while (stack.length !== 0) {
-            const node = stack.shift();
-            array.push(node);
-            if (angular.isArray(node.children)) {
-
-                for (let i = node.children.length - 1; i >= 0; i--) {
-                    stack.push(node.children[i]);
-                }
-                node.children = null;
-            }
-        }
-
-        return array;
     }
 
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {

@@ -76,7 +76,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.artifactState.initialize(artifact);
         super.initialize(artifact);
 
-        if (isMisplaced) {
+        if (isMisplaced && !this.artifactState.historical) {
             this.artifactState.misplaced = true;
         }
     }

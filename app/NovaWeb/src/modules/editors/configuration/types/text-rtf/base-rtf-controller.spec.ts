@@ -9,6 +9,7 @@ import {LocalizationServiceMock} from "../../../../core/localization/localizatio
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 
 describe("Formly Base RTF Controller", () => {
     let $rootScope: ng.IRootScopeService;
@@ -39,6 +40,7 @@ describe("Formly Base RTF Controller", () => {
         $provide.service("selectionManager", () => ({
             getArtifact: () => { return undefined; }
         }));
+        $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
     }));
 

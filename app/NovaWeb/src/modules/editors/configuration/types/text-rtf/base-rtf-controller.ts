@@ -12,11 +12,11 @@ import {
 } from "../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog";
 import {Models} from "../../../../main/models";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
-import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -47,6 +47,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         "localization",
         "dialogService",
         "selectionManager",
+        "artifactService",
         "artifactRelationships"
     ];
 
@@ -67,6 +68,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected localization: ILocalizationService,
                 protected dialogService: IDialogService,
                 protected selectionManager: ISelectionManager,
+                protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
 
@@ -215,7 +217,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.dialogService.open(dialogSettings, dialogOption).then((items: IArtifactOrSubArtifact[]) => {
             if (items.length === 1) {
                 const selectedArtifact: IArtifactOrSubArtifact = items[0];
-                selectedArtifact.isSubArtifact = _.isUndefined(selectedArtifact.projectId) && _.isSet(selectedArtifact.displayName);
+                selectedArtifact.isSubArtifact = _.isUndefined(selectedArtifact.projectId);
+                if (selectedArtifact.isSubArtifact) {
+                    this.artifactService.getArtifact(selectedArtifact.parentId).then((result) => {
+                        console.log(result);
+                    });
+                }
                 const artifactName: string = selectedArtifact.name || selectedArtifact.displayName;
 
                 if (this.currentArtifact.id === selectedArtifact.id) {
@@ -251,16 +258,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                         }
                                     });
                                 } else {
-                                    const typeName = ItemTypePredefined[selectedArtifact.predefinedType];
-
                                     const newTrace: IRelationship = {
                                         artifactId: !selectedArtifact.isSubArtifact ? selectedArtifact.id : selectedArtifact.parentId,
-                                        artifactTypePrefix: selectedArtifact.prefix,
-                                        artifactName: artifactName,
+                                        artifactTypePrefix: !selectedArtifact.isSubArtifact ? selectedArtifact.prefix : undefined,
+                                        artifactName: !selectedArtifact.isSubArtifact ? artifactName : undefined,
                                         itemId: selectedArtifact.id,
                                         itemTypePrefix: selectedArtifact.prefix,
-                                        itemName: artifactName,
-                                        itemLabel: artifactName,
+                                        itemName: !selectedArtifact.isSubArtifact ? artifactName : undefined,
+                                        itemLabel: !selectedArtifact.isSubArtifact ? undefined : artifactName,
                                         projectId: !selectedArtifact.isSubArtifact ? selectedArtifact.projectId : undefined, //
                                         projectName: selectedArtifact.artifactPath && selectedArtifact.artifactPath.length ?
                                             selectedArtifact.artifactPath[0] : undefined, //
@@ -278,17 +283,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
                                 this.currentArtifact.relationships.updateManual(manualTraces);
                             }
-                            // console.log(manualTraces);
                         })
                         .finally(() => {
                             /* tslint:disable:max-line-length */
+                            // we run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
                             const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + selectedArtifact.id.toString();
                             const linkText: string = selectedArtifact.prefix + selectedArtifact.id.toString() + ": " + artifactName;
                             const escapedLinkText: string = _.escape(linkText);
                             const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
                                 `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
                                 `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
-                                `href="${linkUrl}" target="_blank" artifactid="${selectedArtifact.id}">` +
+                                `href="${linkUrl}" target="_blank" artifactid="${selectedArtifact.id}" class="mceNotEditable">` +
                                 `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span></a>`;
                             /* tslint:enable:max-line-length */
                             this.mceEditor["selection"].setContent(inlineTrace);

@@ -26,6 +26,7 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = [
+        "$q",
         "$scope",
         "$window",
         "navigationService",
@@ -38,7 +39,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         "artifactRelationships"
     ];
 
-    constructor($scope: AngularFormly.ITemplateScope,
+    constructor($q: ng.IQService,
+                $scope: AngularFormly.ITemplateScope,
                 $window: ng.IWindowService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
@@ -48,7 +50,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 selectionManager: ISelectionManager,
                 artifactService: IArtifactService,
                 artifactRelationships: IArtifactRelationships) {
-        super($scope, $window, navigationService, validationService, messageService,
+        super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in styles/modules/_variables.scss

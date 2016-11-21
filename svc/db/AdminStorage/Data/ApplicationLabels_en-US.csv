@@ -205,6 +205,10 @@ Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other
 Discard_Success_Message,"Changes have been discarded."
 
 Move_Artifacts_Picker_Header,"Move to..."
+Move_Artifacts_Picker_Insert_Label,"Insert:"
+Move_Artifacts_Picker_Insert_Choice_Inside,"Inside"
+Move_Artifacts_Picker_Insert_Choice_Above,"Above"
+Move_Artifacts_Picker_Insert_Choice_Below,"Below"
 
 #Create New Artifact
 Create_New_Artifact_Dialog_Header,"New Artifact"

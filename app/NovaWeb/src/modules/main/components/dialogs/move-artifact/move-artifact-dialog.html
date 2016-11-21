@@ -3,9 +3,13 @@
 </div>
 <div class="modal-body">
     <div>
-        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodSelection" ng-change="$ctrl.onInsertMethodChange()">Selection</label>
-        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodAbove" ng-change="$ctrl.onInsertMethodChange()">Insert above</label>
-        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodBelow" ng-change="$ctrl.onInsertMethodChange()">Insert below</label>
+        {{::$ctrl.localization.get('Move_Artifacts_Picker_Insert_Label')}}
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodSelection" ng-change="$ctrl.onInsertMethodChange()">
+        {{::$ctrl.localization.get('Move_Artifacts_Picker_Insert_Choice_Inside')}}</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodAbove" ng-change="$ctrl.onInsertMethodChange()">
+        {{::$ctrl.localization.get('Move_Artifacts_Picker_Insert_Choice_Above')}}</label>
+        <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodBelow" ng-change="$ctrl.onInsertMethodChange()">
+        {{::$ctrl.localization.get('Move_Artifacts_Picker_Insert_Choice_Below')}}</label>
     </div>
     <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
                         selectable-item-types="$ctrl.dialogData.selectableItemTypes"

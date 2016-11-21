@@ -3,6 +3,7 @@ import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
 import {Models} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
 import {Enums} from "../../../../main/models";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export enum MoveArtifactInsertMethod {
     Selection,
@@ -26,15 +27,16 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
 
     constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                public dialogData: IMoveArtifactPickerOptions) {
-        super($instance, dialogSettings, dialogData);
+                public dialogData: IMoveArtifactPickerOptions,
+                public localization: ILocalizationService) {
+        super($instance, dialogSettings, dialogData, localization);
         
         dialogData.isItemSelectable = (item) => this.isItemSelectable(item);
         this._currentArtifact = dialogData.currentArtifact;
     }
 
     public isItemSelectable(item: Models.IArtifact) {
-        if (MoveArtifactPickerDialogController.checkParent(item, this._currentArtifact.id)) {
+        if (MoveArtifactPickerDialogController.checkAncestors(item, this._currentArtifact.id)) {
             return false;
         }
         if (this.insertMethod === this.InsertMethodSelection && this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
@@ -44,15 +46,18 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
         }
     }
 
-    private static checkParent(item: Models.IArtifact, id: number): boolean {
-        if (!item.parent) {
-            return false;
-        }
+    private static checkAncestors(item: Models.IArtifact, id: number): boolean {
         if (item.id === id) {
             return true;
-        } else {
-            return this.checkParent(item.parent, id);
         }
+        let found: boolean;
+        _.forEach(item.idPath, (ancestorId) => {
+            if (ancestorId === id) {
+                found = true;
+                return;
+            }
+        });
+        return found;
     }
 
     public get InsertMethodSelection(): MoveArtifactInsertMethod{

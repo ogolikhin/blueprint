@@ -253,8 +253,10 @@ export class BpArtifactInfoController {
         this.toolbarActions = [];
         if (artifact) {
             this.toolbarActions.push(
+                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
+            );
+            this.toolbarActions.push(
                 new BPButtonGroupAction(
-                    new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
                     new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),

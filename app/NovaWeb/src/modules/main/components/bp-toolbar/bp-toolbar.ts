@@ -169,7 +169,22 @@ export class BPToolbarController implements IBPToolbarController {
 
         const artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
-            this.closeProjectById(artifact.projectId);
+            const currentProjectId = artifact.projectId;
+
+            this.getProjectsWithUnpublishedArtifacts().then((projectsWithUnpublishedArtifacts) => {
+                const unpublishedArtifactCount = _.filter(projectsWithUnpublishedArtifacts, currentProjectId).length;
+                if (unpublishedArtifactCount > 0) {
+                    //If the project we're closing has unpublished artifacts, we display a modal
+                    let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
+                        .replace(`{0}`, unpublishedArtifactCount.toString());
+                    this.dialogService.confirm("You have {0} unpublished changes in this project. Proceed with closing project?").then(() => {
+                        this.closeProjectById(currentProjectId);
+                    });
+                } else {
+                    //Otherwise, just close it
+                    this.closeProjectById(currentProjectId);
+                }
+            });
         }
     }
 
@@ -207,7 +222,8 @@ export class BPToolbarController implements IBPToolbarController {
         //We can't use artifactManager.list() because lock state is lazy-loaded
         return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);
-            return _.uniq(projectsWithUnpublishedArtifacts);
+            //We don't use _.uniq because we care about the count of artifacts.
+            return projectsWithUnpublishedArtifacts;
         });
     }
 

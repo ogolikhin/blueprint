@@ -10,6 +10,7 @@ import {LocalizationServiceMock} from "../../../core/localization/localization.m
 import {IArtifactManager, ISelection, IStatefulArtifactFactory, StatefulArtifactFactory, ArtifactManager} from "../../../managers/artifact-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
+import {Models} from "../../../main";
 
 describe("Component BPPageContent", () => {
 
@@ -83,21 +84,28 @@ describe("Component BPPageContent", () => {
             expect(spy).not.toHaveBeenCalled();
         }));
 
-    xit("should not load breadcrumb when selected artifact is same as current artifact",
+    it("should not load breadcrumb when selected artifact is same as current artifact",
         inject(($rootScope: ng.IRootScopeService,
             artifactManager: IArtifactManager,
             statefulArtifactFactory: IStatefulArtifactFactory,
             mainbreadcrumbService: IMainBreadcrumbService) => {
 
             //Arrange
+            const subArtifactModel = {
+                id: 32,
+                name: "SubArtifact",
+                prefix: "SA",
+                predefinedType: Models.ItemTypePredefined.PROShape
+            } as Models.ISubArtifact;
             mainbreadcrumbService.breadcrumbLinks = [];
             const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My" });
+            const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
             $rootScope.$digest();
             const spy = spyOn(mainbreadcrumbService, "reloadBreadcrumbs");
-            //artifactManager.selection.setSubArtifact(artifact);
+            artifactManager.selection.setSubArtifact(subArtifact);
 
             // Assert
             const breadcrumbs = mainbreadcrumbService.breadcrumbLinks;

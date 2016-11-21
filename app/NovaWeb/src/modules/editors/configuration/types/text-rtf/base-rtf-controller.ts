@@ -144,11 +144,21 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected prepRTF = (hasTables: boolean = false) => {
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
+        this.disableEditabilityOfInlineTraces(this.editorBody);
         this.normalizeHtml(this.editorBody, hasTables);
         this.contentBuffer = this.mceEditor.getContent();
         this.handleValidation();
         this.$scope.options["data"].isFresh = false;
     };
+
+    protected disableEditabilityOfInlineTraces(body: HTMLElement) {
+        const inlineTraces = body.querySelectorAll("a[linkassemblyqualifiedname]");
+        for (let i = 0; i < inlineTraces.length; i++) {
+            let trace = inlineTraces[i] as HTMLElement;
+            trace.classList.add("mceNonEditable");
+            trace.setAttribute("data-mce-contenteditable", "false");
+        }
+    }
 
     protected normalizeHtml(body: Node, hasTables: boolean = false) {
         Helper.autoLinkURLText(body);
@@ -174,7 +184,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected linksMenu = (editor): ITinyMceMenu[] => {
-        const menuItems: ITinyMceMenu[] = [{
+        return [{
             icon: "link",
             text: " Links",
             onclick: () => {
@@ -190,8 +200,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     this.messageService.addError("Property_RTF_InlineTrace_Error_Permissions");
                 }
             }
-        }];
-        return menuItems;
+        }] as ITinyMceMenu[];
     };
 
     private canManageTraces(): boolean {

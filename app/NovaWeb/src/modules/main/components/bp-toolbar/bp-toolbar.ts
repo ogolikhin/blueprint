@@ -17,6 +17,7 @@ import {MessageType} from "../../../core/messages/message";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
+import {IAnalyticsService} from "../analytics/analyticsProvider";
 
 interface IBPToolbarController {
     execute(evt: ng.IAngularEvent): void;
@@ -33,7 +34,7 @@ export class BPToolbarController implements IBPToolbarController {
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
 
-    private get discardAllManyThreshold(): number{
+    private get discardAllManyThreshold(): number {
         return 50;
     }
 
@@ -46,7 +47,9 @@ export class BPToolbarController implements IBPToolbarController {
         "publishService",
         "messageService",
         "navigationService",
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "$log",
+        "Analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -57,7 +60,9 @@ export class BPToolbarController implements IBPToolbarController {
                 private publishService: IPublishService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
-                private loadingOverlayService: ILoadingOverlayService) {
+                private loadingOverlayService: ILoadingOverlayService,
+                private $log: ng.ILogService,
+                private Analytics: IAnalyticsService) {
     }
 
     public execute(evt: any): void {
@@ -85,10 +90,16 @@ export class BPToolbarController implements IBPToolbarController {
                 }).then((project: AdminStoreModels.IInstanceItem) => {
                     if (project) {
                         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+                        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
 
                         try {
                             this.projectManager.add(project)
                                 .finally(() => {
+                                    //(eventCollection, action, label?, value?, custom?, jQEvent?
+                                    const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
+                                    this.Analytics.trackEvent("open", "project", label, project.id, {
+                                        openProjects: openProjects
+                                    });
                                     this.loadingOverlayService.endLoading(openProjectLoadingId);
                                 });
                         } catch (err) {
@@ -198,9 +209,9 @@ export class BPToolbarController implements IBPToolbarController {
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold
-                ? this.localization.get("Discard_All_Many_Dialog_Message")
-                : this.localization.get("Discard_All_Dialog_Message"),
+                message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold
+                    ? this.localization.get("Discard_All_Many_Dialog_Message")
+                    : this.localization.get("Discard_All_Dialog_Message"),
                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                 controller: ConfirmPublishController,
                 css: "modal-alert nova-publish",
@@ -220,11 +231,11 @@ export class BPToolbarController implements IBPToolbarController {
         const publishAllLoadingId = this.loadingOverlayService.beginLoading();
         //perform publish all
         this.publishService.discardAll()
-            .then(() => {                
+            .then(() => {
                 const statefulArtifact = this.artifactManager.selection.getArtifact();
                 if (statefulArtifact) {
                     statefulArtifact.discard();
-                }    
+                }
 
                 if (this.projectManager.projectCollection.getValue().length > 0) {
                     //refresh all after discard all finishes
@@ -350,10 +361,7 @@ export class BPToolbarController implements IBPToolbarController {
     public get canCreateNew(): boolean {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return currArtifact &&
-            !!this.projectManager.getSelectedProjectId() &&
-            !currArtifact.artifactState.historical &&
-            !currArtifact.artifactState.deleted &&
+        return currArtifact && !!this.projectManager.getSelectedProjectId() && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     }
 

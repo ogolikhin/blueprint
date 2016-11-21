@@ -87,8 +87,11 @@ describe("Item State Controller tests", () => {
         stateSpy = spyOn($state, "go");
     });
 
-    function getItemStateController(id: string): ItemStateController {
+    function getItemStateController(id: string, version?: string): ItemStateController {
         $state.params["id"] = id;
+        if (version) {
+            $state.params["version"] = version;
+        }
 
         return new ItemStateController(
             $state,
@@ -431,6 +434,71 @@ describe("Item State Controller tests", () => {
                 expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
 
+        });
+
+        describe("historical artifact", () => {
+            it("should navigate to a historical version of artifact", () => {
+                // arrange
+                const artifactId = 10;
+                const version = 5;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({
+                        id: artifactId,
+                        predefinedType: Models.ItemTypePredefined.Actor,
+                        versionCount: 20
+                    });
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(artifactId.toString(), version.toString());
+                $rootScope.$digest();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(stateSpy).toHaveBeenCalled();
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.getEffectiveVersion()).toBe(5);
+            });
+
+            it("should navigate to main and display error because version greater than version number", () => {
+                // arrange
+                const artifactId = 10;
+                const version = 25;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve({
+                        id: artifactId,
+                        predefinedType: Models.ItemTypePredefined.Actor,
+                        versionCount: 20
+                    });
+                    return deferred.promise;
+                });
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
+                const messageSpy = spyOn(messageService, "addError").and.callFake(message => void (0));
+                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(artifactId.toString(), version.toString());
+                $rootScope.$digest();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(stateSpy).not.toHaveBeenCalled();
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(navigateToMainSpy).toHaveBeenCalled();
+                expect(selectionSpy).not.toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+                expect(selectedArtifact).toBeUndefined();
+            });
         });
 
         describe("artifact is not found", () => {

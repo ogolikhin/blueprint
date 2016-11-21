@@ -135,6 +135,7 @@ describe("TreeNodeVMFactory", () => {
                 }] as Models.IArtifact[];
                 (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
+                    name: "project",
                     type: AdminStoreModels.InstanceItemType.Project
                 } as AdminStoreModels.IInstanceItem;
                 const vm = factory.createInstanceItemNodeVM(model);
@@ -145,7 +146,8 @@ describe("TreeNodeVMFactory", () => {
                     // Assert
                     expect(result).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
                         .map(child => factory.createArtifactNodeVM(model, child)));
-                    expect(result.reduce((result, child) => result && child instanceof ArtifactNodeVM && child.model.parent === model, true)).toEqual(true);
+                    expect(result.every(child => child instanceof ArtifactNodeVM &&
+                                                 _.isEqual(child.model.artifactPath, ["project"]))).toEqual(true);
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -370,7 +372,9 @@ describe("TreeNodeVMFactory", () => {
                 (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
                     id: 123,
-                    predefinedType: Models.ItemTypePredefined.GenericDiagram
+                    name: "parent",
+                    predefinedType: Models.ItemTypePredefined.GenericDiagram,
+                    artifactPath: ["project"]
                 } as Models.IArtifact;
                 const vm = factory.createArtifactNodeVM(project, model);
 
@@ -379,7 +383,8 @@ describe("TreeNodeVMFactory", () => {
 
                     // Assert
                     expect(result).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
-                    expect(result.reduce((result, child) => result && child instanceof ArtifactNodeVM && child.model.parent === model, true)).toEqual(true);
+                    expect(result.every(child => child instanceof ArtifactNodeVM &&
+                                                 _.isEqual(child.model.artifactPath, ["project", "parent"]))).toEqual(true);
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises

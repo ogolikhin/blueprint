@@ -14,6 +14,7 @@ using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel.Impl
 {
+    // Found in: blueprint-current/Source/BluePrintSys.RC.Service.Business/Repository/Models/Storyteller/Process.cs
     /// <summary>
     /// The Storyteller Process Model
     /// </summary>
@@ -114,6 +115,7 @@ namespace Model.StorytellerModel.Impl
 
         public VersionInfo RequestedVersionInfo { get; set; }
 
+        [JsonIgnore]
         public ProcessType ProcessType
         {
             get
@@ -743,6 +745,7 @@ namespace Model.StorytellerModel.Impl
         /// <param name="persona">The persona of the user task</param>
         /// <param name="itemLabel">The item label of the user task</param>
         /// <param name="associatedArtifact">The include of the user task</param>
+        /// <param name="personaReference">The actor artifact associated with the persona of the user task</param>
         /// <param name="imageId">The id of the image in the user task</param>
         /// <param name="width">The width of the user task</param>
         /// <param name="height">The height of the user task</param>
@@ -753,7 +756,8 @@ namespace Model.StorytellerModel.Impl
         private IProcessShape CreateUserTask(
             string persona, 
             string itemLabel, 
-            AssociatedArtifact associatedArtifact, 
+            ArtifactReference associatedArtifact,
+            ArtifactReference personaReference,
             int? imageId, 
             double width, 
             double height, 
@@ -761,8 +765,33 @@ namespace Model.StorytellerModel.Impl
             int y, 
             int storyLinkId = 0)
         {
+            // Create default persona reference if it is null
+            if (personaReference == null)
+            {
+                personaReference = new ArtifactReference()
+                {
+                    BaseItemTypePredefined = ItemTypePredefined.Actor,
+                    Id = -1,
+                    ProjectId = 0,
+                    Name = "User",
+                    TypePrefix = null,
+                    ProjectName = null,
+                    Version = null,
+                    Link = null
+                };
+            }
+
             // Create a user task
-            var userTask = CreateProcessShape(ProcessShapeType.UserTask, UserTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
+            var userTask = CreateProcessShape(
+                ProcessShapeType.UserTask, 
+                UserTaskNamePrefix, 
+                itemLabel, 
+                associatedArtifact, 
+                width, 
+                height, 
+                x, 
+                y, 
+                personaReference);
 
             // Create a story link for the user task if the story link Id was not 0
             var storyLink = storyLinkId == 0 ? null : new StoryLink(userTask.Id, storyLinkId, 0, storyLinkId);
@@ -807,6 +836,7 @@ namespace Model.StorytellerModel.Impl
         /// <param name="persona">The persona of the user task</param>
         /// <param name="itemLabel">The item label of the user task</param>
         /// <param name="associatedArtifact">The include of the user task</param>
+        /// <param name="personaReference">The actor artifact associated with the persona of the system task</param>
         /// <param name="imageId">The id of the image in the system task</param>
         /// <param name="width">The width of the user task</param>
         /// <param name="height">The height of the user task</param>
@@ -817,8 +847,9 @@ namespace Model.StorytellerModel.Impl
         private IProcessShape CreateSystemTask(
             string associatedImageUrl, 
             string persona, 
-            string itemLabel, 
-            AssociatedArtifact associatedArtifact, 
+            string itemLabel,
+            ArtifactReference associatedArtifact,
+            ArtifactReference personaReference,
             int? imageId, 
             double width, 
             double height, 
@@ -826,8 +857,33 @@ namespace Model.StorytellerModel.Impl
             int y, 
             int storyLinkId = 0)
         {
+            // Create default persona reference if it is null
+            if (personaReference == null)
+            {
+                personaReference = new ArtifactReference()
+                {
+                    BaseItemTypePredefined = ItemTypePredefined.Actor,
+                    Id = -2,
+                    ProjectId = 0,
+                    Name = "System",
+                    TypePrefix = null,
+                    ProjectName = null,
+                    Version = null,
+                    Link = null
+                };
+            }
+
             // Create a system task
-            var systemTask = CreateProcessShape(ProcessShapeType.SystemTask, SystemTaskNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
+            var systemTask = CreateProcessShape(
+                ProcessShapeType.SystemTask, 
+                SystemTaskNamePrefix, 
+                itemLabel, 
+                associatedArtifact, 
+                width, 
+                height, 
+                x, 
+                y, 
+                personaReference);
 
             // Create a story link for the system task if the story link Id was not 0
             var storyLink = storyLinkId == 0 ? null : new StoryLink(systemTask.Id, storyLinkId, 0, storyLinkId);
@@ -840,7 +896,6 @@ namespace Model.StorytellerModel.Impl
                     TypeId = GetPropertyNameTypeId(AssociatedImageUrl),
                     Value = associatedImageUrl
                 });
-
 
             systemTask.PropertyValues.Add(Persona,
                 new PropertyValueInformation
@@ -886,15 +941,24 @@ namespace Model.StorytellerModel.Impl
         /// <param name="y">The y coordinate of the user decision point</param>
         /// <returns>The new user decision point</returns>
         private IProcessShape CreateUserDecisionPoint(
-            string itemLabel, 
-            AssociatedArtifact associatedArtifact, 
+            string itemLabel,
+            ArtifactReference associatedArtifact,
             double width, 
             double height, 
             int x, 
             int y)
         {
             // Create a user decision point
-            var userDecisionPoint = CreateProcessShape(ProcessShapeType.UserDecision, UserDecisionNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
+            var userDecisionPoint = CreateProcessShape(
+                ProcessShapeType.UserDecision, 
+                UserDecisionNamePrefix, 
+                itemLabel, 
+                associatedArtifact, 
+                width, 
+                height, 
+                x, 
+                y,
+                personaReference: null);
 
             return userDecisionPoint;
         }
@@ -910,15 +974,24 @@ namespace Model.StorytellerModel.Impl
         /// <param name="y">The y coordinate of the system decision point</param>
         /// <returns>The new system decision point</returns>
         private IProcessShape CreateSystemDecisionPoint(
-            string itemLabel, 
-            AssociatedArtifact associatedArtifact, 
+            string itemLabel,
+            ArtifactReference associatedArtifact,
             double width, 
             double height, 
             int x, 
             int y)
         {
             // Create a system decision point
-            var systemDecisionPoint = CreateProcessShape(ProcessShapeType.SystemDecision, SystemDecisionNamePrefix, itemLabel, associatedArtifact, width, height, x, y);
+            var systemDecisionPoint = CreateProcessShape(
+                ProcessShapeType.SystemDecision, 
+                SystemDecisionNamePrefix, 
+                itemLabel, 
+                associatedArtifact, 
+                width, 
+                height, 
+                x, 
+                y, 
+                personaReference: null);
 
             return systemDecisionPoint;
         }
@@ -930,6 +1003,7 @@ namespace Model.StorytellerModel.Impl
         /// <param name="shapeNamePrefix">The prefix for both the shape name and the shape label</param>
         /// <param name="itemLabel">The item label of the process shape</param>
         /// <param name="associatedArtifact">The user story artifact associated with the Process shape</param>
+        /// <param name="personaReference">The actor artifact associated with the persona of the Process shape</param>
         /// <param name="width">The width of the process shape</param>
         /// <param name="height">The height of the process shape</param>
         /// <param name="x">The x coordinate of the process shape</param>
@@ -939,11 +1013,12 @@ namespace Model.StorytellerModel.Impl
             ProcessShapeType processShapeType,
             string shapeNamePrefix,
             string itemLabel,
-            AssociatedArtifact associatedArtifact,
+            ArtifactReference associatedArtifact,
             double width,
             double height,
             int x,
-            int y)
+            int y,
+            ArtifactReference personaReference)
         {
             IProcessShape processShape = new ProcessShape();
 
@@ -956,6 +1031,7 @@ namespace Model.StorytellerModel.Impl
             processShape.ProjectId = ProjectId;
             processShape.TypePrefix = ProcessShapeTypePrefix;
             processShape.AssociatedArtifact = associatedArtifact;
+            processShape.PersonaReference = personaReference;
 
             processShape.PropertyValues.Add(ClientType,
                 new PropertyValueInformation
@@ -1139,7 +1215,7 @@ namespace Model.StorytellerModel.Impl
 
             // Add a system task
             // Using non-default values to ensure values are saved
-            var systemTask = CreateSystemTask(null, "NewSystem", "Objective", null, null, 120.0, 160.0, 5, 10);
+            var systemTask = CreateSystemTask(null, "NewSystem", "Objective", null, null, null, 120.0, 160.0, 5, 10);
             Shapes.Add((ProcessShape)systemTask);
 
             // Modify the destination id of the link preceding the insertion point of the new task so
@@ -1175,7 +1251,7 @@ namespace Model.StorytellerModel.Impl
 
             // Add a user task
             // Using non-default values to ensure values are saved
-            var userTask = CreateUserTask("NewUser", "Objective", null, null, 120.0, 160.0, 5, 5);
+            var userTask = CreateUserTask("NewUser", "Objective", null, null, null, 120.0, 160.0, 5, 5);
             Shapes.Add((ProcessShape)userTask);
 
             // Modify the destination id of the link preceding the insertion point of the new task so
@@ -1478,30 +1554,60 @@ namespace Model.StorytellerModel.Impl
 
         public string TypePrefix { get; set; }
 
-        public AssociatedArtifact AssociatedArtifact { get; set; }
-
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
+        public ArtifactReference AssociatedArtifact { get; set; }
+
+        public ArtifactReference PersonaReference { get; set; }
+
         public ProcessShape()
         {
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        public AssociatedArtifact AddAssociatedArtifact(IArtifact artifact)
+        /// <summary>
+        /// Creates and adds an artifact reference to another artifact.
+        /// </summary>
+        /// <param name="artifact">The artifact that will be added as a reference.</param>
+        /// <returns>The created artifact reference.</returns>
+        public ArtifactReference AddAssociatedArtifact(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            AssociatedArtifact = new AssociatedArtifact()
+            AssociatedArtifact = new ArtifactReference()
             {
                 Id = artifact.Id,
                 Link = null,
                 Name = artifact.Name,
                 ProjectId = artifact.ProjectId,
-                TypePrefix = StorytellerProcessPrefix
+                TypePrefix = StorytellerProcessPrefix,
+                BaseItemTypePredefined = artifact.BaseArtifactType.ToItemTypePredefined()
+            };
+
+            return AssociatedArtifact;
+        }
+
+        /// <summary>
+        /// Creates and adds a persona reference (actor) to another artifact.
+        /// </summary>
+        /// <param name="artifact">The actor artifact that will be added as a persona reference.</param>
+        /// <returns>The created actor artifact reference.</returns>
+        public ArtifactReference AddPersonaReference(IArtifact artifact)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            AssociatedArtifact = new ArtifactReference()
+            {
+                Id = artifact.Id,
+                Link = null,
+                Name = artifact.Name,
+                ProjectId = artifact.ProjectId,
+                TypePrefix = StorytellerProcessPrefix,
+                BaseItemTypePredefined = artifact.BaseArtifactType.ToItemTypePredefined()
             };
 
             return AssociatedArtifact;
@@ -1709,10 +1815,6 @@ namespace Model.StorytellerModel.Impl
         /// Flag indicating if the artifact is at Head or Saved Draft version
         /// </summary>
         public bool IsHeadOrSavedDraftVersion { get; set; }
-    }
-
-    public class AssociatedArtifact : ArtifactReference
-    {
     }
 
     public class PropertyValueInformation

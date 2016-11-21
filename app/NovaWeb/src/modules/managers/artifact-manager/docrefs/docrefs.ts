@@ -27,10 +27,8 @@ export class DocumentRefs implements IDocumentRefs {
     private _error: Rx.BehaviorSubject<IApplicationError>;
 
     constructor(private statefulItem: IIStatefulItem) {
-        this.docrefs = [];
         this.subject = new Rx.BehaviorSubject<IArtifactDocRef[]>(this.docrefs);
         this.changeset = new ChangeSetCollector(statefulItem);
-        this.isLoaded = true;
     }
 
     public get isLoading(): boolean {
@@ -79,7 +77,7 @@ export class DocumentRefs implements IDocumentRefs {
                 .catch(error => {
                     this.error.onNext(error);
                 }).finally(() => {
-                    this.loadPromise = null;
+                    this.loadPromise = undefined;
                 });
         }
 
@@ -89,7 +87,6 @@ export class DocumentRefs implements IDocumentRefs {
     protected isLoadedOrLoading() {
         return this.docrefs || this.loadPromise;
     }
-
 
     public add(docrefs: IArtifactDocRef[]): IArtifactDocRef[] {
         if (docrefs) {

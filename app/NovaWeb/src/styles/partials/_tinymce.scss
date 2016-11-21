@@ -25,27 +25,33 @@ body {
         margin-right: 0;
     }
 
-    .mce-btn-group:nth-child(2) .mce-listbox.mce-btn-has-text button span { // font-family button
-        overflow: hidden;
-        text-overflow: initial;
-        width: 40px;
-
-        &::before {
-            color: #333;
-            content: $fonticon2-font-family;
-            display: inline-block;
-            font-family: 'bp-font2';
-            font-size: 22px;
-            -moz-osx-font-smoothing: grayscale;
-            -webkit-font-smoothing: antialiased;
-            font-style: normal;
-            font-variant: normal;
-            font-weight: normal;
-            height: 16px;
-            margin-right: 40px;
+    .mce-btn-group:nth-child(2) .mce-listbox.mce-btn-has-text button {
+        span { // font-family button
             overflow: hidden;
-            vertical-align: top;
-            width: 25px;
+            text-overflow: initial;
+            width: 35px;
+
+            &::before {
+                color: #333;
+                content: $fonticon2-font-family;
+                display: inline-block;
+                font-family: 'bp-font2';
+                font-size: 22px;
+                -moz-osx-font-smoothing: grayscale;
+                -webkit-font-smoothing: antialiased;
+                font-style: normal;
+                font-variant: normal;
+                font-weight: normal;
+                height: 16px;
+                margin-right: 40px;
+                overflow: hidden;
+                vertical-align: top;
+                width: 25px;
+            }
+        }
+
+        .mce-caret {
+            right: 3px;
         }
     }
 
@@ -56,6 +62,11 @@ body {
 
     i.mce-ico.mce-i-format::before {
         content: $fonticon2-format;
+        font-family: 'bp-font2' !important;
+    }
+
+    i.mce-ico.mce-i-inlinetrace::before {
+        content: $fonticon2-relationship-right;
         font-family: 'bp-font2' !important;
     }
 
@@ -79,6 +90,14 @@ body {
     }
 
     bp-properties-panel {
+        .mce-btn-group {
+            padding-right: 2px;
+
+            &:not(:first-child) {
+                padding-left: 2px;
+            }
+        }
+
         .mce-btn button {
             font-size: 10px;
             padding: 1px;

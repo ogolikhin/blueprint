@@ -99,6 +99,7 @@ export interface IArtifact extends IItem {
     loaded?: boolean;
     // for artifact picker use
     artifactPath?: string[];
+    idPath?: number[];
 }
 export interface IOption {
     id: number;

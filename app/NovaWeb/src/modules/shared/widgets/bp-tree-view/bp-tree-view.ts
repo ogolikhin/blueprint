@@ -109,6 +109,7 @@ export interface IBPTreeViewControllerApi {
     setSelected(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean), selected?: boolean, clearSelection?: boolean): boolean;
     ensureNodeVisible(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void;
     deselectAll(): void;
+    updateSelectableNodes(isItemSelectable: (item) => boolean): void;
     refreshRows(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void;
 }
 
@@ -244,6 +245,12 @@ export class BPTreeViewController implements IBPTreeViewController {
         },
         deselectAll: (): void => {
             this.options.api.deselectAll();
+        },
+        updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {
+            this.options.api.forEachNode(node => {
+                node.data.selectable = isItemSelectable(node.data.model);
+            });
+            this.options.api.refreshView();
         },
         refreshRows: (comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void => {
             const rowNodes: agGrid.RowNode[] = [];

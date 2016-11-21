@@ -38,26 +38,6 @@ namespace ArtifactStoreTests
 
         #region 200 OK Tests
 
-        [TestCase]
-        [TestRail(183020)]
-        [Description("Create & publish a use case artifact, Get UseCaseArtifact. Verify that the latest version of valid use case artifact is returned.")]
-        public void GetUseCaseArtifact_PublishAndGetUseCaseArtifact_ReturnsLatestVersionOfUseCaseArtifact()
-        {
-            // Setup: Create and publish a use case artifact
-            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase, numberOfVersions: 2);
-            var retrievedArtifactVersion2 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedUseCaseArtifact.Id, versionId: 2);
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-
-            // Execute: Get the use case artifact using GetUseCaseArtifact
-            NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => {
-                usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
-
-            // Validation: Verify that the returned from GetUseCaseArtifact is in valid format
-            ArtifactStoreHelper.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion2);
-        }
-
         [TestCase(4)]
         [TestRail(183354)]
         [Description("Create & publish a use case artifact multiple times to have multiple version of it, Get use case artifact without passing version. Verify that latest version of artifact is returned.")]
@@ -160,7 +140,7 @@ namespace ArtifactStoreTests
 
             // Validation: Exception should contain proper errorCode in the response content.
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(InternalApiErrorCodes.ItemNotFound), "GetUseCaseArtifact with invalid versionId should return {0} errorCode but {1} is returned", InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode);
+            Assert.AreEqual(serviceErrorMessage.ErrorCode, InternalApiErrorCodes.ItemNotFound, "GetUseCaseArtifact with invalid versionId should return {0} errorCode but {1} is returned", InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode);
         }
 
         #endregion 404 Not Found Tests

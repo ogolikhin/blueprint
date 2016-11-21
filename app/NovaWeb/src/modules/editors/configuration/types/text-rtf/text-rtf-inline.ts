@@ -53,6 +53,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
+        this.isSingleLine = true;
+
         this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 
         const to: AngularFormly.ITemplateOptions = {

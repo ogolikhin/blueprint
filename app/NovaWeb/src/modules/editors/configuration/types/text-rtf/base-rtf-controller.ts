@@ -70,6 +70,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
 
+        // this is to request the relationships in order to calculate if the user can manage them
+        let relationships: IRelationship[];
+        this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
+            relationships = rel;
+        });
+
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -308,6 +314,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public insertInlineTrace = (id: number, name: string, prefix: string) => {
         /* tslint:disable:max-line-length */
         // when run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
+        const linkId: string = "inlinetrace-" + Date.now().toString() + "-" + _.random(1000).toString();
         const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + id.toString();
         const linkText: string = prefix + id.toString() + ": " + name;
         const escapedLinkText: string = _.escape(linkText);
@@ -315,16 +322,16 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
             `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
             `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" ` +
-            `data-mce-contenteditable="false" class="mceNonEditable">` +
+            `data-mce-contenteditable="false" class="mceNonEditable" id="${linkId}">` +
             `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
             `</a>&#65279;`;
         /* tslint:enable:max-line-length */
-        if (this.isSingleLine && document.body.classList.contains("is-chrome")) {
-            // this helps solving out of range selections for singleline RTF in Chrome
-            this.mceEditor["selection"].collapse();
+        try { // see https://github.com/tinymce/tinymce/issues/2646
+            this.mceEditor["selection"].setContent(inlineTrace);
+            this.mceEditor["selection"].select(this.mceEditor["dom"].select("#" + linkId)[0]);
+        } catch (ex) {
+            // ignore
         }
-        this.mceEditor["selection"].setContent(inlineTrace);
-
     };
 
     public handleClick = (event: Event) => {

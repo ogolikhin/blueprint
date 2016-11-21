@@ -88,22 +88,17 @@ export class BPPageToolbarController implements IBPPageToolbarController {
         evt.preventDefault();
         const element = evt.currentTarget;
         switch (element.id.toLowerCase()) {
-            case `projectclose`:
+            case "projectclose":
                 this.closeProject();
                 break;
-            case `projectcloseall`:
+            case "projectcloseall":
                 this.closeAllProjetcs();
                 break;
-            case `openproject`:
+            case "openproject":
                 this.openProject();
                 break;
-            case `tour`:
-                this.dialogService.open(<IDialogSettings>{
-                    template: require("../dialogs/bp-tour/bp-tour.html"),
-                    controller: BPTourController,
-                    backdrop: true,
-                    css: "nova-tour"
-                });
+            case "tour":
+                this.openTour();
                 break;
             case `discardall`:
                 let getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
@@ -366,8 +361,8 @@ export class BPPageToolbarController implements IBPPageToolbarController {
     public get canCreateNew(): boolean {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return currArtifact &&
-            !!this.projectManager.getSelectedProjectId() &&
+        return this.isProjectOpened &&
+            currArtifact &&
             !currArtifact.artifactState.historical &&
             !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
@@ -443,5 +438,14 @@ export class BPPageToolbarController implements IBPPageToolbarController {
                         }
                     });
             });
+    }
+
+    private openTour = () => {
+        this.dialogService.open(<IDialogSettings>{
+            template: require("../dialogs/bp-tour/bp-tour.html"),
+            controller: BPTourController,
+            backdrop: true,
+            css: "nova-tour"
+        });
     }
 }

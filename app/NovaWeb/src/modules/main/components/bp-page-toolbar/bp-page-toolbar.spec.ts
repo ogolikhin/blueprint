@@ -56,12 +56,11 @@ describe("Application toolbar:", () => {
         artifact = { 
                 projectId: 1 , 
                 autosave:  () => {
-                                let deferred = _$q.defer<void>();
-            deferred.resolve();
-            return deferred.promise;
-
+                    let deferred = _$q.defer<void>();
+                    deferred.resolve();
+                    return deferred.promise;
                 } 
-                };
+        };
         toolbarCtrl = new BPPageToolbarController($q, localization,
             dialogService, projectManager, artifactManager, publishService,
             messageService, navigationService, loadingOverlayService);

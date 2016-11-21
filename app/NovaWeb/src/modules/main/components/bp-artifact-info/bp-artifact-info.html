@@ -16,6 +16,7 @@
         <div class="artifact-heading-group2">
             <div class="name" bp-tooltip="{{ $ctrl.artifactName }}" bp-tooltip-truncated="true">
                 {{ $ctrl.artifactName }}
+                <button ng-click="$ctrl.makeError()">Error</button>
             </div>
             <div class="indicators">
                 <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>

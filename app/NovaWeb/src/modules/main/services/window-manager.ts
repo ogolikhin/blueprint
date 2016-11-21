@@ -3,8 +3,7 @@ import {IWindowResize} from "../../core";
 export enum ResizeCause {
     unknown,
     browserResize,
-    sidebarToggle,
-    errorMessage
+    sidebarToggle
 }
 
 export interface IMainWindow {
@@ -76,27 +75,6 @@ export class WindowManager implements IWindowManager {
         } else {
             this._isLeftSidebarOpen = false;
             this._isRightSidebarOpen = false;
-        }
-
-        let messageContainer: Element = document.querySelector(".message-container");
-        if (messageContainer) {
-            this._messageObserver = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    this._causeOfChange = ResizeCause.errorMessage;
-
-                    this.onWindowResize();
-                });
-            });
-            try {
-                this._messageObserver.observe(messageContainer, {
-                    attributes: false,
-                    childList: true,
-                    characterData: false,
-                    subtree: false
-                });
-            } catch (ex) {
-                //this.messageService.addError(ex.message);
-            }
         }
 
         this._width = window.innerWidth;

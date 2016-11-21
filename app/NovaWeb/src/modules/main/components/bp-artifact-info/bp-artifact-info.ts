@@ -166,6 +166,21 @@ export class BpArtifactInfoController {
         }
     }
 
+    public makeError() {
+        /* tslint:disable:max-line-length */
+        switch (_.random(2)) {
+            case 0:
+                this.messageService.addError(_.random(1000000).toString() + " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.");
+                break;
+            case 1:
+                this.messageService.addWarning(_.random(1000000).toString() + " Ut enim ad minim veniam, quis nostrud exercitation ullamco");
+                break;
+            default:
+                this.messageService.addInfo(_.random(1000000).toString() + " Duis aute irure dolor in");
+        }
+        /* tslint:enable:max-line-length */
+    }
+
     protected updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
 

@@ -84,6 +84,14 @@ bp-properties-panel {
                 width: $property-input-width;
             }
 
+            &.formly-field-bpFieldSelectMulti,
+            &.formly-field-bpFieldUserPicker {
+                .ui-select-wrapper {
+                    max-width: $property-input-width;
+                    width: $property-input-width;
+                }
+            }
+
             .ui-select-single {
                 .ui-select-toggle {
                     max-width: $property-input-width;

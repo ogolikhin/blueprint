@@ -1,7 +1,5 @@
-import * as angular from "angular";
-//import "angular";
+import "angular";
 import "angular-mocks";
-
 import { BPPageToolbarController } from "./bp-page-toolbar";
 import { IDialogService } from "../../../shared";
 import { IMessageService } from "../../../core/messages/message.svc";

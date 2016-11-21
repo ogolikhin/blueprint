@@ -24,7 +24,20 @@ describe("StatefulCollectionArtifact", () => {
                        _$q_: ng.IQService,
                        artifactService: IArtifactService,
                        loadingOverlayService: ILoadingOverlayService) => {       
-        artifactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null);
+                            artifactServices = new StatefulArtifactServices(
+                            _$q_, 
+                            null, 
+                            null, 
+                            null, 
+                            null, 
+                            artifactService, 
+                            null, 
+                            null, 
+                            null, 
+                            loadingOverlayService, 
+                            null,
+                            null,
+                            null);
     })); 
 
 

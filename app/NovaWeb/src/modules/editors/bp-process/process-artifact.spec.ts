@@ -1,28 +1,29 @@
 import * as angular from "angular";
-import {IArtifactService} from "../../managers/artifact-manager/";
-import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {IProcessService} from "./services/process.svc";
-import {ProcessServiceMock} from "./services/process.svc.mock";
+import { IArtifactService } from "../../managers/artifact-manager/";
+import { ArtifactServiceMock } from "../../managers/artifact-manager/artifact/artifact.svc.mock";
+import { IProcessService } from "./services/process.svc";
+import { ProcessServiceMock } from "./services/process.svc.mock";
 
 import {
     IStatefulProcessArtifactServices,
     StatefulArtifactServices,
     StatefulProcessArtifactServices
 } from "../../managers/artifact-manager/services";
-import {StatefulProcessArtifact} from "./process-artifact";
-import {StatefulProcessSubArtifact} from "./process-subartifact";
-import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import { StatefulProcessArtifact } from "./process-artifact";
+import { StatefulProcessSubArtifact } from "./process-subartifact";
+import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 
 
-import {Models} from "../../main/models";
+import { Models } from "../../main/models";
 
 import * as TestModels from "./models/test-model-factory";
-import {IProcess} from "./models/process-models";
+import { IProcess } from "./models/process-models";
 
 describe("StatefulProcessArtifact", () => {
 
     let services: IStatefulProcessArtifactServices;
     let $q: ng.IQService;
+    let $log: ng.ILogService;
     let $rootScope: ng.IRootScopeService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -39,13 +40,15 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("publishService", null);
     }));
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
-                       _$q_: ng.IQService,
-                       artifactService: IArtifactService,
-                       processService: IProcessService) => {
+        _$q_: ng.IQService,
+        _$log_: ng.ILogService,
+        artifactService: IArtifactService,
+        processService: IProcessService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, null, null, null);
-        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
+        $log = _$log_;
+        let artitfactServices = new StatefulArtifactServices(_$q_, _$log_, null, null, null, null, artifactService, null, null, null, null, null, null, null);
+        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_, processService);
     }));
 
 

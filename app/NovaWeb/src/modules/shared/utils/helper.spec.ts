@@ -1,56 +1,5 @@
 ﻿import {Helper} from "./helper";
 
-describe("findAncestorByCssClass", () => {
-    let html = `<div class="root">
-        <div class="grandparent">
-            <div class="parent">
-                <span id="child"></span>
-            </div>
-            <div class="uncle">
-                <span id="cousin"></span>
-            </div>
-        </div>
-    </div>`;
-
-    it("finds the immediate parent", () => {
-        // Arrange
-        document.body.innerHTML = html;
-        let child = document.querySelector("#child");
-
-        // Act
-        let elem = Helper.findAncestorByCssClass(child, "parent");
-
-        // Assert
-        expect(elem).toBeDefined();
-        expect(elem.className).toEqual("parent");
-    });
-
-    it("finds the grand-parent", () => {
-        // Arrange
-        document.body.innerHTML = html;
-        let child = document.querySelector("#child");
-
-        // Act
-        let elem = Helper.findAncestorByCssClass(child, "grandparent");
-
-        // Assert
-        expect(elem).toBeDefined();
-        expect(elem.className).toEqual("grandparent");
-    });
-
-    it("doesn't return any element if no ancestor has the specified class", () => {
-        // Arrange
-        document.body.innerHTML = html;
-        let child = document.querySelector("#child");
-
-        // Act
-        let elem = Helper.findAncestorByCssClass(child, "uncle");
-
-        // Assert
-        expect(elem).toBeNull();
-    });
-});
-
 describe("to and from HTML", () => {
     let html = `<div><h3 class="heading" style="font-family: Wingdings">Labels</h3>
 <a href="/folder1/accepted" class="label" title="Accepted">Accepted</a>

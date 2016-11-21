@@ -19,6 +19,8 @@ import {
     MetaDataService
 } from "../../../managers/artifact-manager";
 import {ValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
+import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
+
 
 describe("Project", () => {
     let project: IStatefulArtifact;
@@ -40,6 +42,7 @@ describe("Project", () => {
         $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", PublishServiceMock);
         $provide.service("validationService", ValidationService);
+        $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
     }));
 
     beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory) => {

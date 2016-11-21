@@ -5,6 +5,11 @@ import "lodash";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 
 describe("Formly Base RTF Controller", () => {
     let $rootScope: ng.IRootScopeService;
@@ -29,6 +34,14 @@ describe("Formly Base RTF Controller", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("validationService", ValidationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
+        $provide.service("selectionManager", () => ({
+            getArtifact: () => { return undefined; }
+        }));
+        $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("artifactRelationships", ArtifactRelationshipsMock);
     }));
 
     beforeEach(

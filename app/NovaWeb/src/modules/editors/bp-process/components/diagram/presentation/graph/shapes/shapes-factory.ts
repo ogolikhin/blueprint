@@ -195,7 +195,7 @@ export class ShapesFactory {
         // replace "Process_DefaultUserTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
-        const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
+        const tempUserTaskName = this.NEW_USER_TASK_LABEL + " " + nameCounter;
 
         if (!!this.settings.getUserTaskPersona()) {
             defaultUserPersonaReference.name = this.settings.getUserTaskPersona();
@@ -231,7 +231,7 @@ export class ShapesFactory {
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
-        const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
+        const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + " " + nameCounter;
         const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, 
         ItemTypePredefined.PROShape, null, defaultSystemPersonaReference);
 

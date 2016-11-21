@@ -251,7 +251,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 node.data.selectable = isItemSelectable(node.data.model);
             });
             this.options.api.refreshView();
-		},
+        },
         refreshRows: (comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void => {
             const rowNodes: agGrid.RowNode[] = [];
             this.options.api.forEachNode((node: agGrid.RowNode) => {

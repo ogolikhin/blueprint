@@ -181,6 +181,10 @@ export class BPToolbarController implements IBPToolbarController {
             }
             this.clearLockedMessages();
         }
+
+        this.getProjectsWithUnpublishedArtifacts().then((projects) => {
+            console.log(projects);
+        });
     }
 
     private closeAllProjects() {
@@ -188,6 +192,14 @@ export class BPToolbarController implements IBPToolbarController {
         this.artifactManager.selection.clearAll();
         this.clearLockedMessages();
         this.navigationService.navigateToMain();
+    }
+
+    private getProjectsWithUnpublishedArtifacts(): ng.IPromise<number[]> {
+        return this.publishService.getUnpublishedArtifacts().then((resultset) => {
+            let projectsWithUnpublishedArtifacts = [];
+            _.forEach(resultset.artifacts, (artifact) => { projectsWithUnpublishedArtifacts.push(artifact.projectId); });
+            return _.uniq(projectsWithUnpublishedArtifacts);
+        });
     }
 
     private clearLockedMessages() {

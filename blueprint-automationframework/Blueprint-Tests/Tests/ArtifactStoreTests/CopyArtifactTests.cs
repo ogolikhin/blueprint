@@ -310,7 +310,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(195357)]
-        [Description("Create & publish two artifacts.  User Does not have edit permissions to child artifact.  Copy an artifact to be a child of the other artifact.  " +
+        [Description("Create & publish two artifacts.  User does not have edit permissions to child artifact.  Copy an artifact to be a child of the other artifact.  " +
             "Verify returned code 403 Forbidden.")]
         public void CopyArtifact_PublishedArtifacts_CopyToBeAChildOfAnotherArtifact_NoEditPermissionsToChildArtifact_403Forbidden(BaseArtifactType artifactType)
         {
@@ -332,7 +332,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(195358)]
-        [Description("Create & publish two artifacts.  User Does not have edit permissions to parent artifact.  Copy an artifact to be a child of the other artifact.  " +
+        [Description("Create & publish two artifacts.  User does not have edit permissions to parent artifact.  Copy an artifact to be a child of the other artifact.  " +
             "Verify returned code 403 Forbidden.")]
         public void CopyArtifact_PublishedArtifacts_CopyToBeAChildOfAnotherArtifact_NoEditPermissionsToParentArtifact_403Forbidden(BaseArtifactType artifactType)
         {

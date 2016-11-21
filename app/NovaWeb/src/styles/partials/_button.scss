@@ -167,6 +167,32 @@
 }
 .btn--absolute-right {
     position: absolute;
-    right: 0px;
+    right: 0;
     top: 5px;
+}
+
+.btn-action{
+    float: right;
+    height: 34px;
+    font-size: 1.4rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border: none;
+}
+
+.btn-search {
+    border-radius: 0;
+}
+
+.btn-dropdown-toggle {
+    width: auto;
+    min-width: 20px;
+    padding-left: 9px;
+    padding-right: 9px;
+    background: $brand-secondary;
+    color: $white;
+
+    &:hover, &:focus{
+        color:$white;
+    }
 }

@@ -1,5 +1,6 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {Models, TreeViewModels} from "../../models";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
@@ -23,12 +24,14 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
     static $inject = [
         "$uibModalInstance",
         "dialogSettings",
-        "dialogData"
+        "dialogData",
+        "localization"
     ];
 
     constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                public dialogData: IArtifactPickerOptions) {
+                public dialogData: IArtifactPickerOptions,
+                localization: ILocalizationService) {
         super($instance, dialogSettings);
 
         // Binding an optional callback to undefined doesn't behave as expected.

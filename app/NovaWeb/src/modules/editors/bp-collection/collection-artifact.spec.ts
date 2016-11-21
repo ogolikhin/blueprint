@@ -22,9 +22,24 @@ describe("StatefulCollectionArtifact", () => {
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$q_: ng.IQService,
+                       _$log_: ng.ILogService,
                        artifactService: IArtifactService,
                        loadingOverlayService: ILoadingOverlayService) => {       
-        artifactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null);
+                            artifactServices = new StatefulArtifactServices(
+                            _$q_,
+                            _$log_, 
+                            null, 
+                            null, 
+                            null, 
+                            null, 
+                            artifactService, 
+                            null, 
+                            null, 
+                            null, 
+                            loadingOverlayService, 
+                            null,
+                            null,
+                            null);
     })); 
 
 

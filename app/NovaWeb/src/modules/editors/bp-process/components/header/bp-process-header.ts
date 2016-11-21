@@ -24,6 +24,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public breadcrumbLinks: IBreadcrumbLink[];
 
     static $inject: [string] = [
+        "$q",
         "$scope",
         "$element",
         "artifactManager",
@@ -41,7 +42,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "mainbreadcrumbService"
     ];
 
-    constructor($scope: ng.IScope,
+    constructor($q: ng.IQService,
+                $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
                 artifactManager: IArtifactManager,
                 localization: ILocalizationService,
@@ -57,6 +59,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 private userStoryService: IUserStoryService,
                 mainBreadcrumbService: IMainBreadcrumbService) {
         super(
+            $q,
             $scope,
             $element,
             artifactManager,

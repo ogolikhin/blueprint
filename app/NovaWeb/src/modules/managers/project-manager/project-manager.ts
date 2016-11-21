@@ -13,6 +13,7 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
 
 export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifact> {
     // agGrid.NodeChildDetails
@@ -21,6 +22,7 @@ export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifa
     expanded?: boolean;
     key: string; // Each row in the dom will have an attribute row-id='key'
 
+    selectable: boolean;
     loadChildrenAsync?(): ng.IPromise<IArtifactNode[]>;
     unloadChildren(): void;
 
@@ -42,6 +44,7 @@ export interface IProjectManager extends IDispose {
     getSelectedProjectId(): number;
     triggerProjectCollectionRefresh();
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
+    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): number;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -171,11 +174,6 @@ export class ProjectManager implements IProjectManager {
             expandToArtifact = this.getArtifact(project.model.id);
         }
 
-        //reloading the breadcrumb
-        if (expandToArtifact.id === project.model.id) {
-            this.mainBreadcrumbService.reloadBreadcrumbs(expandToArtifact);
-        }
-
         //try with selected artifact
         const loadChildren = forceOpen || (selectedArtifactNode ? selectedArtifactNode.expanded : false);
         return this.projectService.getProjectTree(project.model.id, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {
@@ -248,6 +246,7 @@ export class ProjectManager implements IProjectManager {
                 projectId: oldProjectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
+                itemTypeName: "Project",
                 predefinedType: Enums.ItemTypePredefined.Project,
                 hasChildren: true
             });
@@ -400,5 +399,28 @@ export class ProjectManager implements IProjectManager {
         }).then((data: Models.IArtifact[]) => {
             return data.map(a => _.assign({projectName: projectName}, a) as Models.IArtifactWithProject);
         });
+    }
+
+    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact) {
+        let orderIndex: number;
+
+        let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
+        let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex); 
+        let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
+        
+        if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
+            orderIndex = selectedArtifact.orderIndex / 2;
+        } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+            orderIndex = selectedArtifact.orderIndex + 10;
+        } else {    //in between
+            if (insertMethod === MoveArtifactInsertMethod.Above) {
+                orderIndex = (siblings[index - 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
+            } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                orderIndex = (siblings[index + 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
+            } else {
+                //leave undefined
+            }
+        }
+        return orderIndex;
     }
 }

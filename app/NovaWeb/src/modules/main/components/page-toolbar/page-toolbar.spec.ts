@@ -1,8 +1,7 @@
-import "../../";
-import * as angular from "angular";
 import "angular";
 import "angular-mocks";
-import { BPToolbarController } from "./bp-toolbar";
+
+import { PageToolbarController } from "./page-toolbar";
 import { IDialogService } from "../../../shared";
 import { IMessageService } from "../../../core/messages/message.svc";
 import { StatefulSubArtifact } from "../../../managers/artifact-manager/sub-artifact";
@@ -19,9 +18,15 @@ import { IArtifactManager } from "../../../managers/artifact-manager/artifact-ma
 import { PublishServiceMock } from "../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import { DialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
 
-describe("Application toolbar:", () => {
 
-    beforeEach(angular.mock.module("bp.components"));
+describe("Application toolbar:", () => {
+    let _$q: ng.IQService;
+    let $scope: ng.IScope;
+    let toolbarCtrl: PageToolbarController;
+    let artifact: any;
+
+
+    //beforeEach(angular.mock.module("bp.components"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
@@ -36,11 +41,12 @@ describe("Application toolbar:", () => {
         $provide.service("messageService", () => { return {}; });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
-    let toolbarCtrl: BPToolbarController;
 
     beforeEach(inject((
+        $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         localization: LocalizationServiceMock,
         dialogService: IDialogService,
@@ -49,9 +55,21 @@ describe("Application toolbar:", () => {
         publishService: PublishServiceMock,
         messageService: IMessageService,
         navigationService: NavigationServiceMock,
-        loadingOverlayService: LoadingOverlayService
+        loadingOverlayService: LoadingOverlayService,
         ) => {
-        toolbarCtrl = new BPToolbarController($q, localization,
+        $scope = $rootScope.$new();    
+        _$q = $q;
+
+        //artifact = statefulArtifactFactory.createStatefulArtifact({id: 1, projectId: 1});
+        artifact = {
+            projectId: 1,
+            autosave: () => {
+                let deferred = _$q.defer();
+                deferred.resolve();
+                return deferred.promise;
+            }
+        };
+        toolbarCtrl = new PageToolbarController($q, localization,
             dialogService, projectManager, artifactManager, publishService,
             messageService, navigationService, loadingOverlayService);
         artifactManager.selection = {
@@ -59,7 +77,6 @@ describe("Application toolbar:", () => {
             clearAll: () => { return; }
         } as ISelectionManager;
     }));
-
     describe("close project->", () => {
 
         it("does nothing, no artifact selected", inject((navigationService: INavigationService,
@@ -78,7 +95,8 @@ describe("Application toolbar:", () => {
             const removeProjectSpy = spyOn(projectManager, "remove");
 
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
             expect(navigateToSpy).not.toHaveBeenCalled();
@@ -88,7 +106,7 @@ describe("Application toolbar:", () => {
 
         it("navigates to main state, one project is opened and selected artifact belongs to the project", inject((navigationService: INavigationService,
                                   artifactManager: IArtifactManager,
-                                  projectManager: IProjectManager) => {
+                                  projectManager: IProjectManager, $rootScope: ng.IRootScopeService) => {
             // Arrange
             const evt = {
                 preventDefault: () => { return; },
@@ -97,16 +115,18 @@ describe("Application toolbar:", () => {
                 }
             };
             const openedProjects = [{ model: { id: 1} }];
+            
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 1 });
-
+            const selectionSpy = spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+        
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
-
+ 
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
             expect(navigateToSpy).not.toHaveBeenCalled();
@@ -115,9 +135,9 @@ describe("Application toolbar:", () => {
             expect(clearLockedMessagesSpy).toHaveBeenCalled();
         }));
 
-        it("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
+      it("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
                                   artifactManager: IArtifactManager,
-                                  projectManager: IProjectManager) => {
+                                  projectManager: IProjectManager, $rootScope: ng.IRootScopeService) => {
             // Arrange
             const evt = {
                 preventDefault: () => { return; },
@@ -126,19 +146,24 @@ describe("Application toolbar:", () => {
                 }
             };
             const openedProjects = [{ model: { id: 1} }];
+            artifact.projectId = 555;
+            
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 555 });
+            const selectionSpy = spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            
 
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove");
             const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
-
+           
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
+            expect(selectionSpy).toHaveBeenCalled();
             expect(clearAllSpy).toHaveBeenCalled();
             expect(navigateToSpy).toHaveBeenCalledWith({ id: 1 });
             expect(navigateToMainSpy).not.toHaveBeenCalled();
@@ -158,9 +183,11 @@ describe("Application toolbar:", () => {
                 }
             };
             const openedProjects = [{ model: { id: 2} }, { model: { id: 1} }];
+            
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 1 });
-
+            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            
+            
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
@@ -168,7 +195,8 @@ describe("Application toolbar:", () => {
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
 
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
             expect(clearAllSpy).toHaveBeenCalled();
@@ -192,9 +220,11 @@ describe("Application toolbar:", () => {
                 }
             };
             const openedProjects = [{ id: 2}, { id: 1}];
-            spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue({ projectId: 1 });
+            
 
+            spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
+            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeAllProjectSpy = spyOn(projectManager, "removeAll").and.callFake(() => { return; });
@@ -202,7 +232,8 @@ describe("Application toolbar:", () => {
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
 
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeAllProjetcs();
+            $scope.$digest();
 
             // Assert
             expect(navigateToSpy).not.toHaveBeenCalled();

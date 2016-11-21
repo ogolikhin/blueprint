@@ -51,6 +51,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     protected _changesets: IChangeCollector;
     protected lockPromise: ng.IPromise<IStatefulItem>;
     protected loadPromise: ng.IPromise<IStatefulItem>;
+    protected attachmentsAndDocRefsPromise: ng.IPromise<IArtifactAttachmentsResultSet>;
     private _error: Rx.BehaviorSubject<IApplicationError>;
     private _propertyChangeSubject: Rx.BehaviorSubject<IItemChangeSet>;
 
@@ -317,22 +318,24 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet> {
+        if (this.attachmentsAndDocRefsPromise) {
+            return this.attachmentsAndDocRefsPromise;
+        }
         const deferred = this.services.getDeferred();
+        this.attachmentsAndDocRefsPromise = deferred.promise;
         this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
-            // load attachments
             this.attachments.initialize(result.attachments);
-
-            // load docRefs
             this.docRefs.initialize(result.documentReferences);
-
             deferred.resolve(result);
-        }, (error) => {
+        }).catch(error => {
             if (error && error.statusCode === HttpStatusCode.NotFound) {
                 this.artifactState.deleted = true;
             }
             deferred.reject(error);
+        }).finally(() => {
+            this.attachmentsAndDocRefsPromise = undefined;
         });
-        return deferred.promise;
+        return this.attachmentsAndDocRefsPromise;
     }
 
     protected abstract getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet>;

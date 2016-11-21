@@ -28,12 +28,7 @@ namespace Model.SearchServiceModel.Impl
         public string Prefix { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public int ItemTypeIconId { get; set; }
-
-        public bool ShouldSerializeItemTypeIconId()
-        {
-            return ItemTypeIconId != 0;
-        }
+        public int? ItemTypeIconId { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? PredefinedType { get; set; }
@@ -44,12 +39,9 @@ namespace Model.SearchServiceModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public double? OrderIndex { get; set; }
 
-        public bool HasChildren { get; set; }
-        public bool ShouldSerializeHasChildren()
-        {
-            return HasChildren;
-        }
-
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? HasChildren { get; set; }
+        
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Permissions { get; set; }
         
@@ -60,7 +52,7 @@ namespace Model.SearchServiceModel.Impl
         public List<SearchItem> Children { get; } = new List<SearchItem>();
         public bool ShouldSerializeChildren()
         {
-            return HasChildren;
+            return Children.Count > 0;
         }
 
         public int ItemId { get; set; }

@@ -18,9 +18,13 @@ export class DiscardAction extends BPButtonAction {
             (): void => {
                 artifact.discardArtifact()
                 .then(() => {
-                    projectManager.refresh(artifact.projectId).then(() => {
-                        projectManager.triggerProjectCollectionRefresh();
-                    });
+                    if (projectManager.projectCollection.getValue().length > 0) {
+                        projectManager.refresh(artifact.projectId).then(() => {
+                            projectManager.triggerProjectCollectionRefresh();
+                        });
+                    } else {
+                        artifact.refresh();
+                    }
                 })
                 .catch((err) => {
                     if (err) {

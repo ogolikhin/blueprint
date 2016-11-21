@@ -1,5 +1,5 @@
 import {PropertyTypePredefined, PropertyLookupEnum, ItemTypePredefined} from "../../main/models/enums";
-import {IPropertyType, IPropertyValue, IOption, PrimitiveType} from "../../main/models/models";
+import {IPropertyType, IPropertyValue, IChoicePropertyValue, IOption, PrimitiveType} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
@@ -85,8 +85,9 @@ export class PropertyDescriptor implements IPropertyDescriptor {
             propertyContext.isRichText = propertyValue.isRichText;
         }
         else if (propertyContext.primitiveType === PrimitiveType.Choice && propertyValue.value) {
-            if (propertyValue.value["validValues"]) {
-                propertyContext.validValues = propertyValue.value["validValues"];
+            const validValues = (<IChoicePropertyValue>propertyValue.value).validValues;
+            if (validValues) {
+                propertyContext.validValues = validValues;
             }
         }
         propertyContext.init();
@@ -281,13 +282,13 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             subArtifact.predefinedType === ItemTypePredefined.UIShape ||
             subArtifact.predefinedType === ItemTypePredefined.UCDShape ||
             subArtifact.predefinedType === ItemTypePredefined.BPShape ||
+            subArtifact.predefinedType === ItemTypePredefined.PROShape ||
             subArtifact.predefinedType === ItemTypePredefined.GDConnector ||
             subArtifact.predefinedType === ItemTypePredefined.DDConnector ||
             subArtifact.predefinedType === ItemTypePredefined.SBConnector ||
             subArtifact.predefinedType === ItemTypePredefined.UIConnector ||
             subArtifact.predefinedType === ItemTypePredefined.BPConnector ||
-            subArtifact.predefinedType === ItemTypePredefined.UCDConnector ||
-            subArtifact.predefinedType === ItemTypePredefined.PROShape) {
+            subArtifact.predefinedType === ItemTypePredefined.UCDConnector) {
 
             properties.push(<IPropertyType>{
                 name: this.localization.get("Label_Label"),

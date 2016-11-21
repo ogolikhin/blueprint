@@ -8,6 +8,7 @@ using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
 
 namespace ArtifactStoreTests
 {
@@ -203,6 +204,109 @@ namespace ArtifactStoreTests
         }
         */
         #endregion 201 Created tests
+
+        // TODO ---------------- POSITIVE TESTS
+        // TODO - Copy artifact to itself
+        // TODO - Copy artifact (possibly with decendants) to one of its child
+
+        // TODO ---------------- NEGATIVE TESTS
+        // TODO - Copy artifact to sub-artifact
+        // TODO - Copy collection to another collection 
+
+        #region 400 Bad Request tests
+
+        [TestCase(-1.1)]
+        [TestCase(0)]
+        [TestRail(191207)]
+        [Description("Create & save an artifact.  Copy the artifact and specify an OrderIndex <= 0.  Verify 400 Bad Request is returned.")]
+        public void CopyArtifact_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
+        {
+            // Setup:
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.Process);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, _project.Id, author),
+                "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "Parameter orderIndex cannot be equal to or less than 0.");
+        }
+
+        [TestCase(ItemTypePredefined.ArtifactCollection, -0.0001)]
+        [TestCase(ItemTypePredefined.CollectionFolder, 0)]
+        [TestRail(191208)]
+        [Description("Create & save a Collection or Collection Folder artifact.  Copy the Collection or Collection Folder and specify an OrderIndex <= 0.  " +
+            "Verify 400 Bad Request is returned.")]
+        public void CopyArtifact_SavedCollectionOrCollectionFolder_NotPositiveOrderIndex__400BadRequest(
+            ItemTypePredefined artifactType, double orderIndex)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var fakeBaseType = BaseArtifactType.PrimitiveFolder;
+            IArtifact sourceArtifact = Helper.CreateWrapAndSaveNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, _project.Id, author),
+                "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "Parameter orderIndex cannot be equal to or less than 0.");
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191225)]
+        [Description("Create & publish an artifact.  Copy an artifact with call that does not have token in a header.  Verify response returns code 401 Unauthorized.")]
+        public void CopyArtifact_PublishedArtifact_CopyWithNoTokenInAHeader_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, _project.Id, user : null);
+            }, "'POST {0}' should return 400 Bad Request when called with no token in a header!", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Token is missing or malformed.");
+        }
+
+        #endregion 400 Bad Request tests
+
+        #region 401 Unauthorized tests
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191209)]
+        [Description("Create & publish two artifacts.  Copy one artifact to be a child of the other with invalid token in a request.  Verify response returns code 401 Unauthorized.")]
+        public void CopyArtifact_PublishedArtifact_CopyToParentArtifactWithInvalidToken_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, newParentArtifact.Id, userWithBadToken);
+            }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, "Unauthorized call");
+        }
+
+        #endregion 401 Unauthorized tests
 
         #region Private functions
 

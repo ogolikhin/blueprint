@@ -44,11 +44,12 @@ export class RefreshAction extends BPButtonAction {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 } else {
+                    //project is getting refreshed by listening to selection in bp-page-content
+                    mainBreadcrumbService.reloadBreadcrumbs(artifact);
                     artifact.refresh().finally(() => {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 }
-                mainBreadcrumbService.reloadBreadcrumbs(artifact);
             },
             (): boolean => {
 

@@ -124,8 +124,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 this.projectService.getProject(projectId)
                     .then(project => this.project = project);
             }
-            this.resetItemTypes();
-            this.populateItemTypes(projectId);
         } else {
             this.project = undefined;
         }
@@ -149,6 +147,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 );
             }
             this.itemTypes = this.itemTypes.concat(artifactTypes);
+            let a = 3;
         });
     }
 

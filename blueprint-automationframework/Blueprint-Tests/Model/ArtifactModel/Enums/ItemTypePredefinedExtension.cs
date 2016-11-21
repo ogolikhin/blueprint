@@ -54,23 +54,6 @@ namespace Model.ArtifactModel.Enums
         }
 
         /// <summary>
-        /// Converts this BaseArtifactType enum value to its ItemTypePredefined equivalent.
-        /// </summary>
-        /// <param name="baseType">The BaseArtifactType to convert.</param>
-        /// <returns>The ItemTypePredefined version of this BaseArtifactType.</returns>
-        public static ItemTypePredefined ToItemTypePredefined(this BaseArtifactType baseType)
-        {
-            ItemTypePredefined itemType = ItemTypePredefined.None;
-
-            if (ItemTypePredefinedToBaseArtifactTypeMap.ContainsValue(baseType))
-            {
-                itemType = ItemTypePredefinedToBaseArtifactTypeMap.FirstOrDefault(it => it.Value == baseType).Key;
-            }
-
-            return itemType;
-        }
-
-        /// <summary>
         /// Returns true if this is a primitive artifact type.
         /// </summary>
         /// <param name="artifactType">The item type to check.</param>

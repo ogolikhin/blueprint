@@ -14,6 +14,7 @@ using Model.ArtifactModel.Impl;
 
 namespace Model.StorytellerModel.Impl
 {
+    // Found in: blueprint-current/Source/BluePrintSys.RC.Service.Business/Repository/Models/Storyteller/Process.cs
     /// <summary>
     /// The Storyteller Process Model
     /// </summary>
@@ -1568,6 +1569,11 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
+        /// <summary>
+        /// Creates and adds an artifact reference to another artifact.
+        /// </summary>
+        /// <param name="artifact">The artifact that will be added as a reference.</param>
+        /// <returns>The created artifact reference.</returns>
         public ArtifactReference AddAssociatedArtifact(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1579,12 +1585,17 @@ namespace Model.StorytellerModel.Impl
                 Name = artifact.Name,
                 ProjectId = artifact.ProjectId,
                 TypePrefix = StorytellerProcessPrefix,
-                BaseItemTypePredefined = ItemTypePredefinedExtension.ToItemTypePredefined(artifact.BaseArtifactType)
+                BaseItemTypePredefined = artifact.BaseArtifactType.ToItemTypePredefined()
             };
 
             return AssociatedArtifact;
         }
 
+        /// <summary>
+        /// Creates and adds a persona reference (actor) to another artifact.
+        /// </summary>
+        /// <param name="artifact">The actor artifact that will be added as a persona reference.</param>
+        /// <returns>The created actor artifact reference.</returns>
         public ArtifactReference AddPersonaReference(IArtifact artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1596,7 +1607,7 @@ namespace Model.StorytellerModel.Impl
                 Name = artifact.Name,
                 ProjectId = artifact.ProjectId,
                 TypePrefix = StorytellerProcessPrefix,
-                BaseItemTypePredefined = ItemTypePredefinedExtension.ToItemTypePredefined(artifact.BaseArtifactType)
+                BaseItemTypePredefined = artifact.BaseArtifactType.ToItemTypePredefined()
             };
 
             return AssociatedArtifact;

@@ -916,8 +916,7 @@ namespace Helper
             {
                 Assert.That((artifactReference1 == null) && (artifactReference2 == null), "One of the artifact references is null while the other is not null");
             }
-
-            if (artifactReference1 != null)
+            else
             {
                 Assert.AreEqual(artifactReference1.Id, artifactReference2.Id, "Artifact references ids do not match");
 

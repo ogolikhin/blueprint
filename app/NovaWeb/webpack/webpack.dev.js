@@ -93,6 +93,7 @@ module.exports = {
             {from: '../src/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
+            ENABLE_LOG:true,
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })

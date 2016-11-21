@@ -19,8 +19,8 @@ import {formlyConfig} from "../editors/";
 
 config.$inject = ["$rootScope", "$state"];
 
-declare var VERSION: string; //Usages replaced by webpack.DefinePlugin
-declare var BUILD_YEAR: string;
+declare let VERSION: string; //Usages replaced by webpack.DefinePlugin
+declare let BUILD_YEAR: string;
 
 export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
     $rootScope["config"] = window["config"] || {settings: {}, labels: {}};

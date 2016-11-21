@@ -36,7 +36,7 @@ describe("ProcessViewModel", () => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         let artitfactServices = new StatefulArtifactServices(
-            _$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null
+            _$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null, null
         );
         services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
     }));

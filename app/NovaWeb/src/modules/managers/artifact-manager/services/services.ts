@@ -8,6 +8,7 @@ import {IPublishService, IValidationService} from "../../../managers/artifact-ma
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
 
 export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
@@ -24,6 +25,7 @@ export interface IStatefulArtifactServices {
     loadingOverlayService: ILoadingOverlayService;
     publishService: IPublishService;
     validationService: IValidationService;
+    propertyDescriptor: IPropertyDescriptorBuilder;
 }
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
@@ -38,7 +40,8 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _metadataService: IMetaDataService,
                 private _loadingOverlayService: ILoadingOverlayService,
                 private _publishService: IPublishService,
-                private _validationService: IValidationService) {
+                private _validationService: IValidationService,
+                private _propertyDescriptor: IPropertyDescriptorBuilder) {
     }
 
     public getDeferred<T>(): ng.IDeferred<T> {
@@ -89,25 +92,9 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
         return this._validationService;
     }
 
-    // public request<T>(request: ng.IRequestConfig): ng.IPromise<T> {
-    //     var defer = this.services.$q.defer<T>();
-    //     this.$http(request).then(
-    //         (result: ng.IHttpPromiseCallbackArg<T>) => defer.resolve(result.data),
-    //         (errResult: ng.IHttpPromiseCallbackArg<any>) => {
-    //             if (!errResult) {
-    //                 defer.reject();
-    //                 return;
-    //             }
-    //             var error = {
-    //                 statusCode: errResult.status,
-    //                 message: (errResult.data ? errResult.data.message : "")
-    //             };
-    //             defer.reject(error);
-    //         }
-    //     );
-    //     return defer.promise;
-
-    // }
+    public get propertyDescriptor(): IPropertyDescriptorBuilder {
+        return this._propertyDescriptor;
+    }
 
 
 }

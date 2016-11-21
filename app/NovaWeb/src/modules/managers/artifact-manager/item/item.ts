@@ -10,6 +10,7 @@ import {IArtifactProperties} from "../properties";
 import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
 import {IApplicationError} from "../../../core/error/applicationError";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -27,6 +28,7 @@ export interface IStatefulItem extends Models.IArtifact {
     unsubscribe(): void;
     getEffectiveVersion(): number;
     getProperyObservable(): Rx.Observable<IItemChangeSet>;
+    validateItem(propertyDescriptors: IPropertyDescriptor[]): boolean;
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -35,6 +37,7 @@ export interface IIStatefulItem extends IStatefulItem {
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
     getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
     getServices(): IStatefulArtifactServices;
+
 }
 
 export abstract class StatefulItem implements IIStatefulItem {
@@ -372,5 +375,84 @@ export abstract class StatefulItem implements IIStatefulItem {
     //TODO: moved from bp-artifactinfo
     public abstract get artifactState(): IArtifactState;
 
+
+    public validateItem(propertyDescriptors: IPropertyDescriptor[]): boolean {
+
+        let result = _.every(propertyDescriptors, (propertyType: IPropertyDescriptor) => {
+            let value: any;
+            let propertyValue: Models.IPropertyValue;
+            switch (propertyType.lookup) {
+                case Enums.PropertyLookupEnum.Custom:
+                    propertyValue = this.customProperties.get(propertyType.modelPropertyName as number);
+                    if (propertyValue) {
+                        value = propertyValue.value;
+                    }
+                    break;
+                case Enums.PropertyLookupEnum.Special:
+                    propertyValue = this.specialProperties.get(propertyType.modelPropertyName as number);
+                    if (propertyValue) {
+                        value = propertyValue.value;
+                    }
+                    break;
+                default:
+                    value = this[propertyType.modelPropertyName];
+                    break;
+            }
+            let isValid: boolean; 
+            switch (propertyType.primitiveType) {
+                case Models.PrimitiveType.Number:
+                    isValid = this.services.validationService.numberValidation.isValid(value, 
+                        value,
+                        propertyType.decimalPlaces,
+                        this.services.localizationService,
+                        propertyType.minNumber,
+                        propertyType.maxNumber,
+                        propertyType.isValidated,
+                        propertyType.isRequired);
+                        break;
+                case Models.PrimitiveType.Date:
+                    isValid =  this.services.validationService.dateValidation.isValid(value,
+                        value,
+                        this.services.localizationService,
+                        propertyType.minDate,
+                        propertyType.maxDate,
+                        propertyType.isValidated,
+                        propertyType.isRequired);
+                        break;
+                case Models.PrimitiveType.Text:
+                    if (propertyType.isRichText) {
+                        isValid =  this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired, 
+                            value,
+                            value);
+                    } else {
+                        isValid = this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired, 
+                                value,
+                                value);
+                    }
+                    break;
+                case Models.PrimitiveType.Choice:
+                    if (propertyType.isMultipleAllowed) {
+                        isValid =  this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired, 
+                            value,
+                            value);
+                    } else {
+                        isValid =  this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired, 
+                            value,
+                            value);
+                    }
+                    break;
+                case Models.PrimitiveType.User:
+                    isValid =  this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, 
+                        value,
+                        value);
+                    break;
+                default:
+                    isValid = true;
+                    break;
+            };
+            return isValid;
+        });
+        return result;
+    }
 
 }

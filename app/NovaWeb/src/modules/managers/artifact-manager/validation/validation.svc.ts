@@ -33,4 +33,5 @@ export class ValidationService implements IValidationService {
         this.userPickerValidation = new UserPickerValidation();
         this.textValidation = new TextValidation();
     }
+
 }

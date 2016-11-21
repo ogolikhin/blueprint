@@ -70,16 +70,25 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         return "";
     }
 
-    private subscribeOnCollectionChanges(collectionArtifact: IStatefulCollectionArtifact) {
+    private unsubscribe(): void {
         if (this.collectionSubscriber) {
             this.collectionSubscriber.dispose();
             this.collectionSubscriber = null;
         }
+    }
+
+    public $onDestroy(): void {
+        this.unsubscribe();
+        super.$onDestroy();
+    }
+
+    private subscribeOnCollectionChanges(collectionArtifact: IStatefulCollectionArtifact) {
+        this.unsubscribe();
 
         if (collectionArtifact) {
             this.collectionSubscriber = collectionArtifact.getProperyObservable()
-                .filter(changes => changes.change &&
-                    changes.change.key === Models.PropertyTypePredefined.CollectionContent)
+                .filter(changes => changes.change && changes.item &&
+                    changes.change.key === Models.PropertyTypePredefined.CollectionContent)                
                 .subscribeOnNext(this.onCollectionArtifactsChanged);
         }
     }
@@ -122,13 +131,13 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);
             this.visibleArtifact = undefined;
-        }
+        }        
     }
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
-            return new CollectionNodeVM(a, this.artifact.projectId, this.metadataService, !this.artifact.artifactState.readonly);
+            return new CollectionNodeVM(a, collectionArtifact.projectId, this.metadataService, !collectionArtifact.artifactState.readonly);
         });
     };
 

@@ -7,6 +7,7 @@ import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 
 describe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])
@@ -25,10 +26,19 @@ describe("BpArtifactPicker", () => {
         $provide.service("projectService", () => ({
             abort: () => { return; }
         }));
+        $provide.service("metadataService", () => ({
+            get: (projectId: number) => { return; }
+        }));
     }));
 
-    it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $q: ng.IQService, metadataService: IMetaDataService) => {
         // Arrange
+        spyOn(metadataService, "get").and.callFake(() => {
+            const deferred = $q.defer();
+            deferred.resolve({artifactTypes: {}});
+            return deferred.promise;
+        });
+
         const element = `<bp-artifact-picker is-item-selectable="$ctrl.isItemSelectable()"
                                              selectable-item-types="[1, 2]"
                                              selection-mode="'multiple'"
@@ -46,8 +56,17 @@ describe("BpArtifactPicker", () => {
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
     }));
 
-    it("Defaults values are applied", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+    it("Defaults values are applied", inject((
+        $compile: ng.ICompileService, 
+        $rootScope: ng.IRootScopeService, 
+        $q: ng.IQService, 
+        metadataService: IMetaDataService) => {
         // Arrange
+        spyOn(metadataService, "get").and.callFake(() => {
+            const deferred = $q.defer();
+            deferred.resolve({artifactTypes: {}});
+            return deferred.promise;
+        });
         const element = `<bp-artifact-picker />`;
 
         // Act
@@ -65,10 +84,11 @@ describe("BpArtifactPicker", () => {
 describe("BpArtifactPickerController", () => {
     let $scope: ng.IScope;
     let projectService: IProjectService;
+    let metadataService: IMetaDataService;
     let controller: BpArtifactPickerController;
     const project = {model: {id: 1, name: "default"}, group: true};
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         $scope = $rootScope.$new();
         const localization = {} as ILocalizationService;
         const artifactManager = {selection: jasmine.createSpyObj("selectionManager", ["getArtifact"])} as IArtifactManager;
@@ -76,7 +96,9 @@ describe("BpArtifactPickerController", () => {
         const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;
         (projectManager.getProject as jasmine.Spy).and.returnValue(project);
         projectService = jasmine.createSpyObj("projectService", ["abort", "searchItemNames", "searchProjects"]) as IProjectService;
-        controller = new BpArtifactPickerController($scope, localization, artifactManager, projectManager, projectService);
+        metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
+        (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
+        controller = new BpArtifactPickerController($scope, localization, artifactManager, projectManager, projectService, metadataService);
     }));
 
     it("$onInit sets selected project", () => {
@@ -134,6 +156,7 @@ describe("BpArtifactPickerController", () => {
             query: "test",
             projectIds: [2],
             predefinedTypeIds: undefined,
+            itemTypeIds: [ ],
             includeArtifactPath: true
         }, 0, 101);
         $rootScope.$digest(); // Resolves promises

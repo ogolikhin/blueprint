@@ -14,6 +14,7 @@ export interface IStatefulArtifactServices {
     //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     getDeferred<T>(): ng.IDeferred<T>;
     $q: ng.IQService;
+    $log: ng.ILogService;
     messageService: IMessageService;
     dialogService: IDialogService;
     localizationService: ILocalizationService;
@@ -30,6 +31,7 @@ export interface IStatefulArtifactServices {
 
 export class StatefulArtifactServices implements IStatefulArtifactServices {
     constructor(public $q: ng.IQService,
+                public $log: ng.ILogService,
                 private _session: ISession,
                 private _messageService: IMessageService,
                 private _dialogService: IDialogService,

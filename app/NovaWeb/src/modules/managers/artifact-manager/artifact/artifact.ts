@@ -386,7 +386,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.services.messageService.clearMessages();
         const changes = this.changes();
 
-        let validatePromise = this.services.$q.defer<void>();
+        let validatePromise = this.services.$q.defer<any>();
         if (ignoreInvalidValues) {
             validatePromise.resolve();
         } else {
@@ -405,13 +405,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }).catch((error) => {
             return this.services.$q.reject(error);
         });
-    }
-
-    public set_400_114_error(deferred: ng.IDeferred<IStatefulArtifact>) {
-        const compoundId: string = this.prefix + this.id.toString();
-        let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-        deferred.reject(new Error(message.replace("{0}", compoundId)));
-        return deferred.promise;
     }
 
     private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
@@ -644,18 +637,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.services.$q.when(this);
     }
 
-    protected validateCustomArtifactPromiseForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise <IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
-        const changesToValidate = this.artifactState.invalid ? changes : undefined;
-        if (this.artifactState.invalid && !ignoreValidation) {
-            deferred.reject(this);
-        }
-        //TODO: add logic to validate a changesets
-        deferred.resolve();
-        return deferred.promise;
-    }
-
-
     protected customHandleSaveFailed(): void {
         ;
     }
@@ -671,12 +652,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
             const isItemValid = this.validateItem(propertyTypes);
-            if (!isItemValid) {
+            if (isItemValid) {
+                return this.subArtifactCollection.validate().catch(() => {
+                    return this.services.$q.reject(new Error(message));
+                });
+            } else {                
                 return this.services.$q.reject(new Error(message));
             }
-            return this.subArtifactCollection.validate().catch(() => {
-                return this.services.$q.reject(new Error(message));
-            });
         });
     }
     

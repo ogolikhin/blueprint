@@ -26,10 +26,8 @@ export class ArtifactAttachments implements IArtifactAttachments {
     private _error: Rx.BehaviorSubject<IApplicationError>;
 
     constructor(private statefulItem: IIStatefulItem) {
-        this.attachments = [];
         this.subject = new Rx.BehaviorSubject<IArtifactAttachment[]>(this.attachments);
         this.changeset = new ChangeSetCollector(statefulItem);
-        this.isLoaded = true;
     }
 
     public get isLoading(): boolean {

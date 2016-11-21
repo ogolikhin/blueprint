@@ -22,6 +22,7 @@ export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifa
     expanded?: boolean;
     key: string; // Each row in the dom will have an attribute row-id='key'
 
+    selectable: boolean;
     loadChildrenAsync?(): ng.IPromise<IArtifactNode[]>;
     unloadChildren(): void;
 

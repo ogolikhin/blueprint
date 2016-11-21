@@ -117,7 +117,7 @@ namespace ArtifactStoreTests
 
             // Vaidation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(serviceErrorMessage.ErrorCode, InternalApiErrorCodes.Forbidden, "GetUseCaseArtifact with the user which has no permission to the artifact should return {0} errorCode but {1} is returned", InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode);
+            Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode, "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}", InternalApiErrorCodes.Forbidden);
         }
 
         #endregion 403 Forbidden Tests
@@ -140,7 +140,7 @@ namespace ArtifactStoreTests
 
             // Validation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(serviceErrorMessage.ErrorCode, InternalApiErrorCodes.ItemNotFound, "GetUseCaseArtifact with invalid versionId should return {0} errorCode but {1} is returned", InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode);
+            Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetUseCaseArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);
         }
 
         #endregion 404 Not Found Tests

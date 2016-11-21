@@ -419,7 +419,6 @@ export abstract class StatefulItem implements IIStatefulItem {
                     if (!this.services.validationService.numberValidation.isValid(propValue, 
                         propValue,
                         propertyType.decimalPlaces,
-                        this.services.localizationService,
                         propertyType.minNumber,
                         propertyType.maxNumber,
                         propertyType.isValidated,
@@ -430,7 +429,6 @@ export abstract class StatefulItem implements IIStatefulItem {
                 case Models.PrimitiveType.Date:
                     if (!this.services.validationService.dateValidation.isValid(propValue, 
                         propValue,
-                        this.services.localizationService,
                         propertyType.minDate,
                         propertyType.maxDate,
                         propertyType.isValidated,

@@ -106,8 +106,10 @@ export interface IHeaderCellRendererParams {
 }
 
 export interface IBPTreeViewControllerApi {
-    ensureNodeVisible(node: ITreeViewNode): void;
+    setSelected(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean), selected?: boolean, clearSelection?: boolean): boolean;
+    ensureNodeVisible(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void;
     deselectAll(): void;
+    refreshRows(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void;
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
@@ -222,13 +224,36 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public api: IBPTreeViewControllerApi = {
-        ensureNodeVisible: (node: ITreeViewNode): void => {
-            if (node) {
-                this.options.api.ensureNodeVisible(node);
+        setSelected: (comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean), selected: boolean = true, clearSelection: boolean = true) => {
+            let result = false;
+            this.options.api.forEachNode((node: agGrid.RowNode) => {
+                const vm = node.data as ITreeViewNode;
+                if (_.isFunction(comparator) ? comparator(vm) : vm === comparator) {
+                    node.setSelected(selected, clearSelection);
+                    result = true;
+                }
+            });
+            return result;
+        },
+        ensureNodeVisible: (comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void => {
+            if (_.isFunction(comparator)) {
+                this.options.api.ensureNodeVisible((node: agGrid.RowNode) => comparator(node.data as ITreeViewNode));
+            } else if (comparator) {
+                this.options.api.ensureNodeVisible(comparator);
             }
         },
         deselectAll: (): void => {
             this.options.api.deselectAll();
+        },
+        refreshRows: (comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void => {
+            const rowNodes: agGrid.RowNode[] = [];
+            this.options.api.forEachNode((node: agGrid.RowNode) => {
+                const vm = node.data as ITreeViewNode;
+                if (_.isFunction(comparator) ? comparator(vm) : vm === comparator) {
+                    rowNodes.push(node);
+                }
+            });
+            this.options.api.refreshRows(rowNodes);
         }
     };
 

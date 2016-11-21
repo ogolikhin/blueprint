@@ -177,6 +177,62 @@ describe("BPTreeViewController", () => {
         });
     });
 
+    describe("api", () => {
+        it("setSelected calls ag-grid setSelected", () => {
+            // Arrange
+            const comparator = {} as ITreeViewNode;
+            const selected = true;
+            const clearSelection = false;
+            const rows = [{data: comparator} as agGrid.RowNode, {data: {} as ITreeViewNode} as agGrid.RowNode];
+            rows.forEach(row => row.setSelected = jasmine.createSpy("setSelected"));
+            (controller.options.api.forEachNode as jasmine.Spy).and.callFake((callback: (node: agGrid.RowNode) => void) => rows.forEach(callback));
+
+            // Act
+            controller.api.setSelected(comparator, selected, clearSelection);
+
+            // Assert
+            expect(rows[0].setSelected).toHaveBeenCalledWith(true, false);
+            expect(rows[1].setSelected).not.toHaveBeenCalled();
+        });
+
+        it("ensureNodeVisible calls ag-grid ensureNodeVisible", () => {
+            // Arrange
+            const comparator = {} as ITreeViewNode;
+            controller.options.api.ensureNodeVisible = jasmine.createSpy("ensureNodeVisible");
+
+            // Act
+            controller.api.ensureNodeVisible(comparator);
+
+            // Assert
+            expect(controller.options.api.ensureNodeVisible).toHaveBeenCalledWith(comparator);
+        });
+
+        it("deselectAll calls ag-grid deselectAll", () => {
+            // Arrange
+            controller.options.api.deselectAll = jasmine.createSpy("deselectAll");
+
+            // Act
+            controller.api.deselectAll();
+
+            // Assert
+            expect(controller.options.api.deselectAll).toHaveBeenCalled();
+        });
+
+        it("refreshRows calls ag-grid refreshRows", () => {
+            // Arrange
+            const comparator = {} as ITreeViewNode;
+            const rows = [{data: comparator} as agGrid.RowNode, {data: {} as ITreeViewNode} as agGrid.RowNode];
+            (controller.options.api.forEachNode as jasmine.Spy).and.callFake((callback: (node: agGrid.RowNode) => void) => rows.forEach(callback));
+            controller.options.api.refreshRows = jasmine.createSpy("refreshRows");
+
+            // Act
+            controller.api.refreshRows(comparator);
+
+            // Assert
+            expect(controller.options.api.refreshRows).toHaveBeenCalledWith([rows[0]]);
+        });
+    });
+
     describe("resetGridAsync", () => {
         it("When selection mode is single, sets rowSelection, rowDeselection and checkbox correctly", () => {
             // Arrange

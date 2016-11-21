@@ -29,10 +29,6 @@ export class WindowVisibility implements IWindowVisibility {
                 = window.onblur
                 = this.windowVisibilityHandler;
         }
-
-        window.addEventListener("beforeunload", () => {
-            this.dispose();
-        });
     };
 
     public dispose() {

@@ -261,6 +261,24 @@ namespace ArtifactStoreTests
                 "Parameter orderIndex cannot be equal to or less than 0.");
         }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(191225)]
+        [Description("Create & publish an artifact.  Copy an artifact with call that does not have token in a header.  Verify response returns code 401 Unauthorized.")]
+        public void CopyArtifact_PublishedArtifact_CopyWithNoTokenInAHeader_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact, _project.Id, user : null);
+            }, "'POST {0}' should return 400 Bad Request when called with no token in a header!", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Token is missing or malformed.");
+        }
+
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests

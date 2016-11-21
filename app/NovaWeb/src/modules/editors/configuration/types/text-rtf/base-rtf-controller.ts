@@ -70,11 +70,13 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
 
-        // this is to request the relationships in order to calculate if the user can manage them
-        let relationships: IRelationship[];
-        this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
-            relationships = rel;
-        });
+        if (this.currentArtifact) {
+            // this is to request the relationships in order to calculate if the user can manage them
+            let relationships: IRelationship[];
+            this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
+                relationships = rel;
+            });
+        }
 
         this.contentBuffer = undefined;
 

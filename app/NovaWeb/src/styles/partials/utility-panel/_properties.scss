@@ -1,5 +1,5 @@
 bp-properties-panel {
-
+    $property-min-height: 28px;
     $page-body-min-width: 335px;
     $properties-min-width: $page-body-min-width - 40px - 30px - 2px; //263px
     $property-horiz-spacing: 10px;
@@ -9,7 +9,8 @@ bp-properties-panel {
     $property-left-margin: 11px;
     $property-input-icon-width: 40px;
     $property-input-with-icon-width: $property-input-width - $property-input-icon-width;
-    
+    $tinymce-toolbar-height: 23px;
+
     .tinymce-body-wrapper {
         max-width: $property-input-width;
     }
@@ -58,10 +59,11 @@ bp-properties-panel {
         .formly-field {
             display: block;
             width: 100%;
-            margin: 0 0 6px;
+            margin: 0 0 12px;
 
             .has-messages {
                 display: block;
+                min-height: $property-min-height;
 
                 input.has-icon {
                     max-width: $property-input-with-icon-width;
@@ -72,6 +74,7 @@ bp-properties-panel {
             label {
                 font-weight: 600;
                 width: $property-input-width;
+                margin-top: 0px;
             }
 
             input,
@@ -135,6 +138,7 @@ bp-properties-panel {
             }
         }
 
+        .formly-field-bpFieldTextRTFInline,
         .formly-field-bpFieldTextRTF {
             .mce-toolbar-grp {
                 min-width: 244px;
@@ -147,8 +151,19 @@ bp-properties-panel {
             }
         }
         .formly-field-bpFieldTextRTFInline {
+            .mce-toolbar-grp {
+                min-width: #{$property-input-width - 2px};
+            }
+
+            .tinymce-toolbar {
+                height: #{$tinymce-toolbar-height + 2px};
+                margin: -#{$tinymce-toolbar-height + 2px} 0 0;
+            }
+
+            .mce-abs-layout,
             .mce-panel {
                 // since it's hidden on init, tinyMCE cannot calculate the dimensions by itself
+                height: $tinymce-toolbar-height !important;
                 width: #{$property-input-width - 2px} !important;
             }
         }

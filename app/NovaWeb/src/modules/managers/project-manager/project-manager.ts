@@ -12,6 +12,7 @@ import {HttpStatusCode} from "../../core/http/http-status-code";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 
 export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifact> {
     // agGrid.NodeChildDetails
@@ -57,7 +58,8 @@ export class ProjectManager implements IProjectManager {
         "artifactManager",
         "metadataService",
         "statefulArtifactFactory",
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "mainbreadcrumbService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -69,7 +71,8 @@ export class ProjectManager implements IProjectManager {
                 private artifactManager: IArtifactManager,
                 private metadataService: IMetaDataService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private loadingOverlayService: ILoadingOverlayService) {
+                private loadingOverlayService: ILoadingOverlayService,
+                private mainBreadcrumbService: IMainBreadcrumbService) {
 
         this.subscribers = [];
     }
@@ -166,6 +169,11 @@ export class ProjectManager implements IProjectManager {
         //if the artifact provided is not in the current project - just expand project node
         if (expandToArtifact.projectId !== project.model.id) {
             expandToArtifact = this.getArtifact(project.model.id);
+        }
+
+        //reloading the breadcrumb
+        if (expandToArtifact.id === project.model.id) {
+            this.mainBreadcrumbService.reloadBreadcrumbs(expandToArtifact);
         }
 
         //try with selected artifact

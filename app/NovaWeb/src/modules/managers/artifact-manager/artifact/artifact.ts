@@ -27,6 +27,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     getObservable(): Rx.Observable<IStatefulArtifact>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
+    validate(): ng.IPromise<void>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -75,7 +76,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.artifactState.initialize(artifact);
         super.initialize(artifact);
 
-        if (isMisplaced) {
+        if (isMisplaced && !this.artifactState.historical) {
             this.artifactState.misplaced = true;
         }
     }
@@ -382,24 +383,27 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
-
         const changes = this.changes();
-        if (changes) {
-            return this.validateCustomArtifactPromiseForSave(changes, ignoreInvalidValues)
-                .then(() => {
-                    return this.getCustomArtifactPromiseForSave();
-                }).then(() => {
-                    return this.saveArtifact(changes).catch((error) => {
-                        if (this.hasCustomSave) {
-                            this.customHandleSaveFailed();
-                        }
-                        return this.services.$q.reject(error);
-                    });
-                });
+
+        let validatePromise = this.services.$q.defer<void>();
+        if (ignoreInvalidValues) {
+            validatePromise.resolve();
         } else {
-            const deferred = this.services.$q.defer<IStatefulArtifact>();
-            return this.set_400_114_error(deferred);
+            validatePromise.promise = this.validate();
         }
+
+        return validatePromise.promise.then(() => {
+            return this.getCustomArtifactPromiseForSave();
+        }).then(() => {
+            return this.saveArtifact(changes).catch((error) => {
+                if (this.hasCustomSave) {
+                    this.customHandleSaveFailed();
+                }
+                return this.services.$q.reject(error);
+            });
+        }).catch((error) => {
+            return this.services.$q.reject(error);
+        });
     }
 
     public set_400_114_error(deferred: ng.IDeferred<IStatefulArtifact>) {
@@ -458,13 +462,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public autosave(): ng.IPromise<void> {
         if (this.canBeSaved() ) {
-            return this.save()
-                       .catch(() => {
-                            return this.services.dialogService.confirm("Autosave has failed. Continue without saving?")
-                                                              .then(() => {
-                                                                  this.discard();
-                                                              });
-                       });
+            return this.save(true).catch(() => {
+                return this.services.dialogService.confirm("Autosave has failed. Continue without saving?").then(() => {
+                    this.discard();
+                });
+            });
         }
         return this.services.$q.resolve();
     }
@@ -638,6 +640,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return deferred.promise;
     }
 
+
     protected customHandleSaveFailed(): void {
         ;
     }
@@ -646,4 +649,22 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
+                
+    public validate(): ng.IPromise<void> {
+        
+        let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
+
+        return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
+            const isItemValid = this.validateItem(propertyTypes);
+            if (!isItemValid) {
+                return this.services.$q.reject(new Error(message));
+            }
+            return this.subArtifactCollection.validate().catch(() => {
+                return this.services.$q.reject(new Error(message));
+            });
+        });
+    }
+    
+
 }
+

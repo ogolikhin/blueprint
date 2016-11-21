@@ -1,4 +1,4 @@
-import * as angular from "angular";
+﻿import * as angular from "angular";
 import {ShapesFactory} from "./shapes-factory";
 import {
     IUserTaskShape,
@@ -81,7 +81,7 @@ export class ShapeModelMock {
 
         this.shapesFactory = new ShapesFactory(this.rootScope, new StatefulArtifactFactoryMock());
 
-        this.sampleUserTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.UserTask)
+        this.sampleUserTask.propertyValues["clientType"] = this.shapesFactory.createClientTypeValue(ProcessShapeType.UserTask);
 
         this.sampleUserTask.propertyValues["x"] = this.shapesFactory.createXValue(2);
         this.sampleUserTask.propertyValues["y"] = this.shapesFactory.createXValue(0);

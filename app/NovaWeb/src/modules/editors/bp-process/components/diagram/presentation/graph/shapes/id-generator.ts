@@ -16,19 +16,22 @@ export class IdGenerator implements IIdGenerator {
     }
 
     public getId(processShapeType: ProcessShapeType): number {
-        if (processShapeType === ProcessShapeType.UserTask) {
-            return ++this.userTaskNewNodeCounter;
+        switch (processShapeType) {
+            case ProcessShapeType.UserTask:
+                return ++this.userTaskNewNodeCounter;
+
+            case ProcessShapeType.SystemTask:
+                return ++this.systemTaskNewNodeCounter;
+
+            case ProcessShapeType.UserDecision:
+                return ++this.userDecisionNewNodeCounter;
+
+            case ProcessShapeType.SystemDecision:
+                return ++this.systemDecisionNewNodeCounter;
+
+            default:
+                return ++this.tempId;
         }
-        if (processShapeType === ProcessShapeType.SystemTask) {
-            return ++this.systemTaskNewNodeCounter;
-        }
-        if (processShapeType === ProcessShapeType.UserDecision) {
-            return ++this.userDecisionNewNodeCounter;
-        }
-        if (processShapeType === ProcessShapeType.SystemDecision) {
-            return ++this.systemDecisionNewNodeCounter;
-        }
-        return ++this.tempId;
     }
 
     public getUserPeronaId(): number {

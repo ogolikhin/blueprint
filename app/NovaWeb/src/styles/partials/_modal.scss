@@ -135,7 +135,7 @@ $modal-open-project-height: 450px;
             .fonticon-error {
                 position: absolute;
                 color: $gray-light;
-                top: 0px;
+                top: 0;
                 right: 0;
                 height: 34px;
                 padding-top: 8px;
@@ -145,12 +145,20 @@ $modal-open-project-height: 450px;
                 }
             }
 
-            .btn {
-                float: right;
-                height: 34px;
-                font-size: 1.4rem;
-                border-top-left-radius: 0;
-                border-bottom-left-radius: 0;
+            .filter {
+                width: 100%;
+                font-size: $font-size-normal;
+                background: $white;
+                border: 1px solid $gray-lighter;
+                padding: 2px 2px 2px 12px;
+                margin-top: 0;
+                margin-bottom: -15px;
+                position: relative;
+                color: $gray-light;
+            }
+
+            .filter__icon-clear-search {
+                padding-top: 2px;
             }
 
             .fonticon2-search::before {

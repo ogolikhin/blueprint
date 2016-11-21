@@ -107,15 +107,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish a use case artifact, Get UseCaseArtifact with the user with no permission to the artifact. Verify that 403 forbidden exception is returned.")]
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithNoPermissionForTheArtifact_403Forbidden()
         {
-            //Setup:
+            // Setup: Create and publish a use case artifact
             var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
             var userWithNonePermissionForArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithNonePermissionForArtifact, TestHelper.ProjectRole.None, _project, publishedUseCaseArtifact);
 
-            //Execute:
+            // Execute: Get the use case artifact with the user with no permission to the artifact
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithNonePermissionForArtifact, publishedUseCaseArtifact.Id), "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!", RestPaths.Svc.ArtifactStore.USECASE_id_);
 
-            //Vaidation:
+            // Vaidation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(serviceErrorMessage.ErrorCode, InternalApiErrorCodes.Forbidden, "GetUseCaseArtifact with the user which has no permission to the artifact should return {0} errorCode but {1} is returned", InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode);
         }
@@ -138,7 +138,7 @@ namespace ArtifactStoreTests
             // Execute: Get the use case artifact with invalid versionId using GetUseCaseArtifact
             var ex = Assert.Throws<Http404NotFoundException>(() =>  Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id, versionId: versionId), "GetUseCaseArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
-            // Validation: Exception should contain proper errorCode in the response content.
+            // Validation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(serviceErrorMessage.ErrorCode, InternalApiErrorCodes.ItemNotFound, "GetUseCaseArtifact with invalid versionId should return {0} errorCode but {1} is returned", InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode);
         }

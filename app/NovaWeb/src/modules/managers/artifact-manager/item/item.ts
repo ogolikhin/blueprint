@@ -385,7 +385,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                 case Enums.PropertyLookupEnum.Custom:
 
                     // do not validate unloaded custom properties  
-                    if (!this._customProperties.isLoaded) {
+                    if (!this.customProperties.isLoaded) {
                         return true;
                     }
 

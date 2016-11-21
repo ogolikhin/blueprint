@@ -112,13 +112,13 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             minDate: {
                 expression: function ($viewValue, $modelValue, scope) {
                     return validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
-                                                                                          localization, scope.options.data.isValidated);
+                                                                                          scope.options.data.isValidated);
                 }
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
                     return validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
-                                                                                          localization, scope.options.data.isValidated);
+                                                                                          scope.options.data.isValidated);
                 }
             }
         };

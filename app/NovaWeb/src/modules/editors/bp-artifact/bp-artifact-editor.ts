@@ -169,11 +169,11 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 context.isFresh = false;
                 
                 //TODO:REMOVE: seems we don't need the following block of code since we never check INVALID state 
-                this.artifact.validate().then(()  => {
-                    this.artifact.artifactState.invalid = false;
-                }).catch(() => {
-                    this.artifact.artifactState.invalid = true;
-                });
+                // this.artifact.validate().then(()  => {
+                //     this.artifact.artifactState.invalid = false;
+                // }).catch(() => {
+                //     this.artifact.artifactState.invalid = true;
+                // });
 
             } catch (err) {
                 this.messageService.addError(err);

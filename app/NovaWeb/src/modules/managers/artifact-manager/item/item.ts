@@ -383,6 +383,12 @@ export abstract class StatefulItem implements IIStatefulItem {
             let propertyValue: Models.IPropertyValue;
             switch (propertyType.lookup) {
                 case Enums.PropertyLookupEnum.Custom:
+
+                    // do not validate unloaded custom properties  
+                    if (!this._customProperties.isLoaded) {
+                        return true;
+                    }
+
                     propertyValue = this.customProperties.get(propertyType.modelPropertyName as number);
                     if (propertyValue) {
                         value = propertyValue.value;
@@ -398,8 +404,8 @@ export abstract class StatefulItem implements IIStatefulItem {
                     value = this[propertyType.modelPropertyName];
                     break;
             }
-
-            let isValid: boolean = !_.isBoolean(propertyType.isValidated);
+            
+            let isValid: boolean = !_.isBoolean(propertyType.isValidated) ;
             if (!isValid) {
                 isValid = this.validateProperty(propertyType, value);
             }

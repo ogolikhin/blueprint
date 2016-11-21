@@ -39,7 +39,7 @@ export class AppController {
                 //The message is only displayed in IE
                 const windowMessage = localization.get("App_CloseTabWithUnsavedChanges");
                 e = e || this.$window.event;
-                e.returnValue = localization.get("App_CloseTabWithUnsavedChanges");
+                e.returnValue = windowMessage;
                 return windowMessage;
             }
         };

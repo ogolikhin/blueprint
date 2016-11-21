@@ -24,9 +24,11 @@ export class ValidationService implements IValidationService {
     public userPickerValidation: IUserPickerValidation;
     public textValidation: ITextValidation;
 
-    constructor() {
-        this.numberValidation = new NumberValidation();
-        this.dateValidation = new DateValidation();
+    public static $inject = [ "localization"];
+
+    constructor(private localization: ILocalizationService) {
+        this.numberValidation = new NumberValidation(localization);
+        this.dateValidation = new DateValidation(localization);
         this.selectValidation = new SelectValidation();
         this.multiSelectValidation = new MultiSelectValidation();
         this.textRtfValidation = new TextRtfValidation(); 

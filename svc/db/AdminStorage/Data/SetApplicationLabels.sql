@@ -189,6 +189,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_List_Show
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Dependents_Dialog_Message', 'en-US', N'If you publish the artifact, other related artifacts will also need to be published. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Success_Message', 'en-US', N'The artifact has been published.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Failure_Message', 'en-US', N'The artifact cannot be published.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Artifact_Failure_Message', 'en-US', N'An error has occurred and the artifact cannot be published. Please contact an administrator.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Failure_LockedByOtherUser_Message', 'en-US', N'The artifact cannot be published because it is locked by another user.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_No_Unpublished_Changes', 'en-US', N'There are no artifacts that can be discarded.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Dialog_Message', 'en-US', N'Artifacts with unpublished changes: {0}<br/>Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions:')

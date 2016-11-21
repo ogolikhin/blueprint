@@ -255,11 +255,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
 
         //TODO: REMOVE seems we don't need the following block of code since we never check INVALID state 
-        this.selectedArtifact.validate().then(()  => {
-            this.selectedArtifact.artifactState.invalid = false;
-        }).catch(() => {
-            this.selectedArtifact.artifactState.invalid = true;
-        });
+        // this.selectedArtifact.validate().then(()  => {
+        //     this.selectedArtifact.artifactState.invalid = false;
+        // }).catch(() => {
+        //     this.selectedArtifact.artifactState.invalid = true;
+        // });
             
     };
 

@@ -161,8 +161,6 @@ export class ArtifactService implements IArtifactService {
     }
 
     public moveArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<any> {
-        const defer = this.$q.defer();
-
         let url: string;
         if (orderIndex) {
             url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}`;
@@ -175,15 +173,13 @@ export class ArtifactService implements IArtifactService {
             method: "POST"
         };
 
-        this.$http(requestObj).then(
+        return this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
-                defer.resolve(result.data);
+                return result.data;
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {
-                defer.reject(result.data);
+                return this.$q.reject(result.data);
             }
         );
-
-        return defer.promise;
     }
 }

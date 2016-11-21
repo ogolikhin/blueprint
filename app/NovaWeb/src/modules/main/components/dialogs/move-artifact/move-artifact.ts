@@ -40,7 +40,7 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
         if (this.insertMethod === this.InsertMethodSelection && this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
             return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
         } else {
-            return item.predefinedType !== Enums.ItemTypePredefined.Collections;
+            return true;
         }
     }
 

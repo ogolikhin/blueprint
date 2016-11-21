@@ -9,6 +9,7 @@ import {IProjectManager} from "../../../../managers/project-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {ConfirmDeleteController} from "../../../../main/components/dialogs/bp-confirm-delete";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 
 export class DeleteAction extends BPButtonAction {
@@ -18,7 +19,8 @@ export class DeleteAction extends BPButtonAction {
                 private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private loadingOverlayService: ILoadingOverlayService,
-                private dialogService: IDialogService
+                private dialogService: IDialogService,
+                private navigationService: INavigationService
                 ) {
         super();
         
@@ -113,9 +115,10 @@ export class DeleteAction extends BPButtonAction {
     private complete(deletedArtifacts: Models.IArtifact[]) {
         const parentArtifact = this.artifactManager.get(this.artifact.parentId); 
         if (parentArtifact) {
-            this.artifactManager.selection.setArtifact(parentArtifact);
             this.projectManager.refresh(parentArtifact.projectId, true).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
+                this.navigationService.navigateTo({id: parentArtifact.id});
+                                    
             });
         } else {
             this.artifact.refresh();

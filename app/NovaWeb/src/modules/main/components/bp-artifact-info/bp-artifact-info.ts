@@ -263,7 +263,8 @@ export class BpArtifactInfoController {
                         this.artifactManager,
                         this.projectManager,
                         this.loadingOverlayService,
-                        this.dialogService)
+                        this.dialogService,
+                        this.navigationService)
                 ),
             );
 

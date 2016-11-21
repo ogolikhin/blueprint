@@ -397,34 +397,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
     }
 
-    // private saveArtifactsAsNeeded(artifactsToSave: Models.IArtifact[]): ng.IPromise<any> {
-    //     const saveArtifactsLoader = this.loadingOverlayService.beginLoading();
-    //     const savePromises = [];
-    //     const selectedArtifact = this.artifactManager.selection.getArtifact();
-    //     let artifact = this.artifactManager.selection.getArtifact();
-        
-    //     artifactsToSave.forEach((artifactModel) => {
-    //         let artifact = this.artifactManager.get(artifactModel.id);
-    //         if (!artifact) {
-    //             if (selectedArtifact && selectedArtifact.id === artifactModel.id) {
-    //                 artifact = selectedArtifact;
-    //             }
-    //         }
-    //         if (artifact && artifact.canBeSaved()) {
-    //             savePromises.push(artifact.save());
-    //         }
-    //     });
-
-    //     const allPromises = this.$q.all(savePromises);
-
-    //     allPromises.catch((err) => {
-    //         this.messageService.addError(err);
-    //     }).finally(() => {
-    //         this.loadingOverlayService.endLoading(saveArtifactsLoader);
-    //     });
-
-    //     return allPromises;
-    // }
+    
 
     showSubLevel(evt: any): void {
         // this is needed to allow tablets to show submenu (as touch devices don't understand hover)

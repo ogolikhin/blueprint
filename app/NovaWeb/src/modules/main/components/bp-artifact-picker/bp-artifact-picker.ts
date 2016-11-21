@@ -124,8 +124,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 this.projectService.getProject(projectId)
                     .then(project => this.project = project);
             }
-            this.resetItemTypes();
-            this.populateItemTypes(projectId);
         } else {
             this.project = undefined;
         }
@@ -149,6 +147,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 );
             }
             this.itemTypes = this.itemTypes.concat(artifactTypes);
+            let a = 3;
         });
     }
 
@@ -185,12 +184,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             name: "",
             hasChildren: true
         } as AdminStoreModels.IInstanceItem, true)];
+        this.resetItemTypes();
         if (project) {
-            this.resetItemTypes();
             this.populateItemTypes(project.id);
             this.filterItemType = this.itemTypes[0];
-        } else {
-            this.resetItemTypes();
         }
     }
 

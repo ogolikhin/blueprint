@@ -21,6 +21,7 @@ export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifa
     expanded?: boolean;
     key: string; // Each row in the dom will have an attribute row-id='key'
 
+    selectable: boolean;
     loadChildrenAsync?(): ng.IPromise<IArtifactNode[]>;
     unloadChildren(): void;
 
@@ -169,11 +170,6 @@ export class ProjectManager implements IProjectManager {
         //if the artifact provided is not in the current project - just expand project node
         if (expandToArtifact.projectId !== project.model.id) {
             expandToArtifact = this.getArtifact(project.model.id);
-        }
-
-        //reloading the breadcrumb
-        if (expandToArtifact.id === project.model.id) {
-            this.mainBreadcrumbService.reloadBreadcrumbs(expandToArtifact);
         }
 
         //try with selected artifact

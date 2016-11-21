@@ -9,6 +9,7 @@ export class ArtifactNode implements IArtifactNode {
     public group: boolean;
     public children: IArtifactNode[];
     public key: string;
+    public selectable: boolean = true;
 
     constructor(private projectService: IProjectService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,

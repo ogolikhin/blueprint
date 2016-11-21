@@ -23,6 +23,7 @@ describe("StatefulProcessArtifact", () => {
 
     let services: IStatefulProcessArtifactServices;
     let $q: ng.IQService;
+    let $log: ng.ILogService;
     let $rootScope: ng.IRootScopeService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -40,12 +41,14 @@ describe("StatefulProcessArtifact", () => {
     }));
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
+        _$log_: ng.ILogService,
         artifactService: IArtifactService,
         processService: IProcessService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        let artitfactServices = new StatefulArtifactServices(_$q_, null, null, null, null, artifactService, null, null, null, null, null, null, null);
-        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
+        $log = _$log_;
+        let artitfactServices = new StatefulArtifactServices(_$q_, _$log_, null, null, null, null, artifactService, null, null, null, null, null, null, null);
+        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_, processService);
     }));
 
 

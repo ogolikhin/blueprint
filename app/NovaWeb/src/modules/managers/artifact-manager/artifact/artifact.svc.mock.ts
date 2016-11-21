@@ -177,7 +177,11 @@ export class ArtifactServiceMock implements IArtifactService {
         return deferred.promise;
     }
 
-
+    public moveArtifact(artifactId: number, newParentId: number, orderIndex?: number) {
+        const deferred = this.$q.defer<any>();
+        deferred.resolve(ArtifactServiceMock.createLockResult(artifactId));
+        return deferred.promise;
+    }
 
      public getArtifactModel<T extends Models.IArtifact>(url: string, id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<T> {
         const deferred = this.$q.defer<any>();

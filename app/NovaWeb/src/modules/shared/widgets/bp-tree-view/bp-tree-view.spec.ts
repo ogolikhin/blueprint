@@ -119,6 +119,7 @@ describe("BPTreeViewController", () => {
                 "autoSizeAllColumns"
             ])
         };
+        (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue([]);
     }));
 
     describe("Component lifecylcle methods", () => {

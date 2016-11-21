@@ -109,6 +109,7 @@ export interface IBPTreeViewControllerApi {
     setSelected(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean), selected?: boolean, clearSelection?: boolean): boolean;
     ensureNodeVisible(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void;
     deselectAll(): void;
+    updateSelectableNodes(isItemSelectable: (item) => boolean): void;
     refreshRows(comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void;
 }
 
@@ -245,6 +246,12 @@ export class BPTreeViewController implements IBPTreeViewController {
         deselectAll: (): void => {
             this.options.api.deselectAll();
         },
+        updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {
+            this.options.api.forEachNode(node => {
+                node.data.selectable = isItemSelectable(node.data.model);
+            });
+            this.options.api.refreshView();
+        },
         refreshRows: (comparator: ITreeViewNode | ((vm: ITreeViewNode) => boolean)): void => {
             const rowNodes: agGrid.RowNode[] = [];
             this.options.api.forEachNode((node: agGrid.RowNode) => {
@@ -257,7 +264,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         }
     };
 
-    public resetGridAsync(saveSelection: boolean, fitColumnDelay: number = 500): ng.IPromise<void> {
+    public resetGridAsync(isExpanding: boolean, fitColumnDelay: number = 500): ng.IPromise<void> {
         if (this.options.api) {
             this.options.rowSelection = this.selectionMode === "single" ? "single" : "multiple";
             this.options.rowDeselection = this.selectionMode !== "single";
@@ -282,9 +289,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                 } as agGrid.ColDef)));
 
             const selectedVMs: {[key: string]: ITreeViewNode} = {};
-            if (saveSelection) {
-                this.options.api.getSelectedRows().forEach((row: ITreeViewNode) => selectedVMs[row.key] = row);
-            } else {
+            this.options.api.getSelectedRows().forEach((row: ITreeViewNode) => selectedVMs[row.key] = row);
+            if (!isExpanding) {
                 this.options.api.setRowData([]);
                 this.options.api.showLoadingOverlay();
             }
@@ -301,7 +307,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                         this.options.columnApi.autoSizeAllColumns();
                     }
 
-                    if (saveSelection) {
+                    if (!_.isEmpty(selectedVMs)) {
                         // Restore selection (don't raise selection events)
                         this.options.onRowSelected = undefined;
                         this.options.api.forEachNode(node => {

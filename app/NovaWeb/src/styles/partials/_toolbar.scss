@@ -1,4 +1,4 @@
-bp-toolbar {
+page-toolbar {
     > .navbar-toolbar {
         background: $gray-lighter;
         height: $toolbar-height;
@@ -88,6 +88,10 @@ bp-toolbar {
                 &:hover {
                     background: $brand-secondary !important;
                     color: $white !important;
+                }
+                &.disabled {
+                    color: $gray-light !important;
+                    pointer-events: none;
                 }
             }
 

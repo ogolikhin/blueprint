@@ -14,6 +14,7 @@ App_Button_Discard_All,"Discard All"
 App_Button_Create,"Create"
 App_Button_PublishAndContinue,"Publish and Continue"
 App_Button_Add,"Add"
+App_Button_Move,"Move"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
@@ -54,6 +55,7 @@ App_Toolbar_Delete,"Delete"
 App_Toolbar_New,"New"
 App_Toolbar_Open_Impact_Analysis,"Open Impact Analysis"
 App_Toolbar_Tour,"Tour"
+App_Toolbar_Move,"Move"
 
 App_Collapsible_ShowMore, "Show more"
 App_Collapsible_ShowLess, "Show less"
@@ -201,6 +203,12 @@ Discard_All_Success_Message,"Changes have been discarded for all artifacts ({0})
 Discard_Single_Dialog_Message,"This artifact will be restored to its last published version. If it has never been published, it will be deleted."
 Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:"
 Discard_Success_Message,"Changes have been discarded."
+
+Move_Artifacts_Picker_Header,"Move to..."
+Move_Artifacts_Picker_Insert_Label,"Insert:"
+Move_Artifacts_Picker_Insert_Choice_Inside,"Inside"
+Move_Artifacts_Picker_Insert_Choice_Above,"Above"
+Move_Artifacts_Picker_Insert_Choice_Below,"Below"
 
 #Create New Artifact
 Create_New_Artifact_Dialog_Header,"New Artifact"

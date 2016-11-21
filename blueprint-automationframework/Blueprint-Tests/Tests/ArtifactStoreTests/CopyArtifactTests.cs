@@ -10,6 +10,7 @@ using Model.Impl;
 using Model.NovaModel;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
 using Utilities.Factories;
 
 namespace ArtifactStoreTests
@@ -184,17 +185,58 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
-        /*
+        
         [Category(Categories.CustomData)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
+        [Category(Categories.GoldenData)]
+        [TestCase(BaseArtifactType.TextualRequirement, 85, "User Story[reuse source]")]
+        [TestCase(BaseArtifactType.TextualRequirement, 86, "User Story[reuse target]")]
         [TestRail(191051)]
         [Description("Create and publish a folder.  Copy a reused artifact into the folder.  Verify the source artifact is unchanged and the new artifact " +
             "is identical to the source artifact (except no Reuse relationship).  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedReusedArtifact_ToNewFolder_ReturnsNewArtifactNotReused(BaseArtifactType artifactType)
+        public void CopyArtifact_SinglePublishedReusedArtifact_ToNewFolder_ReturnsNewArtifactNotReused(BaseArtifactType artifactType, int artifactId, string artifactName)
         {
-            Assert.Fail("Test not implemented yet.");
-        }
+            // Setup:
+            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
 
+            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, _user, BaseArtifactType.PrimitiveFolder);
+            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, artifactId, name: artifactName);
+
+            // Verify preCreatedArtifact is Reused.
+            var sourceBeforeCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
+                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+
+            var reuseTracesBefore = sourceBeforeCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
+            Assert.NotNull(reuseTracesBefore, "No Reuse traces were found in the reused artifact before the copy!");
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = Helper.ArtifactStore.CopyArtifact(preCreatedArtifact, targetFolder, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(preCreatedArtifact, copyResult, author);
+
+            // Verify Reuse traces of source artifact didn't change.
+            var sourceAfterCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
+                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+
+            var reuseTracesAfter = sourceAfterCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
+            Assert.NotNull(reuseTracesAfter, "No Reuse traces were found in the reused artifact after the copy!");
+
+            CompareTwoOpenApiTraceLists(reuseTracesBefore, reuseTracesAfter);
+
+            // Verify the copied artifact has no Reuse traces.
+            var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, artifactId, name: artifactName);
+
+            // Verify preCreatedArtifact is Reused.
+            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, _user,
+                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+            Assert.IsNull(reuseTracesOfCopy, "There should be no Reuse traces on the copied artifact!");
+        }
+        /*
         [Category(Categories.CustomData)]
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(191052)]
@@ -218,7 +260,7 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to use for getting artifact details.</param>
         /// <param name="expectedNumberOfArtifactsCopied">(optional) The number of artifacts that were expected to be copied.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
-        private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(IArtifact originalArtifact,
+        private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(IArtifactBase originalArtifact,
             CopyNovaArtifactResultSet copyResult,
             IUser user,
             int expectedNumberOfArtifactsCopied = 1)
@@ -236,6 +278,29 @@ namespace ArtifactStoreTests
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
+        }
+
+        /// <summary>
+        /// Compares two lists of OpenApiTrace's and asserts they are equal.
+        /// </summary>
+        /// <param name="expectedTraces">The list of expected OpenApiTrace's.</param>
+        /// <param name="actualTraces">The list of actual OpenApiTrace's.</param>
+        /// <exception cref="AssertionException">If any OpenApiTrace properties don't match between the two lists.</exception>
+        private static void CompareTwoOpenApiTraceLists(List<OpenApiTrace> expectedTraces, List<OpenApiTrace> actualTraces)
+        {
+            ThrowIf.ArgumentNull(expectedTraces, nameof(expectedTraces));
+            ThrowIf.ArgumentNull(actualTraces, nameof(actualTraces));
+
+            Assert.AreEqual(expectedTraces.Count, actualTraces.Count, "The number of traces are different!");
+
+            foreach (var expectedTrace in expectedTraces)
+            {
+                var actualTrace = actualTraces.Find(t => (t.TraceType == expectedTrace.TraceType) && (t.ArtifactId == expectedTrace.ArtifactId));
+                Assert.NotNull(actualTrace, "Couldn't find actual trace type '{0}' with ArtifactId: {1}",
+                    expectedTrace.TraceType, expectedTrace.ArtifactId);
+
+                OpenApiTrace.AssertAreEqual(expectedTrace, actualTrace);
+            }
         }
 
         #endregion Private functions

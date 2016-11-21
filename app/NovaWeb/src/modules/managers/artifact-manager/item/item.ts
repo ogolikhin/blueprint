@@ -386,6 +386,12 @@ export abstract class StatefulItem implements IIStatefulItem {
             let propertyValue: Models.IPropertyValue;
             switch (propertyType.lookup) {
                 case Enums.PropertyLookupEnum.Custom:
+
+                    // do not validate unloaded custom properties  
+                    if (!this.customProperties.isLoaded) {
+                        return true;
+                    }
+
                     propertyValue = this.customProperties.get(propertyType.modelPropertyName as number);
                     if (propertyValue) {
                         value = propertyValue.value;

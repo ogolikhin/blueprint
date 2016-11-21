@@ -39,11 +39,12 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
         if (MoveArtifactPickerDialogController.checkAncestors(item, this._currentArtifact.id)) {
             return false;
         }
+        
         if (this.insertMethod === this.InsertMethodSelection && this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
             return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     private static checkAncestors(item: Models.IArtifact, id: number): boolean {

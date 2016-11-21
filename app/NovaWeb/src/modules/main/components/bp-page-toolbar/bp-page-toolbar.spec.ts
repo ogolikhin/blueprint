@@ -1,5 +1,6 @@
 import "angular";
 import "angular-mocks";
+
 import { BPPageToolbarController } from "./bp-page-toolbar";
 import { IDialogService } from "../../../shared";
 import { IMessageService } from "../../../core/messages/message.svc";
@@ -17,8 +18,10 @@ import { IArtifactManager } from "../../../managers/artifact-manager/artifact-ma
 import { PublishServiceMock } from "../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import { DialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
 
+
 describe("Application toolbar:", () => {
     let _$q: ng.IQService;
+    let $scope: ng.IScope;
     let toolbarCtrl: BPPageToolbarController;
     let artifact: any;
 
@@ -38,10 +41,12 @@ describe("Application toolbar:", () => {
         $provide.service("messageService", () => { return {}; });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("loadingOverlayService", LoadingOverlayService);
     }));
 
 
     beforeEach(inject((
+        $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         localization: LocalizationServiceMock,
         dialogService: IDialogService,
@@ -50,16 +55,19 @@ describe("Application toolbar:", () => {
         publishService: PublishServiceMock,
         messageService: IMessageService,
         navigationService: NavigationServiceMock,
-        loadingOverlayService: LoadingOverlayService
+        loadingOverlayService: LoadingOverlayService,
         ) => {
+        $scope = $rootScope.$new();    
         _$q = $q;
-        artifact = { 
-                projectId: 1 , 
-                autosave:  () => {
-                    let deferred = _$q.defer<void>();
-                    deferred.resolve();
-                    return deferred.promise;
-                } 
+
+        //artifact = statefulArtifactFactory.createStatefulArtifact({id: 1, projectId: 1});
+        artifact = {
+            projectId: 1,
+            autosave: () => {
+                let deferred = _$q.defer();
+                deferred.resolve();
+                return deferred.promise;
+            }
         };
         toolbarCtrl = new BPPageToolbarController($q, localization,
             dialogService, projectManager, artifactManager, publishService,
@@ -68,14 +76,7 @@ describe("Application toolbar:", () => {
             getArtifact: () => { return; },
             clearAll: () => { return; }
         } as ISelectionManager;
-        // spyOn(artifact, "autosave").and.callFake(() => {
-        //     let deferred = _$q.defer<void>();
-        //     deferred.resolve();
-        //     return deferred.promise;
-        // });
-        
     }));
-
     describe("close project->", () => {
 
         it("does nothing, no artifact selected", inject((navigationService: INavigationService,
@@ -102,7 +103,7 @@ describe("Application toolbar:", () => {
             expect(removeProjectSpy).not.toHaveBeenCalled();
         }));
 
-        xit("navigates to main state, one project is opened and selected artifact belongs to the project", inject((navigationService: INavigationService,
+        it("navigates to main state, one project is opened and selected artifact belongs to the project", inject((navigationService: INavigationService,
                                   artifactManager: IArtifactManager,
                                   projectManager: IProjectManager, $rootScope: ng.IRootScopeService) => {
             // Arrange
@@ -124,6 +125,7 @@ describe("Application toolbar:", () => {
  
             // Act
             toolbarCtrl.execute(evt);
+            $scope.$digest();
 
             // Assert
             expect(navigateToSpy).not.toHaveBeenCalled();
@@ -132,7 +134,7 @@ describe("Application toolbar:", () => {
             expect(clearLockedMessagesSpy).toHaveBeenCalled();
         }));
 
-        xit("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
+      it("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
                                   artifactManager: IArtifactManager,
                                   projectManager: IProjectManager, $rootScope: ng.IRootScopeService) => {
             // Arrange
@@ -157,6 +159,7 @@ describe("Application toolbar:", () => {
            
             // Act
             toolbarCtrl.execute(evt);
+             $scope.$digest();
 
             // Assert
             expect(selectionSpy).toHaveBeenCalled();
@@ -167,7 +170,7 @@ describe("Application toolbar:", () => {
             expect(clearLockedMessagesSpy).toHaveBeenCalled();
         }));
 
-        xit("navigates to project, selected artifact belongs to the project, but more than one project is opened",
+        it("navigates to project, selected artifact belongs to the project, but more than one project is opened",
             inject((navigationService: INavigationService,
                     artifactManager: IArtifactManager,
                     projectManager: IProjectManager) => {
@@ -192,6 +195,7 @@ describe("Application toolbar:", () => {
 
             // Act
             toolbarCtrl.execute(evt);
+             $scope.$digest();
 
             // Assert
             expect(clearAllSpy).toHaveBeenCalled();
@@ -203,7 +207,7 @@ describe("Application toolbar:", () => {
     });
 
     describe("close all projects->", () => {
-        xit("navigates to main",
+        it("navigates to main",
             inject((navigationService: INavigationService,
                     artifactManager: IArtifactManager,
                     projectManager: IProjectManager) => {
@@ -228,6 +232,7 @@ describe("Application toolbar:", () => {
 
             // Act
             toolbarCtrl.execute(evt);
+            $scope.$digest();
 
             // Assert
             expect(navigateToSpy).not.toHaveBeenCalled();

@@ -48,7 +48,6 @@ export class BPToolbarController implements IBPToolbarController {
         "messageService",
         "navigationService",
         "loadingOverlayService",
-        "$log",
         "Analytics"
     ];
 
@@ -61,7 +60,6 @@ export class BPToolbarController implements IBPToolbarController {
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private $log: ng.ILogService,
                 private Analytics: IAnalyticsService) {
     }
 

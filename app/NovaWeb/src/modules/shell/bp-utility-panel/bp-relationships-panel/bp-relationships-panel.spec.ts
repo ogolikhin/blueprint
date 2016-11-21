@@ -1,5 +1,4 @@
-﻿import "../../";
-import * as angular from "angular";
+﻿import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
@@ -15,6 +14,7 @@ import {SelectionManager} from "./../../../managers/selection-manager/selection-
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {PublishServiceMock} from "./../../../managers/artifact-manager/publish.svc/publish.svc.mock";
+
 import {
     IArtifactManager,
     ArtifactManager,
@@ -26,6 +26,7 @@ import {
     ArtifactAttachmentsService
 } from "../../../managers/artifact-manager";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -53,6 +54,8 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("publishService", PublishServiceMock);
         $provide.service("validationService", ValidationServiceMock);
+        $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
+
     }));
 
     beforeEach(inject(() => {

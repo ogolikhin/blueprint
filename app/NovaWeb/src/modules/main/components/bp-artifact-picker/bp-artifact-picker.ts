@@ -185,12 +185,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             name: "",
             hasChildren: true
         } as AdminStoreModels.IInstanceItem, true)];
+        this.resetItemTypes();
         if (project) {
-            this.resetItemTypes();
             this.populateItemTypes(project.id);
             this.filterItemType = this.itemTypes[0];
-        } else {
-            this.resetItemTypes();
         }
     }
 

@@ -304,7 +304,7 @@ pagecontent, bp-properties-panel {
 
                 .ui-select-match-item-chosen {
                     overflow: hidden;
-                    padding: 0;
+                    padding: 0 20px;
                     text-overflow: ellipsis;
                     white-space: pre;
                     width: #{$property-input-width - 30px};

@@ -348,6 +348,7 @@ namespace ArtifactStoreTests
         //TODO: Refactor artifact & subartifact properties tests to use changesets as in the example below
         [TestCase]
         [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Category(Categories.CustomData)]
         [TestRail(191148)]
         [Description("Create a process artifact. Update and publish artifact. Update sub artifact properties with UpdateArtifact. Verify that sub artifact returned has the updated properties.")]
         public void UpdateArtifact_UpdateSubArtifactCustomProperties_CanGetSubArtifactsWithChanges()

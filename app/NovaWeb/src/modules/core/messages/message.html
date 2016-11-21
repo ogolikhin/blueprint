@@ -1,14 +1,20 @@
-﻿<div class="messages__message-container slideUp"
-    ng-class="{
+﻿<div class="messages__message-container slide-up"
+     ng-class="{
         'error': 'messages__message-container--error',
         'warning': 'messages__message-container--warning',
         'info': 'messages__message-container--info',
         'lock': 'messages__message-container--lock',
         'deleted': 'messages__message-container--deleted'
-    }[$ctrl.messageType]">
+     }[$ctrl.messageType]">
     <span class="messages__message-icon"
-          ng-class="{'error':'fonticon2-error', 'warning':'fonticon2-warning', 'info':'fonticon2-information','lock':'fonticon2-lock', 'deleted': 'fonticon2-artifact-deleted'}[$ctrl.messageType]"></span>
-    <div class="text" ng-transclude></div>
+          ng-class="{
+            'error': 'fonticon2-error',
+            'warning': 'fonticon2-warning',
+            'info': 'fonticon2-information',
+            'lock': 'fonticon2-lock',
+            'deleted': 'fonticon2-artifact-deleted'
+          }[$ctrl.messageType]"></span>
+    <div class="messages__message-text" ng-transclude></div>
     <a class="fonticon-close" dismiss="alert-msg-box"
        ng-if="$ctrl.canBeClosed" ng-click="$ctrl.onMessageClosed()"></a>
 </div>

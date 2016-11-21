@@ -4,6 +4,7 @@
 .messages__container {
     bottom: 8px;
     display: block;
+    width: 350px;
     position: fixed;
     right: 8px;
     z-index: $zindex-messages;
@@ -12,23 +13,19 @@
 .messages__message-container {
     border-radius: $border-radius-base;
     color: $white;
-    margin-top: 10px;
-    padding: 10px;
+    display: flex;
+    margin-top: 5px;
+    padding: 10px 24px 10px 10px;
     position: relative;
     width: 100%;
-
-    .text {
-        display: inline-block;
-        font-size: $font-size-big;
-    }
 
     .fonticon-close {
         color: $white;
         cursor: pointer;
         position: absolute;
-        right: 3px;
+        right: 2px;
         text-decoration: none;
-        top: 6px;
+        top: 8px;
 
         &::before {
             font-size: 1.6rem;
@@ -57,9 +54,10 @@
 }
 
 .messages__message-icon {
-    display: inline-block;
+    display: block;
+    flex: none;
     font-size: 2.5rem;
-    margin: -10px 10px;
+    margin: -10px 10px -4px 0;
 
     &::before {
         font-size: 2.5rem;
@@ -67,58 +65,7 @@
     }
 }
 
-
-.slideUp{
-    animation-name: slideUp;
-    -webkit-animation-name: slideUp;
-
-    animation-duration: 1s;
-    -webkit-animation-duration: 1s;
-
-    animation-timing-function: ease;
-    -webkit-animation-timing-function: ease;
-
-    visibility: visible !important;
-}
-
-@keyframes slideUp {
-    0% {
-        transform: translateY(100%);
-    }
-    50%{
-        transform: translateY(-8%);
-    }
-    65%{
-        transform: translateY(4%);
-    }
-    80%{
-        transform: translateY(-4%);
-    }
-    95%{
-        transform: translateY(2%);
-    }
-    100% {
-        transform: translateY(0%);
-    }
-}
-
-@-webkit-keyframes slideUp {
-    0% {
-        -webkit-transform: translateY(100%);
-    }
-    50%{
-        -webkit-transform: translateY(-8%);
-    }
-    65%{
-        -webkit-transform: translateY(4%);
-    }
-    80%{
-        -webkit-transform: translateY(-4%);
-    }
-    95%{
-        -webkit-transform: translateY(2%);
-    }
-    100% {
-        -webkit-transform: translateY(0%);
-    }
+.messages__message-text {
+    display: inline-block;
+    font-size: $font-size-big;
 }

@@ -21,3 +21,7 @@ export {
 export {
     OpenImpactAnalysisAction
 } from "./open-impact-analysis-action";
+
+export {
+    MoveAction
+} from "./move-action";

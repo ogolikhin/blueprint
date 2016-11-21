@@ -1,6 +1,7 @@
 <form class="search-form" ng-submit="$ctrl.search()">
     <div uib-dropdown>
         <button type="button" uib-dropdown-toggle class="btn btn-action btn-dropdown-toggle dropdown-toggle" data-toggle="dropdown"
+            ng-class="{disabled: $ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0}"
                 aria-haspopup="true" aria-expanded="false">
             <span class="caret btn-dropdown-toggle__caret"></span>
         </button>
@@ -33,7 +34,7 @@
     </div>
 
     <div ng-show="$ctrl.filterItemType.name" class="filter">
-        {{::$ctrl.localization.get('Label_Filter_By_Type')}}: <strong>{{::$ctrl.filterItemType.name}}</strong>
+        {{::$ctrl.localization.get('Label_Filter_By_Type')}}: <strong>{{$ctrl.filterItemType.name}}</strong>
         <i class="fonticon-error filter__icon-clear-search" ng-click="$ctrl.clearFilter()"></i>
     </div>
 </form>

@@ -14,6 +14,7 @@ import {IArtifactState} from "./state";
 
 describe("ArtifactState", () => {
     let $q: ng.IQService;
+    let $log: ng.ILogService;
     let artifact: IStatefulArtifact = null;
     let session: ISession = null;
     let artifactModel: IArtifact;
@@ -25,11 +26,13 @@ describe("ArtifactState", () => {
         $provide.service("artifactService", ArtifactServiceMock);
     }));
 
-    beforeEach(inject((_$q_: ng.IQService, artifactService: IArtifactService) => {
+    beforeEach(inject((_$q_: ng.IQService, _$log_: ng.ILogService, artifactService: IArtifactService) => {
         $q = _$q_;
+        $log = _$log_;
         session = new SessionSvcMock($q);
         const services = new StatefulArtifactServices(
             $q, 
+            $log,
             session, 
             null, 
             null, 

@@ -191,8 +191,8 @@
     padding-right: 9px;
     background: $brand-secondary;
     color: $white;
-}
 
-.btn-dropdown-toggle__caret{
-    color:white;
+    &:hover, &:focus{
+        color:$white;
+    }
 }

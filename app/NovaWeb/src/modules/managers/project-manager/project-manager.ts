@@ -171,11 +171,6 @@ export class ProjectManager implements IProjectManager {
             expandToArtifact = this.getArtifact(project.model.id);
         }
 
-        //reloading the breadcrumb
-        if (expandToArtifact.id === project.model.id) {
-            this.mainBreadcrumbService.reloadBreadcrumbs(expandToArtifact);
-        }
-
         //try with selected artifact
         const loadChildren = forceOpen || (selectedArtifactNode ? selectedArtifactNode.expanded : false);
         return this.projectService.getProjectTree(project.model.id, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {

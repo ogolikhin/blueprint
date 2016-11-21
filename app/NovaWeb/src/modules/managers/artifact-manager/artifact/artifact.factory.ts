@@ -42,6 +42,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public static $inject = [
         "$q",
+        "$log",
         "session",
         "messageService",
         "dialogService",
@@ -61,6 +62,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     private services: IStatefulArtifactServices;
 
     constructor(private $q: ng.IQService,
+                private $log: ng.ILogService,
                 private session: ISession,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
@@ -78,6 +80,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
         this.services = new StatefulArtifactServices(
             this.$q,
+            this.$log,
             this.session,
             this.messageService,
             this.dialogService,
@@ -167,7 +170,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     private createStatefulProcessArtifact(artifact: IArtifact): IStatefulArtifact {
         let processServices: IStatefulProcessArtifactServices =
-            new StatefulProcessArtifactServices(this.services, this.$q, this.processService);
+            new StatefulProcessArtifactServices(this.services, this.$q, this.$log, this.processService);
 
         return new StatefulProcessArtifact(artifact, processServices);
     }

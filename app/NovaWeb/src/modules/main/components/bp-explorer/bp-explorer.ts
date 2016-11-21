@@ -1,14 +1,14 @@
 import * as angular from "angular";
 import {Models} from "../../models";
 import {ItemTypePredefined} from "../../models/enums";
-import {Helper, IBPTreeControllerApi} from "../../../shared";
+import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -18,10 +18,10 @@ export class ProjectExplorer implements ng.IComponentOptions {
 
 export interface IProjectExplorerController {
     // BpTree bindings
-    treeApi: IBPTreeControllerApi;
+    treeApi: IBPTreeViewControllerApi;
     projects: IArtifactNode[];
     columns: any[];
-    doSelect: Function;
+    onSelect: (vm: IArtifactNode, isSelected: boolean) => void;
     onError: (reason: any) => any;
     onGridReset: () => void;
 }
@@ -75,8 +75,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         // artifact, to work as expected.
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
-        } else if (this.treeApi.nodeExists(artifactId)) {
-            this.treeApi.selectNode(artifactId);
+        } else if (this.treeApi.setSelected((vm: IArtifactNode) => vm.model.id === artifactId)) {
+            this.treeApi.ensureNodeVisible((vm: IArtifactNode) => vm.model.id === artifactId);
         } else {
             this.treeApi.deselectAll();
         }
@@ -121,11 +121,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 this.pendingSelectedArtifactId = undefined;
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;
-            } else if (this.treeApi.nodeExists(selectedArtifactId)) {
+            } else if (this.projects.some(vm => Boolean(vm.getNode(selectedArtifactId)))) {
                 navigateToId = selectedArtifactId;
-            } else if (this.treeApi.nodeExists(this.selected.model.parentId)) {
+            } else if (this.projects.some(vm => Boolean(vm.getNode(this.selected.model.parentId)))) {
                 navigateToId = this.selected.model.parentId;
-            } else if (this.treeApi.nodeExists(this.selected.model.projectId)) {
+            } else if (this.projects.some(vm => Boolean(vm.getNode(this.selected.model.projectId)))) {
                 navigateToId = this.selected.model.projectId;
             }
         }
@@ -134,7 +134,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
         if (_.isFinite(navigateToId)) {
             if (navigateToId !== selectedArtifactId) {
-                this.treeApi.selectNode(navigateToId);
+                this.treeApi.setSelected((vm: IArtifactNode) => vm.model.id === navigateToId);
+                this.treeApi.ensureNodeVisible((vm: IArtifactNode) => vm.model.id === navigateToId);
             } else {
                 this.navigationService.reloadParentState();
             }
@@ -145,13 +146,13 @@ export class ProjectExplorerController implements IProjectExplorerController {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item) {
-            this.treeApi.refresh(changes.item.id);
+            this.treeApi.refreshRows((vm: IArtifactNode) => vm.model.id === changes.item.id);
         }
     };
 
     // BpTree bindings
 
-    public treeApi: IBPTreeControllerApi;
+    public treeApi: IBPTreeViewControllerApi;
     public projects: IArtifactNode[];
     public columns: IColumn[] = [{
         cellClass: (vm: IArtifactNode) => {
@@ -187,9 +188,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }];
 
-    public doSelect = (node: IArtifactNode) => {
-        this.selected = node;
-        this.navigationService.navigateTo({ id: node.model.id });
+    public onSelect = (vm: IArtifactNode, isSelected: boolean): void => {
+        if (isSelected) {
+            this.selected = vm;
+            this.navigationService.navigateTo({ id: vm.model.id });
+        }
     };
 
     public onError = (reason: any): void => {

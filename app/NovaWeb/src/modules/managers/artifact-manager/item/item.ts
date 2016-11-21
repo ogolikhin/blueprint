@@ -404,8 +404,8 @@ export abstract class StatefulItem implements IIStatefulItem {
                     value = this[propertyType.modelPropertyName];
                     break;
             }
-            
-            let isValid: boolean = !_.isBoolean(propertyType.isValidated) ;
+
+            let isValid: boolean = !_.isBoolean(propertyType.isValidated);
             if (!isValid) {
                 isValid = this.validateProperty(propertyType, value);
             }

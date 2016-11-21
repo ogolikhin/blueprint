@@ -18,11 +18,8 @@ describe("Service: Quick Search", () => {
         const projectManager = {
             projectCollection: new Rx.BehaviorSubject<IArtifactNode[]>([])
         } as IProjectManager;
-
-        const Analytics:any = AnalyticsProvider;
-        Analytics.trackEvent = () =>{};
         $provide.service("projectManager", () => projectManager);
-        $provide.provider("Analytics", Analytics);
+        $provide.provider("Analytics", AnalyticsProvider);
         $provide.service("projectManager", () => projectManager);
     }));
 
@@ -184,7 +181,7 @@ describe("Service: Quick Search", () => {
         let results;
 
         // act
-        service.search("abc", 'header', page, pageSize).then((result) => {
+        service.search("abc", "header", page, pageSize).then((result) => {
             results = result;
         });
         $httpBackend.flush();
@@ -214,7 +211,7 @@ describe("Service: Quick Search", () => {
         let results;
 
         // act
-        service.search("abc", 'header', page).then((result) => {
+        service.search("abc", "header", page).then((result) => {
             results = result;
         });
         $httpBackend.flush();

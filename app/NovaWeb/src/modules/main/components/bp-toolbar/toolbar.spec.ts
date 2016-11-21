@@ -25,7 +25,6 @@ describe("Application toolbar:", () => {
     beforeEach(angular.mock.module("bp.components"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        const Analytics: any = AnalyticsProvider;
 
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", () => {
@@ -53,7 +52,7 @@ describe("Application toolbar:", () => {
         });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
-        $provide.provider("Analytics", Analytics);
+        $provide.provider("Analytics", AnalyticsProvider);
 
     }));
 

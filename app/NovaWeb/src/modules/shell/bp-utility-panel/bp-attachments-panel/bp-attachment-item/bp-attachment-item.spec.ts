@@ -5,7 +5,8 @@ import "../../../";
 import { ComponentTest } from "../../../../util/component.test";
 import { BPAttachmentItemController} from "./bp-attachment-item";
 import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { SelectionManager, ISelectionManager } from "../../../../managers/selection-manager/selection-manager";
+import { ISelectionManager } from "../../../../managers/selection-manager/selection-manager";
+import { SelectionManagerMock } from "../../../../managers/selection-manager/selection-manager.mock";
 import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
 import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
@@ -15,7 +16,7 @@ describe("Component BP Artifact Attachment Item", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("selectionManager", SelectionManager);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 

@@ -19,15 +19,15 @@
                          <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
                      </ul>
                  </li> -->
-                <li><a href="#" id="ProjectClose" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
+                <li><a href="#" id="ProjectClose" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
                 </li>
-                <li><a href="#" id="ProjectCloseAll" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a>
+                <li><a href="#" id="ProjectCloseAll" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a>
                 </li>
             </ul>
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" id="createNewArtifact" ng-class="{disabled: !$ctrl.canCreateNew}" ng-click="$ctrl.execute($event)">
+            <a href="#" id="createNewArtifact" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-new"></i>
                 </div>
@@ -51,7 +51,7 @@
             </a>
         </li>
         <li>
-            <a href="#" id="refreshAll" ng-class="{disabled: !$ctrl.canRefreshAll}" ng-click="$ctrl.execute($event)">
+            <a href="#" id="refreshAll" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-refresh-line"></i>
                 </div>

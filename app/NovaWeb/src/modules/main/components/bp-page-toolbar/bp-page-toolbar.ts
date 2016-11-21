@@ -18,17 +18,17 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
 
-interface IBPToolbarController {
+interface IBPPageToolbarController {
     execute(evt: ng.IAngularEvent): void;
     showSubLevel(evt: ng.IAngularEvent): void;
 }
 
-export class BPToolbar implements ng.IComponentOptions {
-    public template: string = require("./bp-toolbar.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarController;
+export class BPPageToolbar implements ng.IComponentOptions {
+    public template: string = require("./bp-page-toolbar.html");
+    public controller: ng.Injectable<ng.IControllerConstructor> = BPPageToolbarController;
 }
 
-export class BPToolbarController implements IBPToolbarController {
+export class BPPageToolbarController implements IBPPageToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
@@ -60,6 +60,27 @@ export class BPToolbarController implements IBPToolbarController {
                 private loadingOverlayService: ILoadingOverlayService) {
     }
 
+    public $onInit() {
+        const artifactStateSubscriber = this.artifactManager.selection.currentlySelectedArtifactObservable
+            .map(selectedArtifact => {
+                if (!selectedArtifact) {
+                    this._currentArtifact = null;
+                }
+                return selectedArtifact;
+            })
+            .filter(selectedArtifact => !!selectedArtifact)
+            .subscribe(this.setCurrentArtifact);
+
+        this._subscribers = [artifactStateSubscriber];
+    }
+
+    public $onDestroy() {
+        this._subscribers.forEach(subscriber => {
+            subscriber.dispose();
+        });
+        delete this._subscribers;
+    }
+
     public execute(evt: any): void {
         if (!evt) {
             return;
@@ -71,32 +92,10 @@ export class BPToolbarController implements IBPToolbarController {
                 this.closeProject();
                 break;
             case `projectcloseall`:
-                this.projectManager.removeAll();
-                this.artifactManager.selection.clearAll();
-                this.clearLockedMessages();
-                this.navigationService.navigateToMain();
+                this.closeAllProjetcs();
                 break;
             case `openproject`:
-                this.dialogService.open(<IDialogSettings>{
-                    okButton: this.localization.get("App_Button_Open"),
-                    template: require("../dialogs/open-project/open-project.template.html"),
-                    controller: OpenProjectController,
-                    css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-                }).then((project: AdminStoreModels.IInstanceItem) => {
-                    if (project) {
-                        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-
-                        try {
-                            this.projectManager.add(project)
-                                .finally(() => {
-                                    this.loadingOverlayService.endLoading(openProjectLoadingId);
-                                });
-                        } catch (err) {
-                            this.loadingOverlayService.endLoading(openProjectLoadingId);
-                            throw err;
-                        }
-                    }
-                });
+                this.openProject();
                 break;
             case `tour`:
                 this.dialogService.open(<IDialogSettings>{
@@ -166,23 +165,61 @@ export class BPToolbarController implements IBPToolbarController {
      * Otherwise navigates to next project in project list
      *
      */
-    private closeProject() {
-        const artifact = this.artifactManager.selection.getArtifact();
+    private closeProject = () => {
+        let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
-            const projectId = artifact.projectId;
-            const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.model.id !== projectId);
-            if (isOpened) {
-                this.projectManager.remove(artifact.projectId);
-            }
-            const nextProject = _.first(this.projectManager.projectCollection.getValue());
-            if (nextProject) {
-                this.artifactManager.selection.clearAll();
-                this.navigationService.navigateTo({id: nextProject.model.id});
-            } else {
-                this.navigationService.navigateToMain();
-            }
-            this.clearLockedMessages();
+            artifact.autosave().then(() => {
+                const projectId = artifact.projectId;
+                const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.model.id !== projectId);
+                if (isOpened) {
+                    this.projectManager.remove(artifact.projectId);
+                }
+                const nextProject = _.first(this.projectManager.projectCollection.getValue());
+                if (nextProject) {
+                    this.artifactManager.selection.clearAll();
+                    this.navigationService.navigateTo({id: nextProject.model.id});
+                } else {
+                    this.navigationService.navigateToMain();
+                }
+                this.clearLockedMessages();
+            });
         }
+   }
+
+    private closeAllProjetcs = () => {
+        let artifact = this.artifactManager.selection.getArtifact();
+        if (artifact) {
+            artifact.autosave().then(() => {
+                this.projectManager.removeAll();
+                this.artifactManager.selection.clearAll();
+                this.clearLockedMessages();
+                this.navigationService.navigateToMain();
+            });
+        }
+    }
+
+    private openProject = () => {
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Open"),
+            template: require("../dialogs/open-project/open-project.template.html"),
+            controller: OpenProjectController,
+            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+        }).then((project: AdminStoreModels.IInstanceItem) => {
+            if (project) {
+                const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+
+                try {
+                    this.projectManager.add(project)
+                        .finally(() => {
+                            this.loadingOverlayService.endLoading(openProjectLoadingId);
+                        });
+                } catch (err) {
+                    this.loadingOverlayService.endLoading(openProjectLoadingId);
+                    throw err;
+                }
+            }
+        });
+
     }
 
     private clearLockedMessages() {
@@ -317,29 +354,8 @@ export class BPToolbarController implements IBPToolbarController {
         evt.preventDefault();
         evt.stopImmediatePropagation();
     }
-
-    public $onInit() {
-        const artifactStateSubscriber = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .map(selectedArtifact => {
-                if (!selectedArtifact) {
-                    this._currentArtifact = null;
-                }
-                return selectedArtifact;
-            })
-            .filter(selectedArtifact => !!selectedArtifact)
-            .subscribe(this.setCurrentArtifact);
-
-        this._subscribers = [artifactStateSubscriber];
-    }
-
-    public $onDestroy() {
-        this._subscribers.forEach(subscriber => {
-            subscriber.dispose();
-        });
-        delete this._subscribers;
-    }
-
-    public get canRefreshAll(): boolean {
+ 
+    public get isProjectOpened(): boolean {
         return !!this.projectManager.getSelectedProjectId();
     }
 

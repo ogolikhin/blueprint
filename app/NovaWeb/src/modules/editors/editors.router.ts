@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {ItemStateController} from "./item-state.controller";
 import {ISelectionManager} from "./../managers/selection-manager/selection-manager";
-import {IDialogService} from "../shared/";
+
 export class ArtifactRoutes {
 
     public static $inject = [
@@ -22,7 +22,7 @@ export class ArtifactRoutes {
                 reloadOnSearch: false,
                 controller: ItemStateController,
                 resolve: {
-                    saved: ["$q",  "selectionManager", "dialogService", ArtifactRoutes.autoSave]      
+                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]      
                 }          
             })
 
@@ -46,7 +46,7 @@ export class ArtifactRoutes {
             });
     }
 
-    public static autoSave($q: ng.IQService, selection: ISelectionManager, dialogService: IDialogService): ng.IPromise<void> {
+    public static autoSave($q: ng.IQService, selection: ISelectionManager): ng.IPromise<void> {
         let artifact = selection.getArtifact();
         if (artifact) {
             return artifact.autosave();

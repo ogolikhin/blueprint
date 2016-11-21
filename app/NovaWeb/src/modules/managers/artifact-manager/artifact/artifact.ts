@@ -508,7 +508,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
                     this.publishDependents(err.errorContent);
-                } else {
+                } else if (!err || !err.statusCode || err.statusCode !== HttpStatusCode.Unavailable || err.message) {
                     this.services.messageService.addError(err);
                 }
                 deffered.reject();

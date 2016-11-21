@@ -1,7 +1,6 @@
 import * as angular from "angular";
 import "./bp-dialog";
 import "./bp-avatar";
-import "./bp-tree";
 import "./bp-tree-view";
 import "./bp-tooltip";
 import "./bp-infinite-scroll";
@@ -22,7 +21,6 @@ import "./rowSlider";
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
     "bp.widgets.avatar",
-    "bp.widgets.tree",
     "bp.widgets.treeView",
     "bp.widgets.tooltip",
     "bp.widgets.infinitescroll",
@@ -44,10 +42,6 @@ angular.module("bp.widgets", [
 export {
     IUploadStatusDialogData
 } from "./bp-file-upload-status/bp-file-upload-status";
-
-export {
-    IBPTreeControllerApi
-} from "./bp-tree";
 
 export {
     IRowSliderControllerApi

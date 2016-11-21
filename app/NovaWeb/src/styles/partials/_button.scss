@@ -191,4 +191,8 @@
     padding-right: 9px;
     background: $brand-secondary;
     color: $white;
+
+    &:hover, &:focus{
+        color:$white;
+    }
 }

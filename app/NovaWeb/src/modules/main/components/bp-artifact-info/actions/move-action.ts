@@ -10,84 +10,124 @@ import {
     IMoveArtifactPickerOptions
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
 import {Models, Enums} from "../../../../main/models";
+import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class MoveAction extends BPDropdownAction {
-    constructor($q: ng.IQService, 
-                artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                projectManager: IProjectManager,
-                dialogService: IDialogService) {
-        if (!localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-        super(
-            (): boolean => true,
-            "fonticon2-move",
-            localization.get("App_Toolbar_Move"),
-            undefined,
+    constructor(private $q: ng.IQService, 
+                private artifact: IStatefulArtifact,
+                private localization: ILocalizationService,
+                private messageService: IMessageService,
+                private projectManager: IProjectManager,
+                private dialogService: IDialogService) {
+
+        super(undefined, undefined, undefined, undefined,
             new BPDropdownItemAction(
                 localization.get("App_Toolbar_Move"),
-                () => this.executeAction($q, artifact, localization, messageService, projectManager, dialogService),
+                () => this.execute(),
                 (): boolean => true,
             )
         );
+        
+        if (!localization) {
+            throw new Error("Localization service not provided or is null");
+        }
+
+        if (!projectManager) {
+            throw new Error("Project manager not provided or is null");
+        }
+
+        if (!dialogService) {
+            throw new Error("Dialog service not provided or is null");
+        }
     }
 
-    private executeAction($q: ng.IQService, 
-                artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                projectManager: IProjectManager,
-                dialogService: IDialogService) {
+    
+    public get icon(): string {
+        return "fonticon2-move";
+    }
+
+    public get tooltip(): string {
+        return this.localization.get("App_Toolbar_Move");
+    }
+
+    public get disabled(): boolean {
+        return !this.canExecute();
+    }
+
+    public get execute()  {
+        return this.moveArtifact;
+    }
+
+    private canExecute() {
+        if (!this.artifact) {
+            return false;
+        }
+
+        const invalidTypes = [
+            ItemTypePredefined.Project,
+            ItemTypePredefined.Collections
+        ];
+
+        if (invalidTypes.indexOf(this.artifact.itemTypeId) >= 0) {
+            return false;
+        }
+
+        if (this.artifact.artifactState.readonly) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private moveArtifact() {
         const dialogSettings = <IDialogSettings>{
-            okButton: localization.get("App_Button_Move"),
+            okButton: this.localization.get("App_Button_Move"),
             template: require("../../../../main/components/dialogs/move-artifact/move-artifact-dialog.html"),
             controller: MoveArtifactPickerDialogController,
             css: "nova-open-project",
-            header: localization.get("Move_Artifacts_Picker_Header")
+            header: this.localization.get("Move_Artifacts_Picker_Header")
         };
 
         const dialogData: IMoveArtifactPickerOptions = {
             showSubArtifacts: false,
             selectionMode: "single",
             isOneProjectLevel: true,
-            currentArtifact: artifact 
+            currentArtifact: this.artifact 
         };
 
-        dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
+        this.dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
             if (result && result.length === 1) {
                 const artifacts: Models.IArtifact[] = result[0].artifacts;
                 if (artifacts && artifacts.length === 1) {
                     let insertMethod: MoveArtifactInsertMethod = result[0].insertMethod;
-                    let orderIndex: number = projectManager.calculateOrderIndex(insertMethod, result[0].artifacts[0]);
+                    let orderIndex: number = this.projectManager.calculateOrderIndex(insertMethod, result[0].artifacts[0]);
 
                     let lockSavePromise: ng.IPromise<any>;
 
-                    if (!artifact.artifactState.dirty) {
+                    if (!this.artifact.artifactState.dirty) {
                         //lock
-                        lockSavePromise = artifact.lock();
+                        lockSavePromise = this.artifact.lock();
                         if (!lockSavePromise) {
-                            lockSavePromise = $q.resolve();
+                            lockSavePromise = this.$q.resolve();
                         }
-                    } else if (artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+                    } else if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
                         //save
-                        lockSavePromise = artifact.save();
+                        lockSavePromise = this.artifact.save();
                     } else {
                         //do nothing
-                        lockSavePromise = $q.resolve();
+                        lockSavePromise = this.$q.resolve();
                     }
 
                     lockSavePromise.then(() => {
-                        artifact
+                        this.artifact
                         .move(insertMethod === MoveArtifactInsertMethod.Selection ? artifacts[0].id : artifacts[0].parentId, orderIndex)
                         .then(() => {
-                            projectManager.refresh(artifact.projectId).then(() => {
-                                projectManager.triggerProjectCollectionRefresh();
+                            this.projectManager.refresh(this.artifact.projectId).then(() => {
+                                this.projectManager.triggerProjectCollectionRefresh();
                             });
                         })
                         .catch((err) => {
-                            messageService.addError(err);
+                            this.messageService.addError(err);
                         });
                     });
                 }

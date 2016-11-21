@@ -165,26 +165,27 @@ export class BPToolbarController implements IBPToolbarController {
      *
      */
     private closeProject() {
+        const projectsWithUnpublishedArtifacts = this.getProjectsWithUnpublishedArtifacts();
+
         const artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
-            const projectId = artifact.projectId;
-            const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
-            if (isOpened) {
-                this.projectManager.remove(artifact.projectId);
-            }
-            const nextProject = _.first(this.projectManager.projectCollection.getValue());
-            if (nextProject) {
-                this.artifactManager.selection.clearAll();
-                this.navigationService.navigateTo({id: nextProject.model.id});
-            } else {
-                this.navigationService.navigateToMain();
-            }
-            this.clearLockedMessages();
+            this.closeProjectById(artifact.projectId);
         }
+    }
 
-        this.getProjectsWithUnpublishedArtifacts().then((projects) => {
-            console.log(projects);
-        });
+    private closeProjectById(projectId: number) {
+        const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
+        if (isOpened) {
+            this.projectManager.remove(projectId);
+        }
+        const nextProject = _.first(this.projectManager.projectCollection.getValue());
+        if (nextProject) {
+            this.artifactManager.selection.clearAll();
+            this.navigationService.navigateTo({id: nextProject.model.id});
+        } else {
+            this.navigationService.navigateToMain();
+        }
+        this.clearLockedMessages();
     }
 
     private closeAllProjects() {
@@ -194,10 +195,18 @@ export class BPToolbarController implements IBPToolbarController {
         this.navigationService.navigateToMain();
     }
 
+    /*
+    private getProjectsWithUnpublishedArtifacts(): number[] {
+        const owners = _.map(this.artifactManager.list(), (artifact) => artifact.artifactState.lockedBy);
+        const unpublishedArtifacts = _.filter(this.artifactManager.list(), (artifact) => artifact.canBePublished() );
+        const unpublishedProjects = _.map(unpublishedArtifacts, (artifact) => artifact.projectId);
+        return _.uniq(unpublishedProjects);
+    }*/
+
     private getProjectsWithUnpublishedArtifacts(): ng.IPromise<number[]> {
-        return this.publishService.getUnpublishedArtifacts().then((resultset) => {
-            let projectsWithUnpublishedArtifacts = [];
-            _.forEach(resultset.artifacts, (artifact) => { projectsWithUnpublishedArtifacts.push(artifact.projectId); });
+        //We can't use artifactManager.list() because lock state is lazy-loaded
+        return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
+            const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);
             return _.uniq(projectsWithUnpublishedArtifacts);
         });
     }

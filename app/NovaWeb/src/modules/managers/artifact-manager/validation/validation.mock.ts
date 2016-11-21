@@ -16,9 +16,11 @@ export class ValidationServiceMock implements IValidationService {
     public userPickerValidation: IUserPickerValidation;
     public textValidation: ITextValidation;
 
-    constructor() {
-        this.numberValidation = new NumberValidationMock();
-        this.dateValidation = new DateValidationMock();
+    public static $inject = [ "localization"];
+
+    constructor(private localization: ILocalizationService) {
+        this.numberValidation = new NumberValidationMock(localization);
+        this.dateValidation = new DateValidationMock(localization);
         this.selectValidation = new SelectValidationMock();
         this.multiSelectValidation = new MultiSelectValidationMock();
         this.textRtfValidation = new TextRtfValidationMock();
@@ -29,10 +31,13 @@ export class ValidationServiceMock implements IValidationService {
 
 class NumberValidationMock extends BaseValidation implements INumberValidation {
 
+    constructor(private localization: ILocalizationService) {
+        super();
+    };
+
     public decimalPlaces(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         return true;
     }
@@ -40,7 +45,6 @@ class NumberValidationMock extends BaseValidation implements INumberValidation {
     public wrongFormat(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         return true;
     }
@@ -48,7 +52,6 @@ class NumberValidationMock extends BaseValidation implements INumberValidation {
     public isMax(newValue: number,
         oldValue: number,
         _max: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         return true;
     }
@@ -56,7 +59,6 @@ class NumberValidationMock extends BaseValidation implements INumberValidation {
     public isMin(newValue: number,
         oldValue: number,
         _min: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         return true;
     }
@@ -64,7 +66,6 @@ class NumberValidationMock extends BaseValidation implements INumberValidation {
     public isValid(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         _min: any,
         _max: any,
         isValidated: boolean,
@@ -74,10 +75,14 @@ class NumberValidationMock extends BaseValidation implements INumberValidation {
 }
 
 class DateValidationMock extends BaseValidation implements IDateValidation {
+
+    constructor(private localization: ILocalizationService) {
+        super();
+    };
+
     public minDate(newValue: string,
         oldValue: string,
         _minDate: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         return true;
     }
@@ -85,14 +90,12 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
     public maxDate(newValue: string,
         oldValue: string,
         _maxDate: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         return true;
     }
 
     public isValid(newValue: string,
         oldValue: string,
-        localization: ILocalizationService,
         _minDate: any,
         _maxDate: any,
         isValidated: boolean,

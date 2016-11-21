@@ -1,11 +1,11 @@
 ﻿using Model;
-using Model.ArtifactModel;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ArtifactModel.Impl;
 using Utilities;
 
 namespace Helper
@@ -905,30 +905,29 @@ namespace Helper
         #region Private Methods
 
         /// <summary>
-        /// Assert that Associated Artifacts are equal
+        /// Assert that Artifact References are equal
         /// </summary>
-        /// <param name="associatedArtifact1">The first associated artifact</param>
-        /// <param name="associatedArtifact2">The associated artifact being compared to the first</param>
+        /// <param name="artifactReference1">The first artifact reference</param>
+        /// <param name="artifactReference2">The artifact reference being compared to the first</param>
         /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
-        private static void AssertAssociatedArtifactsAreEqual(AssociatedArtifact associatedArtifact1, AssociatedArtifact associatedArtifact2, bool doDeepCompare = true)
+        private static void AssertArtifactReferencesAreEqual(ArtifactReference artifactReference1, ArtifactReference artifactReference2, bool doDeepCompare = true)
         {
-            if ((associatedArtifact1 == null) || (associatedArtifact2 == null))
+            if ((artifactReference1 == null) || (artifactReference2 == null))
             {
-                Assert.That((associatedArtifact1 == null) && (associatedArtifact2 == null), "One of the associated artifacts is null while the other is not null");
+                Assert.That((artifactReference1 == null) && (artifactReference2 == null), "One of the artifact references is null while the other is not null");
             }
-
-            if (associatedArtifact1 != null)
+            else
             {
-                Assert.AreEqual(associatedArtifact1.Id, associatedArtifact2.Id, "Associated artifact ids do not match");
+                Assert.AreEqual(artifactReference1.Id, artifactReference2.Id, "Artifact references ids do not match");
 
                 if (doDeepCompare)
                 {
-                    Assert.AreEqual(associatedArtifact1.BaseItemTypePredefined, associatedArtifact2.BaseItemTypePredefined,
-                        "Associated artifact base item types do not match");
-                    Assert.AreEqual(associatedArtifact1.Link, associatedArtifact2.Link, "Associated artifact links do not match");
-                    Assert.AreEqual(associatedArtifact1.Name, associatedArtifact2.Name, "Associated artifact names do not match");
-                    Assert.AreEqual(associatedArtifact1.ProjectId, associatedArtifact2.ProjectId, "Associated artifact project ids do not match");
-                    Assert.AreEqual(associatedArtifact1.TypePrefix, associatedArtifact2.TypePrefix, "Associated artifact type prefixes do not match");
+                    Assert.AreEqual(artifactReference1.BaseItemTypePredefined, artifactReference2.BaseItemTypePredefined,
+                        "Artifact reference base item types do not match");
+                    Assert.AreEqual(artifactReference1.Link, artifactReference2.Link, "Artifact reference links do not match");
+                    Assert.AreEqual(artifactReference1.Name, artifactReference2.Name, "Artifact reference names do not match");
+                    Assert.AreEqual(artifactReference1.ProjectId, artifactReference2.ProjectId, "Artifact reference project ids do not match");
+                    Assert.AreEqual(artifactReference1.TypePrefix, artifactReference2.TypePrefix, "Artifact reference type prefixes do not match");
                 }
             }
         }
@@ -1045,7 +1044,10 @@ namespace Helper
             Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
 
             // Assert associated artifacts are equal by checking artifact Id only
-            AssertAssociatedArtifactsAreEqual(shape1.AssociatedArtifact, shape2.AssociatedArtifact, doDeepCompare: false);
+            AssertArtifactReferencesAreEqual(shape1.AssociatedArtifact, shape2.AssociatedArtifact, doDeepCompare: false);
+
+            // Assert persona references are equal by checking artifact Id only
+            AssertArtifactReferencesAreEqual(shape1.PersonaReference, shape2.PersonaReference, doDeepCompare: false);
 
             // Assert that Shape properties are equal
             foreach (var shape1Property in shape1.PropertyValues)

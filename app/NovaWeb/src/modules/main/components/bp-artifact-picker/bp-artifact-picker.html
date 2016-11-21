@@ -1,8 +1,30 @@
-<form class="search-form">
-    <button type="submit" class="btn btn-small btn-promoted-action" ng-click="$ctrl.search()"
+<form class="search-form" ng-submit="$ctrl.search()">
+    <div uib-dropdown>
+        <button type="button" uib-dropdown-toggle class="btn btn-action btn-dropdown-toggle dropdown-toggle" data-toggle="dropdown"
+            ng-class="{disabled: $ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0}"
+                aria-haspopup="true" aria-expanded="false">
+            <span class="caret btn-dropdown-toggle__caret"></span>
+        </button>
+
+        <div class="dropdown-menu dropdown-menu__filter">
+            <div class="dropdown-menu__filter-tooltip">
+                {{::$ctrl.localization.get('Label_Filter_By_Type')}}
+            </div>
+            <ul class="dropdown-menu__filter-type">
+                <li class="dropdown-menu__filter-item" ng-if="type.id"
+                    ng-repeat="type in $ctrl.itemTypes track by type.id">
+                        <button  ng-click="$ctrl.searchByFilter(type);"
+                                 class="dropdown-menu__filter-item-btn">{{::type.name}}</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-action btn-small btn-search btn-promoted-action"
             ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>
+
     <div class="search-input">
         <input type="text" class="form-control" ng-if="!$ctrl.project"
                placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText"/>
@@ -10,7 +32,13 @@
                placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText"/>
         <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
+
+    <div ng-show="$ctrl.filterItemType.name" class="filter">
+        {{::$ctrl.localization.get('Label_Filter_By_Type')}}: <strong>{{$ctrl.filterItemType.name}}</strong>
+        <i class="fonticon-error filter__icon-clear-search" ng-click="$ctrl.clearFilter()"></i>
+    </div>
 </form>
+
 <div class="project-wrapper">
     <div class="artifact-picker-container">
         <div class="search-wrapper" ng-show="$ctrl.isSearching || $ctrl.searchResults">

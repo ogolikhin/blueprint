@@ -55,6 +55,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
+    protected isSingleLine: boolean = false;
 
     constructor(protected $q: ng.IQService,
                 protected $scope: AngularFormly.ITemplateScope,
@@ -68,6 +69,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
+
+        if (this.currentArtifact) {
+            // this is to request the relationships in order to calculate if the user can manage them
+            let relationships: IRelationship[];
+            this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
+                relationships = rel;
+            });
+        }
 
         this.contentBuffer = undefined;
 
@@ -143,11 +152,21 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected prepRTF = (hasTables: boolean = false) => {
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
+        this.disableEditabilityOfInlineTraces(this.editorBody);
         this.normalizeHtml(this.editorBody, hasTables);
         this.contentBuffer = this.mceEditor.getContent();
         this.handleValidation();
         this.$scope.options["data"].isFresh = false;
     };
+
+    protected disableEditabilityOfInlineTraces(body: HTMLElement) {
+        const inlineTraces = body.querySelectorAll("a[linkassemblyqualifiedname]");
+        for (let i = 0; i < inlineTraces.length; i++) {
+            let trace = inlineTraces[i] as HTMLElement;
+            trace.classList.add("mceNonEditable");
+            trace.setAttribute("data-mce-contenteditable", "false");
+        }
+    }
 
     protected normalizeHtml(body: Node, hasTables: boolean = false) {
         Helper.autoLinkURLText(body);
@@ -173,7 +192,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected linksMenu = (editor): ITinyMceMenu[] => {
-        const menuItems: ITinyMceMenu[] = [{
+        return [{
             icon: "link",
             text: " Links",
             onclick: () => {
@@ -189,8 +208,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     this.messageService.addError("Property_RTF_InlineTrace_Error_Permissions");
                 }
             }
-        }];
-        return menuItems;
+        }] as ITinyMceMenu[];
     };
 
     private canManageTraces(): boolean {
@@ -287,26 +305,35 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                             }
                         })
                         .finally(() => {
-                            /* tslint:disable:max-line-length */
-                            // we run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
-                            const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + itemId.toString();
-                            const linkText: string = itemPrefix + itemId.toString() + ": " + itemName;
-                            const escapedLinkText: string = _.escape(linkText);
-                            const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
-                                `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
-                                `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
-                                `href="${linkUrl}" target="_blank" artifactid="${itemId.toString()}" ` +
-                                `data-mce-contenteditable="false" class="mceNonEditable">` +
-                                `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
-                                `</a>&#65279;`;
-                            /* tslint:enable:max-line-length */
-                            this.mceEditor["selection"].setContent(inlineTrace);
-
+                            this.insertInlineTrace(itemId, itemName, itemPrefix);
                             this.triggerChange();
                         });
                 });
             }
         });
+    };
+
+    public insertInlineTrace = (id: number, name: string, prefix: string) => {
+        /* tslint:disable:max-line-length */
+        // when run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
+        const linkId: string = "inlinetrace-" + Date.now().toString() + "-" + _.random(1000).toString();
+        const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + id.toString();
+        const linkText: string = prefix + id.toString() + ": " + name;
+        const escapedLinkText: string = _.escape(linkText);
+        const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
+            `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
+            `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
+            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" ` +
+            `data-mce-contenteditable="false" class="mceNonEditable" id="${linkId}">` +
+            `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
+            `</a>&#65279;`;
+        /* tslint:enable:max-line-length */
+        try { // see https://github.com/tinymce/tinymce/issues/2646
+            this.mceEditor["selection"].setContent(inlineTrace);
+            this.mceEditor["selection"].select(this.mceEditor["dom"].select("#" + linkId)[0]);
+        } catch (ex) {
+            // ignore
+        }
     };
 
     public handleClick = (event: Event) => {

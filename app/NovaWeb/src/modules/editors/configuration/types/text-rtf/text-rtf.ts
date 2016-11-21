@@ -80,6 +80,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 },
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: this.fontFormats(),
+                convert_urls: false, // https://www.tinymce.com/docs/configure/url-handling/#convert_urls
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit

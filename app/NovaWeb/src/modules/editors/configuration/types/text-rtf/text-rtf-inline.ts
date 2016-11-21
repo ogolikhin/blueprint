@@ -53,6 +53,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
         super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
+        this.isSingleLine = true;
+
         this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 
         const to: AngularFormly.ITemplateOptions = {
@@ -72,6 +74,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 object_resizing: false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: this.fontFormats(),
+                convert_urls: false, // https://www.tinymce.com/docs/configure/url-handling/#convert_urls
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit

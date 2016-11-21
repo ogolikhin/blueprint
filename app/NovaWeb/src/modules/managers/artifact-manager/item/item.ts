@@ -483,7 +483,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                     } 
                     break;
                 default:
-                    window.console.error(`ERROR: PrimitiveType ${propertyType.primitiveType} is not defined`);
+                    this.services.$log.error(`ERROR: PrimitiveType ${propertyType.primitiveType} is not defined`);
                     isValid =  false;
             }
         } catch (err) {
@@ -492,11 +492,9 @@ export abstract class StatefulItem implements IIStatefulItem {
             isValid = false;
         } 
         if (!isValid) {
-            if (!isValid) {
-                this.services.$log.log("----------------------validateProperty------------------------");
-                this.services.$log.log(propertyType);
-                this.services.$log.log(`value = ${value}`);
-            }
+            this.services.$log.log("----------------------validateProperty------------------------");
+            this.services.$log.log(propertyType);
+            this.services.$log.log(`value = ${value}`);
         }
         return isValid;
     }

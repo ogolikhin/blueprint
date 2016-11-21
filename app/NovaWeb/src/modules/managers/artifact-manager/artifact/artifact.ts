@@ -633,8 +633,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 
     public validate(): ng.IPromise<void> {
         
-//        let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
-        let message: string = "The artifact " + this.prefix + this.id.toString() + " cannot be saved. Please ensure all values are correct.";
+        let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
 
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
             const isItemValid = this.validateItem(propertyTypes);

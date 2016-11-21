@@ -1,7 +1,7 @@
 ﻿import * as angular from "angular";
 import "./bp-accordion";
 import "./bp-artifact-info";
-import "./bp-page-toolbar";
+import "./page-toolbar";
 import "./bp-sidebar-layout";
 import "./bp-explorer";
 import "./bp-page-content";

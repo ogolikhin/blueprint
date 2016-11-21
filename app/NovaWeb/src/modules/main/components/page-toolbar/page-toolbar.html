@@ -8,7 +8,7 @@
                 <span>{{::$root.config.labels["App_Toolbar_Project"]}}</span>
             </a>
             <ul class="dropdown-menu">
-                <li><a href="#" id="openProject" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</a>
+                <li><a href="#" ng-click="$ctrl.openProject($event)">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</a>
                 </li>
                 <!-- The following second level menu has been temporarily disabled -->
                 <!-- <li class="dropdown-submenu">
@@ -19,15 +19,15 @@
                          <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
                      </ul>
                  </li> -->
-                <li><a href="#" id="ProjectClose" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
+                <li><a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.closeProject($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
                 </li>
-                <li><a href="#" id="ProjectCloseAll" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a>
+                <li><a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.closeAllProjetcs($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a>
                 </li>
             </ul>
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" id="createNewArtifact" ng-class="{disabled: !$ctrl.canCreateNew}" ng-click="$ctrl.execute($event)">
+            <a href="#" ng-class="{disabled: !$ctrl.canCreateNew}" ng-click="$ctrl.createNewArtifact($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-new"></i>
                 </div>
@@ -35,7 +35,7 @@
             </a>
         </li>
         <li>
-            <a href="#" id="publishAll" ng-click="$ctrl.execute($event)">
+            <a href="#" ng-click="$ctrl.publishAll($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-publish-line"></i>
                 </div>
@@ -43,7 +43,7 @@
             </a>
         </li>
         <li>
-            <a href="#" id="discardAll" ng-click="$ctrl.execute($event)">
+            <a href="#" ng-click="$ctrl.discardAll($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-discard-line"></i>
                 </div>
@@ -51,7 +51,7 @@
             </a>
         </li>
         <li>
-            <a href="#" id="refreshAll" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.execute($event)">
+            <a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.refreshAll($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-refresh-line"></i>
                 </div>
@@ -69,7 +69,7 @@
         </li>
 
         <li>
-            <a href="#" id="tour" ng-click="$ctrl.execute($event)">
+            <a href="#" ng-click="$ctrl.openTour($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-tour"></i>
                 </div>

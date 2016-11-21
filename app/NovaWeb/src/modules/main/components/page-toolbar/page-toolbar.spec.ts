@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 
-import { BPPageToolbarController } from "./bp-page-toolbar";
+import { PageToolbarController } from "./page-toolbar";
 import { IDialogService } from "../../../shared";
 import { IMessageService } from "../../../core/messages/message.svc";
 import { StatefulSubArtifact } from "../../../managers/artifact-manager/sub-artifact";
@@ -22,7 +22,7 @@ import { DialogService } from "../../../shared/widgets/bp-dialog/bp-dialog";
 describe("Application toolbar:", () => {
     let _$q: ng.IQService;
     let $scope: ng.IScope;
-    let toolbarCtrl: BPPageToolbarController;
+    let toolbarCtrl: PageToolbarController;
     let artifact: any;
 
 
@@ -69,7 +69,7 @@ describe("Application toolbar:", () => {
                 return deferred.promise;
             }
         };
-        toolbarCtrl = new BPPageToolbarController($q, localization,
+        toolbarCtrl = new PageToolbarController($q, localization,
             dialogService, projectManager, artifactManager, publishService,
             messageService, navigationService, loadingOverlayService);
         artifactManager.selection = {
@@ -95,7 +95,8 @@ describe("Application toolbar:", () => {
             const removeProjectSpy = spyOn(projectManager, "remove");
 
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
             expect(navigateToSpy).not.toHaveBeenCalled();
@@ -124,7 +125,7 @@ describe("Application toolbar:", () => {
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
  
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeProject();
             $scope.$digest();
 
             // Assert
@@ -158,8 +159,8 @@ describe("Application toolbar:", () => {
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
            
             // Act
-            toolbarCtrl.execute(evt);
-             $scope.$digest();
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
             expect(selectionSpy).toHaveBeenCalled();
@@ -194,8 +195,8 @@ describe("Application toolbar:", () => {
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
 
             // Act
-            toolbarCtrl.execute(evt);
-             $scope.$digest();
+            toolbarCtrl.closeProject();
+            $scope.$digest();
 
             // Assert
             expect(clearAllSpy).toHaveBeenCalled();
@@ -231,7 +232,7 @@ describe("Application toolbar:", () => {
             const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
 
             // Act
-            toolbarCtrl.execute(evt);
+            toolbarCtrl.closeAllProjetcs();
             $scope.$digest();
 
             // Assert

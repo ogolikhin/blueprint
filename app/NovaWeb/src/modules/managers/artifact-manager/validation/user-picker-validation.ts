@@ -10,8 +10,8 @@ export class UserPickerValidation extends BaseValidation implements IUserPickerV
         }
 
         if (isRequired) { 
-            return angular.isArray(newValue) && newValue.length !== 0 ||
-                      angular.isArray(oldValue) && oldValue.length !== 0; 
+            return (_.isObject(newValue) && !( _.isArray(newValue) && newValue.length === 0)) ||
+                      (_.isObject(oldValue) && !(_.isArray(oldValue) && oldValue.length === 0)); 
         } else {
             return true;                
         }

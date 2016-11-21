@@ -19,6 +19,7 @@ import {ProcessShapeType} from "../../../models/enums";
 describe("ProcessViewModel", () => {
     let services: IStatefulProcessArtifactServices;
     let $q: ng.IQService;
+    let $log: ng.ILogService;
     let $rootScope: ng.IRootScopeService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -30,15 +31,17 @@ describe("ProcessViewModel", () => {
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$q_: ng.IQService,
+                       _$log_: ng.ILogService,
                        artifactService: IArtifactService,
                        processService: IProcessService,
                        loadingOverlayService: ILoadingOverlayService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
+        $log = _$log_;
         let artitfactServices = new StatefulArtifactServices(
-            _$q_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null, null
+            _$q_, _$log_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null, null
         );
-        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, processService);
+        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_, processService);
     }));
     it("test add stateful Shape", () => {
         //Arrange

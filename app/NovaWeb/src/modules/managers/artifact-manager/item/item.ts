@@ -488,14 +488,14 @@ export abstract class StatefulItem implements IIStatefulItem {
             }
         } catch (err) {
             // log error
-            window.console.log(err);
+            this.services.$log.error(err);
             isValid = false;
         } 
         if (!isValid) {
             if (!isValid) {
-                window.console.log("----------------------validateProperty------------------------");
-                window.console.dir(propertyType);
-                window.console.log(`value = ${value}`);
+                this.services.$log.log("----------------------validateProperty------------------------");
+                this.services.$log.log(propertyType);
+                this.services.$log.log(`value = ${value}`);
             }
         }
         return isValid;

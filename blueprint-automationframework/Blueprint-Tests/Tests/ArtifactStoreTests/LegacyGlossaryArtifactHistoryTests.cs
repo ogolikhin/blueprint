@@ -94,8 +94,7 @@ namespace ArtifactStoreTests
             userWithBadOrMissingToken.Token.SetToken(token);
 
             // Execute: Get the glossary artifact with invalid token header using GetGlossaryArtifact
-            NovaGlossaryArtifact glossaryArtifact = null;
-            Assert.Throws<Http401UnauthorizedException>(() => glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(userWithBadOrMissingToken, publishedGlossaryArtifact.Id, versionId: 1), "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetGlossaryArtifact(userWithBadOrMissingToken, publishedGlossaryArtifact.Id, versionId: 1), "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
         }
 
         #endregion 401 Unauthorized Tests

@@ -103,16 +103,16 @@ export class PageToolbarController implements IPageToolbarController {
         }).then((project: AdminStoreModels.IInstanceItem) => {
             if (project) {
                 const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-                        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
+                let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
 
                 try {
                     this.projectManager.add(project)
                         .finally(() => {
-                                    //(eventCollection, action, label?, value?, custom?, jQEvent?
-                                    const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                                    this.Analytics.trackEvent("open", "project", label, project.id, {
-                                        openProjects: openProjects
-                                    });
+                            //(eventCollection, action, label?, value?, custom?, jQEvent?
+                            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
+                            this.Analytics.trackEvent("open", "project", label, project.id, {
+                                openProjects: openProjects
+                            });
                             this.loadingOverlayService.endLoading(openProjectLoadingId);
                         });
                 } catch (err) {
@@ -135,7 +135,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-       
+
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             artifact.autosave().then(() => {
@@ -160,7 +160,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        
+
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             artifact.autosave().then(() => {
@@ -306,6 +306,7 @@ export class PageToolbarController implements IPageToolbarController {
             css: "nova-tour"
         });
     }
+
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProjectId: number = this.projectManager.getSelectedProjectId();
         this.dialogService.open(<IDialogSettings>{
@@ -360,7 +361,7 @@ export class PageToolbarController implements IPageToolbarController {
             def.resolve();
             promise = def.promise;
         }
-            
+
         promise.then(() => {
             const publishAllLoadingId = this.loadingOverlayService.beginLoading();
             //perform publish all
@@ -379,18 +380,18 @@ export class PageToolbarController implements IPageToolbarController {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
                 });
         });
-        
+
     }
 
     private discardAllInternal(data: Models.IPublishResultSet) {
         const publishAllLoadingId = this.loadingOverlayService.beginLoading();
         //perform publish all
         this.publishService.discardAll()
-            .then(() => {                
+            .then(() => {
                 const statefulArtifact = this.artifactManager.selection.getArtifact();
                 if (statefulArtifact) {
                     statefulArtifact.discard();
-                }    
+                }
 
                 if (this.projectManager.projectCollection.getValue().length > 0) {
                     //refresh all after discard all finishes
@@ -411,7 +412,7 @@ export class PageToolbarController implements IPageToolbarController {
     //     const savePromises = [];
     //     const selectedArtifact = this.artifactManager.selection.getArtifact();
     //     let artifact = this.artifactManager.selection.getArtifact();
-        
+
     //     artifactsToSave.forEach((artifactModel) => {
     //         let artifact = this.artifactManager.get(artifactModel.id);
     //         if (!artifact) {
@@ -464,9 +465,7 @@ export class PageToolbarController implements IPageToolbarController {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
         return this.isProjectOpened &&
-            currArtifact &&
-            !currArtifact.artifactState.historical &&
-            !currArtifact.artifactState.deleted &&
+            currArtifact && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     }
 

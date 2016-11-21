@@ -4,10 +4,16 @@ export interface IUserPickerValidation extends IBaseValidation {
 }
 
 export class UserPickerValidation extends BaseValidation implements IUserPickerValidation {
-    public hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
-        return isRequired ?
-                    angular.isArray(newValue) && newValue.length !== 0 ||
-                    angular.isArray(oldValue) && oldValue.length !== 0
-                    : true;
+    public hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any, isValidated: boolean = true) {
+        if (!isValidated) {
+            return true;
+        }
+
+        if (isRequired) { 
+            return angular.isArray(newValue) && newValue.length !== 0 ||
+                      angular.isArray(oldValue) && oldValue.length !== 0; 
+        } else {
+            return true;                
+        }
     }
 }

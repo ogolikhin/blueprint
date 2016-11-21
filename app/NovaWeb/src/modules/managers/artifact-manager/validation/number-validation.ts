@@ -66,7 +66,7 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
         max: any,
         localization: ILocalizationService,
         isValidated: boolean): boolean {
-        if (!isValidated) {
+        if (!isValidated || _.isUndefined(max)) {
             return true;
         }
         const maxNum = localization.current.toNumber(max);
@@ -84,7 +84,7 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
         min: any,
         localization: ILocalizationService,
         isValidated: boolean): boolean {
-        if (!isValidated) {
+        if (!isValidated || _.isUndefined(min)) {
             return true;
         }
         const minNum = localization.current.toNumber(min);
@@ -109,6 +109,6 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
             this.wrongFormat(newValue, oldValue, decimalPlaces, localization, isValidated) &&
             this.isMin(newValue, oldValue, _min, localization, isValidated) &&
             this.isMax(newValue, oldValue, _max, localization, isValidated) &&
-            super.hasValueIfRequired(isRequired, newValue, oldValue);
+            super.hasValueIfRequired(isRequired, newValue, oldValue, isValidated);
     }
 }

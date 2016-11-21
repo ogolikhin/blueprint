@@ -398,61 +398,107 @@ export abstract class StatefulItem implements IIStatefulItem {
                     value = this[propertyType.modelPropertyName];
                     break;
             }
-            let isValid: boolean; 
+
+            let isValid: boolean = !_.isBoolean(propertyType.isValidated);
+            if (!isValid) {
+                isValid = this.validateProperty(propertyType, value);
+            }
+
+            return isValid;
+        });
+        return result;
+    }
+
+    private validateProperty(propertyType: IPropertyDescriptor, propValue: any): boolean {
+        let value = null;
+        let isValid = true;
+
+        try {
             switch (propertyType.primitiveType) {
                 case Models.PrimitiveType.Number:
-                    isValid = this.services.validationService.numberValidation.isValid(value, 
-                        value,
+                    if (!this.services.validationService.numberValidation.isValid(propValue, 
+                        propValue,
                         propertyType.decimalPlaces,
                         this.services.localizationService,
                         propertyType.minNumber,
                         propertyType.maxNumber,
                         propertyType.isValidated,
-                        propertyType.isRequired);
-                        break;
+                        propertyType.isRequired)) {
+                        isValid =  false;
+                    }
+                    break;
                 case Models.PrimitiveType.Date:
-                    isValid =  this.services.validationService.dateValidation.isValid(value,
-                        value,
+                    if (!this.services.validationService.dateValidation.isValid(propValue, 
+                        propValue,
                         this.services.localizationService,
                         propertyType.minDate,
                         propertyType.maxDate,
                         propertyType.isValidated,
-                        propertyType.isRequired);
-                        break;
+                        propertyType.isRequired)) {
+                        isValid =  false;
+                    }
+                    break;
                 case Models.PrimitiveType.Text:
                     if (propertyType.isRichText) {
-                        isValid =  this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired, 
-                            value,
-                            value);
+                        if (!this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired, 
+                            propValue, 
+                            propValue, propertyType.isValidated)) {
+                            isValid =  false;
+                        } 
                     } else {
-                        isValid = this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired, 
-                                value,
-                                value);
+                        if (!this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired, 
+                            propValue, 
+                            propValue, propertyType.isValidated)) {
+                            isValid =  false;
+                        } 
                     }
                     break;
                 case Models.PrimitiveType.Choice:
+                    value = propValue ? propValue.validValues : null;
                     if (propertyType.isMultipleAllowed) {
-                        isValid =  this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired, 
-                            value,
-                            value);
+                        if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired, 
+                            value, value, propertyType.isValidated)) {
+                            isValid =  false;
+                        } 
                     } else {
-                        isValid =  this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired, 
-                            value,
-                            value);
+                        if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired, 
+                            value, value, propertyType.isValidated)) {
+                            isValid =  false;
+                        } 
                     }
                     break;
                 case Models.PrimitiveType.User:
-                    isValid =  this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, 
-                        value,
-                        value);
+                    if (!!propValue) {
+                        if (!!propValue.usersGroups) {
+                            value = propValue.usersGroups;                            
+                        } else {
+                            if (!!propValue.label) {
+                                value = propValue.label.split(",");                            
+                            }
+                        }
+                    }
+                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, 
+                        value, value, propertyType.isValidated)) {
+                        isValid =  false;
+                    } 
                     break;
                 default:
-                    isValid = true;
-                    break;
-            };
-            return isValid;
-        });
-        return result;
+                    window.console.error(`ERROR: PrimitiveType ${propertyType.primitiveType} is not defined`);
+                    isValid =  false;
+            }
+        } catch (err) {
+            // log error
+            window.console.log(err);
+            isValid = false;
+        } 
+        if (!isValid) {
+            if (!isValid) {
+                window.console.log("----------------------validateProperty------------------------");
+                window.console.dir(propertyType);
+                window.console.log(`value = ${value}`);
+            }
+        }
+        return isValid;
     }
 
 }

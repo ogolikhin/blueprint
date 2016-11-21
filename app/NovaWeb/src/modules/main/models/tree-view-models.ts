@@ -2,20 +2,20 @@ import * as angular from "angular";
 import * as _ from "lodash";
 import {Models, AdminStoreModels} from "./";
 import {Helper} from "../../shared/";
-import {ITreeViewNode} from "../../shared/widgets/bp-tree-view/";
+import {ITreeNode} from "../../shared/widgets/bp-tree-view/";
 import {IProjectService} from "../../managers/project-manager/project-service";
 
 export interface IViewModel<T> {
     model: T;
 }
 
-export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeViewNode {
+export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeNode {
     constructor(public model: T,
                 public key: string,
                 public group: boolean,
                 public expanded: boolean,
                 public selectable: boolean,
-                public children?: ITreeViewNode[]) {
+                public children?: ITreeNode[]) {
     }
 
     public getCellClass(): string[] {
@@ -100,7 +100,7 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
         return this.model.name;
     }
 
-    public loadChildrenAsync(): ng.IPromise<ITreeViewNode[]> {
+    public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         switch (this.model.type) {
             case AdminStoreModels.InstanceItemType.Folder:
                 return this.factory.projectService.getFolders(this.model.id).then((children: AdminStoreModels.IInstanceItem[]) => {
@@ -148,9 +148,9 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
         return `${this.model.prefix}${this.model.id} ${this.model.name}`;
     }
 
-    public loadChildrenAsync(): ng.IPromise<ITreeViewNode[]> {
+    public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
-            const result: ITreeViewNode[] = TreeNodeVMFactory.processChildArtifacts(children, _.concat(this.model.artifactPath, this.model.name),
+            const result: ITreeNode[] = TreeNodeVMFactory.processChildArtifacts(children, _.concat(this.model.artifactPath, this.model.name),
                 _.concat(this.model.idPath, this.model.id))
                 .map(child => this.factory.createArtifactNodeVM(this.project, child));
             if (this.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
@@ -180,7 +180,7 @@ export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact>
         return this.name;
     }
 
-    public loadChildrenAsync(): ng.IPromise<ITreeViewNode[]> {
+    public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         return this.factory.projectService.getSubArtifactTree(this.model.id).then((children: Models.ISubArtifactNode[]) => {
             return children.map(child => this.factory.createSubArtifactNodeVM(this.project, child));
         });

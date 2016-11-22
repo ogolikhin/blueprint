@@ -195,6 +195,12 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     this.item.docRefs.initialize(this.docRefList);
                 }
             }
+            const refresh = !this.item.attachments.changes() && !this.item.docRefs.changes();
+            if (refresh) {
+                this.item.attachments.refresh();
+                this.item.docRefs.refresh();
+            }
+
             const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
             const attachmentErrorSubscriber = this.item.attachments.errorObservable().subscribe(this.clearAttachmentList);
             const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);

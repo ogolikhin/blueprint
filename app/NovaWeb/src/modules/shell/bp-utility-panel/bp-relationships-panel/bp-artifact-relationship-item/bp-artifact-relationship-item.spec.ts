@@ -58,12 +58,12 @@ describe("BPArtifactRelationshipItem", () => {
         expect(directiveTest.element.find(".details").length).toBeGreaterThan(0);
     });
 
-    it("action panel should be hidden", () => {
+    it("action panel should be hidden if item is not manual trace or user has no access to it", () => {
         //Assert
         expect(directiveTest.element.find(".icons").hasClass("ng-hide")).toBeTruthy();
     });
 
-    it("action panel should be visible", () => {
+    it("action panel should be visible if item is manual trace and user has access to it", () => {
         inject(($rootScope: ng.IRootScopeService) => {
             //Arrange
 

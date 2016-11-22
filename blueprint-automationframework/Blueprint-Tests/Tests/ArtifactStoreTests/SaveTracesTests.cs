@@ -646,6 +646,9 @@ namespace ArtifactStoreTests
         /// <param name="subArtifact">The sub-artifact that contains this trace.</param>
         private static void ValidateTrace(INovaTrace trace, NovaSubArtifact subArtifact)
         {
+            Assert.NotNull(subArtifact.Id, "The SubArtifact Id shouldn't be null!");
+            Assert.NotNull(subArtifact.PredefinedType, "The SubArtifact PredefinedType shouldn't be null!");
+
             Assert.AreEqual(trace.ArtifactId, subArtifact.ParentId, "ArtifactId from trace and subartifact should be equal to each other.");
             Assert.AreEqual(subArtifact.Id.Value, trace.ItemId, "ItemId from trace and subartifact should be equal to each other.");
             Assert.AreEqual((int)subArtifact.PredefinedType.Value, trace.PrimitiveItemTypePredefined, "PredefinedType from trace and subartifact should be equal to each other.");

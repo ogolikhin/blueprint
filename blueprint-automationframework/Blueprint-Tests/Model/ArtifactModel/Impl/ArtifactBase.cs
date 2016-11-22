@@ -740,7 +740,7 @@ namespace Model.ArtifactModel.Impl
 
             try
             {
-                adminStore.AddSession(adminUser, force: true);
+                adminStore.AddSession(adminUser);
                 openApi.LoginUsingBasicAuthorization(adminUser);
 
                 // For each user that created published artifacts, delete & publish the list of artifacts they created.

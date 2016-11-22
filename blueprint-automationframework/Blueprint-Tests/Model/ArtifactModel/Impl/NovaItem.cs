@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
 {
-    // Taken from:  blueprint-current/blob/develop/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaItem.cs
+    // Serialized JSON properties are taken from:  blueprint-current/blob/develop/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaItem.cs
     public class NovaItem
     {
         #region Serialized JSON properties

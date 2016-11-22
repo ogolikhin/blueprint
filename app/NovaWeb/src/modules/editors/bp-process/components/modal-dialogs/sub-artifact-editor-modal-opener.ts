@@ -181,12 +181,18 @@ export class SubArtifactEditorModalOpener {
     private populatePersonaReferenceOptions(personaReferenceList: IArtifactReference[]): IPersonaOption[] {
         const personaOptions: IPersonaOption[] = [];
         for (let i = 0; i < personaReferenceList.length; i++) {
-            personaOptions.push({
-                value: personaReferenceList[i],
-                label: personaReferenceList[i].typePrefix +
+            let label: string = personaReferenceList[i].name;
+
+            if (personaReferenceList[i].id > 0) {
+                label = personaReferenceList[i].typePrefix +
                        personaReferenceList[i].id +
                       ": " +
-                       personaReferenceList[i].name
+                       personaReferenceList[i].name;
+            }
+
+            personaOptions.push({
+                value: personaReferenceList[i],
+                label: label
             });
         }
 

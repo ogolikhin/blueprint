@@ -42,6 +42,10 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
     }
 
     public getPersonaLabel(): string {
+        if (this.dialogModel.personaReference.id < 0) {
+            return this.dialogModel.personaReference.name;
+        }
+
         return this.dialogModel.personaReference.typePrefix +
             this.dialogModel.personaReference.id +
             ": " +

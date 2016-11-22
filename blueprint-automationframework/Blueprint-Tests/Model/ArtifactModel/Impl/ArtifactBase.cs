@@ -733,19 +733,40 @@ namespace Model.ArtifactModel.Impl
                 artifactStore.DiscardArtifacts(artifacts, user, all: true);
             }
 
-            // For each user that created published artifacts, delete & publish the list of artifacts they created.
-            foreach (IUser user in savedArtifactsDictionary.Keys)
+            // Create & authenticate an admin user that has access to delete all artifacts.
+            IUser adminUser = UserFactory.CreateUserAndAddToDatabase();
+            var adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
+            var openApi = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
+
+            try
             {
-                var artifacts = savedArtifactsDictionary[user];
-                Logger.WriteDebug("*** Discarding all unpublished artifacts created by user: '{0}'.", user.Username);
+                adminStore.AddSession(adminUser);
+                openApi.LoginUsingBasicAuthorization(adminUser);
 
-                foreach (var artifact in artifacts)
+                // For each user that created published artifacts, delete & publish the list of artifacts they created.
+                foreach (IUser user in publishedArtifactsDictionary.Keys)
                 {
-                    DeleteArtifact(artifact, user);
-                }
+                    // First discard all to release any locks by the original user.
+                    Logger.WriteDebug("*** Discarding all artifacts created by user: '{0}'.", user.Username);
+                    artifactStore.DiscardArtifacts(publishedArtifactsDictionary[user], user, all: true);
 
-                Logger.WriteDebug("*** Publishing all deleted artifacts by user ID: '{0}'...", user.Id);
-                artifactStore.PublishArtifacts(artifacts, user, all: true);
+                    // Now delete all artifacts using the Admin user.
+                    var artifacts = publishedArtifactsDictionary[user];
+                    Logger.WriteDebug("*** Deleting all published artifacts created by user: '{0}'.", user.Username);
+
+                    foreach (var artifact in artifacts)
+                    {
+                        DeleteArtifact(artifact, adminUser);
+                    }
+
+                    Logger.WriteDebug("*** Publishing all deleted artifacts that were created by user: '{0}'...", user.Username);
+                    artifactStore.PublishArtifacts(artifacts, adminUser, all: true);
+                }
+            }
+            finally
+            {
+                adminStore.DeleteSession(adminUser);
+                adminUser.DeleteUser();
             }
         }
 

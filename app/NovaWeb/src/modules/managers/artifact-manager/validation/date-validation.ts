@@ -1,23 +1,23 @@
-import { ILocalizationService } from "../../../core/localization/localizationService";
-import { IBaseValidation, BaseValidation } from "./base-validation";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface IDateValidation extends IBaseValidation {
     
     wrongFormat(newValue: string | Date): boolean;
     minDate(newValue: string,
-        oldValue: string,
-        minDate: any,
-        isValidated: boolean): boolean;
+            oldValue: string,
+            minDate: any,
+            isValidated: boolean): boolean;
     maxDate(newValue: string,
-        oldValue: string,
-        maxDate: any,
-        isValidated: boolean): boolean;
+            oldValue: string,
+            maxDate: any,
+            isValidated: boolean): boolean;
     isValid(newValue: string,
-        oldValue: string,
-        minDate: any,
-        maxDate: any,
-        isValidated: boolean,
-        isRequired: boolean): boolean;
+            oldValue: string,
+            minDate: any,
+            maxDate: any,
+            isValidated: boolean,
+            isRequired: boolean): boolean;
 }
 
 export class DateValidation extends BaseValidation implements IDateValidation {
@@ -31,9 +31,9 @@ export class DateValidation extends BaseValidation implements IDateValidation {
         }
 
     public minDate(newValue: string,
-        oldValue: string,
-        _minDate: any,
-        isValidated: boolean): boolean {
+                   oldValue: string,
+                   _minDate: any,
+                   isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
@@ -48,9 +48,9 @@ export class DateValidation extends BaseValidation implements IDateValidation {
     }
 
     public maxDate(newValue: string,
-        oldValue: string,
-        maxDate: any,
-        isValidated: boolean): boolean {
+                   oldValue: string,
+                   maxDate: any,
+                   isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }

@@ -36,6 +36,7 @@
     "html-webpack-plugin": "^2.10.0",
     "http-proxy-middleware": "^0.17.2",
     "imports-loader": "^0.6.5",
+    "keen-js": "^3.4.1",
     "lodash": "^4.16.4",
     "node-sass": "^3.11.2",
     "path": "^0.12.7",
@@ -57,7 +58,7 @@
     "ag-grid": "6.2.0",
     "ag-grid-enterprise": "6.2.0",
     "angular": "~1.5.7",
-    "angular-animate": "^1.5.8",
+      "angular-animate": "^1.5.8",
     "angular-formly": "^8.2.1",
     "angular-formly-templates-bootstrap": "^6.4.0",
     "angular-messages": "~1.5.7",
@@ -96,6 +97,7 @@
     "progress-bar-webpack-plugin": "^1.9.0",
     "style-loader": "^0.13.1",
     "tinymce": "^4.4.3",
+      "tslint-eslint-rules": "^3.0.0",
     "typings": "^2.0.0",
     "ui-select": "0.19.4",
     "webpack-dev-server": "^1.16.2"
@@ -115,5 +117,9 @@
   },
   "config": {
     "backend": "http://localhost:9801"
+  },
+  "engines": {
+    "npm": "~3.10.0",
+    "node": "~6.9.0"
   }
 }

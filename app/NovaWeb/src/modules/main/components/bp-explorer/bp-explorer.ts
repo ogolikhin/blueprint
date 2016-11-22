@@ -1,9 +1,7 @@
-import * as angular from "angular";
-import {Models, TreeModels} from "../../models";
-import {ItemTypePredefined} from "../../models/enums";
+import {TreeModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
-import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
+import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
@@ -22,7 +20,7 @@ export interface IProjectExplorerController {
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
     onError: (reason: any) => any;
-    onGridReset: () => void;
+    onGridReset: (isExpanding: boolean) => void;
 }
 
 export class ProjectExplorerController implements IProjectExplorerController {
@@ -96,8 +94,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
         if (value) {
             this.selectedArtifactSubscriber = value.model.getProperyObservable()
-                        .distinctUntilChanged(changes => changes.item && changes.item.name)
-                        .subscribeOnNext(this.onSelectedArtifactChange);
+                .distinctUntilChanged(changes => changes.item && changes.item.name)
+                .subscribeOnNext(this.onSelectedArtifactChange);
         }
     }
 
@@ -109,8 +107,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.projects = projects.slice(0); // create a copy
     }
 
-    public onGridReset(): void {
+    public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
+
+        if (isExpanding) {
+            return;
+        }
 
         const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
         let navigateToId: number;
@@ -138,6 +140,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             } else {
                 this.navigationService.reloadParentState();
             }
+        } else {
+            this.treeApi.deselectAll();
+            this.selected = undefined;
         }
     };
 
@@ -167,7 +172,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
         if (isSelected) {
             this.selected = vm;
-            this.navigationService.navigateTo({ id: vm.model.id });
+            this.navigationService.navigateTo({id: vm.model.id});
         }
     };
 

@@ -35,6 +35,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &.first {
+        font-weight: bold;
+    }
 }
 
 .dropdown-menu__filter-item-btn {

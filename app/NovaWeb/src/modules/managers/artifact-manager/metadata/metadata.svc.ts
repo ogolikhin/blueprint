@@ -1,5 +1,5 @@
-import { IItemType, IPropertyType, IProjectMeta, IOption } from "../../../main/models/models";
-import { ItemTypePredefined, PropertyTypePredefined, PrimitiveType } from "../../../main/models/enums";
+import {IItemType, IPropertyType, IProjectMeta, IOption} from "../../../main/models/models";
+import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType} from "../../../main/models/enums";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IMetaDataService {

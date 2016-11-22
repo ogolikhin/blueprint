@@ -1,4 +1,4 @@
-import { ISystemTask } from "../diagram/presentation/graph/models/";
+import {ISystemTask} from "../diagram/presentation/graph/models/";
 import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
 import {IMessageService} from "../../../../core/messages/message.svc";
 
@@ -27,15 +27,18 @@ export class UploadImageDirective implements ng.IDirective {
     public restrict = "E";
 
     constructor(private fileUploadService: IFileUploadService,
-        private $window: ng.IWindowService,
-        private $timeout: ng.ITimeoutService,
-        private $compile: ng.ICompileService,
-        private messageService: IMessageService) {
+                private $window: ng.IWindowService,
+                private $timeout: ng.ITimeoutService,
+                private $compile: ng.ICompileService,
+                private messageService: IMessageService) {
     }
 
     public static factory(): ng.IDirectiveFactory {
         const directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
-            $window: ng.IWindowService, $timeout: ng.ITimeoutService, $compile: ng.ICompileService, messageService: IMessageService) =>
+                                                 $window: ng.IWindowService,
+                                                 $timeout: ng.ITimeoutService,
+                                                 $compile: ng.ICompileService,
+                                                 messageService: IMessageService) =>
             new UploadImageDirective(fileUploadService, $window, $timeout, $compile, messageService);
         directive.$inject = ["fileUploadService",
             "$window",
@@ -107,10 +110,10 @@ export class UploadImageDirective implements ng.IDirective {
                 const expirationDate = new Date();
                 expirationDate.setDate(expirationDate.getDate() + 1);
                 this.fileUploadService.uploadToFileStore(dataFile, expirationDate).then((result: IFileResult) => {
-                    $scope.systemTaskModel.associatedImageUrl = result.uriToFile;
-                    $scope.systemTaskModel.imageId = result.guid;
-                    this.createImage($scope, $element, attr);
-                },
+                        $scope.systemTaskModel.associatedImageUrl = result.uriToFile;
+                        $scope.systemTaskModel.imageId = result.guid;
+                        this.createImage($scope, $element, attr);
+                    },
                     (error: any) => {
                         this.messageService.addError(error.message);
                     });

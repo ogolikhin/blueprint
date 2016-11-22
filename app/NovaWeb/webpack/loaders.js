@@ -9,14 +9,15 @@ module.exports = [
             path.join(__dirname, "../src/images"),
             path.join(__dirname, "../src/styles")
         ],
-        loader: 'awesome-typescript-loader',
+        loader: "awesome-typescript",
         include: [
             path.join(__dirname, "../src")
         ]
     },
     {
         test: /\.css$/,
-        loader: ExtractTextPlugin.extract('style-loader', 'css!postcss'),
+        loader: ExtractTextPlugin.extract("style",
+            ["css", "postcss"]),
 
         include: [
             //important for performance!
@@ -26,8 +27,8 @@ module.exports = [
     },
     {
         test: /\.scss$/,
-        loader: ExtractTextPlugin.extract('style-loader',
-            'css?sourceMap!postcss!sass-loader?outputStyle=expanded&sourceMap=true&sourceMapContents=true'),
+        loader: ExtractTextPlugin.extract("style",
+            ["css?sourceMap", "postcss", "sass?outputStyle=expanded&sourceMap=true&sourceMapContents=true"]),
         exclude: [
             path.join(__dirname, "../src/fonts"),
             path.join(__dirname, "../src/images")
@@ -41,17 +42,25 @@ module.exports = [
     {
         test: /\.json$/,
         exclude: /node_modules/,
-        loader: 'raw'
+        loader: "raw",
+        includes: [
+            path.join(__dirname, "../src")
+
+        ]
     },
     {
         test: /\.xml$/,
         exclude: /node_modules/,
-        loader: 'raw'
+        loader: "raw",
+        includes: [
+            path.join(__dirname, "../libs/mxClient")
+
+        ]
     },
     {
         test: /\.html$/,
         exclude: /node_modules/,
-        loader: 'raw',
+        loader: "raw",
         include: [
             path.join(__dirname, "../src/modules"),
             path.join(__dirname, "../src/unsupported-browser")
@@ -60,42 +69,46 @@ module.exports = [
     },
     {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'url-loader?limit=10000&mimetype=application/font-woff'
+        loader: "url?limit=10000&mimetype=application/font-woff",
+        include: [
+            path.join(__dirname, "../src/fonts"),
+            path.join(__dirname, "../node_modules")
+        ]
     },
     {
         test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader'
+        loader: "file"
     },
     {
         test: /\.jpg$/,
         exclude: /node_modules/,
-        loader: 'file'
+        loader: "file"
     },
     {
         test: /\.gif$/,
         exclude: /node_modules/,
-        loader: 'file'
+        loader: "file"
     },
     {
         test: /\.png$/,
         exclude: /node_modules/,
-        loader: 'url'
+        loader: "url"
     },
     {
-        test: require.resolve('tinymce/tinymce'),
+        test: require.resolve("tinymce/tinymce"),
         loaders: [
-            'imports?this=>window',
-            'exports?window.tinymce'
+            "imports?this=>window",
+            "exports?window.tinymce"
         ]
     },
     {
         test: /tinymce\/(themes|plugins)\//,
         loaders: [
-            'imports?this=>window'
+            "imports?this=>window"
         ]
     },
     {
-        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.js')),
+        test: require.resolve(path.join(__dirname, "../libs/mxClient/js/mxClient.js")),
         loaders: [
             'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
         ],
@@ -104,7 +117,7 @@ module.exports = [
         ]
     },
     {
-        test: require.resolve(path.join(__dirname, '../libs/mxClient/js/mxClient.min.js')),
+        test: require.resolve(path.join(__dirname, "../libs/mxClient/js/mxClient.min.js")),
         loaders: [
             'imports?mxBasePath=>"./novaweb/libs/mxClient", mxLoadStylesheets=>false, mxLoadResources=>false'
         ],

@@ -46,12 +46,12 @@ export class SelectionManagerMock implements ISelectionManager {
      * Observable that always corresponds to the currently selected artifact's observable.
      */
     public get currentlySelectedArtifactObservable() {
-       return this.selectionSubject
-           .filter(selection => !!(selection && selection.artifact))
-           .flatMap(selection => selection.artifact.getObservable())
-           //.distinctUntilChanged(this.distinctById) -Don't re-enable without testing refreshing a deleted artifact; we need every artifact event.
-           .asObservable();
-   }
+        return this.selectionSubject
+            .filter(selection => !!(selection && selection.artifact))
+            .flatMap(selection => selection.artifact.getObservable())
+            //.distinctUntilChanged(this.distinctById) -Don't re-enable without testing refreshing a deleted artifact; we need every artifact event.
+            .asObservable();
+    }
 
     public get selectionObservable() {
         return this.selectionSubject.asObservable();

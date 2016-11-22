@@ -1,10 +1,8 @@
 import {Models} from "../../../main/models";
 import * as ProcessModels from "../models/process-models";
-import { IProcessModelProcessor } from "./process-model-processor";
-import { ProcessModelProcessor } from "./process-model-processor";
-import { IStatefulProcessArtifact } from "../process-artifact";
+import {IProcessModelProcessor, ProcessModelProcessor} from "./process-model-processor";
 
-export { ProcessModels }
+export {ProcessModels}
 
 export interface IProcessService {
     load(processId: string, versionId?: number, revisionId?: number, baselineId?: number, readOnly?: boolean): ng.IPromise<ProcessModels.IProcess>;
@@ -45,7 +43,7 @@ export class ProcessService implements IProcessService {
     private processModelProcessor: IProcessModelProcessor;
 
     constructor(private $http: ng.IHttpService,
-        private $q: ng.IQService) {
+                private $q: ng.IQService) {
         this.processModelProcessor = new ProcessModelProcessor();
 
     }
@@ -80,7 +78,7 @@ export class ProcessService implements IProcessService {
                 if (!result) {
                     deferred.reject();
                     return;
-                }                
+                }
                 deferred.reject(result.data);
             }
         );

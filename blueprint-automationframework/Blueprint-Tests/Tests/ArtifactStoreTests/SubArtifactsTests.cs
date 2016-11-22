@@ -128,7 +128,8 @@ namespace ArtifactStoreTests
             process.Delete(author);
 
             // Execute
-            List<INovaSubArtifact> subArtifacts = null;
+            List<SubArtifact> subArtifacts = null;
+
             Assert.DoesNotThrow(() =>
             {
                 subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, process.Id);
@@ -370,7 +371,8 @@ namespace ArtifactStoreTests
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
 
             // Execute
-            List<INovaSubArtifact> subArtifacts = null;
+            List<SubArtifact> subArtifacts = null;
+
             Assert.DoesNotThrow(() =>
             {
                 subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, USECASE_ID);
@@ -379,25 +381,30 @@ namespace ArtifactStoreTests
             // Verify
             // Test that returned JSON corresponds to the Use Case structure
             Assert.AreEqual(4, subArtifacts.Count, "Use Case must have 4 subartifacts - Pre Condition, Post Condition and 2 steps.");
+
             foreach (var s in subArtifacts)
             {
                 Assert.AreEqual(USECASE_ID, s.ParentId, "ParentId for subartifact of Use Case must be equal to Use Case Id.");
             }
+
             Assert.AreEqual(UseCaseDisplayNames.PRECONDITION, subArtifacts[0].DisplayName,
                 "DisplayName for Precondition should have expected name.");
             Assert.AreEqual(UseCaseDisplayNames.POSTCONDITION, subArtifacts[1].DisplayName,
                 "DisplayName for Postcondition should have expected name.");
+
             for (int i = 2; i < subArtifacts.Count; i++)
             {
                 Assert.AreEqual(I18NHelper.FormatInvariant(UseCaseDisplayNames.STEP, i - 1),
                     subArtifacts[i].DisplayName, "DisplayName for Step should have expected name.");
             }
+
             for (int i = 0; i < 3; i++)
             {
                 Assert.IsFalse(subArtifacts[i].HasChildren, "This subartifacts shouldn't have children.");
             }
+
             Assert.IsTrue(subArtifacts[3].HasChildren, "This step must have child.");
-            Assert.AreEqual(1, subArtifacts[3].Children.Count, "This step must have child.");
+            Assert.AreEqual(1, subArtifacts[3].Children.Count(), "This step must have child.");
         }
 
         [Category(Categories.CustomData)]
@@ -450,7 +457,8 @@ namespace ArtifactStoreTests
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, project);
 
             // Execute
-            List<INovaSubArtifact> subArtifacts = null;
+            List<SubArtifact> subArtifacts = null;
+
             Assert.DoesNotThrow(() =>
             {
                 subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, STORYBOARD_ID);
@@ -554,11 +562,12 @@ namespace ArtifactStoreTests
 
             Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
             Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+            int subArtifactId = subArtifacts[0].Id;
 
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifact(viewer, artifact.Id, subArtifacts[0].Id);
+                Helper.ArtifactStore.GetSubartifact(viewer, artifact.Id, subArtifactId);
             }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID and sub-artifact ID but the user doesn't have permission to view the artifact!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
@@ -584,11 +593,12 @@ namespace ArtifactStoreTests
 
             Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
             Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+            int subArtifactId = subArtifacts[0].Id;
 
             // Execute
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetSubartifact(viewer, child.Id, subArtifacts[0].Id);
+                Helper.ArtifactStore.GetSubartifact(viewer, child.Id, subArtifactId);
             }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
@@ -619,13 +629,15 @@ namespace ArtifactStoreTests
         /// <param name="expectedSubArtifactsNumber">Number of expected sub-artifacts in the artifact</param>
         private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber)
         {
-            List<INovaSubArtifact> subArtifacts = null;
+            List<SubArtifact> subArtifacts = null;
+
             Assert.DoesNotThrow(() =>
             {
                 subArtifacts = Helper.ArtifactStore.GetSubartifacts(user, artifactId);
             }, "GetSubartifacts shouldn't throw an error.");
 
             Assert.AreEqual(expectedSubArtifactsNumber, subArtifacts.Count, "Number of subartifacts must be correct.");
+
             foreach (var s in subArtifacts)
             {
                 Assert.AreEqual(artifactId, s.ParentId, "ParentId of subartifact must be equal to Id of the process.");

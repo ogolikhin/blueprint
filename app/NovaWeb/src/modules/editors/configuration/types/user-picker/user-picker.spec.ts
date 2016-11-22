@@ -165,7 +165,7 @@ describe("Formly User Picker", () => {
         expect(items[1].innerHTML).toContain("Group 2");
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
     });
 
     it("should succeed if empty, as not required", function () {
@@ -176,7 +176,7 @@ describe("Formly User Picker", () => {
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
     });
 
     function compileAndSetupStuff(extraScopeProps?) {

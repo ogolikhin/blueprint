@@ -2,16 +2,16 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface IDateValidation extends IBaseValidation {
+    
+    wrongFormat(newValue: string): boolean;
+    minSQLDate(newValue: string): boolean;
     minDate(newValue: string,
-            oldValue: string,
             minDate: any,
             isValidated: boolean): boolean;
     maxDate(newValue: string,
-            oldValue: string,
             maxDate: any,
             isValidated: boolean): boolean;
     isValid(newValue: string,
-            oldValue: string,
             minDate: any,
             maxDate: any,
             isValidated: boolean,
@@ -24,15 +24,25 @@ export class DateValidation extends BaseValidation implements IDateValidation {
         super();
     };
 
+    public wrongFormat(newValue: string): boolean {
+            return this.localization.current.isValidDate(newValue);
+        }
+    public minSQLDate(newValue: string): boolean {
+        const minsql = new Date(1753, 1, 1);  
+        if (newValue) {
+            return this.minDate(newValue, minsql, true);
+        }
+        return true;
+
+    }
     public minDate(newValue: string,
-                   oldValue: string,
                    _minDate: any,
                    isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
 
-        const date = this.localization.current.toDate(oldValue || newValue, true);
+        const date = this.localization.current.toDate(newValue, true);
         const minDateValue = this.localization.current.toDate(_minDate, true);
 
         if (date && minDateValue) {
@@ -42,14 +52,13 @@ export class DateValidation extends BaseValidation implements IDateValidation {
     }
 
     public maxDate(newValue: string,
-                   oldValue: string,
                    maxDate: any,
                    isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
 
-        const date = this.localization.current.toDate(oldValue || newValue, true);
+        const date = this.localization.current.toDate(newValue, true);
         const maxDateValue = this.localization.current.toDate(maxDate, true);
 
         if (date && maxDateValue) {
@@ -60,14 +69,15 @@ export class DateValidation extends BaseValidation implements IDateValidation {
     }
 
     public isValid(newValue: string,
-                   oldValue: string,
-                   minDate: any,
-                   maxDate: any,
-                   isValidated: boolean,
-                   isRequired: boolean): boolean {
-        return this.maxDate(newValue, oldValue, maxDate, isValidated) &&
-            this.minDate(newValue, oldValue, minDate, isValidated) &&
-            super.hasValueIfRequired(isRequired, newValue, oldValue, isValidated);
+        minDate: any,
+        maxDate: any,
+        isValidated: boolean,
+        isRequired: boolean): boolean {
+        return this.wrongFormat(newValue) &&
+               this.minSQLDate(newValue) &&
+               this.minDate(newValue, maxDate, isValidated) &&
+               this.maxDate(newValue, maxDate, isValidated) &&
+               super.hasValueIfRequired(isRequired, newValue, isValidated);
     }
 
 }

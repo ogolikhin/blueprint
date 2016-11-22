@@ -11,7 +11,7 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public bindings: any = {
         relationship: "=",
         selectedTraces: "=",
-        selectable: "@",
+        selectable: "<",
         setItemDirection: "&",
         toggleItemFlag: "&",
         deleteItem: "&",
@@ -40,7 +40,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public isItemReadOnly: boolean;
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;
-    public selectable: boolean = false;
+    public selectable: boolean;
     public setItemDirection: Function;
     public toggleItemFlag: Function;
     public deleteItem: Function;

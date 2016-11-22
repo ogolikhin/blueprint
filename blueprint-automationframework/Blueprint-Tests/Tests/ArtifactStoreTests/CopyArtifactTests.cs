@@ -1,4 +1,6 @@
-﻿using CustomAttributes;
+﻿using System.Collections.Generic;
+using System.Net;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -6,6 +8,7 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -13,7 +16,6 @@ using System.Linq;
 
 namespace ArtifactStoreTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopment)]  // Dev hasn't finished the story yet.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class CopyArtifactTests : TestBase
@@ -22,18 +24,22 @@ namespace ArtifactStoreTests
 
         private IUser _user = null;
         private IProject _project = null;
+        private List<IProject> _projects = null;
+        private IArtifact _wrappedArtifact = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            _project = _projects[0];
         }
 
         [TearDown]
         public void TearDown()
         {
+            _wrappedArtifact?.Delete();
             Helper?.Dispose();
         }
 
@@ -58,7 +64,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -84,13 +90,14 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, _project.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
         }
         
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 400 Bad Request.
         [TestCase(BaseArtifactType.Actor, false)]
         [TestCase(BaseArtifactType.TextualRequirement, true)]
         [TestRail(191049)]
@@ -117,7 +124,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -140,6 +147,7 @@ namespace ArtifactStoreTests
             // TODO: Get the file contents and compare.
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 500 error "You do not have permission to edit the artifact".
         [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
         [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
         [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
@@ -167,7 +175,7 @@ namespace ArtifactStoreTests
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -183,17 +191,59 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
-        /*
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 500 error "You do not have permission to edit the artifact".
         [Category(Categories.CustomData)]
-        [TestCase(BaseArtifactType.TextualRequirement)]
+        [Category(Categories.GoldenData)]
+        [TestCase(BaseArtifactType.TextualRequirement, 85, "User Story[reuse source]")]
+        [TestCase(BaseArtifactType.TextualRequirement, 86, "User Story[reuse target]")]
         [TestRail(191051)]
         [Description("Create and publish a folder.  Copy a reused artifact into the folder.  Verify the source artifact is unchanged and the new artifact " +
             "is identical to the source artifact (except no Reuse relationship).  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedReusedArtifact_ToNewFolder_ReturnsNewArtifactNotReused(BaseArtifactType artifactType)
+        public void CopyArtifact_SinglePublishedReusedArtifact_ToNewFolder_ReturnsNewArtifactNotReused(BaseArtifactType artifactType, int artifactId, string artifactName)
         {
-            Assert.Fail("Test not implemented yet.");
-        }
+            // Setup:
+            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
 
+            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, _user, BaseArtifactType.PrimitiveFolder);
+            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, artifactId, name: artifactName);
+
+            // Verify preCreatedArtifact is Reused.
+            var sourceBeforeCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
+                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+
+            var reuseTracesBefore = sourceBeforeCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
+            Assert.NotNull(reuseTracesBefore, "No Reuse traces were found in the reused artifact before the copy!");
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(preCreatedArtifact, copyResult, author);
+
+            // Verify Reuse traces of source artifact didn't change.
+            var sourceAfterCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
+                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+
+            var reuseTracesAfter = sourceAfterCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
+            Assert.NotNull(reuseTracesAfter, "No Reuse traces were found in the reused artifact after the copy!");
+
+            CompareTwoOpenApiTraceLists(reuseTracesBefore, reuseTracesAfter);
+
+            // Verify the copied artifact has no Reuse traces.
+            var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, artifactId, name: artifactName);
+
+            // Verify preCreatedArtifact is Reused.
+            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, _user,
+                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+            Assert.IsNull(reuseTracesOfCopy, "There should be no Reuse traces on the copied artifact!");
+        }
+        /*
         [Category(Categories.CustomData)]
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(191052)]
@@ -283,6 +333,7 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden tests
 
+
         [TestCase(BaseArtifactType.Process)]
         [TestRail(195358)]
         [Description("Create & publish two artifacts. User does not have edit permissions to target artifact.  Copy source artifact to be a child of the target artifact.  " +
@@ -302,7 +353,9 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to be a child of another artifact to which he/she has viewer permissions only", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permissions to copy the artifact in the selected location.");
+            string errorMessage = JsonConvert.DeserializeObject<string>(ex.RestResponse.Content);
+            Assert.AreEqual("Unauthorized call", errorMessage);
+
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -424,7 +477,7 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to use for getting artifact details.</param>
         /// <param name="expectedNumberOfArtifactsCopied">(optional) The number of artifacts that were expected to be copied.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
-        private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(IArtifact originalArtifact,
+        private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(IArtifactBase originalArtifact,
             CopyNovaArtifactResultSet copyResult,
             IUser user,
             int expectedNumberOfArtifactsCopied = 1)
@@ -438,10 +491,63 @@ namespace ArtifactStoreTests
             Assert.AreNotEqual(originalArtifact.Id, copyResult.Artifact.Id,
                 "The ID of the copied artifact should not be the same as the original artifact!");
 
-            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact, skipIdAndVersion: true, skipParentIds: true);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
+        }
+
+        /// <summary>
+        /// Compares two lists of OpenApiTrace's and asserts they are equal.
+        /// </summary>
+        /// <param name="expectedTraces">The list of expected OpenApiTrace's.</param>
+        /// <param name="actualTraces">The list of actual OpenApiTrace's.</param>
+        /// <exception cref="AssertionException">If any OpenApiTrace properties don't match between the two lists.</exception>
+        private static void CompareTwoOpenApiTraceLists(List<OpenApiTrace> expectedTraces, List<OpenApiTrace> actualTraces)
+        {
+            ThrowIf.ArgumentNull(expectedTraces, nameof(expectedTraces));
+            ThrowIf.ArgumentNull(actualTraces, nameof(actualTraces));
+
+            Assert.AreEqual(expectedTraces.Count, actualTraces.Count, "The number of traces are different!");
+
+            foreach (var expectedTrace in expectedTraces)
+            {
+                var actualTrace = actualTraces.Find(t => (t.TraceType == expectedTrace.TraceType) && (t.ArtifactId == expectedTrace.ArtifactId));
+                Assert.NotNull(actualTrace, "Couldn't find actual trace type '{0}' with ArtifactId: {1}",
+                    expectedTrace.TraceType, expectedTrace.ArtifactId);
+
+                OpenApiTrace.AssertAreEqual(expectedTrace, actualTrace);
+            }
+        }
+
+        /// <summary>
+        /// Copies the specified artifact to the new parent, wraps it in an IArtifact that gets disposed automatically,
+        /// and returns the result of the CopyArtifact call.
+        /// </summary>
+        /// <param name="artifact">The artifact to copy.</param>
+        /// <param name="newParentId">The Id of the new parent where this artifact will be copied to.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
+        ///     By default the artifact is copied to the end (after the last artifact).</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
+        private CopyNovaArtifactResultSet CopyArtifactAndWrap(
+            IArtifactBase artifact,
+            int newParentId,
+            IUser user = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
+
+            if (copyResult?.Artifact != null)
+            {
+                IProject project = _projects.Find(p => p.Id == copyResult.Artifact.ProjectId);
+
+                _wrappedArtifact = Helper.WrapNovaArtifact(copyResult.Artifact, project, user, artifact.BaseArtifactType);
+            }
+
+            return copyResult;
         }
 
         #endregion Private functions

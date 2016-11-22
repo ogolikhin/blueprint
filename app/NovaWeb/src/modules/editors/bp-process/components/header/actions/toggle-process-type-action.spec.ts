@@ -110,7 +110,7 @@ describe("ToggleProcessTypeAction", () => {
             );
 
             // act
-            process.artifactState.setState({readonly: true }, false);
+            process.artifactState.setState({readonly: true}, false);
 
             // assert
             expect(action.disabled).toBe(true);

@@ -78,7 +78,7 @@ describe("DecisionEditorController", () => {
 
     function createDiagramNode(nodeType: NodeType): IDiagramNode {
         return <IDiagramNode>{
-            model: { id: 1 },
+            model: {id: 1},
             direction: null,
             action: null,
             label: null,
@@ -291,7 +291,7 @@ describe("DecisionEditorController", () => {
             // arrange
             const $scope = <IModalScope>$rootScope.$new();
             const decision = <IDecision>{
-                model: { id: 1 }
+                model: {id: 1}
             };
             const model = new DecisionEditorModel();
             model.originalDecision = decision;
@@ -313,7 +313,7 @@ describe("DecisionEditorController", () => {
         it("correcly updates conditions", () => {
             // arrange
             const decision = <IDecision>{
-                model: { id: 1 }
+                model: {id: 1}
             };
             const model = new DecisionEditorModel();
             model.originalDecision = decision;

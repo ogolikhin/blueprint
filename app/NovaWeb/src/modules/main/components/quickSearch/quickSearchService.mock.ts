@@ -6,7 +6,7 @@ export class QuickSearchServiceMock {
     ];
     metadataReturned: ISearchMetadata;
     constructor(private $q: ng.IQService) {
-        this.metadataReturned = { items: [], pageSize: 10, totalCount: 0, totalPages: 0 };
+        this.metadataReturned = {items: [], pageSize: 10, totalCount: 0, totalPages: 0};
     }
 
     searchTerm;

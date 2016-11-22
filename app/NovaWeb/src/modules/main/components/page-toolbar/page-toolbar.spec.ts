@@ -156,7 +156,8 @@ describe("Application toolbar:", () => {
 
         it("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
                                                                                              artifactManager: IArtifactManager,
-                                                                                             projectManager: IProjectManager, $rootScope: ng.IRootScopeService) => {
+                                                                                             projectManager: IProjectManager,
+                                                                                             $rootScope: ng.IRootScopeService) => {
             // Arrange
             const evt = {
                 preventDefault: () => {

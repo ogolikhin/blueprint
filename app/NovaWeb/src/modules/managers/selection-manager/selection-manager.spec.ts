@@ -1,8 +1,8 @@
 // import "angular";
 // import "angular-mocks";
 // import "rx/dist/rx.lite";
-// import { IArtifact, ISubArtifact } from "./../models/models";
-// import { SelectionManager, SelectionSource } from "./selection-manager";
+// import {IArtifact, ISubArtifact} from "./../models/models";
+// import {SelectionManager, SelectionSource} from "./selection-manager";
 
 xdescribe("Selection Manager", () => {
 
@@ -13,8 +13,8 @@ xdescribe("Selection Manager", () => {
     describe("selectedArtifactObservable", () => {
         it("notify subscriber when artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Arrange
-//             const artifact = { id: 1 };
-//             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact };
+//             const artifact = {id: 1};
+//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact};
 //             let selectedArtifact;
 //             const onArtifactChanged = (item: IArtifact) => {
 //                 selectedArtifact = item;
@@ -23,8 +23,8 @@ xdescribe("Selection Manager", () => {
 //             const subscriber = selectionManager.selectedArtifactObservable.subscribeOnNext(onArtifactChanged);
 
 //             //Act
-//             const artifact2 = { id: 22 };
-//             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact2 };
+//             const artifact2 = {id: 22};
+//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact2};
 
 //             //Assert
 //             setTimeout(function() {
@@ -37,9 +37,9 @@ xdescribe("Selection Manager", () => {
     describe("selectedSubArtifactObservable", () => {
         it("notify subscriber when sub-artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Arrange
-//             const artifact = { id: 1 };
-//             const subArtifact = { id: 11 };
-//             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact };
+//             const artifact = {id: 1};
+//             const subArtifact = {id: 11};
+//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact};
 //             let selectedSubArtifact;
 //             const onSubArtifactChanged = (item: ISubArtifact) => {
 //                 selectedSubArtifact = item;
@@ -48,8 +48,8 @@ xdescribe("Selection Manager", () => {
 //             const subscriber = selectionManager.selectedSubArtifactObservable.subscribeOnNext(onSubArtifactChanged);
 
 //             //Act
-//             const subArtifact2 = { id: 22 };
-//             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2 };
+//             const subArtifact2 = {id: 22};
+//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2};
 
 //             //Assert
 //             setTimeout(function() {
@@ -62,9 +62,9 @@ xdescribe("Selection Manager", () => {
     describe("selectedItembservable", () => {
         it("notify subscriber when sub-artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
 //             //Arrange
-//              const artifact = { id: 1 };
-//             // const subArtifact = { id: 11 };
-//             // selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact };
+//              const artifact = {id: 1};
+//             // const subArtifact = {id: 11};
+//             // selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact};
 //             let selectedSubArtifact;
 //             const onSubArtifactChanged = (item: ISubArtifact) => {
 //                 selectedSubArtifact = item;
@@ -73,8 +73,8 @@ xdescribe("Selection Manager", () => {
 //             const subscriber = selectionManager.selectedItemObservable.subscribeOnNext(onSubArtifactChanged);
 
 //             //Act
-//             const subArtifact2 = { id: 22 };
-//             selectionManager.selection = { source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2 };
+//             const subArtifact2 = {id: 22};
+//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2};
 
 //             //Assert
 //             setTimeout(function() {

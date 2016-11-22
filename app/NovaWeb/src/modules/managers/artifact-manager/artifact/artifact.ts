@@ -354,9 +354,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
-        delta.attachmentValues = this.attachments.changes();
-        delta.docRefValues = this.docRefs.changes();
-        delta.traces = this.relationships.changes();
+        if (this._attachments) {
+            delta.attachmentValues = this.attachments.changes();
+        }
+        if (this._docRefs) {
+            delta.docRefValues = this.docRefs.changes();
+        }
+        if (this._relationships) {
+            delta.traces = this.relationships.changes();
+        }
         const subArtifactChanges = this.getSubArtifactChanges();
         if (!!subArtifactChanges) {
             delta.subArtifacts = subArtifactChanges;
@@ -462,6 +468,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
         }
         return this.services.$q.resolve();
+    }
+
+    public supportRelationships(): boolean {
+        if (this.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+            return false;
+        }
+        return super.supportRelationships();
     }
 
     public publish(): ng.IPromise<void> {

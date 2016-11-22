@@ -5,7 +5,7 @@ import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager";
-import {IArtifactNode} from "../../../managers/project-manager";
+import {IArtifactNode} from "../../../managers/project-manager/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";

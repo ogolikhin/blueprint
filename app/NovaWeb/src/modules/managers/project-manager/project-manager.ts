@@ -30,7 +30,7 @@ export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
 }
 
 export interface IProjectManager extends IDispose {
-    projectCollection: Rx.BehaviorSubject<IArtifactNode[]>;
+    projectCollection: Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>;
 
     // eventManager
     initialize();
@@ -40,7 +40,7 @@ export interface IProjectManager extends IDispose {
     refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
     refreshAll(): ng.IPromise<void>;
-    getProject(id: number): IArtifactNode;
+    getProject(id: number): Models.IViewModel<IStatefulArtifact>;
     getSelectedProjectId(): number;
     triggerProjectCollectionRefresh();
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
@@ -230,7 +230,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    private processProjectTree(project: IArtifactNode, data: Models.IArtifact[]): ng.IPromise<void> {
+    private processProjectTree(project: Models.IViewModel<IStatefulArtifact>, data: Models.IArtifact[]): ng.IPromise<void> {
         const oldProjectId: number = project.model.id;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
@@ -405,9 +405,9 @@ export class ProjectManager implements IProjectManager {
         let orderIndex: number;
 
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
-        let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex); 
+        let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex);
         let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
-        
+
         if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
             orderIndex = selectedArtifact.orderIndex / 2;
         } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last

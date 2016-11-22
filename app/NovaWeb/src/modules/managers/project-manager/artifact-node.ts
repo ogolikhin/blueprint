@@ -2,7 +2,7 @@ import {Models, Enums} from "../../main/models";
 import {IProjectService} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager";
-import {IArtifactNode} from "../project-manager";
+import {IArtifactNode} from "./project-manager";
 
 export class ArtifactNode implements IArtifactNode {
     private _model: IStatefulArtifact;

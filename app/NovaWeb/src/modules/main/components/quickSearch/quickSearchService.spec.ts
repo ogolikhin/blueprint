@@ -6,7 +6,7 @@ import {Models} from "../../models";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {analytics} from "../analytics/analyticsProvider";
+import {AnalyticsProvider} from "../analytics/analyticsProvider";
 
 describe("Service: Quick Search", () => {
     let service: IQuickSearchService;
@@ -21,7 +21,7 @@ describe("Service: Quick Search", () => {
             projectCollection: new Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>([])
         } as IProjectManager;
         $provide.service("projectManager", () => projectManager);
-        $provide.provider("analytics", analytics);
+        $provide.provider("analytics", AnalyticsProvider);
         $provide.service("projectManager", () => projectManager);
     }));
 

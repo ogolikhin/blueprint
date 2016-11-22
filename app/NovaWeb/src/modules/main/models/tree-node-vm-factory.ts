@@ -107,7 +107,12 @@ abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
         if (_.isFunction(comparator) ? comparator(item.model) : item.model === comparator) {
             found = item;
         } else if (item.children) {
-            for (let i = 0, it: this; !found && (it = item.children[i++]);) {
+
+            //todo: we shoudl find a better way to write this as its not very clear. prob lodash has support to do better
+            for (let i = 0, it: this;
+                 !found &&
+                 (it = item.children[i++]);
+            ) {
                 found = this.getNode(comparator, it);
             }
         }

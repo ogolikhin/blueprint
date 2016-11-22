@@ -1,15 +1,14 @@
-import * as angular from "angular";
-import * as _ from "lodash";
 import {Models, AdminStoreModels} from "./";
-import {Helper} from "../../shared/";
-import {ITreeNode} from "../../shared/widgets/bp-tree-view/";
+import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {IProjectService} from "../../managers/project-manager/project-service";
 
-export interface IViewModel<T> {
-    model: T;
+export interface ITreeNodeVM<T> extends Models.IViewModel<T>, ITreeNode {
+    getCellClass(): string[];
+    getIcon(): string;
+    getLabel(): string;
 }
 
-export abstract class TreeViewNodeVM<T> implements IViewModel<T>, ITreeNode {
+abstract class TreeNodeVM<T> implements ITreeNodeVM<T>, ITreeNode {
     constructor(public model: T,
                 public key: string,
                 public group: boolean,
@@ -68,13 +67,13 @@ export class TreeNodeVMFactory {
         return children;
     }
 
-    protected isSelectable(item: Models.IArtifact | Models.ISubArtifact) {
+    private isSelectable(item: Models.IArtifact | Models.ISubArtifact) {
         return (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
             (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1);
     }
 }
 
-export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanceItem> {
+export class InstanceItemNodeVM extends TreeNodeVM<AdminStoreModels.IInstanceItem> {
     constructor(private factory: TreeNodeVMFactory,
                 model: AdminStoreModels.IInstanceItem,
                 expanded: boolean = false) {
@@ -117,7 +116,7 @@ export class InstanceItemNodeVM extends TreeViewNodeVM<AdminStoreModels.IInstanc
     }
 }
 
-export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
+export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
     constructor(private factory: TreeNodeVMFactory,
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.IArtifact,
@@ -162,7 +161,7 @@ export class ArtifactNodeVM extends TreeViewNodeVM<Models.IArtifact> {
     }
 }
 
-export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact> {
+export class SubArtifactContainerNodeVM extends TreeNodeVM<Models.IArtifact> {
     constructor(private factory: TreeNodeVMFactory,
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.IArtifact,
@@ -187,7 +186,7 @@ export class SubArtifactContainerNodeVM extends TreeViewNodeVM<Models.IArtifact>
     }
 }
 
-export class SubArtifactNodeVM extends TreeViewNodeVM<Models.ISubArtifactNode> {
+export class SubArtifactNodeVM extends TreeNodeVM<Models.ISubArtifactNode> {
     constructor(private factory: TreeNodeVMFactory,
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.ISubArtifactNode,

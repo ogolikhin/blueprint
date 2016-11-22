@@ -1,8 +1,8 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
-import {ArtifactSearchResultVM} from "./bp-artifact-picker-search-vm";
-import {Models, AdminStoreModels, SearchServiceModels, TreeViewModels} from "../../models";
+import {ArtifactSearchResultVM} from "./search-result-vm";
+import {Models, AdminStoreModels, SearchServiceModels, TreeModels} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
@@ -57,9 +57,9 @@ describe("BpArtifactPicker", () => {
     }));
 
     it("Defaults values are applied", inject((
-        $compile: ng.ICompileService, 
-        $rootScope: ng.IRootScopeService, 
-        $q: ng.IQService, 
+        $compile: ng.ICompileService,
+        $rootScope: ng.IRootScopeService,
+        $q: ng.IQService,
         metadataService: IMetaDataService) => {
         // Arrange
         spyOn(metadataService, "get").and.callFake(() => {
@@ -86,7 +86,7 @@ describe("BpArtifactPickerController", () => {
     let projectService: IProjectService;
     let metadataService: IMetaDataService;
     let controller: BpArtifactPickerController;
-    const project = {model: {id: 1, name: "default"}, group: true};
+    const project = {model: {id: 1, name: "default", hasChildren: true}};
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         $scope = $rootScope.$new();
@@ -112,7 +112,7 @@ describe("BpArtifactPickerController", () => {
             id: project.model.id,
             type: AdminStoreModels.InstanceItemType.Project,
             name: project.model.name,
-            hasChildren: project.group
+            hasChildren: project.model.hasChildren
         });
     });
 
@@ -186,7 +186,7 @@ describe("BpArtifactPickerController", () => {
     it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
         // Arrange
         const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const vm = controller.factory.createArtifactSearchResultVM(model);
+        const vm = new ArtifactSearchResultVM(model, undefined);
         controller.selectionMode = "single";
         controller.onDoubleClick = jasmine.createSpy("onDoubleClick");
 
@@ -213,7 +213,7 @@ describe("BpArtifactPickerController", () => {
 
         it("getCellClass returns correct result", () => {
             // Arrange
-            const vm = {getCellClass: () => ["test"]} as TreeViewModels.TreeViewNodeVM<any>;
+            const vm = {getCellClass: () => ["test"]} as TreeModels.ITreeNodeVM<any>;
 
             // Act
             const css = controller.columns[0].cellClass(vm);
@@ -231,7 +231,7 @@ describe("BpArtifactPickerController", () => {
                 getLabel() {
                     return "name";
                 }
-            } as TreeViewModels.TreeViewNodeVM<any>;
+            } as TreeModels.ITreeNodeVM<any>;
             const cell = {} as HTMLElement;
             const params: IColumnRendererParams = {
                 data: vm,
@@ -277,7 +277,7 @@ describe("BpArtifactPickerController", () => {
     it("onSelect, when SearchResultVM, clears search and sets project", () => {
         // Arrange
         const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-        const vm = controller.factory.createArtifactSearchResultVM(model);
+        const vm = new ArtifactSearchResultVM(model, undefined);
         controller.clearSearch = jasmine.createSpy("clearSearch");
 
         // Act

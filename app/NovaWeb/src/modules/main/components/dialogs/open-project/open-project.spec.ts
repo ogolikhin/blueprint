@@ -2,7 +2,7 @@
 import "angular-mocks";
 import {OpenProjectController} from "./open-project";
 import {IDialogSettings} from "../../../../shared";
-import { Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {Enums, AdminStoreModels, TreeModels} from "../../../models";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
@@ -56,7 +56,7 @@ describe("OpenProjectController", () => {
 
         it("getCellClass returns correct result", () => {
             // Arrange
-            const vm = {getCellClass: () => ["test"]} as TreeViewModels.TreeViewNodeVM<any>;
+            const vm = {getCellClass: () => ["test"]} as TreeModels.ITreeNodeVM<any>;
 
             // Act
             const css = controller.columns[0].cellClass(vm);
@@ -71,7 +71,7 @@ describe("OpenProjectController", () => {
                 getLabel() {
                     return "name";
                 }
-            } as TreeViewModels.TreeViewNodeVM<any>;
+            } as TreeModels.ITreeNodeVM<any>;
             const cell = {} as HTMLElement;
 
             const params: IColumnRendererParams = {

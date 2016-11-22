@@ -7,7 +7,8 @@ import {
     IColumn,
     IColumnRendererParams,
     IHeaderCellRendererParams,
-    IBPTreeViewControllerApi} from "./bp-tree-view";
+    IBPTreeViewControllerApi
+} from "./bp-tree-view";
 
 angular.module("bp.widgets.treeView", [])
     .component("bpTreeView", new BPTreeViewComponent());
@@ -19,4 +20,5 @@ export {
     IColumn,
     IColumnRendererParams,
     IHeaderCellRendererParams,
-    IBPTreeViewControllerApi};
+    IBPTreeViewControllerApi
+};

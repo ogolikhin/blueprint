@@ -1,4 +1,4 @@
-import {Models, Enums, TreeViewModels} from "../../main/models";
+import {Models, Enums} from "../../main/models";
 import {IProjectService} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager";

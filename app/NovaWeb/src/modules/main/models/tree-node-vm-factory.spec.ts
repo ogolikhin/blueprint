@@ -1,8 +1,8 @@
 import "angular";
 import "angular-mocks";
-import {Models, AdminStoreModels, SearchServiceModels} from "./";
-import {IProjectService} from "../../managers/project-manager/";
-import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-view-models";
+import {Models, AdminStoreModels} from "./";
+import {IProjectService} from "../../managers/project-manager/project-service";
+import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-node-vm-factory";
 
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;

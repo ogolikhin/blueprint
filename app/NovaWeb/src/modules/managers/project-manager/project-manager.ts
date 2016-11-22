@@ -3,7 +3,7 @@ import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
 import {ArtifactNode} from "./artifact-node";
 import {IDispose} from "../models";
-import {Models, AdminStoreModels, Enums, TreeViewModels} from "../../main/models";
+import {Models, AdminStoreModels, Enums} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
@@ -15,7 +15,7 @@ import {ILocalizationService} from "../../core/localization/localizationService"
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
 
-export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifact> {
+export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     // agGrid.NodeChildDetails
     group?: boolean;
     children?: IArtifactNode[];

@@ -258,9 +258,9 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Process,         "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
         [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Choice-Required-AllowMultiple-DefaultValue", "Green")]
-        [TestCase(ItemTypePredefined.Actor, "Std-Choice-Required-AllowMultiple-DefaultValue", "Yellow")]
+        [TestCase(ItemTypePredefined.Actor,           "Std-Choice-Required-AllowMultiple-DefaultValue", "Yellow")]
         [TestCase(ItemTypePredefined.Document, "Std-Choice-Required-AllowMultiple-DefaultValue", "Purple")]
         [TestCase(ItemTypePredefined.TextualRequirement, "Std-Choice-Required-AllowMultiple-DefaultValue", "Orange")]
         [TestRail(191105)]
@@ -279,13 +279,14 @@ namespace ArtifactStoreTests
 
             CustomProperty property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            var choicePropertyValidValues = projectCustomData.NovaPropertyTypes.Find(pt => pt.Name == propertyName).ValidValues;
+            var novaPropertyType = projectCustomData.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
+            var choicePropertyValidValues = novaPropertyType.ValidValues;
             var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value == newChoiceValue);
 
-            var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> {newPropertyValue};
+            var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> { newPropertyValue };
 
             // Change custom property choice value
-            property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues() {ValidValues = newChoicePropertyValue};
+            property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = newChoicePropertyValue };
 
             // Execute:
             artifact.Lock(author);

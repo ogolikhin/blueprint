@@ -64,7 +64,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], artifact);
         }
 
-        [Explicit(IgnoreReasons.TestBug)]   // Gets 500 error with "Value cannot be null".
         [TestCase]
         [TestRail(183601)]
         [Description("Create trace between SubArtifact and Artifact, check that trace has expected direction.")]
@@ -233,7 +232,6 @@ namespace ArtifactStoreTests
             ValidateTrace(relationships.ManualTraces[0], subArtifact);
         }
 
-        [Explicit(IgnoreReasons.TestBug)]   // Gets 500 error with "Value cannot be null".
         [TestCase]
         [TestRail(183605)]
         [Description("Create trace between 2 SubArtifacts, Artifact and 3 other Artifacts, check that operation throw no errors.")]
@@ -281,7 +279,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact3);
         }
 
-        [Explicit(IgnoreReasons.TestBug)]   // Gets 500 error with "Value cannot be null".
         [TestCase]
         [TestRail(185256)]
         [Description("Create trace between 2 SubArtifacts, Artifact and other Artifact, check that operation throw no errors.")]
@@ -325,7 +322,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
         }
 
-        [Explicit(IgnoreReasons.TestBug)]   // Gets 500 error with "Value cannot be null".
         [TestCase]
         [TestRail(185241)]
         [Description("Create trace between SubArtifact and Artifact, check that trace has expected direction.")]
@@ -385,7 +381,7 @@ namespace ArtifactStoreTests
         #endregion Positive Tests
 
         [TestCase]
-        [TestRail(185206)]//now it returns 409. by deisgn?
+        [TestRail(185206)]//now it returns 409. by design?
         [Description("Create trace between artifact and deleted artifact, trace shouldn't be created and a 409 Conflict should be returned.")]
         public void AddTrace_BetweenArtifactAndDeletedArtifact_Returns409()
         {

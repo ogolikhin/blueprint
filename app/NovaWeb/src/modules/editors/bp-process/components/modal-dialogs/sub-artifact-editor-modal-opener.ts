@@ -142,11 +142,6 @@ export class SubArtifactEditorModalOpener {
         model.label = model.originalItem.label;
         model.personaReference = model.originalItem.personaReference;
 
-        if (graph.viewModel.userTaskPersonaReferenceList.filter(o => o.id ===
-            model.originalItem.personaReference.id).length === 0) {
-            graph.viewModel.userTaskPersonaReferenceList.push(model.personaReference);
-        }
-
         model.userTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.userTaskPersonaReferenceList);
 
         return model;
@@ -177,11 +172,6 @@ export class SubArtifactEditorModalOpener {
         model.label = model.originalItem.label;
         model.associatedImageUrl = model.originalItem.associatedImageUrl;
         model.personaReference = model.originalItem.personaReference;
-
-        if (graph.viewModel.systemTaskPersonaReferenceList.filter(o => o.id ===
-            model.originalItem.personaReference.id).length === 0) {
-            graph.viewModel.systemTaskPersonaReferenceList.push(model.personaReference);
-        }
 
         model.systemTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.systemTaskPersonaReferenceList);
 

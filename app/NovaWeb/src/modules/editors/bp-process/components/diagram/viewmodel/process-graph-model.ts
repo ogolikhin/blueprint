@@ -15,8 +15,6 @@ export interface IProcessGraphModel {
     links: ProcessModels.IProcessLinkModel[];
     propertyValues: ProcessModels.IHashMapOfPropertyValues;
     decisionBranchDestinationLinks: ProcessModels.IProcessLink[];
-    userTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
-    systemTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
 
     updateTree();
     updateTreeAndFlows();
@@ -95,22 +93,6 @@ export class ProcessGraphModel implements IProcessGraphModel {
 
     public set links(newValue: ProcessModels.IProcessLinkModel[]) {
         this.process.links = newValue;
-    }
-
-    public get userTaskPersonaReferenceList(): ProcessModels.IArtifactReference[] {
-        return <ProcessModels.IArtifactReference[]>this.process.userTaskPersonaReferenceList;
-    }
-
-    public set userTaskPersonaReferenceList(newValue: ProcessModels.IArtifactReference[]) {
-        this.process.userTaskPersonaReferenceList = newValue;
-    }
-
-    public get systemTaskPersonaReferenceList(): ProcessModels.IArtifactReference[] {
-        return <ProcessModels.IArtifactReference[]>this.process.systemTaskPersonaReferenceList;
-    }
-
-    public set systemTaskPersonaReferenceList(newValue: ProcessModels.IArtifactReference[]) {
-        this.process.systemTaskPersonaReferenceList = newValue;
     }
 
     public get propertyValues(): ProcessModels.IHashMapOfPropertyValues {

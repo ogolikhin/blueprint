@@ -693,6 +693,24 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates collection artifact or collection folder.
+        /// </summary>
+        /// <param name="project">TestHelper.</param>
+        /// <param name="project">Project in which collection artifact or collection folder will be created.</param>
+        /// <param name="user">User who creates collection artifact or collection folder.</param>
+        /// <param name="artifactType">Collection artifact or collection folder.</param>
+        /// <returns>Open API artifact.</returns>
+        public static IArtifact CreateCollectionOrCollectionFolder(TestHelper helper, IProject project, IUser user, ItemTypePredefined artifactType)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var collectionFolder = project.GetDefaultCollectionFolder(helper.ArtifactStore.Address, user);
+
+            return helper.CreateWrapAndSaveNovaArtifact(project, user, artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
+        }
+
+        /// <summary>
         /// Creates inline trace text for the provided artifact. For use with RTF properties.
         /// </summary>
         /// <param name="inlineTraceArtifact">target artifact for inline traces</param>

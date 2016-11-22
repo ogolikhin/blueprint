@@ -126,7 +126,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-       
+
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             artifact.autosave().then(() => {
@@ -151,7 +151,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        
+
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             artifact.autosave().then(() => {
@@ -351,17 +351,16 @@ export class PageToolbarController implements IPageToolbarController {
             def.resolve();
             promise = def.promise;
         }
-            
+
         promise.then(() => {
             const publishAllLoadingId = this.loadingOverlayService.beginLoading();
             //perform publish all
             this.publishService.publishAll()
                 .then(() => {
                     //remove lock on current artifact
-                    const selectedArtifact = this.artifactManager.selection.getArtifact();
-                    if (selectedArtifact) {
-                        selectedArtifact.artifactState.unlock();
-                        selectedArtifact.refresh();
+                    if (artifact) {
+                        artifact.artifactState.unlock();
+                        artifact.refresh();
                     }
 
                     this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
@@ -370,18 +369,17 @@ export class PageToolbarController implements IPageToolbarController {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
                 });
         });
-        
     }
 
     private discardAllInternal(data: Models.IPublishResultSet) {
         const publishAllLoadingId = this.loadingOverlayService.beginLoading();
         //perform publish all
         this.publishService.discardAll()
-            .then(() => {                
+            .then(() => {
                 const statefulArtifact = this.artifactManager.selection.getArtifact();
                 if (statefulArtifact) {
                     statefulArtifact.discard();
-                }    
+                }
 
                 if (this.projectManager.projectCollection.getValue().length > 0) {
                     //refresh all after discard all finishes
@@ -397,7 +395,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
     }
 
-    
+
 
     showSubLevel(evt: any): void {
         // this is needed to allow tablets to show submenu (as touch devices don't understand hover)

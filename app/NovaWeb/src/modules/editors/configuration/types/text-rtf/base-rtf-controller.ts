@@ -15,6 +15,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
+import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
 
@@ -51,6 +52,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public observer: MutationObserver;
 
     protected currentArtifact: IStatefulArtifact;
+    protected currentSubArtifact: IStatefulSubArtifact;
+
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
@@ -69,9 +72,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
+        this.currentSubArtifact = selectionManager.getSubArtifact();
 
+        // The following is to pre-request the relationships in order to calculate if the user can manage them
+        // doing it now will avoid for the user to wait when he click on the Inline Traces TinyMCE menu.
+        // See canManageTraces below for additional Info.
         if (this.currentArtifact) {
-            // this is to request the relationships in order to calculate if the user can manage them
             let relationships: IRelationship[];
             this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
                 relationships = rel;
@@ -212,7 +218,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     private canManageTraces(): boolean {
-        // if artifact is locked by other user we still can add/manage traces
+        // If artifact is locked by other user we still can add/manage traces as long as canEdit=true
+        // We query the artifact even when on a subArtifact, as canEdit of the subArtifact is actually its parent artifact
         return this.currentArtifact ? this.currentArtifact.relationships.canEdit &&
             (this.currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit : false;
     }
@@ -236,7 +243,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 return;
             }
 
-            if (this.currentArtifact.id === items[0].id) {
+            const currentItem = this.currentSubArtifact ? this.currentSubArtifact : this.currentArtifact;
+            if (currentItem.id === items[0].id) {
                 this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
             } else {
                 const isSubArtifact: boolean = !items[0].hasOwnProperty("projectId");
@@ -248,7 +256,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     const itemName: string = isSubArtifact ? subArtifact.displayName : artifact.name;
                     const itemPrefix: string = isSubArtifact ? subArtifact.prefix : artifact.prefix;
 
-                    this.currentArtifact.relationships.get()
+                    currentItem.relationships.get()
                         .then((relationships: IRelationship[]) => {
                             // get the pre-existing manual traces
                             let manualTraces: IRelationship[] = relationships
@@ -301,7 +309,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                     manualTraces = manualTraces.concat([newTrace]);
                                 }
 
-                                this.currentArtifact.relationships.updateManual(manualTraces);
+                                currentItem.relationships.updateManual(manualTraces);
                             }
                         })
                         .finally(() => {

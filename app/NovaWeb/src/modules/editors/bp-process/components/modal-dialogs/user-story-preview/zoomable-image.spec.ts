@@ -12,9 +12,9 @@ describe("Zoomable Image Directive", () => {
     /*
      let $uibModal: angular.ui.bootstrap.IModalService;
      let $uibModalInstance = {
-     close() { },
-     dismiss() { },
-     cancel() { }
+     close() {},
+     dismiss() {},
+     cancel() {}
      };
      */
 

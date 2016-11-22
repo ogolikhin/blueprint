@@ -1,5 +1,5 @@
-﻿import { IProcessService, ProcessModels } from "./process.svc";
-import { IProcessUpdateResult } from "./process.svc";
+﻿import {IProcessService, ProcessModels} from "./process.svc";
+import {IProcessUpdateResult} from "./process.svc";
 
 export class ProcessServiceMock implements IProcessService {
     private processModel;

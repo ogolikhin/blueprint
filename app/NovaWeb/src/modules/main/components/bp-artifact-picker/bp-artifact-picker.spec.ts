@@ -27,11 +27,11 @@ describe("BpArtifactPicker", () => {
             getProject: (id: number) => ({model: {id: id, name: "default"}, group: true})
         }));
         $provide.service("projectService", () => ({
-            abort: () => { return; }
+            abort: () => {return;}
         }));
         $provide.service("statefulArtifactFactory", () => undefined);
         $provide.service("metadataService", () => ({
-            get: (projectId: number) => { return; }
+            get: (projectId: number) => {return;}
         }));
     }));
 

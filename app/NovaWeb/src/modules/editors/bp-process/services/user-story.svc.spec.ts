@@ -31,7 +31,7 @@ describe("userStoryService", () => {
             // arrange
             let projectId = 1;
             let processId = 2;
-            let userStories: IUserStory[] = <any>[{ processTaskId: 1 }, { processTaskId: 2 }];
+            let userStories: IUserStory[] = <any>[{processTaskId: 1}, {processTaskId: 2}];
 
             $httpBackend.whenPOST(`/svc/components/storyteller/projects/${projectId}/processes/${processId}/userstories`).respond(userStories);
             let result: IUserStory[];
@@ -54,7 +54,7 @@ describe("userStoryService", () => {
             let projectId = 1;
             let processId = 2;
             let taskId = 3;
-            let userStories: IUserStory[] = <any>[{ processTaskId: taskId }];
+            let userStories: IUserStory[] = <any>[{processTaskId: taskId}];
 
             $httpBackend.whenPOST(`/svc/components/storyteller/projects/${projectId}/processes/${processId}/userstories?taskId=${taskId}`).respond(userStories);
             let result: IUserStory[];
@@ -78,10 +78,10 @@ describe("userStoryService", () => {
             let projectId = 1;
             let processId = 2;
             let taskId = 3;
-            let userStories: IUserStory[] = <any>[{ processTaskId: taskId }];
+            let userStories: IUserStory[] = <any>[{processTaskId: taskId}];
 
             $httpBackend.whenPOST(`/svc/components/storyteller/projects/${projectId}/processes/${processId}/userstories?taskId=${taskId}`)
-                        .respond(401, <IHttpError>{ message: "error", statusCode: 401 });
+                        .respond(401, <IHttpError>{message: "error", statusCode: 401});
             let result: IUserStory[];
             let error: IHttpError;
 

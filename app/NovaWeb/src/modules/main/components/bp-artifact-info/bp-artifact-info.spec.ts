@@ -4,12 +4,12 @@
 // import "angular-mocks";
 // import "angular-sanitize";
 
-// import { StateManager } from "../../../core/services/state-manager";
-// import { Models, Enums} from "../../../main/models";
-// import { SessionSvcMock } from "../../../shell/login/mocks.spec";
+// import {StateManager} from "../../../core/services/state-manager";
+// import {Models, Enums} from "../../../main/models";
+// import {SessionSvcMock} from "../../../shell/login/mocks.spec";
 
-// import { ComponentTest } from "../../../util/component.test";
-// import { BpArtifactInfoController} from "./bp-artifact-info";
+// import {ComponentTest} from "../../../util/component.test";
+// import {BpArtifactInfoController} from "./bp-artifact-info";
 
 
 xdescribe("Component BpArtifactInfo", () => {
@@ -150,7 +150,7 @@ xdescribe("Component BpArtifactInfo", () => {
 //             name: "Simple",
 //             projectId: 1,
 //             permissions: 8159,
-//             lockedByUser: { id: 1 },
+//             lockedByUser: {id: 1},
 //             predefinedType: Models.ItemTypePredefined.TextualRequirement,
 //             prefix: "TR_"
 //         } as Models.IArtifact;
@@ -195,7 +195,7 @@ xdescribe("Component BpArtifactInfo", () => {
 //             name: "Simple",
 //             projectId: 1,
 //             permissions: 8159,
-//             lockedByUser: { id: 1 },
+//             lockedByUser: {id: 1},
 //             predefinedType: Models.ItemTypePredefined.TextualRequirement,
 //             prefix: "TR_"
 //         } as Models.IArtifact;

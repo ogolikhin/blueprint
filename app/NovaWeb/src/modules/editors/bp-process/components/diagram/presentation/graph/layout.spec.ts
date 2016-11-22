@@ -28,7 +28,7 @@ class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
 
     constructor() {
-        this.browserInfo = { msie: false, firefox: false, version: 0 };
+        this.browserInfo = {msie: false, firefox: false, version: 0};
     }
 
     public getBrowserInfo(): any {
@@ -66,7 +66,7 @@ describe("Layout test", () => {
         model.subArtifactCollection = new StatefulSubArtifactCollection(model, null);
         model.changeset = new ChangeSetCollector(model);
         model.artifactState = {dirty: false};
-        model.lock = function (){ return; };
+        model.lock = function (){return;};
         const processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };

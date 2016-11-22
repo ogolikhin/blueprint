@@ -13,8 +13,8 @@ describe("Component BPAvatar", () => {
     let template = `
         <bp-avatar 
             icon="" 
-            name="{{ displayName }}"
-            color-base="{{ userId + displayName }}">
+            name="{{displayName}}"
+            color-base="{{userId + displayName}}">
         </bp-avatar>
     `;
 

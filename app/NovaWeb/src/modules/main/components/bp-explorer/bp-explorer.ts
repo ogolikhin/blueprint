@@ -22,7 +22,7 @@ export interface IProjectExplorerController {
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
     onError: (reason: any) => any;
-    onGridReset: () => void;
+    onGridReset: (isExpanding: boolean) => void;
 }
 
 export class ProjectExplorerController implements IProjectExplorerController {
@@ -109,8 +109,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.projects = projects.slice(0); // create a copy
     }
 
-    public onGridReset(): void {
+    public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
+
+        if (isExpanding) {
+            return;
+        }
 
         const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
         let navigateToId: number;
@@ -138,6 +142,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             } else {
                 this.navigationService.reloadParentState();
             }
+        } else {
+            this.treeApi.deselectAll();
+            this.selected = undefined;
         }
     };
 

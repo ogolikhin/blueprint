@@ -1,6 +1,5 @@
-import * as SearchModels from "./models/model";
-import { ILocalizationService } from "../../../core/localization/localizationService";
-import { IQuickSearchService } from "./quickSearchService";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
 export interface IQuickSearchModalController {
     searchTerm: string;
@@ -16,9 +15,9 @@ export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;
-    results: SearchModels.ISearchItem[];
-    metadata: SearchModels.ISearchMetadata;
-    
+    results: ISearchItem[];
+    metadata: ISearchMetadata;
+
     private page: number;
 
     static $inject = [
@@ -42,7 +41,7 @@ export class QuickSearchModalController {
                 private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.isLoading = true;
-        
+
     }
 
     private isFormInvalid(): boolean {
@@ -53,16 +52,17 @@ export class QuickSearchModalController {
         return false;
     }
 
-    searchWithMetadata(term: string) {
+    searchWithMetadata(term: string, source: string) {
         if (this.isFormInvalid()) {
             return null;
         }
+
         this.quickSearchService.metadata(this.searchTerm).then((result) => {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
-                this.search(this.searchTerm);
+                this.search(this.searchTerm, source);
             }
-        }).finally(() => {            
+        }).finally(() => {
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
@@ -71,22 +71,24 @@ export class QuickSearchModalController {
         });
     }
 
-    search(term: string) {        
+    search(term: string, source: string) {
         if (this.isFormInvalid()) {
             return null;
         }
+        source = !source ? "Modal" : source;
+
         this.isLoading = true;
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
-        this.quickSearchService.search(term, this.page, this.metadata.pageSize).then((results: SearchModels.ISearchResult) => {
+        this.quickSearchService.search(term, source, this.page, this.metadata.pageSize).then((results: ISearchResult) => {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
             this.isLoading = false;
         });
-    }    
-    
+    }
+
     clearSearch() {
         this.searchTerm = "";
         this.quickSearchService.searchTerm = "";
@@ -109,13 +111,13 @@ export class QuickSearchModalController {
         this.resetMetadata();
         this.page = 1;
         if (this.searchTerm.length) {
-            this.searchWithMetadata(this.searchTerm);
+            this.searchWithMetadata(this.searchTerm, "Header");
         }
 
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
     }
 
-    onStateChangeStart = (e, toState, toParams, fromState, fromParams) => {
+    onStateChangeStart(e, toState, toParams, fromState, fromParams) {
         this.$log.debug("state changing from search modal");
         // navigating to same artifact destroys the editor, but does not enter item state to load artifact.
         if (toParams.id === fromParams.id) {
@@ -132,16 +134,16 @@ export class QuickSearchModalController {
 
         this.$uibModalInstance.dismiss("cancel");
     }
-    
+
     showPagination(): boolean {
         return this.metadata.totalCount > 0 && this.metadata.totalPages > 1;
     }
 
     private resetMetadata() {
-        this.metadata = { totalCount: 0, pageSize: null, items: [], totalPages: 0 };
+        this.metadata = {totalCount: 0, pageSize: null, items: [], totalPages: 0};
     }
 
-    private updateMetadataInfo(result: SearchModels.ISearchMetadata) {
+    private updateMetadataInfo(result: ISearchMetadata) {
         this.metadata = result;
         this.page = 1;
         if (result.totalCount === 0) {
@@ -149,8 +151,8 @@ export class QuickSearchModalController {
             this.isLoading = false;
         }
     }
-    
+
     get getResultsFoundText() {
-        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());        
-    } 
+        return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());
+    }
 }

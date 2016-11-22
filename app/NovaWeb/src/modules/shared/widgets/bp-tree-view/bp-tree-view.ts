@@ -273,7 +273,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                    headerName: column.headerName ? column.headerName : "",
                    field: column.field,
                    width: column.width,
-                   cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
+                cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
                    cellRenderer: column.isGroup ? "group" : column.innerRenderer,
                    cellRendererParams: column.isGroup ? {
                         checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?

@@ -159,7 +159,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected prepRTF = (hasTables: boolean = false) => {
         const $scope = this.$scope;
         const content = $scope.model[$scope.options["key"]];
-        $scope.model[$scope.options["key"]] = content.replace(/ linkassemblyqualifiedname/gi, ` class="mceNonEditable" linkassemblyqualifiedname`);
+        if (_.isString(content)) {
+            $scope.model[$scope.options["key"]] = content.replace(/ linkassemblyqualifiedname/gi, ` class="mceNonEditable" linkassemblyqualifiedname`);
+        }
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
         this.contentBuffer = this.mceEditor.getContent();

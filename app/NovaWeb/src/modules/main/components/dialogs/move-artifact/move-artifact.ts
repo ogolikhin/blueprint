@@ -39,7 +39,7 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
         if (MoveArtifactPickerDialogController.checkAncestors(item, this._currentArtifact.id)) {
             return false;
         }
-        
+
         if (this.insertMethod === this.InsertMethodSelection && this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
             return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
         }
@@ -72,7 +72,7 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
     }
 
     public onInsertMethodChange() {
-        this.api.updateSelectableNodes((item) => this.isItemSelectable(item));
+        this.api.updateSelectableNodes();
     }
 
     public get returnValue(): any[] {

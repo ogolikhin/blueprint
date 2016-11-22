@@ -40,7 +40,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
 
 export interface IArtifactPickerAPI {
     deselectAll(): void;
-    updateSelectableNodes(isItemSelectable: (item) => boolean): void;
+    updateSelectableNodes(): void;
 }
 
 export interface IArtifactPickerController {
@@ -167,8 +167,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         deselectAll: () => {
             this.treeApi.deselectAll();
         },
-        updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {
-            this.treeApi.updateSelectableNodes(isItemSelectable);
+        updateSelectableNodes: (): void => {
+            this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+            (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
         }
     };
 

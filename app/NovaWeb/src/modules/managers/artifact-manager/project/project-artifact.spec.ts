@@ -3,14 +3,14 @@ import "angular-mocks";
 import "../../../shell";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, Enums} from "../../../main/models";
-import {PublishServiceMock} from "./../publish.svc/publish.svc.mock";
+import {PublishServiceMock} from "../publish.svc/publish.svc.mock";
 import {IStatefulArtifact} from "../artifact";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
 import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
 import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {SelectionManager} from "./../../selection-manager/selection-manager";
+import {SelectionManager} from "../../selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {
     ArtifactManager,
@@ -18,7 +18,7 @@ import {
     StatefulArtifactFactory,
     MetaDataService
 } from "../../../managers/artifact-manager";
-import {ValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
+import {ValidationService} from "../validation/validation.svc";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 
 
@@ -71,6 +71,17 @@ describe("Project", () => {
     it("can be published", inject(() => {
         // arrange
         spyOn(project, "canBePublished").and.callThrough();
+
+        // act
+        const result: boolean = project.canBePublished();
+
+        // assert
+        expect(result).toEqual(false);
+    }));
+
+    it("can be loaded", inject(() => {
+        // arrange
+        spyOn(project, "canBeLoaded").and.callThrough();
 
         // act
         const result: boolean = project.canBePublished();

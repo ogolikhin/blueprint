@@ -3,10 +3,7 @@ import {BaseDialogController, IDialogSettings, IDialogService} from "../../../..
 import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
 import {Relationships, Models, TreeModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
-import {
-    IStatefulItem,
-    IArtifactRelationships
-} from "../../../../managers/artifact-manager";
+import {IStatefulItem, IArtifactRelationships} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export interface IArtifactSelectedArtifactMap {

@@ -58,11 +58,10 @@ describe("BpArtifactPicker", () => {
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
     }));
 
-    it("Defaults values are applied", inject((
-        $compile: ng.ICompileService,
-        $rootScope: ng.IRootScopeService,
-        $q: ng.IQService,
-        metadataService: IMetaDataService) => {
+    it("Defaults values are applied", inject(($compile: ng.ICompileService,
+                                              $rootScope: ng.IRootScopeService,
+                                              $q: ng.IQService,
+                                              metadataService: IMetaDataService) => {
         // Arrange
         spyOn(metadataService, "get").and.callFake(() => {
             const deferred = $q.defer();

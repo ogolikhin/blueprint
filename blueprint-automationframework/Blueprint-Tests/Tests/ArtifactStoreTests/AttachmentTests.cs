@@ -180,11 +180,13 @@ namespace ArtifactStoreTests
             Assert.NotNull(addedArtifactAttachment, "Failed to add attachment to the artifact!");
             Assert.AreEqual(_attachmentFile.FileName, addedArtifactAttachment.FileName, "The FileName of the attached file doesn't match!");
 
-            var _attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
+            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifacts[0],
-                new List<INovaFile> { _attachmentFile2 }, Helper.ArtifactStore);
+            var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
+
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact,
+                new List<INovaFile> { attachmentFile2 }, Helper.ArtifactStore);
             artifact.Publish();
 
             Attachments attachment = null;
@@ -198,7 +200,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
-            Assert.AreEqual(_attachmentFile2.FileName, attachment.AttachedFiles[0].FileName, "FileName should have expected value.");
+            Assert.AreEqual(attachmentFile2.FileName, attachment.AttachedFiles[0].FileName, "FileName should have expected value.");
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
             Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
@@ -214,24 +216,26 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(5, subArtifacts.Count, "Process should have 5 subartifacts.");
-            var _attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
+            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
 
             // User Task is subArtifacts[2]
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifacts[2], new List<INovaFile> { _attachmentFile2 },
+            var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[2].Id);
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 },
                 Helper.ArtifactStore);
             artifact.Publish();
-            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[2].Id);
+
+            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
-            ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifacts[2], attachment.AttachedFiles[0].AttachmentId,
+            ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachment.AttachedFiles[0].AttachmentId,
                 Helper.ArtifactStore);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[2].Id);
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
             }, "'{0}?subArtifactId={1}' shouldn't return any error.",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[2].Id);
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifact.Id);
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");

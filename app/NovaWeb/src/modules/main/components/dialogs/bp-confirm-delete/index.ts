@@ -1,4 +1,4 @@
-export { ConfirmDeleteController } from "./bp-confirm-delete";
+export {ConfirmDeleteController} from "./bp-confirm-delete";
 
 
 

@@ -15,6 +15,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
+import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
 
@@ -51,6 +52,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public observer: MutationObserver;
 
     protected currentArtifact: IStatefulArtifact;
+    protected currentSubArtifact: IStatefulSubArtifact;
+
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
@@ -69,9 +72,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
         this.currentArtifact = selectionManager.getArtifact();
+        this.currentSubArtifact = selectionManager.getSubArtifact();
 
+        // The following is to pre-request the relationships in order to calculate if the user can manage them
+        // doing it now will avoid for the user to wait when he click on the Inline Traces TinyMCE menu.
+        // See canManageTraces below for additional Info.
         if (this.currentArtifact) {
-            // this is to request the relationships in order to calculate if the user can manage them
             let relationships: IRelationship[];
             this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
                 relationships = rel;
@@ -151,22 +157,15 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected prepRTF = (hasTables: boolean = false) => {
+        const $scope = this.$scope;
+        const content = $scope.model[$scope.options["key"]];
+        $scope.model[$scope.options["key"]] = content.replace(/ linkassemblyqualifiedname/gi, ` class="mceNonEditable" linkassemblyqualifiedname`);
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
-        this.disableEditabilityOfInlineTraces(this.editorBody);
         this.normalizeHtml(this.editorBody, hasTables);
         this.contentBuffer = this.mceEditor.getContent();
         this.handleValidation();
         this.$scope.options["data"].isFresh = false;
     };
-
-    protected disableEditabilityOfInlineTraces(body: HTMLElement) {
-        const inlineTraces = body.querySelectorAll("a[linkassemblyqualifiedname]");
-        for (let i = 0; i < inlineTraces.length; i++) {
-            let trace = inlineTraces[i] as HTMLElement;
-            trace.classList.add("mceNonEditable");
-            trace.setAttribute("data-mce-contenteditable", "false");
-        }
-    }
 
     protected normalizeHtml(body: Node, hasTables: boolean = false) {
         Helper.autoLinkURLText(body);
@@ -212,7 +211,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     private canManageTraces(): boolean {
-        // if artifact is locked by other user we still can add/manage traces
+        // If artifact is locked by other user we still can add/manage traces as long as canEdit=true
+        // We query the artifact even when on a subArtifact, as canEdit of the subArtifact is actually its parent artifact
         return this.currentArtifact ? this.currentArtifact.relationships.canEdit &&
             (this.currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit : false;
     }
@@ -236,7 +236,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 return;
             }
 
-            if (this.currentArtifact.id === items[0].id) {
+            const currentItem = this.currentSubArtifact ? this.currentSubArtifact : this.currentArtifact;
+            if (currentItem.id === items[0].id) {
                 this.messageService.addError(this.localization.get("Property_RTF_InlineTrace_Error_Itself"));
             } else {
                 const isSubArtifact: boolean = !items[0].hasOwnProperty("projectId");
@@ -248,7 +249,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     const itemName: string = isSubArtifact ? subArtifact.displayName : artifact.name;
                     const itemPrefix: string = isSubArtifact ? subArtifact.prefix : artifact.prefix;
 
-                    this.currentArtifact.relationships.get()
+                    currentItem.relationships.get()
                         .then((relationships: IRelationship[]) => {
                             // get the pre-existing manual traces
                             let manualTraces: IRelationship[] = relationships
@@ -301,7 +302,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                     manualTraces = manualTraces.concat([newTrace]);
                                 }
 
-                                this.currentArtifact.relationships.updateManual(manualTraces);
+                                currentItem.relationships.updateManual(manualTraces);
                             }
                         })
                         .finally(() => {
@@ -316,24 +317,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public insertInlineTrace = (id: number, name: string, prefix: string) => {
         /* tslint:disable:max-line-length */
         // when run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
-        const linkId: string = "inlinetrace-" + Date.now().toString() + "-" + _.random(1000).toString();
         const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + id.toString();
         const linkText: string = prefix + id.toString() + ": " + name;
         const escapedLinkText: string = _.escape(linkText);
         const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
             `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
             `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
-            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" ` +
-            `data-mce-contenteditable="false" class="mceNonEditable" id="${linkId}">` +
+            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" class="mceNonEditable">` +
             `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
             `</a>&#65279;`;
         /* tslint:enable:max-line-length */
-        try { // see https://github.com/tinymce/tinymce/issues/2646
-            this.mceEditor["selection"].setContent(inlineTrace);
-            this.mceEditor["selection"].select(this.mceEditor["dom"].select("#" + linkId)[0]);
-        } catch (ex) {
-            // ignore
-        }
+        this.mceEditor["insertContent"](inlineTrace);
     };
 
     public handleClick = (event: Event) => {

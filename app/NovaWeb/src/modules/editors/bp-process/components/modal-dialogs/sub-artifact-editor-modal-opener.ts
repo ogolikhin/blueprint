@@ -11,8 +11,7 @@ import {
 } from "../diagram/presentation/graph/models/process-graph-interfaces";
 import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
-import {NodeType} from "../diagram/presentation/graph/models/";
-import {IProcessLink} from "../diagram/presentation/graph/models/";
+import {NodeType, IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {UserTaskDialogModel, SystemTaskDialogModel, IPersonaOption} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
@@ -24,22 +23,20 @@ export class SubArtifactEditorModalOpener {
     private setGraphHandler: string;
     private openDialogCallerHandler: string;
 
-    constructor(
-        private $uibModal: angular.ui.bootstrap.IModalService,
+    constructor(private $uibModal: angular.ui.bootstrap.IModalService,
         private dialogCommunication: IModalDialogCommunication,
-        private localization: ILocalizationService
-    ) {
+                private localization: ILocalizationService) {
         this.setGraphHandler = dialogCommunication.registerSetGraphObserver(this.setGraph);
         this.openDialogCallerHandler = dialogCommunication.registerOpenDialogObserver(this.openDialogCaller);
     }
 
     private setGraph = (getGraph: () => IProcessGraph) => {
         this.graph = getGraph();
-    }
+    };
 
     private openDialogCaller = (args: any[]) => {
         this.openDialog.apply(this, args);
-    }
+    };
 
     private openDialog = (id: number, dialogType: ModalDialogType) => {
         try {
@@ -81,7 +78,7 @@ export class SubArtifactEditorModalOpener {
             },
             windowClass: "storyteller-modal"
         };
-    }
+    };
 
     private getSystemTaskEditorDialogSettings = (shapeId: number, graph: IProcessGraph): ModalSettings => {
         return <ModalSettings>{
@@ -92,7 +89,7 @@ export class SubArtifactEditorModalOpener {
             },
             windowClass: "storyteller-modal"
         };
-    }
+    };
 
     private getDecisionEditorDialogSettings = (shapeId: number, graph: IProcessGraph): ModalSettings => {
         return <ModalSettings>{
@@ -118,7 +115,7 @@ export class SubArtifactEditorModalOpener {
                 dialogModel: () => this.getUserStoryDialogModel(shapeId, graph)
             }
         };
-    }
+    };
 
     private getUserTaskDialogModel(shapeId: number, graph: IProcessGraph): UserTaskDialogModel {
         if (!graph || !graph.viewModel) {
@@ -172,7 +169,7 @@ export class SubArtifactEditorModalOpener {
         model.associatedArtifact = model.originalItem.associatedArtifact;
         model.imageId = model.originalItem.imageId;
         model.label = model.originalItem.label;
-        model.associatedImageUrl = model.originalItem.associatedImageUrl;        
+        model.associatedImageUrl = model.originalItem.associatedImageUrl;
         model.personaReference = model.originalItem.personaReference;
         model.systemTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.systemTaskPersonaReferenceList);
 

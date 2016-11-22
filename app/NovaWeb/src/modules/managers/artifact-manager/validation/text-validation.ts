@@ -1,5 +1,5 @@
 import {Helper} from "../../../shared";
-import { IBaseValidation, BaseValidation } from "./base-validation";
+import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface ITextValidation extends IBaseValidation {
 }
@@ -16,11 +16,11 @@ export class TextRtfValidation extends BaseValidation implements ITextRtfValidat
             return true;
         }
 
-        if (isRequired) { 
+        if (isRequired) {
             return Helper.tagsContainText(newValue) ||
-                      Helper.tagsContainText(oldValue); 
+                Helper.tagsContainText(oldValue);
         } else {
-            return true;                
+            return true;
         }
     }
 }

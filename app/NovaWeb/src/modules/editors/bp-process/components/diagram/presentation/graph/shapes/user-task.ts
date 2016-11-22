@@ -139,24 +139,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.header.setVertex(true);
     }
 
-    public get persona(): string {
-        if (this.model.personaReference) {
-            return this.model.personaReference.name;
-        } else {
-            return undefined;
-        }
-    }
-
-    public set persona(value: string) {
-        const valueChanged = this.setPropertyValue("persona", value);
-        if (valueChanged) {
-            if (this.personaLabel) {
-                this.personaLabel.text = value;
-                this.shapesFactoryService.setUserTaskPersona(value);
-            }
-        }
-    }
-
     public get description(): string {
         return this.getPropertyValue("description");
     }
@@ -194,10 +176,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return this.model.personaReference;
     }
 
-    public set personaReference(value: IArtifactReference) {
-        if (this.model != null && this.model.personaReference !== value) {
-            this.model.personaReference = value;
-            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value.id);
+    public set personaReference(reference: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== reference) {
+            this.model.personaReference = reference;
+            
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, reference.id);
+
+            if (this.personaLabel) {
+                this.personaLabel.text = reference.name;
+            }
+
+            this.shapesFactoryService.setUserTaskPersona(reference);
         }
     }
 
@@ -334,7 +323,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
-            this.persona,
+            this.personaReference.name,
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
@@ -392,7 +381,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         const personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
         this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"],
-            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 18, 22);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT,

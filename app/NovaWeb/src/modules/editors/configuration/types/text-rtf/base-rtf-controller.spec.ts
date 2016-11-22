@@ -1,11 +1,20 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "lodash";
 
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 
 describe("Formly Base RTF Controller", () => {
-    let scope, rootScope;
+    let $rootScope: ng.IRootScopeService;
+    let $scope: ng.IScope;
+    let formlyScope: AngularFormly.ITemplateScope;
     let controller: BPFieldBaseRTFController;
 
     function createMouseEvent(eventType: string = "click"): MouseEvent {
@@ -24,14 +33,46 @@ describe("Formly Base RTF Controller", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("validationService", ValidationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
+        $provide.service("selectionManager", () => ({
+            getArtifact: () => { return undefined; },
+            getSubArtifact: () => { return undefined; }
+        }));
+        $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("artifactRelationships", ArtifactRelationshipsMock);
     }));
 
     beforeEach(
         inject(
             ($rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
-                rootScope = $rootScope;
-                scope = rootScope.$new();
-                controller = $controller(BPFieldBaseRTFController, {$scope: scope});
+                $scope = $rootScope.$new();
+                $scope.$on = function() {
+                    return function() {
+                        //
+                    };
+                };
+
+                formlyScope = {
+                    options: {
+                        formControl: null,
+                        templateOptions: null,
+                        validation: null
+                    },
+                    fc: null,
+                    to: {},
+                    showError: false,
+                    id: "1",
+                    index: 1,
+                    form: null,
+                    fields: null,
+                    model: null,
+                    formState: null
+                };
+
+                controller = $controller(BPFieldBaseRTFController, {$scope: _.assign(formlyScope, $scope)});
                 angular.element("body").append(`<div class="container">` +
                     `<a class="added" href="http://www.yahoo.com/">Link #1</a>` +
                     `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink,` +

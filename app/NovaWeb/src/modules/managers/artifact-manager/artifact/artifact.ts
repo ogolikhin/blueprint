@@ -25,8 +25,10 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
+    move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
+    validate(): ng.IPromise<void>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -75,7 +77,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.artifactState.initialize(artifact);
         super.initialize(artifact);
 
-        if (isMisplaced) {
+        if (isMisplaced && !this.artifactState.historical) {
             this.artifactState.misplaced = true;
         }
     }
@@ -134,6 +136,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             let overlayId: number = this.services.loadingOverlayService.beginLoading();
             this.services.publishService.discardArtifacts([this.id])
             .then(() => {
+                this.discard();
                 this.services.messageService.addInfo("Discard_Success_Message");
                 deffered.resolve();
             })
@@ -382,30 +385,26 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
 
-        const changes = this.changes();
-        if (changes) {
-            return this.validateCustomArtifactPromiseForSave(changes, ignoreInvalidValues)
-                .then(() => {
-                    return this.getCustomArtifactPromiseForSave();
-                }).then(() => {
-                    return this.saveArtifact(changes).catch((error) => {
-                        if (this.hasCustomSave) {
-                            this.customHandleSaveFailed();
-                        }
-                        return this.services.$q.reject(error);
-                    });
-                });
+        let validatePromise = this.services.$q.defer<any>();
+        if (ignoreInvalidValues) {
+            validatePromise.resolve();
         } else {
-            const deferred = this.services.$q.defer<IStatefulArtifact>();
-            return this.set_400_114_error(deferred);
+            validatePromise.promise = this.validate();
         }
-    }
 
-    public set_400_114_error(deferred: ng.IDeferred<IStatefulArtifact>) {
-        const compoundId: string = this.prefix + this.id.toString();
-        let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-        deferred.reject(new Error(message.replace("{0}", compoundId)));
-        return deferred.promise;
+        return validatePromise.promise.then(() => {
+            return this.getCustomArtifactPromiseForSave();
+        }).then(() => {
+            const changes = this.changes();
+            return this.saveArtifact(changes).catch((error) => {
+                if (this.hasCustomSave) {
+                    this.customHandleSaveFailed();
+                }
+                return this.services.$q.reject(error);
+            });
+        }).catch((error) => {
+            return this.services.$q.reject(error);
+        });
     }
 
     private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
@@ -457,13 +456,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public autosave(): ng.IPromise<void> {
         if (this.canBeSaved() ) {
-            return this.save()
-                       .catch(() => {
-                            return this.services.dialogService.confirm("Autosave has failed. Continue without saving?")
-                                                              .then(() => {
-                                                                  this.discard();
-                                                              });
-                       });
+            return this.save(true).catch(() => {
+                return this.services.dialogService.confirm("Autosave has failed. Continue without saving?").then(() => {
+                    this.discard();
+                });
+            });
         }
         return this.services.$q.resolve();
     }
@@ -504,7 +501,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
-                    this.publishDependents(err.errorContent);
+                    this.publishDependents(err.errorContent);                
+                } else if (err && err.statusCode === HttpStatusCode.Unavailable && !err.message) {
+                    this.services.messageService.addError("Publish_Artifact_Failure_Message");
                 } else {
                     this.services.messageService.addError(err);
                 }
@@ -613,6 +612,18 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     }
 
+    public move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
+        let moveOverlayId = this.services.loadingOverlayService.beginLoading();
+
+        return this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex)
+        .catch((error: IApplicationError) => {
+            this.error.onNext(error);
+            return this.services.$q.reject(error);
+        }).finally(() => {
+            this.services.loadingOverlayService.endLoading(moveOverlayId);
+        });
+    }
+
     //Hook for subclasses to provide additional promises which should be run for obtaining data
     protected getCustomArtifactPromisesForGetObservable(): ng.IPromise<IStatefulArtifact>[] {
         return [];
@@ -626,17 +637,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return this.services.$q.when(this);
     }
 
-    protected validateCustomArtifactPromiseForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise <IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
-        const changesToValidate = this.artifactState.invalid ? changes : undefined;
-        if (this.artifactState.invalid && !ignoreValidation) {
-            deferred.reject(this);
-        }
-        //TODO: add logic to validate a changesets
-        deferred.resolve();
-        return deferred.promise;
-    }
-
     protected customHandleSaveFailed(): void {
         ;
     }
@@ -645,4 +645,23 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
+                
+    public validate(): ng.IPromise<void> {
+        
+        let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
+
+        return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
+            const isItemValid = this.validateItem(propertyTypes);
+            if (isItemValid) {
+                return this.subArtifactCollection.validate().catch(() => {
+                    return this.services.$q.reject(new Error(message));
+                });
+            } else {                
+                return this.services.$q.reject(new Error(message));
+            }
+        });
+    }
+    
+
 }
+

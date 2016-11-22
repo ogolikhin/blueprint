@@ -1,4 +1,4 @@
-bp-toolbar {
+page-toolbar {
     > .navbar-toolbar {
         background: $gray-lighter;
         height: $toolbar-height;
@@ -60,7 +60,7 @@ bp-toolbar {
             }
 
             &.open > a {
-                background: $gray-lightest;
+                background: $gray-lightest !important;
                 color: $brand-secondary !important;
             }
 
@@ -71,7 +71,7 @@ bp-toolbar {
         }
 
         .dropdown-menu {
-            border: solid 1px $white !important;
+            border: solid 1px $gray-lighter !important;
             border-top: none !important;
             box-shadow: 0 6px 12px rgba(0, 0, 0, .175) !important;
             margin: 0;
@@ -79,16 +79,19 @@ bp-toolbar {
             position: absolute !important;
 
             a {
-                background: $gray-light;
+                background: $gray-lightest;
                 border: 0;
-                border-top: solid 1px $white;
-                color: $white !important;
+                color: $text-color !important;
                 line-height: inherit !important;
                 padding: 6px 20px !important;
 
                 &:hover {
                     background: $brand-secondary !important;
                     color: $white !important;
+                }
+                &.disabled {
+                    color: $gray-light !important;
+                    pointer-events: none;
                 }
             }
 

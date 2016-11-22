@@ -98,7 +98,8 @@ export interface IArtifact extends IItem {
     children?: IArtifact[];
     loaded?: boolean;
     // for artifact picker use
-    parent?: IArtifact;
+    artifactPath?: string[];
+    idPath?: number[];
 }
 export interface IOption {
     id: number;
@@ -213,6 +214,10 @@ export class Artifact implements IArtifact {
     public itemTypeVersionId: number;
     public itemTypeName: string;
     public hasCustomIcon: boolean;
+}
+
+export interface IViewModel<T> {
+    model: T;
 }
 
 export interface IKeyValuePair {

@@ -5,27 +5,22 @@ export interface INumberValidation extends IBaseValidation {
     decimalPlaces(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         isValidated: boolean): boolean;
     wrongFormat(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         isValidated: boolean): boolean;
     isMin(newValue: number,
         oldValue: number,
         min: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean;
     isMax(newValue: number,
         oldValue: number,
         max: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean;
     isValid(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         _min: any,
         _max: any,
         isValidated: boolean,
@@ -34,17 +29,20 @@ export interface INumberValidation extends IBaseValidation {
 
 export class NumberValidation extends BaseValidation implements INumberValidation {
 
+    constructor(private localization: ILocalizationService) {
+        super();
+    };
+
     public decimalPlaces(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
         const value = oldValue || newValue;
         if (value) {
-            let decimal = value.toString().split(localization.current.decimalSeparator);
+            let decimal = value.toString().split(this.localization.current.decimalSeparator);
             if (decimal.length === 2) {
                 return decimal[1].length <= decimalPlaces;
             }
@@ -55,23 +53,21 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     public wrongFormat(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
         const value = oldValue || newValue;
-        return !value || angular.isNumber(localization.current.toNumber(value, isValidated ? decimalPlaces : null));
+        return !value || angular.isNumber(this.localization.current.toNumber(value, isValidated ? decimalPlaces : null));
     }
 
     public isMax(newValue: number,
         oldValue: number,
         max: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
-        if (!isValidated) {
+        if (!isValidated || _.isUndefined(max)) {
             return true;
         }
-        const maxNum = localization.current.toNumber(max);
+        const maxNum = this.localization.current.toNumber(max);
         if (!_.isNull(maxNum)) {
-            let value = localization.current.toNumber(oldValue || newValue);
+            let value = this.localization.current.toNumber(oldValue || newValue);
             if (angular.isNumber(value)) {
                 return value <= maxNum;
             }
@@ -82,14 +78,13 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     public isMin(newValue: number,
         oldValue: number,
         min: any,
-        localization: ILocalizationService,
         isValidated: boolean): boolean {
-        if (!isValidated) {
+        if (!isValidated || _.isUndefined(min)) {
             return true;
         }
-        const minNum = localization.current.toNumber(min);
+        const minNum = this.localization.current.toNumber(min);
         if (!_.isNull(minNum)) {
-            let value = localization.current.toNumber(oldValue || newValue);
+            let value = this.localization.current.toNumber(oldValue || newValue);
             if (angular.isNumber(value)) {
                 return value >= minNum;
             }
@@ -100,15 +95,14 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     public isValid(newValue: number,
         oldValue: number,
         decimalPlaces: number,
-        localization: ILocalizationService,
         _min: any,
         _max: any,
         isValidated: boolean,
         isRequired: boolean): boolean {
-        return this.decimalPlaces(newValue, oldValue, decimalPlaces, localization, isValidated) &&
-            this.wrongFormat(newValue, oldValue, decimalPlaces, localization, isValidated) &&
-            this.isMin(newValue, oldValue, _min, localization, isValidated) &&
-            this.isMax(newValue, oldValue, _max, localization, isValidated) &&
-            super.hasValueIfRequred(isRequired, newValue, oldValue);
+        return this.decimalPlaces(newValue, oldValue, decimalPlaces, isValidated) &&
+            this.wrongFormat(newValue, oldValue, decimalPlaces, isValidated) &&
+            this.isMin(newValue, oldValue, _min, isValidated) &&
+            this.isMax(newValue, oldValue, _max, isValidated) &&
+            super.hasValueIfRequired(isRequired, newValue, oldValue, isValidated);
     }
 }

@@ -190,7 +190,16 @@ describe("SystemTaskModalController", () => {
             model.imageId = "lll";
             model.associatedImageUrl = "lll-lll";
             model.label = "Custom Label";
-            model.persona = "PM/PO";
+            model.personaReference = {
+                id: 1,
+                projectId: 1,
+                name: "new persona",
+                typePrefix: "PRO",
+                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                projectName: "test project",
+                link: null,
+                version: null
+            };
             model.associatedArtifact = <IArtifactReference>{
                 id: 5,
                 name: "associated",
@@ -219,7 +228,7 @@ describe("SystemTaskModalController", () => {
             expect(model.originalItem.associatedImageUrl).toEqual(model.associatedImageUrl);
             expect(model.originalItem.imageId).toEqual(model.imageId);
             expect(model.originalItem.label).toEqual(null);
-            expect(model.originalItem.persona).toEqual(model.persona);
+            expect(model.originalItem.personaReference).toEqual(model.personaReference);
         });
 
         describe("Stateful Changes - save data - ", () => {
@@ -239,7 +248,7 @@ describe("SystemTaskModalController", () => {
                 factory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
                 const statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
                 const shapesFactory = new ShapesFactory($rootScope, factory);
-                const diagramNode = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], $rootScope, "", null, shapesFactory);
+                const diagramNode = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], $rootScope, null, null, shapesFactory);
                 model = new SystemTaskDialogModel();
                 model.originalItem = diagramNode;
                 model.isReadonly = false;
@@ -248,7 +257,6 @@ describe("SystemTaskModalController", () => {
                 model.imageId = diagramNode.imageId;
                 model.associatedImageUrl = diagramNode.associatedImageUrl;
                 model.label = diagramNode.label;
-                model.persona = diagramNode.persona;
                 model.associatedArtifact = diagramNode.associatedArtifact;
                 model.originalItem = diagramNode;
                 model.personaReference = {
@@ -274,12 +282,21 @@ describe("SystemTaskModalController", () => {
             });
 
 
-            it("persona changes, triggers lock and is dirty", () => {
+            it("personaReference changes, triggers lock and is dirty", () => {
 
                 spyOn(statefulArtifact, "refresh")();
                 const lockSpy = spyOn(statefulArtifact, "lock");
 
-                model.persona = "new persona";
+                model.personaReference = {
+                    id: 1,
+                    projectId: 1,
+                    name: "new persona",
+                    typePrefix: "PRO",
+                    baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                    projectName: "test project",
+                    link: null,
+                    version: null
+                };
 
                 controller.saveData();
 

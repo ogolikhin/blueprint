@@ -32,7 +32,7 @@ interface ISelectItem {
 export class BpFieldSelectController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, 
+    constructor(private $scope: AngularFormly.ITemplateScope,
                      private localization: ILocalizationService,
                      private validationService: IValidationService) {
         super();
@@ -49,9 +49,9 @@ export class BpFieldSelectController extends BPFieldBaseController {
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.selectValidation.hasValueIfRequred(
-                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required), 
-                        $viewValue, 
+                    return validationService.selectValidation.hasValueIfRequired(
+                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
+                        $viewValue,
                         $modelValue);
                 }
             }

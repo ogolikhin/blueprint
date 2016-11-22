@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
@@ -50,11 +51,6 @@ namespace Model.StorytellerModel
         string TypePrefix { get; set; }
 
         /// <summary>
-        /// Artifact reference associated with the process shape (i.e. the Include) 
-        /// </summary>
-        AssociatedArtifact AssociatedArtifact { get; set; }
-
-        /// <summary>
         /// Base item type for the process shape
         /// </summary>
         ItemTypePredefined BaseItemTypePredefined { get; set; }
@@ -63,6 +59,16 @@ namespace Model.StorytellerModel
         /// The property values for the process shape
         /// </summary>
         Dictionary<string, PropertyValueInformation> PropertyValues { get; }
+
+        /// <summary>
+        /// Artifact reference associated with the process shape (i.e. the Include) 
+        /// </summary>
+        ArtifactReference AssociatedArtifact { get; set; }
+
+        /// <summary>
+        /// Persona reference associated with the process shape 
+        /// </summary>
+        ArtifactReference PersonaReference { get; set; }
 
         #endregion Properties
 
@@ -73,7 +79,14 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="artifact">The artifact to add</param>
         /// <returns>The artifact reference to the associated artifact</returns>
-        AssociatedArtifact AddAssociatedArtifact(IArtifact artifact);
+        ArtifactReference AddAssociatedArtifact(IArtifact artifact);
+
+        /// <summary>
+        /// Add Persona Reference to Process Shape
+        /// </summary>
+        /// <param name="artifact">The artifact to add</param>
+        /// <returns>The artifact reference to the persona</returns>
+        ArtifactReference AddPersonaReference(IArtifact artifact);
 
         /// <summary>
         /// Verify if the Process is specific processShapeType

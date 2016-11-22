@@ -2,9 +2,14 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {Helper} from "../../../../shared";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
+import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
+import {IMessageService} from "../../../../core/messages/message.svc";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -14,44 +19,50 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
             ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
-
-            let tinymceBody = $element[0].querySelector(".tinymce-body");
-            if (tinymceBody) {
-                $scope["tinymceBody"] = tinymceBody;
-            }
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
 }
 
 export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
-    static $inject: [string] = ["$scope", "navigationService", "validationService"];
+    static $inject: [string] = [
+        "$q",
+        "$scope",
+        "$window",
+        "navigationService",
+        "validationService",
+        "messageService",
+        "localization",
+        "dialogService",
+        "selectionManager",
+        "artifactService",
+        "artifactRelationships"
+    ];
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
-                     navigationService: INavigationService,
-                     private validationService: IValidationService) {
-        super(navigationService);
+    constructor($q: ng.IQService,
+                $scope: AngularFormly.ITemplateScope,
+                $window: ng.IWindowService,
+                navigationService: INavigationService,
+                validationService: IValidationService,
+                messageService: IMessageService,
+                localization: ILocalizationService,
+                dialogService: IDialogService,
+                selectionManager: ISelectionManager,
+                artifactService: IArtifactService,
+                artifactRelationships: IArtifactRelationships) {
+        super($q, $scope, $window, navigationService, validationService, messageService,
+            localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
-        let contentBuffer: string = undefined;
-        let mceEditor: TinyMceEditor;
+        this.isSingleLine = true;
 
-        // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
-        const onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
-        //we override the default onChange as we need to deal with changes differently when using tinymce
-        $scope.to.onChange = undefined;
-
-        const allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
-        let fontFormats = "";
-        allowedFonts.forEach(function (font) {
-            fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
-        });
+        this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 
         const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 inline: true,
                 fixed_toolbar_container: ".tinymce-toolbar-" + $scope.options["key"],
                 menubar: false,
-                toolbar: "bold italic underline strikethrough | fontselect forecolor | link | removeformat",
+                toolbar: "bold italic underline strikethrough | fontselect forecolor | linkstraces | removeformat",
                 statusbar: false,
                 valid_elements: "span[*],a[*],strong/b,em/i,u,sup,sub",
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
@@ -62,7 +73,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 },
                 object_resizing: false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
-                font_formats: fontFormats,
+                font_formats: this.fontFormats(),
+                convert_urls: false, // https://www.tinymce.com/docs/configure/url-handling/#convert_urls
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
                 paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
@@ -85,10 +97,10 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    prepBody(args.node);
+                    this.normalizeHtml(args.node);
                 },
                 init_instance_callback: (editor) => {
-                    mceEditor = editor;
+                    this.mceEditor = editor;
 
                     editor.formatter.register("font8", {
                         inline: "span",
@@ -127,13 +139,11 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         styles: {"font-size": "20pt"}
                     });
 
-                    this.editorBody = editor.getBody();
-                    prepBody(this.editorBody);
-                    updateModel();
+                    this.prepRTF();
 
                     // MutationObserver
                     const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
-                    if (!angular.isUndefined(mutationObserver)) {
+                    if (!_.isUndefined(mutationObserver)) {
                         // create an observer instance
                         this.observer = new MutationObserver((mutations) => {
                             mutations.forEach(this.handleMutation);
@@ -148,24 +158,14 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    editor.on("Dirty", (e) => {
-                        if (!$scope.options["data"].isFresh) {
-                            const value = editor.getContent();
-                            if (contentBuffer !== value) {
-                                triggerChange(value);
-                            }
-                        }
-                    });
-
                     editor.on("Change", (e) => {
-                        if (!$scope.options["data"].isFresh) {
-                            const value = editor.getContent();
-                            if (contentBuffer !== value) {
-                                triggerChange(value);
+                        const currentContent = editor.getContent();
+                        if (currentContent !== this.contentBuffer) {
+                            if (!$scope.options["data"].isFresh) {
+                                this.triggerChange(currentContent);
+                            } else { // this will get called when refreshing the artifact
+                                this.prepRTF();
                             }
-                        } else { // this will get called when refreshing the artifact
-                            prepBody(editor.getBody());
-                            updateModel();
                         }
                     });
 
@@ -181,129 +181,24 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         }
                     });
                 },
-                setup: function (editor) {
+                setup: (editor) => {
                     editor.addButton("fontsize", {
                         title: "Font Size",
                         type: "menubutton", // https://www.tinymce.com/docs/demo/custom-toolbar-menu-button/
                         text: "",
                         icon: "font-size",
-                        menu: [
-                            {
-                                text: "8",
-                                onclick: function () {
-                                    editor.formatter.apply("font8");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "9",
-                                onclick: function () {
-                                    editor.formatter.apply("font9");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "10",
-                                onclick: function () {
-                                    editor.formatter.apply("font10");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "11",
-                                onclick: function () {
-                                    editor.formatter.apply("font11");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "12",
-                                onclick: function () {
-                                    editor.formatter.apply("font12");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "14",
-                                onclick: function () {
-                                    editor.formatter.apply("font14");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "16",
-                                onclick: function () {
-                                    editor.formatter.apply("font16");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "18",
-                                onclick: function () {
-                                    editor.formatter.apply("font18");
-                                    triggerChange(editor.getContent());
-                                }
-                            },
-                            {
-                                text: "20",
-                                onclick: function () {
-                                    editor.formatter.apply("font20");
-                                    triggerChange(editor.getContent());
-                                }
-                            }
-                        ]
+                        menu: this.fontSizeMenu(editor)
+                    });
+                    editor.addButton("linkstraces", {
+                        title: "Links",
+                        type: "menubutton",
+                        text: "",
+                        icon: "link",
+                        menu: this.linksMenu(editor)
                     });
                 }
             }
         };
         _.assign($scope.to, to);
-
-        $scope.options["validators"] = {
-            // tinyMCE may leave empty tags that cause the value to appear not empty
-            requiredCustom: {
-                expression: ($viewValue, $modelValue, scope) => {
-                    let value = mceEditor ? mceEditor.getContent() : $modelValue;
-                    if (scope.options && scope.options.data && scope.options.data.isFresh) {
-                        contentBuffer = value;
-                        scope.options.data.isFresh = false;
-                    }
-
-                    if (contentBuffer !== value) {
-                        triggerChange(value);
-                    }
-
-                    const isValid = validationService.textRtfValidation.hasValueIfRequred(scope.to.required, $viewValue, $modelValue);
-
-                    scope.to["isInvalid"] = !isValid;
-                    scope.options.validation.show = !isValid;
-                    return isValid;
-                }
-            }
-        };
-
-        $scope["$on"]("$destroy", () => {
-            this.removeObserver();
-            this.handleLinks(this.$scope["tinymceBody"].querySelectorAll("a"), true);
-        });
-
-        function triggerChange(newContent: string) {
-            contentBuffer = newContent;
-            if (typeof onChange === "function") {
-                onChange(newContent, $scope.options, $scope);
-            }
-        }
-
-        function prepBody(body: Node) {
-            Helper.autoLinkURLText(body);
-            Helper.setFontFamilyOrOpenSans(body, allowedFonts);
-        }
-
-        function updateModel() {
-            if (mceEditor) {
-                contentBuffer = mceEditor.getContent();
-                $scope.model[$scope.options["key"]] = contentBuffer;
-                $scope.options["data"].isFresh = false;
-            }
-        }
     }
 }

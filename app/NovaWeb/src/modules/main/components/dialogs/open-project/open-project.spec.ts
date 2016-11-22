@@ -2,8 +2,9 @@
 import "angular-mocks";
 import {OpenProjectController} from "./open-project";
 import {IDialogSettings} from "../../../../shared";
-import { Enums, AdminStoreModels, TreeViewModels} from "../../../models";
+import {Enums, AdminStoreModels, TreeModels} from "../../../models";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
@@ -20,9 +21,12 @@ describe("OpenProjectController", () => {
         (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
         projectService = {} as IProjectService;
+        const artifactManager = {} as IArtifactManager;
+        const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         const dialogSettings = {} as IDialogSettings;
         $sce = _$sce_;
-        controller = new OpenProjectController($scope, localization, $uibModalInstance, projectService, dialogSettings, $sce);
+        controller = new OpenProjectController($scope, localization, $uibModalInstance,
+            projectService, artifactManager, statefulArtifactFactory, dialogSettings, $sce);
     }));
 
     it("constructor sets root node", () => {
@@ -31,12 +35,12 @@ describe("OpenProjectController", () => {
         // Act
 
         // Assert
-        expect(controller.rootNode).toEqual(controller.factory.createInstanceItemNodeVM({
+        expect(controller.rowData).toEqual([controller.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
             name: "",
             hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true));
+        } as AdminStoreModels.IInstanceItem, true)]);
     });
 
     describe("columns", () => {
@@ -56,7 +60,7 @@ describe("OpenProjectController", () => {
 
         it("getCellClass returns correct result", () => {
             // Arrange
-            const vm = {getCellClass: () => ["test"]} as TreeViewModels.TreeViewNodeVM<any>;
+            const vm = {getCellClass: () => ["test"]} as TreeModels.ITreeNodeVM<any>;
 
             // Act
             const css = controller.columns[0].cellClass(vm);
@@ -71,7 +75,7 @@ describe("OpenProjectController", () => {
                 getLabel() {
                     return "name";
                 }
-            } as TreeViewModels.TreeViewNodeVM<any>;
+            } as TreeModels.ITreeNodeVM<any>;
             const cell = {} as HTMLElement;
 
             const params: IColumnRendererParams = {

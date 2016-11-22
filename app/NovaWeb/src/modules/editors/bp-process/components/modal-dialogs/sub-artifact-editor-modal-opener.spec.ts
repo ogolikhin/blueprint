@@ -244,7 +244,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                         isHistoricalVersion: false,
                         isReadonly: false,
                         originalItem: userTask,
-                        persona: userTask.persona,
+                        personaReference: userTask.personaReference,
                         action: userTask.action,
                         associatedArtifact: userTask.associatedArtifact,
                         label: userTask.label,
@@ -274,7 +274,7 @@ describe("SubArtifactEditorModalOpener test", () => {
             graph = createGraph(process);
             modalOpener["graph"] = graph;
 
-            const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+            const systemTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
             const settings = {
                 animation: true,
                 component: "systemTaskEditor",
@@ -284,7 +284,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                         isHistoricalVersion: false,
                         isReadonly: false,
                         originalItem: systemTask,
-                        persona: systemTask.persona,
+                        personaReference: systemTask.personaReference,
                         action: systemTask.action,
                         associatedArtifact: systemTask.associatedArtifact,
                         label: systemTask.label,
@@ -449,7 +449,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createDefaultProcessModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
-                const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+                const systemTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
 
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
@@ -521,7 +521,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(model.originalItem).toBe(userTask);
                 expect(model.isReadonly).toBe(graph.viewModel.isReadonly);
                 expect(model.isHistoricalVersion).toBe(graph.viewModel.isHistorical);
-                expect(model.persona).toBe(userTask.persona);
+                expect(model.personaReference).toBe(userTask.personaReference);
                 expect(model.action).toBe(userTask.action);
                 expect(model.associatedArtifact).toBe(userTask.associatedArtifact);
                 expect(model.label).toBe(userTask.label);
@@ -595,7 +595,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 process["artifactState"] = {readonly: true};
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
-                const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+                const systemTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
 
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
@@ -616,7 +616,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 };
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
-                const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+                const systemTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
 
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
@@ -634,7 +634,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createDefaultProcessModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
-                const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+                const systemTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
 
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
@@ -648,7 +648,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(model.originalItem).toBe(systemTask);
                 expect(model.isReadonly).toBe(graph.viewModel.isReadonly);
                 expect(model.isHistoricalVersion).toBe(graph.viewModel.isHistorical);
-                expect(model.persona).toBe(systemTask.persona);
+                expect(model.personaReference).toBe(systemTask.personaReference);
                 expect(model.action).toBe(systemTask.action);
                 expect(model.associatedArtifact).toBe(systemTask.associatedArtifact);
                 expect(model.label).toBe(systemTask.label);
@@ -704,7 +704,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createUserDecisionForAddBranchTestModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[1];
                 const shapeId: number = systemTaskShape.id;
-                const userTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+                const userTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
 
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
@@ -830,7 +830,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createDefaultProcessModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
-                const systemTask = new SystemTask(systemTaskShape, rootScope, "", null, null);
+                const systemTask = new SystemTask(systemTaskShape, rootScope, null, null, null);
 
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);

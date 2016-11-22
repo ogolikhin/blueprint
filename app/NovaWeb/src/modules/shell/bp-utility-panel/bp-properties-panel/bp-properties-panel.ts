@@ -14,6 +14,7 @@ import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -31,7 +32,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         "selectionManager",
         "messageService",
         "localization",
-        "propertyDescriptorBuilder"
+        "propertyDescriptorBuilder",
+        "validationService"
     ];
 
     public form: angular.IFormController;
@@ -59,10 +61,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 public messageService: IMessageService,
                 public localization: ILocalizationService,
                 protected propertyDescriptorBuilder: IPropertyDescriptorBuilder,
+                protected validationService: IValidationService,
                 public bpAccordionPanel: IBpAccordionPanelController) {
         super($q, selectionManager, bpAccordionPanel);
         this.editor = new PropertyEditor(this.localization);
         this.activeTab = 0;
+        this.validationService = validationService;
     }
 
     public $onDestroy() {
@@ -249,13 +253,14 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             }
         context.isFresh = false;
 
-        if ($scope["form"]) {
-            if (this.selectedSubArtifact) {
-                this.selectedSubArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
-            } else {
-                this.selectedArtifact.artifactState.invalid = $scope.form.$$parentForm.$invalid;
-            }
-        }
+
+        //TODO: REMOVE seems we don't need the following block of code since we never check INVALID state 
+        // this.selectedArtifact.validate().then(()  => {
+        //     this.selectedArtifact.artifactState.invalid = false;
+        // }).catch(() => {
+        //     this.selectedArtifact.artifactState.invalid = true;
+        // });
+            
     };
 
     private getSelectedItem(): IStatefulItem {
@@ -286,4 +291,18 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         this.specificFields = [];
         this.richTextFields = [];
     }
+
+    public isRtfFieldValid = (field: AngularFormly.IFieldConfigurationObject): boolean => {
+        const propertyContext = field.data as IPropertyDescriptor;
+        if (!propertyContext) {
+            return true;
+        }
+
+        if (propertyContext.isRichText && propertyContext.isRequired) {
+            const value = this.model[field.key];
+            return this.validationService.textRtfValidation.hasValueIfRequired(true, value, value);
+        } else {
+            return true;
+        }
+    };
 }

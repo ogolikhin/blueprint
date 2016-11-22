@@ -1,8 +1,7 @@
-﻿<bp-tree api="$ctrl.tree"
-         root-nodes="$ctrl.projects"
-         grid-columns="$ctrl.columns"
-         on-load="$ctrl.doLoad(prms)"
-         on-select="$ctrl.doSelect(item)"
-         on-error="$ctrl.onError(reason)"
-         on-grid-reset="$ctrl.onGridReset()">
-</bp-tree>
+﻿<bp-tree-view api="$ctrl.treeApi"
+              row-data="$ctrl.projects"
+              columns="$ctrl.columns"
+              on-select="$ctrl.onSelect(vm, isSelected)"
+              on-error="$ctrl.onError(reason)"
+              on-grid-reset="$ctrl.onGridReset()">
+</bp-tree-view>

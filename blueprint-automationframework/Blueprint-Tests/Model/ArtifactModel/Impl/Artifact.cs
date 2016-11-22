@@ -482,6 +482,16 @@ namespace Model.ArtifactModel.Impl
                 address = artifactToUpdate.Address;
             }
 
+            // Hack for TFS bug 3739:  If you send a non-null/empty Name of a UseCase SubArtifact to the Update REST call, it returns 500 Internal Server Error
+            // Set Name=null for all SubArtifacts to prevent a 500 error.
+            if (artifactToUpdate.BaseArtifactType != BaseArtifactType.Process)
+            {
+                artifactChanges.SubArtifacts?.ForEach(delegate(NovaSubArtifact subArtifact)
+                {
+                    subArtifact.Name = null;
+                });
+            }
+
             RestApiFacade restApi = new RestApiFacade(address, tokenValue);
             try {
                 restApi.SendRequestAndGetResponse(

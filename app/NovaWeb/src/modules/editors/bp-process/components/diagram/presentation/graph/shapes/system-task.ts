@@ -41,7 +41,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     constructor(
         model: ISystemTaskShape,
         rootScope: any,
-        private defaultPersonaValue: string,
+        private defaultPersonaReferenceValue: IArtifactReference,
         private nodeFactorySettings: NodeFactorySettings = null,
         private shapesFactory: ShapesFactory
     ) {
@@ -71,9 +71,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.callout.setVertex(true);
 
         //initialize header
-        let persona = this.persona;
-        if (persona == null) {
-            persona = this.defaultPersonaValue;
+        let personaReference = this.personaReference;
+        if (personaReference == null) {
+            personaReference = this.defaultPersonaReferenceValue;
         }
 
         const headerGeometry = new mxGeometry(0.5, 0.5, this.SYSTEM_TASK_WIDTH - 1, 20);
@@ -175,25 +175,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         return this.origin;
     }
 
-    public get persona(): string {
-        if (this.model.personaReference) {
-            return this.model.personaReference.name;
-        } else {
-            return undefined;
-        }
-    }
-
-    public set persona(value: string) {
-        const valueChanged = this.setPropertyValue("persona", value);
-
-        if (valueChanged) {
-            if (this.personaLabel) {
-                this.personaLabel.text = value;
-                this.shapesFactory.setSystemTaskPersona(value);
-            }
-        }
-    }
-
     public get description(): string {
         return this.getPropertyValue("description");
     }
@@ -246,10 +227,17 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         return this.model.personaReference;
     }
 
-    public set personaReference(value: IArtifactReference) {
-        if (this.model != null && this.model.personaReference !== value) {
-            this.model.personaReference = value;
-            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value.id);
+    public set personaReference(reference: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== reference) {
+            this.model.personaReference = reference;
+
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, reference.id);
+
+            if (this.personaLabel) {
+                this.personaLabel.text = reference.name;
+            }
+
+            this.shapesFactory.setSystemTaskPersona(reference);
         }
     }
 
@@ -330,7 +318,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
-            this.persona,
+            this.personaReference.name,
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,

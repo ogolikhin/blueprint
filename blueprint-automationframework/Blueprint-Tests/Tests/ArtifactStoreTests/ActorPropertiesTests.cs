@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -8,6 +6,8 @@ using Model.ArtifactModel.Impl;
 using Model.ArtifactModel.Impl.PredefinedProperties;
 using Model.Factories;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -26,6 +26,8 @@ namespace ArtifactStoreTests
         private int baseActorId = 15;
         private string customDataProjectName = "Custom Data";
 
+        #region Setup and Cleanup
+
         [SetUp]
         public void SetUp()
         {
@@ -42,23 +44,31 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #endregion Setup and Cleanup
+
         #region Custom data tests
 
         [Category(Categories.CustomData)]
         [TestCase]
         [TestRail(165800)]
-        [Description("Gets ArtifactDetails for the actor with non-empty Inherited From field. Verify the inherited from object has expected information.")]
+        [Description("Gets ArtifactDetails for the actor artifact with non-empty Inherited From field. Verify the inherited from object has expected information.")]
         public void GetActorInheritance_CustomProject_ReturnsActorInheritance()
         {
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, inheritedActorId);
+            // Setup:
+            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, projectCustomData);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, inheritedActorId);
             ActorInheritanceValue actorInheritance = null;
 
+            // Execution & Verify:
             actorInheritance = artifactDetails.ActorInheritance;
             Assert.AreEqual(baseActorId, actorInheritance.ActorId, "Inherited From artifact should have id {0}, but it has id {1}", baseActorId, actorInheritance.ActorId);
             Assert.AreEqual(customDataProjectName, actorInheritance.PathToProject[0], "PathToProject[0] - name of project which contains Inherited From actor.");
         }
 
         #endregion Custom Data
+
+        #region 200 OK Tests
 
         [TestCase]
         [TestRail(182329)]
@@ -68,11 +78,12 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact baseActor= Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, _user), "Saving artifact shouldn't throw any exception, but it does.");
-            CheckActorHasExpectedActorInheritace(actor, baseActor, _user);
-            CheckActorHasExpectedTraces(actor, baseActor, _user);
+            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, author), "Saving artifact shouldn't throw any exception, but it does.");
+            CheckActorHasExpectedActorInheritace(actor, baseActor, author);
+            CheckActorHasExpectedTraces(actor, baseActor, author);
         }
 
         [TestCase]
@@ -83,13 +94,18 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact baseActor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            SetActorInheritance(actor, baseActor, _user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            SetActorInheritance(actor, baseActor, author);
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => DeleteActorInheritance(actor, _user), "Deleting Actor inheritance shouldn't throw any exception, but it does.");
-            CheckActorHasNoActorInheritace(actor, _user);
-            CheckActorHasNoOtherTraces(actor, _user);
+            Assert.DoesNotThrow(() => DeleteActorInheritance(actor, author), "Deleting Actor inheritance shouldn't throw any exception, but it does.");
+            CheckActorHasNoActorInheritace(actor, author);
+            CheckActorHasNoOtherTraces(actor, author);
         }
+
+        #endregion 200 OK Tests
+
+        #region 409 Conflict Tests
 
         [TestCase]
         [TestRail(182332)]
@@ -99,13 +115,18 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact actor1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact actor2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            SetActorInheritance(actor2, actor1, _user);
+            SetActorInheritance(actor2, actor1, author);
 
             // Execute & Verify:
-            Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, _user),
+            Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, author),
                 "Attempt to create cyclic reference Actor1 -> Actor2 -> Actor1 should throw 409, but it doesn't.");
         }
+
+        #endregion 409 Conflict Tests
+
+        #region Private Functions
 
         /// <summary>
         /// Sets Actor Inheritance value for Actor artifact.
@@ -179,10 +200,10 @@ namespace ArtifactStoreTests
             Relationships actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
             
             Assert.AreEqual(1, actorRelationships.OtherTraces.Count, "Actor should have 1 'other' trace, but it doesn't.");
-            NovaTrace actorInheritanceTrace = actorRelationships.OtherTraces[0];
+            var actorInheritanceTrace = actorRelationships.OtherTraces[0];
 
             Assert.AreEqual(expectedBaseActor.Id, actorInheritanceTrace.ArtifactId, "ArtifactId must be the same, but it doesn't.");
-            Assert.AreEqual(TraceTypes.ActorInherits, actorInheritanceTrace.TraceType, "Trace should have Actor Inheritance trace type, but it doesn't.");
+            Assert.AreEqual(TraceType.ActorInherits.ToString(), actorInheritanceTrace.TraceType.ToString(), "Trace should have Actor Inheritance trace type, but it doesn't.");
             Assert.AreEqual(TraceDirection.To, actorInheritanceTrace.Direction, "Trace should have 'To' trace direction, but it doesn't.");
             Assert.AreEqual(expectedBaseActor.Name, actorInheritanceTrace.ArtifactName, "Trace should have expected Base Actor name, but it doesn't.");
 
@@ -202,5 +223,8 @@ namespace ArtifactStoreTests
             Relationships actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
             Assert.AreEqual(0, actorRelationships.OtherTraces.Count, "Actor shouldn't have 'other' traces, but it has.");
         }
+
+        #endregion Private Functions
+
     }
 }

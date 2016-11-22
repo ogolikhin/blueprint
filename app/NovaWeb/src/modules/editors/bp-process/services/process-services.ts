@@ -8,9 +8,11 @@ export class StatefulProcessArtifactServices extends StatefulArtifactServices im
 
     constructor(private statefulArtifactServices: IStatefulArtifactServices,
                 $q: ng.IQService,
+                $log: ng.ILogService,
                 private _processService: IProcessService) {
         super(
             $q,
+            $log,
             statefulArtifactServices.session,
             statefulArtifactServices.messageService,
             statefulArtifactServices.dialogService,
@@ -21,7 +23,8 @@ export class StatefulProcessArtifactServices extends StatefulArtifactServices im
             statefulArtifactServices.metaDataService,
             statefulArtifactServices.loadingOverlayService,
             statefulArtifactServices.publishService,
-            statefulArtifactServices.validationService
+            statefulArtifactServices.validationService,
+            statefulArtifactServices.propertyDescriptor
         );
     }
 

@@ -505,13 +505,16 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
+        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentsAndSave(
             IUser user,
             IArtifact artifact,
             List<INovaFile> files,
             IArtifactStore artifactStore,
-            bool shouldLockArtifact = true)
+            bool shouldLockArtifact = true,
+            LockResult expectedLockResult = LockResult.Success)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -520,7 +523,7 @@ namespace Helper
 
             if (shouldLockArtifact)
             {
-                artifact.Lock(user);
+                artifact.Lock(user, expectedLockResult: expectedLockResult);
             }
 
             NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
@@ -547,6 +550,8 @@ namespace Helper
         /// <param name="shouldLockArtifact">(optional) Pass false if you already locked the artifact.
         ///     By default this function will lock the artifact.</param>
         /// <param name="expectedAttachedFilesCount">(optional) The expected number of attached files after adding the attachment.</param>
+        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
         /// <returns>The attachments that were added.</returns>
         public static Attachments AddArtifactAttachmentAndSave(
             IUser user,
@@ -554,14 +559,15 @@ namespace Helper
             INovaFile file,
             IArtifactStore artifactStore,
             bool shouldLockArtifact = true,
-            int expectedAttachedFilesCount = 1)
+            int expectedAttachedFilesCount = 1,
+            LockResult expectedLockResult = LockResult.Success)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(file, nameof(file));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact);
+            var attachments = AddArtifactAttachmentsAndSave(user, artifact, new List<INovaFile> { file }, artifactStore, shouldLockArtifact, expectedLockResult);
             Assert.AreEqual(expectedAttachedFilesCount, attachments.AttachedFiles.Count, "The attachment should be added.");
 
             return attachments;
@@ -575,7 +581,7 @@ namespace Helper
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="files">List of files to attach.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
+        public static void AddSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
             List<INovaFile> files, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -595,7 +601,7 @@ namespace Helper
                 subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(user, file));
             }
 
-            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactToAdd };
+            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
             artifactDetails.SubArtifacts = subArtifacts;
 
@@ -638,7 +644,7 @@ namespace Helper
         /// <param name="subArtifact">SubArtifact.</param>
         /// <param name="fileId">Id of the file to delete. File must be attached to the artifact.</param>
         /// <param name="artifactStore">IArtifactStore.</param>
-        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, INovaSubArtifact subArtifact,
+        public static void DeleteSubArtifactAttachmentAndSave(IUser user, IArtifact artifact, NovaItem subArtifact,
             int fileId, IArtifactStore artifactStore)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -661,7 +667,7 @@ namespace Helper
             subArtifactToAdd.Id = subArtifact.Id;
             subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
-            List<INovaSubArtifact> subArtifacts = new List<INovaSubArtifact> { subArtifactToAdd };
+            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
             artifactDetails.SubArtifacts = subArtifacts;
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
@@ -730,7 +736,7 @@ namespace Helper
         /// <param name="sourceArtifactTrace">The Nova trace obtained from the source artifact.</param>
         /// <param name="targetArtifact">The target artifact of the trace.</param>
         /// <exception cref="AssertionException">If any properties of the trace don't match the target artifact.</exception>
-        public static void ValidateTrace(NovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
+        public static void ValidateTrace(INovaTrace sourceArtifactTrace, IArtifactBase targetArtifact)
         {
             ThrowIf.ArgumentNull(sourceArtifactTrace, nameof(sourceArtifactTrace));
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
@@ -775,7 +781,7 @@ namespace Helper
         /// <param name="subArtifact">The subartifact containing the inline trace link which needs validation</param>
         /// <param name="inlineTraceArtifact">The artifact contained within the inline trace link</param>
         /// <param name="validInlineTraceLink">A flag indicating whether the inline trace link is expected to be valid or not</param>
-        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaSubArtifact subArtifact,
+        public static void ValidateInlineTraceLinkFromSubArtifactDetails(NovaItem subArtifact,
             IArtifactBase inlineTraceArtifact,
             bool validInlineTraceLink)
         {
@@ -861,8 +867,8 @@ namespace Helper
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
         /// <param name="expectedErrorMessage">(optional)Expected error message.</param>
         public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
-            ArtifactUpdateChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
-            bool? isSuspect = null, INovaSubArtifact targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
+            ChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null, NovaItem targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -877,7 +883,7 @@ namespace Helper
             traceToCreate.ArtifactId = traceTarget.Id;
             traceToCreate.ProjectId = traceTarget.ProjectId;
             traceToCreate.Direction = traceDirection;
-            traceToCreate.TraceType = TraceTypes.Manual;
+            traceToCreate.TraceType = TraceType.Manual;
             traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;

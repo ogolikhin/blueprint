@@ -55,111 +55,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return saveProcessPromise;
     }
 
-    private getArtifactPropertyTypes(): ng.IPromise<any> {
-        const deferred = this.services.getDeferred<any>();
-        if (this.artifactPropertyTypes === null) {
-            this.services.metaDataService.getArtifactPropertyTypes(this.projectId, this.artifact.itemTypeId).then((result) => {
-                this.artifactPropertyTypes = {};
-
-                _.each(result, (propType) => {
-                    if (!!propType.id && !this.artifactPropertyTypes[propType.id.toString()]) {
-                        this.artifactPropertyTypes[propType.id.toString()] = propType;
-                    }
-                });
-
-                deferred.resolve();
-            }).catch((err) => {
-                // log error?
-                deferred.reject(err);
-            });
-        } else {
-            deferred.resolve();
-        }
-        return deferred.promise;
-    }
-
-    protected validateCustomArtifactPromiseForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (ignoreValidation) {
-            deferred.resolve(this);
-        }
-        this.getArtifactPropertyTypes().then((artifactPropertyTypes) => {
-            _.each(changes.customPropertyValues, (propValue) => {
-                const itemType: Models.IPropertyType = this.artifactPropertyTypes[propValue.propertyTypeId];
-                switch (itemType.primitiveType) {
-                    case Models.PrimitiveType.Number:
-                        if (!this.services.validationService.numberValidation.isValid(propValue.value, 
-                            propValue.value,
-                            itemType.decimalPlaces,
-                            this.services.localizationService,
-                            itemType.minNumber,
-                            itemType.maxNumber,
-                            itemType.isValidated,
-                            itemType.isRequired)) {
-                            return this.set_400_114_error(deferred);
-                        }
-                        break;
-                    case Models.PrimitiveType.Date:
-                        if (!this.services.validationService.dateValidation.isValid(propValue.value,
-                            propValue.value,
-                            this.services.localizationService,
-                            itemType.minDate,
-                            itemType.maxDate,
-                            itemType.isValidated,
-                            itemType.isRequired)) {
-                            return this.set_400_114_error(deferred);
-                        }
-                        break;
-                    case Models.PrimitiveType.Text:
-                        if (itemType.isRichText) {
-                            if (!this.services.validationService.textRtfValidation.hasValueIfRequred(itemType.isRequired, 
-                                propValue.value,
-                                propValue.value)) {
-                                return this.set_400_114_error(deferred);
-                            } 
-                        } else {
-                            if (!this.services.validationService.textValidation.hasValueIfRequred(itemType.isRequired, 
-                                propValue.value,
-                                propValue.value)) {
-                                return this.set_400_114_error(deferred);
-                            } 
-                        }
-                        break;
-                    case Models.PrimitiveType.Choice:
-                        if (itemType.isMultipleAllowed) {
-                            if (!this.services.validationService.multiSelectValidation.hasValueIfRequred(itemType.isRequired, 
-                                propValue.value,
-                                propValue.value)) {
-                                return this.set_400_114_error(deferred);
-                            } 
-                        } else {
-                            if (!this.services.validationService.selectValidation.hasValueIfRequred(itemType.isRequired, 
-                                propValue.value,
-                                propValue.value)) {
-                                return this.set_400_114_error(deferred);
-                            } 
-                        }
-                        break;
-                    case Models.PrimitiveType.User:
-                        if (!this.services.validationService.userPickerValidation.hasValueIfRequred(itemType.isRequired, 
-                            propValue.value,
-                            propValue.value)) {
-                            return this.set_400_114_error(deferred);
-                        } 
-                        break;
-                    default:
-                        deferred.reject(new Error(this.services.localizationService.get("App_Save_Artifact_Error_Other")));
-                        break;
-                }
-            });
-            deferred.resolve();
-        }).catch((err) => {
-            // log error?
-            deferred.reject(err);
-        });
-        return deferred.promise;
-    }
-
     protected customHandleSaveFailed(): void {
         this.notifySubscribers();
     }
@@ -279,7 +174,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                 .then((result: IProcessUpdateResult) => {
                     this.mapTempIdsAfterSave(result.tempIdMap);
                     deferred.resolve(this);
-                }).catch((error: any) => { 
+                }).catch((error: any) => {
                     // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
                     if (error) {
                         deferred.reject(this.handleSaveError(error));
@@ -293,7 +188,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
             this.services.messageService.addMessage(message);
             deferred.reject();
         }
-        
+
         return deferred.promise;
     }
 

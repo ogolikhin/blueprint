@@ -14,7 +14,7 @@
     padding: 0 50px;
     transition-duration: .5s;
     transition-property: padding-left, padding-right;
-
+    
     &::after {
         clear: both;
         content: '';
@@ -28,6 +28,7 @@
         padding-left: 2px;
         padding-right: 2px;
         transition: flex .4s ease;
+        min-width: 50px;
 
         &::before {
             content: ' > ';

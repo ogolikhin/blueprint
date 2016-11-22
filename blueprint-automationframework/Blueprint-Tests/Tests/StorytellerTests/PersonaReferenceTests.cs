@@ -47,12 +47,13 @@ namespace StorytellerTests
         [Description("Add a persona reference to a Process artifact task. Verify the persona reference was added.")]
         public void PersonaReference_AddReferenceToTask_VerifyPersonaAdded(string taskName)
         {
+            // Setup:
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process);
+            AddPersonaReferenceToTask(taskName, process, _authorFullAccess);
 
-            // Update and Verify the modified process
+            // Execute & Verify:
             StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
         }
 
@@ -63,17 +64,18 @@ namespace StorytellerTests
         /// <summary>
         /// Creates an actor artifact and adds it to a task as a persona reference
         /// </summary>
-        /// <param name="taskName"></param>
-        /// <param name="returnedProcess"></param>
-        private void AddPersonaReferenceToTask(string taskName, IProcess returnedProcess)
+        /// <param name="taskName">The name of the task that will contain the persona reference.</param>
+        /// <param name="process">The process containing the task </param>
+        /// <param name="user">The user that will create the actor artifact.</param>
+        private void AddPersonaReferenceToTask(string taskName, IProcess process, IUser user)
         {
             // Create actor for persona reference
-            var actor = Helper.CreateAndPublishArtifact(_project, _authorFullAccess, BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Actor);
 
-            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, actor.Id);
+            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
             // Add include to default user task
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(taskName);
+            var defaultUserTask = process.GetProcessShapeByShapeName(taskName);
             defaultUserTask.AddPersonaReference(actorDetails);
         }
 

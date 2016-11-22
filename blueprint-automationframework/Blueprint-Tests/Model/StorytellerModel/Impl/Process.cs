@@ -1586,7 +1586,7 @@ namespace Model.StorytellerModel.Impl
                     Name = artifact.Name,
                     ProjectId = artifact.ProjectId.Value,
                     TypePrefix = artifact.Prefix,
-                    BaseItemTypePredefined = (ItemTypePredefined)artifact.PredefinedType,
+                    BaseItemTypePredefined = (ItemTypePredefined)artifact.PredefinedType.Value,
                     Version = artifact.Version
                 };
             }
@@ -1612,7 +1612,7 @@ namespace Model.StorytellerModel.Impl
                     Name = artifact.Name,
                     ProjectId = artifact.ProjectId.Value,
                     TypePrefix = artifact.Prefix,
-                    BaseItemTypePredefined = (ItemTypePredefined)artifact.PredefinedType,
+                    BaseItemTypePredefined = (ItemTypePredefined)artifact.PredefinedType.Value,
                     Version = artifact.Version
                 };
             }

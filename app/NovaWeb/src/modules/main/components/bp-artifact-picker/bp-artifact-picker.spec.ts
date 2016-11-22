@@ -3,7 +3,8 @@ import "angular-mocks";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM} from "./search-result-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeModels} from "../../models";
-import {IArtifactManager, IProjectManager} from "../../../managers";
+import {IProjectManager} from "../../../managers/project-manager";
+import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {ILocalizationService} from "../../../core/localization/localizationService";
@@ -26,6 +27,7 @@ describe("BpArtifactPicker", () => {
         $provide.service("projectService", () => ({
             abort: () => { return; }
         }));
+        $provide.service("statefulArtifactFactory", () => undefined);
         $provide.service("metadataService", () => ({
             get: (projectId: number) => { return; }
         }));
@@ -96,9 +98,11 @@ describe("BpArtifactPickerController", () => {
         const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;
         (projectManager.getProject as jasmine.Spy).and.returnValue(project);
         projectService = jasmine.createSpyObj("projectService", ["abort", "searchItemNames", "searchProjects"]) as IProjectService;
+        const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
-        controller = new BpArtifactPickerController($scope, localization, artifactManager, projectManager, projectService, metadataService);
+        controller = new BpArtifactPickerController($scope, localization, artifactManager,
+            projectManager, projectService, statefulArtifactFactory, metadataService);
     }));
 
     it("$onInit sets selected project", () => {

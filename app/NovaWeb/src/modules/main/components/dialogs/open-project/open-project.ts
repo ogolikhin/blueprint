@@ -3,6 +3,7 @@ import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree
 import {AdminStoreModels, TreeModels} from "../../../models";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 
 export interface IOpenProjectController {
     errorMessage: string;
@@ -25,16 +26,18 @@ export class OpenProjectController extends BaseDialogController implements IOpen
 
     public factory: TreeModels.TreeNodeVMFactory;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "artifactManager", "statefulArtifactFactory", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 private projectService: IProjectService,
+                private artifactManager: IArtifactManager,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-        this.factory = new TreeModels.TreeNodeVMFactory(projectService);
+        this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.rowData = [this.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,

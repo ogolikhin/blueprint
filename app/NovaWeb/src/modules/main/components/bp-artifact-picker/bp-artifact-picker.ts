@@ -2,7 +2,8 @@
 import {Helper} from "../../../shared/";
 import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
 import {Models, AdminStoreModels, SearchServiceModels, TreeModels} from "../../models";
-import {IArtifactManager, IProjectManager} from "../../../managers";
+import {IProjectManager} from "../../../managers/project-manager";
+import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ILocalizationService} from "../../../core/localization/localizationService";
@@ -93,6 +94,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "artifactManager",
         "projectManager",
         "projectService",
+        "statefulArtifactFactory",
         "metadataService"
     ];
 
@@ -101,12 +103,14 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
                 private metadataService: IMetaDataService) {
         this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
         this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
-        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
+        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.artifactManager, this.statefulArtifactFactory,
+            this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
     };
 
     public $onInit(): void {

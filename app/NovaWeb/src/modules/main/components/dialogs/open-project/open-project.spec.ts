@@ -4,6 +4,7 @@ import {OpenProjectController} from "./open-project";
 import {IDialogSettings} from "../../../../shared";
 import {Enums, AdminStoreModels, TreeModels} from "../../../models";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
@@ -20,9 +21,12 @@ describe("OpenProjectController", () => {
         (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
         projectService = {} as IProjectService;
+        const artifactManager = {} as IArtifactManager;
+        const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         const dialogSettings = {} as IDialogSettings;
         $sce = _$sce_;
-        controller = new OpenProjectController($scope, localization, $uibModalInstance, projectService, dialogSettings, $sce);
+        controller = new OpenProjectController($scope, localization, $uibModalInstance,
+            projectService, artifactManager, statefulArtifactFactory, dialogSettings, $sce);
     }));
 
     it("constructor sets root node", () => {

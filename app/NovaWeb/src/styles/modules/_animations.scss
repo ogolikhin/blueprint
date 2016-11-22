@@ -46,7 +46,21 @@
     }
 }
 
-.slide-up {
+.animation__fade-out {
+    display: block;
+    opacity: 1;
+
+    &.ng-leave {
+        -webkit-transition: opacity linear .4s;
+        transition: opacity linear .4s;
+    }
+
+    &.ng-leave.ng-leave-active {
+        opacity: 0;
+    }
+}
+
+.animation__slide-up {
     -webkit-animation-duration: 1s;
     animation-duration: 1s;
 

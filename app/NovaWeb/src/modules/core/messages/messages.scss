@@ -10,20 +10,6 @@
     z-index: $zindex-messages;
 }
 
-.messages__animate {
-    display: block;
-    opacity: 1;
-
-    &.ng-leave {
-        -webkit-transition: opacity linear .75s;
-        transition: opacity linear .75s;
-    }
-
-    &.ng-leave.ng-leave-active {
-        opacity: 0;
-    }
-}
-
 .messages__message-container {
     border-radius: $border-radius-base;
     color: $white;

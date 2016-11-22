@@ -1,4 +1,4 @@
-﻿<message class="messages__animate" ng-repeat="message in $ctrl.messages"
+﻿<message class="animation__fade-out" ng-repeat="message in $ctrl.messages track by message.id"
          message-type="{{$ctrl.getType(message.messageType)}}"
          on-message-closed="$ctrl.closeMessage(message.id)">
     <div on-message-action="{{message.onMessageAction}}" ng-bind-html="$ctrl.getText(message)"></div>

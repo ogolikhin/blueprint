@@ -58,7 +58,7 @@ module.exports = function (config) {
                 nocache: false
             },
             {
-                pattern: './src/styles/images/**/*.svg',
+                pattern: './src/images/**/*.svg',
                 watched: false,
                 included: false,
                 served: true,

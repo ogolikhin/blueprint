@@ -1,35 +1,26 @@
 import * as _ from "lodash";
 import {IDialogService} from "../../shared";
 import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
-import {ArtifactNode} from "./artifact-node";
 import {IDispose} from "../models";
-import {Models, AdminStoreModels, Enums, TreeViewModels} from "../../main/models";
+import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
 import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {HttpStatusCode} from "../../core/http/http-status-code";
-import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
 
-export interface IArtifactNode extends TreeViewModels.IViewModel<IStatefulArtifact> {
-    // agGrid.NodeChildDetails
-    group?: boolean;
-    children?: IArtifactNode[];
+export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
+    children?: this[];
     expanded?: boolean;
-    key: string; // Each row in the dom will have an attribute row-id='key'
-
-    selectable: boolean;
-    loadChildrenAsync?(): ng.IPromise<IArtifactNode[]>;
     unloadChildren(): void;
-
-    getNode(id: number, item?: IArtifactNode): IArtifactNode;
+    getNode(comparator: IStatefulArtifact | ((model: IStatefulArtifact) => boolean), item?: this): this;
 }
 
 export interface IProjectManager extends IDispose {
-    projectCollection: Rx.BehaviorSubject<IArtifactNode[]>;
+    projectCollection: Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>;
 
     // eventManager
     initialize();
@@ -39,23 +30,22 @@ export interface IProjectManager extends IDispose {
     refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
     refreshAll(): ng.IPromise<void>;
-    getProject(id: number): IArtifactNode;
+    getProject(id: number): Models.IViewModel<IStatefulArtifact>;
     getSelectedProjectId(): number;
     triggerProjectCollectionRefresh();
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
+    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): number;
 }
 
 export class ProjectManager implements IProjectManager {
-
+    private factory: TreeModels.TreeNodeVMFactory;
     private _projectCollection: Rx.BehaviorSubject<IArtifactNode[]>;
     private subscribers: Rx.IDisposable[];
     static $inject: [string] = [
         "$q",
-        "localization",
         "messageService",
         "dialogService",
         "projectService",
-        "navigationService",
         "artifactManager",
         "metadataService",
         "statefulArtifactFactory",
@@ -64,17 +54,15 @@ export class ProjectManager implements IProjectManager {
     ];
 
     constructor(private $q: ng.IQService,
-                private localization: ILocalizationService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
                 private projectService: IProjectService,
-                private navigationService: INavigationService,
                 private artifactManager: IArtifactManager,
                 private metadataService: IMetaDataService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService) {
-
+        this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.subscribers = [];
     }
 
@@ -228,7 +216,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    private processProjectTree(project: IArtifactNode, data: Models.IArtifact[]): ng.IPromise<void> {
+    private processProjectTree(project: Models.IViewModel<IStatefulArtifact>, data: Models.IArtifact[]): ng.IPromise<void> {
         const oldProjectId: number = project.model.id;
         let oldProject = this.getProject(oldProjectId);
         this.artifactManager.removeAll(oldProjectId);
@@ -244,6 +232,7 @@ export class ProjectManager implements IProjectManager {
                 projectId: oldProjectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
+                itemTypeName: "Project",
                 predefinedType: Enums.ItemTypePredefined.Project,
                 hasChildren: true
             });
@@ -251,13 +240,13 @@ export class ProjectManager implements IProjectManager {
             //create project node
             const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(result);
             this.artifactManager.add(statefulArtifact);
-            let newProjectNode = new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, true);
+            let newProjectNode: IArtifactNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
 
             //populate it
             newProjectNode.children = data.map((it: Models.IArtifact) => {
                 const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(it);
                 this.artifactManager.add(statefulProject);
-                return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulProject);
+                return this.factory.createStatefulArtifactNodeVM(statefulProject);
             });
 
             //open any children that have children
@@ -284,7 +273,7 @@ export class ProjectManager implements IProjectManager {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);
-                    return new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact);
+                    return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
                 });
                 node.expanded = true;
 
@@ -313,7 +302,7 @@ export class ProjectManager implements IProjectManager {
 
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
                 this.artifactManager.add(statefulArtifact);
-                projectNode = new ArtifactNode(this.projectService, this.statefulArtifactFactory, this.artifactManager, statefulArtifact, true);
+                projectNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
                 this.projectCollection.getValue().unshift(projectNode);
                 this.projectCollection.onNext(this.projectCollection.getValue());
             }).catch((err: any) => {
@@ -378,7 +367,7 @@ export class ProjectManager implements IProjectManager {
         let found: IArtifactNode;
         let projects = this.projectCollection.getValue();
         for (let i = 0, it: IArtifactNode; !found && (it = projects[i++]); ) {
-            found = it.getNode(id);
+            found = it.getNode(model => model.id === id);
         }
         return found;
     };
@@ -396,5 +385,29 @@ export class ProjectManager implements IProjectManager {
         }).then((data: Models.IArtifact[]) => {
             return data.map(a => _.assign({projectName: projectName}, a) as Models.IArtifactWithProject);
         });
+    }
+
+    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact) {
+        let orderIndex: number;
+
+        let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
+        let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex);
+        siblings = _.filter(siblings, (item) => item.model.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
+        let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
+
+        if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
+            orderIndex = selectedArtifact.orderIndex / 2;
+        } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+            orderIndex = selectedArtifact.orderIndex + 10;
+        } else {    //in between
+            if (insertMethod === MoveArtifactInsertMethod.Above) {
+                orderIndex = (siblings[index - 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
+            } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                orderIndex = (siblings[index + 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
+            } else {
+                //leave undefined
+            }
+        }
+        return orderIndex;
     }
 }

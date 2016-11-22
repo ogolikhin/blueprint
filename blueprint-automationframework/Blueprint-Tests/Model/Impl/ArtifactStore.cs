@@ -207,8 +207,8 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.GetArtifactDetails(IUser, int, int?, List{HttpStatusCode})"/>
         public NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
-        { 
-        string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
             RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
@@ -218,11 +218,13 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
             }
 
-              return restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+            var artifactDetails = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes);
+
+            return artifactDetails;
         }
 
         /// <seealso cref="IArtifactStore.GetDiagramArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -239,10 +241,10 @@ namespace Model.Impl
             }
 
             return restApi.SendRequestAndDeserializeObject<NovaDiagramArtifact>(
-              path,
-              RestRequestMethod.GET,
-              queryParameters: queryParams,
-              expectedStatusCodes: expectedStatusCodes);
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetGlossaryArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -259,10 +261,10 @@ namespace Model.Impl
             }
 
             return restApi.SendRequestAndDeserializeObject<NovaGlossaryArtifact>(
-              path,
-              RestRequestMethod.GET,
-              queryParameters: queryParams,
-              expectedStatusCodes: expectedStatusCodes);
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetUseCaseArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -279,10 +281,10 @@ namespace Model.Impl
             }
 
             return restApi.SendRequestAndDeserializeObject<NovaUseCaseArtifact>(
-              path,
-              RestRequestMethod.GET,
-              queryParameters: queryParams,
-              expectedStatusCodes: expectedStatusCodes);
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -455,17 +457,17 @@ namespace Model.Impl
         */
 
         /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
-        public List<INovaSubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<SubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            var subartifacts = restApi.SendRequestAndDeserializeObject<List<NovaSubArtifact>>(
+            var subartifacts = restApi.SendRequestAndDeserializeObject<List<SubArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false);
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
 
-            return subartifacts.ConvertAll(o => (INovaSubArtifact)o);
+            return subartifacts;
         }
 
         /// <seealso cref="IArtifactStore.GetSubartifact(IUser, int, int, List{HttpStatusCode})"/>
@@ -474,10 +476,13 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            return restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
+            var novaSubArtifact = restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false); // TODO: need to review NovaSubArtifact model to make this valication works
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return novaSubArtifact;
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>

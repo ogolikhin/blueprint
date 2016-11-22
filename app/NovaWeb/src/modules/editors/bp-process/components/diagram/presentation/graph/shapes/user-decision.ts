@@ -1,8 +1,6 @@
-import { IProcessShape } from "../../../../../models/process-models";
-import { IDecision, NodeType } from "../models/";
-import { IDialogParams } from "../../../../messages/message-dialog";
-import { NodeFactorySettings } from "./node-factory-settings";
-import { Decision } from "./decision";
+import {IDecision, NodeType} from "../models/";
+import {IDialogParams} from "../../../../messages/message-dialog";
+import {Decision} from "./decision";
 
 
 export class UserDecision extends Decision implements IDecision {
@@ -18,9 +16,10 @@ export class UserDecision extends Decision implements IDecision {
     protected get DEFAULT_BORDER_COLOR(): string {
         return "#D4D5DA";
     }
+
     public getX(): number {
         return this.getCenter().x + this.DECISION_SHIFT;
-    }    
+    }
 
     protected get textLabelLeft(): number {
         return this.DECISION_WIDTH / 2 + 24;

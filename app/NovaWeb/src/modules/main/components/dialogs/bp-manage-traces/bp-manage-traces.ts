@@ -1,12 +1,9 @@
 import * as _ from "lodash";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
 import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
-import {Relationships, Models, TreeViewModels} from "../../../models";
+import {Relationships, Models, TreeModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
-import {
-    IStatefulItem,
-    IArtifactRelationships
-} from "../../../../managers/artifact-manager";
+import {IStatefulItem, IArtifactRelationships} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export interface IArtifactSelectedArtifactMap {
@@ -19,7 +16,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public traceDirection: Relationships.TraceDirection = 0;
     public direction: Relationships.TraceDirection = 0;
-    private selectedVMs: TreeViewModels.TreeViewNodeVM<any>[];
+    private selectedVMs: TreeModels.ITreeNodeVM<any>[];
 
     public item: IStatefulItem;
     public allTraces: Relationships.IRelationshipView[];
@@ -112,7 +109,7 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel = (currentItem.model) as Relationships.IRelationshipView;
 
             currentItemModel.itemId = currentItemModel.id;
-            currentItemModel.artifactId = currentItem instanceof TreeViewModels.ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
+            currentItemModel.artifactId = currentItem instanceof TreeModels.ArtifactNodeVM ? currentItemModel.id : currentItemModel.parentId;
 
             let res = _.find(this.data.manualTraces, {itemId: currentItemModel.itemId});
 
@@ -218,7 +215,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         });
     }
 
-    public onSelectionChanged(selectedVMs: TreeViewModels.TreeViewNodeVM<any>[]): void {
+    public onSelectionChanged(selectedVMs: TreeModels.ITreeNodeVM<any>[]): void {
         this.selectedVMs = selectedVMs;
 
         this.disableTrace();

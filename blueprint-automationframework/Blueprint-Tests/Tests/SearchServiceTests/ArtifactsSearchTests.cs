@@ -19,6 +19,7 @@ namespace SearchServiceTests
     {
         private IUser _adminUser = null;
         private IUser _authorUser = null;
+        private IUser _viewerUser = null;
         private IProject _firstProject = null;
         private IProject _secondProject = null;
         private List<IProject> _projects = null;
@@ -35,6 +36,7 @@ namespace SearchServiceTests
             _firstProject = _projects[0];
             _secondProject = _projects[1];
             _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _firstProject);
+            _viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _firstProject);
         }
 
         [TearDown]
@@ -69,13 +71,13 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
         }
 
         [TestCase]
@@ -93,14 +95,14 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
-            Assert.IsFalse(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact2, si)), "Search shouldn't return artifact with different name.");
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.IsFalse(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact2, si)), "Search shouldn't return artifact with different name.");
         }
 
         [TestCase]
@@ -117,7 +119,7 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -143,7 +145,7 @@ namespace SearchServiceTests
 
             // Verify:
             Assert.AreEqual(0, results.PageItemCount, "For empty list PageItemCount should be 0.");
-            Assert.IsFalse(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)),
+            Assert.IsFalse(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)),
                 "Search shouldn't return draft never published artifact.");
         }
 
@@ -162,7 +164,7 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -189,8 +191,9 @@ namespace SearchServiceTests
                 "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.IsTrue(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Search should return published artifact.");
+            Assert.AreEqual(2, results.Items.Count, "List of SearchItems should have 2 items.");
+            Assert.AreEqual(2, results.PageItemCount, "PageItemCount should be 2.");
+            Assert.IsTrue(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Search should return published artifact.");
             Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _firstProject.Id), "Artifact should be found in first project.");
             Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _secondProject.Id), "Artifact should be found in second project.");
         }
@@ -210,12 +213,13 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.IsTrue(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Search should return published artifact.");
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.IsTrue(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Search should return published artifact.");
             Assert.IsTrue(results.Items.Exists(si => si.ProjectId == _firstProject.Id), "Artifact should be found in first project.");
             Assert.IsFalse(results.Items.Exists(si => si.ProjectId == _secondProject.Id), "Artifact shouldn't be found in second project to which user has no access.");
         }
@@ -223,17 +227,17 @@ namespace SearchServiceTests
         [TestCase]
         [TestRail(183349)]
         [Description("Search published artifact by name and ItemTypeId in 2 projects, user has access to both projects, verify that only expected artifact could be found.")]
-        public void SearchArtifactByNameAndItemTypeId_AllProjects_VerifyResults()
+        public void SearchArtifactByNameAndItemTypePredefinedId_AllProjects_VerifyResults()
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
             List<IArtifact> artifacts = new List<IArtifact>();
 
             // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
-            foreach (var pr in _projects)
+            foreach (var project in _projects)
             {
-                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
-                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
+                artifacts.Add(Helper.CreateAndPublishArtifact(project, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
+                artifacts.Add(Helper.CreateAndPublishArtifact(project, _adminUser, BaseArtifactType.Actor, name: artifactName));
             }
 
             Assert.AreEqual(2 * _projects.Count, artifacts.Count, "Expected number of artifacts is number of projects times 2.");
@@ -266,7 +270,7 @@ namespace SearchServiceTests
 
             foreach (var si in nameAndTypeIdSearchResult.Items)
             {
-                Assert.IsTrue(artifacts.Exists(a => DoesSearchItemCorrespondsToArtifact(a, si)),
+                Assert.IsTrue(artifacts.Exists(a => DoesSearchItemCorrespondToArtifact(a, si)),
                     "Search results must include all expected artifacts.");
             }
         }
@@ -289,13 +293,13 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
 
             Assert.AreEqual(numberOfVersions, results.Items[0].Version, "Version should have expected value.");
         }
@@ -321,13 +325,13 @@ namespace SearchServiceTests
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                results = Helper.SearchService.SearchItems(_authorUser, searchCriteria,
+                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria,
                 separatorString: separatorString); }, "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
             StringAssert.AreEqualIgnoringCase(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
         }
 
@@ -349,7 +353,7 @@ namespace SearchServiceTests
             ItemSearchResult results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -375,7 +379,7 @@ namespace SearchServiceTests
             int pageSize = 3;
             
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria, pageSize: pageSize); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria, pageSize: pageSize); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -398,14 +402,123 @@ namespace SearchServiceTests
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                results = Helper.SearchService.SearchItems(_authorUser, searchCriteria);
+                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria);
             }, "SearchItems should throw no errors.");
 
             // Verify:
-            Assert.IsTrue(results.Items.Count > 0, "List of SearchItems shouldn't be empty.");
-            Assert.IsTrue(results.PageItemCount > 0, "For non-empty list PageItemCount shouldn't be 0.");
-            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondsToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
             Assert.IsNull(results.Items[0].Path, "Path should be null when IncludeArtifactPath is false");
+        }
+
+        [TestCase]
+        [TestRail(191206)]
+        [Description("Search published artifact by name and ItemTypeId in 2 projects, user has access to both projects, verify that only expected artifact could be found.")]
+        public void SearchArtifactByNameAndItemTypeId_AllProjects_VerifyResults()
+        {
+            // Setup:
+            string artifactName = RandomGenerator.RandomAlphaNumeric(12);
+            List<IArtifact> artifacts = new List<IArtifact>();
+
+            // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
+            foreach (var pr in _projects)
+            {
+                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Storyboard, name: artifactName));
+                artifacts.Add(Helper.CreateAndPublishArtifact(pr, _adminUser, BaseArtifactType.Actor, name: artifactName));
+            }
+
+            Assert.AreEqual(2 * _projects.Count, artifacts.Count, "Expected number of artifacts is number of projects times 2.");
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+
+            // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
+            int actorTypeIdInFirstProject = (artifacts.Find(a => (a.BaseArtifactType == BaseArtifactType.Actor &&
+            a.ProjectId == _projects[0].Id))).ArtifactTypeId;
+            var itemTypeIdSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds, new List<int> { actorTypeIdInFirstProject });
+            // Search by name and TypeId across all projects.
+
+            var nameSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds); // Search by name across all projects.
+
+            ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
+            Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
+                "Search by name across all projects should return all artifacts with the artifactName name.");
+
+            ItemSearchResult nameAndTypeIdSearchResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                nameAndTypeIdSearchResult = Helper.SearchService.SearchItems(_adminUser, itemTypeIdSearchCriteria);
+            }, "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.AreEqual(1, nameAndTypeIdSearchResult.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, nameAndTypeIdSearchResult.PageItemCount, "PageItemCount should be 1.");
+            
+            Assert.IsTrue(nameAndTypeIdSearchResult.Items.Exists(si => si.ProjectId == _projects[0].Id),
+                    "Artifact of specified name and type should be found in the first project.");
+            Assert.IsFalse(nameAndTypeIdSearchResult.Items.Exists(si => si.ProjectId == _projects[1].Id),
+                    "Artifact of specified name and type shouldn't be found in the second project.");
+
+            foreach (var si in nameAndTypeIdSearchResult.Items)
+            {
+                Assert.IsTrue(artifacts.Exists(a => DoesSearchItemCorrespondToArtifact(a, si)),
+                    "Search results must include all expected artifacts.");
+            }
+        }
+
+        [TestCase]
+        [TestRail(191210)]
+        [Explicit(IgnoreReasons.ProductBug)] // https://trello.com/c/VLdz6frC SearchItems doesn't return HasChildren
+        [Description("Search published artifact by full name within 2 projects, verify search item has expected HasChildren.")]
+        public void SearchArtifactByFullName_2ProjectsArtifactWithChild_VerifyHasChildren()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase);
+            var childArtifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Process, artifact);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            ItemSearchResult results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.IsTrue(results.Items[0].HasChildren.Value, "Artifact in search results should have HasChildren set to true.");
+            Assert.AreEqual(childArtifact.Id, results.Items[0].Id);
+        }
+
+        [TestCase]
+        [TestRail(191211)]
+        [Description("Search published artifact by full name within 2 projects, verify search item has expected LockedByUser value.")]
+        public void SearchArtifactByFullName_2ProjectsArtifactLockedByOtherUser_VerifyLockedBy()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UseCase);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            ItemSearchResult results = null;
+
+            artifact.Lock(_adminUser);
+
+            // Execute:
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
+                "SearchItems should throw no errors.");
+
+            // Verify:
+            Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
+            Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.IsNotNull(results.Items[0].LockedByUser, "LockedByUser shouldn't be null.");
+            Assert.AreEqual(_adminUser.Id, results.Items[0].LockedByUser.Id, "User id should have expected value.");
         }
 
         /// <summary>
@@ -413,12 +526,11 @@ namespace SearchServiceTests
         /// </summary>
         /// <param name="artifact">artifact to compare</param>
         /// <param name="searchItem">searchItem to compare</param>
-        private static bool DoesSearchItemCorrespondsToArtifact(IArtifact artifact, SearchItem searchItem)
+        private static bool DoesSearchItemCorrespondToArtifact(IArtifact artifact, SearchItem searchItem)
         {
             return ((searchItem.Id == artifact.Id) &&
             (searchItem.Name == artifact.Name) &&
             (searchItem.ProjectId == artifact.ProjectId) &&
-            //(searchItem.Version == artifact.Version) &&
             (searchItem.ItemTypeId == artifact.ArtifactTypeId));
         }
     }

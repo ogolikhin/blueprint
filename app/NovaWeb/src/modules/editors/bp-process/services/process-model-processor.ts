@@ -1,5 +1,5 @@
 ﻿import * as ProcessModels from "../models/process-models";
-import { IDiagramNode } from "../components/diagram/presentation/graph/models/process-graph-interfaces";
+import {IDiagramNode} from "../components/diagram/presentation/graph/models/process-graph-interfaces";
 
 export interface IProcessModelProcessor {
     processModelBeforeSave(model: ProcessModels.IProcess): ProcessModels.IProcess;

@@ -1,5 +1,4 @@
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
-import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {IDialogService} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
@@ -24,9 +23,9 @@ export class PageContentCtrl {
     ];
 
     constructor(private dialogService: IDialogService,
-        private artifactManager: IArtifactManager,
-        private navigationService: INavigationService,
-        private mainBreadcrumbService: IMainBreadcrumbService) {
+                private artifactManager: IArtifactManager,
+                private navigationService: INavigationService,
+                private mainBreadcrumbService: IMainBreadcrumbService) {
     }
 
     public $onInit() {
@@ -70,7 +69,7 @@ export class PageContentCtrl {
 
     public navigateTo = (link: IBreadcrumbLink): void => {
         if (!!link && link.isEnabled) {
-            this.navigationService.navigateTo({ id: link.id });
+            this.navigationService.navigateTo({id: link.id});
         }
     }
 }

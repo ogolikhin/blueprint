@@ -1,11 +1,12 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {Models, TreeViewModels} from "../../models";
+import {Models} from "../../models";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
-    onSelectionChanged(selectedVMs: TreeViewModels.IViewModel<any>[]): any;
-    onDoubleClick(vm: TreeViewModels.IViewModel<any>): any;
-    selectedVMs: TreeViewModels.IViewModel<any>[];
+    onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): any;
+    onDoubleClick(vm: Models.IViewModel<any>): any;
+    selectedVMs: Models.IViewModel<any>[];
 }
 
 export interface IArtifactPickerOptions {
@@ -18,17 +19,19 @@ export interface IArtifactPickerOptions {
 
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {
     public hasCloseButton: boolean = true;
-    public selectedVMs: TreeViewModels.IViewModel<any>[];
+    public selectedVMs: Models.IViewModel<any>[];
 
     static $inject = [
         "$uibModalInstance",
         "dialogSettings",
-        "dialogData"
+        "dialogData",
+        "localization"
     ];
 
     constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                public dialogData: IArtifactPickerOptions) {
+                public dialogData: IArtifactPickerOptions,
+                localization: ILocalizationService) {
         super($instance, dialogSettings);
 
         // Binding an optional callback to undefined doesn't behave as expected.
@@ -41,11 +44,11 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
         return this.selectedVMs.map(vm => vm.model);
     };
 
-    public onSelectionChanged(selectedVMs: TreeViewModels.IViewModel<any>[]): void {
+    public onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): void {
         this.selectedVMs = selectedVMs;
     }
 
-    public onDoubleClick(vm: TreeViewModels.IViewModel<any>): void {
+    public onDoubleClick(vm: Models.IViewModel<any>): void {
         this.selectedVMs = [vm];
         this.ok();
     }

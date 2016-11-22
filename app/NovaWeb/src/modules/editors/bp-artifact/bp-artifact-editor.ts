@@ -155,16 +155,16 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 if (!this.editor) {
                     return;
                 }
-                const value = this.editor.convertToModelValue($field, $value);
+                let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
-                        this.artifact.customProperties.set(context.modelPropertyName as number, invalid ? $value : value);
+                        this.artifact.customProperties.set(context.modelPropertyName as number, value);
                         break;
                     case Enums.PropertyLookupEnum.Special:
-                        this.artifact.specialProperties.set(context.modelPropertyName as number, invalid ? $value : value);
+                        this.artifact.specialProperties.set(context.modelPropertyName as number, value);
                         break;
                     default:
-                        this.artifact[context.modelPropertyName] = invalid ? $value : value;
+                        this.artifact[context.modelPropertyName] = value;
                         break;
                 }
                 context.isFresh = false;

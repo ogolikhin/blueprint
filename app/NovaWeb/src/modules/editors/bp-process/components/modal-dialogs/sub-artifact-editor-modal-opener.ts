@@ -14,9 +14,10 @@ import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType} from "../diagram/presentation/graph/models/";
 import {IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
-import {UserTaskDialogModel, SystemTaskDialogModel} from "./task-editor/sub-artifact-dialog-model";
+import {UserTaskDialogModel, SystemTaskDialogModel, IPersonaOption} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IArtifactReference} from "../../models/process-models";
 
 export class SubArtifactEditorModalOpener {
     private graph: IProcessGraph;
@@ -142,8 +143,8 @@ export class SubArtifactEditorModalOpener {
         model.associatedArtifact = model.originalItem.associatedArtifact;
         model.objective = model.originalItem.objective;
         model.label = model.originalItem.label;
-        model.availablePersona = [{ "name": "test actor 1" }, { "name": "test actor 2" }];
         model.personaReference = model.originalItem.personaReference;
+        model.userTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.userTaskPersonaReferenceList);
 
         return model;
     }
@@ -171,11 +172,26 @@ export class SubArtifactEditorModalOpener {
         model.associatedArtifact = model.originalItem.associatedArtifact;
         model.imageId = model.originalItem.imageId;
         model.label = model.originalItem.label;
-        model.associatedImageUrl = model.originalItem.associatedImageUrl;
-        model.availablePersona = [{ "name": "test actor 1" }, { "name": "test actor 2" }];
+        model.associatedImageUrl = model.originalItem.associatedImageUrl;        
         model.personaReference = model.originalItem.personaReference;
+        model.systemTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.systemTaskPersonaReferenceList);
 
         return model;
+    }
+
+    private populatePersonaReferenceOptions(personaReferenceList: IArtifactReference[]): IPersonaOption[] {
+        const personaOptions: IPersonaOption[] = [];
+        for (let i = 0; i < personaReferenceList.length; i++) {
+            personaOptions.push({
+                value: personaReferenceList[i],
+                label: personaReferenceList[i].typePrefix +
+                       personaReferenceList[i].id +
+                      ": " +
+                       personaReferenceList[i].name
+            });
+        }
+
+        return personaOptions;
     }
 
     private getDecisionEditorModel(shapeId: number, graph: IProcessGraph): DecisionEditorModel {

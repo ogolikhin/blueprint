@@ -7,6 +7,7 @@ import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-man
 import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
 import { StatefulProcessSubArtifact } from "./process-subartifact";
 import { IProcessUpdateResult } from "./services/process.svc";
+import { IArtifactReference } from "./models/process-models";
 
 export interface IStatefulProcessArtifact extends  IStatefulArtifact {
     processOnUpdate();
@@ -22,6 +23,9 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public propertyValues: IHashMapOfPropertyValues;
     public requestedVersionInfo: IVersionInfo;
     protected hasCustomSave: boolean = true;
+
+    public userTaskPersonaReferenceList: IArtifactReference[];
+    public systemTaskPersonaReferenceList: IArtifactReference[];
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
@@ -99,6 +103,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.decisionBranchDestinationLinks = newProcess.decisionBranchDestinationLinks;
         currentProcess.propertyValues = newProcess.propertyValues;
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
+        currentProcess.userTaskPersonaReferenceList = newProcess.userTaskPersonaReferenceList;
+        currentProcess.systemTaskPersonaReferenceList = newProcess.systemTaskPersonaReferenceList;
     }
 
     private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {

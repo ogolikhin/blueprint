@@ -47,6 +47,14 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         return this.dialogModel.label;
     }
 
+    public getPersonaLabel(): string {
+        return this.dialogModel.personaReference.typePrefix +
+            this.dialogModel.personaReference.id +
+            ": " +
+            this.dialogModel.personaReference.name;
+    }
+
+
     protected  getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }

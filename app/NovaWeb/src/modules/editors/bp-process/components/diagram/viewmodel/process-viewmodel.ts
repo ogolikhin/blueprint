@@ -247,6 +247,22 @@ export class ProcessViewModel implements IProcessViewModel {
         this.processGraphModel.links = newValue;
     }
 
+    public get userTaskPersonaReferenceList(): ProcessModels.IArtifactReference[] {
+        return <ProcessModels.IArtifactReference[]>this.process.userTaskPersonaReferenceList;
+    }
+
+    public set userTaskPersonaReferenceList(newValue: ProcessModels.IArtifactReference[]) {
+        this.process.userTaskPersonaReferenceList = newValue;
+    }
+
+    public get systemTaskPersonaReferenceList(): ProcessModels.IArtifactReference[] {
+        return <ProcessModels.IArtifactReference[]>this.process.systemTaskPersonaReferenceList;
+    }
+
+    public set systemTaskPersonaReferenceList(newValue: ProcessModels.IArtifactReference[]) {
+        this.process.systemTaskPersonaReferenceList = newValue;
+    }
+
     public get propertyValues(): ProcessModels.IHashMapOfPropertyValues {
         return this.processGraphModel.propertyValues;
     }

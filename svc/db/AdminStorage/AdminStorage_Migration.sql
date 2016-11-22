@@ -1155,6 +1155,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_Time
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_InvalidLicense', 'en-US', N'Your license does not include access to this application.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Input_Required', 'en-US', N'Required')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Folder_NotFound', 'en-US', N'Couldn''t find specified project or folder')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Filter_Artifact_All_Types', 'en-US', N'All types')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_NotFound', 'en-US', N'Couldn''t find the project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Project_MetaDataNotFound', 'en-US', N'Couldn''t find the project meta data')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_NotFound', 'en-US', N'Couldn''t find the artifact')

@@ -1,8 +1,6 @@
-import { IProcessShape } from "../../../../../models/process-models";
-import { IDecision, NodeType } from "../models/";
-import { IDialogParams } from "../../../../messages/message-dialog";
-import { NodeFactorySettings } from "./node-factory-settings";
-import { Decision } from "./decision";
+import {NodeType} from "../models/";
+import {IDialogParams} from "../../../../messages/message-dialog";
+import {Decision} from "./decision";
 
 export class SystemDecision extends Decision {
     protected get DECISION_SHIFT(): number {
@@ -12,7 +10,7 @@ export class SystemDecision extends Decision {
     protected get DEFAULT_FILL_COLOR(): string {
         return "#E2F3FF";
     }
-    
+
     protected get DEFAULT_BORDER_COLOR(): string {
         return "#53BBED";
     }

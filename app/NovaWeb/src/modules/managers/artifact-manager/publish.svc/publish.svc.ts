@@ -1,4 +1,4 @@
-import { Models, Enums } from "../../../main/models";
+import {Models, Enums} from "../../../main/models";
 export {Models, Enums}
 
 export interface IPublishService {
@@ -16,7 +16,7 @@ export class PublishService implements IPublishService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService, private fontNormalizer: any) {
     }
 
-    public publishAll(): ng.IPromise<Models.IPublishResultSet>  {
+    public publishAll(): ng.IPromise<Models.IPublishResultSet> {
         let defer = this.$q.defer<Models.IPublishResultSet>();
 
         this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=true`, "").then(
@@ -28,7 +28,7 @@ export class PublishService implements IPublishService {
         return defer.promise;
     }
 
-    public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet>  {
+    public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet> {
         let defer = this.$q.defer<Models.IPublishResultSet>();
 
         this.$http.get(`/svc/bpartifactstore/artifacts/unpublished`).then(
@@ -52,7 +52,7 @@ export class PublishService implements IPublishService {
         return defer.promise;
     }
 
-    public discardAll(): ng.IPromise<Models.IPublishResultSet>  {
+    public discardAll(): ng.IPromise<Models.IPublishResultSet> {
         let defer = this.$q.defer<Models.IPublishResultSet>();
 
         this.$http.post(`/svc/bpartifactstore/artifacts/discard?all=true`, "").then(

@@ -1,5 +1,5 @@
-import { IDialogSettings, BaseDialogController, IDialogData } from "../../../../shared";
-import { Models } from "../../../../main/models";
+import {IDialogSettings, BaseDialogController} from "../../../../shared";
+import {Models} from "../../../../main/models";
 
 export interface IConfirmDeleteController {
     errorMessage: string;
@@ -17,10 +17,9 @@ export class ConfirmDeleteController extends BaseDialogController implements ICo
         "dialogData"
     ];
 
-    constructor(
-        $instance: ng.ui.bootstrap.IModalServiceInstance,
-        dialogSettings: IDialogSettings,
-        public dialogData: Models.IArtifactWithProject[]) {
+    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
+                dialogSettings: IDialogSettings,
+                public dialogData: Models.IArtifactWithProject[]) {
         super($instance, dialogSettings);
         this._artifactList = dialogData;
     }
@@ -33,7 +32,7 @@ export class ConfirmDeleteController extends BaseDialogController implements ICo
         return this._errorMessage;
     }
 
-    public get artifactList(): Models.IArtifactWithProject[]{
+    public get artifactList(): Models.IArtifactWithProject[] {
         return this._artifactList;
     }
 }

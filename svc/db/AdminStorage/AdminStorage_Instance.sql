@@ -949,6 +949,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Discard
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Create', 'en-US', N'Create')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_PublishAndContinue', 'en-US', N'Publish and Continue')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Add', 'en-US', N'Add')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_ConfirmCloseProject', 'en-US', N'Close Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading ...')

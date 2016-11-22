@@ -357,7 +357,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (this._attachments) {
             delta.attachmentValues = this.attachments.changes();
         }
-        delta.docRefValues = this.docRefs.changes();
+        if (this._docRefs) {
+            delta.docRefValues = this.docRefs.changes();
+        }
         if (this._relationships) {
             delta.traces = this.relationships.changes();
         }

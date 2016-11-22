@@ -9,12 +9,7 @@ import {
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {
-    IDialogSettings,
-    IDialogService,
-    IBPAction,
-    BPButtonGroupAction
-} from "../../../shared";
+import {IDialogService, IBPAction, BPButtonGroupAction} from "../../../shared";
 import {
     SaveAction,
     PublishAction,

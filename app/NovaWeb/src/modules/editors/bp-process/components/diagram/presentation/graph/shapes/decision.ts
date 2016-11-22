@@ -1,15 +1,12 @@
-
-import { IProcessShape } from "../../../../../models/process-models";
-import { ModalDialogType } from "../../../../modal-dialogs/modal-dialog-constants";
-import { IProcessGraph, IDiagramNode } from "../models/";
-import { IDecision, NodeType } from "../models/";
-import { IDialogParams } from "../../../../messages/message-dialog";
-import { DiagramNode } from "./diagram-node";
-import { NodeFactorySettings } from "./node-factory-settings";
-import { Button } from "../buttons/button";
-import { DeleteShapeButton } from "../buttons/delete-shape-button";
-import { Label, LabelStyle, LabelType, ILabel} from "../labels/label";
-import { ProcessEvents } from "../../../process-diagram-communication";
+import {IProcessShape} from "../../../../../models/process-models";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode, IDecision} from "../models/";
+import {DiagramNode} from "./diagram-node";
+import {NodeFactorySettings} from "./node-factory-settings";
+import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
+import {Label, LabelStyle, LabelType} from "../labels/label";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export abstract class Decision extends DiagramNode<IProcessShape> implements IDecision {
     protected abstract DECISION_SHIFT: number;
@@ -35,11 +32,9 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         return "#FBF8E7";
     }
 
-    constructor(
-        model: IProcessShape,
-        rootScope: ng.IRootScopeService,
-        private nodeFactorySettings: NodeFactorySettings = null
-    ) {
+    constructor(model: IProcessShape,
+                rootScope: ng.IRootScopeService,
+                private nodeFactorySettings: NodeFactorySettings = null) {
         super(model);
 
         this.rootScope = rootScope;
@@ -81,7 +76,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             this.textLabelWidth,
             "#4C4C4C"
         );
-    
+
         this.textLabel = new Label(
             LabelType.Text,
             graph.getHtmlElement(),
@@ -94,7 +89,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             graph.viewModel.isReadonly
         );
 
-        // handle label change event 
+        // handle label change event
         this.textLabel.onTextChange = (value: string) => {
             this.label = value;
         };
@@ -102,7 +97,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         if (!graph.viewModel.isReadonly) {
             this.showMenu(mxGraph);
         }
-        
+
         this.deleteShapeButton.render(
             mxGraph,
             this,

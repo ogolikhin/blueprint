@@ -1,6 +1,6 @@
 <nav class="navbar navbar-light navbar-fixed-top">
     <div class="navbar-header">
-        <img class="logo" src="/novaweb/668f48fbcbda805a8a10b21184c7e996.svg"/>
+        <img class="logo" src="/novaweb/static/images/logo-storyteller-gray.svg"/>
         <div class="navbar-brand">Blueprint</div>
     </div>
 </nav>
@@ -9,13 +9,13 @@
         <div class="quick-search__results--side-border" ng-class="{'quick-search__results':$ctrl.results.length===0}">
             <div class="quick-search__results--input-panel">
                 <form name="$ctrl.form"
-                      ng-submit="$ctrl.searchWithMetadata($ctrl.searchTerm)"
+                      ng-submit="$ctrl.searchWithMetadata($ctrl.searchTerm, 'Modal')"
                       novalidate>
                     <div class="quick-serach__form-control" ng-class="{'has-error':$ctrl.hasError()}">
                          <div class="input-group">
                             <span class="input-group-btn input-group-btn__icon ">
                                 <button class="btn btn-default btn__icon"
-                                        type="submit"               
+                                        type="submit"
                                         ng-disabled="quickSearch.quickSearchService.canSearch()">
                                     <i class="glyphicon glyphicon-search quick-search__icon--fixed"></i>
                                 </button>
@@ -28,9 +28,9 @@
                                 class="quick-serach__input quick-serach__input--full-width"
                                 name="searchTerm"
                                 ng-model="$ctrl.searchTerm">
-                            <button type="button" 
-                                    class="btn btn-default btn__icon btn--absolute-right" 
-                                    ng-if="$ctrl.showHide" 
+                            <button type="button"
+                                    class="btn btn-default btn__icon btn--absolute-right"
+                                    ng-if="$ctrl.showHide"
                                     ng-click="$ctrl.clearSearch()">
                                 <i class="fonticon-error fonticon-gray"></i>
                             </button>
@@ -48,18 +48,18 @@
                         class="close"
                         ng-click="$ctrl.closeModal()">&times;</button>
             </div>
-             
+
             <div class="quick-search__results quick-search__results--padding" >
                 <div>
                     <div class="quick-search__total-results" ng-if="$ctrl.results">
                         <span>{{$ctrl.getResultsFoundText}}</span>
-                    </div> 
+                    </div>
                 </div>
-                    
-                <ul class="list-unstyled"       
-                    ng-if="$ctrl.results.length > 0"        
+
+                <ul class="list-unstyled"
+                    ng-if="$ctrl.results.length > 0"
                 >
-                    <li class="quick-search__results--item" 
+                    <li class="quick-search__results--item"
                         ng-repeat="item in $ctrl.results track by $index">
                         <div class="row small-gutter">
                             <div class="col-md-1 text-center">
@@ -98,7 +98,7 @@
                                 <div class="row" ng-if="!!item.isSubartifact">
                                     <div class="col-md-12" >
                                         <span><i>{{::$root.config.labels["Search_Results_SubartifactMessage"]}}</i></span>
-                                    </div>                                    
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -127,14 +127,14 @@
                     </div>
                 </div>
                 <div class="quick-search__footer">
-                   <ul  uib-pagination 
+                   <ul  uib-pagination
                         class="quick-search__pagination"
-                        total-items="$ctrl.metadata.totalCount" 
+                        total-items="$ctrl.metadata.totalCount"
                         items-per-page="$ctrl.metadata.pageSize"
                         ng-model="$ctrl.page"
-                        max-size="10" 
-                        boundary-links="true" 
-                        rotate="true" 
+                        max-size="10"
+                        boundary-links="true"
+                        rotate="true"
                         force-ellipses="true"
                         ng-change="$ctrl.search($ctrl.searchTerm)"
                         ng-if="$ctrl.showPagination()"

@@ -118,7 +118,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public navigateToArtifact(id: number) {
         if (this.relationship.hasAccess) {
-            this.navigationService.navigateTo({ id: id });
+            this.navigationService.navigateTo({id: id});
         }
     }
 }

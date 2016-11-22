@@ -1,30 +1,30 @@
-import { ILocalizationService } from "../../../core/localization/localizationService";
-import { IBaseValidation, BaseValidation } from "./base-validation";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface INumberValidation extends IBaseValidation {
     decimalPlaces(newValue: number,
-        oldValue: number,
-        decimalPlaces: number,
-        isValidated: boolean): boolean;
+                  oldValue: number,
+                  decimalPlaces: number,
+                  isValidated: boolean): boolean;
     wrongFormat(newValue: number,
-        oldValue: number,
-        decimalPlaces: number,
-        isValidated: boolean): boolean;
+                oldValue: number,
+                decimalPlaces: number,
+                isValidated: boolean): boolean;
     isMin(newValue: number,
-        oldValue: number,
-        min: any,
-        isValidated: boolean): boolean;
+          oldValue: number,
+          min: any,
+          isValidated: boolean): boolean;
     isMax(newValue: number,
-        oldValue: number,
-        max: any,
-        isValidated: boolean): boolean;
+          oldValue: number,
+          max: any,
+          isValidated: boolean): boolean;
     isValid(newValue: number,
-        oldValue: number,
-        decimalPlaces: number,
-        _min: any,
-        _max: any,
-        isValidated: boolean,
-        isRequired: boolean): boolean;
+            oldValue: number,
+            decimalPlaces: number,
+            _min: any,
+            _max: any,
+            isValidated: boolean,
+            isRequired: boolean): boolean;
 }
 
 export class NumberValidation extends BaseValidation implements INumberValidation {
@@ -34,9 +34,9 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     };
 
     public decimalPlaces(newValue: number,
-        oldValue: number,
-        decimalPlaces: number,
-        isValidated: boolean): boolean {
+                         oldValue: number,
+                         decimalPlaces: number,
+                         isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
@@ -51,17 +51,17 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     }
 
     public wrongFormat(newValue: number,
-        oldValue: number,
-        decimalPlaces: number,
-        isValidated: boolean): boolean {
+                       oldValue: number,
+                       decimalPlaces: number,
+                       isValidated: boolean): boolean {
         const value = oldValue || newValue;
         return !value || angular.isNumber(this.localization.current.toNumber(value, isValidated ? decimalPlaces : null));
     }
 
     public isMax(newValue: number,
-        oldValue: number,
-        max: any,
-        isValidated: boolean): boolean {
+                 oldValue: number,
+                 max: any,
+                 isValidated: boolean): boolean {
         if (!isValidated || _.isUndefined(max)) {
             return true;
         }
@@ -76,9 +76,9 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     }
 
     public isMin(newValue: number,
-        oldValue: number,
-        min: any,
-        isValidated: boolean): boolean {
+                 oldValue: number,
+                 min: any,
+                 isValidated: boolean): boolean {
         if (!isValidated || _.isUndefined(min)) {
             return true;
         }
@@ -93,12 +93,12 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
     }
 
     public isValid(newValue: number,
-        oldValue: number,
-        decimalPlaces: number,
-        _min: any,
-        _max: any,
-        isValidated: boolean,
-        isRequired: boolean): boolean {
+                   oldValue: number,
+                   decimalPlaces: number,
+                   _min: any,
+                   _max: any,
+                   isValidated: boolean,
+                   isRequired: boolean): boolean {
         return this.decimalPlaces(newValue, oldValue, decimalPlaces, isValidated) &&
             this.wrongFormat(newValue, oldValue, decimalPlaces, isValidated) &&
             this.isMin(newValue, oldValue, _min, isValidated) &&

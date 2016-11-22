@@ -187,14 +187,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         });
 
         if (this.item) {
-            // If artifact does not exist of the server, just initialize with empty lists
-            if (!Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
-                if (this.item.attachments.isLoading || this.item.docRefs.isLoading) {
-
-                    this.item.attachments.initialize(this.attachmentsList);
-                    this.item.docRefs.initialize(this.docRefList);
-                }
+            
+            const refresh = !this.item.attachments.changes() && !this.item.docRefs.changes();
+            if (refresh) {
+                this.item.attachments.refresh();
+                this.item.docRefs.refresh();
             }
+
             const attachmentsSubscriber = this.item.attachments.getObservable().subscribe(this.attachmentsUpdated);
             const attachmentErrorSubscriber = this.item.attachments.errorObservable().subscribe(this.clearAttachmentList);
             const docRefsSubscriber = this.item.docRefs.getObservable().subscribe(this.docRefsUpdated);

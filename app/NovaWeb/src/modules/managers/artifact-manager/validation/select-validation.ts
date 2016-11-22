@@ -1,4 +1,4 @@
-import { IBaseValidation, BaseValidation } from "./base-validation";
+import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface ISelectValidation extends IBaseValidation {
 }
@@ -9,11 +9,11 @@ export class SelectValidation extends BaseValidation implements ISelectValidatio
             return true;
         }
 
-        if (isRequired) { 
-            return !(_.isUndefined(newValue) || _.isNull(newValue) || 
-                        _.isUndefined(oldValue) || _.isNull(oldValue));
+        if (isRequired) {
+            return !(_.isUndefined(newValue) || _.isNull(newValue) ||
+            _.isUndefined(oldValue) || _.isNull(oldValue));
         } else {
-            return true;                
+            return true;
         }
     }
 }
@@ -27,11 +27,11 @@ export class MultiSelectValidation extends BaseValidation implements IMultiSelec
             return true;
         }
 
-        if (isRequired) { 
+        if (isRequired) {
             return (_.isObject(newValue) && !(_.isArray(newValue) && newValue.length === 0)) ||
-                      (_.isObject(oldValue) && !(_.isArray(oldValue) && oldValue.length === 0)); 
+                (_.isObject(oldValue) && !(_.isArray(oldValue) && oldValue.length === 0));
         } else {
-            return true;                
+            return true;
         }
     }
 }

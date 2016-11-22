@@ -22,7 +22,7 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent);
     closeProject(evt?: ng.IAngularEvent);
-    closeAllProjetcs(evt?: ng.IAngularEvent);
+    closeAllProjects(evt?: ng.IAngularEvent);
     createNewArtifact(evt?: ng.IAngularEvent);
     publishAll(evt?: ng.IAngularEvent);
     discardAll(evt?: ng.IAngularEvent);
@@ -144,7 +144,7 @@ export class PageToolbarController implements IPageToolbarController {
         }
     }
 
-    public closeAllProjetcs = (evt?: ng.IAngularEvent) => {
+    public closeAllProjects = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
         }

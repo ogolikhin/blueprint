@@ -2,13 +2,13 @@
 import "angular-mocks";
 import "angular-sanitize";
 import "../../../";
-import { ComponentTest } from "../../../../util/component.test";
-import { BPAttachmentItemController} from "./bp-attachment-item";
-import { LocalizationServiceMock } from "../../../../core/localization/localization.mock";
-import { ISelectionManager } from "../../../../managers/selection-manager/selection-manager";
-import { SelectionManagerMock } from "../../../../managers/selection-manager/selection-manager.mock";
-import { IStatefulArtifactFactory } from "../../../../managers/artifact-manager";
-import { StatefulArtifactFactoryMock } from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ComponentTest} from "../../../../util/component.test";
+import {BPAttachmentItemController} from "./bp-attachment-item";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../../../managers/selection-manager/selection-manager.mock";
+import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("Component BP Artifact Attachment Item", () => {
 
@@ -37,7 +37,9 @@ describe("Component BP Artifact Attachment Item", () => {
                 attachmentId: 1093,
                 uploadedDate: "2016-06-23T14:54:27.273Z"
             },
-            delete: () => { $window.alert("Test Alert"); }
+            delete: () => {
+                $window.alert("Test Alert");
+            }
         };
         componentTest = new ComponentTest<BPAttachmentItemController>(template, "bp-attachment-item");
         vm = componentTest.createComponent(bindings);
@@ -53,12 +55,12 @@ describe("Component BP Artifact Attachment Item", () => {
 
     it("should try to download an attachment without Guid",
         inject(($rootScope: ng.IRootScopeService,
-            $window: ng.IWindowService,
-            selectionManager: ISelectionManager,
-            statefulArtifactFactory: IStatefulArtifactFactory) => {
+                $window: ng.IWindowService,
+                selectionManager: ISelectionManager,
+                statefulArtifactFactory: IStatefulArtifactFactory) => {
 
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My" });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
 
             //Act
             selectionManager.setArtifact(artifact);
@@ -76,12 +78,17 @@ describe("Component BP Artifact Attachment Item", () => {
 
     it("should try to download historical version",
         inject(($rootScope: ng.IRootScopeService,
-            $window: ng.IWindowService,
-            selectionManager: ISelectionManager,
-            statefulArtifactFactory: IStatefulArtifactFactory) => {
+                $window: ng.IWindowService,
+                selectionManager: ISelectionManager,
+                statefulArtifactFactory: IStatefulArtifactFactory) => {
 
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My", version: 14 });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                version: 14
+            });
             artifact.artifactState.historical = true;
 
             //Act
@@ -100,12 +107,12 @@ describe("Component BP Artifact Attachment Item", () => {
 
     it("should try to download an attachment with Guid",
         inject(($rootScope: ng.IRootScopeService,
-            $window: ng.IWindowService,
-            selectionManager: ISelectionManager,
-            statefulArtifactFactory: IStatefulArtifactFactory) => {
+                $window: ng.IWindowService,
+                selectionManager: ISelectionManager,
+                statefulArtifactFactory: IStatefulArtifactFactory) => {
 
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My" });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
             vm.attachmentInfo.guid = "newid";
 
             //Act

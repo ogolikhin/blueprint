@@ -407,7 +407,6 @@ export class PageToolbarController implements IPageToolbarController {
             });
     }
 
-    
 
     showSubLevel(evt: any): void {
         // this is needed to allow tablets to show submenu (as touch devices don't understand hover)

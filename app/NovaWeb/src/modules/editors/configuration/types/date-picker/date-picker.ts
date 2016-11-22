@@ -102,23 +102,29 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
                 expression: function ($viewValue, $modelValue, scope) {
                     let date = localization.current.toDate($modelValue || $viewValue, true);
                     let minDate = scope.minDateSQL;
-
+                    let isValid = true;
                     if (date && minDate) {
-                        return date.getTime() >= minDate.getTime();
+                        isValid = date.getTime() >= minDate.getTime();
                     }
+                    
+                    BPFieldBaseController.handleValidationMessage("minDateSQL", isValid, scope);
                     return true;
                 }
             },
             minDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
+                    const isValid = validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
                                                                                           scope.options.data.isValidated);
+                    BPFieldBaseController.handleValidationMessage("minDate", isValid, scope);
+                    return true;
                 }
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
+                    const isValid =  validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
                                                                                           scope.options.data.isValidated);
+                    BPFieldBaseController.handleValidationMessage("maxDate", isValid, scope);
+                    return true;
                 }
             }
         };

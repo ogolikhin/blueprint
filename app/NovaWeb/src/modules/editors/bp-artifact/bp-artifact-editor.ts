@@ -148,6 +148,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
             try {
                 //here we need to update original model
                 const context = $field.data as IPropertyDescriptor;
+                const invalid = $field.formControl["$invalid"];
                 if (!context) {
                     return;
                 }
@@ -157,13 +158,13 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 const value = this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
-                        this.artifact.customProperties.set(context.modelPropertyName as number, value);
+                        this.artifact.customProperties.set(context.modelPropertyName as number, invalid ? $value : value);
                         break;
                     case Enums.PropertyLookupEnum.Special:
-                        this.artifact.specialProperties.set(context.modelPropertyName as number, value);
+                        this.artifact.specialProperties.set(context.modelPropertyName as number, invalid ? $value : value);
                         break;
                     default:
-                        this.artifact[context.modelPropertyName] = value;
+                        this.artifact[context.modelPropertyName] = invalid ? $value : value;
                         break;
                 }
                 context.isFresh = false;

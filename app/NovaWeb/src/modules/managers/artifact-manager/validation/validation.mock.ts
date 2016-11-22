@@ -80,6 +80,9 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
         super();
     };
 
+    public wrongFormat(newValue): boolean {
+        return true;
+    }
     public minDate(newValue: string,
         oldValue: string,
         _minDate: any,

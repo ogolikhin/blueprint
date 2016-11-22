@@ -15,6 +15,7 @@ App_Button_Create,"Create"
 App_Button_PublishAndContinue,"Publish and Continue"
 App_Button_Add,"Add"
 App_Button_Move,"Move"
+App_Button_ConfirmCloseProject,"Close Project"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
@@ -185,6 +186,8 @@ Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
 Publish_All_Success_Message,"All artifacts ({0}) have had their changes published."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
+
+Close_Project_UnpublishedArtifacts,"You have {0} saved buy unpublished changes.<br/>Consider publishing or discarding them before continuing."
 
 Artifact_List_Show_More,"Show more"
 Artifact_List_Show_First_N_Results,"Displaying first {0} results"

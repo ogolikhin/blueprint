@@ -139,19 +139,7 @@ export class PageToolbarController implements IPageToolbarController {
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             artifact.autosave().then(() => {
-                const projectId = artifact.projectId;
-                const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.model.id !== projectId);
-                if (isOpened) {
-                    this.projectManager.remove(artifact.projectId);
-                }
-                const nextProject = _.first(this.projectManager.projectCollection.getValue());
-                if (nextProject) {
-                    this.artifactManager.selection.clearAll();
-                    this.navigationService.navigateTo({id: nextProject.model.id});
-                } else {
-                    this.navigationService.navigateToMain();
-                }
-                this.clearLockedMessages();
+                this.closeProjectInternal(artifact.projectId);
             });
         }
     }
@@ -351,6 +339,48 @@ export class PageToolbarController implements IPageToolbarController {
             });
     }
 
+    private closeProjectInternal(currentProjectId: number) {
+        this.getProjectsWithUnpublishedArtifacts().then((projectsWithUnpublishedArtifacts) => {
+            const unpublishedArtifactCount = _.countBy(projectsWithUnpublishedArtifacts)[currentProjectId];
+            if (unpublishedArtifactCount > 0) {
+                //If the project we're closing has unpublished artifacts, we display a modal
+                let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
+                    .replace(`{0}`, unpublishedArtifactCount.toString());
+                this.dialogService.alert("Close_Project_UnpublishedArtifacts",
+                null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                    this.closeProjectById(currentProjectId);
+                });
+            } else {
+                //Otherwise, just close it
+                this.closeProjectById(currentProjectId);
+            }
+        });
+    }
+
+    private closeProjectById(projectId: number) {
+        const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
+        if (isOpened) {
+            this.projectManager.remove(projectId);
+        }
+        const nextProject = _.first(this.projectManager.projectCollection.getValue());
+        if (nextProject) {
+            this.artifactManager.selection.clearAll();
+            this.navigationService.navigateTo({id: nextProject.model.id});
+        } else {
+            this.navigationService.navigateToMain();
+        }
+        this.clearLockedMessages();
+    }
+
+    private getProjectsWithUnpublishedArtifacts(): ng.IPromise<number[]> {
+        //We can't use artifactManager.list() because lock state is lazy-loaded
+        return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
+            const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);
+            //We don't use _.uniq because we care about the count of artifacts.
+            return projectsWithUnpublishedArtifacts;
+        });
+    }
+
     private publishAllInternal(data: Models.IPublishResultSet) {
         let artifact = this.artifactManager.selection.getArtifact();
         let promise: ng.IPromise<void>;
@@ -404,6 +434,7 @@ export class PageToolbarController implements IPageToolbarController {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
             });
     }
+
 
 
     showSubLevel(evt: any): void {

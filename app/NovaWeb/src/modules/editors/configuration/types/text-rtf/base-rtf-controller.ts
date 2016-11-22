@@ -287,7 +287,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                                         artifactName: artifact.name,
                                         itemId: itemId,
                                         itemTypePrefix: isSubArtifact ? subArtifact.prefix : artifact.prefix,
-                                        itemName: artifact.name,
+                                        itemName: isSubArtifact ? undefined : artifact.name,
                                         itemLabel: isSubArtifact ? subArtifact.displayName : undefined,
                                         projectId: artifact.projectId,
                                         projectName: artifact.artifactPath && artifact.artifactPath.length ?

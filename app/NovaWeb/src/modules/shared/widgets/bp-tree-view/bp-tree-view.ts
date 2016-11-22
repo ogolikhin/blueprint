@@ -18,7 +18,7 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
  *               on-error="$ctrl.onError(reason)"
- *               on-grid-reset="$ctrl.onGridReset()">
+ *               on-grid-reset="$ctrl.onGridReset(isExpanding)">
  * </bp-tree-view>
  */
 export class BPTreeViewComponent implements ng.IComponentOptions {
@@ -59,6 +59,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeNode}) => void;
     onError: (param: {reason: any}) => void;
+    onGridReset: (param: {isExpanding: boolean}) => void;
 
     // ag-grid bindings
     options: agGrid.GridOptions;
@@ -129,7 +130,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeNode}) => void;
     public onError: (param: {reason: any}) => void;
-    public onGridReset: () => void;
+    public onGridReset: (param: {isExpanding: boolean}) => void;
 
     // ag-grid bindings
     public options: agGrid.GridOptions;
@@ -330,7 +331,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     }
                 }
                 if (_.isFunction(this.onGridReset)) {
-                    this.onGridReset();
+                    this.onGridReset({isExpanding: isExpanding});
                 }
             });
         }

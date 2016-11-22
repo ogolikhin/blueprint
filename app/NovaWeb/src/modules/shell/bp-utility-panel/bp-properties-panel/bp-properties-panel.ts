@@ -191,15 +191,17 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                    const isReadOnly = selectedItem.artifactState.readonly;
-                    if (isReadOnly) {
-                        field.templateOptions.disabled = true;
-                        if (field.key !== "documentFile" &&
-                            field.type !== "bpFieldImage" &&
-                            field.type !== "bpFieldInheritFrom") {
-                            field.type = "bpFieldReadOnly";
-                        }
+                const isReadOnly = selectedItem.artifactState.readonly ||
+                    (selectedItem.predefinedType !== Models.ItemTypePredefined.Process &&
+                        selectedItem.predefinedType !== Models.ItemTypePredefined.PROShape);
+                if (isReadOnly) {
+                    field.templateOptions.disabled = true;
+                    if (field.key !== "documentFile" &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {
+                        field.type = "bpFieldReadOnly";
                     }
+                }
 
                 this.onFieldUpdate(field);
 

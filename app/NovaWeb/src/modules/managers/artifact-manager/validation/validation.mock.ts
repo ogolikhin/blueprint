@@ -83,6 +83,9 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
     public wrongFormat(newValue): boolean {
         return true;
     }
+    public minSQLDate(newValue): boolean {
+        return true;
+    }
     public minDate(newValue: string,
         _minDate: any,
         isValidated: boolean): boolean {

@@ -130,17 +130,14 @@ export class BPLocale {
     } 
 
     public toDate(value: string | Date, reset?: boolean): Date {
-        let d: moment.Moment;
-        if (_.isDate(value)) {
-            d = moment(value);
-        } else {
-            d = moment(String(value), this._shortDateFormat, true);
-        } 
-        if (d.isValid()) {
-            if (reset === true) {
-                d.startOf("day");
-            }
+       if (value && (_.isDate(value) || (_.isString(value) && value.length > 1))) {
+            let d = moment(value);
+            if (d.isValid()) {
+                if (reset === true) {
+                    d.startOf("day");
+                }
                 return d.toDate();
+            }
         }
         return null;
     };

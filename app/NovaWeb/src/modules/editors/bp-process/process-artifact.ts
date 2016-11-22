@@ -12,7 +12,7 @@ import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manag
 import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
 import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {IProcessUpdateResult} from "./services/process.svc";
-import { IArtifactReference } from "./models/process-models";
+import {IArtifactReference} from "./models/process-models";
 
 export interface IStatefulProcessArtifact extends IStatefulArtifact {
     processOnUpdate();

@@ -63,6 +63,13 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
     protected setPersonaReference(value: IArtifactReference) {
         if (value) {
             this.dialogModel.personaReference = value;
+            if (this.dialogModel.systemTaskPersonaReferenceOptions.filter(o => o.value.id
+                === this.getPersonaReference().id).length === 0) {
+                this.dialogModel.systemTaskPersonaReferenceOptions.push({
+                    value: this.getPersonaReference(),
+                    label: this.getPersonaLabel()
+                });
+            }
         } else {
             this.dialogModel.personaReference = this.getDefaultPersonaReference();
         }

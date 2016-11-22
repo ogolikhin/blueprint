@@ -60,7 +60,7 @@ describe("BPArtifactRelationshipItem", () => {
 
     it("action panel should be hidden if item is not manual trace or user has no access to it", () => {
         //Assert
-        expect(directiveTest.element.find(".icons").hasClass("ng-hide")).toBeTruthy();
+        expect(directiveTest.element.find(".icons").length).toBe(0);
     });
 
     it("action panel should be visible if item is manual trace and user has access to it", () => {
@@ -73,15 +73,12 @@ describe("BPArtifactRelationshipItem", () => {
 
             let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
 
-            vm2.relationship = <IRelationship>{
-                "artifactId": 1,
-                "hasAccess": true
-            };
+            vm2.showActionsPanel = true;
 
             $rootScope.$digest();
 
             //Assert
-            expect(directiveTest2.element.find(".icons").hasClass("ng-hide")).toBeFalsy();
+            expect(directiveTest2.element.find(".icons").length).toBe(1);
         });
     });
 

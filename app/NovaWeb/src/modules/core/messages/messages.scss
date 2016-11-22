@@ -4,10 +4,24 @@
 .messages__container {
     bottom: 8px;
     display: block;
-    width: 350px;
     position: fixed;
     right: 8px;
+    width: 350px;
     z-index: $zindex-messages;
+}
+
+.messages__animate {
+    display: block;
+    opacity: 1;
+
+    &.ng-leave {
+        -webkit-transition: opacity linear .75s;
+        transition: opacity linear .75s;
+    }
+
+    &.ng-leave.ng-leave-active {
+        opacity: 0;
+    }
 }
 
 .messages__message-container {

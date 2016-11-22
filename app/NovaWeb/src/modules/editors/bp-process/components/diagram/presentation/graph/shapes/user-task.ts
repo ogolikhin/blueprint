@@ -186,14 +186,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return this.model.personaReference;
     }
 
-    public set personaReference(value: IArtifactReference) {
-        if (this.model != null && this.model.personaReference !== value) {
-            this.model.personaReference = value;
-            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value.id);
+    public set personaReference(reference: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== reference) {
+            this.model.personaReference = reference;
+            
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, reference.id);
+
             if (this.personaLabel) {
-                this.personaLabel.text = value.name;
-                this.shapesFactoryService.setUserTaskPersona(value.name);
+                this.personaLabel.text = reference.name;
             }
+
+            this.shapesFactoryService.setUserTaskPersona(reference);
         }
     }
 
@@ -388,7 +391,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         const personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
         this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"],
-            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 18, 22);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT,

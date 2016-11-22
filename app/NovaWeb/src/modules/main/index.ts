@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import "angular-animate";
 import "angular-messages";
 import "angular-sanitize";
 import "angular-ui-router";
@@ -41,6 +42,7 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
+    "ngAnimate",
     "ngMessages",
     "ngSanitize",
     "app.shell",

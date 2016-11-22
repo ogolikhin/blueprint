@@ -216,6 +216,10 @@ export class Artifact implements IArtifact {
     public hasCustomIcon: boolean;
 }
 
+export interface IViewModel<T> {
+    model: T;
+}
+
 export interface IKeyValuePair {
     key: any;
     value: any;

@@ -394,6 +394,11 @@ export abstract class StatefulItem implements IIStatefulItem {
                     if (propertyValue) {
                         value = propertyValue.value;
                     }
+
+                    if (!_.isBoolean(propertyType.isValidated)) {
+                        propertyType.isValidated = true;
+                    }
+                    
                     break;
                 case Enums.PropertyLookupEnum.Special:
                     propertyValue = this.specialProperties.get(propertyType.modelPropertyName as number);

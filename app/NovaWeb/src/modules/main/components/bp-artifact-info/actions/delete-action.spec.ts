@@ -13,6 +13,8 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog"
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 describe("DeleteAction", () => {
     let $q_: ng.IQService;
@@ -28,6 +30,7 @@ describe("DeleteAction", () => {
         $provide.service("artifactManager", ArtifactManager); 
         $provide.service("projectManager", ProjectManager); 
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("navigationService", NavigationServiceMock);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -41,7 +44,8 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService
+            dialogService: IDialogService,
+            navigationService: INavigationService
             ) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
@@ -50,7 +54,7 @@ describe("DeleteAction", () => {
 
         // act
         try {
-            new DeleteAction(artifact, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+            new DeleteAction(artifact, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
         } catch (exception) {
             error = exception;
         }
@@ -67,6 +71,7 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
+            navigationService: INavigationService
             ) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
@@ -75,7 +80,7 @@ describe("DeleteAction", () => {
 
         // act
         try {
-            new DeleteAction(artifact, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+            new DeleteAction(artifact, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
         } catch (exception) {
             error = exception;
         }
@@ -92,14 +97,15 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService,            
+            navigationService: INavigationService
             ) => {
             // arrange
             const artifact: IStatefulArtifact = null;
 
             // act
             const deleteAction = new DeleteAction(artifact, 
-            localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+            localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -112,7 +118,9 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService ,            
+            navigationService: INavigationService
+           
             ) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
@@ -120,7 +128,7 @@ describe("DeleteAction", () => {
 
             // act
             const deleteAction = new DeleteAction(artifact, localization, 
-            messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -133,7 +141,9 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService,            
+            navigationService: INavigationService
+            
             ) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -144,7 +154,7 @@ describe("DeleteAction", () => {
 
             // act
             const deleteAction = new DeleteAction(artifact, localization, 
-            messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -157,7 +167,9 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService,            
+            navigationService: INavigationService
+            
             ) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -168,7 +180,7 @@ describe("DeleteAction", () => {
 
             // act
             const deleteAction = new DeleteAction(artifact, localization,
-             messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+             messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
             // assert
             expect(deleteAction.disabled).toBe(true);
@@ -181,7 +193,9 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService            
+            dialogService: IDialogService,            
+            navigationService: INavigationService
+           
             ) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -195,7 +209,7 @@ describe("DeleteAction", () => {
 
             // act
             const deleteAction = new DeleteAction(artifact, localization, 
-            messageService, artifactManager, projectManager, loadingOverlayService, dialogService);
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
             // assert
             expect(deleteAction.disabled).toBe(false);
@@ -219,7 +233,9 @@ describe("DeleteAction", () => {
             projectManager: IProjectManager,
             messageService: IMessageService,
             loadingOverlayService: ILoadingOverlayService,
-            dialogService: IDialogService,
+            dialogService: IDialogService,            
+            navigationService: INavigationService
+
             ) => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -230,7 +246,7 @@ describe("DeleteAction", () => {
                     permissions: RolePermissions.Edit
                 });
                 deleteAction = new DeleteAction(artifact, localization, messageService, artifactManager, 
-                                    projectManager, loadingOverlayService, dialogService);
+                                    projectManager, loadingOverlayService, dialogService, navigationService);
                 beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
                 endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
                 dialogOpenSpy = spyOn(dialogService, "open");

@@ -1,25 +1,24 @@
 import "angular";
 import "angular-mocks";
+import "lodash";
 import {Models, SearchServiceModels} from "../../models";
-import {SearchResultVM, SearchResultVMFactory} from "./bp-artifact-picker-search-vm";
+import {SearchResultVM, ProjectSearchResultVM, ArtifactSearchResultVM} from "./search-result-vm";
 import {IProjectService} from "../../../managers/project-manager/";
 
 describe("SearchResultVMFactory", () => {
     let projectService: IProjectService;
     let onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean;
-    let factory: SearchResultVMFactory;
 
     beforeEach(() => {
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
         onSelect = jasmine.createSpy("onSelect");
-        factory = new SearchResultVMFactory(projectService, onSelect);
     });
 
     describe("ProjectSearchResultVM", () => {
         it("select calls onSelect", () => {
             // Arrange
             const model = {} as SearchServiceModels.ISearchResult;
-            const searchResultVM = factory.createProjectSearchResultVM(model);
+            const searchResultVM = new ProjectSearchResultVM(model, onSelect);
             const value = true;
 
             // Act
@@ -32,7 +31,7 @@ describe("SearchResultVMFactory", () => {
         it("id returns correct result", () => {
             // Arrange
             const model = {} as SearchServiceModels.ISearchResult;
-            const searchResultVM = factory.createProjectSearchResultVM(model);
+            const searchResultVM = new ProjectSearchResultVM(model, onSelect);
 
             // Act
             const result = searchResultVM.id;
@@ -44,7 +43,7 @@ describe("SearchResultVMFactory", () => {
         it("iconClass returns correct result", () => {
             // Arrange
             const model = {} as SearchServiceModels.ISearchResult;
-            const searchResultVM = factory.createProjectSearchResultVM(model);
+            const searchResultVM = new ProjectSearchResultVM(model, onSelect);
 
             // Act
             const result = searchResultVM.iconClass;
@@ -57,9 +56,8 @@ describe("SearchResultVMFactory", () => {
     describe("ArtifactSearchResultVM", () => {
         it("select, when selectable, calls onSelect", () => {
             // Arrange
-            factory.isItemSelectable = () => true;
             const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-            const searchResultVM = factory.createArtifactSearchResultVM(model);
+            const searchResultVM = new ArtifactSearchResultVM(model, onSelect, () => true);
             const value = true;
 
             // Act
@@ -71,9 +69,8 @@ describe("SearchResultVMFactory", () => {
 
         it("select, when not selectable, does not call onSelect", () => {
             // Arrange
-            factory.isItemSelectable = () => false;
             const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-            const searchResultVM = factory.createArtifactSearchResultVM(model);
+            const searchResultVM = new ArtifactSearchResultVM(model, onSelect, () => false);
             const value = true;
 
             // Act
@@ -86,7 +83,7 @@ describe("SearchResultVMFactory", () => {
         it("id returns correct result", () => {
             // Arrange
             const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-            const searchResultVM = factory.createArtifactSearchResultVM(model);
+            const searchResultVM = new ArtifactSearchResultVM(model, onSelect);
 
             // Act
             const result = searchResultVM.id;
@@ -98,7 +95,7 @@ describe("SearchResultVMFactory", () => {
         it("iconClass returns correct result", () => {
             // Arrange
             const model = {id: 123, itemId: 123, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
-            const searchResultVM = factory.createArtifactSearchResultVM(model);
+            const searchResultVM = new ArtifactSearchResultVM(model, onSelect);
 
             // Act
             const result = searchResultVM.iconClass;

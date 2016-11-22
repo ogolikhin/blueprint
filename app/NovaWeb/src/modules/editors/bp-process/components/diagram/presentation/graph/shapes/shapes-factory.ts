@@ -15,28 +15,28 @@ export interface IPropertyNameConstantsInformation {
 }
 
 export class ShapesFactorySettings {
-    private _userTaskPersona = null;
-    private _systemTaskPersona = null;
+    private _userTaskPersona: IArtifactReference;
+    private _systemTaskPersona: IArtifactReference;
 
-    public getUserTaskPersona(): string {
+    public get userTaskPersona(): IArtifactReference {
         return this._userTaskPersona;
     }
 
-    public setUserTaskPersona(value): void {
+    public set userTaskPersona(value: IArtifactReference) {
         this._userTaskPersona = value;
     }
 
-    public getSystemTaskPersona(): string {
+    public get systemTaskPersona(): IArtifactReference {
         return this._systemTaskPersona;
     }
 
-    public setSystemTaskPersona(value): void {
+    public set systemTaskPersona(value: IArtifactReference) {
         this._systemTaskPersona = value;
     }
 
     public destroy() {
-        this._userTaskPersona = null;
-        this._systemTaskPersona = null;
+        delete this._userTaskPersona;
+        delete this._systemTaskPersona;
     }
 }
 
@@ -155,12 +155,12 @@ export class ShapesFactory {
         }
     }
 
-    public setUserTaskPersona(value) {
-        this.settings.setUserTaskPersona(value);
+    public setUserTaskPersona(value: IArtifactReference): void {
+        this.settings.userTaskPersona = value;
     }
 
-    public setSystemTaskPersona(value) {
-        this.settings.setSystemTaskPersona(value);
+    public setSystemTaskPersona(value: IArtifactReference): void {
+        this.settings.systemTaskPersona = value;
     }
 
     public createStatefulSubArtifact(artifact: IStatefulArtifact, subartifact: IProcessShape): StatefulProcessSubArtifact {
@@ -178,67 +178,48 @@ export class ShapesFactory {
     }
 
     public createModelUserTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): IUserTaskShape {
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
-
-        const defaultUserPersonaReference = {
-            id: this._idGenerator.getUserPeronaId(),
-            projectId: null,
-            name: this.NEW_USER_TASK_PERSONAREFERENCE.name,
-            typePrefix: null,
-            baseItemTypePredefined: ItemTypePredefined.Actor,
-            projectName: null,
-            link: null,
-            version: null
-        };
-
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultUserTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
         const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
 
-        if (!!this.settings.getUserTaskPersona()) {
-            defaultUserPersonaReference.name = this.settings.getUserTaskPersona();
+        let defaultUserPersonaReference = this.NEW_USER_TASK_PERSONAREFERENCE;
+        
+        if (!!this.settings.userTaskPersona) {
+            defaultUserPersonaReference = this.settings.userTaskPersona;
         }
 
-        const obj = new UserTaskShapeModel(id, tempUserTaskName, projectId, "PROS", parentId,
-            ItemTypePredefined.PROShape, null, defaultUserPersonaReference);
+        const shapeModel = new UserTaskShapeModel(
+            id, tempUserTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, defaultUserPersonaReference
+        );
+        shapeModel.propertyValues = this.createPropertyValuesForUserTaskShape([], "", "", x, y, -1, -1, "");
 
-        obj.propertyValues = this.createPropertyValuesForUserTaskShape([], "",
-            "", x, y, -1, -1, "");
-
-        return obj;
+        return shapeModel;
     }
 
     public createModelSystemTaskShape(parentId: number, projectId: number, id: number, x: number, y: number): ISystemTaskShape {
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
-
-        const defaultSystemPersonaReference = {
-            id: this._idGenerator.getSystemPeronaId(),
-            projectId: null,
-            name: this.NEW_SYSTEM_TASK_PERSONAREFERENCE.name,
-            typePrefix: null,
-            baseItemTypePredefined: ItemTypePredefined.Actor,
-            projectName: null,
-            link: null,
-            version: null
-        };        
-
-        if (!!this.settings.getSystemTaskPersona()) {
-            defaultSystemPersonaReference.name = this.settings.getSystemTaskPersona();
-        }
-
         // hard coded strings, if change, please search above chars and replace the other place on server side
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
+
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
         const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
-        const obj = new SystemTaskShapeModel(id, tempSystemTaskName, projectId, "PROS", parentId, 
-        ItemTypePredefined.PROShape, null, defaultSystemPersonaReference);
 
-        obj.propertyValues = this.createPropertyValuesForSystemTaskShape([], -1,
-            null, "", "", x, y, -1, -1, "", null);
+        let defaultSystemPersonaReference = this.NEW_SYSTEM_TASK_PERSONAREFERENCE;
 
-        return obj;
+        if (!!this.settings.systemTaskPersona) {
+            defaultSystemPersonaReference = this.settings.systemTaskPersona;
+        }
+
+        const shapeModel = new SystemTaskShapeModel(
+            id, tempSystemTaskName, projectId, "PROS", parentId,  ItemTypePredefined.PROShape, null, defaultSystemPersonaReference
+        );
+
+        shapeModel.propertyValues = this.createPropertyValuesForSystemTaskShape([], -1, null, "", "", x, y, -1, -1, "", null);
+
+        return shapeModel;
     }
 
     public createModelUserDecisionShape(parentId: number, projectId: number, id: number, x: number, y: number): IProcessShape {
@@ -494,6 +475,10 @@ export class ShapesFactory {
         if (this._idGenerator) {
             this._idGenerator.reset();
         }
+
+        if (this.settings) {
+            this.settings.destroy();
+        }
     }
 
     public destroy() {
@@ -501,9 +486,7 @@ export class ShapesFactory {
             this.settings.destroy();
         }
     }
-
 }
 
 export class ShapesFactoryMock {
- 
 }

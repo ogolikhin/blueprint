@@ -23,7 +23,7 @@ export interface IDialogSettings {
 
 export interface IDialogService {
     open(dialogSettings: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any>;
-    alert(message: string, header?: string): ng.IPromise<any>;
+    alert(message: string, header?: string, okButton?: string, cancelButton?: string): ng.IPromise<any>;
     confirm(message: string, header?: string, css?: string): ng.IPromise<any>;
     dialogSettings: IDialogSettings;
 }
@@ -75,14 +75,19 @@ export class DialogService implements IDialogService {
         return this.openInternal().result;
     }
 
-    public alert(message: string, header?: string) {
-        this.initialize({
+    public alert(message: string, header?: string, okButton?: string, cancelButton?: string) {
+        const dialogSettings = {
             type: DialogTypeEnum.Alert,
             header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Alert"),
             message: this.localization.get(message) || message,
-            cancelButton: null,
+            cancelButton: this.localization.get(cancelButton) || cancelButton || null, //Don't show cancel button if not defined
             css: "modal-alert nova-messaging"
-        });
+        };
+        if (okButton) {
+            //We only want to set the okButton if it's specified, otherwise use the initialize default.
+            dialogSettings["okButton"] = this.localization.get(okButton) || okButton;
+        }
+        this.initialize(dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
             keyboard: false
         }).result;

@@ -172,12 +172,13 @@ export class BPToolbarController implements IBPToolbarController {
             const currentProjectId = artifact.projectId;
 
             this.getProjectsWithUnpublishedArtifacts().then((projectsWithUnpublishedArtifacts) => {
-                const unpublishedArtifactCount = _.filter(projectsWithUnpublishedArtifacts, currentProjectId).length;
+                const unpublishedArtifactCount = _.countBy(projectsWithUnpublishedArtifacts)[currentProjectId];
                 if (unpublishedArtifactCount > 0) {
                     //If the project we're closing has unpublished artifacts, we display a modal
                     let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
                         .replace(`{0}`, unpublishedArtifactCount.toString());
-                    this.dialogService.confirm("You have {0} unpublished changes in this project. Proceed with closing project?").then(() => {
+                    this.dialogService.alert("You have {0} unpublished changes in this project. Proceed with closing project?",
+                    null, "App_Button_CloseProject", "App_Button_Cancel").then(() => {
                         this.closeProjectById(currentProjectId);
                     });
                 } else {

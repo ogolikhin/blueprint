@@ -1,23 +1,23 @@
 import * as angular from "angular";
-import { ShapesFactory } from "./shapes-factory";
-import { ProcessGraph } from "../process-graph";
-import { ArtifactReferenceLinkMock, ShapeModelMock } from "./shape-model.mock";
-import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference } from "../../../../../models/process-models";
-import { ProcessShapeType, ProcessType } from "../../../../../models/enums";
-import { ProcessViewModel, IProcessViewModel } from "../../../viewmodel/process-viewmodel";
-import { SystemTask, DiagramNodeElement } from "./";
-import { NodeChange, NodeType, ElementType } from "../models/";
-import { ISystemTask, ISystemTaskShape } from "../models/";
-import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
-import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
-import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifact } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
-import { StatefulProcessArtifact } from "../../../../../process-artifact";
-import { Models } from "../../../../../../../main/models/";
-import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ShapesFactory} from "./shapes-factory";
+import {ProcessGraph} from "../process-graph";
+import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
+import {ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference} from "../../../../../models/process-models";
+import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
+import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {SystemTask, DiagramNodeElement} from "./";
+import {NodeChange, NodeType, ElementType} from "../models/";
+import {ISystemTask, ISystemTaskShape} from "../models/";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifact} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {StatefulProcessArtifact} from "../../../../../process-artifact";
+import {Models} from "../../../../../../../main/models/";
+import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ItemTypePredefined} from "../../../../../../../main/models/enums";
 
 describe("SystemTask", () => {
@@ -63,7 +63,7 @@ describe("SystemTask", () => {
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
     }));
 
 

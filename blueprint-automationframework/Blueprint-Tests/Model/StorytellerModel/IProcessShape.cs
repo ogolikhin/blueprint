@@ -77,16 +77,16 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Add Associated Artifact Reference (Include) to Process Shape
         /// </summary>
-        /// <param name="artifact">The artifact to add</param>
+        /// <param name="artifact">The Nova artifact to add</param>
         /// <returns>The artifact reference to the associated artifact</returns>
-        ArtifactReference AddAssociatedArtifact(IArtifact artifact);
+        ArtifactReference AddAssociatedArtifact(NovaArtifactDetails artifact);
 
         /// <summary>
         /// Add Persona Reference to Process Shape
         /// </summary>
-        /// <param name="artifact">The artifact to add</param>
+        /// <param name="artifact">The Nova artifact to add</param>
         /// <returns>The artifact reference to the persona</returns>
-        ArtifactReference AddPersonaReference(IArtifact artifact);
+        ArtifactReference AddPersonaReference(NovaArtifactDetails artifact);
 
         /// <summary>
         /// Verify if the Process is specific processShapeType

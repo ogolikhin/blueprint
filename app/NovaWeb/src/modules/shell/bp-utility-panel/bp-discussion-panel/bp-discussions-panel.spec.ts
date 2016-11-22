@@ -2,17 +2,17 @@
 // import "angular-mocks";
 // import "angular-sanitize";
 // import "../../";
-// import { ComponentTest } from "../../../util/component.test";
-// import { BPDiscussionPanelController} from "./bp-discussions-panel";
-// import { HttpStatusCode } from "../../../core/http";
-// import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-// import { ArtifactDiscussionsMock } from "./artifact-discussions.mock";
-// import { SelectionManager } from "./../../../managers/selection-manager/selection-manager";
-// import { IReply, IDiscussion } from "./artifact-discussions.svc";
-// import { MessageServiceMock } from "../../../core/messages/message.mock";
-// import { DialogServiceMock } from "../../../shared/widgets/bp-dialog/bp-dialog";
-// import { ProcessServiceMock } from "../../../editors/bp-process/services/process.svc.mock";
-// import { ItemTypePredefined } from "../../../main/models/enums";
+// import {ComponentTest} from "../../../util/component.test";
+// import {BPDiscussionPanelController} from "./bp-discussions-panel";
+// import {HttpStatusCode} from "../../../core/http";
+// import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+// import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
+// import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+// import {IReply, IDiscussion} from "./artifact-discussions.svc";
+// import {MessageServiceMock} from "../../../core/messages/message.mock";
+// import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+// import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
+// import {ItemTypePredefined} from "../../../main/models/enums";
 // import {
 //     IArtifactManager,
 //     ArtifactManager,
@@ -233,7 +233,7 @@ it("should load data for a selected artifact", (() => {//
 //             artifactManager.selection.setArtifact(artifact);
 //             $rootScope.$digest();
 //             let newDiscussion: IDiscussion;
-//             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
+//             vm.addArtifactDiscussion("test").then((result: IDiscussion) => {newDiscussion = result;});
 //             $timeout.flush();
 
 //             //Assert
@@ -266,7 +266,7 @@ it("should load data for a selected artifact", (() => {//
 //             artifactManager.selection.setArtifact(artifact);
 //             $rootScope.$digest();
 //             let newDiscussion: IDiscussion;
-//             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
+//             vm.addArtifactDiscussion("test").then((result: IDiscussion) => {newDiscussion = result;});
 //             $timeout.flush();
 
 //             //Assert
@@ -288,7 +288,7 @@ it("should load data for a selected artifact", (() => {//
 //             artifactManager.selection.setArtifact(artifact);
 //             $rootScope.$digest();
 //             let newReply: IReply;
-//             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
+//             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => {newReply = result;});
 //             $timeout.flush();
 
 //             //Assert
@@ -322,7 +322,7 @@ it("should load data for a selected artifact", (() => {//
 //             artifactManager.selection.setArtifact(artifact);
 //             $rootScope.$digest();
 //             let newReply: IReply;
-//             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
+//             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => {newReply = result;});
 //             $timeout.flush();
 
 //             //Assert

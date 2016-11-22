@@ -157,22 +157,15 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected prepRTF = (hasTables: boolean = false) => {
+        const $scope = this.$scope;
+        const content = $scope.model[$scope.options["key"]];
+        $scope.model[$scope.options["key"]] = content.replace(/ linkassemblyqualifiedname/gi, ` class="mceNonEditable" linkassemblyqualifiedname`);
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
-        this.disableEditabilityOfInlineTraces(this.editorBody);
         this.normalizeHtml(this.editorBody, hasTables);
         this.contentBuffer = this.mceEditor.getContent();
         this.handleValidation();
         this.$scope.options["data"].isFresh = false;
     };
-
-    protected disableEditabilityOfInlineTraces(body: HTMLElement) {
-        const inlineTraces = body.querySelectorAll("a[linkassemblyqualifiedname]");
-        for (let i = 0; i < inlineTraces.length; i++) {
-            let trace = inlineTraces[i] as HTMLElement;
-            trace.classList.add("mceNonEditable");
-            trace.setAttribute("data-mce-contenteditable", "false");
-        }
-    }
 
     protected normalizeHtml(body: Node, hasTables: boolean = false) {
         Helper.autoLinkURLText(body);
@@ -324,24 +317,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public insertInlineTrace = (id: number, name: string, prefix: string) => {
         /* tslint:disable:max-line-length */
         // when run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
-        const linkId: string = "inlinetrace-" + Date.now().toString() + "-" + _.random(1000).toString();
         const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + id.toString();
         const linkText: string = prefix + id.toString() + ": " + name;
         const escapedLinkText: string = _.escape(linkText);
         const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
             `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
             `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
-            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" ` +
-            `data-mce-contenteditable="false" class="mceNonEditable" id="${linkId}">` +
+            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" class="mceNonEditable">` +
             `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
             `</a>&#65279;`;
         /* tslint:enable:max-line-length */
-        try { // see https://github.com/tinymce/tinymce/issues/2646
-            this.mceEditor["selection"].setContent(inlineTrace);
-            this.mceEditor["selection"].select(this.mceEditor["dom"].select("#" + linkId)[0]);
-        } catch (ex) {
-            // ignore
-        }
+        this.mceEditor["insertContent"](inlineTrace);
     };
 
     public handleClick = (event: Event) => {

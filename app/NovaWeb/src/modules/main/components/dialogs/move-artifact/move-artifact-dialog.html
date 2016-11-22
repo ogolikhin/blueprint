@@ -2,7 +2,7 @@
     <h3 class="modal-title">{{::$ctrl.dialogSettings.header}}</h3>
 </div>
 <div class="modal-body">
-    <div>
+    <div class="artifact-picker-insert-selection">
         {{::$ctrl.localization.get('Move_Artifacts_Picker_Insert_Label')}}
         <label><input type="radio" ng-model="$ctrl.insertMethod" ng-value="$ctrl.InsertMethodSelection" ng-change="$ctrl.onInsertMethodChange()">
         {{::$ctrl.localization.get('Move_Artifacts_Picker_Insert_Choice_Inside')}}</label>

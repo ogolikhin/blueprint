@@ -25,6 +25,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
+    move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
     validate(): ng.IPromise<void>;
@@ -383,9 +384,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
-        const changes = this.changes();
 
-        let validatePromise = this.services.$q.defer<void>();
+        let validatePromise = this.services.$q.defer<any>();
         if (ignoreInvalidValues) {
             validatePromise.resolve();
         } else {
@@ -395,6 +395,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return validatePromise.promise.then(() => {
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
+            const changes = this.changes();
             return this.saveArtifact(changes).catch((error) => {
                 if (this.hasCustomSave) {
                     this.customHandleSaveFailed();
@@ -404,13 +405,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }).catch((error) => {
             return this.services.$q.reject(error);
         });
-    }
-
-    public set_400_114_error(deferred: ng.IDeferred<IStatefulArtifact>) {
-        const compoundId: string = this.prefix + this.id.toString();
-        let message: string = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
-        deferred.reject(new Error(message.replace("{0}", compoundId)));
-        return deferred.promise;
     }
 
     private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
@@ -618,6 +612,18 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     }
 
+    public move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
+        let moveOverlayId = this.services.loadingOverlayService.beginLoading();
+
+        return this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex)
+        .catch((error: IApplicationError) => {
+            this.error.onNext(error);
+            return this.services.$q.reject(error);
+        }).finally(() => {
+            this.services.loadingOverlayService.endLoading(moveOverlayId);
+        });
+    }
+
     //Hook for subclasses to provide additional promises which should be run for obtaining data
     protected getCustomArtifactPromisesForGetObservable(): ng.IPromise<IStatefulArtifact>[] {
         return [];
@@ -630,18 +636,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected getCustomArtifactPromiseForSave(): ng.IPromise <IStatefulArtifact> {
         return this.services.$q.when(this);
     }
-
-    protected validateCustomArtifactPromiseForSave(changes:  Models.IArtifact, ignoreValidation: boolean): ng.IPromise <IStatefulArtifact> {
-        let deferred = this.services.getDeferred<IStatefulArtifact>();
-        const changesToValidate = this.artifactState.invalid ? changes : undefined;
-        if (this.artifactState.invalid && !ignoreValidation) {
-            deferred.reject(this);
-        }
-        //TODO: add logic to validate a changesets
-        deferred.resolve();
-        return deferred.promise;
-    }
-
 
     protected customHandleSaveFailed(): void {
         ;
@@ -658,12 +652,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
             const isItemValid = this.validateItem(propertyTypes);
-            if (!isItemValid) {
+            if (isItemValid) {
+                return this.subArtifactCollection.validate().catch(() => {
+                    return this.services.$q.reject(new Error(message));
+                });
+            } else {                
                 return this.services.$q.reject(new Error(message));
             }
-            return this.subArtifactCollection.validate().catch(() => {
-                return this.services.$q.reject(new Error(message));
-            });
         });
     }
     

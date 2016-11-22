@@ -41,6 +41,7 @@ describe("When process is saved", () => {
 
     let services: IStatefulProcessArtifactServices;
     let $q: ng.IQService;
+    let $log: ng.ILogService;
     let $httpBackend: ng.IHttpBackendService;
     let $rootScope: ng.IRootScopeService;
     let session: ISession = null;
@@ -69,6 +70,7 @@ describe("When process is saved", () => {
     beforeEach(inject((
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
+        _$log_: ng.ILogService,
         _$httpBackend_: ng.IHttpBackendService,
         messageService: IMessageService,
         artifactService: IArtifactService,
@@ -79,6 +81,7 @@ describe("When process is saved", () => {
 
         $rootScope = _$rootScope_;
         $q = _$q_;
+        $log = _$log_;
         $httpBackend = _$httpBackend_;
 
         session = new SessionSvcMock($q);
@@ -86,10 +89,10 @@ describe("When process is saved", () => {
         processModel = JSON.parse(require("./mocks/process-model-1.mock.json"));
 
         const artifactServices = new StatefulArtifactServices(
-            _$q_, session, messageService, null, localization, artifactService, null, null, 
+            _$q_, _$log_, session, messageService, null, localization, artifactService, null, null, 
             metadataService, null, null, validationService, null);
 
-        services = new StatefulProcessArtifactServices(artifactServices, _$q_, processService);
+        services = new StatefulProcessArtifactServices(artifactServices, _$q_, _$log_, processService);
 
         artifactModel = {
             id: 22,

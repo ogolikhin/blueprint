@@ -1,8 +1,8 @@
 <div class="input-group inheritance-group">
     <div class="inheritance-path" ng-show="model[options.key].actorName.length > 0">
         <div ng-show="model[options.key].isProjectPathVisible">
-            <span>{{model[options.key].pathToProject[0]}}</span>
-            <span ng-repeat="item in model[options.key].pathToProject track by $index" ng-hide="$first">
+            <span ng-if="model[options.key].pathToProject[0]">{{model[options.key].pathToProject[0]}}</span>
+            <span ng-repeat="item in model[options.key].pathToProject track by $index" ng-if="!$first">
                 {{item}}
             </span>
             <span>

@@ -44,7 +44,7 @@ export class RefreshAction extends BPButtonAction {
                         loadingOverlayService.endLoading(overlayId);
                     });
                 } else {
-                    //project is getting refreshed in project-manager doRefresh part
+                    //project is getting refreshed by listening to selection in bp-page-content
                     mainBreadcrumbService.reloadBreadcrumbs(artifact);
                     artifact.refresh().finally(() => {
                         loadingOverlayService.endLoading(overlayId);

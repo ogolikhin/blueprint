@@ -61,9 +61,14 @@ bp-properties-panel {
             width: 100%;
             margin: 0 0 12px;
 
+            .has-messages::after { 
+                content: " "; 
+                display: block;
+                clear: both;
+            } 
+
             .has-messages {
                 display: block;
-                min-height: $property-min-height;
 
                 input.has-icon {
                     max-width: $property-input-with-icon-width;

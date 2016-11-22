@@ -125,6 +125,9 @@ namespace Model.ArtifactModel.Impl
         /// <param name="actualTrace">The actual OpenApiTrace.</param>
         public static void AssertAreEqual(OpenApiTrace expectedTrace, OpenApiTrace actualTrace)
         {
+            ThrowIf.ArgumentNull(expectedTrace, nameof(expectedTrace));
+            ThrowIf.ArgumentNull(actualTrace, nameof(actualTrace));
+
             Assert.AreEqual(expectedTrace.TraceType, actualTrace.TraceType, "The TraceType properties don't match!");
             Assert.AreEqual(expectedTrace.Direction, actualTrace.Direction, "The Direction properties don't match!");
             Assert.AreEqual(expectedTrace.ProjectId, actualTrace.ProjectId, "The ProjectId properties don't match!");

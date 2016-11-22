@@ -147,6 +147,7 @@ namespace Model.SearchServiceModel.Impl
 
             if (separatorString != null)
             {
+                // we use concat instead of query param to make call identical to call from fron-end
                 url = string.Concat(url, "?separatorString=", HttpUtility.UrlEncode(separatorString));
             }
 

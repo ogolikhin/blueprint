@@ -19,6 +19,7 @@ export class BpCollectionHeader implements ng.IComponentOptions {
 export class BpCollectionHeaderController extends BpArtifactInfoController {
 
     static $inject: [string] = [
+        "$q",
         "$scope",
         "$element",
         "artifactManager",
@@ -33,7 +34,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "mainbreadcrumbService"
     ];
 
-    constructor($scope: ng.IScope,
+    constructor($q: ng.IQService,
+                $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
                 artifactManager: IArtifactManager,
                 localization: ILocalizationService,
@@ -46,6 +48,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService) {
         super(
+            $q,
             $scope,
             $element,
             artifactManager,

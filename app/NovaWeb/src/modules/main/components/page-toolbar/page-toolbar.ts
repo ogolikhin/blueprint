@@ -1,4 +1,4 @@
-﻿import {IDialogSettings, IDialogService} from "../../../shared";
+import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums, AdminStoreModels} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -17,6 +17,7 @@ import {MessageType} from "../../../core/messages/message";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent);
@@ -40,7 +41,7 @@ export class PageToolbarController implements IPageToolbarController {
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
 
-    private get discardAllManyThreshold(): number{
+    private get discardAllManyThreshold(): number {
         return 50;
     }
 
@@ -53,7 +54,8 @@ export class PageToolbarController implements IPageToolbarController {
         "publishService",
         "messageService",
         "navigationService",
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -64,7 +66,8 @@ export class PageToolbarController implements IPageToolbarController {
                 private publishService: IPublishService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
-                private loadingOverlayService: ILoadingOverlayService) {
+                private loadingOverlayService: ILoadingOverlayService,
+                private analytics: IAnalyticsProvider) {
     }
 
     public $onInit() {
@@ -100,10 +103,16 @@ export class PageToolbarController implements IPageToolbarController {
         }).then((project: AdminStoreModels.IInstanceItem) => {
             if (project) {
                 const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+                let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
 
                 try {
                     this.projectManager.add(project)
                         .finally(() => {
+                            //(eventCollection, action, label?, value?, custom?, jQEvent?
+                            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
+                            this.analytics.trackEvent("open", "project", label, project.id, {
+                                openProjects: openProjects
+                            });
                             this.loadingOverlayService.endLoading(openProjectLoadingId);
                         });
                 } catch (err) {
@@ -297,14 +306,15 @@ export class PageToolbarController implements IPageToolbarController {
             css: "nova-tour"
         });
     }
+
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProjectId: number = this.projectManager.getSelectedProjectId();
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
-            message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold
-                ? this.localization.get("Discard_All_Many_Dialog_Message")
-                : this.localization.get("Discard_All_Dialog_Message"),
+                message: data.artifacts && data.artifacts.length > this.discardAllManyThreshold
+                    ? this.localization.get("Discard_All_Many_Dialog_Message")
+                    : this.localization.get("Discard_All_Dialog_Message"),
                 template: require("../dialogs/bp-confirm-publish/bp-confirm-publish.html"),
                 controller: ConfirmPublishController,
                 css: "modal-alert nova-publish",
@@ -396,7 +406,6 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
 
-
     showSubLevel(evt: any): void {
         // this is needed to allow tablets to show submenu (as touch devices don't understand hover)
         if (!evt) {
@@ -426,9 +435,7 @@ export class PageToolbarController implements IPageToolbarController {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
         return this.isProjectOpened &&
-            currArtifact &&
-            !currArtifact.artifactState.historical &&
-            !currArtifact.artifactState.deleted &&
+            currArtifact && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     }
 

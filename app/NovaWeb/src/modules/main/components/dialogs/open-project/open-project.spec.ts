@@ -2,7 +2,7 @@
 import "angular-mocks";
 import {OpenProjectController} from "./open-project";
 import {IDialogSettings} from "../../../../shared";
-import {Enums, AdminStoreModels, TreeModels} from "../../../models";
+import {AdminStoreModels, TreeModels} from "../../../models";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";

@@ -6,7 +6,7 @@ import "./modules/main/";
 require("./styles/main.scss");
 
 
-declare var appBootstrap: any;
+declare let appBootstrap: any;
 
 (function () {
     if (appBootstrap.isSupportedVersion()) {

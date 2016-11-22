@@ -1,8 +1,8 @@
 ﻿import "angular";
-import { IDialogService } from "../../shared/";
-import { IAuth, IUser } from "./auth.svc";
-import { SessionTokenHelper } from "./session.token.helper";
-import { LoginCtrl, ILoginInfo } from "./login.ctrl";
+import {IDialogService} from "../../shared/";
+import {IAuth, IUser} from "./auth.svc";
+import {SessionTokenHelper} from "./session.token.helper";
+import {LoginCtrl, ILoginInfo} from "./login.ctrl";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface ISession {
@@ -171,32 +171,32 @@ export class SessionSvc implements ISession {
                                     (err) => {
                                         this.showLogin(done, err);
                                     });
-                                })
+                            })
                             .catch(() => {
                                 this.showLogin(done);
                             })
                             .finally(() => {
-                            confirmationDialog = null;
-                        });
+                                confirmationDialog = null;
+                            });
                     } else if (result.userName && result.password) {
                         this.dialogService
-                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                        .then(() => {
-                            this.login(result.userName, result.password, true).then(
-                                () => {
-                                    this._isExpired = false;
-                                    done.resolve();
-                                },
-                                (err) => {
-                                    this.showLogin(done, err);
-                                });
+                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                            .then(() => {
+                                this.login(result.userName, result.password, true).then(
+                                    () => {
+                                        this._isExpired = false;
+                                        done.resolve();
+                                    },
+                                    (err) => {
+                                        this.showLogin(done, err);
+                                    });
                             })
-                        .catch(() => {
-                            this.showLogin(done);
-                        })
-                        .finally(() => {
-                            confirmationDialog = null;
-                        });
+                            .catch(() => {
+                                this.showLogin(done);
+                            })
+                            .finally(() => {
+                                confirmationDialog = null;
+                            });
                     } else {
                         this.showLogin(done);
                     }

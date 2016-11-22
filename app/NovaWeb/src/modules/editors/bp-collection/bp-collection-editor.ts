@@ -1,11 +1,17 @@
 import {Models} from "../../main";
-import {IColumn, ITreeNode, IColumnRendererParams, IHeaderCellRendererParams, IBPTreeViewControllerApi} from "../../shared/widgets/bp-tree-view/";
+import {
+    IColumn,
+    ITreeNode,
+    IColumnRendererParams,
+    IHeaderCellRendererParams,
+    IBPTreeViewControllerApi
+} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {ICollectionService} from "./collection.svc";
 import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
 import {Helper, IDialogService} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {ChangeTypeEnum, IChangeSet, IItemChangeSet} from "../../managers/artifact-manager/changeset";
+import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -88,7 +94,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         if (collectionArtifact) {
             this.collectionSubscriber = collectionArtifact.getProperyObservable()
                 .filter(changes => changes.change && changes.item &&
-                    changes.change.key === Models.PropertyTypePredefined.CollectionContent)
+                changes.change.key === Models.PropertyTypePredefined.CollectionContent)
                 .subscribeOnNext(this.onCollectionArtifactsChanged);
         }
     }

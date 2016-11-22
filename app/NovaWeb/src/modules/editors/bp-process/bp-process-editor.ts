@@ -1,13 +1,13 @@
-﻿import { ICommunicationManager } from "./";
-import { ProcessDiagram } from "./components/diagram/process-diagram";
-import { SubArtifactEditorModalOpener } from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import { IWindowManager, IMainWindow, ResizeCause } from "../../main";
-import { BpBaseEditor, IArtifactManager } from "../bp-base-editor";
-import { IDialogService } from "../../shared";
-import { IDiagramNode } from "./components/diagram/presentation/graph/models/";
-import { ISelection, IStatefulArtifactFactory, IStatefulSubArtifact } from "../../managers/artifact-manager";
-import { IStatefulProcessSubArtifact } from "./process-subartifact";
-import { ShapesFactory } from "./components/diagram/presentation/graph/shapes/shapes-factory";
+﻿import {ICommunicationManager} from "./";
+import {ProcessDiagram} from "./components/diagram/process-diagram";
+import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
+import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
+import {IDialogService} from "../../shared";
+import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
+import {ISelection, IStatefulArtifactFactory, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IStatefulProcessSubArtifact} from "./process-subartifact";
+import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -181,7 +181,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                     if (this.isDestroyed) {
                         return;
                     }
-                    
+
                     this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
                 });
             }

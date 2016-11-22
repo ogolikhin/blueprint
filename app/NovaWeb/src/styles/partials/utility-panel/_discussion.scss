@@ -13,7 +13,7 @@ bp-discussion-panel {
     bp-comment-edit {
         .edit-container {
             text-align: center;
-            padding: $padding-smallest;
+            padding: 10px;
         }
 
         textarea {
@@ -34,7 +34,40 @@ bp-discussion-panel {
             padding: 0;
         }
     }
-
+    bp-artifact-discussion-item ~ bp-comment-edit {
+        .edit-container {
+        padding: 0;
+        }
+        .mce-btn button {
+            padding: 0;
+        }
+        .mce-btn-group {
+            padding: 0 3px;
+        }
+        .mce-btn-group:not(:first-child) {
+            padding: 0 5px;
+        }
+    }
+    .comment-editing bp-comment-edit {
+        .edit-container {
+        padding: 3px;
+        }
+        .mce-ico {
+            padding-left: 0;
+        }
+        .mce-btn button {
+            padding: 0;
+        }
+        .mce-btn-group {
+            padding: 2px 3px;
+        }
+        .mce-btn-group:not(:first-child) {
+            padding: 2px 5px;
+        }
+        .mce-colorbutton .mce-preview {
+            margin-left: -12px;
+        }
+    }
     .author {
         @include text-ellipsis-flex-width(180px);
         display: inline-block;

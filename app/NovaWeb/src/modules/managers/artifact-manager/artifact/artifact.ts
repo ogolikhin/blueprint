@@ -219,7 +219,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
     }
 
-    private canBeLoaded() {
+    protected canBeLoaded() {
         if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return false;
         }

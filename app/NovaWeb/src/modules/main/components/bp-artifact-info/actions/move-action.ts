@@ -59,16 +59,18 @@ export class MoveAction extends BPDropdownAction {
     }
 
     private canExecute() {
-        if (!this.artifact) {
+        if (!this.artifact || !this.projectManager.getProject(this.artifact.projectId)) {
             return false;
         }
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.Collections
+            ItemTypePredefined.Collections,
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
         ];
 
-        if (invalidTypes.indexOf(this.artifact.itemTypeId) >= 0) {
+        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
             return false;
         }
 

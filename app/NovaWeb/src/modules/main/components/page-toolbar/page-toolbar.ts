@@ -1,4 +1,4 @@
-﻿import {IDialogSettings, IDialogService} from "../../../shared";
+import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums, AdminStoreModels} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -368,10 +368,9 @@ export class PageToolbarController implements IPageToolbarController {
             this.publishService.publishAll()
                 .then(() => {
                     //remove lock on current artifact
-                    const selectedArtifact = this.artifactManager.selection.getArtifact();
-                    if (selectedArtifact) {
-                        selectedArtifact.artifactState.unlock();
-                        selectedArtifact.refresh();
+                    if (artifact) {
+                        artifact.artifactState.unlock();
+                        artifact.refresh();
                     }
 
                     this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
@@ -380,7 +379,6 @@ export class PageToolbarController implements IPageToolbarController {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
                 });
         });
-
     }
 
     private discardAllInternal(data: Models.IPublishResultSet) {

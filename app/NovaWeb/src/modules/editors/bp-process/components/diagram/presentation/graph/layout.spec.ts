@@ -66,7 +66,7 @@ describe("Layout test", () => {
         model.subArtifactCollection = new StatefulSubArtifactCollection(model, null);
         model.changeset = new ChangeSetCollector(model);
         model.artifactState = {dirty: false};
-        model.lock = function (){return;};
+        model.lock = () => undefined;
         const processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
     };

@@ -37,7 +37,7 @@ describe("Component BP Artifact Document Item", () => {
                 userName: "admin",
                 referencedDate: "2016-06-27T21:27:57.67Z"
             },
-            delete: () => {$window.alert("Test Alert");}
+            delete: () => $window.alert("Test Alert")
         };
 
         directiveTest = new ComponentTest<BPDocumentItemController>(template, "bp-document-item");

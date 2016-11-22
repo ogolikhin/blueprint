@@ -462,7 +462,7 @@ describe("GenerateUserStoriesAction", () => {
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => {return {then: () => {/* no op*/}};});
+            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => ({then: () => {/* no op*/}}));
             const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
 
             // act
@@ -483,7 +483,7 @@ describe("GenerateUserStoriesAction", () => {
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => {return {then: () => {/* no op*/}};});
+            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => ({then: () => {/* no op*/}});
             const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
 
             // act
@@ -505,7 +505,7 @@ describe("GenerateUserStoriesAction", () => {
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => {return {then: () => {/* no op*/}};});
+            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => ({then: () => {/* no op*/}});
             const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();

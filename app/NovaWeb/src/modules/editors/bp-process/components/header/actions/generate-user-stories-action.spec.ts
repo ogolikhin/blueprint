@@ -221,7 +221,7 @@ describe("GenerateUserStoriesAction", () => {
                 localization, dialogService, loadingOverlayService, communicationManager.processDiagramCommunication);
 
             // act
-            process.artifactState.setState({readonly: true }, false);
+            process.artifactState.setState({readonly: true}, false);
 
             // assert
             expect(action.disabled).toBe(true);
@@ -265,7 +265,7 @@ describe("GenerateUserStoriesAction", () => {
             const generateFromTask = action.actions[0];
 
             // act
-            process.artifactState.setState({readonly: true }, false);
+            process.artifactState.setState({readonly: true}, false);
 
             // assert
             expect(generateFromTask.disabled).toBe(true);
@@ -462,7 +462,7 @@ describe("GenerateUserStoriesAction", () => {
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => { return { then: () => {/* no op*/} }; });
+            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => ({then: () => {/* no op*/}}));
             const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
 
             // act
@@ -483,11 +483,11 @@ describe("GenerateUserStoriesAction", () => {
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => { return { then: () => {/* no op*/} }; });
+            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => ({then: () => {/* no op*/}});
             const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {/* no op */});
 
             // act
-            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            process.artifactState.setState({lockedBy: LockedByEnum.CurrentUser}, false);
             generateFromTask.execute();
 
             // assert
@@ -505,7 +505,7 @@ describe("GenerateUserStoriesAction", () => {
             const processSubArtifact = new StatefulProcessSubArtifact(process, processShape, null);
             selectionManager.setSubArtifact(processSubArtifact);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
-            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => { return { then: () => {/* no op*/} }; });
+            const openDialogSpy = spyOn(dialogService, "open").and.callFake(() => ({then: () => {/* no op*/}});
             const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
                     deferred.resolve();
@@ -551,7 +551,7 @@ describe("GenerateUserStoriesAction", () => {
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
-            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            process.artifactState.setState({lockedBy: LockedByEnum.CurrentUser}, false);
             generateFromTask.execute();
             $rootScope.$digest();
 
@@ -581,7 +581,7 @@ describe("GenerateUserStoriesAction", () => {
                 });
             spyOn(process, "publish").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.reject({ errorCode: ErrorCode.LockedByOtherUser });
+                    deferred.reject({errorCode: ErrorCode.LockedByOtherUser});
                     return deferred.promise;
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
@@ -589,7 +589,7 @@ describe("GenerateUserStoriesAction", () => {
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
-            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            process.artifactState.setState({lockedBy: LockedByEnum.CurrentUser}, false);
             generateFromTask.execute();
             $rootScope.$digest();
 
@@ -626,7 +626,7 @@ describe("GenerateUserStoriesAction", () => {
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
 
             // act
-            process.artifactState.setState({ lockedBy: LockedByEnum.CurrentUser }, false);
+            process.artifactState.setState({lockedBy: LockedByEnum.CurrentUser}, false);
             generateFromTask.execute();
             $rootScope.$digest();
 
@@ -678,7 +678,7 @@ describe("GenerateUserStoriesAction", () => {
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.reject({ errorCode: ErrorCode.ArtifactNotPublished });
+                    deferred.reject({errorCode: ErrorCode.ArtifactNotPublished});
                     return deferred.promise;
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
@@ -770,7 +770,7 @@ describe("GenerateUserStoriesAction", () => {
             const generateAll = action.actions[1];
 
             // act
-            process.artifactState.setState({ readonly: true }, false);
+            process.artifactState.setState({readonly: true}, false);
 
             // assert
             expect(generateAll.disabled).toBe(true);
@@ -784,7 +784,7 @@ describe("GenerateUserStoriesAction", () => {
             const generateAll = action.actions[1];
 
             // act
-            process.artifactState.setState({ readonly: false }, false);
+            process.artifactState.setState({readonly: false}, false);
 
             // assert
             expect(generateAll.disabled).toBe(false);
@@ -857,7 +857,7 @@ describe("GenerateUserStoriesAction", () => {
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.reject({ errorCode: ErrorCode.ArtifactNotPublished });
+                    deferred.reject({errorCode: ErrorCode.ArtifactNotPublished});
                     return deferred.promise;
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});

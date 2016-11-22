@@ -2,16 +2,16 @@
 // import "angular";
 // import "angular-mocks";
 // import "angular-sanitize";
-// import { ComponentTest } from "../../../util/component.test";
-// import { BPAttachmentsPanelController } from "./bp-attachments-panel";
-// import { HttpStatusCode } from "../../../core/http";
-// import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-// import { ArtifactAttachmentsMock } from "./artifact-attachments.mock";
-// import { IArtifactAttachmentsResultSet, IArtifactDocRef } from "./artifact-attachments.svc";
-// import { Models } from "../../../main/services/project-manager";
-// import { SelectionManager, SelectionSource } from "../../../main/services/selection-manager";
-// import { DialogService } from "../../../shared/widgets/bp-dialog";
-// import { SessionSvcMock } from "../../login/mocks.spec";
+// import {ComponentTest} from "../../../util/component.test";
+// import {BPAttachmentsPanelController} from "./bp-attachments-panel";
+// import {HttpStatusCode} from "../../../core/http";
+// import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+// import {ArtifactAttachmentsMock} from "./artifact-attachments.mock";
+// import {IArtifactAttachmentsResultSet, IArtifactDocRef} from "./artifact-attachments.svc";
+// import {Models} from "../../../main/services/project-manager";
+// import {SelectionManager, SelectionSource} from "../../../main/services/selection-manager";
+// import {DialogService} from "../../../shared/widgets/bp-dialog";
+// import {SessionSvcMock} from "../../login/mocks.spec";
 
 xdescribe("Component BP Attachments Panel", () => {
 
@@ -50,10 +50,10 @@ xdescribe("Component BP Attachments Panel", () => {
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
-//             const artifact = { id: 22, name: "Artifact", prefix: "PRO" } as Models.IArtifact;
+//             const artifact = {id: 22, name: "Artifact", prefix: "PRO"} as Models.IArtifact;
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
+//             selectionManager.selection = {artifact: artifact, source:  SelectionSource.Explorer};
 //             $rootScope.$digest();
 //             const selectedArtifact = selectionManager.selection.artifact;
 
@@ -71,10 +71,10 @@ xdescribe("Component BP Attachments Panel", () => {
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
-//             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+//             const artifact = {id: 22, name: "Artifact"} as Models.IArtifact;
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+//             selectionManager.selection = {artifact: artifact, source: SelectionSource.Explorer};
 //             $rootScope.$digest();
 //             const selectedArtifact = selectionManager.selection.artifact;
 
@@ -86,7 +86,7 @@ xdescribe("Component BP Attachments Panel", () => {
     it("addDocRef should add new document reference to the list", (() => {//
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
 //             //Arrange
-//             const artifact = { id: 22, name: "TestDocument", prefix: "PRO" } as Models.IArtifact;
+//             const artifact = {id: 22, name: "TestDocument", prefix: "PRO"} as Models.IArtifact;
 //             let deferred = $q.defer();
 //             DialogService.prototype.open = jasmine.createSpy("open() spy").and.callFake(
 //                 (): ng.IPromise<Models.IArtifact[]> => {
@@ -96,14 +96,14 @@ xdescribe("Component BP Attachments Panel", () => {
 //             );
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+//             selectionManager.selection = {artifact: artifact, source: SelectionSource.Explorer};
 //             $rootScope.$digest();
 //             vm.addDocRef();
 //             $timeout.flush();
 
 //             //Assert
 //             expect(vm.artifactAttachmentsList.documentReferences
-//                 .filter((doc: IArtifactDocRef) => { return doc.artifactName === artifact.name; }).length)
+//                 .filter((doc: IArtifactDocRef) => {return doc.artifactName === artifact.name;}).length)
 //                 .toBeGreaterThan(0);
         }));
 
@@ -111,7 +111,7 @@ xdescribe("Component BP Attachments Panel", () => {
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager, $q: ng.IQService, $timeout: ng.ITimeoutService) => {
 
 //             //Arrange
-//             const artifact = { id: 22, name: "Artifact", prefix: "PRO" } as Models.IArtifact;
+//             const artifact = {id: 22, name: "Artifact", prefix: "PRO"} as Models.IArtifact;
 //             let deferred = $q.defer();
 //             ArtifactAttachmentsMock.prototype.getArtifactAttachments = jasmine.createSpy("getArtifactAttachments() spy").and.callFake(
 //                 (): ng.IPromise<IArtifactAttachmentsResultSet> => {
@@ -124,7 +124,7 @@ xdescribe("Component BP Attachments Panel", () => {
 //             );
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source: SelectionSource.Explorer };
+//             selectionManager.selection = {artifact: artifact, source: SelectionSource.Explorer};
 //             $rootScope.$digest();
 //             $timeout.flush();
 

@@ -31,7 +31,7 @@ describe("ManageTracesController", () => {
         ctrl.data.artifactId = 15;
 
         ctrl.api = {
-            deselectAll: () => { return; }
+            deselectAll: () => undefined;
         } as IArtifactPickerAPI;
 
         ctrl.data.manualTraces = <Relationships.IRelationship[]>[{

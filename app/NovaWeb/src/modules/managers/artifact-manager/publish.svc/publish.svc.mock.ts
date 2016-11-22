@@ -1,5 +1,5 @@
 import {IPublishService} from "./publish.svc";
-import { Models, Enums } from "../../../main/models";
+import {Models, Enums} from "../../../main/models";
 
 export class PublishServiceMock implements IPublishService {
     public static $inject = ["$q"];

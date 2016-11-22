@@ -59,7 +59,7 @@ export class MoveAction extends BPDropdownAction {
     }
 
     private canExecute() {
-        if (!this.artifact) {
+        if (!this.artifact || !this.projectManager.getProject(this.artifact.projectId)) {
             return false;
         }
 

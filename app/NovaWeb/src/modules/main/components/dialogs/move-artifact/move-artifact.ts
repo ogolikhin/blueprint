@@ -75,6 +75,10 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
         this.api.updateSelectableNodes();
     }
 
+    public get okDisabled(): boolean {
+        return !this.selectedVMs || this.selectedVMs.length === 0 || !this.isItemSelectable(this.selectedVMs[0].model);
+    }
+
     public get returnValue(): any[] {
         return [<MoveArtifactResult>{
             artifacts: this.selectedVMs.map(vm => vm.model),

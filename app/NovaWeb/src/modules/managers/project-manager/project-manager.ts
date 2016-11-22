@@ -407,7 +407,7 @@ export class ProjectManager implements IProjectManager {
         let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex); 
         let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
         
-        if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
+        if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
             orderIndex = selectedArtifact.orderIndex / 2;
         } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
             orderIndex = selectedArtifact.orderIndex + 10;

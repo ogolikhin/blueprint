@@ -15,10 +15,10 @@ describe("Component AppComponent", () => {
         $provide.service("session", SessionSvcMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("projectManager", () => ({
-            removeAll: () => undefined;
+            removeAll: () => undefined
         }));
         $provide.service("selectionManager", () => ({
-            clearAll: () => undefined;
+            clearAll: () => undefined
         }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);

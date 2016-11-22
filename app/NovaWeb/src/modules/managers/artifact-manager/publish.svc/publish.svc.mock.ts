@@ -13,7 +13,7 @@ export class PublishServiceMock implements IPublishService {
         return deferred.promise;
     }
     public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet> {
-        return this.$q.when({artifacts: [], projects: []})
+        return this.$q.when({artifacts: [], projects: []});
     }
     public publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
         const deferred = this.$q.defer<any>();

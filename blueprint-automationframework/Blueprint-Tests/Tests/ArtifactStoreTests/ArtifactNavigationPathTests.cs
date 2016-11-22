@@ -149,15 +149,16 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            int subArtifactId = subArtifacts.Last().Id;
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, subArtifacts.First().Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(viewer, subArtifactId),
                                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
@@ -299,13 +300,14 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType, artifacts.Last());
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+            int subArtifactId = subArtifacts.Last().Id;
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(author, subArtifacts.Last().Id),
+            Assert.DoesNotThrow(() => basicArtifactInfoList = Helper.ArtifactStore.GetNavigationPath(author, subArtifactId),
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
@@ -518,6 +520,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="basicArtifactInfo">List of artifact basic information about ancestors artifact.</param>
         /// <param name="id">Id of artifact or sub-artifact.</param>
+        /// <param name="user">(optional) The user to authenticate with.</param>
         private void VerifyAncestorsInformation(List<INovaVersionControlArtifactInfo> basicArtifactInfo, int? id, IUser user = null)
         {
             basicArtifactInfo.Reverse();

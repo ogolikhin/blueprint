@@ -170,13 +170,14 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(3, subArtifacts.Count, "Use Case should have 3 subartifacts.");
-            var _attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
+            var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
+            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
 
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifacts[0], new List<INovaFile> { _attachmentFile2 },
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 },
                 Helper.ArtifactStore);
             artifact.Publish();
-            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[0].Id);
+            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
             int attachmentIdToDownload = attachment.AttachedFiles[0].AttachmentId;
             IFile downloadedFile = null;
@@ -188,7 +189,7 @@ namespace ArtifactStoreTests
             }, "File download shouldn't return any error.");
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(_attachmentFile2, downloadedFile, compareIds: false);
+            FileStoreTestHelper.AssertFilesAreIdentical(attachmentFile2, downloadedFile, compareIds: false);
         }
 
         #endregion Positive Tests
@@ -203,17 +204,18 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(5, subArtifacts.Count, "Process should have 5 subartifacts.");
-            var _attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
+            var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
 
             // User Task is subArtifacts[2]
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifacts[2], new List<INovaFile> { _attachmentFile2 },
+            var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[2].Id);
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 },
                 Helper.ArtifactStore);
             artifact.Publish();
             Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[2].Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
             int attachmentIdToDownload = attachment.AttachedFiles[0].AttachmentId;
-            ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifacts[2], attachmentIdToDownload,
+            ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachmentIdToDownload,
                 Helper.ArtifactStore);
 
             // Execute:

@@ -38,7 +38,8 @@ describe("Formly Base RTF Controller", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("selectionManager", () => ({
-            getArtifact: () => { return undefined; }
+            getArtifact: () => { return undefined; },
+            getSubArtifact: () => { return undefined; }
         }));
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);

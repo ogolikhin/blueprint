@@ -65,10 +65,7 @@ describe("Component BP Artifact Attachment Item", () => {
             //Act
             selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-
             spyOn($window, "open").and.callFake(() => true);
-
-            // Act
             vm.downloadItem();
 
             //Assert
@@ -94,10 +91,7 @@ describe("Component BP Artifact Attachment Item", () => {
             //Act
             selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-
             spyOn($window, "open").and.callFake(() => true);
-
-            // Act
             vm.downloadItem();
 
             //Assert
@@ -118,10 +112,7 @@ describe("Component BP Artifact Attachment Item", () => {
             //Act
             selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-
             spyOn($window, "open").and.callFake(() => true);
-
-            // Act
             vm.downloadItem();
 
             //Assert

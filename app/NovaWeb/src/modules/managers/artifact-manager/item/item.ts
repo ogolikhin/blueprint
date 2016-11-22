@@ -321,19 +321,34 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
         const deferred = this.services.getDeferred();
         this.attachmentsAndDocRefsPromise = deferred.promise;
-        this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
-            this.attachments.initialize(result.attachments);
-            this.docRefs.initialize(result.documentReferences);
-            deferred.resolve(result);
-        }).catch(error => {
-            if (error && error.statusCode === HttpStatusCode.NotFound) {
-                this.artifactState.deleted = true;
-            }
-            deferred.reject(error);
-        }).finally(() => {
-            this.attachmentsAndDocRefsPromise = undefined;
-        });
+        if (this.hasArtifactEverBeenSavedOrPublished()) {
+            this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
+                this.attachments.initialize(result.attachments);
+                this.docRefs.initialize(result.documentReferences);
+                deferred.resolve(result);
+            }).catch(error => {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
+                    this.artifactState.deleted = true;
+                }
+                deferred.reject(error);
+            }).finally(() => {
+                this.attachmentsAndDocRefsPromise = undefined;
+            });
+        } else {
+            const resultSet = {
+                artifactId: this.artifact.id,
+                attachments: [],
+                documentReferences: []
+            };
+            this.attachments.initialize(resultSet.attachments);
+            this.docRefs.initialize(resultSet.documentReferences);
+            deferred.resolve(resultSet);
+        }
         return this.attachmentsAndDocRefsPromise;
+    }
+
+    protected hasArtifactEverBeenSavedOrPublished() {
+        return this.artifact.id > 0;
     }
 
     protected abstract getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet>;

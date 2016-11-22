@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="icons" ng-show="$ctrl.relationship.hasAccess">
+    <div class="icons" ng-if="$ctrl.showActionsPanel">
         <div>
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"

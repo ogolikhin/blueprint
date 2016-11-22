@@ -151,12 +151,28 @@ export class PageToolbarController implements IPageToolbarController {
 
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
-            artifact.autosave().then(() => {
-                this.projectManager.removeAll();
-                this.artifactManager.selection.clearAll();
-                this.clearLockedMessages();
-                this.navigationService.navigateToMain();
-            });
+            artifact.autosave()
+                .then(this.getProjectsWithUnpublishedArtifacts)
+                .then((projectsWithUnpublishedArtifacts) => {
+                    const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
+                    const openProjects = _.map(this.projectManager.projectCollection.getValue(), (project) => project.model.id);
+                    let numberOfUnpublishedArtifacts = 0;
+                    _.forEach(openProjects, (projectId) => numberOfUnpublishedArtifacts += unpublishedArtifactsByProject[projectId] || 0);
+
+                if (numberOfUnpublishedArtifacts > 0) {
+                    //If the project we're closing has unpublished artifacts, we display a modal
+                    let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
+                        .replace(`{0}`, numberOfUnpublishedArtifacts.toString());
+                    this.dialogService.alert("Close_Project_UnpublishedArtifacts",
+                    null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                        this.closeAllProjectsInternal();
+                    });
+                } else {
+                    //Otherwise, just close it
+                    this.closeAllProjectsInternal();
+                }
+
+                });
         }
     }
 
@@ -370,6 +386,13 @@ export class PageToolbarController implements IPageToolbarController {
             this.navigationService.navigateToMain();
         }
         this.clearLockedMessages();
+    }
+
+    private closeAllProjectsInternal() {
+        this.projectManager.removeAll();
+        this.artifactManager.selection.clearAll();
+        this.clearLockedMessages();
+        this.navigationService.navigateToMain();
     }
 
     private getProjectsWithUnpublishedArtifacts(): ng.IPromise<number[]> {

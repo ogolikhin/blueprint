@@ -108,7 +108,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.DomainDiagram)]
         [TestCase(BaseArtifactType.GenericDiagram)]
         [TestCase(BaseArtifactType.UseCaseDiagram)]
-        [TestRail(182934)]
+        [TestRail(195409)]
         [Description("Create & publish a diagram artifact, Get DiagramArtifact with the user with no permission to the artifact. Verify 403 Forbidden exception is returned.")]
         public void GetDiagramArtifact_PublishAndGetDiagamArtifactWithNoPermissionForTheArtifact_403Forbidden(BaseArtifactType artifactType)
         {

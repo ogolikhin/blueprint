@@ -125,11 +125,11 @@ body {
         .mce-btn-group {
             padding-top: 2px;
             padding-bottom: 2px;
-            margin-top: -4px;
-            margin-bottom: -4px !important; // !important to override tinymce's style
+            margin-top: -2px;
+            margin-bottom: -2px !important; // !important to override tinymce's style
             &:not(:first-child) {
                 margin-left: 0;
-                padding-left: 1px;
+                padding-left: 3px;
             }
         }
 
@@ -140,7 +140,7 @@ body {
 
         .mce-ico {
             font-size: 12px;
-            width: 14px;
+            width: 13px;
             padding-left: 2px;
         }
 

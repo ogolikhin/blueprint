@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -1572,21 +1571,25 @@ namespace Model.StorytellerModel.Impl
         /// <summary>
         /// Creates and adds an artifact reference to another artifact.
         /// </summary>
-        /// <param name="artifact">The artifact that will be added as a reference.</param>
+        /// <param name="artifact">The Nova artifact that will be added as a reference.</param>
         /// <returns>The created artifact reference.</returns>
-        public ArtifactReference AddAssociatedArtifact(IArtifact artifact)
+        public ArtifactReference AddAssociatedArtifact(NovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            AssociatedArtifact = new ArtifactReference()
+            if (artifact.PredefinedType != null && artifact.ProjectId != null)
             {
-                Id = artifact.Id,
-                Link = null,
-                Name = artifact.Name,
-                ProjectId = artifact.ProjectId,
-                TypePrefix = StorytellerProcessPrefix,
-                BaseItemTypePredefined = artifact.BaseArtifactType.ToItemTypePredefined()
-            };
+                AssociatedArtifact = new ArtifactReference()
+                {
+                    Id = artifact.Id,
+                    Link = null,
+                    Name = artifact.Name,
+                    ProjectId = artifact.ProjectId.Value,
+                    TypePrefix = artifact.Prefix,
+                    BaseItemTypePredefined = (ItemTypePredefined)artifact.PredefinedType,
+                    Version = artifact.Version
+                };
+            }
 
             return AssociatedArtifact;
         }
@@ -1596,19 +1599,23 @@ namespace Model.StorytellerModel.Impl
         /// </summary>
         /// <param name="artifact">The actor artifact that will be added as a persona reference.</param>
         /// <returns>The created actor artifact reference.</returns>
-        public ArtifactReference AddPersonaReference(IArtifact artifact)
+        public ArtifactReference AddPersonaReference(NovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            AssociatedArtifact = new ArtifactReference()
+            if (artifact.PredefinedType != null && artifact.ProjectId != null)
             {
-                Id = artifact.Id,
-                Link = null,
-                Name = artifact.Name,
-                ProjectId = artifact.ProjectId,
-                TypePrefix = StorytellerProcessPrefix,
-                BaseItemTypePredefined = artifact.BaseArtifactType.ToItemTypePredefined()
-            };
+                PersonaReference = new ArtifactReference()
+                {
+                    Id = artifact.Id,
+                    Link = null,
+                    Name = artifact.Name,
+                    ProjectId = artifact.ProjectId.Value,
+                    TypePrefix = artifact.Prefix,
+                    BaseItemTypePredefined = (ItemTypePredefined)artifact.PredefinedType,
+                    Version = artifact.Version
+                };
+            }
 
             return AssociatedArtifact;
         }

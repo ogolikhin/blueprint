@@ -384,7 +384,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
-        const changes = this.changes();
 
         let validatePromise = this.services.$q.defer<any>();
         if (ignoreInvalidValues) {
@@ -396,6 +395,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return validatePromise.promise.then(() => {
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
+            const changes = this.changes();
             return this.saveArtifact(changes).catch((error) => {
                 if (this.hasCustomSave) {
                     this.customHandleSaveFailed();

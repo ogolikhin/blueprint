@@ -1,40 +1,43 @@
 import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
-import {AdminStoreModels, TreeViewModels} from "../../../models";
+import {AdminStoreModels, TreeModels} from "../../../models";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
+import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 
 export interface IOpenProjectController {
     errorMessage: string;
     isProjectSelected: boolean;
-    selectedItem?: TreeViewModels.InstanceItemNodeVM;
+    selectedItem?: TreeModels.InstanceItemNodeVM;
     selectedDescription: string;
 
     // BpTreeView bindings
-    rowData: TreeViewModels.InstanceItemNodeVM[];
+    rowData: TreeModels.InstanceItemNodeVM[];
     columns: IColumn[];
-    onSelect: (vm: TreeViewModels.IViewModel<any>, isSelected: boolean) => any;
-    onDoubleClick: (vm: TreeViewModels.IViewModel<any>) => any;
+    onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => any;
+    onDoubleClick: (vm: TreeModels.ITreeNodeVM<any>) => any;
     onError: (reason: any) => any;
 }
 
 export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
     public hasCloseButton: boolean = true;
-    private _selectedItem: TreeViewModels.InstanceItemNodeVM;
+    private _selectedItem: TreeModels.InstanceItemNodeVM;
     private _errorMessage: string;
 
-    public factory: TreeViewModels.TreeNodeVMFactory;
+    public factory: TreeModels.TreeNodeVMFactory;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "artifactManager", "statefulArtifactFactory", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 private projectService: IProjectService,
+                private artifactManager: IArtifactManager,
+                private statefulArtifactFactory: IStatefulArtifactFactory,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-        this.factory = new TreeViewModels.TreeNodeVMFactory(projectService);
+        this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.rowData = [this.factory.createInstanceItemNodeVM({
             id: 0,
             type: AdminStoreModels.InstanceItemType.Folder,
@@ -56,7 +59,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         return this.selectedItem && this.selectedItem.model.type === AdminStoreModels.InstanceItemType.Project;
     }
 
-    public get selectedItem(): TreeViewModels.InstanceItemNodeVM {
+    public get selectedItem(): TreeModels.InstanceItemNodeVM {
         return this._selectedItem;
     }
 
@@ -66,7 +69,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         return this._selectedDescription;
     }
 
-    private setSelectedItem(item: TreeViewModels.InstanceItemNodeVM) {
+    private setSelectedItem(item: TreeModels.InstanceItemNodeVM) {
         this._selectedItem = item;
 
         const description = this.selectedItem.model.description;
@@ -96,14 +99,14 @@ export class OpenProjectController extends BaseDialogController implements IOpen
 
     // BpTreeView bindings
 
-    public rowData: TreeViewModels.InstanceItemNodeVM[];
+    public rowData: TreeModels.InstanceItemNodeVM[];
     public columns: IColumn[] = [{
         headerName: this.localization.get("App_Header_Name"),
-        cellClass: (vm: TreeViewModels.TreeViewNodeVM<any>) => vm.getCellClass(),
+        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
         innerRenderer: (params: IColumnRendererParams) => {
-            const vm = params.data as TreeViewModels.TreeViewNodeVM<any>;
-            if (vm instanceof TreeViewModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+            const vm = params.data as TreeModels.ITreeNodeVM<any>;
+            if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 //TODO this listener is never removed
                 // Need to use a cellRenderer "Component" with a destroy method, not a function.
                 // See https://www.ag-grid.com/javascript-grid-cell-rendering/
@@ -116,7 +119,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         }
     }];
 
-    public onSelect = (vm: TreeViewModels.InstanceItemNodeVM, isSelected: boolean): void => {
+    public onSelect = (vm: TreeModels.InstanceItemNodeVM, isSelected: boolean): void => {
         if (isSelected) {
             this.$scope.$applyAsync((s) => {
                 this.setSelectedItem(vm);
@@ -124,7 +127,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         }
     }
 
-    public onDoubleClick = (vm: TreeViewModels.InstanceItemNodeVM): void => {
+    public onDoubleClick = (vm: TreeModels.InstanceItemNodeVM): void => {
         if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
             this.$scope.$applyAsync((s) => {
                 this.setSelectedItem(vm);

@@ -392,6 +392,7 @@ export class ProjectManager implements IProjectManager {
 
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
         let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex);
+        siblings = _.filter(siblings, (item) => item.model.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
         let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
 
         if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first

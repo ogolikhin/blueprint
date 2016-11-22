@@ -65,10 +65,12 @@ export class MoveAction extends BPDropdownAction {
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.Collections
+            ItemTypePredefined.Collections,
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
         ];
 
-        if (invalidTypes.indexOf(this.artifact.itemTypeId) >= 0) {
+        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
             return false;
         }
 

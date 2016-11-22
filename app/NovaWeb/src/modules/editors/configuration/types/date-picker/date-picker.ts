@@ -113,7 +113,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             },
             minDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
+                    const isValid = validationService.dateValidation.minDate($viewValue, scope.to.datepickerOptions.minDate, 
                                                                                           scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("minDate", isValid, scope);
                     return true;
@@ -121,7 +121,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid =  validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
+                    const isValid =  validationService.dateValidation.maxDate($viewValue, scope.to.datepickerOptions.maxDate, 
                                                                                           scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("maxDate", isValid, scope);
                     return true;

@@ -455,7 +455,6 @@ export abstract class StatefulItem implements IIStatefulItem {
                     break;
                 case Models.PrimitiveType.Date:
                     if (!this.services.validationService.dateValidation.isValid(propValue,
-                            propValue,
                             propertyType.minDate,
                             propertyType.maxDate,
                             propertyType.isValidated,

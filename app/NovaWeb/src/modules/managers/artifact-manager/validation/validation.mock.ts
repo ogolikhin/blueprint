@@ -84,21 +84,18 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
         return true;
     }
     public minDate(newValue: string,
-        oldValue: string,
         _minDate: any,
         isValidated: boolean): boolean {
         return true;
     }
 
     public maxDate(newValue: string,
-        oldValue: string,
         _maxDate: any,
         isValidated: boolean): boolean {
         return true;
     }
 
     public isValid(newValue: string,
-        oldValue: string,
         _minDate: any,
         _maxDate: any,
         isValidated: boolean,

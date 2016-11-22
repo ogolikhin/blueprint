@@ -163,8 +163,7 @@ export class PageToolbarController implements IPageToolbarController {
                     //If the project we're closing has unpublished artifacts, we display a modal
                     let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
                         .replace(`{0}`, numberOfUnpublishedArtifacts.toString());
-                    this.dialogService.alert("Close_Project_UnpublishedArtifacts",
-                    null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                    this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
                         this.closeAllProjectsInternal();
                     });
                 } else {
@@ -362,8 +361,7 @@ export class PageToolbarController implements IPageToolbarController {
                 //If the project we're closing has unpublished artifacts, we display a modal
                 let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactCount.toString());
-                this.dialogService.alert("Close_Project_UnpublishedArtifacts",
-                null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
                     this.closeProjectById(currentProjectId);
                 });
             } else {
@@ -395,7 +393,7 @@ export class PageToolbarController implements IPageToolbarController {
         this.navigationService.navigateToMain();
     }
 
-    private getProjectsWithUnpublishedArtifacts(): ng.IPromise<number[]> {
+    private getProjectsWithUnpublishedArtifacts = (): ng.IPromise<number[]> => {
         //We can't use artifactManager.list() because lock state is lazy-loaded
         return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);

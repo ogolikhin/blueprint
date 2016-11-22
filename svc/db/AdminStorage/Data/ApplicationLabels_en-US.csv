@@ -38,6 +38,8 @@ App_Project_Description,"Description"
 
 App_CloseTabWithUnsavedChanges,"You have unsaved changes that will be lost if you leave."
 
+App_Artifact_Info_OpenLatestVersion,"Open latest version"
+
 App_Toolbar_Project,"Project"
 App_Toolbar_Open_Project,"Open Project"
 App_Toolbar_Open_Recent_Projects,"Open Recent Projects"

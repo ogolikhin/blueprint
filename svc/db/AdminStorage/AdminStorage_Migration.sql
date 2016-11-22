@@ -928,6 +928,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_CloseTabWithUnsavedChanges', 'en-US', N'You have unsaved changes that will be lost if you leave.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Artifact_Info_OpenLatestVersion', 'en-US', N'Open latest version')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Project', 'en-US', N'Open Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Recent_Projects', 'en-US', N'Open Recent Projects')

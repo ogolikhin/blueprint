@@ -77,7 +77,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         // The following is to pre-request the relationships in order to calculate if the user can manage them
         // doing it now will avoid for the user to wait when he click on the Inline Traces TinyMCE menu.
         // See canManageTraces below for additional Info.
-        if (this.currentArtifact) {
+        if (this.currentArtifact && this.currentArtifact.supportRelationships()) {
             let relationships: IRelationship[];
             this.currentArtifact.relationships.get().then((rel: IRelationship[]) => {
                 relationships = rel;
@@ -215,7 +215,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     private canManageTraces(): boolean {
         // If artifact is locked by other user we still can add/manage traces as long as canEdit=true
         // We query the artifact even when on a subArtifact, as canEdit of the subArtifact is actually its parent artifact
-        return this.currentArtifact ? this.currentArtifact.relationships.canEdit &&
+        return this.currentArtifact ? this.currentArtifact.supportRelationships() && this.currentArtifact.relationships.canEdit &&
             (this.currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit : false;
     }
 

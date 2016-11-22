@@ -58,6 +58,33 @@ describe("BPArtifactRelationshipItem", () => {
         expect(directiveTest.element.find(".details").length).toBeGreaterThan(0);
     });
 
+    it("action panel should be hidden", () => {
+        //Assert
+        expect(directiveTest.element.find(".icons").hasClass("ng-hide")).toBeTruthy();
+    });
+
+    it("action panel should be visible", () => {
+        inject(($rootScope: ng.IRootScopeService) => {
+            //Arrange
+
+            let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
+            let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
+                new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
+
+            let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
+
+            vm2.relationship = <IRelationship>{
+                "artifactId": 1,
+                "hasAccess": true
+            };
+
+            $rootScope.$digest();
+
+            //Assert
+            expect(directiveTest2.element.find(".icons").hasClass("ng-hide")).toBeFalsy();
+        });
+    });
+
     it("expanded view",
         inject(($httpBackend: ng.IHttpBackendService) => {
 

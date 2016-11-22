@@ -48,17 +48,19 @@ export class AnalyticsProvider implements ng.IServiceProvider {
 
     public pageEvent: string = "$routeChangeSuccess";
     public trackRoutes: boolean = true;
-    public enableLocalhostTracking: boolean = window.location.hostname !== "localhost";
-    static $inject: [string] = ["$injector"];
+    public enableLocalhostTracking: boolean = false;
+    static $inject: [string] = ["$injector", "$windowProvider"];
+    public $window: ng.IWindowService;
 
 
-    constructor(private $injector: ng.auto.IInjectorService) {
+    constructor(private $injector: ng.auto.IInjectorService, $windowProvider: ng.IServiceProvider) {
+        this.$window = $windowProvider.$get();
         this.$get.$inject = ["$rootScope", "$log", "$window"];
     }
 
     public setAccount(account: IKeenAccount): void {
         this.client = new Keen(account);
-        (<any>window).Keen = this.client;
+        (<any>this.$window).Keen = this.client;
     }
 
     public canEmit() {

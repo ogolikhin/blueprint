@@ -17,7 +17,7 @@ export interface IKeenEventObject {
         addons: Array<any>
     };
 }
-export interface IAnalyticsService {
+export interface IAnalyticsProvider {
     trackPage(): string;
     trackEvent(eventCollection, action, label?, value?, custom?, jQEvent?): string;
     setAccount(account: IKeenAccount): void;
@@ -201,7 +201,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             });
         }
 
-        return <IAnalyticsService> {
+        return <IAnalyticsProvider> {
             trackPage: this._trackPage,
             trackEvent: this._trackEvent
         };

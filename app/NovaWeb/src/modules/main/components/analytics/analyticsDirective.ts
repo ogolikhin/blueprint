@@ -1,7 +1,8 @@
+import {IAnalyticsProvider} from "./analyticsProvider";
 class KeenTrackEventCtrl {
-    static $inject = ["Analytics", "$parse", "$scope"];
+    static $inject = ["analytics", "$parse", "$scope"];
 
-    constructor(private Analytics, private $parse) {
+    constructor(private analytics: IAnalyticsProvider, private $parse) {
         //controller constructor
     }
 }
@@ -41,7 +42,7 @@ export class KeenTrackEvent implements ng.IDirective {
                 if (nullCountAdded >= 0) {
                     appliedOptions.push(e);
                 }
-                ctrl.Analytics.trackEvent.apply(ctrl.Analytics, appliedOptions);
+                ctrl.analytics.trackEvent.apply(ctrl.AnalyticsProvider, appliedOptions);
             }
         });
     }

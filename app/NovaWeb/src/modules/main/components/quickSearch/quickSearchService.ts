@@ -2,7 +2,7 @@ import {IProjectManager} from "../../../managers/project-manager/project-manager
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
 import {IItemType} from "../../models/models";
 import {Models} from "../../models";
-import {IAnalyticsService} from "../analytics/analyticsProvider";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 export interface ISearchMetadata {
     totalCount: number;
@@ -56,7 +56,7 @@ export class QuickSearchService implements IQuickSearchService {
         "$log",
         "projectManager",
         "metadataService",
-        "Analytics"
+        "analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -65,7 +65,7 @@ export class QuickSearchService implements IQuickSearchService {
                 private $log: ng.ILogService,
                 private projectManager: IProjectManager,
                 private metadataService: IMetaDataService,
-                private Analytics: IAnalyticsService) {
+                private analytics: IAnalyticsProvider) {
     }
 
     searchTerm: string;
@@ -142,7 +142,7 @@ export class QuickSearchService implements IQuickSearchService {
             }
         };
 
-        this.Analytics.trackEvent("search", "quick search", eventSource, term, {
+        this.analytics.trackEvent("search", "quick search", eventSource, term, {
             projectIds: this.projectIds(),
             page: page,
             pageSize: pageSize

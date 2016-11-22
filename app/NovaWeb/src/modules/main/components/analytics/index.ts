@@ -4,7 +4,7 @@ import {KeenTrackEvent} from "./analyticsDirective";
 import {AnalyticsRun} from "./analyticsRun";
 
 angular.module("bp.components.analytics", ["bp.core.configuration"])
-    .provider("Analytics", AnalyticsProvider)
+    .provider("analytics", AnalyticsProvider)
     .directive("keenTrackEvent", KeenTrackEvent.instance())
     .config(AnalyticsConfig)
     .run(AnalyticsRun);

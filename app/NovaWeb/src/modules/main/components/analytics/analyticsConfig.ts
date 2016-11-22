@@ -1,12 +1,12 @@
-import {IAnalyticsService, IKeenAccount} from "./analyticsProvider";
+import {IAnalyticsProvider, IKeenAccount} from "./analyticsProvider";
 declare const ENABLE_LOCAL_HOST_TRACKING: boolean; //Usages replaced by webpack.DefinePlugin
 
 export class AnalyticsConfig {
     static $inject = [
-        "AnalyticsProvider"
+        "analyticsProvider"
     ];
 
-    constructor(AnalyticsProvider: IAnalyticsService) {
+    constructor(analyticsProvider: IAnalyticsProvider) {
         const getConfig = (key, defaultValue) => {
             const globalWindow: any = window;
             let result = defaultValue;
@@ -32,10 +32,10 @@ export class AnalyticsConfig {
                 projectId: projectId, // String (required always)
                 writeKey: writeKey   // String (required for sending data)
             };
-            AnalyticsProvider.setAccount(keenConfig);
-            AnalyticsProvider.pageEvent = "$stateChangeSuccess";
+            analyticsProvider.setAccount(keenConfig);
+            analyticsProvider.pageEvent = "$stateChangeSuccess";
 
-            AnalyticsProvider.enableLocalhostTracking = ENABLE_LOCAL_HOST_TRACKING;
+            analyticsProvider.enableLocalhostTracking = ENABLE_LOCAL_HOST_TRACKING;
         }
 
     }

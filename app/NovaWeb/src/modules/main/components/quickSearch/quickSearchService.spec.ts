@@ -4,7 +4,7 @@ import "angular-mocks";
 import {IQuickSearchService} from "./quickSearchService";
 import {IProjectManager, IArtifactNode} from "../../../managers/project-manager";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {AnalyticsProvider} from "../analytics/analyticsProvider";
+import {analytics} from "../analytics/analyticsProvider";
 
 describe("Service: Quick Search", () => {
     let service: IQuickSearchService;
@@ -19,7 +19,7 @@ describe("Service: Quick Search", () => {
             projectCollection: new Rx.BehaviorSubject<IArtifactNode[]>([])
         } as IProjectManager;
         $provide.service("projectManager", () => projectManager);
-        $provide.provider("Analytics", AnalyticsProvider);
+        $provide.provider("analytics", analytics);
         $provide.service("projectManager", () => projectManager);
     }));
 

@@ -17,7 +17,7 @@ import {MessageType} from "../../../core/messages/message";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
-import {IAnalyticsService} from "../analytics/analyticsProvider";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent);
@@ -55,7 +55,7 @@ export class PageToolbarController implements IPageToolbarController {
         "messageService",
         "navigationService",
         "loadingOverlayService",
-        "Analytics"
+        "analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -67,7 +67,7 @@ export class PageToolbarController implements IPageToolbarController {
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private Analytics: IAnalyticsService) {
+                private analytics: IAnalyticsProvider) {
     }
 
     public $onInit() {
@@ -110,7 +110,7 @@ export class PageToolbarController implements IPageToolbarController {
                         .finally(() => {
                             //(eventCollection, action, label?, value?, custom?, jQEvent?
                             const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                            this.Analytics.trackEvent("open", "project", label, project.id, {
+                            this.analytics.trackEvent("open", "project", label, project.id, {
                                 openProjects: openProjects
                             });
                             this.loadingOverlayService.endLoading(openProjectLoadingId);

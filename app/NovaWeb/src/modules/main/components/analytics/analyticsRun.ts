@@ -1,10 +1,10 @@
 export class AnalyticsRun {
     static $inject = [
-        "Analytics"
+        "analytics"
     ];
 
 
-    constructor(Analytics) {
+    constructor(analytics) {
 //empty block to trigger Analytics
     }
 }

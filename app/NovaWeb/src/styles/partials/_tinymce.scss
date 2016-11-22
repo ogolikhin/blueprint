@@ -153,3 +153,10 @@ body {
         }
     }
 }
+
+.mce-content-body *[contentEditable=false] *[contentEditable=true]:focus,
+.mce-content-body *[contentEditable=false] *[contentEditable=true]:hover,
+.mce-content-body *[contentEditable=false][data-mce-selected] {
+    background: $gray-lightest;
+    outline: none !important;
+}

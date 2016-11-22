@@ -9,7 +9,6 @@ import {MetaData} from "../metadata";
 import {IDispose} from "../../models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
-import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError, ApplicationError} from "../../../core/error/applicationError";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
 
@@ -384,7 +383,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
-        const changes = this.changes();
 
         let validatePromise = this.services.$q.defer<any>();
         if (ignoreInvalidValues) {
@@ -396,6 +394,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return validatePromise.promise.then(() => {
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
+            const changes = this.changes();
             return this.saveArtifact(changes).catch((error) => {
                 if (this.hasCustomSave) {
                     this.customHandleSaveFailed();
@@ -501,7 +500,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
-                    this.publishDependents(err.errorContent);                
+                    this.publishDependents(err.errorContent);
                 } else if (err && err.statusCode === HttpStatusCode.Unavailable && !err.message) {
                     this.services.messageService.addError("Publish_Artifact_Failure_Message");
                 } else {
@@ -645,9 +644,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
-                
+
     public validate(): ng.IPromise<void> {
-        
+
         let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
 
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
@@ -656,12 +655,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.subArtifactCollection.validate().catch(() => {
                     return this.services.$q.reject(new Error(message));
                 });
-            } else {                
+            } else {
                 return this.services.$q.reject(new Error(message));
             }
         });
     }
-    
+
 
 }
 

@@ -230,6 +230,7 @@ $fonticon2-copy: '\e84a'; /* '' */
 }
 
 /* '' */
+.fonticon2-info::before,
 .fonticon2-information::before {
     content: $fonticon2-information;
 }

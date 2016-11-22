@@ -1,12 +1,11 @@
 import {IArtifactState} from "../state";
 import {Models, Enums, Relationships} from "../../../main/models";
 import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
-import {ArtifactProperties, SpecialProperties} from "../properties";
+import {ArtifactProperties, SpecialProperties, IArtifactProperties} from "../properties";
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet, IItemChangeSet} from "../changeset";
 import {IMetaData} from "../metadata";
 import {IDocumentRefs, DocumentRefs} from "../docrefs";
 import {IStatefulArtifactServices} from "../services";
-import {IArtifactProperties} from "../properties";
 import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
 import {IApplicationError} from "../../../core/error/applicationError";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
@@ -32,7 +31,7 @@ export interface IStatefulItem extends Models.IArtifact {
 }
 
 export interface IIStatefulItem extends IStatefulItem {
-    propertyChange:  Rx.BehaviorSubject<IItemChangeSet>;
+    propertyChange: Rx.BehaviorSubject<IItemChangeSet>;
 
     getAttachmentsDocRefs(): ng.IPromise<IArtifactAttachmentsResultSet>;
     getRelationships(): ng.IPromise<Relationships.IArtifactRelationshipsResultSet>;
@@ -69,7 +68,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
         delete this._error;
     }
-    
+
     protected get error(): Rx.BehaviorSubject<IApplicationError> {
         if (!this._error) {
             this._error = new Rx.BehaviorSubject<IApplicationError>(null);
@@ -83,14 +82,14 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public get propertyChange(): Rx.BehaviorSubject<IItemChangeSet> {
         if (!this._propertyChangeSubject) {
-            this._propertyChangeSubject = new Rx.BehaviorSubject<IItemChangeSet>({item: this});            
-        }    
-        return this._propertyChangeSubject;    
-    } 
+            this._propertyChangeSubject = new Rx.BehaviorSubject<IItemChangeSet>({item: this});
+        }
+        return this._propertyChangeSubject;
+    }
 
     public getProperyObservable(): Rx.Observable<IItemChangeSet> {
         return this.propertyChange.filter(it => !!it).asObservable();
-    } 
+    }
 
 
     public get id(): number {
@@ -213,7 +212,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                 value: this.artifact[name] = value
             } as IChangeSet;
             this.changesets.add(changeset);
-            this.propertyChange.onNext({ item: this, change: changeset} as IItemChangeSet);
+            this.propertyChange.onNext({item: this, change: changeset} as IItemChangeSet);
             this.lock();
         }
     }
@@ -264,8 +263,7 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     protected isFullArtifactLoadedOrLoading(): boolean {
         return (this._customProperties && this._customProperties.isLoaded &&
-            this._specialProperties && this._specialProperties.isLoaded) ||
-            !!this.loadPromise;
+            this._specialProperties && this._specialProperties.isLoaded) || !!this.loadPromise;
     }
 
     public unload() {
@@ -323,19 +321,34 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
         const deferred = this.services.getDeferred();
         this.attachmentsAndDocRefsPromise = deferred.promise;
-        this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
-            this.attachments.initialize(result.attachments);
-            this.docRefs.initialize(result.documentReferences);
-            deferred.resolve(result);
-        }).catch(error => {
-            if (error && error.statusCode === HttpStatusCode.NotFound) {
-                this.artifactState.deleted = true;
-            }
-            deferred.reject(error);
-        }).finally(() => {
-            this.attachmentsAndDocRefsPromise = undefined;
-        });
+        if (this.hasArtifactEverBeenSavedOrPublished()) {
+            this.getAttachmentsDocRefsInternal().then((result: IArtifactAttachmentsResultSet) => {
+                this.attachments.initialize(result.attachments);
+                this.docRefs.initialize(result.documentReferences);
+                deferred.resolve(result);
+            }).catch(error => {
+                if (error && error.statusCode === HttpStatusCode.NotFound) {
+                    this.artifactState.deleted = true;
+                }
+                deferred.reject(error);
+            }).finally(() => {
+                this.attachmentsAndDocRefsPromise = undefined;
+            });
+        } else {
+            const resultSet = {
+                artifactId: this.artifact.id,
+                attachments: [],
+                documentReferences: []
+            };
+            this.attachments.initialize(resultSet.attachments);
+            this.docRefs.initialize(resultSet.documentReferences);
+            deferred.resolve(resultSet);
+        }
         return this.attachmentsAndDocRefsPromise;
+    }
+
+    protected hasArtifactEverBeenSavedOrPublished() {
+        return this.artifact.id > 0;
     }
 
     protected abstract getAttachmentsDocRefsInternal(): ng.IPromise<IArtifactAttachmentsResultSet>;
@@ -387,7 +400,7 @@ export abstract class StatefulItem implements IIStatefulItem {
             switch (propertyType.lookup) {
                 case Enums.PropertyLookupEnum.Custom:
 
-                    // do not validate unloaded custom properties  
+                    // do not validate unloaded custom properties
                     if (!this.customProperties.isLoaded) {
                         return true;
                     }
@@ -396,6 +409,11 @@ export abstract class StatefulItem implements IIStatefulItem {
                     if (propertyValue) {
                         value = propertyValue.value;
                     }
+
+                    if (!_.isBoolean(propertyType.isValidated)) {
+                        propertyType.isValidated = true;
+                    }
+                    
                     break;
                 case Enums.PropertyLookupEnum.Special:
                     propertyValue = this.specialProperties.get(propertyType.modelPropertyName as number);
@@ -425,79 +443,79 @@ export abstract class StatefulItem implements IIStatefulItem {
         try {
             switch (propertyType.primitiveType) {
                 case Models.PrimitiveType.Number:
-                    if (!this.services.validationService.numberValidation.isValid(propValue, 
-                        propValue,
-                        propertyType.decimalPlaces,
-                        propertyType.minNumber,
-                        propertyType.maxNumber,
-                        propertyType.isValidated,
-                        propertyType.isRequired)) {
-                        isValid =  false;
+                    if (!this.services.validationService.numberValidation.isValid(propValue,
+                            propValue,
+                            propertyType.decimalPlaces,
+                            propertyType.minNumber,
+                            propertyType.maxNumber,
+                            propertyType.isValidated,
+                            propertyType.isRequired)) {
+                        isValid = false;
                     }
                     break;
                 case Models.PrimitiveType.Date:
-                    if (!this.services.validationService.dateValidation.isValid(propValue, 
-                        propValue,
-                        propertyType.minDate,
-                        propertyType.maxDate,
-                        propertyType.isValidated,
-                        propertyType.isRequired)) {
-                        isValid =  false;
+                    if (!this.services.validationService.dateValidation.isValid(propValue,
+                            propValue,
+                            propertyType.minDate,
+                            propertyType.maxDate,
+                            propertyType.isValidated,
+                            propertyType.isRequired)) {
+                        isValid = false;
                     }
                     break;
                 case Models.PrimitiveType.Text:
                     if (propertyType.isRichText) {
-                        if (!this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired, 
-                            propValue, 
-                            propValue, propertyType.isValidated)) {
-                            isValid =  false;
-                        } 
+                        if (!this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired,
+                                propValue,
+                                propValue, propertyType.isValidated)) {
+                            isValid = false;
+                        }
                     } else {
-                        if (!this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired, 
-                            propValue, 
-                            propValue, propertyType.isValidated)) {
-                            isValid =  false;
-                        } 
+                        if (!this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired,
+                                propValue,
+                                propValue, propertyType.isValidated)) {
+                            isValid = false;
+                        }
                     }
                     break;
                 case Models.PrimitiveType.Choice:
                     value = propValue ? propValue.validValues : null;
                     if (propertyType.isMultipleAllowed) {
-                        if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired, 
-                            value, value, propertyType.isValidated)) {
-                            isValid =  false;
-                        } 
+                        if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired,
+                                value, value, propertyType.isValidated)) {
+                            isValid = false;
+                        }
                     } else {
-                        if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired, 
-                            value, value, propertyType.isValidated)) {
-                            isValid =  false;
-                        } 
+                        if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired,
+                                value, value, propertyType.isValidated)) {
+                            isValid = false;
+                        }
                     }
                     break;
                 case Models.PrimitiveType.User:
                     if (!!propValue) {
                         if (!!propValue.usersGroups) {
-                            value = propValue.usersGroups;                            
+                            value = propValue.usersGroups;
                         } else {
                             if (!!propValue.label) {
-                                value = propValue.label.split(",");                            
+                                value = propValue.label.split(",");
                             }
                         }
                     }
-                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, 
-                        value, value, propertyType.isValidated)) {
-                        isValid =  false;
-                    } 
+                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired,
+                            value, value, propertyType.isValidated)) {
+                        isValid = false;
+                    }
                     break;
                 default:
                     this.services.$log.error(`ERROR: PrimitiveType ${propertyType.primitiveType} is not defined`);
-                    isValid =  false;
+                    isValid = false;
             }
         } catch (err) {
             // log error
             this.services.$log.error(err);
             isValid = false;
-        } 
+        }
         if (!isValid) {
             this.services.$log.log("----------------------validateProperty------------------------");
             this.services.$log.log(propertyType);

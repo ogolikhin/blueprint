@@ -1,14 +1,19 @@
-import { Models } from "../../main/models";
-import { Message, MessageType } from "../../core/messages/message";
-import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";
-import { IHashMapOfPropertyValues } from "./models/process-models";
-import { IVersionInfo, ItemTypePredefined } from "./models/process-models";
-import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulProcessSubArtifact } from "./process-subartifact";
-import { IProcessUpdateResult } from "./services/process.svc";
+import {Models} from "../../main/models";
+import {Message, MessageType} from "../../core/messages/message";
+import {
+    IProcess,
+    IProcessShape,
+    IProcessLink,
+    IHashMapOfPropertyValues,
+    IVersionInfo,
+    ItemTypePredefined
+} from "./models/process-models";
+import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
+import {StatefulProcessSubArtifact} from "./process-subartifact";
+import {IProcessUpdateResult} from "./services/process.svc";
 
-export interface IStatefulProcessArtifact extends  IStatefulArtifact {
+export interface IStatefulProcessArtifact extends IStatefulArtifact {
     processOnUpdate();
 }
 
@@ -117,8 +122,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                         }
                     });
 
-                //Update shapes temporary ids
-                for (let sCounter = 0; sCounter < this.shapes.length; sCounter++) {
+                    //Update shapes temporary ids
+                    for (let sCounter = 0; sCounter < this.shapes.length; sCounter++) {
                         const shape = this.shapes[sCounter];
                         if (shape.id <= 0 && shape.id === tempIdMap[counter].key) {
                             shape.id = tempIdMap[counter].value;
@@ -167,6 +172,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
+
     private saveProcess(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.artifactState.readonly) {
@@ -175,13 +181,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
                     this.mapTempIdsAfterSave(result.tempIdMap);
                     deferred.resolve(this);
                 }).catch((error: any) => {
-                    // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
-                    if (error) {
-                        deferred.reject(this.handleSaveError(error));
-                    } else {
-                        deferred.reject(error);
-                    }
-                });
+                // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
+                if (error) {
+                    deferred.reject(this.handleSaveError(error));
+                } else {
+                    deferred.reject(error);
+                }
+            });
         } else {
             let message = new Message(MessageType.Error,
                 this.services.localizationService.get("ST_View_OpenedInReadonly_Message"));

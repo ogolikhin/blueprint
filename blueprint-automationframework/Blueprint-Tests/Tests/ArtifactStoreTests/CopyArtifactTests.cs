@@ -285,7 +285,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(195358)]
-        [Description("Create & publish two artifacts. User does not have edit permissions to target artifact. Copy source artifact to be a child of the target artifact.  " +
+        [Description("Create & publish two artifacts. User does not have edit permissions to target artifact.  Copy source artifact to be a child of the target artifact.  " +
             "Verify returned code 403 Forbidden.")]
         public void CopyArtifact_PublishedArtifact_ToNewParent_NoEditPermissionsToTargetArtifact_403Forbidden(BaseArtifactType artifactType)
         { 

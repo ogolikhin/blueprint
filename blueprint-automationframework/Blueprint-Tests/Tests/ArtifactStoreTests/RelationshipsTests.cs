@@ -56,21 +56,21 @@ namespace ArtifactStoreTests
         #region Private Functions
 
         /// <summary>
-        /// Compares two Trace objects and asserts that each of their properties are equal.
+        /// Compares an OpenApiTrace to a Nova Relationship and asserts that each of their properties are equal.
         /// </summary>
-        /// <param name="trace1">The first Trace to compare.</param>
-        /// <param name="trace2">The second Trace to compare.</param>
+        /// <param name="openApiTrace">The OpenAPI Trace to compare.</param>
+        /// <param name="relationship">The Nova Relationship to compare.</param>
         /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
-        private static void AssertTracesAreEqual(OpenApiTrace trace1, NovaTrace trace2, bool checkDirection=true)
+        private static void AssertTracesAreEqual(OpenApiTrace openApiTrace, Relationship relationship, bool checkDirection=true)
         {
-            Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(trace1.TraceType.ToString(), trace2.TraceType.ToString(), "The Trace Types don't match!");
-            Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
+            Assert.AreEqual(openApiTrace.ProjectId, relationship.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(openApiTrace.ArtifactId, relationship.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(openApiTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
+            Assert.AreEqual(openApiTrace.IsSuspect, relationship.IsSuspect, "One trace is marked suspect but the other isn't!");
 
             if (checkDirection)
             {
-                Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
+                Assert.AreEqual(openApiTrace.Direction, relationship.Direction, "The Trace Directions don't match!");
             }
         }
 
@@ -560,7 +560,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(2, relationships.OtherTraces.Count, "There should be 2 'other' traces.");
 
-//            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);     // XXX: This complains about Artifact Ids being different.
+            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);     // XXX: This complains about Artifact Ids being different.
 
             ITrace trace1 = traces[0];
             ITrace trace2 = relationships.OtherTraces[1];   // XXX: I'm not sure what this 'Other' trace is, but it's the only one that matches.

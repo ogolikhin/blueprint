@@ -96,6 +96,7 @@
     "progress-bar-webpack-plugin": "^1.9.0",
     "style-loader": "^0.13.1",
     "tinymce": "^4.4.3",
+      "tslint-eslint-rules": "^3.0.0",
     "typings": "^2.0.0",
     "ui-select": "0.19.4",
     "webpack-dev-server": "^1.16.2"

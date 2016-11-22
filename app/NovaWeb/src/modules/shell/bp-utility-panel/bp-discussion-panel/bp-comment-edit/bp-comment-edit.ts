@@ -53,39 +53,39 @@ export class BPCommentEditController {
             editor.focus();
             editor.formatter.register("font8", {
                 inline: "span",
-                styles: { "font-size": "8pt" }
+                styles: {"font-size": "8pt"}
             });
             editor.formatter.register("font9", { // default font, equivalent to 12px
                 inline: "span",
-                styles: { "font-size": "9pt" }
+                styles: {"font-size": "9pt"}
             });
             editor.formatter.register("font10", {
                 inline: "span",
-                styles: { "font-size": "10pt" }
+                styles: {"font-size": "10pt"}
             });
             editor.formatter.register("font11", {
                 inline: "span",
-                styles: { "font-size": "11pt" }
+                styles: {"font-size": "11pt"}
             });
             editor.formatter.register("font12", {
                 inline: "span",
-                styles: { "font-size": "12pt" }
+                styles: {"font-size": "12pt"}
             });
             editor.formatter.register("font14", {
                 inline: "span",
-                styles: { "font-size": "14pt" }
+                styles: {"font-size": "14pt"}
             });
             editor.formatter.register("font16", {
                 inline: "span",
-                styles: { "font-size": "16pt" }
+                styles: {"font-size": "16pt"}
             });
             editor.formatter.register("font18", {
                 inline: "span",
-                styles: { "font-size": "18pt" }
+                styles: {"font-size": "18pt"}
             });
             editor.formatter.register("font20", {
                 inline: "span",
-                styles: { "font-size": "20pt" }
+                styles: {"font-size": "20pt"}
             });
         },
         setup: function (editor) {

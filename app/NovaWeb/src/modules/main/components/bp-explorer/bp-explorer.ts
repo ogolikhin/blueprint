@@ -1,9 +1,7 @@
-import * as angular from "angular";
 import {Models} from "../../models";
-import {ItemTypePredefined} from "../../models/enums";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
-import {IStatefulArtifact, IItemChangeSet} from "../../../managers/artifact-manager";
+import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {IArtifactNode} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
@@ -97,8 +95,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
         if (value) {
             this.selectedArtifactSubscriber = value.model.getProperyObservable()
-                        .distinctUntilChanged(changes => changes.item && changes.item.name)
-                        .subscribeOnNext(this.onSelectedArtifactChange);
+                .distinctUntilChanged(changes => changes.item && changes.item.name)
+                .subscribeOnNext(this.onSelectedArtifactChange);
         }
     }
 
@@ -191,7 +189,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public onSelect = (vm: IArtifactNode, isSelected: boolean): void => {
         if (isSelected) {
             this.selected = vm;
-            this.navigationService.navigateTo({ id: vm.model.id });
+            this.navigationService.navigateTo({id: vm.model.id});
         }
     };
 

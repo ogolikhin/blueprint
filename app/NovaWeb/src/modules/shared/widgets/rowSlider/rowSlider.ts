@@ -1,4 +1,4 @@
-import { RowSliderController } from "./rowSlider-controller";
+import {RowSliderController} from "./rowSlider-controller";
 
 export class RowSliderComponent implements ng.IComponentOptions {
     public template: string = require("./rowSlider.html");

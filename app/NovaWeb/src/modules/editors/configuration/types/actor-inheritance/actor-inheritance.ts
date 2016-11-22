@@ -5,7 +5,6 @@ import {ISelectionManager} from "../../../../managers";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {Helper} from "../../../../shared/utils/helper";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
@@ -110,7 +109,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         }
 
         $scope["navigateToItem"] = (id: number) => {
-            this.navigationService.navigateTo({ id: id });
+            this.navigationService.navigateTo({id: id});
         };
 
         $scope["selectBaseActor"] = () => {

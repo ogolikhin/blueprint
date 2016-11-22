@@ -1,4 +1,3 @@
-import {ItemTypePredefined} from "../../../main/models/enums";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {INavigationState} from "../../../core/navigation/navigation-state";
 
@@ -20,11 +19,9 @@ export class BreadcrumbService implements IBreadcrumbService {
         "navigationService"
     ];
 
-    constructor(
-        private $q: ng.IQService,
-        private $http: ng.IHttpService,
-        private navigationService: INavigationService
-    ) {
+    constructor(private $q: ng.IQService,
+                private $http: ng.IHttpService,
+                private navigationService: INavigationService) {
     }
 
     public getReferences(): ng.IPromise<IPathItem[]> {
@@ -35,10 +32,10 @@ export class BreadcrumbService implements IBreadcrumbService {
             deferred.reject();
         } else {
             let url = `svc/bpartifactstore/process/breadcrumb`;
-            
+
             let pathItems: IPathItem[] = [];
-            navigationState.path.forEach(item => pathItems.push({ id: item.id, version: item.version }));
-            pathItems.push({ id: navigationState.id, version: navigationState.version });
+            navigationState.path.forEach(item => pathItems.push({id: item.id, version: item.version}));
+            pathItems.push({id: navigationState.id, version: navigationState.version});
 
             this.$http.post(url, pathItems)
                 .then((result) => {

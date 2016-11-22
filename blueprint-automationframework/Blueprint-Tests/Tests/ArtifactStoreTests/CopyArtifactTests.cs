@@ -333,7 +333,6 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden tests
 
-
         [TestCase(BaseArtifactType.Process)]
         [TestRail(195358)]
         [Description("Create & publish two artifacts. User does not have edit permissions to target artifact.  Copy source artifact to be a child of the target artifact.  " +
@@ -353,9 +352,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to be a child of another artifact to which he/she has viewer permissions only", SVC_PATH);
 
             // Verify:
-            string errorMessage = JsonConvert.DeserializeObject<string>(ex.RestResponse.Content);
-            Assert.AreEqual("Unauthorized call", errorMessage);
-
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permissions to copy the artifact in the selected location.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -425,7 +422,7 @@ namespace ArtifactStoreTests
         [TestRail(192082)]
         [Description("Create & save a collection or collection folder with a regular artifact. Copy collection or collection folder to be a child of the regular artifact.  " + 
             "Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_CollectionOrCollectionFolder_ToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
+        public void CopyArtifact_CollectionOrCollectionFolder_ToRegularArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
@@ -447,7 +444,7 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192083)]
         [Description("Create a collection or collection folder. Copy a collection or collection folder to be a child of a collection artifact. Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_CollectionOrCollectionFolder_ToCollectionArtifact_403Forbidden(ItemTypePredefined artifactType)
+        public void CopyArtifact_CollectionOrCollectionFolder_ToCollectionArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);

@@ -1,6 +1,9 @@
 ﻿
 namespace CustomAttributes
 {
+    /// <summary>
+    /// Contains category strings related to when or how often to run tests.
+    /// </summary>
     public static class Execute
     {
         /// <summary>

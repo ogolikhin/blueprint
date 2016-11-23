@@ -18,7 +18,7 @@
                 ng-minlength="3"
                 ng-disabled="quickSearch.quickSearchService.canSearch()"
                 autocomplete="off"
-                placeholder="Search open project"
+                placeholder="{{quickSearch.localization.get('Search_Placeholder')}}"
                 class="quick-serach__input"
                 name="searchTerm"
                 ng-model="quickSearch.quickSearchService.searchTerm">

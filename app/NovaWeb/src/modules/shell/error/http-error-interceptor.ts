@@ -27,7 +27,7 @@ export class HttpErrorInterceptor {
         if (config.ignoreInterceptor) {
             response.data = this.createApplicationError(response);
             deferred.reject(response);
-        } else if (response.status === HttpStatusCode.Unavailable) {
+        } else if (response.status === HttpStatusCode.Unavailable || response.status === HttpStatusCode.ServiceUnavailable) {
             if (!this.canceledByUser(config)) {
                 $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
                 response.data = _.assign(error, {handled: true});

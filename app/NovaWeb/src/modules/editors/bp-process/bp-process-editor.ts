@@ -179,13 +179,12 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if (this.disposing || this.isDestroyed) {
-            return;
+        if (this.disposing || this.isDestroyed) {		
+            return;		
         }
 
         if (elements.length > 0) {
             const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(elements[0].model.id);
-            
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
@@ -194,7 +193,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                         }
 
                         this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                    });
+                });
             }
         } else {
             this.artifactManager.selection.setArtifact(this.artifact);

@@ -266,7 +266,7 @@ describe("Artifact", () => {
             $rootScope.$digest();
 
             // assert
-            expect(error.message).toEqual("App_Save_Artifact_Error_409_123");
+            expect(error.message).toEqual("App_Save_Artifact_Error_409_124");
         }));
 
         it("error 409 other", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {

@@ -288,23 +288,22 @@ namespace ArtifactStoreTests
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-        IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-        IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-        // Execute:
-        var ex = Assert.Throws<Http401UnauthorizedException>(() =>
-        {
-            ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, newParentArtifact.Id, userWithBadToken);
-        }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", SVC_PATH);
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, newParentArtifact.Id, userWithBadToken);
+            }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", SVC_PATH);
 
-        // Verify:
-        const string expectedExceptionMessage = "Unauthorized call";
-        Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of copy published artifact which has no token in a header.", expectedExceptionMessage);
+            // Verify:
+            const string expectedExceptionMessage = "Unauthorized call";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} was not found in returned message of copy published artifact which has no token in a header.", expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Process)]
         [TestRail(191225)]
         [Description("Create & publish an artifact.  Copy an artifact with call that does not have token in a header.  Verify response returns code 401 Unauthorized.")]
         public void CopyArtifact_PublishedArtifact_NoTokenInAHeader_401Unauthorized(BaseArtifactType artifactType)
@@ -316,7 +315,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, _project.Id, user: null);
-            }, "'POST {0}' should return 400 Bad Request when called with no token in a header!", SVC_PATH);
+            }, "'POST {0}' should return 401 Unauthorized when called with no token in a header!", SVC_PATH);
 
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";
@@ -330,10 +329,10 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(195358)]
-        [Description("Create & publish two artifacts.  User does not have edit permissions to parent artifact.  Copy an artifact to be a child of the other artifact.  " +
+        [Description("Create & publish two artifacts. User does not have edit permissions to target artifact.  Copy source artifact to be a child of the target artifact.  " +
             "Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_PublishedArtifacts_CopyToBeAChildOfAnotherArtifact_NoEditPermissionsToParentArtifact_403Forbidden(BaseArtifactType artifactType)
-        {
+        public void CopyArtifact_PublishedArtifact_ToNewParent_NoEditPermissionsToTargetArtifact_403Forbidden(BaseArtifactType artifactType)
+        { 
             // Setup:
             IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
@@ -343,7 +342,7 @@ namespace ArtifactStoreTests
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, newParentArtifact.Id, user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, newParentArtifact, user),
                 "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to be a child of another artifact to which he/she has viewer permissions only", SVC_PATH);
 
             // Verify:
@@ -355,18 +354,16 @@ namespace ArtifactStoreTests
         [TestRail(192079)]
         [Description("Create & publish two artifacts.  Each one in different project.  Copy an artifact to be a child of the other artifact in different project.  " +
             "Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_PublishedArtifacts_CopyToBeAChildOfAnotherArtifactInDifferentProject_403Forbidden(BaseArtifactType artifactType)
+        public void CopyArtifact_PublishedArtifact_ToAnotherArtifactInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
-
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(projects.First(), author, artifactType);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(projects.Last(), author, artifactType);
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(projects.First(), _user, artifactType);
+            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(projects.Last(), _user, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, newParentArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, newParentArtifact, _user),
                 "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to a different project", SVC_PATH);
 
             // Verify:
@@ -376,16 +373,14 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(192080)]
         [Description("Create & save folder and artifact.  Copy a folder to be a child of an artifact.  Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_SavedArtifacts_CopyFolderToBeAChildOfArtifact_403Forbidden(BaseArtifactType artifactType)
+        public void CopyArtifact_SavedArtifact_FolderToBeAChildOfArtifact_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
-            IArtifact folder = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact folder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, folder.Id, artifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(folder, artifact, _user),
                 "'POST {0}' should return 403 Forbidden when user tries to copy a folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -396,70 +391,65 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192081)]
         [Description("Create collection or collection folder. Copy regular artifact to be a child of the collection or collection folder. Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_PublishedArtifact_CopyToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
+        public void CopyArtifact_PublishedArtifact_ToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            IArtifact collection = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, artifactType, defaultCollectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
 
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, collectionFolder.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(artifact, collection, _user),
                "'POST {0}' should return 403 Forbidden when user tries to copy a regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts outside of the artifact section.");
         }
 
+
+        [Category(Execute.Weekly)]
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192082)]
         [Description("Create & save a collection or collection folder with a regular artifact. Copy collection or collection folder to be a child of the regular artifact.  " + 
             "Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_CollectionOrCollectionFolder_CopyToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
+        public void CopyArtifact_CollectionOrCollectionFolder_ToRegularArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
-
-            IArtifact childArtifact = Helper.CreateWrapAndSaveNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
-
-            IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.Process);
+            IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.CopyArtifact(Helper.BlueprintServer.Address, childArtifact.Id, parentArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(collection, parentArtifact, _user),
                    "'POST {0}' should return 403 Forbidden when user tries to copy a collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts that are not from the artifact section.");
         }
 
+        [Category(Execute.Weekly)] 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192083)]
         [Description("Create a collection or collection folder. Copy a collection or collection folder to be a child of a collection artifact. Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_CollectionOrCollectionFolder_CopyToCollectionArtifact_403Forbidden(ItemTypePredefined artifactType)
+        public void CopyArtifact_CollectionOrCollectionFolder_ToCollectionArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var sourceCollection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            INovaArtifact collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
-
-            IArtifact collection = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
-
-            IArtifact collectionArtifact = Helper.CreateAndPublishCollection(_project, author);
+            IArtifact targetCollection = Helper.CreateAndPublishCollection(_project, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.CopyArtifact(Helper.BlueprintServer.Address, collection.Id, collectionArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceCollection, targetCollection, _user),
                    "'POST {0}' should return 403 Forbidden when user tries to copy collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:

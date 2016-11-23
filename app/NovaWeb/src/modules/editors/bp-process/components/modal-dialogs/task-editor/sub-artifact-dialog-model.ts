@@ -3,6 +3,12 @@ import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 import {DiagramNodeElement, UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IArtifactReference} from "../../../models/process-models";
 
+
+export interface IPersonaOption {
+    value: IArtifactReference;
+    label: string;
+}
+
 export abstract class SubArtifactTaskDialogModel implements IModalDialogModel {
     artifactId: number;
     subArtifactId: number;
@@ -17,7 +23,7 @@ export class UserTaskDialogModel extends SubArtifactTaskDialogModel {
     personaReference: IArtifactReference;
     label: string;
     objective: string;
-    availablePersona: any[];
+    userTaskPersonaReferenceOptions: IPersonaOption[];
 }
 
 export class SystemTaskDialogModel extends SubArtifactTaskDialogModel {
@@ -28,5 +34,5 @@ export class SystemTaskDialogModel extends SubArtifactTaskDialogModel {
     label: string;
     imageId: string;
     associatedImageUrl: string;
-    availablePersona: any[];
+    systemTaskPersonaReferenceOptions: IPersonaOption[];
 }

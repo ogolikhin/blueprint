@@ -15,7 +15,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     public abstract nameOnFocus();
     public abstract nameOnBlur();
     public abstract getActiveHeader(): string;
-
+    public abstract getPersonaLabel(): string;
+    
     protected abstract getAssociatedArtifact(): IArtifactReference;
     protected abstract setAssociatedArtifact(value: IArtifactReference);
     protected abstract getPersonaReference(): IArtifactReference;

@@ -445,8 +445,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
             } else if (error.errorCode === 111 || error.errorCode === 115) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-            } else if (error.errorCode === 124) {
+            } else if (error.errorCode === 123) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
+            } else if (error.errorCode === 124) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_124");
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409");
             }

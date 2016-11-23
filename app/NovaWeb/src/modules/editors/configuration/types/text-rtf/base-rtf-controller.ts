@@ -157,11 +157,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected prepRTF = (hasTables: boolean = false) => {
-        const $scope = this.$scope;
-        const content = $scope.model[$scope.options["key"]];
-        if (_.isString(content)) {
-            $scope.model[$scope.options["key"]] = content.replace(/ linkassemblyqualifiedname/gi, ` class="mceNonEditable" linkassemblyqualifiedname`);
-        }
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
         this.contentBuffer = this.mceEditor.getContent();
@@ -322,14 +317,16 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + id.toString();
         const linkText: string = prefix + id.toString() + ": " + name;
         const escapedLinkText: string = _.escape(linkText);
-        const inlineTrace: string = `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
+        const spacer: string = "<span>&nbsp;</span>";
+        const inlineTrace: string = `<span class="mceNonEditable">` +
+            `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
             `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
             `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
             `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" class="mceNonEditable">` +
             `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
-            `</a>&#65279;`;
+            `</a></span>&#65279;`;
         /* tslint:enable:max-line-length */
-        this.mceEditor["insertContent"](inlineTrace);
+        this.mceEditor["insertContent"](inlineTrace + spacer);
     };
 
     public handleClick = (event: Event) => {

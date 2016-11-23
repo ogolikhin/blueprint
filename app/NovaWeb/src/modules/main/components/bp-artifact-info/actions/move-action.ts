@@ -9,7 +9,7 @@ import {
     MoveArtifactInsertMethod,
     IMoveArtifactPickerOptions
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
-import {Models, Enums} from "../../../../main/models";
+import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class MoveAction extends BPDropdownAction {
@@ -55,11 +55,11 @@ export class MoveAction extends BPDropdownAction {
     }
 
     public get execute()  {
-        return this.moveArtifact;
+        return this.checkProjectLoaded;
     }
 
     private canExecute() {
-        if (!this.artifact || !this.projectManager.getProject(this.artifact.projectId)) {
+        if (!this.artifact) {
             return false;
         }
 
@@ -81,7 +81,22 @@ export class MoveAction extends BPDropdownAction {
         return true;
     }
 
-    private moveArtifact() {
+    private checkProjectLoaded() {
+        //first, check if project is loaded, and if not - load it
+        let loadProjectPromise: ng.IPromise<any>;
+        if (!this.projectManager.getProject(this.artifact.projectId)) {
+            loadProjectPromise = this.projectManager.load(this.artifact.projectId);
+        } else {
+            loadProjectPromise = this.$q.resolve();
+        }
+
+        loadProjectPromise.then(() => {
+            this.openMoveDialog().catch((err) => this.messageService.addError(err));
+        }).catch((err) => this.messageService.addError(err));
+    }
+
+    private openMoveDialog(): ng.IPromise<void> {
+        //next - open the move to dialog
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Move"),
             template: require("../../../../main/components/dialogs/move-artifact/move-artifact-dialog.html"),
@@ -97,43 +112,52 @@ export class MoveAction extends BPDropdownAction {
             currentArtifact: this.artifact 
         };
 
-        this.dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
+        return this.dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
             if (result && result.length === 1) {
-                const artifacts: Models.IArtifact[] = result[0].artifacts;
-                if (artifacts && artifacts.length === 1) {
-                    let insertMethod: MoveArtifactInsertMethod = result[0].insertMethod;
-                    let orderIndex: number = this.projectManager.calculateOrderIndex(insertMethod, result[0].artifacts[0]);
-
-                    let lockSavePromise: ng.IPromise<any>;
-
-                    if (!this.artifact.artifactState.dirty) {
-                        //lock
-                        lockSavePromise = this.artifact.lock();
-                        if (!lockSavePromise) {
-                            lockSavePromise = this.$q.resolve();
-                        }
-                    } else if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-                        //save
-                        lockSavePromise = this.artifact.save();
-                    } else {
-                        //do nothing
-                        lockSavePromise = this.$q.resolve();
-                    }
-
-                    lockSavePromise.then(() => {
-                        this.artifact
-                        .move(insertMethod === MoveArtifactInsertMethod.Selection ? artifacts[0].id : artifacts[0].parentId, orderIndex)
-                        .then(() => {
-                            this.projectManager.refresh(this.artifact.projectId).then(() => {
-                                this.projectManager.triggerProjectCollectionRefresh();
-                            });
-                        })
-                        .catch((err) => {
-                            this.messageService.addError(err);
-                        });
-                    });
-                }
+                return this.computeNewOrderIndex(result[0]);
             }
         }); 
+    }
+
+    private computeNewOrderIndex(result: MoveArtifactResult): ng.IPromise<void> {
+        const artifacts: Models.IArtifact[] = result.artifacts;
+        if (artifacts && artifacts.length === 1) {
+            let insertMethod: MoveArtifactInsertMethod = result.insertMethod;
+            return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]).then((orderIndex: number) => {
+                return this.prepareArtifactForMove(insertMethod, artifacts[0], orderIndex);
+            });
+        }
+    }
+
+    private prepareArtifactForMove(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+        let lockSavePromise: ng.IPromise<any>;
+
+        if (!this.artifact.artifactState.dirty) {
+            //lock
+            lockSavePromise = this.artifact.lock();
+            if (!lockSavePromise) {
+                lockSavePromise = this.$q.resolve();
+            }
+        } else if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            //save
+            lockSavePromise = this.artifact.save();
+        } else {
+            //do nothing
+            lockSavePromise = this.$q.resolve();
+        }
+
+        return lockSavePromise.then(() => {
+            return this.moveArtifact(insertMethod, artifact, orderIndex);
+        });
+    }
+
+    private moveArtifact(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+        return this.artifact
+        .move(insertMethod === MoveArtifactInsertMethod.Selection ? artifact.id : artifact.parentId, orderIndex)
+        .then(() => {
+            this.projectManager.refresh(this.artifact.projectId).then(() => {
+                this.projectManager.triggerProjectCollectionRefresh();
+            });
+        });
     }
 }

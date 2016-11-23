@@ -8,7 +8,7 @@ export enum ProjectServiceStatusCode {
 export interface IProjectService {
     abort(): void;
     getFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
-    getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
+    getArtifacts(projectId: number, artifactId?: number, notAbortable?: boolean): ng.IPromise<Models.IArtifact[]>;
     getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem>;
     getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
     getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
@@ -84,7 +84,7 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
+    public getArtifacts(projectId: number, artifactId?: number, notAbortable?: boolean): ng.IPromise<Models.IArtifact[]> {
         if (projectId && projectId === artifactId) {
             artifactId = null;
         }
@@ -95,7 +95,7 @@ export class ProjectService implements IProjectService {
         const requestObj: ng.IRequestConfig = {
             url: `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: notAbortable ? undefined : this.canceler.promise
         };
 
         this.$http(requestObj).then(

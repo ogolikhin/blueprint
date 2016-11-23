@@ -16,7 +16,7 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         toggleItemFlag: "&",
         deleteItem: "&",
         isItemReadOnly: "<",
-        itemVersionId: "="
+        itemVersionId: "<"
     };
 }
 

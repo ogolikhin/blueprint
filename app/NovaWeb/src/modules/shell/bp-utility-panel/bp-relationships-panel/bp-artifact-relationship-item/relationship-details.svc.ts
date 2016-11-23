@@ -21,7 +21,7 @@ export class RelationshipDetailsService implements IRelationshipDetailsService {
     public getRelationshipDetails(artifactId: number, versionId?: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         const defer = this.$q.defer<any>();
         let requestUrl = `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`;
-        if (versionId) {
+        if (_.isFinite(versionId)) {
             requestUrl += `?versionId=` + versionId;
         }
         const requestObj: ng.IRequestConfig = {

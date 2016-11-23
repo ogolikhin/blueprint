@@ -8,7 +8,6 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -414,6 +413,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts outside of the artifact section.");
         }
 
+        [Category(Execute.Weekly)]
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192082)]

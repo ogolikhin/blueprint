@@ -1,6 +1,7 @@
 ﻿<bp-tree-view api="$ctrl.treeApi"
               row-data="$ctrl.projects"
               columns="$ctrl.columns"
+              size-columns-to-fit="true"
               on-select="$ctrl.onSelect(vm, isSelected)"
               on-error="$ctrl.onError(reason)"
               on-grid-reset="$ctrl.onGridReset(isExpanding)">

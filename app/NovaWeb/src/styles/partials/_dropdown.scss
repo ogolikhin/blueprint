@@ -48,4 +48,11 @@
     text-align: left;
     white-space: nowrap;
     text-overflow: ellipsis;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    &:hover {
+        background: $brand-secondary;
+        color: $white;
+    }
 }

@@ -148,13 +148,14 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
             try {
                 //here we need to update original model
                 const context = $field.data as IPropertyDescriptor;
+                const invalid = ($field.formControl as ng.IFormController).$invalid;
                 if (!context) {
                     return;
                 }
                 if (!this.editor) {
                     return;
                 }
-                const value = this.editor.convertToModelValue($field, $value);
+                let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);

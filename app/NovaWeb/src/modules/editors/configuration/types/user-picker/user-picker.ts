@@ -74,9 +74,13 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.userPickerValidation.hasValueIfRequired(
+                    const isValid = validationService.userPickerValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
                         $viewValue, $modelValue);
+                        
+                    BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
+                    return true;                        
+                        
                 }
             }
         };

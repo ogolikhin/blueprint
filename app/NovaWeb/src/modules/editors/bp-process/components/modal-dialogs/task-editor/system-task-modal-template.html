@@ -18,20 +18,14 @@
         <div class="nova-form-group nova-floating-label">
             <label for="storyteller-user" class="nova-label"><i class="fonticon2-process-persona"></i>{{::$root.config.labels['ST_System_Name_Label']}}</label>
             <div class="process-form-container">
-                <input type="text" class="nova-form-control task-modal-details-persona__input"
-                       id="system-task-persona" name="persona"
-                       ng-model="dialogModel.personaReference.name"
-                       uib-typeahead="persona as persona.name for persona in dialogModel.availablePersona | filter:{name:$viewValue} | limitTo: 10"
-                       typeahead-template-url="artifactTypesDropdown.html"
-                       typeahead-show-hint="true"
-                       typeahead-min-length="0"/>
-                <button class="btn btn-icon btn-icon__error" ng-if="dialogModel.personaReference.name" ng-click="$ctrl.cleanPersonaField()">
-                    <span class="fonticon2-error"></span>
-                </button>
+                <bp-select class="persona-reference__dropdown"
+                           ng-model="dialogModel.personaReference"
+                           options="dialogModel.systemTaskPersonaReferenceOptions"
+                           button-label="{{$ctrl.getPersonaLabel()}}">
+                </bp-select>
                 <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
                     +
                 </button>
-                <span class="storyteller-helper-text">{{::$root.config.labels['ST_System_Name_Helper_Text']}}</span>
             </div>
         </div>
         <div class="nova-form-group nova-floating-label">

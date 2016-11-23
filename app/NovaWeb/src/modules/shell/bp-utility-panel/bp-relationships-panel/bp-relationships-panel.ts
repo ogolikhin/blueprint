@@ -53,6 +53,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
+    public categoryFilter: number;
     private subscribers: Rx.IDisposable[];
 
     constructor($q: ng.IQService,
@@ -83,6 +84,14 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.associations = null;
         this.documentReferences = null;
         this.actorInherits = null;
+    }
+
+    public get showTracesTitle() {
+        return this.manualTraces2.length && this.categoryFilter === 0;
+    }
+
+    public get showOtherTitle() {
+       return this.otherTraces.length && this.categoryFilter === 0;
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact,
@@ -124,7 +133,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.manualTraces = null;
         this.otherTraces = null;
 
-        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
+        if (this.item &&
+            Helper.hasArtifactEverBeenSavedOrPublished(this.item) &&
+            this.item.supportRelationships()) {
             this.isLoading = true;
             const refresh = !this.item.relationships.changes(); //Todo implemt efficient method to check if has changes
             this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {

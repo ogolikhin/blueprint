@@ -48,8 +48,8 @@
     text-align: left;
     white-space: nowrap;
     text-overflow: ellipsis;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: $padding-small-vertical;
+    padding-bottom: $padding-small-vertical;
 
     &:hover {
         background: $brand-secondary;

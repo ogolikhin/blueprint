@@ -291,7 +291,11 @@ export class ProjectManager implements IProjectManager {
         return this.itemInfoService.get(projectId).then((project: IItemInfoResult) => {
             return this.add(<AdminStoreModels.IInstanceItem>{
                 id: project.id,
-                name: project.name
+                name: project.name,
+                parentFolderId: undefined,
+                type: AdminStoreModels.InstanceItemType.Project,
+                hasChildren: true,
+                permissions: project.permissions
             });
         });
     }

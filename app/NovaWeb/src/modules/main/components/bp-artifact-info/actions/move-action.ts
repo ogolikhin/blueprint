@@ -90,13 +90,11 @@ export class MoveAction extends BPDropdownAction {
             loadProjectPromise = this.$q.resolve();
         }
 
-        loadProjectPromise.then(() => {
-            this.openMoveDialog().catch((err) => {
-                if (err !== "cancel") {  //ignore dialog cancel errors
-                    this.messageService.addError(err);
-                }
-            });
-        }).catch((err) => this.messageService.addError(err));
+        loadProjectPromise
+        .catch((err) => this.messageService.addError(err))
+        .then(() => {
+            this.openMoveDialog();
+        });
     }
 
     private openMoveDialog(): ng.IPromise<void> {
@@ -118,7 +116,7 @@ export class MoveAction extends BPDropdownAction {
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
             if (result && result.length === 1) {
-                return this.computeNewOrderIndex(result[0]);
+                return this.computeNewOrderIndex(result[0]).catch((err) => this.messageService.addError(err));
             }
         }); 
     }

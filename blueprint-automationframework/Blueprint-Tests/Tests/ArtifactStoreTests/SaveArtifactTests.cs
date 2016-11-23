@@ -6,6 +6,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -807,6 +808,37 @@ namespace ArtifactStoreTests
             const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
+
+        #region Artifact Properties tests
+
+        [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestRail(195433)]
+        [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
+            "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
+        public void UpdateArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType, string artifactCustomPropertyName)
+        {
+            // Setup: Set the required custom text property value for the target sub artifact with empty content
+            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+
+            var subArtifactCustomPropertyValue = "";
+            var artifactDetailsChangeSet = CreateArtifactChangeSet(author, projectCustomData, artifact, artifactCustomPropertyName, subArtifactCustomPropertyValue);
+
+            // Execute:Attempt to update the target sub artifact with empty content
+            artifact.Lock(author);
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetailsChangeSet);
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author), "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
+
+            // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
+            // Validation: Exception should contain proper errorCode in the response content
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode, "Error code for PublishArtifact with the artifact containing invalid change should be {0}", InternalApiErrorCodes.CannotPublishOverValidationErrors);
+        }
+
+        #endregion Artifact Properties tests
 
         #region Subartifact Properties tests
 

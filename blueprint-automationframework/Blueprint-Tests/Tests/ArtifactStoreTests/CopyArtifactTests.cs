@@ -427,7 +427,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var collection = ArtifactStoreHelper.CreateCollectionOrCollectionFolder(Helper, _project, _user, artifactType);
+            var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
             IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
 
@@ -449,7 +449,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var sourceCollection = ArtifactStoreHelper.CreateCollectionOrCollectionFolder(Helper, _project, _user, artifactType);
+            var sourceCollection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
             IArtifact targetCollection = Helper.CreateAndPublishCollection(_project, _user);
 

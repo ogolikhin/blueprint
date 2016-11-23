@@ -133,7 +133,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.manualTraces = null;
         this.otherTraces = null;
 
-        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
+        if (this.item &&
+            Helper.hasArtifactEverBeenSavedOrPublished(this.item) &&
+            this.item.supportRelationships()) {
             this.isLoading = true;
             const refresh = !this.item.relationships.changes(); //Todo implemt efficient method to check if has changes
             this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {

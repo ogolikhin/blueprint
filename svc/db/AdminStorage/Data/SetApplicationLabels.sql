@@ -440,8 +440,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_Cre
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_LastEdited', 'en-US', N'Last Edited:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_SubartifactMessage', 'en-US', N'Opening this item displays the artifact that contains it.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_NoResults', 'en-US', N'No Results Found')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_ServiceUnavailable', 'en-US', N'Service Unavailable. Please try again later.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Placeholder', 'en-US', N'Search open projects')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Confirmation_All_Descendants', 'en-US', N'If you delete the artifact, any child artifact (listed below) and its descendants will also need to be deleted.<br/>Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Confirmation_Single', 'en-US', N'Please confirm the deletion of this artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_All_Success_Message', 'en-US', N'All ({0}) artifacts have been deleted.')

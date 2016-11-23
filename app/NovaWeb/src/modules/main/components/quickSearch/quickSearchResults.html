@@ -24,7 +24,7 @@
                                 required
                                 autocomplete="off"
                                 ng-minlength="3"
-                                placeholder="{{$ctrl.localization.get('Search_Placeholder')}}"
+                                placeholder="Search open project"
                                 class="quick-serach__input quick-serach__input--full-width"
                                 name="searchTerm"
                                 ng-model="$ctrl.searchTerm">
@@ -56,7 +56,9 @@
                     </div>
                 </div>
 
-                <ul class="list-unstyled" ng-if="$ctrl.results.length > 0 && !$ctrl.isLoading">
+                <ul class="list-unstyled"
+                    ng-if="$ctrl.results.length > 0"
+                >
                     <li class="quick-search__results--item"
                         ng-repeat="item in $ctrl.results track by $index">
                         <div class="row small-gutter">
@@ -112,7 +114,6 @@
                         </div>
                     </li>
                 </ul>
-
                 <div class="quick-search__response" ng-if="$ctrl.isLoading">
                     <div class="quick-serach__loading">
                         <div class="quick-serach__loading-overlay"></div>
@@ -120,19 +121,18 @@
                     </div>
                 </div>
 
-                <div class="quick-search__response" ng-if="$ctrl.results && $ctrl.results.length===0">
+                <div class="quick-search__response" ng-if="$ctrl.results.length===0">
                     <div class="center-item font-larger">
                         <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
                     </div>
                 </div>
-
                 <div class="quick-search__footer">
                    <ul  uib-pagination
                         class="quick-search__pagination"
                         total-items="$ctrl.metadata.totalCount"
                         items-per-page="$ctrl.metadata.pageSize"
                         ng-model="$ctrl.page"
-                        max-size="$ctrl.maxVisiblePageCount"
+                        max-size="10"
                         boundary-links="true"
                         rotate="true"
                         force-ellipses="true"

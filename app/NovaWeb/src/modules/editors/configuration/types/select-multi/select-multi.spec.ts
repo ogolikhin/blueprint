@@ -104,7 +104,7 @@ describe("Formly Select Multi", () => {
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
     });
 
     it("should succeed if empty, as not required", function () {
@@ -115,7 +115,7 @@ describe("Formly Select Multi", () => {
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
     });
 
     function compileAndSetupStuff(extraScopeProps?) {

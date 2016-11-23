@@ -245,9 +245,12 @@ describe("UserTask test", () => {
 
         it("Test latest personaReference value reuse", () => {
             // Arrange
+            const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
             const testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
+            node.render(graph, 80, 80, false);
+            node.renderLabels();
             node.personaReference = {
                 id: 1,
                 projectId: 1,
@@ -423,6 +426,8 @@ describe("UserTask test", () => {
             node = new UserTask(<IUserTaskShape>statefulArtifact.shapes[0], rootScope, null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
+            viewModel.userTaskPersonaReferenceList = [];
+            viewModel.systemTaskPersonaReferenceList = [];
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });

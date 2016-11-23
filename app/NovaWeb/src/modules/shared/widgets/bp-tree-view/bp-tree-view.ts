@@ -15,6 +15,7 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *               root-node-visible="false"
  *               columns="$ctrl.columns"
  *               header-height="20"
+ *               size-columns-to-fit="true"
  *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
  *               on-error="$ctrl.onError(reason)"

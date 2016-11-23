@@ -172,7 +172,6 @@ bp-relationships-panel {
                 .desc {
                     word-wrap: break-word;
                     font-size: $font-size-smaller;
-                    padding-left: 2px;
                 }
 
                 .left-arrow {
@@ -227,7 +226,9 @@ bp-relationships-panel {
         }
     }
 }
-
+bp-utility-panel .status .relationship-panel__circle-icon::before {
+    font-size: 1.2rem;
+}
 .util-panel-heading {
     font-weight: 700;
     &.util-heading-other {

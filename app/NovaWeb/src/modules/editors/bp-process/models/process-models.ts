@@ -63,6 +63,8 @@ export interface IProcess {
     decisionBranchDestinationLinks: IProcessLink[];
     propertyValues: IHashMapOfPropertyValues;
     requestedVersionInfo: IVersionInfo;
+    userTaskPersonaReferenceList: IArtifactReference[];
+    systemTaskPersonaReferenceList: IArtifactReference[];
 }
 
 export interface IProcessShape {
@@ -225,7 +227,9 @@ export class ProcessModel implements IProcess {
                 public propertyValues: IHashMapOfPropertyValues = {},
                 public decisionBranchDestinationLinks: IProcessLink[] = [],
                 public itemTypeId: number = 0,
-                public requestedVersionInfo: IVersionInfo = null) {
+                public requestedVersionInfo: IVersionInfo = null,
+                public userTaskPersonaReferenceList: IArtifactReference[] = [],
+                public systemTaskPersonaReferenceList: IArtifactReference[] = []) {
     }
 }
 

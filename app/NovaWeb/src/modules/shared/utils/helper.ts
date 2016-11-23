@@ -186,7 +186,9 @@ export class Helper {
 
     static getHtmlBodyContent(html: string): string {
         const div = document.createElement("div");
-        div.innerHTML = html || "";
+        let content = html || "";
+        div.innerHTML = content.replace(/(<a linkassemblyqualifiedname[ A-Za-z0-9='":;.,?/#$&_-]*>.*<\/a>)/gi,
+            `<span class="mceNonEditable">$1</span>`);
 
         return div.innerHTML;
     }

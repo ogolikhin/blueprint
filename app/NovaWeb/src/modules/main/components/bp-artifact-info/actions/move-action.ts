@@ -120,6 +120,7 @@ export class MoveAction extends BPDropdownAction {
     }
 
     private computeNewOrderIndex(result: MoveArtifactResult): ng.IPromise<void> {
+        //next - compute new order index
         const artifacts: Models.IArtifact[] = result.artifacts;
         if (artifacts && artifacts.length === 1) {
             let insertMethod: MoveArtifactInsertMethod = result.insertMethod;
@@ -130,6 +131,7 @@ export class MoveAction extends BPDropdownAction {
     }
 
     private prepareArtifactForMove(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+        //lock and presave if needed
         let lockSavePromise: ng.IPromise<any>;
 
         if (!this.artifact.artifactState.dirty) {
@@ -152,9 +154,11 @@ export class MoveAction extends BPDropdownAction {
     }
 
     private moveArtifact(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+        //finally, move the artifact
         return this.artifact
         .move(insertMethod === MoveArtifactInsertMethod.Selection ? artifact.id : artifact.parentId, orderIndex)
         .then(() => {
+            //refresh project
             this.projectManager.refresh(this.artifact.projectId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
             });

@@ -406,21 +406,29 @@ export class ProjectManager implements IProjectManager {
         let index: number;
 
         let siblings: Models.IArtifact[];
+        //get parent node
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
+
+        //if parent isn't found, or if its children aren't loaded
         if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && parentArtifactNode.children.length === 0)) {
+            //get children from server
             promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId, true).then((data: Models.IArtifact[]) => {
                 siblings = data;
             });
         } else {
+            //otherwise, get children from cache
             let siblings = _.map(parentArtifactNode.children, (node) => node.model);
             promise = this.$q.resolve();
         }
 
         return promise.then(() => {
-            siblings = _.sortBy(siblings, (a) => a.orderIndex);
+            //filter collections and sort by order index
             siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
+            siblings = _.sortBy(siblings, (a) => a.orderIndex);
+            
             index = siblings.findIndex((a) => a.id === selectedArtifact.id);
 
+            //compute new order index
             if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
                 orderIndex = selectedArtifact.orderIndex / 2;
             } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last

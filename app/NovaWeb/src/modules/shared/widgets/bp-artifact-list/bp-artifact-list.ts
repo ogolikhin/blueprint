@@ -1,4 +1,4 @@
-import { Models } from "../../../main/models";
+import {Models} from "../../../main/models";
 
 export class BPArtifactListComponent implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-list.html");
@@ -60,7 +60,7 @@ export class BPArtifactListController implements IBPArtifactListController {
         this.initialRows = numberOfProject + (this._sortedList.length < this.initialLimit ? this._sortedList.length : this.initialLimit);
     };
 
-    public get sortedList(): Models.IArtifactWithProject[]{
+    public get sortedList(): Models.IArtifactWithProject[] {
         return this._sortedList;
     }
 

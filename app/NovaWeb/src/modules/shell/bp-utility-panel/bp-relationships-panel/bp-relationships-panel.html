@@ -75,6 +75,7 @@
             <div class="separator"></div>
             <bp-artifact-relationship-item
                 relationship="::artifact"
+                selectable="true"
                 is-item-read-only="$ctrl.item.artifactState.readonly || !$ctrl.canManageTraces()"
                 selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"
                 set-item-direction="$ctrl.setItemDirection(artifact)"

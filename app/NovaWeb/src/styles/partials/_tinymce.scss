@@ -123,11 +123,13 @@ body {
 
     bp-comment-edit {
         .mce-btn-group {
-            padding-right: 1px;
-
+            padding-top: 2px;
+            padding-bottom: 2px;
+            margin-top: -2px;
+            margin-bottom: -2px !important; // !important to override tinymce's style
             &:not(:first-child) {
                 margin-left: 0;
-                padding-left: 1px;
+                padding-left: 3px;
             }
         }
 
@@ -138,7 +140,8 @@ body {
 
         .mce-ico {
             font-size: 12px;
-            width: 12px;
+            width: 13px;
+            padding-left: 2px;
         }
 
         .mce-colorbutton {
@@ -152,4 +155,11 @@ body {
             }
         }
     }
+}
+
+.mce-content-body *[contentEditable=false] *[contentEditable=true]:focus,
+.mce-content-body *[contentEditable=false] *[contentEditable=true]:hover,
+.mce-content-body *[contentEditable=false][data-mce-selected] {
+    background: $gray-lightest;
+    outline: none !important;
 }

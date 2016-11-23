@@ -1,8 +1,10 @@
 import "angular";
 import "angular-mocks";
-import {Models, AdminStoreModels, SearchServiceModels} from "./";
-import {IProjectService} from "../../managers/project-manager/";
-import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-view-models";
+import "Rx";
+import {Models, AdminStoreModels} from "../models";
+import {IProjectService} from "../../managers/project-manager/project-service";
+import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-node-vm-factory";
+import {IArtifactManager, IStatefulArtifactFactory, StatefulArtifact} from "../../managers/artifact-manager";
 
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;
@@ -11,8 +13,132 @@ describe("TreeNodeVMFactory", () => {
 
     beforeEach(() => {
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
-        factory = new TreeNodeVMFactory(projectService);
+        const artifactManager = jasmine.createSpyObj("artifactManager", ["add"]) as IArtifactManager;
+        const statefulArtifactFactory = jasmine.createSpyObj("statefulArtifactFactory", ["createStatefulArtifact"]) as IStatefulArtifactFactory;
+        (statefulArtifactFactory.createStatefulArtifact as jasmine.Spy).and.callFake(model => new StatefulArtifact(model, undefined));
+        factory = new TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
+    });
+
+    describe("StatefulArtifactNodeVM", () => {
+        it("constructor sets correct property values", () => {
+            // Arrange
+            const model = new StatefulArtifact({
+                id: 999,
+                hasChildren: false
+            }, undefined);
+
+            // Act
+            const vm = factory.createStatefulArtifactNodeVM(model);
+
+            // Assert
+            expect(vm.model).toBe(model);
+            expect(vm.key).toEqual("999");
+            expect(vm.group).toEqual(false);
+            expect(vm.expanded).toEqual(false);
+            expect(vm.selectable).toEqual(true);
+            expect(vm.children).toBeUndefined();
+        });
+
+        it("getCellClass, when a collection folder, returns correct result", () => {
+            // Arrange
+            const model = new StatefulArtifact({
+                id: 456,
+                predefinedType: Models.ItemTypePredefined.Collections,
+                itemTypeId: Models.ItemTypePredefined.CollectionFolder,
+                hasChildren: true
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["has-children", "is-collections"]);
+        });
+
+        it("getCellClass, when a use case, returns correct result", () => {
+            // Arrange
+            const model = new StatefulArtifact({
+                id: 456,
+                predefinedType: Models.ItemTypePredefined.UseCase,
+                hasChildren: true
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["has-children", "is-use-case"]);
+        });
+
+        it("getIcon, when custom icon, returns correct result", () => {
+            // Arrange
+            const model = new StatefulArtifact({
+                id: 1,
+                itemTypeIconId: 456,
+                itemTypeId: 123
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual(`<bp-item-type-icon item-type-id="123" item-type-icon-id="456"></bp-item-type-icon>`);
+        });
+
+        it("getIcon, when no custom icon, returns correct result", () => {
+            // Arrange
+            const model = new StatefulArtifact({id: 1}, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
+
+            // Act
+            const result = vm.getIcon();
+
+            // Assert
+            expect(result).toEqual("<i></i>");
+        });
+
+        it("getLabel returns correct result", () => {
+            // Arrange
+            const model = new StatefulArtifact({
+                id: 999,
+                name: "name"
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
+
+            // Act
+            const result = vm.getLabel();
+
+            // Assert
+            expect(result).toEqual("name");
+        });
+
+        it("loadChildrenAsync loads children", (done: DoneFn) =>
+            inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = new StatefulArtifact({
+                        id: 123,
+                        name: "parent",
+                        predefinedType: Models.ItemTypePredefined.GenericDiagram,
+                        artifactPath: ["project"]
+                    }, undefined);
+                    const vm = factory.createStatefulArtifactNodeVM(model);
+
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
+
+                        // Assert
+                        expect(result).toEqual(children.map(child => factory.createStatefulArtifactNodeVM(new StatefulArtifact(child, undefined))));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("InstanceItemNodeVM", () => {
@@ -135,6 +261,7 @@ describe("TreeNodeVMFactory", () => {
                 }] as Models.IArtifact[];
                 (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                 const model = {
+                    id: 7,
                     name: "project",
                     type: AdminStoreModels.InstanceItemType.Project
                 } as AdminStoreModels.IInstanceItem;
@@ -147,7 +274,8 @@ describe("TreeNodeVMFactory", () => {
                     expect(result).toEqual(children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder)
                         .map(child => factory.createArtifactNodeVM(model, child)));
                     expect(result.every(child => child instanceof ArtifactNodeVM &&
-                                                 _.isEqual(child.model.artifactPath, ["project"]))).toEqual(true);
+                    _.isEqual(child.model.artifactPath, ["project"]) &&
+                    _.isEqual(child.model.idPath, [7]))).toEqual(true);
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -374,7 +502,8 @@ describe("TreeNodeVMFactory", () => {
                     id: 123,
                     name: "parent",
                     predefinedType: Models.ItemTypePredefined.GenericDiagram,
-                    artifactPath: ["project"]
+                    artifactPath: ["project"],
+                    idPath: [7]
                 } as Models.IArtifact;
                 const vm = factory.createArtifactNodeVM(project, model);
 
@@ -384,7 +513,8 @@ describe("TreeNodeVMFactory", () => {
                     // Assert
                     expect(result).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
                     expect(result.every(child => child instanceof ArtifactNodeVM &&
-                                                 _.isEqual(child.model.artifactPath, ["project", "parent"]))).toEqual(true);
+                    _.isEqual(child.model.artifactPath, ["project", "parent"]) &&
+                    _.isEqual(child.model.idPath, [7, 123]))).toEqual(true);
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises

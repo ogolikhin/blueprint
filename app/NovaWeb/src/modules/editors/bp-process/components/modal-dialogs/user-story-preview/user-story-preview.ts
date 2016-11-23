@@ -1,6 +1,6 @@
-﻿import { BaseModalDialogController, IModalScope } from "../base-modal-dialog-controller";
-import { UserStoryDialogModel } from "../models/user-story-dialog-model";
-import { ICommunicationManager } from "../../../services/communication-manager";
+﻿import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
+import {UserStoryDialogModel} from "../models/user-story-dialog-model";
+import {ICommunicationManager} from "../../../services/communication-manager";
 
 export class UserStoryPreviewController extends BaseModalDialogController<UserStoryDialogModel> {
 
@@ -15,10 +15,10 @@ export class UserStoryPreviewController extends BaseModalDialogController<UserSt
     ];
 
     constructor($rootScope: ng.IRootScopeService,
-        $scope: IModalScope,
-        $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-        dialogModel: UserStoryDialogModel,
-        private communicationManager: ICommunicationManager) {
+                $scope: IModalScope,
+                $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
+                dialogModel: UserStoryDialogModel,
+                private communicationManager: ICommunicationManager) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
         this.isReadonly = dialogModel.isReadonly;

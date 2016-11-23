@@ -1,6 +1,7 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IQuickSearchService} from "./quickSearchService";
+import {IProjectManager} from "../../../managers/project-manager/project-manager";
 
 export interface IQuickSearchController {
     clearSearch();
@@ -61,6 +62,7 @@ export class QuickSearchController {
             this.$log.warn("invalid search");
             return null;
         }
+
         const settings = <ModalSettings>{
             animation: this.animationsEnabled,
             windowClass: "quick-search__modal",
@@ -69,7 +71,7 @@ export class QuickSearchController {
             controllerAs: "$ctrl",
             size: this.modalSize
         };
-        
+
         return this.modalInstance = this.$uibModal.open(settings);
     }
 

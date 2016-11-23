@@ -9,6 +9,8 @@ import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
 import {ShapeExtensions} from "./impl/utils/helpers";
 import {IStatefulDiagramArtifact} from "./diagram-artifact";
 import {IMessageService} from "../../core/messages/message.svc";
+import {MessageType, Message} from "../../core/messages/message";
+import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {BpBaseEditor} from "../bp-base-editor";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
@@ -32,7 +34,8 @@ export class BPDiagramController extends BpBaseEditor {
         "$rootScope",
         "$log",
         "statefulArtifactFactory",
-        "navigationService"
+        "navigationService",
+        "itemInfoService"
     ];
 
     public errorMsg: string;
@@ -49,7 +52,8 @@ export class BPDiagramController extends BpBaseEditor {
                 private $rootScope: ng.IRootScopeService,
                 private $log: ng.ILogService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private navigationService: INavigationService) {
+                private navigationService: INavigationService,
+                private itemInfoService: IItemInfoService) {
         super(messageService, artifactManager);
         new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
@@ -132,12 +136,20 @@ export class BPDiagramController extends BpBaseEditor {
                 const element = elements[0];
                 if (diagramType === Diagrams.USECASE_DIAGRAM && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
-                    if (artifactPromise) {
-                        artifactPromise.then((artifact) => {
-                            artifact.unload();
-                            this.artifactManager.selection.setArtifact(artifact);
-                        });
-                    }
+                    const artifactId = parseInt(ShapeExtensions.getPropertyByName(<IShape>element, ShapeProps.ARTIFACT_ID), 10);
+                    this.itemInfoService.get(artifactId).then((result: IItemInfoResult) => {
+                        if (result.isDeleted) {
+                            const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
+                            const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
+                            this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
+                        }
+                        if (artifactPromise) {
+                            artifactPromise.then((artifact) => {
+                                artifact.unload();
+                                this.artifactManager.selection.setArtifact(artifact);
+                            });
+                        }
+                    });
                 } else {
                 this.selectedElementId = element.id;
                     const subArtifact = this.artifact.subArtifactCollection.get(element.id);

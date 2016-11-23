@@ -54,7 +54,7 @@ namespace Model.ArtifactModel
         string ItemTypeName { get; set; }
         int? ItemTypeIconId { get; set; }
         int ItemTypeVersionId { get; set; }
-        int Permissions { get; set; }
+        RolePermissions? Permissions { get; set; }
         double? OrderIndex { get; set; }
         Identification LastEditedBy { get; set; }
         DateTime? LastEditedOn { get; set; }
@@ -69,7 +69,7 @@ namespace Model.ArtifactModel
         List<NovaTrace> Traces { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<INovaSubArtifact> SubArtifacts { get; set; }
+        List<NovaSubArtifact> SubArtifacts { get; set; }
 
         #endregion Serialized JSON Properties
     }
@@ -111,32 +111,6 @@ namespace Model.ArtifactModel
 
         List<INovaArtifactResponse> Artifacts { get; }
         List<INovaProject> Projects { get; }
-
-        #endregion Serialized JSON Properties
-    }
-
-    public interface INovaSubArtifact
-    {
-        #region Serialized JSON Properties
-        int Id { get; set; }
-
-        int? ParentId { get; set; }
-
-        int? ItemTypeId { get; set; }
-
-        string DisplayName { get; set; }
-
-        int PredefinedType { get; set; }
-
-        string Prefix { get; set; }
-
-        bool HasChildren { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<INovaSubArtifact> Children { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        List<NovaTrace> Traces { get; set; }
 
         #endregion Serialized JSON Properties
     }

@@ -1,10 +1,20 @@
-﻿import { IArtifactProperty, IUserTaskShape } from "../../../../../models/process-models";
-import { PropertyTypePredefined, IArtifactReference } from "../../../../../models/process-models";
-import { ItemIndicatorFlags } from "../../../../../models/enums";
-import { ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import { IDiagramNodeElement, ISystemTask, IUserTask } from "../models/";
-import { IUserStoryProperties, IProcessGraph } from "../models/";
-import { IDiagramNode, NodeType, NodeChange, ElementType } from "../models/";
+﻿import {
+    IArtifactProperty,
+    IUserTaskShape,
+    PropertyTypePredefined,
+    IArtifactReference
+} from "../../../../../models/process-models";
+import {ItemIndicatorFlags} from "../../../../../models/enums";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {
+    ISystemTask,
+    IUserTask,
+    IUserStoryProperties,
+    IProcessGraph,
+    IDiagramNode,
+    NodeType,
+    ElementType
+} from "../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {ShapesFactory} from "./shapes-factory";
 import {DiagramNodeElement} from "./diagram-element";
@@ -12,7 +22,7 @@ import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {DeleteShapeButton} from "../buttons/delete-shape-button";
-import { Label, LabelStyle, LabelType, ILabel } from "../labels/label";
+import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {SystemDecision} from "./";
 import {ProcessEvents} from "../../../process-diagram-communication";
 
@@ -38,7 +48,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private detailsButton: Button;
     private previewButton: Button;
     private linkButton: Button;
-    private rootScope: any;    
+    private rootScope: any;
 
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
         super(model);
@@ -176,14 +186,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return this.model.personaReference;
     }
 
-    public set personaReference(value: IArtifactReference) {
-        if (this.model != null && this.model.personaReference !== value) {
-            this.model.personaReference = value;
-            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, value.id);
+    public set personaReference(reference: IArtifactReference) {
+        if (this.model != null && this.model.personaReference !== reference) {
+            this.model.personaReference = reference;
+
+            this.updateStatefulPropertyValue(PropertyTypePredefined.PersonaReference, reference.id);
+
             if (this.personaLabel) {
-                this.personaLabel.text = value.name;
-                this.shapesFactoryService.setUserTaskPersona(value.name);
+                this.personaLabel.text = reference.name;
             }
+
+            this.shapesFactoryService.setUserTaskPersona(reference);
         }
     }
 
@@ -292,14 +305,14 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly 
-            );
+            graph.viewModel.isReadonly
+        );
 
-        // handle label change event 
+        // handle label change event
         this.textLabel.onTextChange = (value: string) => {
             this.label = value;
         };
- 
+
         //header
         mxGraph.addCell(this.header, this);
         const personaLabelStyle: LabelStyle = new LabelStyle(
@@ -314,9 +327,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             this.USER_TASK_WIDTH - 40,
             "#4C4C4C"
         );
-        // Note: the persona label is readonly 
+        // Note: the persona label is readonly
         this.personaLabel = new Label(
-            LabelType.Persona, 
+            LabelType.Persona,
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
@@ -324,16 +337,16 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            true // readonly 
+            true // readonly
         );
 
-        // handle persona label double click event 
+        // handle persona label double click event
         // open modal dialog so user can change the persona
 
         this.personaLabel.onDblClick = () => {
             this.openDialog(ModalDialogType.UserTaskDetailsDialogType);
         };
-         
+
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
 
@@ -378,7 +391,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         const personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
         this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"],
-            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 16, 18);
+            mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 18, 22);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT,

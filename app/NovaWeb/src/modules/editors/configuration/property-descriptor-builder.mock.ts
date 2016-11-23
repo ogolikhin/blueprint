@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import { IStatefulArtifact, IStatefulSubArtifact } from "../../managers/artifact-manager";
+import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {
     IPropertyDescriptor,
     IPropertyDescriptorBuilder,

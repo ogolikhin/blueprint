@@ -9,19 +9,15 @@ import {
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {
-    IDialogSettings,
-    IDialogService,
-    IBPAction,
-    BPButtonGroupAction
-} from "../../../shared";
+import {IDialogService, IBPAction, BPButtonGroupAction} from "../../../shared";
 import {
     SaveAction,
     PublishAction,
     DiscardAction,
     RefreshAction,
     DeleteAction,
-    OpenImpactAnalysisAction
+    OpenImpactAnalysisAction,
+    MoveAction
 } from "./actions";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {Message, MessageType} from "../../../core/messages/message";
@@ -37,6 +33,7 @@ export class BpArtifactInfo implements ng.IComponentOptions {
 
 export class BpArtifactInfoController {
     static $inject: [string] = [
+        "$q",
         "$scope",
         "$element",
         "artifactManager",
@@ -69,7 +66,8 @@ export class BpArtifactInfoController {
     public toolbarActions: IBPAction[] = [];
     public historicalMessage: string;
 
-    constructor(public $scope: ng.IScope,
+    constructor(public $q: ng.IQService,
+                public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
                 protected artifactManager: IArtifactManager,
                 protected localization: ILocalizationService,
@@ -250,10 +248,13 @@ export class BpArtifactInfoController {
         this.toolbarActions = [];
         if (artifact) {
             this.toolbarActions.push(
+                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
+            );
+            this.toolbarActions.push(
                 new BPButtonGroupAction(
                     new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new DiscardAction(artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
+                    new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
                     new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
                         this.mainBreadcrumbService),
                     new DeleteAction(
@@ -263,7 +264,8 @@ export class BpArtifactInfoController {
                         this.artifactManager,
                         this.projectManager,
                         this.loadingOverlayService,
-                        this.dialogService)
+                        this.dialogService,
+                        this.navigationService)
                 ),
             );
 

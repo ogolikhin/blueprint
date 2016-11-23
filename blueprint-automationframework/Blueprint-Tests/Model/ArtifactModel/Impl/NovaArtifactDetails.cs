@@ -110,7 +110,7 @@ namespace Model.ArtifactModel.Impl
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
-        public int Permissions { get; set; }
+        public RolePermissions? Permissions { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public override int Id { get; set; }
@@ -125,15 +125,17 @@ namespace Model.ArtifactModel.Impl
         public int ItemTypeVersionId { get; set; }
         public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
-        public List<CustomProperty> CustomPropertyValues { get; } = new List<CustomProperty>();
-        public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        public List<CustomProperty> CustomPropertyValues { get; set; } = new List<CustomProperty>();
+        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
+        public List<CustomProperty> SpecificPropertyValues { get; set; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         public List<NovaTrace> Traces { get; set; }
 
         [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
-        public List<INovaSubArtifact> SubArtifacts { get; set; }
+        public List<NovaSubArtifact> SubArtifacts { get; set; }
 
         // TODO: found following properties when capturing PATCH /svc/bpartifactstore/artifacts/{artifactID}: 
         // SubArtifacts, Traces, DocRefValue

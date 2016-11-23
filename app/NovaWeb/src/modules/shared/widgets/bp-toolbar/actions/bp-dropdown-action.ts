@@ -36,8 +36,8 @@ export interface IBPDropdownAction extends IBPAction {
 export class BPDropdownAction implements IBPDropdownAction {
     private _actions: IBPDropdownItemAction[];
 
-    constructor(private _canExecute: () => boolean,
-                private _icon: string,
+    constructor(private _canExecute?: () => boolean,
+                private _icon?: string,
                 private _tooltip?: string,
                 private _label?: string,
                 ...actions: IBPDropdownItemAction[]) {

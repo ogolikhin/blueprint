@@ -321,7 +321,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, _project.Id, user: null);
-            }, "'POST {0}' should return 400 Bad Request when called with no token in a header!", SVC_PATH);
+            }, "'POST {0}' should return 401 Unauthorized when called with no token in a header!", SVC_PATH);
 
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";

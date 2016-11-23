@@ -28,8 +28,5 @@
 
         //Bad request
         public const int OutOfRangeParameter = 6000;
-
-        //Timeout
-        public const int Timeout = 7000;
     }
 }

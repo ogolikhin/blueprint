@@ -480,7 +480,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, int.MaxValue)]
         [TestRail(195411)]
         [Description("Create & save an artifact. Copy an artifact to be a child of the non existing artifact.  Verify returned code 404 Not Found.")]
-        public void CopyArtifact_SavedArtifact_CopyToNonExistingArtifact_404NotFound(BaseArtifactType artifactType, int nonExistingArtifactId)
+        public void CopyArtifact_SavedArtifact_ToNonExistingArtifact_404NotFound(BaseArtifactType artifactType, int nonExistingArtifactId)
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
@@ -507,7 +507,7 @@ namespace ArtifactStoreTests
             targetArtifact.Publish();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetArtifact.Id, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, _user),
                 "'POST {0}' should return 404 Not Found when user tries to copy artifact to be a child of artifact that was removed", SVC_PATH);
 
             // Verify:
@@ -527,7 +527,7 @@ namespace ArtifactStoreTests
             sourceArtifact.Delete();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetArtifact.Id, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, _user),
                 "'POST {0}' should return 404 Not Found when user tries to copy deleted artifact to be a child of another artifact", SVC_PATH);
 
             // Verify:
@@ -549,7 +549,7 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, sourceArtifact);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetArtifact.Id, userWithoutPermissions),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, userWithoutPermissions),
                 "'POST {0}' should return 404 Not Found when user tries to copy artifact without proper permissions", SVC_PATH);
 
             // Verify:
@@ -571,7 +571,7 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, targetArtifact);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, targetArtifact.Id, userWithoutPermissions),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, userWithoutPermissions),
                 "'POST {0}' should return 404 Not Found when user tries to copy artifact without proper permissions", SVC_PATH);
 
             // Verify:
@@ -609,18 +609,16 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedSubArtifact_ToArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
-
-            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, sourceArtifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, sourceArtifact.Id);
 
             Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
             Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, subArtifacts.First().Id, targetArtifact.Id, author),
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, subArtifacts.First().Id, targetArtifact.Id, _user),
                 "'POST {0}' should return 404 Not Found when user tries to copy a sub-artifact to be a child of another artifact", SVC_PATH);
 
             // Verify:

@@ -47,7 +47,6 @@ export class ProcessGraph implements IProcessGraph {
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     public nodeLabelEditor: NodeLabelEditor;
-    //#TODO fix up references later
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -74,8 +73,6 @@ export class ProcessGraph implements IProcessGraph {
     constructor(public rootScope: any,
                 private scope: any,
                 private htmlElement: HTMLElement,
-                // #TODO fix up references later
-                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
                 public viewModel: IProcessViewModel,
                 private dialogService: IDialogService,
                 private localization: ILocalizationService,
@@ -97,9 +94,7 @@ export class ProcessGraph implements IProcessGraph {
     private init() {
         this.setIsIe11();
         this.initializeGraphContainer();
-        // #TODO: interaction with the toolbar will be different in Nova
-        // this.subscribeToToolbarEvents();
-//fixme: dont use event listenters where you can use ng-click and other such events
+        //fixme: dont use event listenters where you can use ng-click and other such events
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
         // non movable
         this.mxgraph.setCellsMovable(false);

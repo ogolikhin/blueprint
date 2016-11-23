@@ -27,7 +27,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
-    validate(): ng.IPromise<void>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -660,19 +659,18 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         ;
     }
 
-    public validate(): ng.IPromise<void> {
-
-        let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
-
+    private validate(): ng.IPromise<void> {
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
             const isItemValid = this.validateItem(propertyTypes);
+
             if (isItemValid) {
-                return this.subArtifactCollection.validate().catch(() => {
-                    return this.services.$q.reject(new Error(message));
+                return this.subArtifactCollection.validate().catch((error) => {
+                    return this.services.$q.reject(error);
                 });
-            } else {
-                return this.services.$q.reject(new Error(message));
-            }
+            } 
+
+            const message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
+            return this.services.$q.reject(new Error(message));
         });
     }
 

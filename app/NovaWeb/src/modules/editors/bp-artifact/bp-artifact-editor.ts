@@ -146,16 +146,13 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
         $scope.$applyAsync(() => {
             try {
-                //here we need to update original model
                 const context = $field.data as IPropertyDescriptor;
+                if (!context || !this.editor) {
+                    return;
+                }
                 const invalid = ($field.formControl as ng.IFormController).$invalid;
-                if (!context) {
-                    return;
-                }
-                if (!this.editor) {
-                    return;
-                }
-                let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
+                //here we need to update original model
+                let value = this.editor.convertToModelValue($field, this.editor.getModelValue(context.fieldPropertyName));
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);

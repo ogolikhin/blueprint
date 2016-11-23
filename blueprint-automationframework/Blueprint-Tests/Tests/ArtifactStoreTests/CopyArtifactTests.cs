@@ -392,14 +392,12 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192081)]
         [Description("Create collection or collection folder. Copy regular artifact to be a child of the collection or collection folder. Verify returned code 403 Forbidden.")]
-        public void CopyArtifact_PublishedArtifact_ToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
+        public void CopyArtifact_PublishedArtifact_ToCollectionOrCollectionFolder_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
-
-            IArtifact collection = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, artifactType, defaultCollectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
+            IArtifact collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
@@ -411,12 +409,10 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts outside of the artifact section.");
         }
 
-
-        [Category(Execute.Weekly)]
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192082)]
-        [Description("Create & save a collection or collection folder with a regular artifact. Copy collection or collection folder to be a child of the regular artifact.  " + 
+        [Description("Create & save a collection or collection folder and a regular artifact. Copy collection or collection folder to be a child of the regular artifact.  " + 
             "Verify returned code 403 Forbidden.")]
         public void CopyArtifact_CollectionOrCollectionFolder_ToRegularArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
@@ -425,7 +421,7 @@ namespace ArtifactStoreTests
 
             var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(collection, parentArtifact, _user),
@@ -447,7 +443,7 @@ namespace ArtifactStoreTests
 
             var sourceCollection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            IArtifact targetCollection = Helper.CreateAndPublishCollection(_project, _user);
+            IArtifact targetCollection = Helper.CreateAndPublishCollectionFolder(_project, _user);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceCollection, targetCollection, _user),

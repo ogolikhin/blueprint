@@ -15,7 +15,8 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
         setItemDirection: "&",
         toggleItemFlag: "&",
         deleteItem: "&",
-        isItemReadOnly: "<"
+        isItemReadOnly: "<",
+        itemVersionId: "="
     };
 }
 
@@ -45,6 +46,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public setItemDirection: Function;
     public toggleItemFlag: Function;
     public deleteItem: Function;
+    public itemVersionId: number;
 
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
@@ -73,7 +75,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public expand($event) {
         this.remove($event);
         if (!this.expanded) {
-            this.getRelationshipDetails(this.relationship.artifactId)
+            this.getRelationshipDetails(this.relationship.artifactId, this.itemVersionId)
                 .then(relationshipExtendedInfo => {
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
@@ -118,8 +120,8 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         return Helper.limitChars(Helper.stripHTMLTags(str));
     }
 
-    private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
-        return this.relationshipDetailsService.getRelationshipDetails(artifactId)
+    private getRelationshipDetails(artifactId: number, versionId?: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
+        return this.relationshipDetailsService.getRelationshipDetails(artifactId, versionId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
                     this.relationship.projectId = relationshipExtendedInfo.pathToProject[0].itemId;

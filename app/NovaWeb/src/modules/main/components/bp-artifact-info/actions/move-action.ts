@@ -158,7 +158,7 @@ export class MoveAction extends BPDropdownAction {
     private moveArtifact(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
         //finally, move the artifact
         return this.artifact
-        .move(insertMethod === MoveArtifactInsertMethod.Selection ? artifact.id : artifact.parentId, orderIndex)
+        .move(insertMethod === MoveArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
         .then(() => {
             //refresh project
             this.projectManager.refresh(this.artifact.projectId).then(() => {

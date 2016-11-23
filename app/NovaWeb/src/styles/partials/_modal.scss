@@ -265,6 +265,10 @@ $modal-open-project-height: 450px;
 
         .artifact-picker-insert-selection {
             font-size: $font-size-normal;
+
+            input {
+                outline: none;
+            }
         }
 
         .grid-wrapper {

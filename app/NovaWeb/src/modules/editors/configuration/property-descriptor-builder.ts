@@ -21,9 +21,9 @@ export interface IPropertyDescriptor {
     decimalPlaces: number;
     maxNumber: number;
     minNumber: number;
-    dateDefaultValue: string;
-    maxDate: string;
-    minDate: string;
+    dateDefaultValue: Date;
+    maxDate: Date;
+    minDate: Date;
     isMultipleAllowed: boolean;
     isRequired: boolean;
     isValidated: boolean;
@@ -51,9 +51,9 @@ export class PropertyDescriptor implements IPropertyDescriptor {
     public decimalPlaces: number;
     public maxNumber: number;
     public minNumber: number;
-    public dateDefaultValue: string;
-    public maxDate: string;
-    public minDate: string;
+    public dateDefaultValue: Date;
+    public maxDate: Date;
+    public minDate: Date;
     public isMultipleAllowed: boolean;
     public isRequired: boolean;
     public isValidated: boolean;
@@ -215,7 +215,6 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             name: this.localization.get("Label_LastEditOn"),
             propertyTypePredefined: PropertyTypePredefined.LastEditedOn,
             primitiveType: PrimitiveType.Date,
-            dateDefaultValue: "",
             disabled: true
         });
 

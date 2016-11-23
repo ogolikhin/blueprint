@@ -232,8 +232,8 @@ describe("StatefulProcessArtifact", () => {
             newShape.attachments.initialize([]);
            
             const newIdValue = 100;
-            const keyValuePair: Models.IKeyValuePair = { key: -1, value: newIdValue };
-            const updateModel: IProcessUpdateResult = { messages: [], result: processArtifact, tempIdMap: [keyValuePair] };
+            const keyValuePair: Models.IKeyValuePair = {key: -1, value: newIdValue};
+            const updateModel: IProcessUpdateResult = {messages: [], result: processArtifact, tempIdMap: [keyValuePair]};
             const changesSpy = spyOn(processArtifact, "changes").and.callThrough();
             spyOn(processArtifact.getServices().processService, "save").and.returnValue($q.when(updateModel))();
             let changes;

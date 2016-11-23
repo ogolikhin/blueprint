@@ -24,6 +24,10 @@
             background: $brand-secondary;
             color: $white;
         }
+
+        > .active img {
+            background: $brand-secondary;
+        }
     }
 }
 
@@ -33,6 +37,7 @@
     width: 20px;
 
     img {
+        background: $white;
         width: 100%;
     }
 }

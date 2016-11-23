@@ -1,21 +1,15 @@
-import {
-    IProcessShape,
-    ItemTypePredefined,
-    IHashMapOfPropertyValues,
-    IArtifactReference
-} from "./models/process-models";
-
-import { IStatefulSubArtifact, StatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact";
-import { IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IStatefulArtifactServices } from "../../managers/artifact-manager/services";
-import { Helper } from "../../shared/utils/helper";
+import {IProcessShape, ItemTypePredefined, IHashMapOfPropertyValues, IArtifactReference} from "./models/process-models";
+import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
+import {Helper} from "../../shared/utils/helper";
 
 
 export interface IStatefulProcessSubArtifact extends IStatefulSubArtifact {
     loadProperties(): ng.IPromise<IStatefulSubArtifact>;
 }
-export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements IStatefulProcessSubArtifact, IProcessShape {
-    
+export class StatefulProcessSubArtifact extends StatefulSubArtifact implements IStatefulProcessSubArtifact, IProcessShape {
+
     public propertyValues: IHashMapOfPropertyValues;
     public associatedArtifact: IArtifactReference;
     public personaReference: IArtifactReference;
@@ -30,7 +24,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
         this.associatedArtifact = subartifact.associatedArtifact;
         this.baseItemTypePredefined = subartifact.baseItemTypePredefined;
         this.typePrefix = subartifact.typePrefix;
-    }    
+    }
 
     public get prefix(): string {
         return this.typePrefix;
@@ -42,7 +36,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact  implements 
 
     public loadProperties(): ng.IPromise<IStatefulSubArtifact> {
         if (!this.isFullArtifactLoadedOrLoading()) {
-            return this.loadWithNotify();      
+            return this.loadWithNotify();
         }
         if (this.loadPromise) {
             return this.loadPromise;

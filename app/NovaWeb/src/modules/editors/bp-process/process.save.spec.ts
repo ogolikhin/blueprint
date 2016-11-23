@@ -1,27 +1,27 @@
 import * as angular from "angular";
 require("script!mxClient");
 import "rx/dist/rx.lite";
-import { Models, Enums } from "../../main/models";
-import { IProcess } from "./models/process-models";
-import { IArtifactService } from "../../managers/artifact-manager/";
-import { ArtifactServiceMock } from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import { ValidationServiceMock } from  "../../managers/artifact-manager/validation/validation.mock";
-import { IValidationService } from  "../../managers/artifact-manager/validation/validation.svc";
-import { ISession } from "../../shell/login/session.svc";
-import { SessionSvcMock } from "../../shell/login//mocks.spec";
-import { IMessageService } from "../../core/messages/message.svc";
-import { MessageServiceMock } from "../../core/messages/message.mock";
-import { LocalizationServiceMock } from "../../core/localization/localization.mock";
-import { IProcessService, ProcessService } from "./services/process.svc";
-import { IProcessUpdateResult } from "./services/process.svc";
-import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulProcessArtifact } from "./process-artifact";
-import { StatefulProcessSubArtifact } from "./process-subartifact";
-import { IStatefulSubArtifact } from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {Models, Enums} from "../../main/models";
+import {IProcess} from "./models/process-models";
+import {IArtifactService} from "../../managers/artifact-manager/";
+import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ValidationServiceMock} from  "../../managers/artifact-manager/validation/validation.mock";
+import {IValidationService} from  "../../managers/artifact-manager/validation/validation.svc";
+import {ISession} from "../../shell/login/session.svc";
+import {SessionSvcMock} from "../../shell/login//mocks.spec";
+import {IMessageService} from "../../core/messages/message.svc";
+import {MessageServiceMock} from "../../core/messages/message.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {IProcessService, ProcessService} from "./services/process.svc";
+import {IProcessUpdateResult} from "./services/process.svc";
+import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
+import {StatefulArtifactServices} from "../../managers/artifact-manager/services";
+import {StatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
+import {StatefulProcessArtifact} from "./process-artifact";
+import {StatefulProcessSubArtifact} from "./process-subartifact";
+import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import * as TestModels from "./models/test-model-factory";
-import { MetaDataService } from "../../managers/artifact-manager";
+import {MetaDataService} from "../../managers/artifact-manager";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {ApplicationError} from "../../core/error/applicationError";
 
@@ -29,7 +29,7 @@ class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
 
     constructor() {
-        this.browserInfo = { msie: false, firefox: false, version: 0 };
+        this.browserInfo = {msie: false, firefox: false, version: 0};
     }
 
     public getBrowserInfo(): any {

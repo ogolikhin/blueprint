@@ -1,25 +1,25 @@
 import * as angular from "angular";
-import { ProcessGraph } from "../process-graph";
-import { IProcessViewModel, ProcessViewModel } from "../../../viewmodel/process-viewmodel";
-import { ShapesFactory } from "./shapes-factory";
+import {ProcessGraph} from "../process-graph";
+import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {ShapesFactory} from "./shapes-factory";
 import {
     ProcessModel,
     ProcessShapeModel,
     IPropertyValueInformation,
     IHashMapOfPropertyValues
 } from "../../../../../models/process-models";
-import { ProcessType } from "../../../../../models/enums";
-import { DiagramNode, SystemTask } from "./";
-import { PropertyTypePredefined } from "../../../../../../../main/models/enums";
-import { NodeChange, IDiagramNode, ISystemTaskShape } from "../models/";
-import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
-import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
-import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifact } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
-import { ShapeModelMock } from "./shape-model.mock";
+import {ProcessType} from "../../../../../models/enums";
+import {DiagramNode, SystemTask} from "./";
+import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {NodeChange, IDiagramNode, ISystemTaskShape} from "../models/";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifact} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {ShapeModelMock} from "./shape-model.mock";
 import {StatefulProcessArtifact} from "../../../../../process-artifact";
 import {Models} from "../../../../../../../main/models/";
 import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
@@ -92,7 +92,7 @@ describe("DiagramNode", () => {
             beforeEach(() => {
                 const userTaskModel = shapesFactory.createModelUserTaskShape(1, 1, 77, 0, 0);
                 const systemTaskModel = shapesFactory.createModelSystemTaskShape(1, 1, 88, 1, 0);
-                const link = { sourceId: 77, destinationId: 88, orderindex: 1, label: "" };
+                const link = {sourceId: 77, destinationId: 88, orderindex: 1, label: ""};
 
                 testModel = new ProcessModel();
                 testModel.propertyValues = {};
@@ -109,7 +109,7 @@ describe("DiagramNode", () => {
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
-                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper },
+                graph = new ProcessGraph(rootScope, {graphContainer: container, graphWrapper: wrapper},
                     container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(false, null);
             });
@@ -301,10 +301,10 @@ describe("DiagramNode", () => {
                 const userTaskModel1 = shapesFactory.createModelUserTaskShape(1, 1, 20, 2, 0);
                 const userTaskModel2 = shapesFactory.createModelUserTaskShape(1, 1, 30, 2, 1);
                 const userTaskModel3 = shapesFactory.createModelUserTaskShape(1, 1, 40, 2, 2);
-                const link0 = { sourceId: 5, destinationId: 10, orderindex: 0, label: "" };
-                const link1 = { sourceId: 10, destinationId: 20, orderindex: 0, label: "" };
-                const link2 = { sourceId: 10, destinationId: 30, orderindex: 10, label: "" };
-                const link3 = { sourceId: 10, destinationId: 40, orderindex: 20, label: "" };
+                const link0 = {sourceId: 5, destinationId: 10, orderindex: 0, label: ""};
+                const link1 = {sourceId: 10, destinationId: 20, orderindex: 0, label: ""};
+                const link2 = {sourceId: 10, destinationId: 30, orderindex: 10, label: ""};
+                const link3 = {sourceId: 10, destinationId: 40, orderindex: 20, label: ""};
 
                 testModel = new ProcessModel();
                 testModel.propertyValues = {};
@@ -318,7 +318,7 @@ describe("DiagramNode", () => {
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
 
-                graph = new ProcessGraph(rootScope, { graphContainer: container, graphWrapper: wrapper },
+                graph = new ProcessGraph(rootScope, {graphContainer: container, graphWrapper: wrapper},
                     container, processModel, dialogService, localization, shapesFactory, null, null, null);
                 graph.render(false, null);
             });

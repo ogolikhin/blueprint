@@ -14,7 +14,8 @@
             <bp-item-type-icon
                 item-type-id="artifact.itemTypeId"
                 item-type-icon-id="artifact.itemTypeIconId"
-                predefined-type="artifact.predefinedType" class="bp-artifact-list__icon"></bp-item-type-icon>{{::$ctrl.itemLabel(artifact)}}
+                predefined-type="artifact.predefinedType"
+                fallback="true" class="bp-artifact-list__icon"></bp-item-type-icon>{{::$ctrl.itemLabel(artifact)}}
         </div>
     </li>
 </ul>

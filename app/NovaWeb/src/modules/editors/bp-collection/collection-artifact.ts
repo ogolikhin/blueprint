@@ -1,8 +1,6 @@
-import { IStatefulArtifact, StatefulArtifact } from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
 import {IArtifact} from "../../main/models/models";
 import {ItemTypePredefined, PropertyTypePredefined} from "../../main/models/enums";
-import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet} from "../../managers/artifact-manager/changeset";
-import {Helper} from "../../shared/utils/helper";
 import {Models} from "../../main/models";
 
 export interface ICollection extends IArtifact {
@@ -78,6 +76,10 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
         this.collectionContentPropertyValue = this.createCollectionContentSpecificProperty();
         this.specialProperties.list().push(this.collectionContentPropertyValue);
         return state;
+    }
+
+    public supportRelationships(): boolean {
+        return false;
     }
 
     public addArtifactsToCollection(artifacts: IArtifact[]) {

@@ -33,9 +33,12 @@ export class StatefulProjectArtifact extends StatefulArtifact implements IStatef
         return false;
     }
 
+    protected canBeLoaded(): boolean {
+        return false;
+    }
+
     public unload() {
         this.isProjectLoaded = false;
         super.unload();
     }
 }
-

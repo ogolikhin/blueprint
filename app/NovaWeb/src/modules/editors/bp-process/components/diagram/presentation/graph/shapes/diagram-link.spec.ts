@@ -1,21 +1,21 @@
 import * as angular from "angular";
-import { ProcessViewModel } from "../../../viewmodel/process-viewmodel";
-import { ProcessGraph } from "../process-graph";
-import { DiagramLink } from "./";
-import { IDiagramNode } from "../models/";
-import { Connector } from "./connector";
-import { Label } from "../labels/label";
-import { createUserDecisionWithoutUserTaskInFirstConditionModel } from "../../../../../models/test-model-factory";
-import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
-import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
-import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { IStatefulArtifactFactory } from "../../../../../../../managers/artifact-manager/";
-import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import { StatefulProcessArtifact } from "../../../../../process-artifact";
-import { Models } from "../../../../../../../main/models/";
-import { ShapesFactory } from "./shapes-factory";
+import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {ProcessGraph} from "../process-graph";
+import {DiagramLink} from "./";
+import {IDiagramNode} from "../models/";
+import {Connector} from "./connector";
+import {Label} from "../labels/label";
+import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
+import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {StatefulProcessArtifact} from "../../../../../process-artifact";
+import {Models} from "../../../../../../../main/models/";
+import {ShapesFactory} from "./shapes-factory";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
@@ -69,7 +69,7 @@ describe("DiagramLink unit tests", () => {
         };
 
         rootScope = $rootScope;
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
     }));
     describe("Label locations", () => {
 

@@ -11,10 +11,10 @@
                 {{::$ctrl.localization.get('Label_Filter_By_Type')}}
             </div>
             <ul class="dropdown-menu__filter-type">
-                <li class="dropdown-menu__filter-item" ng-if="type.id"
+                <li class="dropdown-menu__filter-item" ng-class="{first: $first}"
                     ng-repeat="type in $ctrl.itemTypes track by type.id">
-                        <button  ng-click="$ctrl.searchByFilter(type);"
-                                 class="dropdown-menu__filter-item-btn">{{::type.name}}</button>
+                        <button ng-click="$ctrl.searchByFilter(type)" type="button"
+                                 class="dropdown-menu__filter-item-btn"><div class="dropdown-menu__filter-item-text">{{::type.name}}</div></button>
                 </li>
             </ul>
         </div>
@@ -33,7 +33,7 @@
         <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
     </div>
 
-    <div ng-show="$ctrl.filterItemType.name" class="filter">
+    <div ng-show="$ctrl.filterItemType.name" class="filter" ng-if="$ctrl.filterItemType.id">
         {{::$ctrl.localization.get('Label_Filter_By_Type')}}: <strong>{{$ctrl.filterItemType.name}}</strong>
         <i class="fonticon-error filter__icon-clear-search" ng-click="$ctrl.clearFilter()"></i>
     </div>

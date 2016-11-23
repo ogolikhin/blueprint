@@ -15,7 +15,9 @@ describe("BpArtifactPicker", () => {
         .component("bpArtifactPicker", new BpArtifactPicker());
 
     beforeEach(angular.mock.module("bp.components.artifactpicker", ($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", () => undefined);
+        $provide.service("localization", () => ({
+            get: (name: string, defaultValue?: string) => { return; }
+        }));
         $provide.service("artifactManager", () => ({
             selection: {
                 getArtifact: () => ({projectId: 1})
@@ -25,11 +27,11 @@ describe("BpArtifactPicker", () => {
             getProject: (id: number) => ({model: {id: id, name: "default"}, group: true})
         }));
         $provide.service("projectService", () => ({
-            abort: () => { return; }
+            abort: () => undefined
         }));
         $provide.service("statefulArtifactFactory", () => undefined);
         $provide.service("metadataService", () => ({
-            get: (projectId: number) => { return; }
+            get: (projectId: number) => undefined
         }));
     }));
 
@@ -58,11 +60,10 @@ describe("BpArtifactPicker", () => {
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
     }));
 
-    it("Defaults values are applied", inject((
-        $compile: ng.ICompileService,
-        $rootScope: ng.IRootScopeService,
-        $q: ng.IQService,
-        metadataService: IMetaDataService) => {
+    it("Defaults values are applied", inject(($compile: ng.ICompileService,
+                                              $rootScope: ng.IRootScopeService,
+                                              $q: ng.IQService,
+                                              metadataService: IMetaDataService) => {
         // Arrange
         spyOn(metadataService, "get").and.callFake(() => {
             const deferred = $q.defer();
@@ -87,12 +88,14 @@ describe("BpArtifactPickerController", () => {
     let $scope: ng.IScope;
     let projectService: IProjectService;
     let metadataService: IMetaDataService;
+    let localization: ILocalizationService;
     let controller: BpArtifactPickerController;
     const project = {model: {id: 1, name: "default", hasChildren: true}};
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         $scope = $rootScope.$new();
-        const localization = {} as ILocalizationService;
+        localization = {get: jasmine.createSpyObj("localization", ["get"])} as ILocalizationService;
+        spyOn(localization, "get").and.returnValue("All types");
         const artifactManager = {selection: jasmine.createSpyObj("selectionManager", ["getArtifact"])} as IArtifactManager;
         (artifactManager.selection.getArtifact as jasmine.Spy).and.returnValue({projectId: 1});
         const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;
@@ -101,7 +104,7 @@ describe("BpArtifactPickerController", () => {
         const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
-        controller = new BpArtifactPickerController($scope, localization, artifactManager,
+        controller = new BpArtifactPickerController($q, $scope, localization, artifactManager,
             projectManager, projectService, statefulArtifactFactory, metadataService);
     }));
 
@@ -129,7 +132,6 @@ describe("BpArtifactPickerController", () => {
         // Assert
         expect(controller.columns).toBeUndefined();
         expect(controller.onSelect).toBeUndefined();
-        expect(projectService.abort).toHaveBeenCalled();
     });
 
     it("clearSearch clears text and results", () => {
@@ -162,7 +164,7 @@ describe("BpArtifactPickerController", () => {
             predefinedTypeIds: undefined,
             itemTypeIds: [ ],
             includeArtifactPath: true
-        }, 0, 101);
+        }, 0, 101, undefined, controller.canceller.promise);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
@@ -180,7 +182,7 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.isSearching).toEqual(true);
-        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"}, 101);
+        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"}, 101, undefined, controller.canceller.promise);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);

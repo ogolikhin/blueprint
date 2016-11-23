@@ -1,15 +1,14 @@
-import { ISystemTaskShape, PropertyTypePredefined, IArtifactReference } from "../../../../../models/process-models";
-import { ItemIndicatorFlags, ProcessShapeType } from "../../../../../models/enums";
-import { ModalDialogType } from "../../../../modal-dialogs/modal-dialog-constants";
-import { IProcessGraph, IDiagramNode, IDiagramNodeElement } from "../models/";
-import { ISystemTask, NodeType, NodeChange, ElementType } from "../models/";
-import { ShapesFactory } from "./shapes-factory";
-import { DiagramNodeElement } from "./diagram-element";
-import { DiagramNode } from "./diagram-node";
-import { NodeFactorySettings} from "./node-factory-settings";
-import { Button } from "../buttons/button";
-import { Label, LabelStyle, LabelType, ILabel } from "../labels/label";
-import { ProcessEvents } from "../../../process-diagram-communication";
+import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
+import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {IProcessGraph, IDiagramNode, IDiagramNodeElement, ISystemTask, NodeType, ElementType} from "../models/";
+import {ShapesFactory} from "./shapes-factory";
+import {DiagramNodeElement} from "./diagram-element";
+import {DiagramNode} from "./diagram-node";
+import {NodeFactorySettings} from "./node-factory-settings";
+import {Button} from "../buttons/button";
+import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 
@@ -38,13 +37,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     public callout: DiagramNodeElement;
 
-    constructor(
-        model: ISystemTaskShape,
-        rootScope: any,
-        private defaultPersonaReferenceValue: IArtifactReference,
-        private nodeFactorySettings: NodeFactorySettings = null,
-        private shapesFactory: ShapesFactory
-    ) {
+    constructor(model: ISystemTaskShape,
+                rootScope: any,
+                private defaultPersonaReferenceValue: IArtifactReference,
+                private nodeFactorySettings: NodeFactorySettings = null,
+                private shapesFactory: ShapesFactory) {
         super(model);
 
         this.rootScope = rootScope;
@@ -117,7 +114,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         }
 
 
-
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
         this.linkButton.isEnabled = !this.isNew;
@@ -188,7 +184,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     }
 
     public set associatedImageUrl(value: string) {
-       this.setPropertyValue("associatedImageUrl", value);
+        this.setPropertyValue("associatedImageUrl", value);
     }
 
     public get imageId(): string {
@@ -238,6 +234,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             }
 
             this.shapesFactory.setSystemTaskPersona(reference);
+
+            this.processDiagramManager.action(ProcessEvents.PersonaReferenceUpdated, {personaReference: reference, isUserTask: false, isSystemTask: true});
         }
     }
 
@@ -270,7 +268,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.textLabel.render();
         this.personaLabel.render();
     }
-    
+
     public render(graph: IProcessGraph, x: number, y: number, justCreated: boolean): IDiagramNode {
         this.dialogManager = graph.viewModel.communicationManager.modalDialogManager;
         this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
@@ -314,7 +312,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         );
         // Note: persona label is readonly
         this.personaLabel = new Label(
-            LabelType.Persona, 
+            LabelType.Persona,
             graph.getHtmlElement(),
             this.model.id.toString(),
             "Label-H" + this.model.id.toString(),
@@ -322,10 +320,10 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaLabelStyle,
             this.PERSONA_EDIT_MAXLENGTH,
             this.PERSONA_VIEW_MAXLENGTH,
-            true // readonly 
+            true // readonly
         );
 
-        // handle persona label double click event 
+        // handle persona label double click event
         // open modal dialog so user can change the persona
 
         this.personaLabel.onDblClick = () => {
@@ -357,10 +355,10 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             textLabelStyle,
             this.LABEL_EDIT_MAXLENGTH,
             this.LABEL_VIEW_MAXLENGTH,
-            graph.viewModel.isReadonly 
-         );
+            graph.viewModel.isReadonly
+        );
 
-        // handle label change event 
+        // handle label change event
         this.textLabel.onTextChange = (value: string) => {
             this.label = value;
         };

@@ -11,6 +11,7 @@ import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
+import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];
@@ -24,6 +25,7 @@ export interface IProjectManager extends IDispose {
 
     // eventManager
     initialize();
+    load(projectId: number): ng.IPromise<void>;
     add(project: AdminStoreModels.IInstanceItem);
     remove(projectId: number): void;
     removeAll(): void;
@@ -34,7 +36,7 @@ export interface IProjectManager extends IDispose {
     getSelectedProjectId(): number;
     triggerProjectCollectionRefresh();
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
-    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): number;
+    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -50,7 +52,8 @@ export class ProjectManager implements IProjectManager {
         "metadataService",
         "statefulArtifactFactory",
         "loadingOverlayService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "itemInfoService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -61,7 +64,8 @@ export class ProjectManager implements IProjectManager {
                 private metadataService: IMetaDataService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
-                private mainBreadcrumbService: IMainBreadcrumbService) {
+                private mainBreadcrumbService: IMainBreadcrumbService,
+                private itemInfoService: IItemInfoService) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.subscribers = [];
     }
@@ -283,6 +287,19 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
+    public load(projectId: number): ng.IPromise<void> {
+        return this.itemInfoService.get(projectId).then((project: IItemInfoResult) => {
+            return this.add(<AdminStoreModels.IInstanceItem>{
+                id: project.id,
+                name: project.name,
+                parentFolderId: undefined,
+                type: AdminStoreModels.InstanceItemType.Project,
+                hasChildren: true,
+                permissions: project.permissions
+            });
+        });
+    }
+
     public add(project: AdminStoreModels.IInstanceItem): ng.IPromise<void> {
         if (!project) {
             throw new Error("Project_NotFound"); // need to throw an error as mainView may not be active yet
@@ -387,26 +404,49 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact) {
+    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
+        let promise: ng.IPromise<void>;
         let orderIndex: number;
+        let index: number;
 
+        let siblings: Models.IArtifact[];
+        //get parent node
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
-        let siblings = _.sortBy(parentArtifactNode.children, (a) => a.model.orderIndex);
-        let index = siblings.findIndex((a) => a.model.id === selectedArtifact.id);
 
-        if (index === 1 && insertMethod === MoveArtifactInsertMethod.Above) {  //first, because of collections
-            orderIndex = selectedArtifact.orderIndex / 2;
-        } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
-            orderIndex = selectedArtifact.orderIndex + 10;
-        } else {    //in between
-            if (insertMethod === MoveArtifactInsertMethod.Above) {
-                orderIndex = (siblings[index - 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
-            } else if (insertMethod === MoveArtifactInsertMethod.Below) {
-                orderIndex = (siblings[index + 1].model.orderIndex + selectedArtifact.orderIndex) / 2;
-            } else {
-                //leave undefined
-            }
+        //if parent isn't found, or if its children aren't loaded
+        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && parentArtifactNode.children.length === 0)) {
+            //get children from server
+            promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId).then((data: Models.IArtifact[]) => {
+                siblings = data;
+            });
+        } else {
+            //otherwise, get children from cache
+            siblings = _.map(parentArtifactNode.children, (node) => node.model);
+            promise = this.$q.resolve();
         }
-        return orderIndex;
+
+        return promise.then(() => {
+            //filter collections and sort by order index
+            siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
+            siblings = _.sortBy(siblings, (a) => a.orderIndex);
+
+            index = siblings.findIndex((a) => a.id === selectedArtifact.id);
+
+            //compute new order index
+            if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
+                orderIndex = selectedArtifact.orderIndex / 2;
+            } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+                orderIndex = selectedArtifact.orderIndex + 10;
+            } else {    //in between
+                if (insertMethod === MoveArtifactInsertMethod.Above) {
+                    orderIndex = (siblings[index - 1].orderIndex + selectedArtifact.orderIndex) / 2;
+                } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                    orderIndex = (siblings[index + 1].orderIndex + selectedArtifact.orderIndex) / 2;
+                } else {
+                    //leave undefined
+                }
+            }
+            return orderIndex;
+        });
     }
 }

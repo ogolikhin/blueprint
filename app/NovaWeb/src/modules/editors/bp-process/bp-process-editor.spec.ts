@@ -9,9 +9,9 @@
 // import {WindowManager} from "../../main";
 // import {ProjectManagerMock} from "../../main/services/project-manager.mock";
 // import {BpProcessEditorController} from "./bp-process-editor";
-// import { ComponentTest } from "../../util/component.test";
-// import { DialogServiceMock } from "../../shared/widgets/bp-dialog/bp-dialog";
-// import { ArtifactServiceMock } from "../../main/services/artifact.svc.mock";
+// import {ComponentTest} from "../../util/component.test";
+// import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog";
+// import {ArtifactServiceMock} from "../../main/services/artifact.svc.mock";
 
 xdescribe("BpProcessEditorController Tests", () => {
 //     beforeEach(angular.mock.module("bp.editors.process"));

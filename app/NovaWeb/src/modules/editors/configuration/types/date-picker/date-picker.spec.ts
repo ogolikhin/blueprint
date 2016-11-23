@@ -168,8 +168,8 @@ describe("Formly Date Picker", () => {
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
-        expect((<any>fieldScope).fc.$error.maxDate).toBeUndefined();
-        expect((<any>fieldScope).fc.$error.minDate).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.maxDate).toBeFalsy();
+        expect((<any>fieldScope).fc.$error.minDate).toBeFalsy();
     });
 
     it("should fail if the date is less than 1753-01-01 (SQL starting date), even if validation is not required", function () {
@@ -180,8 +180,8 @@ describe("Formly Date Picker", () => {
 
         expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$invalid).toBeTruthy();
-        expect((<any>fieldScope).fc.$error.maxDate).toBeUndefined();
-        expect((<any>fieldScope).fc.$error.minDate).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.maxDate).toBeFalsy();
+        expect((<any>fieldScope).fc.$error.minDate).toBeFalsy();
         expect((<any>fieldScope).fc.$error.minDateSQL).toBeTruthy();
     });
 

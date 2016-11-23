@@ -51,7 +51,7 @@ describe("Component BPPageContent", () => {
 
             //Arrange
             mainbreadcrumbService.breadcrumbLinks = [];
-            const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My" });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -98,7 +98,7 @@ describe("Component BPPageContent", () => {
                 predefinedType: Models.ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
             mainbreadcrumbService.breadcrumbLinks = [];
-            const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My" });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
 
             //Act
@@ -123,7 +123,7 @@ describe("Component BPPageContent", () => {
 
             //Arrange
             mainbreadcrumbService.breadcrumbLinks = [];
-            const artifact = statefulArtifactFactory.createStatefulArtifact({ id: 22, name: "Artifact", prefix: "My" });
+            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
 
             //Act
             artifactManager.selection.setArtifact(artifact);

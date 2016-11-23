@@ -9,7 +9,6 @@ import {MetaData} from "../metadata";
 import {IDispose} from "../../models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
-import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError, ApplicationError} from "../../../core/error/applicationError";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
 
@@ -28,7 +27,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
-    validate(): ng.IPromise<void>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -220,7 +218,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
     }
 
-    private canBeLoaded() {
+    protected canBeLoaded() {
         if (this.artifactState.dirty && this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             return false;
         }
@@ -355,9 +353,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         delta.customPropertyValues = this.customProperties.changes();
         delta.specificPropertyValues = this.specialProperties.changes();
-        delta.attachmentValues = this.attachments.changes();
-        delta.docRefValues = this.docRefs.changes();
-        delta.traces = this.relationships.changes();
+        if (this._attachments) {
+            delta.attachmentValues = this.attachments.changes();
+        }
+        if (this._docRefs) {
+            delta.docRefValues = this.docRefs.changes();
+        }
+        if (this._relationships) {
+            delta.traces = this.relationships.changes();
+        }
         const subArtifactChanges = this.getSubArtifactChanges();
         if (!!subArtifactChanges) {
             delta.subArtifacts = subArtifactChanges;
@@ -440,8 +444,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
             } else if (error.errorCode === 111 || error.errorCode === 115) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-            } else if (error.errorCode === 124) {
+            } else if (error.errorCode === 123) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
+            } else if (error.errorCode === 124) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_124");
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409");
             }
@@ -463,6 +469,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
         }
         return this.services.$q.resolve();
+    }
+
+    public supportRelationships(): boolean {
+        if (this.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+            return false;
+        }
+        return super.supportRelationships();
     }
 
     public publish(): ng.IPromise<void> {
@@ -501,7 +514,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
-                    this.publishDependents(err.errorContent);                
+                    this.publishDependents(err.errorContent);
                 } else if (err && err.statusCode === HttpStatusCode.Unavailable && !err.message) {
                     this.services.messageService.addError("Publish_Artifact_Failure_Message");
                 } else {
@@ -645,23 +658,22 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
-                
-    public validate(): ng.IPromise<void> {
-        
-        let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
 
+    private validate(): ng.IPromise<void> {
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
             const isItemValid = this.validateItem(propertyTypes);
+
             if (isItemValid) {
-                return this.subArtifactCollection.validate().catch(() => {
-                    return this.services.$q.reject(new Error(message));
+                return this.subArtifactCollection.validate().catch((error) => {
+                    return this.services.$q.reject(error);
                 });
-            } else {                
-                return this.services.$q.reject(new Error(message));
-            }
+            } 
+
+            const message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
+            return this.services.$q.reject(new Error(message));
         });
     }
-    
+
 
 }
 

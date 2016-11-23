@@ -1,13 +1,13 @@
-﻿import { ICommunicationManager } from "./";
-import { ProcessDiagram } from "./components/diagram/process-diagram";
-import { SubArtifactEditorModalOpener } from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import { IWindowManager, IMainWindow, ResizeCause } from "../../main";
-import { BpBaseEditor, IArtifactManager } from "../bp-base-editor";
-import { IDialogService } from "../../shared";
-import { IDiagramNode } from "./components/diagram/presentation/graph/models/";
-import { ISelection, IStatefulArtifactFactory, IStatefulSubArtifact } from "../../managers/artifact-manager";
-import { IStatefulProcessSubArtifact } from "./process-subartifact";
-import { ShapesFactory } from "./components/diagram/presentation/graph/shapes/shapes-factory";
+﻿import {ICommunicationManager} from "./";
+import {ProcessDiagram} from "./components/diagram/process-diagram";
+import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
+import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
+import {IDialogService} from "../../shared";
+import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
+import {ISelection, IStatefulArtifactFactory, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IStatefulProcessSubArtifact} from "./process-subartifact";
+import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -18,6 +18,8 @@ export class BpProcessEditor implements ng.IComponentOptions {
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
+    private disposing: boolean = false;
+
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
 
@@ -131,9 +133,12 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     public $onDestroy() {
+        this.disposing = true;
+        this.destroy();
+
         super.$onDestroy();
 
-        this.destroy();
+        this.disposing = false;
     }
 
     private destroy() {
@@ -174,19 +179,24 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {
+        if (this.disposing || this.isDestroyed) {		
+            return;		
+        }
+
         if (elements.length > 0) {
             const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(elements[0].model.id);
             if (subArtifact) {
-                subArtifact.loadProperties().then((loadedSubArtifact: IStatefulSubArtifact) => {
-                    if (this.isDestroyed) {
-                        return;
-                    }
-                    
-                    this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
+                subArtifact.loadProperties()
+                    .then((loadedSubArtifact: IStatefulSubArtifact) => {
+                        if (this.disposing || this.isDestroyed) {
+                            return;
+                        }
+
+                        this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
                 });
             }
         } else {
-            this.artifactManager.selection.setArtifact(this.artifact);
+            this.artifactManager.selection.clearSubArtifact();
         }
     }
 }

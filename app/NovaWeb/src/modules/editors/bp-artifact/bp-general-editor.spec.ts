@@ -1,17 +1,17 @@
 ﻿// import "angular";
 // import "angular-mocks";
 // import "./";
-// import { MessageServiceMock } from "../../core/messages/message.mock";
-// import { LocalizationServiceMock} from "../../core/localization/localization.mock";
-// import { ComponentTest } from "../../util/component.test";
-// import { BpGeneralArtifactEditorController } from "./bp-general-editor";
-// import { StateManager } from "../../core/services/state-manager";
-// import { WindowResize } from "../../core/services/window-resize";
-// import { WindowManager } from "../../main/services/window-manager";
-// import { ProjectRepositoryMock } from "../../main/services/project-repository.mock";
-// import { ProjectManager } from "../../main/services/project-manager";
-// import { SelectionManager } from "../../main/services/selection-manager";
-// import { SessionSvcMock } from "../../shell/login/mocks.spec";
+// import {MessageServiceMock} from "../../core/messages/message.mock";
+// import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+// import {ComponentTest} from "../../util/component.test";
+// import {BpGeneralArtifactEditorController} from "./bp-general-editor";
+// import {StateManager} from "../../core/services/state-manager";
+// import {WindowResize} from "../../core/services/window-resize";
+// import {WindowManager} from "../../main/services/window-manager";
+// import {ProjectRepositoryMock} from "../../main/services/project-repository.mock";
+// import {ProjectManager} from "../../main/services/project-manager";
+// import {SelectionManager} from "../../main/services/selection-manager";
+// import {SessionSvcMock} from "../../shell/login/mocks.spec";
 
 
 xdescribe("Component BpGeneralEditorInfo", () => {

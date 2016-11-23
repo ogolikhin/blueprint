@@ -3,6 +3,9 @@ var webpack = require('webpack');
 var path = require('path');
 var FailPlugin = require('webpack-fail-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var ProgressBarPlugin = require('progress-bar-webpack-plugin');
+
+var autoprefixer = require('autoprefixer');
 
 // Do not use code coverage when started with --debug parameter
 var postLoaders = [
@@ -44,7 +47,10 @@ module.exports = {
             mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
         }
     },
-    tslint: {},
+    tslint: {
+        emitErrors: true,
+        failOnHint: true
+    },
     resolveLoader: {
         modulesDirectories: ["node_modules"]
     },
@@ -52,6 +58,7 @@ module.exports = {
     bail: true,
     plugins: [
         FailPlugin,
+        new ProgressBarPlugin(),
         new ExtractTextPlugin("[name].css"),
         new webpack.ProvidePlugin({
             $: 'jquery',
@@ -60,9 +67,14 @@ module.exports = {
             'window.jquery': 'jquery'
         }),
         new webpack.DefinePlugin({
+            ENABLE_LOCAL_HOST_TRACKING:false,
+            ENABLE_LOG:true,
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })
+    ],
+    postcss: [
+        autoprefixer({browsers: ['last 2 versions']})
     ],
     module: {
         loaders: loaders,

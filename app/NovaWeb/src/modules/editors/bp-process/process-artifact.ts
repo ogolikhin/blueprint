@@ -1,14 +1,20 @@
-import { Models } from "../../main/models";
-import { Message, MessageType } from "../../core/messages/message";
-import { IProcess, IProcessShape, IProcessLink } from "./models/process-models";
-import { IHashMapOfPropertyValues } from "./models/process-models";
-import { IVersionInfo, ItemTypePredefined } from "./models/process-models";
-import { StatefulArtifact, IStatefulArtifact } from "../../managers/artifact-manager/artifact";
-import { IStatefulProcessArtifactServices } from "../../managers/artifact-manager/services";
-import { StatefulProcessSubArtifact } from "./process-subartifact";
-import { IProcessUpdateResult } from "./services/process.svc";
+import {Models} from "../../main/models";
+import {Message, MessageType} from "../../core/messages/message";
+import {
+    IProcess,
+    IProcessShape,
+    IProcessLink,
+    IHashMapOfPropertyValues,
+    IVersionInfo,
+    ItemTypePredefined
+} from "./models/process-models";
+import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
+import {StatefulProcessSubArtifact} from "./process-subartifact";
+import {IProcessUpdateResult} from "./services/process.svc";
+import {IArtifactReference} from "./models/process-models";
 
-export interface IStatefulProcessArtifact extends  IStatefulArtifact {
+export interface IStatefulProcessArtifact extends IStatefulArtifact {
     processOnUpdate();
 }
 
@@ -22,6 +28,9 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public propertyValues: IHashMapOfPropertyValues;
     public requestedVersionInfo: IVersionInfo;
     protected hasCustomSave: boolean = true;
+
+    public userTaskPersonaReferenceList: IArtifactReference[];
+    public systemTaskPersonaReferenceList: IArtifactReference[];
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
         super(artifact, services);
@@ -99,6 +108,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.decisionBranchDestinationLinks = newProcess.decisionBranchDestinationLinks;
         currentProcess.propertyValues = newProcess.propertyValues;
         currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
+        currentProcess.userTaskPersonaReferenceList = newProcess.userTaskPersonaReferenceList;
+        currentProcess.systemTaskPersonaReferenceList = newProcess.systemTaskPersonaReferenceList;
     }
 
     private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {
@@ -167,6 +178,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
+
     private saveProcess(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (!this.artifactState.readonly) {

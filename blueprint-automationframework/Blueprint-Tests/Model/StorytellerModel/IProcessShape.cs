@@ -89,6 +89,13 @@ namespace Model.StorytellerModel
         ArtifactReference AddPersonaReference(NovaArtifactDetails artifact);
 
         /// <summary>
+        /// Adds a default Persona reference (User or System).
+        /// </summary>
+        /// <param name="processShapeType">The type of the process shape that will have the default persona reference.</param>
+        /// <returns>The default artifact reference.</returns>urns>
+        ArtifactReference AddDefaultPersonaReference(ProcessShapeType processShapeType);
+
+        /// <summary>
         /// Verify if the Process is specific processShapeType
         /// </summary>
         /// <param name="processShapeType">The processShapeType</param>

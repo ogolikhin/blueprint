@@ -440,8 +440,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_117");
             } else if (error.errorCode === 111 || error.errorCode === 115) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_115");
-            } else if (error.errorCode === 124) {
+            } else if (error.errorCode === 123) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
+            } else if (error.errorCode === 124) {
+                message = this.services.localizationService.get("App_Save_Artifact_Error_409_124");
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409");
             }
@@ -501,7 +503,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
-                    this.publishDependents(err.errorContent);                
+                    this.publishDependents(err.errorContent);
                 } else if (err && err.statusCode === HttpStatusCode.Unavailable && !err.message) {
                     this.services.messageService.addError("Publish_Artifact_Failure_Message");
                 } else {
@@ -645,9 +647,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected runPostGetObservable() {
         ;
     }
-                
+
     public validate(): ng.IPromise<void> {
-        
+
         let message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
 
         return this.services.propertyDescriptor.createArtifactPropertyDescriptors(this).then((propertyTypes) => {
@@ -656,12 +658,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.subArtifactCollection.validate().catch(() => {
                     return this.services.$q.reject(new Error(message));
                 });
-            } else {                
+            } else {
                 return this.services.$q.reject(new Error(message));
             }
         });
     }
-    
+
 
 }
 

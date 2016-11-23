@@ -236,10 +236,11 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
         //here we need to update original model
         const context = $field.data as IPropertyDescriptor;
+        const invalid = ($field.formControl as ng.IFormController).$invalid;
         if (!context) {
             return;
         }
-        let value = this.editor.convertToModelValue($field, $value);
+        let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
         switch (context.lookup) {
             case PropertyLookupEnum.Custom:
                 this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);

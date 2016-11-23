@@ -595,6 +595,21 @@ namespace Model.Impl
             return file;
         }
 
+        /// <seealso cref="IArtifactStore.GetCollection(IUser, int, List{HttpStatusCode})"/>
+        public Collection GetCollection(IUser user, int collectionId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.COLLECTION_id_, collectionId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var collection = restApi.SendRequestAndDeserializeObject<Collection>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return collection;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

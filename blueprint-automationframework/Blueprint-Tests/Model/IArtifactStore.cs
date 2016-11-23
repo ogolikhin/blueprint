@@ -436,5 +436,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>File</returns>
         IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the collection
+        /// Runs svc/bpartifactstore/collection/{1}
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="collectionId">Id of collection.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Collection</returns>
+        Collection GetCollection(IUser user, int collectionId, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

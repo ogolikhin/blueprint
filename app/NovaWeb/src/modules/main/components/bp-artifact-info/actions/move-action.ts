@@ -54,11 +54,11 @@ export class MoveAction extends BPDropdownAction {
         return !this.canExecute();
     }
 
-    public get execute()  {
+    public get execute(): () => void  {
         return this.checkProjectLoaded;
     }
 
-    private canExecute() {
+    private canExecute(): boolean {
         if (!this.artifact) {
             return false;
         }
@@ -91,7 +91,11 @@ export class MoveAction extends BPDropdownAction {
         }
 
         loadProjectPromise.then(() => {
-            this.openMoveDialog().catch((err) => this.messageService.addError(err));
+            this.openMoveDialog().catch((err) => {
+                if (err !== "cancel") {  //ignore dialog cancel errors
+                    this.messageService.addError(err);
+                }
+            });
         }).catch((err) => this.messageService.addError(err));
     }
 

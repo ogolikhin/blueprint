@@ -7,7 +7,8 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public bindings: any = {
         itemTypeId: "<",
         itemTypeIconId: "<",
-        predefinedType: "<"
+        predefinedType: "<",
+        fallback: "<?"
     };
 }
 
@@ -15,6 +16,7 @@ export class BPItemTypeIconController {
     public itemTypeId: number;
     public itemTypeIconId: number;
     public predefinedType: number;
+    public fallback: boolean;
 
     public iconClass: string;
     public imageSource: string;

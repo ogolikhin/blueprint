@@ -1,9 +1,9 @@
 <div uib-dropdown>
-    <a href="#" uib-dropdown-toggle><span>{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}</span><b
+    <a href="#" uib-dropdown-toggle><span class="bp-select__selected-label">{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}</span><b
         class="caret"></b></a>
     <ul uib-dropdown-menu class="dropdown-menu">
         <li ng-repeat="option in $ctrl.options" ng-click="$ctrl.onOptionSelect(option)">
-            <a href>{{ option.label }}</a>
+            <a class="bp-select__item-label" href>{{ option.label }}</a>
         </li>
     </ul>
 </div>

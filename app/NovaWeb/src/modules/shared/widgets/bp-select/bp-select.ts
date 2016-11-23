@@ -37,7 +37,9 @@ export class BPSelectController implements IBPSelectController {
     }
 
     public $onChanges(changesObj) {
-        this.selectedOption = this.options.filter(o => o.value === this.ngModel)[0];
+        if (!!this.options) {
+            this.selectedOption = this.options.filter(o => o.value === this.ngModel)[0];
+        }
     }
 
     public onOptionSelect(option: IOption) {

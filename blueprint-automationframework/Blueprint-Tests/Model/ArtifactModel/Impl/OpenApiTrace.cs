@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using NUnit.Framework;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -30,24 +31,19 @@ namespace Model.ArtifactModel.Impl
         public TraceDirection Direction { get; set; }
 
         public int ProjectId { get; set; }
-
         public int ArtifactId { get; set; }
-
         public string ArtifactPropertyName { get; set; }
-
         public string Label { get; set; }
-
         public Uri BlueprintUrl { get; set; }
-
         public Uri Link { get; set; }
-
         public bool IsSuspect { get; set; }
-
         public int? SubArtifactId { get; set; } // Returned by the Add-Trace call.
         public string Message { get; set; }     // Returned by the Add-Trace call.
         public int? ResultCode { get; set; }    // Returned by the Add-Trace call.
 
         #endregion Inherited Serialized JSON Properties from ITrace
+
+        #region Constructors
 
         /// <summary>
         /// Contructor.
@@ -118,6 +114,32 @@ namespace Model.ArtifactModel.Impl
             Direction = direction;
             TraceType = traceType;
             IsSuspect = isSuspect;
+        }
+
+        #endregion Constructors
+
+        /// <summary>
+        /// Asserts that two OpenApiTrace's have identical properties.
+        /// </summary>
+        /// <param name="expectedTrace">The expected OpenApiTrace.</param>
+        /// <param name="actualTrace">The actual OpenApiTrace.</param>
+        public static void AssertAreEqual(OpenApiTrace expectedTrace, OpenApiTrace actualTrace)
+        {
+            ThrowIf.ArgumentNull(expectedTrace, nameof(expectedTrace));
+            ThrowIf.ArgumentNull(actualTrace, nameof(actualTrace));
+
+            Assert.AreEqual(expectedTrace.TraceType, actualTrace.TraceType, "The TraceType properties don't match!");
+            Assert.AreEqual(expectedTrace.Direction, actualTrace.Direction, "The Direction properties don't match!");
+            Assert.AreEqual(expectedTrace.ProjectId, actualTrace.ProjectId, "The ProjectId properties don't match!");
+            Assert.AreEqual(expectedTrace.ArtifactId, actualTrace.ArtifactId, "ArtifactId's don't match!");
+            Assert.AreEqual(expectedTrace.ArtifactPropertyName, actualTrace.ArtifactPropertyName, "The ArtifactPropertyName properties don't match!");
+            Assert.AreEqual(expectedTrace.Label, actualTrace.Label, "The Label properties don't match!");
+            Assert.AreEqual(expectedTrace.BlueprintUrl, actualTrace.BlueprintUrl, "The BlueprintUrl properties don't match!");
+            Assert.AreEqual(expectedTrace.Link, actualTrace.Link, "The Link properties don't match!");
+            Assert.AreEqual(expectedTrace.IsSuspect, actualTrace.IsSuspect, "The IsSuspect properties don't match!");
+            Assert.AreEqual(expectedTrace.SubArtifactId, actualTrace.SubArtifactId, "The SubArtifactId properties don't match!");
+            Assert.AreEqual(expectedTrace.Message, actualTrace.Message, "The Message properties don't match!");
+            Assert.AreEqual(expectedTrace.ResultCode, actualTrace.ResultCode, "The ResultCode properties don't match!");
         }
     }
 }

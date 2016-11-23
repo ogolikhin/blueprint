@@ -1,5 +1,6 @@
-const Keen = require("keen-js");
+import {SessionTokenHelper} from "../../../shell/login/session.token.helper";
 import "lodash";
+const Keen = require("keen-js");
 
 export interface IKeenEventObject {
     referrer: {
@@ -127,7 +128,8 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                             output: "referrer.info"
                         }
                     ]
-                }
+                },
+                sessionId: SessionTokenHelper.getSessionToken()
             };
         };
         this._trackPage = () => {

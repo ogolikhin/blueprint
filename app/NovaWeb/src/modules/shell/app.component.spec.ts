@@ -2,10 +2,10 @@
 import "angular-mocks";
 import "angular-sanitize";
 import "./index";
-import { ComponentTest } from "../util/component.test";
-import { AppController } from "./app.component";
-import { INavigationService } from "./../core/navigation/navigation.svc";
-import { NavigationServiceMock } from "./../core/navigation/navigation.svc.mock";
+import {ComponentTest} from "../util/component.test";
+import {AppController} from "./app.component";
+import {INavigationService} from "./../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "./../core/navigation/navigation.svc.mock";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
@@ -15,10 +15,10 @@ describe("Component AppComponent", () => {
         $provide.service("session", SessionSvcMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("projectManager", () => ({
-            removeAll: () => { return undefined; }
+            removeAll: () => undefined
         }));
         $provide.service("selectionManager", () => ({
-            clearAll: () => { return undefined; }
+            clearAll: () => undefined
         }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);

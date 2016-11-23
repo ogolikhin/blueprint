@@ -203,7 +203,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     private resetItemTypes(): void {
         this.itemTypes =
                 [{
-                    name : "",
+                    name : this.localization.get("Filter_Artifact_All_Types", "All types"),
                     id : null,
                     prefix : "",
                     predefinedType : null,

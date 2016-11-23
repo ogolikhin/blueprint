@@ -17,9 +17,10 @@ export interface IStatefulItem extends Models.IArtifact {
     customProperties: IArtifactProperties;
     specialProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
-    relationships: IArtifactRelationships;
+    relationships: IArtifactRelationships;    
     docRefs: IDocumentRefs;
 
+    supportRelationships(): boolean;
     lock();
     discard();
     changes(): Models.ISubArtifact;
@@ -253,10 +254,14 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public get relationships() {
-        if (!this._relationships) {
+        if (this.supportRelationships() && !this._relationships) {
             this._relationships = new ArtifactRelationships(this);
         }
         return this._relationships;
+    }
+
+    public supportRelationships(): boolean {        
+        return true;
     }
 
     public abstract lock();
@@ -455,7 +460,6 @@ export abstract class StatefulItem implements IIStatefulItem {
                     break;
                 case Models.PrimitiveType.Date:
                     if (!this.services.validationService.dateValidation.isValid(propValue,
-                            propValue,
                             propertyType.minDate,
                             propertyType.maxDate,
                             propertyType.isValidated,

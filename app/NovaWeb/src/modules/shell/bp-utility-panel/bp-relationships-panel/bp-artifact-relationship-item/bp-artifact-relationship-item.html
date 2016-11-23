@@ -1,4 +1,4 @@
-﻿<div
+<div
     ng-class='$ctrl.relationship.hasAccess ? "utility-panel-artifact-item" : "utility-panel-artifact-item unauthorized-details"'>
     <div class="details" ng-show="!$ctrl.relationship.hasAccess">
         <div class="unauthorize-icon fonticon2-unauthorize"></div>
@@ -38,7 +38,7 @@
                     <div class="status" ng-click="$ctrl.expand($event)" ng-class="{'expanded': $ctrl.expanded}"
                          bp-tooltip="{{$ctrl.expanded ? $ctrl.localization.get('App_UP_Relationships_Collapse') : $ctrl.localization.get('App_UP_Relationships_Expand')}}">
                         <span></span>
-                        <i class="icon fonticon-circle-up"></i>
+                        <i class="icon fonticon-circle-up relationship-panel__circle-icon"></i>
                     </div>
                 </div>
 
@@ -63,7 +63,7 @@
         </div>
     </div>
 
-    <div class="icons" ng-show="$ctrl.relationship.hasAccess">
+    <div class="icons" ng-if="$ctrl.showActionsPanel">
         <div>
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"

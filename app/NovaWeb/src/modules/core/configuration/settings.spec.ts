@@ -14,8 +14,8 @@ describe("Settings", () => {
                 "invalidNumber": "0x5",
                 "boolean": "false",
                 "invalidBoolean": "NaN",
-                "object": "{ \"string\": \"s\", \"number\": 5, \"array\": [\"s\", 5], \"boolean\": true }",
-                "invalidObject": "{ 'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true }"
+                "object": "{\"string\": \"s\", \"number\": 5, \"array\": [\"s\", 5], \"boolean\": true}",
+                "invalidObject": "{'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true}"
             }
         };
     }));
@@ -218,7 +218,7 @@ describe("Settings", () => {
 
             // Assert
             expect(action)
-                .toThrowError("Value '{ 'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true }' for key 'invalidObject' is not a valid object");
+                .toThrowError("Value '{'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true}' for key 'invalidObject' is not a valid object");
         });
     });
 });

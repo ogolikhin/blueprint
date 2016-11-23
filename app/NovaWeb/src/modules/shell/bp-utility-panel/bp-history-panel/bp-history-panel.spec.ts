@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
 import "../../";
-import {ComponentTest } from "../../../util/component.test";
+import {ComponentTest} from "../../../util/component.test";
 import {BPHistoryPanelController} from "./bp-history-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
@@ -20,8 +20,8 @@ import {IStatefulArtifact,
         StatefulArtifact}
 from "../../../managers/artifact-manager";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
-// import { StateManager } from "../../../core/services/state-manager";
-// import { Models } from "../../../main/services/project-manager";
+// import {StateManager} from "../../../core/services/state-manager";
+// import {Models} from "../../../main/services/project-manager";
 
 describe("Component BPHistoryPanel", () => {
 
@@ -68,10 +68,10 @@ describe("Component BPHistoryPanel", () => {
 //         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
 
 //             //Arrange
-//             const artifact = { id: 22, name: "Artifact" } as Models.IArtifact;
+//             const artifact = {id: 22, name: "Artifact"} as Models.IArtifact;
 
 //             //Act
-//             selectionManager.selection = { artifact: artifact, source:  SelectionSource.Explorer };
+//             selectionManager.selection = {artifact: artifact, source:  SelectionSource.Explorer};
 //             $rootScope.$digest();
 //             const selectedArtifact = selectionManager.selection.artifact;
 
@@ -153,7 +153,7 @@ describe("Component BPHistoryPanel", () => {
         const historyVersion = {
             versionId: 2147483647 //head version
         } as IArtifactHistoryVersion;
-        const artifact: IStatefulArtifact = <any>{ id: 1 };
+        const artifact: IStatefulArtifact = <any>{id: 1};
         artifact.getObservable = () => {
             return new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
         };
@@ -176,7 +176,7 @@ describe("Component BPHistoryPanel", () => {
         const historyVersion = {
             versionId: 10
         } as IArtifactHistoryVersion;
-        const artifact: IStatefulArtifact = <any>{ id: 1 };
+        const artifact: IStatefulArtifact = <any>{id: 1};
         artifact.getObservable = () => {
             return new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
         };
@@ -197,7 +197,7 @@ describe("Component BPHistoryPanel", () => {
         selectionManager: ISelectionManager) => {
         //Arrange
         spyOn(navigationService, "getNavigationState").and.returnValue({id: 1, version: 10});
-        const artifact: IStatefulArtifact = <any>{ id: 1 };
+        const artifact: IStatefulArtifact = <any>{id: 1};
         artifact.getObservable = () => {
             return new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
         };

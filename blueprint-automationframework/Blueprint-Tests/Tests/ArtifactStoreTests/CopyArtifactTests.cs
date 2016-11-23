@@ -381,6 +381,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(folder, artifact, _user),
+
                 "'POST {0}' should return 403 Forbidden when user tries to copy a folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -599,7 +600,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, subArtifacts.First().Id, _user),
-                "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to be a child of a sub-artifact", SVC_PATH);
+                "'POST {0}' should return 404 Not Found when user tries to copy an artifact to be a child of a sub-artifact", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
@@ -624,7 +625,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, subArtifacts.First().Id, targetArtifact.Id, author),
-                "'POST {0}' should return 403 Forbidden when user tries to copy a sub-artifact to be a child of another artifact", SVC_PATH);
+                "'POST {0}' should return 404 Not Found when user tries to copy a sub-artifact to be a child of another artifact", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
@@ -647,6 +648,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", _project.Id));
+
         }
 
         #endregion 404 Not Found tests

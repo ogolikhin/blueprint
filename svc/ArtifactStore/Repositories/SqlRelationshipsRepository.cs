@@ -209,8 +209,17 @@ namespace ArtifactStore.Repositories
             return pathToProject;
         }
 
-        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int revisionId = int.MaxValue)
+        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int? versionId = null)
         {
+            var revisionId = int.MaxValue;
+            if (versionId.HasValue)
+            {
+                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
+            }
+            if (revisionId <= 0)
+            {
+                throw new ResourceNotFoundException(string.Format("Version index (Id:{0}) is not found.", versionId), ErrorCodes.ResourceNotFound);
+            }
             var pathInfoDictionary = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToDictionary(a => a.ItemId);
             if (pathInfoDictionary.Keys.Count == 0)
                 throw new ResourceNotFoundException($"Artifact in revision {revisionId} does not exist.", ErrorCodes.ResourceNotFound);

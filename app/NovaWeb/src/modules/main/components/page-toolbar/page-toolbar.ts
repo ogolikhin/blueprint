@@ -22,7 +22,7 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent);
     closeProject(evt?: ng.IAngularEvent);
-    closeAllProjetcs(evt?: ng.IAngularEvent);
+    closeAllProjects(evt?: ng.IAngularEvent);
     createNewArtifact(evt?: ng.IAngularEvent);
     publishAll(evt?: ng.IAngularEvent);
     discardAll(evt?: ng.IAngularEvent);
@@ -144,19 +144,34 @@ export class PageToolbarController implements IPageToolbarController {
         }
     }
 
-    public closeAllProjetcs = (evt?: ng.IAngularEvent) => {
+    public closeAllProjects = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
         }
 
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
-            artifact.autosave().then(() => {
-                this.projectManager.removeAll();
-                this.artifactManager.selection.clearAll();
-                this.clearLockedMessages();
-                this.navigationService.navigateToMain();
-            });
+            artifact.autosave()
+                .then(this.getProjectsWithUnpublishedArtifacts)
+                .then((projectsWithUnpublishedArtifacts) => {
+                    const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
+                    const openProjects = _.map(this.projectManager.projectCollection.getValue(), (project) => project.model.id);
+                    let numberOfUnpublishedArtifacts = 0;
+                    _.forEach(openProjects, (projectId) => numberOfUnpublishedArtifacts += unpublishedArtifactsByProject[projectId] || 0);
+
+                if (numberOfUnpublishedArtifacts > 0) {
+                    //If the project we're closing has unpublished artifacts, we display a modal
+                    let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
+                        .replace(`{0}`, numberOfUnpublishedArtifacts.toString());
+                    this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                        this.closeAllProjectsInternal();
+                    });
+                } else {
+                    //Otherwise, just close it
+                    this.closeAllProjectsInternal();
+                }
+
+                });
         }
     }
 
@@ -346,8 +361,7 @@ export class PageToolbarController implements IPageToolbarController {
                 //If the project we're closing has unpublished artifacts, we display a modal
                 let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactCount.toString());
-                this.dialogService.alert("Close_Project_UnpublishedArtifacts",
-                null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
                     this.closeProjectById(currentProjectId);
                 });
             } else {
@@ -372,7 +386,14 @@ export class PageToolbarController implements IPageToolbarController {
         this.clearLockedMessages();
     }
 
-    private getProjectsWithUnpublishedArtifacts(): ng.IPromise<number[]> {
+    private closeAllProjectsInternal() {
+        this.projectManager.removeAll();
+        this.artifactManager.selection.clearAll();
+        this.clearLockedMessages();
+        this.navigationService.navigateToMain();
+    }
+
+    private getProjectsWithUnpublishedArtifacts = (): ng.IPromise<number[]> => {
         //We can't use artifactManager.list() because lock state is lazy-loaded
         return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);

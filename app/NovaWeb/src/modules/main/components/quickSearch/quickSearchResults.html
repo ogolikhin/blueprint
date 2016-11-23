@@ -24,7 +24,7 @@
                                 required
                                 autocomplete="off"
                                 ng-minlength="3"
-                                placeholder="Search open project"
+                                placeholder="{{$ctrl.localization.get('Search_Placeholder')}}"
                                 class="quick-serach__input quick-serach__input--full-width"
                                 name="searchTerm"
                                 ng-model="$ctrl.searchTerm">
@@ -56,9 +56,7 @@
                     </div>
                 </div>
 
-                <ul class="list-unstyled"
-                    ng-if="$ctrl.results.length > 0"
-                >
+                <ul class="list-unstyled" ng-if="$ctrl.results.length > 0 && !$ctrl.isLoading">
                     <li class="quick-search__results--item"
                         ng-repeat="item in $ctrl.results track by $index">
                         <div class="row small-gutter">
@@ -114,6 +112,7 @@
                         </div>
                     </li>
                 </ul>
+
                 <div class="quick-search__response" ng-if="$ctrl.isLoading">
                     <div class="quick-serach__loading">
                         <div class="quick-serach__loading-overlay"></div>
@@ -121,18 +120,25 @@
                     </div>
                 </div>
 
-                <div class="quick-search__response" ng-if="$ctrl.results.length===0">
+                <div class="quick-search__response" ng-if="$ctrl.results && $ctrl.results.length===0 && $ctrl.isServiceAvailable && !$ctrl.isLoading">
                     <div class="center-item font-larger">
                         <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
                     </div>
                 </div>
+
+                <div class="quick-search__response" ng-if="!$ctrl.isServiceAvailable && !$ctrl.isLoading">
+                    <div class="center-item font-larger">
+                        <span>{{::$root.config.labels["Search_Results_ServiceUnavailable"]}}</span>
+                    </div>
+                </div>
+
                 <div class="quick-search__footer">
                    <ul  uib-pagination
                         class="quick-search__pagination"
                         total-items="$ctrl.metadata.totalCount"
                         items-per-page="$ctrl.metadata.pageSize"
                         ng-model="$ctrl.page"
-                        max-size="10"
+                        max-size="$ctrl.maxVisiblePageCount"
                         boundary-links="true"
                         rotate="true"
                         force-ellipses="true"

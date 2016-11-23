@@ -1,23 +1,34 @@
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
+
+import {IApplicationError} from "../../../core/error/applicationError";
+
+
 export interface IQuickSearchModalController {
     searchTerm: string;
     isLoading: boolean;
-    search(term): string;
+    searchWithMetadata(term: string, source: string): void;
+    search(term: string, source: string): void;
     clearSearch();
     showHide: boolean;
     hasError(): boolean;
+    isServiceAvailable: boolean;
     closeModal();
 }
 
-export class QuickSearchModalController {
+export class QuickSearchModalController implements IQuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;
+
     results: ISearchItem[];
     metadata: ISearchMetadata;
 
+    isServiceAvailable: boolean;
+
+    maxVisiblePageCount: number = 10;
+    
     private page: number;
 
     static $inject = [
@@ -40,7 +51,8 @@ export class QuickSearchModalController {
                 private $q: ng.IQService,
                 private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
-        this.isLoading = true;
+        this.showLoadingIcon();
+        this.setisServiceAvailable(true);
 
     }
 
@@ -56,13 +68,24 @@ export class QuickSearchModalController {
         if (this.isFormInvalid()) {
             return null;
         }
-
+        this.resetData();
+        this.showLoadingIcon();
         this.quickSearchService.metadata(this.searchTerm).then((result) => {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
                 this.search(this.searchTerm, source);
+            } else {
+                this.hideLoadingIcon();
             }
-        }).finally(() => {
+        }, (error) => {
+
+            //If sql timeout occured on server side
+            if (error && error.data && error.data.errorCode === 7000) {
+                this.setisServiceAvailable(false);
+            }
+            
+            this.hideLoadingIcon();            
+        }).finally(() => {            
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
@@ -75,9 +98,12 @@ export class QuickSearchModalController {
         if (this.isFormInvalid()) {
             return null;
         }
+        
         source = !source ? "Modal" : source;
-
-        this.isLoading = true;
+        this.setisServiceAvailable(true);
+        
+        this.showLoadingIcon();
+        this.results = [];
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
 
@@ -85,18 +111,35 @@ export class QuickSearchModalController {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
-            this.isLoading = false;
+            this.hideLoadingIcon();
+        }, (error) => {
+            //If sql timeout occured on server side
+            if (error && error.data && error.data.errorCode === 7000) {
+                this.setisServiceAvailable(false);
+            }
+            
+            this.hideLoadingIcon();            
         });
     }
 
     clearSearch() {
         this.searchTerm = "";
         this.quickSearchService.searchTerm = "";
-        this.form.$setPristine();
+        this.resetData();
+    }
+
+    private resetData() {
+        this.setisServiceAvailable(true);
+        this.hideLoadingIcon();  
+        if (this.form) {
+            this.form.$setPristine();
+        }
         this.results = [];
         this.page = 1;
         this.resetMetadata();
     }
+
+    
 
     get showHide(): boolean {
         return !!this.searchTerm || this.form.$dirty;
@@ -144,14 +187,28 @@ export class QuickSearchModalController {
     }
 
     private updateMetadataInfo(result: ISearchMetadata) {
+        this.setisServiceAvailable(true);
+
         this.metadata = result;
         this.page = 1;
         if (result.totalCount === 0) {
             this.results = [];
-            this.isLoading = false;
+            this.hideLoadingIcon();
         }
     }
 
+    private showLoadingIcon() {
+        this.isLoading = true;
+    }
+
+    private hideLoadingIcon() {
+        this.isLoading = false;
+    }
+
+    private setisServiceAvailable(value: boolean) {
+        this.isServiceAvailable = value;
+    }
+    
     get getResultsFoundText() {
         return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());
     }

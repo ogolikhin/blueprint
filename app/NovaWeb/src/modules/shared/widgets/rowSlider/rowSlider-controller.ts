@@ -11,13 +11,22 @@ export class RowSliderController {
     static $inject: [string] = ["$scope", "$element"];
 
     public slideSelector: string;
+    public showButtons: boolean;
 
     private slides: HTMLElement[];
-    private slideContainer: HTMLElement;
+    private slidesWidth: number[];
+    private slidesContainer: HTMLElement;
+    private slidesTotalWidth: number;
     private availableWidth: number;
+    private scrollPosition: number;
+    private scrollIndex: number;
 
     constructor(private $scope: ng.IScope, private $element: ng.IAugmentedJQuery) {
         this.slideSelector = !_.isString(this.slideSelector) ? "li" : this.slideSelector;
+        this.slidesTotalWidth = 0;
+        this.scrollPosition = 0;
+
+        this.showButtons = false;
     }
 
     public $onDestroy = () => {
@@ -25,6 +34,7 @@ export class RowSliderController {
     };
 
     public $postLink = () => {
+        this.setupSlides();
         this.recalculate();
     };
 
@@ -37,29 +47,83 @@ export class RowSliderController {
         }
     };
 
+    public showButtonPrev(): boolean {
+        return this.scrollIndex > 0;
+    }
+
+    public showButtonNext(): boolean {
+        return this.scrollIndex < this.slidesWidth.length - 1;
+    }
+
+    private resizeContainer() {
+        this.slidesContainer.style.marginLeft = this.showButtonPrev() ? "32px" : "0";
+        this.slidesContainer.style.marginRight = this.showButtonNext() ? "32px" : "0";
+    }
+
+    private moveSlide(direction: number) {
+        let scrollPosition = 0;
+        let idx = this.scrollIndex;
+        const max = this.slidesWidth.length - 1;
+
+        idx += direction;
+        idx = idx < 0 ? 0 : (idx > max ? max : idx);
+        this.scrollIndex = idx;
+
+        for (let i = 0; i < this.scrollIndex; i++) {
+            scrollPosition += this.slidesWidth[i];
+        }
+        this.resizeContainer();
+        this.slidesContainer.scrollLeft = scrollPosition;
+    }
+
     public previousSlide = (): void => {
-        // temporary
+        this.moveSlide(-1);
     };
 
     public nextSlide = (): void => {
-        // temporary
+        this.moveSlide(1);
+    };
+
+    private setupSlides = (availableWidth?: number): void => {
+        this.$scope.$applyAsync(() => {
+            this.slides = this.getSlides();
+            this.slidesContainer = this.slides[0].parentElement;
+
+            if (this.slidesContainer) {
+                this.slidesTotalWidth = 0;
+                this.scrollPosition = 0;
+                this.scrollIndex = 0;
+                this.slidesContainer.classList.add("row-slider__container");
+
+                for (let i = 0; i < this.slides.length; i++) {
+                    const slide = this.slides[i] as HTMLElement;
+                    slide.classList.add("row-slider__slide");
+                }
+            }
+        });
     };
 
     private recalculate = (availableWidth?: number): void => {
         this.$scope.$applyAsync(() => {
-            if (!this.slides || !this.slides.length) {
-                this.slides = this.getSlides();
-                this.slideContainer = this.slides[0].parentElement;
-            }
-
             if (this.slides.length) {
                 if (_.isFinite(availableWidth)) {
                     this.availableWidth = availableWidth;
                 } else {
-                    this.availableWidth = this.slideContainer.offsetWidth;
+                    this.availableWidth = this.slidesContainer.offsetWidth;
                 }
 
-                // console.log(this.availableWidth);
+                this.slidesTotalWidth = 0;
+                this.slidesWidth = [];
+
+                for (let i = 0; i < this.slides.length; i++) {
+                    const slide = this.slides[i] as HTMLElement;
+                    const rect = slide.getBoundingClientRect();
+                    this.slidesTotalWidth += rect.width;
+                    this.slidesWidth.push(rect.width);
+                }
+
+                this.showButtons = this.slidesTotalWidth > this.availableWidth;
+                this.resizeContainer();
             }
         });
     };
@@ -70,7 +134,12 @@ export class RowSliderController {
         // we use querySelector instead of querySelectorAll so we can make sure we get only real siblings
         // of the first matched element by iterating with nextElementSibling
         let slide: HTMLElement = this.$element[0].querySelector(this.slideSelector) as HTMLElement;
+        const tag = slide.tagName.toUpperCase();
         while (slide) {
+            // we need to make sure that all the slides are the same type of element
+            if (slide.tagName.toUpperCase() !== tag) {
+                return [] as HTMLElement[];
+            }
             slides.push(slide);
             slide = slide.nextElementSibling as HTMLElement;
         }

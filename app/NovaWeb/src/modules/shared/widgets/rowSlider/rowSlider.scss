@@ -1,9 +1,70 @@
+@import '../../../../styles/modules/variables';
+@import '../../../../styles/modules/fonticons2';
+
 .row-slider {
     display: block;
+    overflow: hidden;
     position: relative;
+}
+
+.row-slider__container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    overflow: hidden;
+}
+
+.row-slider__slide {
+    flex: none;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+
+    > * {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
 
 .row-slider__prev,
 .row-slider__next {
-    display: none; // temporary
+    background: transparent;
+    border: 0;
+    color: $brand-secondary;
+    display: block;
+    font-family: "bp-font2";
+    font-size: 1.8rem;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 1.8rem;
+    outline: none;
+    position: absolute;
+    speak: none;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    top: 0;
+    width: 32px;
+}
+
+.row-slider__prev--invalid,
+.row-slider__next--invalid {
+    color: $brand-error;
+}
+
+.row-slider__prev {
+    left: 0;
+
+    &::before {
+        content: $fonticon2-arrow-double-left;
+    }
+}
+
+.row-slider__next {
+    right: 0;
+
+    &::before {
+        content: $fonticon2-arrow-double-right;
+    }
 }

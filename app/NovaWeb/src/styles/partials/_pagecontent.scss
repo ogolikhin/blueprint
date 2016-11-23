@@ -230,8 +230,13 @@ pagecontent, bp-properties-panel {
             padding: 18px 15px;
         }
 
+        .row-slider__next,
+        .row-slider__prev {
+            font-size: $font-size-normal;
+            top: 22px;
+        }
+
         .tab-pane {
-            // temporary
             font-size: $font-size-normal;
         }
     }

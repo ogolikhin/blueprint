@@ -506,7 +506,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.Process, "UT", "Std-Choice-Required-AllowMultiple-DefaultValue", "Purple")]
         [TestCase(ItemTypePredefined.Process, "UT", "Std-Choice-Required-AllowMultiple-DefaultValue", "Orange")]
         [TestRail(191162)]
-        [Description("Create & publish an artifact.  Update a choice property in a subartifact, save and publish.  " +
+        [Description("Create & publish an artifact.  Update a choice property in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the choice property updated.")]
         public void UpdateSubArtifact_ChangeChoicePropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 
             string subArtifactDisplayName,
@@ -543,9 +543,51 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Process, "UT", "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green","Blue" } )]
+        [TestCase(ItemTypePredefined.Process, "UT", "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow", "Orange", "Purple" })]
+        [TestRail(195423)]
+        [Description("Create & publish an artifact. Update a choice property with multiple selection in a subartifact, save and publish. " +
+                     "Verify the sub artifact returned the choice property updated.")]
+        public void UpdateSubArtifact_ChangeChoicePropertyWithMultipleSelectionSaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType,
+            string subArtifactDisplayName,
+            string subArtifactCustomPropertyName,
+            string[] newChoiceValues
+            )
+        {
+            // Setup:
+            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+
+            // Change custom property choice value
+            var subArtifactCustomPropertyValue = new List<string>();
+            subArtifactCustomPropertyValue.AddRange(newChoiceValues);
+            var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
+            var requestedCustomProperty = subArtifactChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+
+            // Execute:
+            artifact.Lock(author);
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.PublishArtifact(artifact, author);
+
+            // Verify:
+            Assert.NotNull((int)subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, (int)subArtifactChangeSet.Id.Value);
+
+            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
+        }
+
+        [Category(Categories.CustomData)]
         [TestRail(191163)]
         [TestCase(ItemTypePredefined.Process, "UT", "Std-User-Required-HasDefault-User")]
-        [Description("Create & publish an artifact.  Update a user property in a subartifact, save and publish.  " +
+        [Description("Create & publish an artifact.  Update a user property in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the user property updated.")]
         public void UpdateSubArtifact_ChangeUserPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 
             string subArtifactDisplayName,
@@ -1087,7 +1129,7 @@ namespace ArtifactStoreTests
                         subArtifactChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Date-Required-Validated-Min-Max-HasDefault": //date DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now);
+                case "Std-Date-Required-Validated-Min-Max-HasDefault": //date
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = subArtifactCustomPropertyValue;
                         subArtifactChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);

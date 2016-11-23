@@ -162,7 +162,7 @@ export class CreateNewArtifactController extends BaseDialogController {
     };
 
     public get isCreateButtonDisabled(): boolean {
-        return _.isUndefined(this.newArtifactName) || !_.isString(this.newArtifactName) || this.newArtifactName.length === 0 ||
+        return _.isUndefined(this.newArtifactName) || !_.isString(this.newArtifactName) || this.newArtifactName.trim().length === 0 ||
             _.isUndefined(this.newArtifactType) || _.isNull(this.newArtifactType) || this.newArtifactType.toString().length === 0;
     }
 

@@ -102,7 +102,7 @@ namespace ArtifactStoreTests
         #region 403 Forbidden Tests
 
         [TestCase]
-        [TestRail(183019)]
+        [TestRail(195424)]
         [Description("Create & publish a glossary artifact, Get GlossaryArtifact with the user with no permission to the artifact. Verify that 403 forbidden exception is returned.")]
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithNoPermissionForTheArtifact_403Forbidden()
         {

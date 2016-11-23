@@ -41,6 +41,17 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         return this.dialogModel.label;
     }
 
+    public getPersonaLabel(): string {
+        if (this.dialogModel.personaReference.id < 0) {
+            return this.dialogModel.personaReference.name;
+        }
+
+        return this.dialogModel.personaReference.typePrefix +
+            this.dialogModel.personaReference.id +
+            ": " +
+            this.dialogModel.personaReference.name;
+    }
+
     protected  getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }

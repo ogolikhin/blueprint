@@ -26,6 +26,13 @@ export class MessageContainerController implements IMessageContainerController {
         this.messageService.dispose();
     }
 
+    public onMouseOut() {
+        const container = document.querySelector(".messages__container") as HTMLElement;
+        if (container) {
+            container.className = "messages__container";
+        }
+    }
+
     public closeMessage(id: number) {
         this.messageService.deleteMessageById(id);
     }
@@ -41,7 +48,7 @@ export class MessageContainerController implements IMessageContainerController {
                 text = text.replace("{" + i + "}", message.parameters[i]);
             }
         }
-        
+
         return this.$sce.trustAsHtml(text);
     }
 }

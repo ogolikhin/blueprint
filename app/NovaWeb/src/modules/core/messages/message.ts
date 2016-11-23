@@ -24,7 +24,7 @@ export class Message implements IMessage {
 
     constructor(public messageType: MessageType, public messageText: string, public persistent: boolean = false, ...params: any[]) {
         if (params.length) {
-            this.parameters = params;    
+            this.parameters = params;
         }
     }
 }
@@ -37,10 +37,24 @@ export interface IMessageController {
 export class MessageController implements IMessageController {
     public messageType: string;
     public onMessageClosed: Function;
-    public canBeClosed: boolean; 
-    
+    public canBeClosed: boolean;
+
     constructor() {
         this.canBeClosed = this.messageType === "error" || this.messageType === "warning";
+    }
+
+    public onMouseOut() {
+        const container = document.querySelector(".messages__container") as HTMLElement;
+        if (container) {
+            container.className = "messages__container";
+        }
+    }
+
+    public onMouseOver(messageType: string) {
+        const container = document.querySelector(".messages__container") as HTMLElement;
+        if (container) {
+            container.classList.add("messages__container--over-" + messageType);
+        }
     }
 }
 

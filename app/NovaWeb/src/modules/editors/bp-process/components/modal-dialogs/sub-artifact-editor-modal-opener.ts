@@ -13,9 +13,10 @@ import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType, IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
-import {UserTaskDialogModel, SystemTaskDialogModel} from "./task-editor/sub-artifact-dialog-model";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {UserTaskDialogModel, SystemTaskDialogModel, IPersonaOption} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IArtifactReference} from "../../models/process-models";
 
 export class SubArtifactEditorModalOpener {
     private graph: IProcessGraph;
@@ -23,7 +24,7 @@ export class SubArtifactEditorModalOpener {
     private openDialogCallerHandler: string;
 
     constructor(private $uibModal: angular.ui.bootstrap.IModalService,
-                private dialogCommunication: IModalDialogCommunication,
+        private dialogCommunication: IModalDialogCommunication,
                 private localization: ILocalizationService) {
         this.setGraphHandler = dialogCommunication.registerSetGraphObserver(this.setGraph);
         this.openDialogCallerHandler = dialogCommunication.registerOpenDialogObserver(this.openDialogCaller);
@@ -139,8 +140,9 @@ export class SubArtifactEditorModalOpener {
         model.associatedArtifact = model.originalItem.associatedArtifact;
         model.objective = model.originalItem.objective;
         model.label = model.originalItem.label;
-        model.availablePersona = [{"name": "test actor 1"}, {"name": "test actor 2"}];
         model.personaReference = model.originalItem.personaReference;
+
+        model.userTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.userTaskPersonaReferenceList);
 
         return model;
     }
@@ -169,10 +171,32 @@ export class SubArtifactEditorModalOpener {
         model.imageId = model.originalItem.imageId;
         model.label = model.originalItem.label;
         model.associatedImageUrl = model.originalItem.associatedImageUrl;
-        model.availablePersona = [{"name": "test actor 1"}, {"name": "test actor 2"}];
         model.personaReference = model.originalItem.personaReference;
 
+        model.systemTaskPersonaReferenceOptions = this.populatePersonaReferenceOptions(graph.viewModel.systemTaskPersonaReferenceList);
+
         return model;
+    }
+
+    private populatePersonaReferenceOptions(personaReferenceList: IArtifactReference[]): IPersonaOption[] {
+        const personaOptions: IPersonaOption[] = [];
+        for (let i = 0; i < personaReferenceList.length; i++) {
+            let label: string = personaReferenceList[i].name;
+
+            if (personaReferenceList[i].id > 0) {
+                label = personaReferenceList[i].typePrefix +
+                       personaReferenceList[i].id +
+                      ": " +
+                       personaReferenceList[i].name;
+            }
+
+            personaOptions.push({
+                value: personaReferenceList[i],
+                label: label
+            });
+        }
+
+        return personaOptions;
     }
 
     private getDecisionEditorModel(shapeId: number, graph: IProcessGraph): DecisionEditorModel {

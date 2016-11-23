@@ -184,6 +184,53 @@ describe("Localization", () => {
         }
     });
 
+    describe("Check Date values (en-US)", () => {
+        
+        it("from text with format - valid", inject(($rootScope: ng.IRootScopeService) => {
+            // Arrange
+            let locale = new BPLocale("en-US");
+
+            // Act
+            // Assert
+            expect(locale.isValidDate("11/10/2016")).toBeTruthy();
+            expect(locale.isValidDate("01/01/2011")).toBeTruthy();
+  
+            expect(locale.isValidDate("11/10/2016 9:13 P", locale.longDateFormat)).toBeTruthy();
+            expect(locale.isValidDate("01/01/2016 10:13 A", locale.longDateFormat)).toBeTruthy();
+        }));
+        it("from text with specific format - valid", inject(($rootScope: ng.IRootScopeService) => {
+            // Arrange
+            let locale = new BPLocale("en-US");
+
+            // Assert
+            // Act
+            expect(locale.isValidDate("1/0/2016")).toBeFalsy();
+            expect(locale.isValidDate("01/1/2011")).toBeFalsy();
+            expect(locale.isValidDate("01/11/11")).toBeFalsy();
+            expect(locale.isValidDate("11/1/2016", locale.longDateFormat)).toBeFalsy();
+            expect(locale.isValidDate("1/1/2011", locale.longDateFormat)).toBeFalsy();
+  
+        }));
+        
+
+        it("from text - invalid", inject(($rootScope: ng.IRootScopeService) => {
+            // Arrange
+            let locale = new BPLocale("en-US");
+
+            // Act
+
+            // Assert
+            expect(locale.isValidDate("")).toBeFalsy();
+            expect(locale.isValidDate("dddd")).toBeFalsy();
+            expect(locale.isValidDate("10/1/a")).toBeFalsy();
+            expect(locale.isValidDate("aa/1/2016")).toBeFalsy();
+            expect(locale.isValidDate("mm/dd/yyy")).toBeFalsy();
+            
+        }));
+
+    });
+
+
     /*NOT PHANTOMJS*/
     if (!/PhantomJS/.test(window.navigator.userAgent)) {
         describe("Convert values", () => {

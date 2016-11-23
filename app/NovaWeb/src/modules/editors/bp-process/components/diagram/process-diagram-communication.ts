@@ -5,7 +5,8 @@ export enum ProcessEvents {
     ModelUpdate,
     NavigateToAssociatedArtifact,
     ArtifactUpdate,
-    UserStoriesGenerated
+    UserStoriesGenerated,
+    PersonaReferenceUpdated
 }
 
 export interface IProcessDiagramCommunication {
@@ -26,6 +27,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     private setClickDeleteSubject: ICommunicationWrapper;
     private setArtifactUpdateSubject: ICommunicationWrapper;
     private setUserStoriesGeneratedSubject: ICommunicationWrapper;
+    private setPersonaReferenceUpdatedSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
@@ -34,6 +36,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setClickDeleteSubject = new CommunicationWrapper();
         this.setArtifactUpdateSubject = new CommunicationWrapper();
         this.setUserStoriesGeneratedSubject = new CommunicationWrapper();
+        this.setPersonaReferenceUpdatedSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -73,6 +76,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     result = this.setUserStoriesGeneratedSubject.subscribe(observer);
                 }
                 break;
+            case ProcessEvents.PersonaReferenceUpdated: {
+                    result = this.setPersonaReferenceUpdatedSubject.subscribe(observer);
+                }
+                break;
             default:
                 result = undefined;
                 break;
@@ -105,6 +112,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
             
             case ProcessEvents.UserStoriesGenerated: {
                     this.setUserStoriesGeneratedSubject.disposeObserver(observer);
+                }
+                break;
+            case ProcessEvents.PersonaReferenceUpdated: {
+                    this.setPersonaReferenceUpdatedSubject.disposeObserver(observer);
                 }
                 break;
         }
@@ -140,6 +151,10 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     this.setUserStoriesGeneratedSubject.notify(eventPayload);
                 }
                 break;
+            case ProcessEvents.PersonaReferenceUpdated: {
+                    this.setPersonaReferenceUpdatedSubject.notify(eventPayload);
+                }
+                break;
         }
     }
 
@@ -149,5 +164,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setClickDeleteSubject.dispose();
         this.setArtifactUpdateSubject.dispose();
         this.setUserStoriesGeneratedSubject.dispose();
+        this.setPersonaReferenceUpdatedSubject.dispose();
     }
 }

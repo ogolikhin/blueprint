@@ -41,14 +41,28 @@ namespace AdminStore.Controllers
         {
             var sessionToken = Request.Headers.GetValues("Session-Token").FirstOrDefault();
             var sessionId = string.IsNullOrEmpty(sessionToken) ? "" : sessionToken.Substring(0, 8);
-            Session session = (Session)ActionContext.Request.Properties[ServiceConstants.SessionProperty];
-            string userName = session != null ? session.UserName : "";
-           
+            string userName = GetUserName();
+
             var result = await LogRepository.LogClientMessage(logEntry, sessionId, userName);
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = result.Content;
             return ResponseMessage(response);
+        }
+
+        private string GetUserName()
+        {
+            object sessionObject = null;            
+            if (ActionContext.Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionObject))
+            {
+                Session session = sessionObject as Session;
+                if (session != null)
+                {
+                    return session.UserName;
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

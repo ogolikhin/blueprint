@@ -98,9 +98,14 @@ describe("SystemTask", () => {
 
         it("Test latest personaReference value reuse", () => {
             // Arrange
+            const processModel = new ProcessModel();
+            const viewModel = new ProcessViewModel(processModel, communicationManager);
+            const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
             const testSystemTask = ShapeModelMock.instance().SystemTaskMock();
 
             const node = new SystemTask(testSystemTask, rootScope, null, null, shapesFactory);
+            node.render(graph, 80, 80, false);
+            node.renderLabels();
             node.personaReference =  {
                 id: 1,
                 projectId: 1,
@@ -200,6 +205,8 @@ describe("SystemTask", () => {
             node = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], rootScope, null, null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
+            viewModel.userTaskPersonaReferenceList = [];
+            viewModel.systemTaskPersonaReferenceList = [];
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
         });

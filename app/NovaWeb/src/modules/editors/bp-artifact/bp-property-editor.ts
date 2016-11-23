@@ -261,9 +261,7 @@ export class PropertyEditor {
                         maxDate: context.maxDate,
                         minDate: context.minDate
                     };
-                    field.templateOptions["maxDate"] = this.locale.formatDate(this.locale.toDate(context.maxDate), this.locale.shortDateFormat);
-                    field.templateOptions["minDate"] = this.locale.formatDate(this.locale.toDate(context.minDate), this.locale.shortDateFormat);
-
+             
                     field.defaultValue = context.dateDefaultValue;
                     break;
                 case Models.PrimitiveType.Number:

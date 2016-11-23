@@ -20,7 +20,8 @@ export class DateValidation extends BaseValidation implements IDateValidation {
         if (_.isDate(value)) {
             return value;
         }
-        return this.localization.current.toDate(value, true, this.localization.current.shortDateFormat);
+        let d = this.localization.current.toDate(value, true, this.localization.current.shortDateFormat);
+        return d;
     }
 
     public wrongFormat(value: string | Date): boolean {
@@ -32,12 +33,9 @@ export class DateValidation extends BaseValidation implements IDateValidation {
 
     public minSQLDate(value: string | Date): boolean {
         const minsqldate = new Date(1753, 1, 1);  
-        if (value) {
-            return this.minDate(value, minsqldate, true);
-        }
-        return true;
-
+        return this.minDate(value, minsqldate, true);
     }
+    
     public minDate(value: string | Date, minDate: Date, isValidated: boolean): boolean {
         if (!isValidated) {
             return true;

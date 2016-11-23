@@ -9,7 +9,7 @@ import "angular-formly-templates-bootstrap";
 import {createFormlyModule} from "../../formly-config.mock";
 import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
-xdescribe("Formly Date Picker", () => {
+describe("Formly Date Picker", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {        
         $provide.service("validationService", ValidationService);
@@ -139,18 +139,17 @@ xdescribe("Formly Date Picker", () => {
     });
 
     it("should fail if the date is less than minDate", function () {
-        compileAndSetupStuff({model: {datepicker: "2014-05-05T00:00:00.0000000Z"}});
+        compileAndSetupStuff({model: {datepicker: "05/05/2014"}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
-        scope.$digest();
         expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$invalid).toBeTruthy();
         expect((<any>fieldScope).fc.$error.minDate).toBeTruthy();
     });
 
     it("should fail if the date is greater than maxDate", function () {
-        compileAndSetupStuff({model: {datepicker: "2018-10-10"}});
+        compileAndSetupStuff({model: {datepicker: "10/10/2018"}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
@@ -161,7 +160,7 @@ xdescribe("Formly Date Picker", () => {
     });
 
     it("should succeed even if the date is greater than maxDate, as validation is not required", function () {
-        compileAndSetupStuff({model: {datepickerNotVal: "2018-10-10"}});
+        compileAndSetupStuff({model: {datepickerNotVal: "10/10/2018"}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[1];
         let fieldScope = angular.element(fieldNode).isolateScope();
@@ -173,7 +172,7 @@ xdescribe("Formly Date Picker", () => {
     });
 
     it("should fail if the date is less than 1753-01-01 (SQL starting date), even if validation is not required", function () {
-        compileAndSetupStuff({model: {datepickerNotVal: "1752-10-10"}});
+        compileAndSetupStuff({model: {datepickerNotVal: "10/10/1752"}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[1];
         let fieldScope = angular.element(fieldNode).isolateScope();
@@ -186,7 +185,7 @@ xdescribe("Formly Date Picker", () => {
     });
 
     it("should fail if the date is empty", function () {
-        compileAndSetupStuff({model: {datepicker: ""}});
+        compileAndSetupStuff({model: {datepicker: undefined}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
@@ -196,7 +195,7 @@ xdescribe("Formly Date Picker", () => {
     });
 
     it("should blur on Enter key", function () {
-        compileAndSetupStuff({model: {datepicker: "2016-08-08"}});
+        compileAndSetupStuff({model: {datepicker: "08/08/2016"}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldDatepicker")[0];
         let fieldInput = fieldNode.querySelector("input");

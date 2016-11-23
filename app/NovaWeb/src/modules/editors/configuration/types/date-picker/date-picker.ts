@@ -88,14 +88,14 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             currentText: localization.get("Datepicker_Today"),
             placeholder: localization.current.datePickerFormat.toUpperCase()
         };
-        angular.merge($scope.to, to);
+        _.merge($scope.to, to);
 
         const validation = {
             messages: {
                 date: `"` + this.localization.get("Property_Wrong_Format") + ` (` + to.placeholder + `)"`
             }
         };
-        angular.merge($scope.options.validation, validation);
+        _.merge($scope.options.validation, validation);
 
         $scope.options["validators"] = {
             minDateSQL: {
@@ -124,12 +124,6 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             }
         };
 
-        // make sure the values are of type Date!
-        let currentModelVal = $scope.model[$scope.options["key"]];
-        if (currentModelVal) {
-            $scope.model[$scope.options["key"]] = localization.current.toDate(currentModelVal, true);
-        }
-        
         $scope["bpFieldDatepicker"] = {
             opened: false,
             selected: false,

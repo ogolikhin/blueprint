@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using CustomAttributes;
 using Helper;
@@ -95,8 +96,29 @@ namespace ArtifactStoreTests
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
         }
-        
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 400 Bad Request.
+
+        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Glossary)]
+        [TestRail(195425)]
+        [Description("Create and publish a source & parent artifact (source should have 2 published versions).  Copy the source artifact into the same parent.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
+        public void CopyArtifact_SinglePublishedChildArtifact_ToSameParent_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType parentArtifactType)
+        {
+            // Setup:
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType, parentArtifact, numberOfVersions: 2);
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentArtifact.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
+        }
+
         [TestCase(BaseArtifactType.Actor, false)]
         [TestCase(BaseArtifactType.TextualRequirement, true)]
         [TestRail(191049)]
@@ -113,7 +135,10 @@ namespace ArtifactStoreTests
 
             // Create & add attachment to the source artifact:
             var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
-            ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, sourceArtifact, attachmentFile, Helper.ArtifactStore);
+            DateTime defaultExpireTime = DateTime.Now.AddDays(2);   //Currently Nova set ExpireTime 2 days from today for newly uploaded file
+            var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(author, attachmentFile.FileName, attachmentFile.FileType,
+                defaultExpireTime, Helper.FileStore);
+            ArtifactStoreHelper.AddArtifactAttachmentAndSave(author, sourceArtifact, novaAttachmentFile, Helper.ArtifactStore);
 
             if (shouldPublishAttachment)
             {
@@ -130,30 +155,36 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, author);
 
             // Verify the attachment was copied.
-            var copiedArtifactAttachments = Helper.ArtifactStore.GetAttachments(sourceArtifact, author, addDrafts: true);
+            var copiedArtifactAttachments = ArtifactStore.GetAttachments(Helper.ArtifactStore.Address, copyResult.Artifact.Id, author, addDrafts: true);
             Assert.AreEqual(1, copiedArtifactAttachments.AttachedFiles.Count, "Copied artifact should have 1 attachments at this point.");
             Assert.AreEqual(attachmentFile.FileName, copiedArtifactAttachments.AttachedFiles[0].FileName, "Filename of copied artifact attachment must have expected value.");
             Assert.AreEqual(0, copiedArtifactAttachments.DocumentReferences.Count, "Copied artifact shouldn't have any Document References.");
 
-            var sourceArtifactAttachments = ArtifactStore.GetAttachments(Helper.ArtifactStore.Address, copyResult.Artifact.Id, author, addDrafts: true);
+            var sourceArtifactAttachments = Helper.ArtifactStore.GetAttachments(sourceArtifact, author, addDrafts: true);
             Assert.AreEqual(1, sourceArtifactAttachments.AttachedFiles.Count, "Source artifact should have 1 attachments at this point.");
             Assert.AreEqual(attachmentFile.FileName, sourceArtifactAttachments.AttachedFiles[0].FileName, "Filename of source artifact attachment must have expected value.");
             Assert.AreEqual(0, sourceArtifactAttachments.DocumentReferences.Count, "Source artifact shouldn't have any Document References.");
 
             // Nova copy does a shallow copy of attachments, so sourceArtifactAttachments should equal copiedArtifactAttachments.
-            AttachedFile.AssertEquals(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0]);
+            AttachedFile.AssertEquals(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0],
+                skipAttachmentIds: true, skipUploadedDates: true);
 
-            // TODO: Get the file contents and compare.
+            // Compare file contents.
+            var fileFromCopy = Helper.ArtifactStore.GetAttachmentFile(author, copyResult.Artifact.Id,
+                copiedArtifactAttachments.AttachedFiles[0].AttachmentId);
+            var fileFromSource = Helper.ArtifactStore.GetAttachmentFile(author, sourceArtifact.Id,
+                sourceArtifactAttachments.AttachedFiles[0].AttachmentId);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 500 error "You do not have permission to edit the artifact".
         [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
         [TestCase(BaseArtifactType.Glossary, TraceDirection.To, true, false)]
         [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
         [TestRail(191050)]
         [Description("Create & save an artifact then create & publish a folder.  Add a manual trace between the artifact & folder.  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
+        public void CopyArtifact_SingleSavedArtifactWithManualTrace_ToNewFolder_ReturnsNewArtifactWithManualTrace(
             BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
         {
             // Setup:
@@ -191,7 +222,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 500 error "You do not have permission to edit the artifact".
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase(BaseArtifactType.TextualRequirement, 85, "User Story[reuse source]")]
@@ -235,12 +265,12 @@ namespace ArtifactStoreTests
             CompareTwoOpenApiTraceLists(reuseTracesBefore, reuseTracesAfter);
 
             // Verify the copied artifact has no Reuse traces.
-            var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, artifactId, name: artifactName);
+            var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, copyResult.Artifact.Id, name: artifactName);
 
             // Verify preCreatedArtifact is Reused.
-            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, _user,
+            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author,
                 getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
-            Assert.IsNull(reuseTracesOfCopy, "There should be no Reuse traces on the copied artifact!");
+            Assert.IsEmpty(reuseTracesOfCopy.Traces, "There should be no Reuse traces on the copied artifact!");
         }
         /*
         [Category(Categories.CustomData)]

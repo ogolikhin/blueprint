@@ -6,7 +6,7 @@ import {Enums} from "../../../../main/models";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export enum MoveArtifactInsertMethod {
-    Selection,
+    Inside,
     Above,
     Below
 }
@@ -21,7 +21,7 @@ export class MoveArtifactResult {
 }
 
 export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogController {
-    public insertMethod: MoveArtifactInsertMethod = MoveArtifactInsertMethod.Below;
+    public insertMethod: MoveArtifactInsertMethod = MoveArtifactInsertMethod.Inside;
     private _currentArtifact: Models.IArtifact;
     public api: IArtifactPickerAPI;
 
@@ -62,7 +62,7 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
     }
 
     public get InsertMethodSelection(): MoveArtifactInsertMethod{
-        return MoveArtifactInsertMethod.Selection;
+        return MoveArtifactInsertMethod.Inside;
     }
     public get InsertMethodAbove(): MoveArtifactInsertMethod{
         return MoveArtifactInsertMethod.Above;

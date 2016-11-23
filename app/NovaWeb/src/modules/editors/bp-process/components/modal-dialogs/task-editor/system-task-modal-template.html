@@ -21,6 +21,7 @@
                 <bp-select class="persona-reference__dropdown"
                            ng-model="dialogModel.personaReference"
                            options="dialogModel.systemTaskPersonaReferenceOptions"
+                           ng-class="{'disabled': $ctrl.isReadonly}"
                            button-label="{{$ctrl.getPersonaLabel()}}">
                 </bp-select>
                 <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">

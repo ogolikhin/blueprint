@@ -245,7 +245,7 @@ describe("Application toolbar:", () => {
                         id: "projectcloseall"
                     }
                 };
-                const openedProjects = [{id: 2}, {id: 1}];
+                const openedProjects = [{model: {id: 2}}, {model: {id: 1}}];
 
 
                 spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
@@ -260,7 +260,7 @@ describe("Application toolbar:", () => {
                 const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
 
                 // Act
-                toolbarCtrl.closeAllProjetcs();
+                toolbarCtrl.closeAllProjects();
                 $scope.$digest();
 
                 // Assert

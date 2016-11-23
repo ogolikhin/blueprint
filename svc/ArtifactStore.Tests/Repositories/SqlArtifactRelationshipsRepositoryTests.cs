@@ -235,9 +235,12 @@ namespace ArtifactStore.Repositories
             // Arrange
             const int artifactId = 1;
             const int userId = 2;
+            const int versionId = 3;
             const int revisionId = 999;
             const bool addDrafts = false;
             const string description = "artifact description";
+
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
 
             var pathToRoot = new List<ItemIdItemNameParentId>
             {
@@ -251,7 +254,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, descriptionResult);
             
             // Act
-            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, addDrafts, revisionId);
+            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, addDrafts, versionId);
 
             //Assert
             Assert.AreEqual(artifactId, actual.ArtifactId);

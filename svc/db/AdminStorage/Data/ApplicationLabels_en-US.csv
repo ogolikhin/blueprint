@@ -15,6 +15,7 @@ App_Button_Create,"Create"
 App_Button_PublishAndContinue,"Publish and Continue"
 App_Button_Add,"Add"
 App_Button_Move,"Move"
+App_Button_ConfirmCloseProject,"Close Project"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
@@ -37,6 +38,8 @@ App_Project_Name,"Name"
 App_Project_Description,"Description"
 
 App_CloseTabWithUnsavedChanges,"You have unsaved changes that will be lost if you leave."
+
+App_Artifact_Info_OpenLatestVersion,"Open latest version"
 
 App_Toolbar_Project,"Project"
 App_Toolbar_Open_Project,"Open Project"
@@ -175,7 +178,8 @@ App_Save_Artifact_Error_400_114,"The artifact {0} cannot be saved. Please ensure
 App_Save_Artifact_Error_409_115,"The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost."
 App_Save_Artifact_Error_409_116,"The artifact {0} cannot be saved. It is a reused artifact with read-only settings. You have modified read-only properties."
 App_Save_Artifact_Error_409_117,"A property type is out of date."
-App_Save_Artifact_Error_409_123,"The artifact {0} cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other."
+App_Save_Artifact_Error_409_123,"The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All."
+App_Save_Artifact_Error_409_124,"The artifact {0} cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other."
 App_Save_Artifact_Error_Other,"An error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>"
 
 Refresh_Project_NotFound,"You have attempted to access a project that has been deleted."
@@ -185,6 +189,8 @@ Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
 Publish_All_Success_Message,"All artifacts ({0}) have had their changes published."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
+
+Close_Project_UnpublishedArtifacts,"You have {0} saved but unpublished changes.<br/><br/>Consider publishing or discarding them before continuing."
 
 Artifact_List_Show_More,"Show more"
 Artifact_List_Show_First_N_Results,"Displaying first {0} results"
@@ -293,6 +299,7 @@ Login_Session_InvalidLicense,"Your license does not include access to this appli
 Input_Required,"Required"
 
 Folder_NotFound,"Couldn't find specified project or folder"
+Filter_Artifact_All_Types, "All types"
 Project_NotFound,"Couldn't find the project"
 Project_MetaDataNotFound,"Couldn't find the project meta data"
 Artifact_NotFound,"Couldn't find the artifact"

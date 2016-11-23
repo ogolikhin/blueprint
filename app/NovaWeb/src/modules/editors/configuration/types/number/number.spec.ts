@@ -85,8 +85,8 @@ describe("Formly Number", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
-        expect((<any>fieldScope).fc.$valid).toBeTruthy();
-        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.wrongFormat).toBeTruthy();
     });
 
@@ -96,8 +96,8 @@ describe("Formly Number", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
-        expect((<any>fieldScope).fc.$valid).toBeTruthy();
-        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.wrongFormat).toBeTruthy();
     });
 
@@ -107,8 +107,8 @@ describe("Formly Number", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
-        expect((<any>fieldScope).fc.$valid).toBeTruthy();
-        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.min).toBeTruthy();
     });
 
@@ -118,8 +118,8 @@ describe("Formly Number", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
-        expect((<any>fieldScope).fc.$valid).toBeTruthy();
-        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.max).toBeTruthy();
     });
 
@@ -129,8 +129,8 @@ describe("Formly Number", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[0];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
-        expect((<any>fieldScope).fc.$valid).toBeTruthy();
-        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.decimalPlaces).toBeTruthy();
     });
 
@@ -164,8 +164,8 @@ describe("Formly Number", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[1];
         let fieldScope = angular.element(fieldNode).isolateScope();
 
-        expect((<any>fieldScope).fc.$valid).toBeTruthy();
-        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.wrongFormat).toBeTruthy();
     });
 

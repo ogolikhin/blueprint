@@ -47,6 +47,18 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         return this.dialogModel.label;
     }
 
+    public getPersonaLabel(): string {
+        if (this.dialogModel.personaReference.id < 0) {
+            return this.dialogModel.personaReference.name;
+        }
+
+        return this.dialogModel.personaReference.typePrefix +
+            this.dialogModel.personaReference.id +
+            ": " +
+            this.dialogModel.personaReference.name;
+    }
+
+
     protected  getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }
@@ -68,7 +80,6 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
     }
 
     protected populateTaskChanges() {
-
         if (this.dialogModel.originalItem && this.dialogModel) {
             this.dialogModel.originalItem.action = this.dialogModel.action;
             this.dialogModel.originalItem.objective = this.dialogModel.objective;

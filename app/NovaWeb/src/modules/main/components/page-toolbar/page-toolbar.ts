@@ -22,7 +22,7 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent);
     closeProject(evt?: ng.IAngularEvent);
-    closeAllProjetcs(evt?: ng.IAngularEvent);
+    closeAllProjects(evt?: ng.IAngularEvent);
     createNewArtifact(evt?: ng.IAngularEvent);
     publishAll(evt?: ng.IAngularEvent);
     discardAll(evt?: ng.IAngularEvent);
@@ -139,36 +139,39 @@ export class PageToolbarController implements IPageToolbarController {
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
             artifact.autosave().then(() => {
-                const projectId = artifact.projectId;
-                const isOpened = !_.every(this.projectManager.projectCollection.getValue(), (p) => p.model.id !== projectId);
-                if (isOpened) {
-                    this.projectManager.remove(artifact.projectId);
-                }
-                const nextProject = _.first(this.projectManager.projectCollection.getValue());
-                if (nextProject) {
-                    this.artifactManager.selection.clearAll();
-                    this.navigationService.navigateTo({id: nextProject.model.id});
-                } else {
-                    this.navigationService.navigateToMain();
-                }
-                this.clearLockedMessages();
+                this.closeProjectInternal(artifact.projectId);
             });
         }
     }
 
-    public closeAllProjetcs = (evt?: ng.IAngularEvent) => {
+    public closeAllProjects = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
         }
 
         let artifact = this.artifactManager.selection.getArtifact();
         if (artifact) {
-            artifact.autosave().then(() => {
-                this.projectManager.removeAll();
-                this.artifactManager.selection.clearAll();
-                this.clearLockedMessages();
-                this.navigationService.navigateToMain();
-            });
+            artifact.autosave()
+                .then(this.getProjectsWithUnpublishedArtifacts)
+                .then((projectsWithUnpublishedArtifacts) => {
+                    const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
+                    const openProjects = _.map(this.projectManager.projectCollection.getValue(), (project) => project.model.id);
+                    let numberOfUnpublishedArtifacts = 0;
+                    _.forEach(openProjects, (projectId) => numberOfUnpublishedArtifacts += unpublishedArtifactsByProject[projectId] || 0);
+
+                if (numberOfUnpublishedArtifacts > 0) {
+                    //If the project we're closing has unpublished artifacts, we display a modal
+                    let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
+                        .replace(`{0}`, numberOfUnpublishedArtifacts.toString());
+                    this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                        this.closeAllProjectsInternal();
+                    });
+                } else {
+                    //Otherwise, just close it
+                    this.closeAllProjectsInternal();
+                }
+
+                });
         }
     }
 
@@ -351,6 +354,54 @@ export class PageToolbarController implements IPageToolbarController {
             });
     }
 
+    private closeProjectInternal(currentProjectId: number) {
+        this.getProjectsWithUnpublishedArtifacts().then((projectsWithUnpublishedArtifacts) => {
+            const unpublishedArtifactCount = _.countBy(projectsWithUnpublishedArtifacts)[currentProjectId];
+            if (unpublishedArtifactCount > 0) {
+                //If the project we're closing has unpublished artifacts, we display a modal
+                let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
+                    .replace(`{0}`, unpublishedArtifactCount.toString());
+                this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                    this.closeProjectById(currentProjectId);
+                });
+            } else {
+                //Otherwise, just close it
+                this.closeProjectById(currentProjectId);
+            }
+        });
+    }
+
+    private closeProjectById(projectId: number) {
+        const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
+        if (isOpened) {
+            this.projectManager.remove(projectId);
+        }
+        const nextProject = _.first(this.projectManager.projectCollection.getValue());
+        if (nextProject) {
+            this.artifactManager.selection.clearAll();
+            this.navigationService.navigateTo({id: nextProject.model.id});
+        } else {
+            this.navigationService.navigateToMain();
+        }
+        this.clearLockedMessages();
+    }
+
+    private closeAllProjectsInternal() {
+        this.projectManager.removeAll();
+        this.artifactManager.selection.clearAll();
+        this.clearLockedMessages();
+        this.navigationService.navigateToMain();
+    }
+
+    private getProjectsWithUnpublishedArtifacts = (): ng.IPromise<number[]> => {
+        //We can't use artifactManager.list() because lock state is lazy-loaded
+        return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
+            const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);
+            //We don't use _.uniq because we care about the count of artifacts.
+            return projectsWithUnpublishedArtifacts;
+        });
+    }
+
     private publishAllInternal(data: Models.IPublishResultSet) {
         let artifact = this.artifactManager.selection.getArtifact();
         let promise: ng.IPromise<void>;
@@ -404,6 +455,7 @@ export class PageToolbarController implements IPageToolbarController {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
             });
     }
+
 
 
     showSubLevel(evt: any): void {

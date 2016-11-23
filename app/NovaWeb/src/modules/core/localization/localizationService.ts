@@ -124,8 +124,13 @@ export class BPLocale {
         return null;
     }
 
+    public isValidDate(value: string, format: string = this._shortDateFormat): boolean { 
+        let d = moment(value, format, true).isValid();
+        return d;
+    } 
+
     public toDate(value: string | Date, reset?: boolean): Date {
-        if (value && (_.isDate(value) || (_.isString(value) && value.length > 1))) {
+       if (value && (_.isDate(value) || (_.isString(value) && value.length > 1))) {
             let d = moment(value);
             if (d.isValid()) {
                 if (reset === true) {
@@ -136,6 +141,7 @@ export class BPLocale {
         }
         return null;
     };
+
 
     public formatDate(value: Date, format?: string) {
         let d = moment(value);

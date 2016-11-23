@@ -191,8 +191,12 @@ namespace Helper
         /// <param name="expectedArtifactBase">The IArtifactBase containing the expected properties.</param>
         /// <param name="actualNovaArtifactBase">The INovaArtifactBase containing the actual properties to compare against.</param>
         /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <param name="skipParentIds">(optional) Pass true to skip comparison of the ParentId properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(IArtifactBase expectedArtifactBase, INovaArtifactBase actualNovaArtifactBase, bool skipIdAndVersion = false)
+        public static void AssertArtifactsEqual(IArtifactBase expectedArtifactBase,
+            INovaArtifactBase actualNovaArtifactBase,
+            bool skipIdAndVersion = false,
+            bool skipParentIds = false)
         {
             ThrowIf.ArgumentNull(actualNovaArtifactBase, nameof(actualNovaArtifactBase));
             ThrowIf.ArgumentNull(expectedArtifactBase, nameof(expectedArtifactBase));
@@ -203,8 +207,12 @@ namespace Helper
                 Assert.AreEqual(expectedArtifactBase.Version, actualNovaArtifactBase.Version, "The Version  parameters don't match!");
             }
 
+            if (!skipParentIds)
+            {
+                Assert.AreEqual(expectedArtifactBase.ParentId, actualNovaArtifactBase.ParentId, "The ParentId  parameters don't match!");
+            }
+
             Assert.AreEqual(expectedArtifactBase.Name, actualNovaArtifactBase.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(expectedArtifactBase.ParentId, actualNovaArtifactBase.ParentId, "The ParentId  parameters don't match!");
             Assert.AreEqual(expectedArtifactBase.ArtifactTypeId, actualNovaArtifactBase.ItemTypeId, "The ItemTypeId  parameters don't match!");
             Assert.AreEqual(expectedArtifactBase.ProjectId, actualNovaArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
         }
@@ -327,7 +335,7 @@ namespace Helper
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
             Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
             Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+            Assert.AreEqual((int?)artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
             Assert.AreEqual(artifact1.PredefinedType, artifact2.PredefinedType, "The PredefinedType  parameters don't match!");
             Assert.AreEqual(artifact1.Prefix, artifact2.Prefix, "The Prefix  parameters don't match!");

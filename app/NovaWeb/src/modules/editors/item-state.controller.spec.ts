@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 
 import "../main";
-import { Models } from "../main/models";
+import {Models} from "../main/models";
 import {LocalizationServiceMock} from "../core/localization/localization.mock";
 import {MessageServiceMock} from "../core/messages/message.mock";
 import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
@@ -109,7 +109,7 @@ describe("Item State Controller tests", () => {
     });
 
     it("respond to url", () => {
-        expect($state.href("main.item", { id: 1 })).toEqual("#/main/1");
+        expect($state.href("main.item", {id: 1})).toEqual("#/main/1");
     });
 
     it("clears locked messages", () => {

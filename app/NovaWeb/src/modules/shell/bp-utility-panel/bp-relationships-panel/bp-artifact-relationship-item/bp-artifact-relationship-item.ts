@@ -11,10 +11,12 @@ export class BPArtifactRelationshipItem implements ng.IComponentOptions {
     public bindings: any = {
         relationship: "=",
         selectedTraces: "=",
+        selectable: "<",
         setItemDirection: "&",
         toggleItemFlag: "&",
         deleteItem: "&",
-        isItemReadOnly: "<"
+        isItemReadOnly: "<",
+        itemVersionId: "<"
     };
 }
 
@@ -39,15 +41,28 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public isItemReadOnly: boolean;
     public selectedTraces: Relationships.IRelationship[];
     public fromOtherProject: boolean = false;
+    public selectable: boolean;
+    public showActionsPanel: boolean;
     public setItemDirection: Function;
     public toggleItemFlag: Function;
     public deleteItem: Function;
+    public itemVersionId: number;
 
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService) {
+    }
+
+    public $onInit() {
+        if (this.relationship) {
+            this.showActionsPanel = this.relationship.hasAccess && this.selectable;
+        }
+    }
+
+    public get isSelected() {
+        return this.selectable && this.relationship.isSelected;
     }
 
     public setDirection(direction: Relationships.TraceDirection) {
@@ -60,7 +75,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public expand($event) {
         this.remove($event);
         if (!this.expanded) {
-            this.getRelationshipDetails(this.relationship.artifactId)
+            this.getRelationshipDetails(this.relationship.artifactId, this.itemVersionId)
                 .then(relationshipExtendedInfo => {
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
@@ -105,8 +120,8 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         return Helper.limitChars(Helper.stripHTMLTags(str));
     }
 
-    private getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
-        return this.relationshipDetailsService.getRelationshipDetails(artifactId)
+    private getRelationshipDetails(artifactId: number, versionId?: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
+        return this.relationshipDetailsService.getRelationshipDetails(artifactId, versionId)
             .then((relationshipExtendedInfo: Relationships.IRelationshipExtendedInfo) => {
                 if (relationshipExtendedInfo.pathToProject[0].parentId === 0) {
                     this.relationship.projectId = relationshipExtendedInfo.pathToProject[0].itemId;

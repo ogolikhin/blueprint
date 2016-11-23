@@ -3235,7 +3235,7 @@ export function createLargeTestModel() {
     testModel.shapes[1].propertyValues["label"] = {key: "label", value: "15"};
     testModel.shapes[1].propertyValues["x"] = {key: "x", value: 1};
     testModel.shapes[1].propertyValues["y"] = {key: "y", value: 0};
-    testModel.shapes[1].propertyValues["clientType"] = { key: "clientType", value: ProcessShapeType.SystemTask };
+    testModel.shapes[1].propertyValues["clientType"] = {key: "clientType", value: ProcessShapeType.SystemTask};
 
     testModel.shapes[2].propertyValues["label"] = {key: "label", value: "20"};
     testModel.shapes[2].propertyValues["x"] = {key: "x", value: 2};

@@ -54,8 +54,6 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
-            const int VIEWER_PERMISSIONS = 1;
-
             IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
@@ -70,7 +68,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
-            Assert.AreEqual(VIEWER_PERMISSIONS, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
+            Assert.AreEqual(RolePermissions.Read, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
         }
 
         [TestCase(2)]
@@ -95,7 +93,8 @@ namespace ArtifactStoreTests
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
 
-            Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+            Assert.NotNull(artifactDetails.Permissions, "Artifact Permissions shouldn't be null!");
+            Assert.AreEqual(8159, (int)artifactDetails.Permissions.Value, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -123,7 +122,8 @@ namespace ArtifactStoreTests
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
 
-            Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+            Assert.NotNull(artifactDetails.Permissions, "Artifact Permissions shouldn't be null!");
+            Assert.AreEqual(8159, (int)artifactDetails.Permissions.Value, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -154,7 +154,8 @@ namespace ArtifactStoreTests
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
 
-            Assert.AreEqual(8159, artifactDetails.Permissions, "Instance Admin should have all permissions (i.e. 8159)!");
+            Assert.NotNull(artifactDetails.Permissions, "Artifact Permissions shouldn't be null!");
+            Assert.AreEqual(8159, (int)artifactDetails.Permissions.Value, "Instance Admin should have all permissions (i.e. 8159)!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]

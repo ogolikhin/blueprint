@@ -110,7 +110,7 @@ namespace Model.ArtifactModel.Impl
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
-        public int Permissions { get; set; }
+        public RolePermissions? Permissions { get; set; }
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public override int Id { get; set; }

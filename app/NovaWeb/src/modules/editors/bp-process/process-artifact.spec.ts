@@ -15,7 +15,7 @@ import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 
 
-import { Models } from "../../main/models";
+import {Models} from "../../main/models";
 
 import * as TestModels from "./models/test-model-factory";
 import {IProcess} from "./models/process-models";

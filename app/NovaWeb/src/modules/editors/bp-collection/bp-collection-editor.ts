@@ -132,7 +132,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     private visibleArtifact: CollectionNodeVM;
 
-    public onGridReset(): void {
+    public onGridReset(isExpanding: boolean): void {
         this.selectedVMs = [];
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);

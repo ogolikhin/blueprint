@@ -78,6 +78,10 @@ export class StatefulCollectionArtifact extends StatefulArtifact implements ISta
         return state;
     }
 
+    public supportRelationships(): boolean {
+        return false;
+    }
+
     public addArtifactsToCollection(artifacts: IArtifact[]) {
 
         if (this.artifact &&

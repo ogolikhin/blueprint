@@ -95,7 +95,8 @@ namespace Model.ArtifactModel.Impl
             AssertEquals(artifact as INovaArtifactBase);
             Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "The LockedDateTime parameters don't match!");
             Assert.AreEqual(OrderIndex, artifact.OrderIndex, "The OrderIndex parameters don't match!");
-            Assert.AreEqual(Permissions, artifact.Permissions, "The Permissions parameters don't match!");
+            Assert.NotNull(artifact.Permissions, "Artifact Permissions shouldn't be null!");
+            Assert.AreEqual(Permissions, (int)artifact.Permissions.Value, "The Permissions parameters don't match!");
             Identification.AssertEquals(LockedByUser, artifact.LockedByUser);
         }
     }

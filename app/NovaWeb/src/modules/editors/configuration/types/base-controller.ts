@@ -60,6 +60,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
                     scope.fc.$error[validationCheck] = !isValid;
                     const failedValidations = Object.keys(scope.fc.$error).filter(validation => scope.fc.$error[validation]);
                     scope.showError = !!failedValidations.length;
+                    scope.fc.$valid = !(scope.fc.$invalid = !!failedValidations.length); 
                 });
 //            }
         }

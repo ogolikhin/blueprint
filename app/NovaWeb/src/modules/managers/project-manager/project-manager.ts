@@ -421,7 +421,7 @@ export class ProjectManager implements IProjectManager {
             });
         } else {
             //otherwise, get children from cache
-            let siblings = _.map(parentArtifactNode.children, (node) => node.model);
+            siblings = _.map(parentArtifactNode.children, (node) => node.model);
             promise = this.$q.resolve();
         }
 

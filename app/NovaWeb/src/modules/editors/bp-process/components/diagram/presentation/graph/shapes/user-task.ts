@@ -197,6 +197,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             }
 
             this.shapesFactoryService.setUserTaskPersona(reference);
+
+            this.processDiagramManager.action(ProcessEvents.PersonaReferenceUpdated, {personaReference: reference, isUserTask: true, isSystemTask: false});
         }
     }
 

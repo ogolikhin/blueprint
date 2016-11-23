@@ -43,7 +43,8 @@
         <span class="new-artifact__icon"><bp-item-type-icon
             item-type-id="match.model.id"
             item-type-icon-id="match.model.iconImageId"
-            predefined-type="match.model.predefinedType"></bp-item-type-icon></span>
+            predefined-type="match.model.predefinedType"
+            fallback="true"></bp-item-type-icon></span>
         <span ng-bind-html="match.model.name | bpEscapeAndHighlight:query"></span>
     </a>
 </script>

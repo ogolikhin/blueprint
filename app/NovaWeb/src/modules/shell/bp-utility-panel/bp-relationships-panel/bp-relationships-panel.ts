@@ -53,6 +53,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
+    public categoryFilter: number;
     private subscribers: Rx.IDisposable[];
 
     constructor($q: ng.IQService,
@@ -83,6 +84,14 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.associations = null;
         this.documentReferences = null;
         this.actorInherits = null;
+    }
+
+    public get showTracesTitle() {
+        return this.manualTraces2.length && this.categoryFilter === 0;
+    }
+
+    public get showOtherTitle() {
+       return this.otherTraces.length && this.categoryFilter === 0;
     }
 
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact,

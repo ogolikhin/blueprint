@@ -70,10 +70,9 @@ export class QuickSearchModalController implements IQuickSearchModalController {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
                 this.search(this.searchTerm, source);
-            } else {
-                this.isLoading = false;
             } 
-        }).finally(() => {                       
+        }).finally(() => {
+            this.isLoading = false;                       
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;

@@ -19,6 +19,9 @@ import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 require("script!mxClient");
+import {ProcessViewModel, IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
+import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
+import { ProcessGraph } from "../../diagram/presentation/graph/process-graph";
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -27,20 +30,24 @@ describe("SystemTaskModalController", () => {
     let localization: ILocalizationService;
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let dialogService: IDialogService;
+    let communicationManager: ICommunicationManager;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$timeout_: ng.ITimeoutService,
                        _$location_: ng.ILocationService,
                        _localization_: ILocalizationService,
+                       _communicationManager_: ICommunicationManager,
                        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance) => {
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
         localization = _localization_;
+        communicationManager = _communicationManager_;
         $uibModalInstance = _$uibModalInstance_;
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
@@ -235,6 +242,9 @@ describe("SystemTaskModalController", () => {
             let model: SystemTaskDialogModel;
             let controller: SystemTaskModalController;
             let statefulArtifact: StatefulProcessArtifact;
+            let viewModel: ProcessViewModel;
+            let wrapper, container, localScope;
+
             beforeEach(() => {
                 const factory = new StatefulArtifactFactoryMock();
                 const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
@@ -242,13 +252,31 @@ describe("SystemTaskModalController", () => {
                 statefulArtifact = <StatefulProcessArtifact>factory.createStatefulArtifact(artifact);
 
                 const processModel = new ProcessModel();
+
                 const mock = ShapeModelMock.instance().SystemTaskMock();
                 processModel.shapes.push(mock);
+                processModel.userTaskPersonaReferenceList = [];
+                processModel.systemTaskPersonaReferenceList = [];
+
+
+                wrapper = document.createElement("DIV");
+                container = document.createElement("DIV");
+                wrapper.appendChild(container);
+                document.body.appendChild(wrapper);
+
+
+                localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+
+                viewModel = new ProcessViewModel(processModel, communicationManager);
 
                 factory.populateStatefulProcessWithProcessModel(statefulArtifact, processModel);
                 const statefulSubArtifact = <StatefulProcessSubArtifact>statefulArtifact.subArtifactCollection.get(mock.id);
                 const shapesFactory = new ShapesFactory($rootScope, factory);
+
+                const graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
                 const diagramNode = new SystemTask(<ISystemTaskShape>statefulArtifact.shapes[0], $rootScope, null, null, shapesFactory);
+                diagramNode.render(graph, 80, 80, false);
+                diagramNode.renderLabels();
                 model = new SystemTaskDialogModel();
                 model.originalItem = diagramNode;
                 model.isReadonly = false;
@@ -286,7 +314,7 @@ describe("SystemTaskModalController", () => {
 
                 spyOn(statefulArtifact, "refresh")();
                 const lockSpy = spyOn(statefulArtifact, "lock");
-
+                
                 model.personaReference = {
                     id: 1,
                     projectId: 1,

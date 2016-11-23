@@ -234,6 +234,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             }
 
             this.shapesFactory.setSystemTaskPersona(reference);
+
+            this.processDiagramManager.action(ProcessEvents.PersonaReferenceUpdated, {personaReference: reference, isUserTask: false, isSystemTask: true});
         }
     }
 

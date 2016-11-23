@@ -52,7 +52,6 @@ export class QuickSearchModalController implements IQuickSearchModalController {
                 private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
         this.showLoadingIcon();
-        this.setisServiceAvailable(true);
 
     }
 
@@ -74,18 +73,9 @@ export class QuickSearchModalController implements IQuickSearchModalController {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
                 this.search(this.searchTerm, source);
-            } else {
-                this.hideLoadingIcon();
-            }
-        }, (error) => {
-
-            //If sql timeout occured on server side
-            if (error && error.data && error.data.errorCode === 7000) {
-                this.setisServiceAvailable(false);
-            }
-            
-            this.hideLoadingIcon();            
-        }).finally(() => {            
+            } 
+        }).finally(() => {
+            this.hideLoadingIcon();           
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
@@ -100,7 +90,6 @@ export class QuickSearchModalController implements IQuickSearchModalController {
         }
         
         source = !source ? "Modal" : source;
-        this.setisServiceAvailable(true);
         
         this.showLoadingIcon();
         this.results = [];
@@ -111,14 +100,8 @@ export class QuickSearchModalController implements IQuickSearchModalController {
             //assign the results and display
             //if results are greater than one
             this.results = results.items;
+        }).finally(() => {
             this.hideLoadingIcon();
-        }, (error) => {
-            //If sql timeout occured on server side
-            if (error && error.data && error.data.errorCode === 7000) {
-                this.setisServiceAvailable(false);
-            }
-            
-            this.hideLoadingIcon();            
         });
     }
 
@@ -129,7 +112,6 @@ export class QuickSearchModalController implements IQuickSearchModalController {
     }
 
     private resetData() {
-        this.setisServiceAvailable(true);
         this.hideLoadingIcon();  
         if (this.form) {
             this.form.$setPristine();
@@ -187,8 +169,6 @@ export class QuickSearchModalController implements IQuickSearchModalController {
     }
 
     private updateMetadataInfo(result: ISearchMetadata) {
-        this.setisServiceAvailable(true);
-
         this.metadata = result;
         this.page = 1;
         if (result.totalCount === 0) {
@@ -203,10 +183,6 @@ export class QuickSearchModalController implements IQuickSearchModalController {
 
     private hideLoadingIcon() {
         this.isLoading = false;
-    }
-
-    private setisServiceAvailable(value: boolean) {
-        this.isServiceAvailable = value;
     }
     
     get getResultsFoundText() {

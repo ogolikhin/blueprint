@@ -120,15 +120,9 @@
                     </div>
                 </div>
 
-                <div class="quick-search__response" ng-if="$ctrl.results && $ctrl.results.length===0 && $ctrl.isServiceAvailable && !$ctrl.isLoading">
+                <div class="quick-search__response" ng-if="$ctrl.results && $ctrl.results.length===0">
                     <div class="center-item font-larger">
                         <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
-                    </div>
-                </div>
-
-                <div class="quick-search__response" ng-if="!$ctrl.isServiceAvailable && !$ctrl.isLoading">
-                    <div class="center-item font-larger">
-                        <span>{{::$root.config.labels["Search_Results_ServiceUnavailable"]}}</span>
                     </div>
                 </div>
 

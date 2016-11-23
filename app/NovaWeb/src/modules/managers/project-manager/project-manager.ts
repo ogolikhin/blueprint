@@ -412,7 +412,7 @@ export class ProjectManager implements IProjectManager {
         //if parent isn't found, or if its children aren't loaded
         if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && parentArtifactNode.children.length === 0)) {
             //get children from server
-            promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId, true).then((data: Models.IArtifact[]) => {
+            promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId).then((data: Models.IArtifact[]) => {
                 siblings = data;
             });
         } else {
@@ -425,7 +425,7 @@ export class ProjectManager implements IProjectManager {
             //filter collections and sort by order index
             siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
             siblings = _.sortBy(siblings, (a) => a.orderIndex);
-            
+
             index = siblings.findIndex((a) => a.id === selectedArtifact.id);
 
             //compute new order index

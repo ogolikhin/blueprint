@@ -11,6 +11,7 @@ import "ag-grid";
 import "ag-grid-enterprise";
 import "ag-grid/dist/styles/ag-grid.css";
 import "rx/dist/rx.lite.js";
+import "angular-vs-repeat";
 import "tinymce";
 import "moment";
 import "lodash";

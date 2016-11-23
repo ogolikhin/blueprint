@@ -235,14 +235,13 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-
-        //here we need to update original model
         const context = $field.data as IPropertyDescriptor;
-        const invalid = ($field.formControl as ng.IFormController).$invalid;
-        if (!context) {
+        if (!context || !this.editor) {
             return;
         }
-        let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
+        const invalid = ($field.formControl as ng.IFormController).$invalid;
+        //here we need to update original model
+        let value = this.editor.convertToModelValue($field, this.editor.getModelValue(context.fieldPropertyName));
         switch (context.lookup) {
             case PropertyLookupEnum.Custom:
                 this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);

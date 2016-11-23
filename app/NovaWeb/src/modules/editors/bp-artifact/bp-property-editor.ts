@@ -31,7 +31,7 @@ export class PropertyEditor {
                 return this.locale.toNumber($value);
 
             case Models.PrimitiveType.Date:
-                return this.locale.toDate($value);
+                return this.locale.toDate($value, true, this.locale.shortDateFormat);
 
             case Models.PrimitiveType.Choice:
                 if (angular.isArray($value)) {
@@ -212,6 +212,10 @@ export class PropertyEditor {
 
     public getModel(): any {
         return this._model || {};
+    }
+
+    public getModelValue(propertyName: string): any {
+        return this.getModel()[propertyName];
     }
 
     private createPropertyField(context: IPropertyDescriptor,

@@ -129,19 +129,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
         if (currentModelVal) {
             $scope.model[$scope.options["key"]] = localization.current.toDate(currentModelVal, true);
         }
-        if ($scope["defaultValue"]) {
-            $scope["defaultValue"] = localization.current.toDate($scope["defaultValue"], true);
-        }
-        if (angular.isString($scope.to["datepickerOptions"].maxDate)) {
-            $scope.to["datepickerOptions"].maxDate = localization.current.toDate($scope.to["datepickerOptions"].maxDate, true);
-        }
-        if (angular.isString($scope.to["datepickerOptions"].minDate)) {
-            $scope.to["datepickerOptions"].minDate = localization.current.toDate($scope.to["datepickerOptions"].minDate, true);
-        }
-        // see http://stackoverflow.com/questions/3310569/what-is-the-significance-of-1-1-1753-in-sql-server
-    //$scope["minDateSQL"] = localization.current.toDate("1753-01-01", true);
-        $scope.to["minDateSQL"] = localization.current.formatDate($scope["minDateSQL"], localization.current.shortDateFormat);
-
+        
         $scope["bpFieldDatepicker"] = {
             opened: false,
             selected: false,

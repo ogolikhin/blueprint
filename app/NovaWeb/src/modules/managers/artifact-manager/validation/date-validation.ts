@@ -3,19 +3,11 @@ import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface IDateValidation extends IBaseValidation {
     
-    wrongFormat(newValue: string): boolean;
-    minSQLDate(newValue: string): boolean;
-    minDate(newValue: string,
-            minDate: any,
-            isValidated: boolean): boolean;
-    maxDate(newValue: string,
-            maxDate: any,
-            isValidated: boolean): boolean;
-    isValid(newValue: string,
-            minDate: any,
-            maxDate: any,
-            isValidated: boolean,
-            isRequired: boolean): boolean;
+    wrongFormat(value: string): boolean;
+    minSQLDate(value: string | Date): boolean;
+    minDate(value: string | Date, minDate: Date, isValidated: boolean): boolean;
+    maxDate(value: string | Date, maxDate: Date, isValidated: boolean): boolean;
+    isValid(value: string | Date, minDate: Date, maxDate: Date, isValidated: boolean, isRequired: boolean): boolean;
 }
 
 export class DateValidation extends BaseValidation implements IDateValidation {
@@ -24,60 +16,61 @@ export class DateValidation extends BaseValidation implements IDateValidation {
         super();
     };
 
-    public wrongFormat(newValue: string): boolean {
-            return this.localization.current.isValidDate(newValue);
+    private convert(value: string | Date): Date {
+        if (_.isDate(value)) {
+            return value;
         }
-    public minSQLDate(newValue: string): boolean {
-        const minsql = new Date(1753, 1, 1);  
-        if (newValue) {
-            return this.minDate(newValue, minsql, true);
+        return this.localization.current.toDate(value, true, this.localization.current.shortDateFormat);
+    }
+
+    public wrongFormat(value: string | Date): boolean {
+        if (_.isDate(value)) {
+            return true;
+        }
+        return this.localization.current.isValidDate(value);
+    }
+
+    public minSQLDate(value: string | Date): boolean {
+        const minsqldate = new Date(1753, 1, 1);  
+        if (value) {
+            return this.minDate(value, minsqldate, true);
         }
         return true;
 
     }
-    public minDate(newValue: string,
-                   _minDate: any,
-                   isValidated: boolean): boolean {
+    public minDate(value: string | Date, minDate: Date, isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
 
-        const date = this.localization.current.toDate(newValue, true);
-        const minDateValue = this.localization.current.toDate(_minDate, true);
+        const date = this.convert(value);
 
-        if (date && minDateValue) {
-            return date.getTime() >= minDateValue.getTime();
+        if (date && minDate) {
+            return date.getTime() >= minDate.getTime();
         }
         return true;
     }
 
-    public maxDate(newValue: string,
-                   maxDate: any,
-                   isValidated: boolean): boolean {
+    public maxDate(value: string | Date, maxDate: Date, isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
         }
 
-        const date = this.localization.current.toDate(newValue, true);
-        const maxDateValue = this.localization.current.toDate(maxDate, true);
-
-        if (date && maxDateValue) {
-            return date.getTime() <= maxDateValue.getTime();
+        const date = this.convert(value);
+      
+        if (date && maxDate) {
+            return date.getTime() <= maxDate.getTime();
         }
 
         return true;
     }
 
-    public isValid(newValue: string,
-        minDate: any,
-        maxDate: any,
-        isValidated: boolean,
-        isRequired: boolean): boolean {
-        return this.wrongFormat(newValue) &&
-               this.minSQLDate(newValue) &&
-               this.minDate(newValue, maxDate, isValidated) &&
-               this.maxDate(newValue, maxDate, isValidated) &&
-               super.hasValueIfRequired(isRequired, newValue, isValidated);
+    public isValid(value: string | Date, minDate: Date, maxDate: Date, isValidated: boolean, isRequired: boolean): boolean {
+        return this.wrongFormat(value) &&
+               this.minSQLDate(value) &&
+               this.minDate(value, minDate, isValidated) &&
+               this.maxDate(value, maxDate, isValidated) &&
+               super.hasValueIfRequired(isRequired, value, isValidated);
     }
 
 }

@@ -351,33 +351,6 @@ namespace ArtifactStoreTests
         #region Subartifact Properties tests
 
         //TODO: Refactor artifact & subartifact properties tests to use changesets as in the example below
-        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
-        [Category(Categories.CustomData)]
-        [TestRail(191148)]
-        [Description("Create a process artifact. Update and publish artifact. Update sub artifact properties with UpdateArtifact. Verify that sub artifact returned has the updated properties.")]
-        public void UpdateSubArtifact_UpdateSubArtifactCustomProperties_CanGetSubArtifactsWithChanges(ItemTypePredefined itemType, string subArtifactCustomPropertyName)
-        {
-            // Setup: Create an artifactDetails that contains the changeset for updating sub artifact of the process
-            var customProject = ArtifactStoreHelper.GetCustomDataProject(_user);
-            customProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifact(customProject, _user, itemType);
-            var subArtifactCustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(RandomGenerator.RandomAlphaNumericUpperAndLowerCaseAndSpecialCharactersWithSpaces()));
-            var subArtifactChangeSet  = CreateSubArtifactChangeSet(_user, customProject, processArtifact, Process.DefaultUserTaskName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
-
-            // Execute: Update using PATCH UpdateArtifact with changeset for subartifact
-            processArtifact.Lock(_user);
-            Assert.DoesNotThrow(() => Artifact.UpdateArtifact(processArtifact, _user, artifactDetails),
-                "Exception caught while trying to update an artifact of type: '{0}'!", BaseArtifactType.Process);
-
-            // Verify: The returned subartifact contains the change made using the PATCH UpdateArtifact
-            var returnedSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, (int)subArtifactChangeSet.Id);
-            var requestedSubartifactCustomPropertyValue = subArtifactChangeSet.CustomPropertyValues.Find(cp => cp.Name.Equals(subArtifactCustomPropertyName)).CustomPropertyValue.ToString();
-            var updatedSubartifactCustomPropertyValue = returnedSubArtifact.CustomPropertyValues.Find(cp => cp.Name.Equals(subArtifactCustomPropertyName)).CustomPropertyValue.ToString();
-            Assert.AreEqual(updatedSubartifactCustomPropertyValue, requestedSubartifactCustomPropertyValue);
-        }
 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "UT", "Std-Text-Required-RT-Multi-HasDefault")]
@@ -410,8 +383,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            Assert.NotNull((int)subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, (int)subArtifactChangeSet.Id.Value);
+            Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
             CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -453,8 +426,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            Assert.NotNull((int)subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, (int)subArtifactChangeSet.Id.Value);
+            Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
             CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -491,8 +464,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            Assert.NotNull((int)subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, (int)subArtifactChangeSet.Id.Value);
+            Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
             CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -534,8 +507,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            Assert.NotNull((int)subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, (int)subArtifactChangeSet.Id.Value);
+            Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
             CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
@@ -614,8 +587,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
-            Assert.NotNull((int)subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, (int)subArtifactChangeSet.Id.Value);
+            Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
             CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 

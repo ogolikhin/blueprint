@@ -232,43 +232,43 @@ describe("Application toolbar:", () => {
     });
 
     describe("close all projects->", () => {
-        // it("navigates to main",
-        //     inject((navigationService: INavigationService,
-        //             artifactManager: IArtifactManager,
-        //             projectManager: IProjectManager) => {
-        //         // Arrange
-        //         const evt = {
-        //             preventDefault: () => {
-        //                 return;
-        //             },
-        //             currentTarget: {
-        //                 id: "projectcloseall"
-        //             }
-        //         };
-        //         const openedProjects = [{id: 2}, {id: 1}];
+        it("navigates to main",
+            inject((navigationService: INavigationService,
+                    artifactManager: IArtifactManager,
+                    projectManager: IProjectManager) => {
+                // Arrange
+                const evt = {
+                    preventDefault: () => {
+                        return;
+                    },
+                    currentTarget: {
+                        id: "projectcloseall"
+                    }
+                };
+                const openedProjects = [{model: {id: 2}}, {model: {id: 1}}];
 
 
-        //         spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-        //         spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+                spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
+                spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
 
-        //         const navigateToSpy = spyOn(navigationService, "navigateTo");
-        //         const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
-        //         const removeAllProjectSpy = spyOn(projectManager, "removeAll").and.callFake(() => {
-        //             return;
-        //         });
-        //         const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
-        //         const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
+                const navigateToSpy = spyOn(navigationService, "navigateTo");
+                const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
+                const removeAllProjectSpy = spyOn(projectManager, "removeAll").and.callFake(() => {
+                    return;
+                });
+                const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
+                const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
 
-        //         // Act
-        //         toolbarCtrl.closeAllProjects();
-        //         $scope.$digest();
+                // Act
+                toolbarCtrl.closeAllProjects();
+                $scope.$digest();
 
-        //         // Assert
-        //         expect(navigateToSpy).not.toHaveBeenCalled();
-        //         expect(navigateToMainSpy).toHaveBeenCalled();
-        //         expect(removeAllProjectSpy).toHaveBeenCalled();
-        //         expect(clearLockedMessagesSpy).toHaveBeenCalled();
-        //     }));
+                // Assert
+                expect(navigateToSpy).not.toHaveBeenCalled();
+                expect(navigateToMainSpy).toHaveBeenCalled();
+                expect(removeAllProjectSpy).toHaveBeenCalled();
+                expect(clearLockedMessagesSpy).toHaveBeenCalled();
+            }));
     });
 
 });

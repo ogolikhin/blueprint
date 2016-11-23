@@ -80,7 +80,8 @@
                 selected-traces="$ctrl.selectedTraces[$ctrl.item.id]"
                 set-item-direction="$ctrl.setItemDirection(artifact)"
                 toggle-item-flag="$ctrl.toggleItemFlag(artifact)"
-                delete-item="$ctrl.deleteTrace(artifact)">
+                delete-item="$ctrl.deleteTrace(artifact)"
+                item-version-id="$ctrl.item.getEffectiveVersion()">
             </bp-artifact-relationship-item>
         </div>
     </div>

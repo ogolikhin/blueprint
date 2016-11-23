@@ -81,6 +81,8 @@ namespace Helper
 
         public const int CannotSaveConflictWithParent = 125;
 
+        public const int CopyArtifactsExceedTheLimit = 128;
+
         public const int Ok = 200;
 
         public const int NotFound = 404;

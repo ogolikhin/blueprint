@@ -436,7 +436,7 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192083)]
-        [Description("Create a collection or collection folder. Copy a collection or collection folder to be a child of a collection artifact. Verify returned code 403 Forbidden.")]
+        [Description("Create a collection or collection folder. Copy a collection or collection folder to be a child of a collection folder. Verify returned code 403 Forbidden.")]
         public void CopyArtifact_CollectionOrCollectionFolder_ToCollectionArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
@@ -647,6 +647,80 @@ namespace ArtifactStoreTests
         }
 
         #endregion 404 Not Found tests
+
+        #region 409 Conflict tests    
+
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+            BaseArtifactType.Actor,
+            BaseArtifactType.Glossary,
+            BaseArtifactType.Document,
+            BaseArtifactType.TextualRequirement,
+            BaseArtifactType.Process)]
+        [TestRail(195434)]
+        [Description("Create & publish chain of six artifacts.  Change MaxNumberArtifactsToCopy setting in ApplicationSettings table to 5.  " +
+            "Copy parent artifact into the project root.  Verify returned code 409 Conflict.")]
+        public void CopyArtifact_PublishedArtifacts_ToProjectRoot_409Conflict(params BaseArtifactType[] artifactType)
+        {
+            // Setup:
+            const int maxNumberArtifactsToCopy = 5;
+            const string UPDATE_MAX_TO_100 = "UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = 100 WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'";
+
+            string UPDATE_MAX_TO_5 = I18NHelper.FormatInvariant("UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'", 
+                maxNumberArtifactsToCopy);
+
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactType);
+
+            using (var database = DatabaseFactory.CreateDatabase("Blueprint"))
+            {
+                string query = UPDATE_MAX_TO_5;
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                {
+                    database.Open();
+
+                    try
+                    {
+                        cmd.ExecuteReader();
+                    }
+                    catch (System.InvalidOperationException exception)
+                    {
+                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", exception);
+
+                        // Execute:
+                        var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactChain.First().Id, _project.Id, _user),
+                            "'POST {0}' should return 409 Conflict when user tries to copy a artifact with large amount of children " +
+                            "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
+
+                        // Verify:
+                        ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CopyArtifactsExceedTheLimit,
+                            I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", maxNumberArtifactsToCopy));
+                    }
+                    finally
+                    {
+                        query = UPDATE_MAX_TO_100;
+
+                        Logger.WriteDebug("Running: {0}", query);
+
+                        using (var cmd1 = database.CreateSqlCommand(query))
+                        {
+                            try
+                            {
+                                cmd1.ExecuteReader();
+                            }
+                            catch (System.InvalidOperationException exception)
+                            {
+                                Logger.WriteError("SQL query didn't get processed. Exception details = {0}", exception);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        #endregion 409 Conflict tests
 
         #region Private functions
 

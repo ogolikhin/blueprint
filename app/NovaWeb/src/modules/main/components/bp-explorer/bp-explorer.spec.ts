@@ -1,16 +1,16 @@
 ﻿// import "angular";
 // import "angular-mocks";
-// import { SettingsService } from "../../../core";
-// import { MessageService } from "../../../shell/";
-// import { Models} from "../../models";
-// import { ProjectManager, IProjectManager} from "../../services";
+// import {SettingsService} from "../../../core";
+// import {MessageService} from "../../../shell/";
+// import {Models} from "../../models";
+// import {ProjectManager, IProjectManager} from "../../services";
 
-// import { ProjectExplorerController } from "./bp-explorer";
+// import {ProjectExplorerController} from "./bp-explorer";
 
-// import { BPTreeControllerMock, ITreeNode } from "../../../shared/widgets/bp-tree/bp-tree.mock";
-// import { LocalizationServiceMock } from "../../../core/localization/localization.mock";
-// import { ProjectRepositoryMock } from "../../services/project-repository.mock";
-// import { SelectionManager } from "../../../main/services/selection-manager";
+// import {BPTreeControllerMock, ITreeNode} from "../../../shared/widgets/bp-tree/bp-tree.mock";
+// import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+// import {ProjectRepositoryMock} from "../../services/project-repository.mock";
+// import {SelectionManager} from "../../../main/services/selection-manager";
 
 xdescribe("Project Explorer Test", () => {
 //     let isReloadCalled: number = 0;
@@ -28,7 +28,7 @@ xdescribe("Project Explorer Test", () => {
 //     beforeEach(inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, explorer: ProjectExplorerController) => {
 //         $rootScope["config"] = {
 //             "settings": {
-//                 "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
+//                 "StorytellerMessageTimeout": `{"Warning": 0, "Info": 3000, "Error": 0}`
 //             }
 //         };
 
@@ -75,7 +75,7 @@ xdescribe("Project Explorer Test", () => {
 
 
 //         // Act
-//         projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+//         projectManager.loadProject(new Models.Project({id: 1, name: "Project 1"}));
 //         $rootScope.$digest();
 
 //         // Assert
@@ -91,10 +91,10 @@ xdescribe("Project Explorer Test", () => {
 //         };
 
 //         // Act
-//         projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+//         projectManager.loadProject(new Models.Project({id: 1, name: "Project 1"}));
 //         $rootScope.$digest();
 
-//         projectManager.loadArtifact({ id: 10 } as Models.IArtifact);
+//         projectManager.loadArtifact({id: 10} as Models.IArtifact);
 //         $rootScope.$digest();
 
 //         // Assert
@@ -109,7 +109,7 @@ xdescribe("Project Explorer Test", () => {
 //         };
 
 //         // Act
-//         projectManager.projectCollection.onNext([{ id: 1, name: "Project 1", artifacts: [] } as Project]);
+//         projectManager.projectCollection.onNext([{id: 1, name: "Project 1", artifacts: []} as Project]);
 
 //         projectManager.closeProject();
 
@@ -124,7 +124,7 @@ xdescribe("Project Explorer Test", () => {
 //         explorer.tree.reload = function (data: any[], id?: number) {
 //             isReloadCalled += 1;
 //         };
-//         explorer.doLoad(new Models.Project({ id: 1, name: "Project 1" }));
+//         explorer.doLoad(new Models.Project({id: 1, name: "Project 1"}));
 //         $rootScope.$digest();
 
 //         // Act
@@ -152,9 +152,9 @@ xdescribe("Project Explorer Test", () => {
 //         explorer.tree.selectNode = function (id?: number) {
 //             isReloadCalled += 1;
 //         };
-//         explorer["projectManager"].projectCollection.onNext([new Models.Project({ id: 1, name: "Project 1" })]);
+//         explorer["projectManager"].projectCollection.onNext([new Models.Project({id: 1, name: "Project 1"})]);
 //         $rootScope.$digest();
-//         explorer.doSelect(({ id: 1, name: "Project 1"} as ITreeNode));
+//         explorer.doSelect(({id: 1, name: "Project 1"} as ITreeNode));
 //         $rootScope.$digest();
 
 //         // Act
@@ -171,9 +171,9 @@ xdescribe("Project Explorer Test", () => {
     it("close current project", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //         // Arrange
 //         isReloadCalled = 1;
-//         projectManager.loadProject(new Models.Project({ id: 1, name: "Project 1" }));
+//         projectManager.loadProject(new Models.Project({id: 1, name: "Project 1"}));
 //         $rootScope.$digest();
-//         projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
+//         projectManager.loadProject(new Models.Project({id: 2, name: "Project 2"}));
 //         $rootScope.$digest();
 
 
@@ -192,9 +192,9 @@ xdescribe("Project Explorer Test", () => {
     it("close all projects", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //         // Arrange
 //         isReloadCalled = 1;
-//         projectManager.loadProject(new Models.Project({ id: 2, name: "Project 1" }));
+//         projectManager.loadProject(new Models.Project({id: 2, name: "Project 1"}));
 //         $rootScope.$digest();
-//         projectManager.loadProject(new Models.Project({ id: 2, name: "Project 2" }));
+//         projectManager.loadProject(new Models.Project({id: 2, name: "Project 2"}));
 //         $rootScope.$digest();
 
 //         // Act

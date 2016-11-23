@@ -372,7 +372,7 @@ namespace Utilities.Facades
 
                     if (isJSONChanged)
                     {
-                        string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!\r\nReceived JSON: {1}\r\nSerialized JSON: {2}",
+                        string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!\r\nReceived JSON:   {1}\r\nSerialized JSON: {2}",
                             typeof(T1).ToString(), response.Content, serializeObject);
                         throw new FormatException(msg);
                     }

@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactModel\Enums\BaseArtifactTypeExtensions.cs" />
+    <Compile Include="ArtifactModel\Enums\ChangeTypes.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />
@@ -66,6 +67,8 @@
     <Compile Include="ArtifactModel\Impl\Discussions.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaArtifactDetails.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaDocumentReference.cs" />
+    <Compile Include="ArtifactModel\Impl\NovaItem.cs" />
     <Compile Include="ArtifactModel\Impl\NovaSubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaVersionControlArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\ActorInheritanceValue.cs" />
@@ -77,6 +80,7 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\SubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
     <Compile Include="ArtifactModel\INovaArtifactBase.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
@@ -84,7 +88,6 @@
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
-    <Compile Include="Impl\ArtifactUpdateChangeType.cs" />
     <Compile Include="SearchServiceModel\Impl\ItemSearchResult.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />

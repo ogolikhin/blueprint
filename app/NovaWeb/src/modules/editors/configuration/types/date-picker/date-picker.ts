@@ -100,25 +100,26 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
         $scope.options["validators"] = {
             minDateSQL: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    let date = localization.current.toDate($modelValue || $viewValue, true);
-                    let minDate = scope.minDateSQL;
-
-                    if (date && minDate) {
-                        return date.getTime() >= minDate.getTime();
-                    }
+                    const isValid = validationService.dateValidation.minSQLDate($viewValue);
+                    
+                    BPFieldBaseController.handleValidationMessage("minDateSQL", isValid, scope);
                     return true;
                 }
             },
             minDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.dateValidation.minDate($viewValue, $modelValue, scope.to.datepickerOptions.minDate, 
+                    const isValid = validationService.dateValidation.minDate($viewValue, scope.to.datepickerOptions.minDate, 
                                                                                           scope.options.data.isValidated);
+                    BPFieldBaseController.handleValidationMessage("minDate", isValid, scope);
+                    return true;
                 }
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    return validationService.dateValidation.maxDate($viewValue, $modelValue, scope.to.datepickerOptions.maxDate, 
+                    const isValid =  validationService.dateValidation.maxDate($viewValue, scope.to.datepickerOptions.maxDate, 
                                                                                           scope.options.data.isValidated);
+                    BPFieldBaseController.handleValidationMessage("maxDate", isValid, scope);
+                    return true;
                 }
             }
         };
@@ -138,7 +139,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             $scope.to["datepickerOptions"].minDate = localization.current.toDate($scope.to["datepickerOptions"].minDate, true);
         }
         // see http://stackoverflow.com/questions/3310569/what-is-the-significance-of-1-1-1753-in-sql-server
-        $scope["minDateSQL"] = localization.current.toDate("1753-01-01", true);
+    //$scope["minDateSQL"] = localization.current.toDate("1753-01-01", true);
         $scope.to["minDateSQL"] = localization.current.formatDate($scope["minDateSQL"], localization.current.shortDateFormat);
 
         $scope["bpFieldDatepicker"] = {

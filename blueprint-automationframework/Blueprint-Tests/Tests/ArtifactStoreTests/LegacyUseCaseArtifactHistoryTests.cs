@@ -94,8 +94,7 @@ namespace ArtifactStoreTests
             userWithBadOrMissingToken.Token.SetToken(token);
 
             // Execute: Get the use case artifact with invalid token header using GetUseCaseArtifact
-            NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.Throws<Http401UnauthorizedException>(() => usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1), "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1), "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.USECASE_id_);
         }
 
         #endregion 401 Unauthorized Tests

@@ -38,7 +38,8 @@ describe("Formly Base RTF Controller", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("selectionManager", () => ({
-            getArtifact: () => { return undefined; }
+            getArtifact: () => undefined,
+            getSubArtifact: () => undefined
         }));
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
@@ -111,7 +112,7 @@ describe("Formly Base RTF Controller", () => {
             aTag.dispatchEvent(mouseEvent);
 
             expect(controller.navigationService.navigateTo).toHaveBeenCalled();
-            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith({ id: 365 });
+            expect(controller.navigationService.navigateTo).toHaveBeenCalledWith({id: 365});
 
             aTag.removeEventListener("click", controller.handleClick);
         });

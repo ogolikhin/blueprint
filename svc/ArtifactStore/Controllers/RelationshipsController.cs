@@ -103,19 +103,16 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
         [ActionName("GetRelationshipDetails")]
-        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true, int? revisionId = null)
+        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            if (artifactId < 1 )
+            if (artifactId < 1 || (versionId.HasValue && versionId.Value < 1))
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            if (revisionId.HasValue && revisionId < 1)
-                throw new HttpResponseException(HttpStatusCode.BadRequest);
-
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
-            var artifactInfo = isDeleted && revisionId != null ?
+            var artifactInfo = isDeleted && versionId != null ?
                 (await _artifactVersionsRepository.GetDeletedItemInfo(artifactId)) :
                 (await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts));
             if (artifactInfo == null)
@@ -129,9 +126,9 @@ namespace ArtifactStore.Controllers
             }
 
             // We do not need drafts for historical artifacts 
-            var effectiveAddDraft = !revisionId.HasValue && addDrafts;
+            var effectiveAddDraft = !versionId.HasValue && addDrafts;
 
-            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, effectiveAddDraft, revisionId ?? int.MaxValue);
+            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, effectiveAddDraft, versionId);
         }
 
         private static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)

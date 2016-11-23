@@ -114,7 +114,7 @@ describe("Formly Select", () => {
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.required).toBeUndefined();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
         expect(fieldChosen.innerHTML).toContain("Option 1");
     });
 
@@ -128,7 +128,7 @@ describe("Formly Select", () => {
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.required).toBeUndefined();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
         expect(fieldChosen.innerHTML).toContain("Custom value");
     });
 
@@ -141,7 +141,7 @@ describe("Formly Select", () => {
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
         expect((<any>fieldScope).fc.$error.required).toBeUndefined();
-        expect((<any>fieldScope).fc.$error.requiredCustom).toBeUndefined();
+        expect((<any>fieldScope).fc.$error.requiredCustom).toBeFalsy();
     });
 
     function compileAndSetupStuff(extraScopeProps?) {

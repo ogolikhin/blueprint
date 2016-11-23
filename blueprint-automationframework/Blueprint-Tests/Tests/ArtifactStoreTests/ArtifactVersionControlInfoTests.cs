@@ -8,7 +8,6 @@ using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 
@@ -193,21 +192,22 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+            int subArtifactId = subArtifacts[0].Id;
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareLockInfo: false);
 
-            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: 0);
         }
 
@@ -221,21 +221,22 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+            int subArtifactId = subArtifacts[0].Id;
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, basicArtifactInfo.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -251,7 +252,7 @@ namespace ArtifactStoreTests
             // Get the process artifact
             IProcess process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
 
             subArtifacts[0].DisplayName = "Sub-artifact_" + process.Name;
 
@@ -259,10 +260,12 @@ namespace ArtifactStoreTests
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
+            int subArtifactId = subArtifacts[0].Id;
+
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
@@ -270,7 +273,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -283,23 +286,25 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
             artifact.Lock();
 
+            int subArtifactId = subArtifacts[0].Id;
+
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -312,7 +317,7 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
@@ -320,17 +325,19 @@ namespace ArtifactStoreTests
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
+            int subArtifactId = subArtifacts[0].Id;
+
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -346,23 +353,25 @@ namespace ArtifactStoreTests
             // Get the process artifact
             IProcess process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
 
             subArtifacts[0].DisplayName = "Sub-artifact_" + process.Name;
 
             Helper.Storyteller.UpdateProcess(_user, process);
 
+            int subArtifactId = subArtifacts[0].Id;
+
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -374,20 +383,22 @@ namespace ArtifactStoreTests
         {
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Save();
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+            int subArtifactId = subArtifacts[0].Id;
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: true, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -483,8 +494,9 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact!");
+            int subArtifactId = subArtifacts[0].Id;
 
             artifact.Lock();
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -494,13 +506,13 @@ namespace ArtifactStoreTests
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true, subArtifactId: subArtifactId,
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
         }
 
@@ -514,23 +526,25 @@ namespace ArtifactStoreTests
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             artifact.Delete(anotherUser);
 
+            int subArtifactId = subArtifacts[0].Id;
+
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
             // Execute
-            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                 "'GET {0}' should return 200 OK when passed a valid sub-artifact ID!", SVC_PATH);
 
             // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
-            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifacts[0].Id,
+            VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, subArtifactId: subArtifactId,
                 versionCount: artifactDetails.Version);
         }
 
@@ -820,15 +834,17 @@ namespace ArtifactStoreTests
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact!");
 
+            int subArtifactId = subArtifacts[0].Id;
+
             IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifacts[0].Id),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifactId),
                  "'GET {0}' should return 404 Not found when another user tries to access basic artifact information of sub-artifact that was saved but not published!",
                  SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifacts[0].Id);
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifactId);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "Expected '{0}' error when another user tries to get basic information of sub-artifact that was saved but not published",
                 expectedExceptionMessage);
@@ -892,19 +908,20 @@ namespace ArtifactStoreTests
             // Create a Process artifact
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
-            List<INovaSubArtifact> subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
+            int subArtifactId = subArtifacts[0].Id;
 
             artifact.Delete(_user);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifacts[0].Id),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(_user, subArtifactId),
                  "'GET {0}' should return 404 Not found when user tries to access basic information of an artifact that was removed!",
                  SVC_PATH);
 
             // Verify:
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifacts[0].Id);
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Item (Id:{0}) is not found.", subArtifactId);
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
                 "Expected '{0}' error when user tries to get basic information of an artifact that was removed",
                 expectedExceptionMessage);

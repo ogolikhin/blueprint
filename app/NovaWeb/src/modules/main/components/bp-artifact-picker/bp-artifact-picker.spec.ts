@@ -15,7 +15,9 @@ describe("BpArtifactPicker", () => {
         .component("bpArtifactPicker", new BpArtifactPicker());
 
     beforeEach(angular.mock.module("bp.components.artifactpicker", ($provide: ng.auto.IProvideService) => {
-        $provide.service("localization", () => undefined);
+        $provide.service("localization", () => ({
+            get: (name: string, defaultValue?: string) => { return; }
+        }));
         $provide.service("artifactManager", () => ({
             selection: {
                 getArtifact: () => ({projectId: 1})
@@ -25,11 +27,11 @@ describe("BpArtifactPicker", () => {
             getProject: (id: number) => ({model: {id: id, name: "default"}, group: true})
         }));
         $provide.service("projectService", () => ({
-            abort: () => { return; }
+            abort: () => undefined
         }));
         $provide.service("statefulArtifactFactory", () => undefined);
         $provide.service("metadataService", () => ({
-            get: (projectId: number) => { return; }
+            get: (projectId: number) => undefined
         }));
     }));
 
@@ -58,11 +60,10 @@ describe("BpArtifactPicker", () => {
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
     }));
 
-    it("Defaults values are applied", inject((
-        $compile: ng.ICompileService,
-        $rootScope: ng.IRootScopeService,
-        $q: ng.IQService,
-        metadataService: IMetaDataService) => {
+    it("Defaults values are applied", inject(($compile: ng.ICompileService,
+                                              $rootScope: ng.IRootScopeService,
+                                              $q: ng.IQService,
+                                              metadataService: IMetaDataService) => {
         // Arrange
         spyOn(metadataService, "get").and.callFake(() => {
             const deferred = $q.defer();
@@ -87,12 +88,14 @@ describe("BpArtifactPickerController", () => {
     let $scope: ng.IScope;
     let projectService: IProjectService;
     let metadataService: IMetaDataService;
+    let localization: ILocalizationService;
     let controller: BpArtifactPickerController;
     const project = {model: {id: 1, name: "default", hasChildren: true}};
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         $scope = $rootScope.$new();
-        const localization = {} as ILocalizationService;
+        localization = {get: jasmine.createSpyObj("localization", ["get"])} as ILocalizationService;
+        spyOn(localization, "get").and.returnValue("All types");
         const artifactManager = {selection: jasmine.createSpyObj("selectionManager", ["getArtifact"])} as IArtifactManager;
         (artifactManager.selection.getArtifact as jasmine.Spy).and.returnValue({projectId: 1});
         const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;

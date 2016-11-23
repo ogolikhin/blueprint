@@ -1,10 +1,17 @@
 import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
-import {ProcessShapeModel, UserTaskShapeModel} from "../../../../../models/process-models";
-import {SystemTaskShapeModel, IHashMapOfPropertyValues} from "../../../../../models/process-models";
-import {IArtifactReference, IArtifactReferenceLink} from "../../../../../models/process-models";
-import {IPropertyValueInformation, IProcessShape} from "../../../../../models/process-models";
-import {ISystemTaskShape, IUserTaskShape} from "../../../../../models/process-models";
+import {
+    ProcessShapeModel,
+    UserTaskShapeModel,
+    SystemTaskShapeModel,
+    IHashMapOfPropertyValues,
+    IArtifactReference,
+    IArtifactReferenceLink,
+    IPropertyValueInformation,
+    IProcessShape,
+    ISystemTaskShape,
+    IUserTaskShape
+} from "../../../../../models/process-models";
 import {IdGenerator} from "./id-generator";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
@@ -51,7 +58,7 @@ export class ShapesFactory {
     public readonly NEW_USER_DECISION_LABEL: string;
     public readonly NEW_SYSTEM_DECISION_LABEL: string;
     public readonly NEW_MERGE_NODE_NAME: string;
-    
+
     public ClientType: IPropertyNameConstantsInformation = {key: "clientType", name: "ClientType"};
     public X: IPropertyNameConstantsInformation = {key: "x", name: "X"};
     public Y: IPropertyNameConstantsInformation = {key: "y", name: "Y"};
@@ -102,7 +109,7 @@ export class ShapesFactory {
             };
             if (definedSconfig) {
                 this.NEW_USER_TASK_PERSONAREFERENCE.name = (<any>this.$rootScope).config.labels["ST_New_User_Task_Persona"]; //"User";
-            } 
+            }
         }
 
         if (this.NEW_SYSTEM_TASK_LABEL == null) {
@@ -127,7 +134,7 @@ export class ShapesFactory {
 
             if (definedSconfig) {
                 this.NEW_SYSTEM_TASK_PERSONAREFERENCE.name = (<any>this.$rootScope).config.labels["ST_New_System_Task_Persona"]; //"User";
-            } 
+            }
         }
 
         if (this.NEW_USER_DECISION_LABEL == null) {
@@ -187,7 +194,7 @@ export class ShapesFactory {
         const tempUserTaskName = this.NEW_USER_TASK_LABEL + " " + nameCounter;
 
         let defaultUserPersonaReference = this.NEW_USER_TASK_PERSONAREFERENCE;
-        
+
         if (!!this.settings.userTaskPersona) {
             defaultUserPersonaReference = this.settings.userTaskPersona;
         }
@@ -215,7 +222,7 @@ export class ShapesFactory {
         }
 
         const shapeModel = new SystemTaskShapeModel(
-            id, tempSystemTaskName, projectId, "PROS", parentId,  ItemTypePredefined.PROShape, null, defaultSystemPersonaReference
+            id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, defaultSystemPersonaReference
         );
        
         shapeModel.propertyValues = this.createPropertyValuesForSystemTaskShape([], -1, null, "", "", x, y, -1, -1, "", null);
@@ -263,7 +270,7 @@ export class ShapesFactory {
                                                 objective: string = "",
                                                 include: IArtifactReference = null): IHashMapOfPropertyValues {
         const propertyValues: IHashMapOfPropertyValues = {};
-        
+
         propertyValues[this.Label.key] = this.createLabelValue(label);
         propertyValues[this.Description.key] = this.createDescriptionValue(description);
         propertyValues[this.X.key] = this.createXValue(x);
@@ -288,7 +295,7 @@ export class ShapesFactory {
                                                   objective: string = "",
                                                   include: IArtifactReference = null): IHashMapOfPropertyValues {
         const propertyValues: IHashMapOfPropertyValues = {};
-        
+
         propertyValues[this.AssociatedImageUrl.key] = this.createAssociatedImageUrlValue();
         propertyValues[this.ImageId.key] = this.createImageIdValue();
         propertyValues[this.Label.key] = this.createLabelValue(label);

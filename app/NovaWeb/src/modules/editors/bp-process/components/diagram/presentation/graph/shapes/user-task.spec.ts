@@ -1,26 +1,26 @@
 import * as angular from "angular";
-import { UserTask, SystemTask, SystemDecision } from "./";
-import { ShapesFactory, ShapesFactoryMock } from "./shapes-factory";
-import { ProcessGraph } from "../process-graph";
-import { ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference } from "../../../../../models/process-models";
-import { ProcessShapeType, ProcessType } from "../../../../../models/enums";
-import { createSystemDecisionForAddBranchTestModel } from "../../../../../models/test-model-factory";
-import { ProcessViewModel, IProcessViewModel } from "../../../viewmodel/process-viewmodel";
-import { ShapeModelMock, ArtifactReferenceLinkMock } from "./shape-model.mock";
-import { DiagramNodeElement } from "./diagram-element";
-import { NodeType, ElementType, IUserTaskShape } from "../models/";
-import { ISystemTask, IUserTask, IDiagramNode } from "../models/";
-import { MessageServiceMock } from "../../../../../../../core/messages/message.mock";
-import { IMessageService } from "../../../../../../../core/messages/message.svc";
-import { ICommunicationManager, CommunicationManager } from "../../../../../../bp-process";
-import { LocalizationServiceMock } from "../../../../../../../core/localization/localization.mock";
-import { DialogService } from "../../../../../../../shared/widgets/bp-dialog";
-import { ModalServiceMock } from "../../../../../../../shell/login/mocks.spec";
-import { StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import { StatefulProcessSubArtifact } from "../../../../../process-subartifact";
-import { StatefulProcessArtifact } from "../../../../../process-artifact";
-import { Models } from "../../../../../../../main/models/";
-import { ArtifactServiceMock } from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {UserTask, SystemTask, SystemDecision} from "./";
+import {ShapesFactory, ShapesFactoryMock} from "./shapes-factory";
+import {ProcessGraph} from "../process-graph";
+import {ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference} from "../../../../../models/process-models";
+import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
+import {createSystemDecisionForAddBranchTestModel} from "../../../../../models/test-model-factory";
+import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
+import {DiagramNodeElement} from "./diagram-element";
+import {NodeType, ElementType, IUserTaskShape} from "../models/";
+import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
+import {MessageServiceMock} from "../../../../../../../core/messages/message.mock";
+import {IMessageService} from "../../../../../../../core/messages/message.svc";
+import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
+import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
+import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {StatefulProcessArtifact} from "../../../../../process-artifact";
+import {Models} from "../../../../../../../main/models/";
+import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ItemTypePredefined} from "../../../../../../../main/models/enums";
 
 describe("UserTask test", () => {
@@ -78,7 +78,7 @@ describe("UserTask test", () => {
         };
 
         shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
-        localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+        localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
 
         const processModel = new ProcessModel();
         viewModel = new ProcessViewModel(processModel, communicationManager);
@@ -245,9 +245,12 @@ describe("UserTask test", () => {
 
         it("Test latest personaReference value reuse", () => {
             // Arrange
+            const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
             const testUserTask = ShapeModelMock.instance().UserTaskMock();
 
             const node = new UserTask(testUserTask, rootScope, null, shapesFactory);
+            node.render(graph, 80, 80, false);
+            node.renderLabels();
             node.personaReference = {
                 id: 1,
                 projectId: 1,
@@ -423,6 +426,8 @@ describe("UserTask test", () => {
             node = new UserTask(<IUserTaskShape>statefulArtifact.shapes[0], rootScope, null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
+            viewModel.userTaskPersonaReferenceList = [];
+            viewModel.systemTaskPersonaReferenceList = [];
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });

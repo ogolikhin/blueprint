@@ -4,7 +4,6 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
@@ -14,7 +13,6 @@ using Utilities.Factories;
 using System.Data.SqlClient;
 using Common;
 using System.Data;
-using System.Linq;
 using System.Collections.Generic;
 using TestCommon;
 
@@ -390,7 +388,7 @@ namespace StorytellerTests
 
             // Add include to default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            defaultUserTask.AddAssociatedArtifact(includedProcessArtifact);
+            defaultUserTask.AddAssociatedArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, includedProcessArtifact.Id));
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
@@ -408,7 +406,7 @@ namespace StorytellerTests
 
             // Add include to default user task
             var defaultSystemTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultSystemTaskName);
-            defaultSystemTask.AddAssociatedArtifact(includedProcessArtifact);
+            defaultSystemTask.AddAssociatedArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, includedProcessArtifact.Id));
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
@@ -426,7 +424,7 @@ namespace StorytellerTests
 
             // Add include to default user task
             var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            defaultUserTask.AddAssociatedArtifact(includedProcessArtifact);
+            defaultUserTask.AddAssociatedArtifact(Helper.ArtifactStore.GetArtifactDetails(_user, includedProcessArtifact.Id));
 
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);

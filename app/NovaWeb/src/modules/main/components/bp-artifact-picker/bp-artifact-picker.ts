@@ -41,7 +41,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
 
 export interface IArtifactPickerAPI {
     deselectAll(): void;
-    updateSelectableNodes(isItemSelectable: (item) => boolean): void;
+    updateSelectableNodes(): void;
 }
 
 export interface IArtifactPickerController {
@@ -151,8 +151,16 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
                 );
             }
+            artifactTypes.sort(function (a, b) {
+                if (a.name.toUpperCase() > b.name.toUpperCase()) {
+                    return 1;
+                }
+                if (a.name.toUpperCase() < b.name.toUpperCase()) {
+                    return -1;
+                }
+                return 0;
+            });
             this.itemTypes = this.itemTypes.concat(artifactTypes);
-            let a = 3;
         });
     }
 
@@ -171,8 +179,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         deselectAll: () => {
             this.treeApi.deselectAll();
         },
-        updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {
-            this.treeApi.updateSelectableNodes(isItemSelectable);
+        updateSelectableNodes: (): void => {
+            this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+            (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
         }
     };
 
@@ -202,7 +211,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     private resetItemTypes(): void {
         this.itemTypes =
                 [{
-                    name : "",
+                    name : this.localization.get("Filter_Artifact_All_Types", "All types"),
                     id : null,
                     prefix : "",
                     predefinedType : null,

@@ -263,6 +263,10 @@ $modal-open-project-height: 450px;
             width: $artifact-picker-data-width;
         }
 
+        .artifact-picker-insert-selection {
+            font-size: $font-size-normal;
+        }
+
         .grid-wrapper {
             position: relative;
         }

@@ -1,4 +1,5 @@
-﻿/* tslint:disable:max-line-length */
+﻿/* tslint:disable max-file-line-count */
+/* tslint:disable:max-line-length */
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";

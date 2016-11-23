@@ -32,6 +32,11 @@ namespace CustomAttributes
         public const string FileStore = "FileStore";
 
         /// <summary>
+        /// This test uses "Golden" pre-created data, so it won't pass on machines that don't contain that pre-created data.
+        /// </summary>
+        public const string GoldenData = "GoldenData";
+
+        /// <summary>
         /// This test Injects errors into the AccessControlDouble and therefore cannot be run concurrently with other tests.
         /// </summary>
         public const string InjectsErrorsIntoAccessControl = "InjectsErrorsIntoAccessControl";

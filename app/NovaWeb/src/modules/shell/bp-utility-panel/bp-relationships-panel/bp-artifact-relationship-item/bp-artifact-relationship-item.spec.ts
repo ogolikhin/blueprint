@@ -58,6 +58,30 @@ describe("BPArtifactRelationshipItem", () => {
         expect(directiveTest.element.find(".details").length).toBeGreaterThan(0);
     });
 
+    it("action panel should be hidden if item is not manual trace or user has no access to it", () => {
+        //Assert
+        expect(directiveTest.element.find(".icons").length).toBe(0);
+    });
+
+    it("action panel should be visible if item is manual trace and user has access to it", () => {
+        inject(($rootScope: ng.IRootScopeService) => {
+            //Arrange
+
+            let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
+            let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
+                new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
+
+            let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
+
+            vm2.showActionsPanel = true;
+
+            $rootScope.$digest();
+
+            //Assert
+            expect(directiveTest2.element.find(".icons").length).toBe(1);
+        });
+    });
+
     it("expanded view",
         inject(($httpBackend: ng.IHttpBackendService) => {
 

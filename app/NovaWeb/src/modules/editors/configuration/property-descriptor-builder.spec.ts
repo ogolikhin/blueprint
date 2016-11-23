@@ -142,19 +142,19 @@ describe("property-descriptor-builder->", () => {
             $rootScope.$digest();
             // assert
             expect(propertyDescriptors.length).toEqual(7);
-            const name = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Name }) as IPropertyDescriptor;
+            const name = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Name}) as IPropertyDescriptor;
             expect(name.lookup).toEqual(PropertyLookupEnum.System);
-            const typeId = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.ItemTypeId }) as IPropertyDescriptor;
+            const typeId = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.ItemTypeId}) as IPropertyDescriptor;
             expect(typeId.lookup).toEqual(PropertyLookupEnum.System);
-            const createdBy = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.CreatedBy }) as IPropertyDescriptor;
+            const createdBy = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.CreatedBy}) as IPropertyDescriptor;
             expect(createdBy.lookup).toEqual(PropertyLookupEnum.System);
-            const createdOn = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.CreatedOn }) as IPropertyDescriptor;
+            const createdOn = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.CreatedOn}) as IPropertyDescriptor;
             expect(createdOn.lookup).toEqual(PropertyLookupEnum.System);
-            const lastEditedBy = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.LastEditedBy }) as IPropertyDescriptor;
+            const lastEditedBy = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.LastEditedBy}) as IPropertyDescriptor;
             expect(lastEditedBy.lookup).toEqual(PropertyLookupEnum.System);
-            const lastEditedOn = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.LastEditedOn }) as IPropertyDescriptor;
+            const lastEditedOn = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.LastEditedOn}) as IPropertyDescriptor;
             expect(lastEditedOn.lookup).toEqual(PropertyLookupEnum.System);
-            const description = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Description }) as IPropertyDescriptor;
+            const description = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Description}) as IPropertyDescriptor;
             expect(description.lookup).toEqual(PropertyLookupEnum.System);
         }));
 
@@ -171,9 +171,9 @@ describe("property-descriptor-builder->", () => {
             $rootScope.$digest();
             //assert
             expect(propertyDescriptors.length).toEqual(9);
-            const image = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Image }) as IPropertyDescriptor;
+            const image = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Image}) as IPropertyDescriptor;
             expect(image.lookup).toEqual(PropertyLookupEnum.Special);
-            const actorInheritance = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.ActorInheritance }) as IPropertyDescriptor;
+            const actorInheritance = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.ActorInheritance}) as IPropertyDescriptor;
             expect(actorInheritance.lookup).toEqual(PropertyLookupEnum.Special);
         }));
 
@@ -190,7 +190,7 @@ describe("property-descriptor-builder->", () => {
             $rootScope.$digest();
             //assert
             expect(propertyDescriptors.length).toEqual(8);
-            const documentFile = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.DocumentFile }) as IPropertyDescriptor;
+            const documentFile = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.DocumentFile}) as IPropertyDescriptor;
             expect(documentFile.lookup).toEqual(PropertyLookupEnum.Special);
         }));
 
@@ -210,7 +210,7 @@ describe("property-descriptor-builder->", () => {
             });
             $rootScope.$digest();
             //assert
-            const customProperty = _.find(propertyDescriptors, { modelPropertyName: 1 }) as IPropertyDescriptor;
+            const customProperty = _.find(propertyDescriptors, {modelPropertyName: 1}) as IPropertyDescriptor;
             expect(customProperty.lookup).toEqual(PropertyLookupEnum.Custom);
         }));
 
@@ -236,29 +236,29 @@ describe("property-descriptor-builder->", () => {
 
         function verifyShapeProperties(propertyDescriptors: IPropertyDescriptor[]) {
             expect(propertyDescriptors.length).toEqual(7);
-            const name = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Name }) as IPropertyDescriptor;
+            const name = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Name}) as IPropertyDescriptor;
             expect(name.lookup).toEqual(PropertyLookupEnum.System);
-            const description = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Description }) as IPropertyDescriptor;
+            const description = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Description}) as IPropertyDescriptor;
             expect(description.lookup).toEqual(PropertyLookupEnum.System);
-            const label = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Label }) as IPropertyDescriptor;
+            const label = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Label}) as IPropertyDescriptor;
             expect(label.lookup).toEqual(PropertyLookupEnum.Special);
-            const x = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.X }) as IPropertyDescriptor;
+            const x = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.X}) as IPropertyDescriptor;
             expect(x.lookup).toEqual(PropertyLookupEnum.Special);
-            const y = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Y }) as IPropertyDescriptor;
+            const y = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Y}) as IPropertyDescriptor;
             expect(y.lookup).toEqual(PropertyLookupEnum.Special);
-            const width = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Width }) as IPropertyDescriptor;
+            const width = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Width}) as IPropertyDescriptor;
             expect(width.lookup).toEqual(PropertyLookupEnum.Special);
-            const heigth = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Height }) as IPropertyDescriptor;
+            const heigth = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Height}) as IPropertyDescriptor;
             expect(heigth.lookup).toEqual(PropertyLookupEnum.Special);
         }
 
         function verifyConnectorProperties(propertyDescriptors: IPropertyDescriptor[]) {
             expect(propertyDescriptors.length).toEqual(3);
-            const name = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Name }) as IPropertyDescriptor;
+            const name = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Name}) as IPropertyDescriptor;
             expect(name.lookup).toEqual(PropertyLookupEnum.System);
-            const description = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Description }) as IPropertyDescriptor;
+            const description = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Description}) as IPropertyDescriptor;
             expect(description.lookup).toEqual(PropertyLookupEnum.System);
-            const label = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Label }) as IPropertyDescriptor;
+            const label = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Label}) as IPropertyDescriptor;
             expect(label.lookup).toEqual(PropertyLookupEnum.Special);
         }
 
@@ -275,11 +275,11 @@ describe("property-descriptor-builder->", () => {
             $rootScope.$digest();
             // assert
             expect(propertyDescriptors.length).toEqual(3);
-            const name = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Name }) as IPropertyDescriptor;
+            const name = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Name}) as IPropertyDescriptor;
             expect(name.lookup).toEqual(PropertyLookupEnum.System);
-            const description = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.Description }) as IPropertyDescriptor;
+            const description = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.Description}) as IPropertyDescriptor;
             expect(description.lookup).toEqual(PropertyLookupEnum.System);
-            const stepOf = _.find(propertyDescriptors, { propertyTypePredefined: PropertyTypePredefined.StepOf }) as IPropertyDescriptor;
+            const stepOf = _.find(propertyDescriptors, {propertyTypePredefined: PropertyTypePredefined.StepOf}) as IPropertyDescriptor;
             expect(stepOf.lookup).toEqual(PropertyLookupEnum.Special);
         }));
 
@@ -510,7 +510,7 @@ describe("property-descriptor-builder->", () => {
             });
             $rootScope.$digest();
             //assert
-            const customProperty = _.find(propertyDescriptors, { modelPropertyName: 1 }) as IPropertyDescriptor;
+            const customProperty = _.find(propertyDescriptors, {modelPropertyName: 1}) as IPropertyDescriptor;
             expect(customProperty.lookup).toEqual(PropertyLookupEnum.Custom);
         }));
 

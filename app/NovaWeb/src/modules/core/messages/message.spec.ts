@@ -15,7 +15,7 @@ describe("message directive", () => {
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $templateCache: ng.ITemplateCacheService) => {
         $rootScope["config"] = {
             "settings": {
-                "StorytellerMessageTimeout": `{ "Warning": 0, "Info": 3000, "Error": 0 }`
+                "StorytellerMessageTimeout": `{"Warning": 0, "Info": 3000, "Error": 0}`
             }
         };
     }));
@@ -27,8 +27,11 @@ describe("message directive", () => {
         scope.$digest();
         // Act
 
+        const messageContainer = element[0].querySelector(".messages__message-container") as HTMLElement;
+
         // Assert
-        expect($(element.children(".messages__message-container")[0]).attr("class")).toContain("error");
+        expect(messageContainer).toBeDefined();
+        expect(messageContainer.classList.contains("messages__message-container--error")).toBeTruthy();
 
     })));
 

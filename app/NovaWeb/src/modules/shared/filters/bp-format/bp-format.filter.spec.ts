@@ -69,12 +69,12 @@ describe("BpFormat.filter", () => {
 
     it("only correctly formatted placeholders are replaced", () => {
         // Arrange
-        const input = "{test} }{ {0{} {}1}";
+        const input = "{test}}{{0{} {}1}";
 
         // Act
         const result = BpFormat.filter(input, "0", "1");
 
         // Assert
-        expect(result).toEqual("{test} }{ {0{} {}1}");
+        expect(result).toEqual("{test}}{{0{} {}1}");
     });
 });

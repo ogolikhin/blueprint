@@ -473,7 +473,7 @@ describe("ArtifactState", () => {
     describe("invalid", () => {
         it("doesn't notify if value not changed", (done: DoneFn) => {
             // arrange
-            const newState = { invalid: true };
+            const newState = {invalid: true};
             artifact.artifactState.setState(newState, false);
             const subscriber = artifact.artifactState.onStateChange.subscribeOnNext((state: IArtifactState) => {
                 if (state) {
@@ -491,7 +491,7 @@ describe("ArtifactState", () => {
 
         it("sets new value and notifies if value changed", (done: DoneFn) => {
             // arrange
-            const newState = { invalid: false };
+            const newState = {invalid: false};
             artifact.artifactState.setState(newState, false);
             const subscriber = artifact.artifactState.onStateChange.subscribeOnNext((state: IArtifactState) => {
                 if (state) {
@@ -510,7 +510,7 @@ describe("ArtifactState", () => {
     describe("misplaced", () => {
         it("doesn't notify if value not changed", (done: DoneFn) => {
             // arrange
-            const newState = { misplaced: true };
+            const newState = {misplaced: true};
             artifact.artifactState.setState(newState, false);
             const subscriber = artifact.artifactState.onStateChange.subscribeOnNext((state: IArtifactState) => {
                 if (state) {
@@ -528,7 +528,7 @@ describe("ArtifactState", () => {
 
         it("sets new value and notifies if value changed", (done: DoneFn) => {
             // arrange
-            const newState = { misplaced: false };
+            const newState = {misplaced: false};
             artifact.artifactState.setState(newState, false);
             const subscriber = artifact.artifactState.onStateChange.subscribeOnNext((state: IArtifactState) => {
                 if (state) {

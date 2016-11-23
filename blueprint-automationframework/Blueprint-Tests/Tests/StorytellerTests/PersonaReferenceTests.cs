@@ -46,6 +46,7 @@ namespace StorytellerTests
 
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(195416)]
         [Description("Add a persona reference to a Process artifact task. Verify the persona reference was added.")]
         public void PersonaReference_AddReferenceToTask_VerifyPersonaAdded(string taskName)
         {
@@ -61,6 +62,7 @@ namespace StorytellerTests
 
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(195417)]
         [Description("Delete a persona reference from a Process artifact task. Verify the persona reference was deleted.")]
         public void PersonaReference_DeleteReferenceFromTask_VerifyPersonaDeleted(string taskName)
         {
@@ -81,6 +83,7 @@ namespace StorytellerTests
 
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(195418)]
         [Description("Change a persona reference from a Process artifact task. Verify the persona reference was changed.")]
         public void PersonaReference_ChangeReferenceInTask_VerifyPersonaChange(string taskName)
         {
@@ -102,6 +105,7 @@ namespace StorytellerTests
 
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(195419)]
         [Description("Change the name of a persona reference by changing the artifact name. Verify the persona reference name was changed.")]
         public void PersonaReference_ChangeReferenceActorNameInTask_VerifyPersonaNameChange(string taskName)
         {

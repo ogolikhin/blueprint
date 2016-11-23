@@ -197,7 +197,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                     });
             }
         } else {
-            this.artifactManager.selection.setArtifact(this.artifact);
+            this.artifactManager.selection.clearSubArtifact();
         }
     }
 }

@@ -90,6 +90,10 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         return this.manualTraces2.length && this.categoryFilter === 0;
     }
 
+    public get showOtherTitle() {
+       return this.otherTraces.length && this.categoryFilter === 0;
+    }
+
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact,
                                  timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.hasFlagged = false;

@@ -87,7 +87,7 @@
     <div ng-if="!$ctrl.manualTraces2.length && $ctrl.categoryFilter ===1"
          class="empty-state">{{::$ctrl.localization.get('App_UP_Relationships_No_Traces') }}
     </div>
-    <h6 ng-if="$ctrl.otherTraces.length && $ctrl.categoryFilter === 0" class="util-panel-heading util-heading-other">
+    <h6 ng-if="$ctrl.showOtherTitle" class="util-panel-heading util-heading-other">
         {{::$ctrl.localization.get('App_UP_Relationships_Association') }}</h6>
 
     <h6 ng-if="$ctrl.associations.length && $ctrl.categoryFilter !== 1">

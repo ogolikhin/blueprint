@@ -65,7 +65,7 @@ export class QuickSearchModalController implements IQuickSearchModalController {
             return null;
         }
         this.resetData();
-        this.isLoading = false;
+        this.isLoading = true;
         this.quickSearchService.metadata(this.searchTerm).then((result) => {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {

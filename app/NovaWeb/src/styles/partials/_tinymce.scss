@@ -156,7 +156,9 @@ body {
 
 .mce-content-body *[contentEditable=false] *[contentEditable=true]:focus,
 .mce-content-body *[contentEditable=false] *[contentEditable=true]:hover,
+.mce-content-body *[contentEditable=false][data-mce-selected] *,
 .mce-content-body *[contentEditable=false][data-mce-selected] {
-    background: $gray-lightest;
+    background: $brand-secondary !important;
+    color: $white !important;
     outline: none !important;
 }

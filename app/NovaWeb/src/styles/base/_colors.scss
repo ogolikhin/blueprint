@@ -1,6 +1,56 @@
-$gray-darker: #333;
+// Colors and Typography
+//
+// This chapter outlines the site default colors as well as they typography system
+//
+// Styleguide 1.0
+
+// Main Colors
+//
+// site theme colors as as follows
+//
+// $gray-darkest					    - Color
+// $gray-dark							- Color
+// $gray-light							- Color
+// $gray-lighter						- Color
+// $gray-lightest						- Color
+// $blue-light							- Color
+// $blue-lightest						- Color
+// $yellow-pale							- Color
+// $white								- Color
+// $black								- Color
+// $brand-secondary						- Color
+// $brand-success						- Color
+// $brand-error							- Color
+// $brand-warning						- Color
+// $text-color							- Color
+// $text-highlight-background-color		- Color
+// $text-highlight-color				- Color
+// $messages-bg-error					- Color
+// $body-bg-color						- Color
+// $modal-bg-color						- Color
+// $tree-hover-background				- Color
+// $tree-focus-background				- Color
+// $tree-focus-border					- Color
+//
+// markup:
+// <div style="background: {$modifiers};" class="styleguide-color">{$modifiers}</div>
+//
+// Styleguide 1.1.0
+
+// Calculated Colors
+//
+// .gray                                - calculated color
+// .brand-primary                       - calculated color
+// .messages-bg-info                    - calculated color
+// .messages-bg-warning                 - calculated color
+//
+// markup:
+// <div class="styleguide-color {$modifiers}"></div>
+//
+// Styleguide 1.1.1
+
+$gray-darkest: #333333;
 $gray-dark: #616161;
-$gray: #999;
 $gray-light: #aaa;
 $gray-lighter: #ccc;
 $gray-lightest: #e8e8e8;
@@ -10,19 +60,16 @@ $yellow-pale: #fbf8e7;
 $white: #fff;
 $black: #000;
 
-$brand-primary: #1c285c;
 $brand-secondary: #009cdc;
 $brand-success: #36a2b0;
 $brand-error: #d95f5e;
 $brand-warning: #e4b169;
 
-$text-color: $gray-darker;
+$text-color: $gray-darkest;
 $text-highlight-background-color: #ffffb3;
 $text-highlight-color: $black;
 
 $messages-bg-error: $brand-error;
-$messages-bg-info: $brand-success;
-$messages-bg-warning: $brand-warning;
 
 $body-bg-color: $blue-lightest;
 $body-color: $text-color;
@@ -34,3 +81,21 @@ $link-hover-color: lighten($brand-secondary, 10%);
 $tree-hover-background: #e5f3fb;
 $tree-focus-background: #e5f3fb;
 $tree-focus-border: #70c0e7;
+
+$gray: #999;
+$brand-primary: #1c285c;
+$messages-bg-info: $brand-success;
+$messages-bg-warning: $brand-warning;
+
+.gray {
+    background-color: red;
+}
+
+.styleguide-color {
+    &.gray {
+        background-color: $gray;
+    }
+    &.brand-primary {
+        background-color: $brand-primary;
+    }
+}

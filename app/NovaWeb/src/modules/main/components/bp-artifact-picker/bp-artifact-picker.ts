@@ -151,8 +151,16 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
                 );
             }
+            artifactTypes.sort(function (a, b) {
+                if (a.name.toUpperCase() > b.name.toUpperCase()) {
+                    return 1;
+                }
+                if (a.name.toUpperCase() < b.name.toUpperCase()) {
+                    return -1;
+                }
+                return 0;
+            });
             this.itemTypes = this.itemTypes.concat(artifactTypes);
-            let a = 3;
         });
     }
 

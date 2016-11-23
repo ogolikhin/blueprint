@@ -13,7 +13,6 @@ export interface IQuickSearchModalController {
     clearSearch();
     showHide: boolean;
     hasError(): boolean;
-    isServiceAvailable: boolean;
     closeModal();
 }
 
@@ -24,8 +23,6 @@ export class QuickSearchModalController implements IQuickSearchModalController {
 
     results: ISearchItem[];
     metadata: ISearchMetadata;
-
-    isServiceAvailable: boolean;
 
     maxVisiblePageCount: number = 10;
     
@@ -51,7 +48,7 @@ export class QuickSearchModalController implements IQuickSearchModalController {
                 private $q: ng.IQService,
                 private $document: Document) {
         this.searchTerm = _.clone(this.quickSearchService.searchTerm);
-        this.showLoadingIcon();
+        this.isLoading = true;
 
     }
 
@@ -68,14 +65,15 @@ export class QuickSearchModalController implements IQuickSearchModalController {
             return null;
         }
         this.resetData();
-        this.showLoadingIcon();
+        this.isLoading = false;
         this.quickSearchService.metadata(this.searchTerm).then((result) => {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
                 this.search(this.searchTerm, source);
+            } else {
+                this.isLoading = false;
             } 
-        }).finally(() => {
-            this.hideLoadingIcon();           
+        }).finally(() => {                       
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
@@ -91,7 +89,7 @@ export class QuickSearchModalController implements IQuickSearchModalController {
         
         source = !source ? "Modal" : source;
         
-        this.showLoadingIcon();
+        this.isLoading = true;
         this.results = [];
 
         this.quickSearchService.searchTerm = _.clone(this.searchTerm);
@@ -101,7 +99,7 @@ export class QuickSearchModalController implements IQuickSearchModalController {
             //if results are greater than one
             this.results = results.items;
         }).finally(() => {
-            this.hideLoadingIcon();
+            this.isLoading = false;
         });
     }
 
@@ -112,7 +110,7 @@ export class QuickSearchModalController implements IQuickSearchModalController {
     }
 
     private resetData() {
-        this.hideLoadingIcon();  
+        this.isLoading = false;  
         if (this.form) {
             this.form.$setPristine();
         }
@@ -173,17 +171,9 @@ export class QuickSearchModalController implements IQuickSearchModalController {
         this.page = 1;
         if (result.totalCount === 0) {
             this.results = [];
-            this.hideLoadingIcon();
+            this.isLoading = false;
         }
-    }
-
-    private showLoadingIcon() {
-        this.isLoading = true;
-    }
-
-    private hideLoadingIcon() {
-        this.isLoading = false;
-    }
+    }    
     
     get getResultsFoundText() {
         return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());

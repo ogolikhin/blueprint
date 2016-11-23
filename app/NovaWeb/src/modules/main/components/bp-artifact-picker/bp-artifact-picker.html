@@ -14,7 +14,7 @@
                 <li class="dropdown-menu__filter-item" ng-class="{first: $first}"
                     ng-repeat="type in $ctrl.itemTypes track by type.id">
                         <button  ng-click="$ctrl.searchByFilter(type);"
-                                 class="dropdown-menu__filter-item-btn">{{::type.name}}</button>
+                                 class="dropdown-menu__filter-item-btn"><div class="dropdown-menu__filter-item-text">{{::type.name}}</div></button>
                 </li>
             </ul>
         </div>

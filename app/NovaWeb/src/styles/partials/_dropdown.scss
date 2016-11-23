@@ -50,9 +50,14 @@
     text-overflow: ellipsis;
     padding-top: $padding-small-vertical;
     padding-bottom: $padding-small-vertical;
+    padding-left: $padding-large-horizontal;
 
     &:hover {
         background: $brand-secondary;
         color: $white;
     }
+}
+
+.dropdown-menu__filter-item-text{
+    @include text-ellipsis-any-width();
 }

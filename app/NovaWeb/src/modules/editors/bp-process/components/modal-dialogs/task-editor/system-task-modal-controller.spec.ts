@@ -21,7 +21,7 @@ import {ILocalizationService} from "../../../../../core/localization/localizatio
 require("script!mxClient");
 import {ProcessViewModel, IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
 import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
-import { ProcessGraph } from "../../diagram/presentation/graph/process-graph";
+import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -265,7 +265,7 @@ describe("SystemTaskModalController", () => {
                 document.body.appendChild(wrapper);
 
 
-                localScope = { graphContainer: container, graphWrapper: wrapper, isSpa: false };
+                localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
 
                 viewModel = new ProcessViewModel(processModel, communicationManager);
 

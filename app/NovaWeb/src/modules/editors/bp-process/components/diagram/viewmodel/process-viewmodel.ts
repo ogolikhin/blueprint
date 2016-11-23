@@ -10,7 +10,12 @@ import {ProcessEvents} from "../process-diagram-communication";
 import {MessageType, Message} from "../../../../../core/messages/message";
 import {IMessageService} from "../../../../../core/messages/message.svc";
 
-export interface IProcessViewModel extends IProcessGraphModel {
+export interface IPersonaReferenceContainer {
+    userTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
+    systemTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
+}
+
+export interface IProcessViewModel extends IProcessGraphModel, IPersonaReferenceContainer {
     description: string;
     processType: ProcessEnums.ProcessType;
     isHistorical: boolean;
@@ -46,6 +51,7 @@ export class ProcessViewModel implements IProcessViewModel {
     private _shapeLimit: number = this.DEFAULT_SHAPE_LIMIT;
     private _justCreatedShapeIds: number[] = [];
     private artifactUpdateHandler: string;
+    private personaReferenceUpdatedHandler: string;
 
     constructor(private process,
                 public communicationManager: ICommunicationManager,
@@ -67,6 +73,8 @@ export class ProcessViewModel implements IProcessViewModel {
         if (communicationManager) {
             this.artifactUpdateHandler = communicationManager.processDiagramCommunication
                 .register(ProcessEvents.ArtifactUpdate, this.artifactsOnUpdate);
+            this.personaReferenceUpdatedHandler = communicationManager.processDiagramCommunication
+                .register(ProcessEvents.PersonaReferenceUpdated, this.personaReferenceOnUpdate);
         }
     }
 
@@ -74,6 +82,29 @@ export class ProcessViewModel implements IProcessViewModel {
         const statefulArtifact = this.getStatefulArtifact();
         statefulArtifact.processOnUpdate();
     }
+
+    private personaReferenceOnUpdate = (eventPayload: any) => {
+        if (!eventPayload || !eventPayload.personaReference) {
+            return;
+        }
+        if (eventPayload.isUserTask) {
+            if (this.userTaskPersonaReferenceList.filter(o => o.id
+                === eventPayload.personaReference.id).length === 0) {
+                this.userTaskPersonaReferenceList.push(
+                    <ProcessModels.IArtifactReference>eventPayload.personaReference
+                );
+
+            }
+        }
+        if (eventPayload.isSystemTask) {
+            if (this.systemTaskPersonaReferenceList.filter(o => o.id
+                === eventPayload.personaReference.id).length === 0) {
+                this.systemTaskPersonaReferenceList.push(
+                    <ProcessModels.IArtifactReference>eventPayload.personaReference
+                );
+            }
+        }   
+    }      
 
     public get isReadonly(): boolean {
         const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
@@ -245,6 +276,22 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set links(newValue: ProcessModels.IProcessLinkModel[]) {
         this.processGraphModel.links = newValue;
+    }
+
+    public get userTaskPersonaReferenceList(): ProcessModels.IArtifactReference[] {
+        return <ProcessModels.IArtifactReference[]>this.process.userTaskPersonaReferenceList;
+    }
+
+    public set userTaskPersonaReferenceList(newValue: ProcessModels.IArtifactReference[]) {
+        this.process.userTaskPersonaReferenceList = newValue;
+    }
+
+    public get systemTaskPersonaReferenceList(): ProcessModels.IArtifactReference[] {
+        return <ProcessModels.IArtifactReference[]>this.process.systemTaskPersonaReferenceList;
+    }
+
+    public set systemTaskPersonaReferenceList(newValue: ProcessModels.IArtifactReference[]) {
+        this.process.systemTaskPersonaReferenceList = newValue;
     }
 
     public get propertyValues(): ProcessModels.IHashMapOfPropertyValues {

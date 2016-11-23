@@ -31,7 +31,7 @@ export class PropertyEditor {
                 return this.locale.toNumber($value);
 
             case Models.PrimitiveType.Date:
-                return this.locale.toDate($value);
+                return this.locale.toDate($value, true, this.locale.shortDateFormat);
 
             case Models.PrimitiveType.Choice:
                 if (angular.isArray($value)) {
@@ -214,6 +214,10 @@ export class PropertyEditor {
         return this._model || {};
     }
 
+    public getModelValue(propertyName: string): any {
+        return this.getModel()[propertyName];
+    }
+
     private createPropertyField(context: IPropertyDescriptor,
                                 item: IStatefulItem,
                                 reuseSettings?: Enums.ReuseSettings): AngularFormly.IFieldConfigurationObject {
@@ -257,9 +261,7 @@ export class PropertyEditor {
                         maxDate: context.maxDate,
                         minDate: context.minDate
                     };
-                    field.templateOptions["maxDate"] = this.locale.formatDate(this.locale.toDate(context.maxDate), this.locale.shortDateFormat);
-                    field.templateOptions["minDate"] = this.locale.formatDate(this.locale.toDate(context.minDate), this.locale.shortDateFormat);
-
+             
                     field.defaultValue = context.dateDefaultValue;
                     break;
                 case Models.PrimitiveType.Number:

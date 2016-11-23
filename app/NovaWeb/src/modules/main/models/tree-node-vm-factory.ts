@@ -41,6 +41,7 @@ export class TreeNodeVMFactory {
     constructor(public projectService: IProjectService,
                 public artifactManager: IArtifactManager,
                 public statefulArtifactFactory: IStatefulArtifactFactory,
+                public timeout?: ng.IPromise<void>,
                 public isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
                 public selectableItemTypes?: Models.ItemTypePredefined[],
                 public showSubArtifacts?: boolean) {
@@ -155,7 +156,7 @@ export class StatefulArtifactNodeVM extends HomogeneousTreeNodeVM<IStatefulArtif
     }
 
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
-        return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
+        return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id, this.factory.timeout).then((children: Models.IArtifact[]) => {
             return children.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.factory.statefulArtifactFactory.createStatefulArtifact(it);
                 this.factory.artifactManager.add(statefulArtifact);
@@ -194,11 +195,11 @@ export class InstanceItemNodeVM extends TreeNodeVM<AdminStoreModels.IInstanceIte
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         switch (this.model.type) {
             case AdminStoreModels.InstanceItemType.Folder:
-                return this.factory.projectService.getFolders(this.model.id).then((children: AdminStoreModels.IInstanceItem[]) => {
+                return this.factory.projectService.getFolders(this.model.id, this.factory.timeout).then((children: AdminStoreModels.IInstanceItem[]) => {
                     return children.map(child => this.factory.createInstanceItemNodeVM(child));
                 });
             case AdminStoreModels.InstanceItemType.Project:
-                return this.factory.projectService.getArtifacts(this.model.id).then((children: Models.IArtifact[]) => {
+                return this.factory.projectService.getArtifacts(this.model.id, undefined, this.factory.timeout).then((children: Models.IArtifact[]) => {
                     return TreeNodeVMFactory.processChildArtifacts(children, [this.model.name], [this.model.id])
                         .map(child => this.factory.createArtifactNodeVM(this.model, child));
                 });
@@ -240,7 +241,7 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
     }
 
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
-        return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id).then((children: Models.IArtifact[]) => {
+        return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id, this.factory.timeout).then((children: Models.IArtifact[]) => {
             const result: ITreeNode[] = TreeNodeVMFactory.processChildArtifacts(children, _.concat(this.model.artifactPath, this.model.name),
                 _.concat(this.model.idPath, this.model.id))
                 .map(child => this.factory.createArtifactNodeVM(this.project, child));
@@ -272,7 +273,7 @@ export class SubArtifactContainerNodeVM extends TreeNodeVM<Models.IArtifact> {
     }
 
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
-        return this.factory.projectService.getSubArtifactTree(this.model.id).then((children: Models.ISubArtifactNode[]) => {
+        return this.factory.projectService.getSubArtifactTree(this.model.id, this.factory.timeout).then((children: Models.ISubArtifactNode[]) => {
             return children.map(child => this.factory.createSubArtifactNodeVM(this.project, child));
         });
     }

@@ -74,8 +74,6 @@ export interface IArtifactPickerController {
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
-    private static readonly maxSearchResults = 100;
-
     // BpArtifactPicker bindings
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
@@ -88,7 +86,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public factory: TreeModels.TreeNodeVMFactory;
     public treeApi: IBPTreeViewControllerApi;
 
+    public canceller: ng.IDeferred<void> = this.$q.defer<any>();
+
     static $inject = [
+        "$q",
         "$scope",
         "localization",
         "artifactManager",
@@ -98,7 +99,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "metadataService"
     ];
 
-    constructor(private $scope: ng.IScope,
+    constructor(private $q: ng.IQService,
+                private $scope: ng.IScope,
                 private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
@@ -110,7 +112,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
         this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
         this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.artifactManager, this.statefulArtifactFactory,
-            this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
+            this.canceller.promise, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
     };
 
     public $onInit(): void {
@@ -126,7 +128,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     hasChildren: project.model.hasChildren
                 } as AdminStoreModels.IInstanceItem;
             } else {
-                this.projectService.getProject(projectId)
+                this.projectService.getProject(projectId, this.canceller.promise)
                     .then(project => this.project = project);
             }
         } else {
@@ -163,7 +165,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.columns = undefined;
         }
         this.onSelect = undefined;
-        this.projectService.abort();
+        this.canceller.reject();
+        this.canceller = undefined;
         delete this.itemTypes;
     }
 
@@ -312,6 +315,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     public search(): void {
+        const maxSearchResults = 100;
+
         if (!this.isSearching && this.searchText && this.searchText.trim().length > 0) {
             this.isSearching = true;
             let searchResults: ng.IPromise<SearchResultVM<any>[]>;
@@ -323,18 +328,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     itemTypeIds: this.filterItemType.id ? [this.filterItemType.id] : [],
                     includeArtifactPath: true
                 };
-                searchResults = this.projectService.searchItemNames(searchCriteria, 0, BpArtifactPickerController.maxSearchResults + 1)
+                searchResults = this.projectService.searchItemNames(searchCriteria, 0, maxSearchResults + 1, undefined, this.canceller.promise)
                     .then(result => result.items.map(r => new ArtifactSearchResultVM(r, this.onSelect, this.isItemSelectable, this.selectableItemTypes)));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText
                 };
-                searchResults = this.projectService.searchProjects(searchCriteria, BpArtifactPickerController.maxSearchResults + 1)
+                searchResults = this.projectService.searchProjects(searchCriteria, maxSearchResults + 1, undefined, this.canceller.promise)
                     .then(result => result.items.map(r => new ProjectSearchResultVM(r, this.onSelect)));
             }
             searchResults.then(items => {
-                this.searchResults = items.slice(0, BpArtifactPickerController.maxSearchResults);
-                this.isMoreSearchResults = (items.length > BpArtifactPickerController.maxSearchResults);
+                this.searchResults = items.slice(0, maxSearchResults);
+                this.isMoreSearchResults = (items.length > maxSearchResults);
                 this._preiousSelectedVMs = this.selectedVMs;
                 this.selectedVMs = [];
             }).finally(() => {
@@ -352,7 +357,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     public clearSearch(): void {
         if (this.isSearching) {
-            this.projectService.abort();
+            this.canceller.reject();
+            this.canceller = this.$q.defer<void>();
         }
         this.searchText = undefined;
         this.searchResults = undefined;

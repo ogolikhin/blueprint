@@ -44,7 +44,6 @@ angular.module("app.shell",
         "bp.core",
         "ui.router",
         "ui.bootstrap",
-        "vs-repeat",
         "ngSanitize",
         "bp.filters"
     ])

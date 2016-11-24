@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using SearchService.Helpers;
 using SearchService.Models;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
 
@@ -89,14 +92,26 @@ namespace SearchService.Repositories
                 sql = "SearchFullText";
             }
 
-            var items = (await ConnectionWrapper.QueryAsync<FullTextSearchResult>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
-            return new FullTextSearchResultSet
+            try
             {
-                Items = items,
-                Page = page,
-                PageItemCount = items.Count,
-                PageSize = pageSize
-            };
+                var items = (await ConnectionWrapper.QueryAsync<FullTextSearchResult>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
+                return new FullTextSearchResultSet
+                {
+                    Items = items,
+                    Page = page,
+                    PageItemCount = items.Count,
+                    PageSize = pageSize
+                };
+            }
+            catch (SqlException sqlException)
+            {
+                //Sql timeout error
+                if (sqlException.Number == -2)
+                {
+                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                }
+                throw;
+            }
         }
 
 
@@ -127,12 +142,28 @@ namespace SearchService.Repositories
                 sql = "SearchFullTextMetaData";
             }
 
-            var result = await ConnectionWrapper.QueryMultipleAsync<MetaDataSearchResult, int?>(sql, param, commandType: CommandType.StoredProcedure, commandTimeout: _searchConfigurationProvider.SearchTimeout);
-            return new MetaDataSearchResultSet
+            try
             {
-                Items = result.Item1,
-                TotalCount = result.Item2.ElementAt(0) ?? 0,
-            };
+                var result =
+                    await
+                        ConnectionWrapper.QueryMultipleAsync<MetaDataSearchResult, int?>(sql, param,
+                            commandType: CommandType.StoredProcedure,
+                            commandTimeout: _searchConfigurationProvider.SearchTimeout);
+                return new MetaDataSearchResultSet
+                {
+                    Items = result.Item1,
+                    TotalCount = result.Item2.ElementAt(0) ?? 0,
+                };
+            }
+            catch (SqlException sqlException)
+            {
+                //Sql timeout error
+                if (sqlException.Number == -2)
+                {
+                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                }
+                throw;
+            }
         }
 
         /// <summary>
@@ -197,7 +228,9 @@ namespace SearchService.Repositories
             {
                 result.item.Permissions = result.permission.Value;
                 if (searchCriteria.IncludeArtifactPath)
+                {
                     result.item.Path = string.Join(separatorString, result.lpath.Value);
+                }
             }
 
             return new ItemNameSearchResultSet

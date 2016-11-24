@@ -159,6 +159,7 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
+        [Explicit(IgnoreReasons.TestBug)]// TODO: fix test revisionId != targetArtifact.Id
         [TestRail(183564)]
         [Description("Get relationshipsdetails with revision ID for artifact, check that artifact path has expected value.")]
         public void GetRelationshipsDetails_ManualTraceWithRevisionId_ReturnsCorrectTraceDetails(TraceDirection direction)
@@ -183,6 +184,7 @@ namespace ArtifactStoreTests
 
             // Execute: Execute GetRelationshipDetails with the revision returned from GetRelationship call
             TraceDetails traceDetails = null;
+            // TODO: fix test revisionId != targetArtifact.Id
             Assert.DoesNotThrow(() =>
             {
                 traceDetails = ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: relationships.RevisionId);
@@ -197,6 +199,7 @@ namespace ArtifactStoreTests
         #region 400 Bad Request Tests
 
         [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/NAsq2SBG now we have versionId instead of revisionId
         [TestRail(183571)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
         public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
@@ -211,6 +214,7 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
+        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/NAsq2SBG now we have versionId instead of revisionId
         [TestRail(183572)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationshipsDetails with invalid revisionId returns 400 Bad Request.")]
         public void GetRelationshipsDetails_GetRelationshipsWithInvalidRevisionId_400BadRequest(TraceDirection direction)
@@ -242,6 +246,7 @@ namespace ArtifactStoreTests
         #region 404 Not Found Tests
 
         [TestCase(NONEXSITING_REVISIONID)]
+        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/NAsq2SBG now we have versionId instead of revisionId
         [TestCase(10)]
         [TestRail(183563)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
@@ -260,6 +265,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(TraceDirection.To, NONEXSITING_REVISIONID)]
+        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/NAsq2SBG now we have versionId instead of revisionId
         [TestCase(TraceDirection.From, 10)]
         [TestCase(TraceDirection.TwoWay, 3)]
         [TestRail(183566)]

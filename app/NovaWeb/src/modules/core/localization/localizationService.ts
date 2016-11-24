@@ -129,15 +129,18 @@ export class BPLocale {
         return d;
     } 
 
-    public toDate(value: string | Date, reset?: boolean): Date {
-       if (value && (_.isDate(value) || (_.isString(value) && value.length > 1))) {
-            let d = moment(value);
-            if (d.isValid()) {
-                if (reset === true) {
-                    d.startOf("day");
-                }
-                return d.toDate();
+    public toDate(value: string | Date, reset?: boolean, format?: string): Date {
+      let d: moment.Moment;
+        if (_.isDate(value)) {
+            d = moment(value);
+        } else {
+            d = moment(String(value), format || moment.defaultFormat, !!format);
+        } 
+        if (d.isValid()) {
+            if (reset === true) {
+                d.startOf("day");
             }
+                return d.toDate();
         }
         return null;
     };

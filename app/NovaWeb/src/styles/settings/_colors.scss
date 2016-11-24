@@ -22,10 +22,6 @@
  $black								- Black
  $text-highlight-color				- text-highlight-color
  $white								- white
- $gray-darkest					    - gray-darkest
- $gray-dark							- gray-dark
- $gray-light							- gray-light
- $gray-lighter						- gray-lighter
  $gray-lightest						- gray-lightest
  $modal-bg-color						- modal-bg-color
  $blue-light							- blue-light
@@ -48,20 +44,7 @@
  Styleguide 1.2.1
 */
 
-/*
- Calculated Colors
 
- .text-color							- $text-color
- .gray                                - $gray
- .brand-primary                       - $brand-primary
- .messages-bg-info                    - $messages-bg-info
- .messages-bg-warning                 - $messages-bg-warning
-
- markup:
- <div class="styleguide-color {$modifiers}">&#36;{$modifiers}</div>
-
- Styleguide 1.2.2
-*/
 
 $white: #fff;
 $black: #000;
@@ -106,7 +89,41 @@ $right-sidebar-border: $brand-secondary;
 $default-disabled-color: #ccc;
 $utility-panel-border-color: #dde1e2;
 
+/*
+ Calculated Colors
+
+ .text-color							- $text-color
+ .gray-darkest					    - gray-darkest
+ .gray-dark							- gray-dark
+ .gray-light							- gray-light
+ .gray-lighter						- gray-lighter
+ .gray                                - $gray
+ .brand-primary                       - $brand-primary
+ .messages-bg-info                    - $messages-bg-info
+ .messages-bg-warning                 - $messages-bg-warning
+
+ markup:
+ <div class="styleguide-color {$modifiers}">&#36;{$modifiers}</div>
+
+ Styleguide 1.2.2
+*/
+
 .styleguide-color {
+    &.text-color {
+        background-color: $text-color;
+    }
+    &.gray-darkest {
+        background-color: $gray-darkest;
+    }
+    &.gray-dark {
+        background-color: $gray-dark;
+    }
+    &.gray-light {
+        background-color: $gray-light;
+    }
+    &.gray-lighter {
+        background-color: $gray-lighter;
+    }
     &.gray {
         background-color: $gray;
     }
@@ -172,19 +189,19 @@ $utility-panel-border-color: #dde1e2;
         background-color: $gray-base;
     }
     &.gray-dark {
-        background-color: $brand-primary;
-    }
-    &.gray {
         background-color: $gray-dark;
     }
-    &.gray-light {
+    &.gray {
         background-color: $gray;
     }
-    &.gray-lighter {
+    &.gray-light {
         background-color: $gray-light;
     }
-    &.brand-primary {
+    &.gray-lighter {
         background-color: $gray-lighter;
+    }
+    &.brand-primary {
+        background-color: $brand-primary;
     }
     &.text-color {
         background-color: $text-color;

@@ -30,7 +30,7 @@
 //
 // Styleguide 1.1.0
 
-// Main Colors
+// Custom Colors
 //
 // site theme colors as as follows
 //
@@ -112,6 +112,12 @@ $link-hover-color: lighten($brand-secondary, 10%);
 $tree-hover-background: #e5f3fb;
 $tree-focus-background: #e5f3fb;
 $tree-focus-border: #70c0e7;
+
+$left-sidebar-border: $brand-secondary;
+$right-sidebar-border: $brand-secondary;
+$default-disabled-color: #ccc;
+$utility-panel-border-color: #dde1e2;
+
 
 // .gray                                - calculated color
 // .text-color							- Color

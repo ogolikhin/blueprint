@@ -655,15 +655,14 @@ namespace ArtifactStoreTests
             BaseArtifactType.Actor,
             BaseArtifactType.Glossary,
             BaseArtifactType.Document,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.Process)]
+            BaseArtifactType.TextualRequirement)]
         [TestRail(195434)]
         [Description("Create & publish chain of six artifacts.  Change MaxNumberArtifactsToCopy setting in ApplicationSettings table to 5.  " +
             "Copy parent artifact into the project root.  Verify returned code 409 Conflict.")]
         public void CopyArtifact_PublishedArtifacts_ToProjectRoot_409Conflict(params BaseArtifactType[] artifactType)
         {
             // Setup:
-            const int maxNumberArtifactsToCopy = 5;
+            const int maxNumberArtifactsToCopy = 4;
             const string UPDATE_MAX_TO_100 = "UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = 100 WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'";
 
             string UPDATE_MAX_TO_5 = I18NHelper.FormatInvariant("UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'", 
@@ -684,10 +683,6 @@ namespace ArtifactStoreTests
                     try
                     {
                         cmd.ExecuteReader();
-                    }
-                    catch (System.InvalidOperationException exception)
-                    {
-                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", exception);
 
                         // Execute:
                         var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactChain.First().Id, _project.Id, _user),
@@ -698,23 +693,17 @@ namespace ArtifactStoreTests
                         ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CopyArtifactsExceedTheLimit,
                             I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", maxNumberArtifactsToCopy));
                     }
+                    catch (System.InvalidOperationException exception)
+                    {
+                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", exception);
+                    }
                     finally
                     {
                         query = UPDATE_MAX_TO_100;
 
                         Logger.WriteDebug("Running: {0}", query);
 
-                        using (var cmd1 = database.CreateSqlCommand(query))
-                        {
-                            try
-                            {
-                                cmd1.ExecuteReader();
-                            }
-                            catch (System.InvalidOperationException exception)
-                            {
-                                Logger.WriteError("SQL query didn't get processed. Exception details = {0}", exception);
-                            }
-                        }
+                        database.CreateSqlCommand(query);
                     }
                 }
             }

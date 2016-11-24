@@ -319,6 +319,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date,   "Std-Date-Required-Validated-Min-Max-HasDefault", 60*60*24 + 3600 + 60 + 13)]   // Add now + 1 day, 1 hour, 1 min & 13 seconds.
         [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
         [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Text,   "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.User,   "Std-User-Required-HasDefault-User", "")] // newValue not used here, so pass empty string.
         [TestRail(191052)]
         [Description("Create and publish an artifact (that has custom properties) and a folder.  Copy the artifact into the folder.  Verify the source artifact is unchanged " +
             "and the new artifact is identical to the source artifact (including custom properties).  New copied artifact should not be published.")]
@@ -368,6 +369,15 @@ namespace ArtifactStoreTests
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
+                case PropertyPrimitiveType.User:
+                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    var newIdentification = new Identification { DisplayName = _user.DisplayName, Id = _user.Id };
+                    var newUserPropertyValue = new List<Identification> { newIdentification };
+
+                    // Change custom property user value
+                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
+                    break;
                 default:
                     Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
                     break;
@@ -393,8 +403,6 @@ namespace ArtifactStoreTests
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
-
-        // TODO: Add tests for other Custom property types.
 
         // TODO ---------------- POSITIVE TESTS
         // TODO - Copy artifact (possibly with descendants) to one of its child

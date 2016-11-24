@@ -9,6 +9,7 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
 using Utilities.Factories;
 
 namespace StorytellerTests
@@ -54,7 +55,7 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess);
+            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Execute & Verify:
             StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -70,7 +71,7 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess);
+            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
             var publishedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -91,13 +92,13 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess);
+            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
             var publishedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
 
             // Changes the persona reference to a new artifact reference
-            AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess);
+            AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
 
             // Execute & Verify:
             StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
@@ -113,7 +114,7 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess);
+            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
             StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -139,6 +140,61 @@ namespace StorytellerTests
                 updatedPersonaReferenceName, actorArtifactDetails.Name);
         }
 
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(195421)]
+        [Description("Add a persona reference to a Process artifact task. Verify a relationship to the actor was added to the Process.")]
+        public void PersonaReference_AddReferenceToTask_VerifyRelationshipAdded(string taskName)
+        {
+            // Setup:
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+
+            // Get persona reference and persona actor artifact
+            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            IArtifact personaActorArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == personaReference.Id);
+
+            //Execute:
+            // Update process and publish
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var personaRelationship = GetPersonaRelationship(taskName, process, personaReference);
+
+            // Verify:
+            StorytellerTestHelper.AssertPersonaReferenceRelationshipIsCorrect(personaRelationship, _project, personaActorArtifact);
+        }
+
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(195422)]
+        [Description("Delete a persona reference from a Process artifact task. Verify the relationship to the actor was deleted from the Process.")]
+        public void PersonaReference_DeleteReferenceFromTask_VerifyRelationshipRemoved(string taskName)
+        {
+            // Setup:
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
+
+            // Get persona reference and persona actor artifact
+            var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            IArtifact personaActorArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == personaReference.Id);
+
+            // Update process and publish
+            var updatedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var personaRelationship = GetPersonaRelationship(taskName, process, personaReference);
+
+            StorytellerTestHelper.AssertPersonaReferenceRelationshipIsCorrect(personaRelationship, _project, personaActorArtifact);
+
+            DeletePersonaReferenceFromTask(taskName, updatedProcess);
+
+            // Execute & Verify:
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(updatedProcess, Helper.Storyteller, _authorFullAccess);
+
+            var updatedPersonaRelationship = GetPersonaRelationship(taskName, process, personaReference);
+
+            Assert.IsNull(updatedPersonaRelationship, "There should no longer be a persona relationship, but one exists!");
+        }
+
         #endregion Tests
 
         #region Private Methods
@@ -149,11 +205,14 @@ namespace StorytellerTests
         /// <param name="taskName">The name of the task that will contain the persona reference.</param>
         /// <param name="process">The process containing the task </param>
         /// <param name="user">The user that will create the actor artifact.</param>
+        /// <param name="project">The project containing the actor artifact.</param>
         /// <returns>The created persona reference</returns>
-        private ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user)
+        private ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user, IProject project)
         {
             // Create actor for persona reference
-            var actor = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Actor);
+
+            Helper.Storyteller.Artifacts.Add(actor);
 
             var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
@@ -175,6 +234,26 @@ namespace StorytellerTests
             var processShapeType = (ProcessShapeType)defaultUserTask.PropertyValues["clientType"].Value.ToInt32Invariant();
 
             defaultUserTask.AddDefaultPersonaReference(processShapeType);
+        }
+
+        /// <summary>
+        /// Gets the persona relationship for the process task
+        /// </summary>
+        /// <param name="taskName">The name of the task containing the persona relationship.</param>
+        /// <param name="process">The process containing the task.</param>
+        /// <param name="personaReference">The persona reference contained in the task</param>
+        /// <returns>The persona relationship that has been added to the task.</returns>
+        private Relationship GetPersonaRelationship(string taskName, IProcess process, ArtifactReference personaReference)
+        {
+            ThrowIf.ArgumentNull(personaReference, nameof(personaReference));
+
+            // Get task relationships
+            IArtifact processArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id);
+            var task = process.GetProcessShapeByShapeName(taskName);
+            var taskRelationships = Helper.ArtifactStore.GetRelationships(_authorFullAccess, processArtifact, task.Id);
+
+            // Return the persona relationship
+            return taskRelationships.OtherTraces.Find(ot => ot.ArtifactId == personaReference.Id);
         }
 
         #endregion

@@ -150,9 +150,8 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 if (!context || !this.editor) {
                     return;
                 }
-                const invalid = ($field.formControl as ng.IFormController).$invalid;
                 //here we need to update original model
-                let value = this.editor.convertToModelValue($field, this.editor.getModelValue(context.fieldPropertyName));
+                const value = this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);
@@ -165,14 +164,6 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                         break;
                 }
                 context.isFresh = false;
-
-                //TODO:REMOVE: seems we don't need the following block of code since we never check INVALID state
-                // this.artifact.validate().then(()  => {
-                //     this.artifact.artifactState.invalid = false;
-                // }).catch(() => {
-                //     this.artifact.artifactState.invalid = true;
-                // });
-
             } catch (err) {
                 this.messageService.addError(err);
             }

@@ -5,6 +5,8 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Utilities;
 
@@ -71,6 +73,70 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that a persona reference relationship is correct for a given actor
+        /// </summary>
+        /// <param name="relationship">The relationship being tested.</param>
+        /// <param name="actorArtifactProject">The project where the actor artifact is located.</param>
+        /// <param name="actorArtifact">The actor artifact</param>
+        /// <param name="isReadOnlyExpected">(optional) Flag indicating whether the relationship is expected to be read-only (Default: false)</param>
+        /// <param name="isSuspectExpected">(optional) Flag indicating whether the relationship is expected to be suspect (Default: false)</param>
+        public static void AssertPersonaReferenceRelationshipIsCorrect(Relationship relationship, 
+            IProject actorArtifactProject, 
+            IArtifactBase actorArtifact,
+            bool isReadOnlyExpected = false,
+            bool isSuspectExpected = false
+            )
+        {
+            ThrowIf.ArgumentNull(relationship, nameof(relationship));
+            ThrowIf.ArgumentNull(actorArtifactProject, nameof(actorArtifactProject));
+            ThrowIf.ArgumentNull(actorArtifact, nameof(actorArtifact));
+
+            Assert.AreEqual(relationship.ArtifactId, actorArtifact.Id, 
+                "The artifact id of the relationship {0} does not match the actor id {1}.", 
+                relationship.ArtifactId, actorArtifact.Id);
+
+            Assert.AreEqual(relationship.ArtifactName, actorArtifact.Name, 
+                "The artifact name of the relationship {0} does not match the actor name {1}.", 
+                relationship.ArtifactName, actorArtifact.Name);
+
+            Assert.AreEqual(relationship.ItemId, actorArtifact.Id, 
+                "The item id of the relationship {0} does not match the actor id {1}.", 
+                relationship.ItemId, actorArtifact.Id);
+
+            Assert.AreEqual(relationship.ItemName, actorArtifact.Name, 
+                "The item name of the relationship {0} does not match the actor name {1}.", 
+                relationship.ItemName, actorArtifact.Name);
+
+            Assert.AreEqual((ItemTypePredefined)relationship.PrimitiveItemTypePredefined, ItemTypePredefined.Actor, 
+                "The item type of the relationship {0} does not match {1}.", 
+                relationship.PrimitiveItemTypePredefined, ItemTypePredefined.Actor);
+
+            Assert.AreEqual(relationship.ProjectId, actorArtifact.ProjectId, 
+                "The project id of the relationship {0} does not match the actor project id {1}.", 
+                relationship.ProjectId, actorArtifact.ProjectId);
+
+            Assert.AreEqual(relationship.ProjectName, actorArtifactProject.Name, 
+                "The project name of the relationship {0} does not match the actor project name {1}.", 
+                relationship.ProjectName, actorArtifactProject.Name);
+
+            Assert.AreEqual(relationship.ReadOnly, isReadOnlyExpected, 
+                "The actor artifact of the relationships has readonly as {0) but {1} is expected.", 
+                relationship.ReadOnly, isReadOnlyExpected);
+
+            Assert.AreEqual(relationship.IsSuspect, isSuspectExpected, 
+                "The actor artifact of the relationships has suspect as {0) but {1} is expected.", 
+                relationship.IsSuspect, isSuspectExpected);
+
+            Assert.AreEqual(relationship.Direction, TraceDirection.To, 
+                "The trace direction of the relationship, {0}, does not match the expected direction, {1}.", 
+                relationship.Direction, TraceDirection.To);
+
+            Assert.AreEqual(relationship.TraceType, LinkType.Association, 
+                "The trace type of the relationship, {0}, does not match the expected type, {1}.", 
+                relationship.TraceType, LinkType.Association);
+        }
+
+        /// <summary>
         /// Updates and verifies the process returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>
@@ -116,13 +182,16 @@ namespace Helper
         /// <param name="processToVerify">The process to verify</param>
         /// <param name="storyteller">The storyteller instance</param>
         /// <param name="user">The user that updates the process</param>
-        public static void UpdateVerifyAndPublishProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
+        /// <returns> The process returned from Get Process </returns>
+        public static IProcess UpdateVerifyAndPublishProcess(IProcess processToVerify, IStoryteller storyteller, IUser user)
         {
             // Update and verify the process
             var processReturnedFromGet = UpdateAndVerifyProcess(processToVerify, storyteller, user);
 
             // Publish the process artifact so it can be deleted in test teardown
             storyteller.PublishProcess(user, processReturnedFromGet);
+
+            return processReturnedFromGet;
         }
 
         /// <summary>

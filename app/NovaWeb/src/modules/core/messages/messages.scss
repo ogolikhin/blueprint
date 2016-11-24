@@ -17,9 +17,9 @@ $toast-message-width: 350px;
     z-index: $zindex-messages;
 }
 
-// this is to put the toasts at the top on Mac
-//.is-macosx .messages__container {
-//    flex-flow: column-reverse nowrap;
+// this is to put the toasts at the top on Mac		
+//.is-macosx .messages__container {		
+//    flex-flow: column-reverse nowrap;		
 //}
 
 .messages__message-wrapper {

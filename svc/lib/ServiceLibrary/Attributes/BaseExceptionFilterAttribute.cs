@@ -34,17 +34,22 @@ namespace ServiceLibrary.Attributes
             else if (ex is BadRequestException)
             {
                 statusCode = HttpStatusCode.BadRequest;
-                errorCode = ((BadRequestException)ex).ErrorCode;
+                errorCode = ((ExceptionWithErrorCode)ex).ErrorCode;
             }
             else if (ex is ResourceNotFoundException)
             {
                 statusCode = HttpStatusCode.NotFound;
-                errorCode = ((ResourceNotFoundException) ex).ErrorCode;
+                errorCode = ((ExceptionWithErrorCode) ex).ErrorCode;
             }
             else if (ex is AuthorizationException)
             {
                 statusCode = HttpStatusCode.Forbidden;
-                errorCode = ((AuthorizationException)ex).ErrorCode;
+                errorCode = ((ExceptionWithErrorCode)ex).ErrorCode;
+            }
+            else if (ex is SqlTimeoutException)
+            {
+                statusCode = HttpStatusCode.ServiceUnavailable;
+                errorCode = ((ExceptionWithErrorCode)ex).ErrorCode;
             }
             else
             {

@@ -1,30 +1,30 @@
 @import '../../../../styles/modules/variables';
 @import '../../../../styles/modules/fonticons2';
 
-.row-slider {
+.tab-slider {
     display: block;
     overflow: hidden;
 }
 
-.row-slider__wrapper {
+.tab-slider__wrapper {
     display: flex;
     flex-flow: row nowrap;
  }
 
-.row-slider__container {
+.tab-slider__container {
     overflow: hidden;
     position: relative;
     width: 100%;
 }
 
-.row-slider__content {
+.tab-slider__content {
     display: flex;
     left: 0;
     position: relative;
     transition: left ease .5s;
 }
 
-.row-slider__slide {
+.tab-slider__slide {
     flex: none;
     max-width: 100%;
     overflow: hidden;
@@ -36,8 +36,8 @@
     }
 }
 
-.row-slider__prev,
-.row-slider__next {
+.tab-slider__prev,
+.tab-slider__next {
     background: transparent;
     border: 0;
     color: $brand-secondary;
@@ -56,15 +56,15 @@
     text-transform: none;
 }
 
-.row-slider__prev--invalid,
-.row-slider__next--invalid {
+.tab-slider__prev--invalid,
+.tab-slider__next--invalid {
     color: $brand-error;
 }
 
-.row-slider__prev::before {
+.tab-slider__prev::before {
     content: $fonticon2-arrow-double-left;
 }
 
-.row-slider__next::before {
+.tab-slider__next::before {
     content: $fonticon2-arrow-double-right;
 }

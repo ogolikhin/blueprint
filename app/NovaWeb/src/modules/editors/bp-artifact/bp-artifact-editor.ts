@@ -10,7 +10,7 @@ import {PropertyEditor} from "./bp-property-editor";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {IRowSliderControllerApi} from "../../shared";
+import {ITabSliderControllerApi} from "../../shared";
 
 export {
     IArtifactManager,
@@ -27,7 +27,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
-    public slider: IRowSliderControllerApi;
+    public slider: ITabSliderControllerApi;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -165,8 +165,8 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                         break;
                 }
                 context.isFresh = false;
-                
-                //TODO:REMOVE: seems we don't need the following block of code since we never check INVALID state 
+
+                //TODO:REMOVE: seems we don't need the following block of code since we never check INVALID state
                 // this.artifact.validate().then(()  => {
                 //     this.artifact.artifactState.invalid = false;
                 // }).catch(() => {

@@ -9,6 +9,7 @@ import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../..
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -40,7 +41,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "messageService",
         "projectService",
         "loadingOverlayService",
-        "analytics"
+        "analytics",
+        "localization"
     ];
 
     constructor(private $q: ng.IQService,
@@ -51,7 +53,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private messageService: IMessageService,
                 private projectService: IProjectService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider) {
+                private analytics: IAnalyticsProvider,
+                public localization: ILocalizationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -115,41 +118,33 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
-
+    
     public openProject(): void {
         const selectedArtifact = this.selectionManager.getArtifact();
         if (!selectedArtifact || !selectedArtifact.projectId) {
+            this.projectManager.openProjectWithDialog();
             return;
         }
+        const projectId = selectedArtifact.projectId;
+        const artifactId = selectedArtifact.id;
 
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-        this.projectService.getProject(selectedArtifact.projectId).then((project: AdminStoreModels.IInstanceItem) => {
-            if (!project) {
-                this.loadingOverlayService.endLoading(openProjectLoadingId);
-                return;
-            }
 
-            let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-
-            try {
-                this.projectManager.add(project)
-                    .finally(() => {
-                        //(eventCollection, action, label?, value?, custom?, jQEvent?
-                        const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                        this.analytics.trackEvent("open", "project", label, project.id, {
-                            openProjects: openProjects
-                        });
-                        this.loadingOverlayService.endLoading(openProjectLoadingId);
+        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
+        try {
+            this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+                .finally(() => {
+                    //(eventCollection, action, label?, value?, custom?, jQEvent?
+                    const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                    this.analytics.trackEvent("open", "project", label, projectId, {
+                        openProjects: openProjects
                     });
-            } catch (err) {
-                this.loadingOverlayService.endLoading(openProjectLoadingId);
-                throw err;
-            }
-
-        }).catch(err => {        
+                    this.loadingOverlayService.endLoading(openProjectLoadingId);
+                });
+        } catch (err) {
             this.loadingOverlayService.endLoading(openProjectLoadingId);
             throw err;
-        });   
+        }     
     }
 
     public onGridReset(isExpanding: boolean): void {

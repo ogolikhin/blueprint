@@ -1,5 +1,5 @@
 ﻿<bp-tree-view api="$ctrl.treeApi"
-              ng-if="$ctrl.projects && $ctrl.projects.length > 0"
+              ng-show="$ctrl.projects && $ctrl.projects.length > 0"
               row-data="$ctrl.projects"
               columns="$ctrl.columns"
               size-columns-to-fit="true"
@@ -8,10 +8,10 @@
               on-grid-reset="$ctrl.onGridReset(isExpanding)">
 </bp-tree-view>
 
-<div ng-if="!$ctrl.projects || $ctrl.projects.length < 1"
+<div ng-show="!$ctrl.projects || $ctrl.projects.length < 1"
      class="explorer-empty-state">
-    <p>You have no projects loaded in the project Explorer.</p>
+    <p>{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
     <label class="btn btn-secondary btn-small" ng-click="$ctrl.openProject()">
-        Open a project
+        {{::$ctrl.localization.get('App_Explorer_OpenProject_ButtonLabel')}}
     </label>
 </div>

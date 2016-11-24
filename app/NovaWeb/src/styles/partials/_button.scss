@@ -1,42 +1,57 @@
-// Buttons and Links
-//
-// This is the buttons chapter
-//
-// Styleguide 3.0
+/*
+ Buttons and Links
 
-// Bootstrap Buttons
-//
-// The base Bootstrap buttons are as follows
-//
-// .btn-default             - Standard button
-// .btn-primary             - Provides extra visual weight and identifies the primary action in a set of buttons
-// .btn-success             - Indicates a successful or positive action
-// .btn-info                - Contextual button for informational alert messages
-// .btn-warning             - Indicates caution should be taken with this action
-// .btn-danger              - Indicates a dangerous or potentially negative action
-// .btn-link                - Deemphasize a button by making it look like a link while maintaining button behavior
-//
-// markup:
-// <button class="btn {$modifiers}">Button</button>
-//
-// Styleguide 3.1.0
+ Styleguide 3.0
+*/
 
-// Custom Button
-//
-// This defines the buttons that exist in the site
-//
-// .btn-primary             - Primary Action Button
-// .btn-promoted-action     - Button used on login modal
-// .btn-cancel              - Cancel button?
-// .btn-secondary           - Secondary action button
-// .btn__icon               - another button with an icon?
-// .btn-dropdown-toggle     - a drop down toggle
-//
-// markup:
-// <button class="btn {$modifiers}">Button</button>
-//
-// Styleguide 3.1.1
+/*
+ Bootstrap Buttons
 
+ This chapter outlines the over-ridden buttons we have defined
+
+ Styleguide 3.1
+*/
+
+/*
+ Bootstrap Buttons
+
+ .btn-default             - Standard button
+ .btn-primary             - Provides extra visual weight and identifies the primary action in a set of buttons
+ .btn-success             - Indicates a successful or positive action
+ .btn-info                - Contextual button for informational alert messages
+ .btn-warning             - Indicates caution should be taken with this action
+ .btn-danger              - Indicates a dangerous or potentially negative action
+ .btn-link                - Deemphasize a button by making it look like a link while maintaining button behavior
+
+ markup:
+ <button class="btn {$modifiers}">Button</button>
+
+ Styleguide 3.1.1
+*/
+
+/*
+ Custom Buttons
+
+  This chapter outlines the custom buttons we have defined
+
+ Styleguide 3.2
+*/
+
+/*
+ Custom Button
+
+ .btn-primary             - Primary Action Button
+ .btn-promoted-action     - Button used on login modal
+ .btn-cancel              - Cancel button?
+ .btn-secondary           - Secondary action button
+ .btn__icon               - another button with an icon?
+ .btn-dropdown-toggle     - a drop down toggle
+
+ markup:
+ <button class="btn {$modifiers}">Button</button>
+
+ Styleguide 3.2.1
+*/
 
 .btn {
     border-radius: 4px;
@@ -164,8 +179,6 @@
     }
 }
 
-
-
 .modal-alert .btn-promoted-action {
     background-color: $brand-warning;
     border: solid 1px $brand-warning;
@@ -218,6 +231,9 @@
     min-width: 24px;
 }
 
+/*
+Helper classes
+*/
 .btn--absolute-right {
     position: absolute;
     right: 0;

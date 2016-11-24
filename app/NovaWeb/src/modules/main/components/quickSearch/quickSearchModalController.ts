@@ -1,22 +1,7 @@
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
-
-import {IApplicationError} from "../../../core/error/applicationError";
-
-
-export interface IQuickSearchModalController {
-    searchTerm: string;
-    isLoading: boolean;
-    searchWithMetadata(term: string, source: string): void;
-    search(term: string, source: string): void;
-    clearSearch();
-    showHide: boolean;
-    hasError(): boolean;
-    closeModal();
-}
-
-export class QuickSearchModalController implements IQuickSearchModalController {
+export class QuickSearchModalController {
     searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;

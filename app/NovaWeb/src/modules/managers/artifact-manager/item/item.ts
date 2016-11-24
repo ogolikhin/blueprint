@@ -427,6 +427,10 @@ export abstract class StatefulItem implements IIStatefulItem {
                     }
                     break;
                 default:
+                    // Always validate the system property - name
+                    if (propertyType.propertyTypePredefined === Models.PropertyTypePredefined.Name) {
+                        propertyType.isValidated = true;
+                    }
                     value = this[propertyType.modelPropertyName];
                     break;
             }
@@ -468,7 +472,11 @@ export abstract class StatefulItem implements IIStatefulItem {
                     }
                     break;
                 case Models.PrimitiveType.Text:
-                    if (propertyType.isRichText) {
+                    if (propertyType.propertyTypePredefined === Models.PropertyTypePredefined.Name) {
+                        if (!this.services.validationService.systemValidation.validateName(propValue)) {
+                            isValid = false;
+                        }
+                    } else if (propertyType.isRichText) {
                         if (!this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired,
                                 propValue,
                                 propValue, propertyType.isValidated)) {

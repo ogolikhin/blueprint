@@ -4,6 +4,7 @@ import {IDateValidation, DateValidation} from "./date-validation";
 import {ISelectValidation, SelectValidation, IMultiSelectValidation, MultiSelectValidation} from "./select-validation";
 import {ITextValidation, TextValidation, ITextRtfValidation, TextRtfValidation} from "./text-validation";
 import {IUserPickerValidation, UserPickerValidation} from "./user-picker-validation";
+import {ISystemValidation, SystemValidation} from "./system-validation";
 
 export interface IValidationService {
     numberValidation: INumberValidation;
@@ -13,6 +14,7 @@ export interface IValidationService {
     textRtfValidation: ITextRtfValidation;
     userPickerValidation: IUserPickerValidation;
     textValidation: ITextValidation;
+    systemValidation: ISystemValidation;
 }
 
 export class ValidationService implements IValidationService {
@@ -23,6 +25,7 @@ export class ValidationService implements IValidationService {
     public textRtfValidation: ITextRtfValidation;
     public userPickerValidation: IUserPickerValidation;
     public textValidation: ITextValidation;
+    public systemValidation: ISystemValidation;
 
     public static $inject = [ "localization"];
 
@@ -34,6 +37,7 @@ export class ValidationService implements IValidationService {
         this.textRtfValidation = new TextRtfValidation(); 
         this.userPickerValidation = new UserPickerValidation();
         this.textValidation = new TextValidation();
+        this.systemValidation = new SystemValidation();
     }
 
 }

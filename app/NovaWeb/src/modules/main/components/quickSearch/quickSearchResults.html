@@ -56,7 +56,7 @@
                     </div>
                 </div>
 
-                <ul class="list-unstyled" ng-if="$ctrl.results.length > 0 && !$ctrl.isLoading">
+                <ul class="list-unstyled" ng-if="$ctrl.results.length > 0">
                     <li class="quick-search__results--item"
                         ng-repeat="item in $ctrl.results track by $index">
                         <div class="row small-gutter">
@@ -120,7 +120,7 @@
                     </div>
                 </div>
 
-                <div class="quick-search__response" ng-if="$ctrl.results && $ctrl.results.length===0">
+                <div class="quick-search__response" ng-if="$ctrl.results.length===0">
                     <div class="center-item font-larger">
                         <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
                     </div>

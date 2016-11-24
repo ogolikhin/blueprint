@@ -125,14 +125,14 @@ export interface IPropertyType {
     instancePropertyTypeId?: number;
     isRichText?: boolean;
     decimalDefaultValue?: number;
-    dateDefaultValue?: string;
+    dateDefaultValue?: Date;
     userGroupDefaultValue?: any[];
     stringDefaultValue?: string;
     decimalPlaces?: number;
     maxNumber?: number;
     minNumber?: number;
-    maxDate?: string;
-    minDate?: string;
+    maxDate?: Date;
+    minDate?: Date;
     isMultipleAllowed?: boolean;
     isRequired?: boolean;
     isValidated?: boolean;

@@ -1,6 +1,6 @@
 import {IItemType, IPropertyType, IProjectMeta, IOption} from "../../../main/models/models";
 import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType} from "../../../main/models/enums";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService, BPLocale} from "../../../core/localization/localizationService";
 
 export interface IMetaDataService {
     get(projectId: number): ng.IPromise<ProjectMetaData>;
@@ -15,8 +15,20 @@ export interface IMetaDataService {
 
 
 class ProjectMetaData {
-    constructor(public id: number, public data: IProjectMeta) {
-
+    constructor(public id: number, public data: IProjectMeta, locale: BPLocale) {
+        if (data) {
+            _.each(data.propertyTypes, (propertyType: IPropertyType) => {
+                if (propertyType.maxDate) {
+                    propertyType.maxDate = locale.toDate(propertyType.maxDate, true);
+                }
+                if (propertyType.minDate) {
+                    propertyType.minDate = locale.toDate(propertyType.minDate, true);
+                }
+                if (propertyType.dateDefaultValue) {
+                    propertyType.dateDefaultValue = locale.toDate(propertyType.dateDefaultValue, true);
+                }
+            });
+        }
     }
 }
 
@@ -78,7 +90,7 @@ export class MetaDataService implements IMetaDataService {
                         }
                     );
                 }
-                const metadata = new ProjectMetaData(projectId, result.data);
+                const metadata = new ProjectMetaData(projectId, result.data, this.localization.current);
                 this.projectsMeta[String(projectId)] = metadata;
                 defer.resolve(metadata);
             },
@@ -215,7 +227,6 @@ export class MetaDataService implements IMetaDataService {
             name: this.localization.get("Label_LastEditOn"),
             propertyTypePredefined: PropertyTypePredefined.LastEditedOn,
             primitiveType: PrimitiveType.Date,
-            dateDefaultValue: "",
             disabled: true
         });
         properties.push(<IPropertyType>{

@@ -11,6 +11,12 @@ bp-properties-panel {
     $property-input-with-icon-width: $property-input-width - $property-input-icon-width;
     $tinymce-toolbar-height: 23px;
 
+    .row-slider__next,
+    .row-slider__prev {
+        font-size: $font-size-smallest !important;
+        padding-top: 5px !important;
+    }
+
     .tinymce-body-wrapper {
         max-width: $property-input-width;
     }
@@ -61,11 +67,11 @@ bp-properties-panel {
             width: 100%;
             margin: 0 0 12px;
 
-            .has-messages::after { 
-                content: " "; 
+            .has-messages::after {
+                content: " ";
                 display: block;
                 clear: both;
-            } 
+            }
 
             .has-messages {
                 display: block;

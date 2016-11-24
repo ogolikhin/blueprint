@@ -2,8 +2,14 @@
 
 <script type="text/ng-template" id="rowSliderWrapper.html">
     <div class="row-slider__wrapper">
-        <button class="row-slider__prev" ng-if="$ctrl.showButtons && $ctrl.showButtonPrev()" ng-click="$ctrl.previousSlide()"></button>
+        <button class="row-slider__prev"
+                ng-class="{'row-slider__prev--invalid': $ctrl.isButtonPrevInvalid}"
+                ng-if="$ctrl.showButtons && $ctrl.showButtonPrev()"
+                ng-click="$ctrl.previousSlide()"></button>
         <div class="row-slider__container"></div>
-        <button class="row-slider__next" ng-if="$ctrl.showButtons && $ctrl.showButtonNext()" ng-click="$ctrl.nextSlide()"></button>
+        <button class="row-slider__next"
+                ng-class="{'row-slider__next--invalid': $ctrl.isButtonNextInvalid}"
+                ng-if="$ctrl.showButtons && $ctrl.showButtonNext()"
+                ng-click="$ctrl.nextSlide()"></button>
     </div>
 </script>

@@ -11,7 +11,10 @@ export class RowSliderController {
     static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile"];
 
     public slideSelector: string;
+    public invalidClass: string;
     public showButtons: boolean;
+    public isButtonPrevInvalid: boolean;
+    public isButtonNextInvalid: boolean;
 
     private slides: HTMLElement[];
     private slidesWidth: number[];
@@ -26,10 +29,13 @@ export class RowSliderController {
                 private $templateCache: ng.ITemplateCacheService,
                 private $compile: ng.ICompileService) {
         this.slideSelector = !_.isString(this.slideSelector) ? "li" : this.slideSelector;
+        this.invalidClass = !_.isString(this.invalidClass) ? "invalid" : this.invalidClass;
         this.slidesTotalWidth = 0;
         this.scrollPosition = 0;
 
         this.showButtons = false;
+        this.isButtonPrevInvalid = false;
+        this.isButtonNextInvalid = false;
     }
 
     public $onDestroy = () => {
@@ -74,15 +80,37 @@ export class RowSliderController {
         }
         this.scrollPosition = scrollPosition;
         this.slidesContainer.style.left = "-" + scrollPosition.toString() + "px";
+        this.checkIfInvalid();
     }
 
-    public previousSlide = (): void => {
+    public previousSlide(): void {
         this.moveSlide(-1);
-    };
+    }
 
-    public nextSlide = (): void => {
+    public nextSlide(): void {
         this.moveSlide(1);
-    };
+    }
+
+    private checkIfInvalid(): void {
+        if (this.slides.length) {
+            this.isButtonPrevInvalid = false;
+            this.isButtonNextInvalid = false;
+            let offset = 0;
+            for (let i = 0; i < this.slides.length; i++) {
+                const slide = this.slides[i] as HTMLElement;
+                const slideWidth = slide.getBoundingClientRect().width;
+                offset += (slideWidth / 4); // we want to consider also partially hidden slides
+                // -1 = is hidden to the left, 1 = is hidden to the right, 0 is visible
+                const slidePosition = offset < this.scrollPosition ? -1 : (offset > this.availableWidth + this.scrollPosition ? 1 : 0);
+                if (slidePosition === -1 && slide.classList.contains(this.invalidClass)) {
+                    this.isButtonPrevInvalid = true;
+                } else if (slidePosition === 1 && slide.classList.contains(this.invalidClass)) {
+                    this.isButtonNextInvalid = true;
+                }
+                offset += (slideWidth / 4 * 3);
+            }
+        }
+    }
 
     private setupSlides = (): void => {
         this.$scope.$applyAsync(() => {
@@ -122,12 +150,13 @@ export class RowSliderController {
 
                 for (let i = 0; i < this.slides.length; i++) {
                     const slide = this.slides[i] as HTMLElement;
-                    const rect = slide.getBoundingClientRect();
-                    this.slidesTotalWidth += rect.width;
-                    this.slidesWidth.push(rect.width);
+                    const slideWidth = slide.getBoundingClientRect().width;
+                    this.slidesTotalWidth += slideWidth;
+                    this.slidesWidth.push(slideWidth);
                 }
 
                 this.showButtons = this.slidesTotalWidth > this.availableWidth;
+                this.checkIfInvalid();
             }
         });
     };

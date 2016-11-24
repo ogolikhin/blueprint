@@ -7,7 +7,7 @@ import {
 } from "../bp-base-editor";
 
 import {PropertyEditor} from "./bp-property-editor";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {ITabSliderControllerApi} from "../../shared";

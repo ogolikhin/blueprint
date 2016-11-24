@@ -999,4 +999,13 @@ namespace Helper
             public string Label { get; set; }
         }
     }
+
+    public static class CustomPropertyName
+    {
+        public const string TextRequiredRTMultiHasDefault = "Std-Text-Required-RT-Multi-HasDefault";
+        public const string NumberRequiredValidatedDecPlacesMinMaxHasDefault = "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault";
+        public const string DateRequiredValidatedMinMaxHasDefault = "Std-Date-Required-Validated-Min-Max-HasDefault";
+        public const string ChoiceRequiredAllowMultipleDefaultValue = "Std-Choice-Required-AllowMultiple-DefaultValue";
+        public const string UserRequiredHasDefaultUser = "Std-User-Required-HasDefault-User";
+    }
 }

@@ -13,8 +13,8 @@ bp-properties-panel {
 
     .row-slider__next,
     .row-slider__prev {
-        font-size: $font-size-small !important;
-        top: 12px !important;;
+        font-size: $font-size-smallest !important;
+        padding-top: 5px !important;
     }
 
     .tinymce-body-wrapper {

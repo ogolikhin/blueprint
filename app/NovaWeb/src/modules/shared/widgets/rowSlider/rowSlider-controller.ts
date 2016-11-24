@@ -8,7 +8,7 @@ export interface IRowSliderController {
 }
 
 export class RowSliderController {
-    static $inject: [string] = ["$scope", "$element"];
+    static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile"];
 
     public slideSelector: string;
     public showButtons: boolean;
@@ -21,7 +21,10 @@ export class RowSliderController {
     private scrollPosition: number;
     private scrollIndex: number;
 
-    constructor(private $scope: ng.IScope, private $element: ng.IAugmentedJQuery) {
+    constructor(private $scope: ng.IScope,
+                private $element: ng.IAugmentedJQuery,
+                private $templateCache: ng.ITemplateCacheService,
+                private $compile: ng.ICompileService) {
         this.slideSelector = !_.isString(this.slideSelector) ? "li" : this.slideSelector;
         this.slidesTotalWidth = 0;
         this.scrollPosition = 0;
@@ -55,11 +58,6 @@ export class RowSliderController {
         return this.scrollIndex < this.slidesWidth.length - 1;
     }
 
-    private resizeContainer() {
-        this.slidesContainer.style.marginLeft = this.showButtonPrev() ? "32px" : "0";
-        this.slidesContainer.style.marginRight = this.showButtonNext() ? "32px" : "0";
-    }
-
     private moveSlide(direction: number) {
         let scrollPosition = 0;
         let idx = this.scrollIndex;
@@ -72,8 +70,7 @@ export class RowSliderController {
         for (let i = 0; i < this.scrollIndex; i++) {
             scrollPosition += this.slidesWidth[i];
         }
-        this.resizeContainer();
-        this.slidesContainer.scrollLeft = scrollPosition;
+        this.slidesContainer.style.left = "-" + scrollPosition.toString() + "px";
     }
 
     public previousSlide = (): void => {
@@ -84,16 +81,21 @@ export class RowSliderController {
         this.moveSlide(1);
     };
 
-    private setupSlides = (availableWidth?: number): void => {
+    private setupSlides = (): void => {
         this.$scope.$applyAsync(() => {
+            const template = this.$templateCache.get("rowSliderWrapper.html") as string;
+            const wrapper = this.$compile(template)(this.$scope)[0] as HTMLElement;
+            const container = wrapper.querySelector(".row-slider__container") as HTMLElement;
+
             this.slides = this.getSlides();
             this.slidesContainer = this.slides[0].parentElement;
-
             if (this.slidesContainer) {
+                this.slidesContainer.parentElement.insertBefore(wrapper, this.slidesContainer);
+                container.appendChild(this.slidesContainer);
                 this.slidesTotalWidth = 0;
                 this.scrollPosition = 0;
                 this.scrollIndex = 0;
-                this.slidesContainer.classList.add("row-slider__container");
+                this.slidesContainer.classList.add("row-slider__content");
 
                 for (let i = 0; i < this.slides.length; i++) {
                     const slide = this.slides[i] as HTMLElement;
@@ -123,7 +125,6 @@ export class RowSliderController {
                 }
 
                 this.showButtons = this.slidesTotalWidth > this.availableWidth;
-                this.resizeContainer();
             }
         });
     };

@@ -4,14 +4,23 @@
 .row-slider {
     display: block;
     overflow: hidden;
+}
+
+.row-slider__wrapper {
+    display: flex;
+    flex-flow: row nowrap;
+ }
+
+.row-slider__container {
+    overflow: hidden;
     position: relative;
 }
 
-.row-slider__container {
+.row-slider__content {
     display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-start;
-    overflow: hidden;
+    left: 0;
+    position: relative;
+    transition: left ease .5s;
 }
 
 .row-slider__slide {
@@ -32,6 +41,7 @@
     border: 0;
     color: $brand-secondary;
     display: block;
+    flex: none;
     font-family: "bp-font2";
     font-size: 1.8rem;
     font-style: normal;
@@ -39,13 +49,10 @@
     font-weight: normal;
     line-height: 1.8rem;
     outline: none;
-    position: absolute;
     speak: none;
     text-align: center;
     text-decoration: none;
     text-transform: none;
-    top: 0;
-    width: 32px;
 }
 
 .row-slider__prev--invalid,
@@ -53,18 +60,10 @@
     color: $brand-error;
 }
 
-.row-slider__prev {
-    left: 0;
-
-    &::before {
-        content: $fonticon2-arrow-double-left;
-    }
+.row-slider__prev::before {
+    content: $fonticon2-arrow-double-left;
 }
 
-.row-slider__next {
-    right: 0;
-
-    &::before {
-        content: $fonticon2-arrow-double-right;
-    }
+.row-slider__next::before {
+    content: $fonticon2-arrow-double-right;
 }

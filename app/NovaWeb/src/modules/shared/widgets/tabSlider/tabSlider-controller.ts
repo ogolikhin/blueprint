@@ -1,17 +1,20 @@
-export interface IRowSliderControllerApi {
+export interface ITabSliderControllerApi {
     getWrapperElement(): HTMLElement;
     updateWidth(availableWidth?: number);
 }
 
-export interface IRowSliderController {
-    api: IRowSliderControllerApi;
+export interface ITabSliderController {
+    api: ITabSliderControllerApi;
 }
 
-export class RowSliderController {
+export class TabSliderController {
     static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile"];
 
     public slideSelector: string;
+    public invalidClass: string;
     public showButtons: boolean;
+    public isButtonPrevInvalid: boolean;
+    public isButtonNextInvalid: boolean;
 
     private slides: HTMLElement[];
     private slidesWidth: number[];
@@ -26,10 +29,13 @@ export class RowSliderController {
                 private $templateCache: ng.ITemplateCacheService,
                 private $compile: ng.ICompileService) {
         this.slideSelector = !_.isString(this.slideSelector) ? "li" : this.slideSelector;
+        this.invalidClass = !_.isString(this.invalidClass) ? "invalid" : this.invalidClass;
         this.slidesTotalWidth = 0;
         this.scrollPosition = 0;
 
         this.showButtons = false;
+        this.isButtonPrevInvalid = false;
+        this.isButtonNextInvalid = false;
     }
 
     public $onDestroy = () => {
@@ -41,7 +47,7 @@ export class RowSliderController {
         this.recalculate();
     };
 
-    public api: IRowSliderControllerApi = {
+    public api: ITabSliderControllerApi = {
         getWrapperElement: (): HTMLElement => {
             return this.$element[0].firstElementChild as HTMLElement;
         },
@@ -74,21 +80,43 @@ export class RowSliderController {
         }
         this.scrollPosition = scrollPosition;
         this.slidesContainer.style.left = "-" + scrollPosition.toString() + "px";
+        this.checkIfInvalid();
     }
 
-    public previousSlide = (): void => {
+    public previousSlide(): void {
         this.moveSlide(-1);
-    };
+    }
 
-    public nextSlide = (): void => {
+    public nextSlide(): void {
         this.moveSlide(1);
-    };
+    }
+
+    private checkIfInvalid(): void {
+        if (this.slides.length) {
+            this.isButtonPrevInvalid = false;
+            this.isButtonNextInvalid = false;
+            let offset = 0;
+            for (let i = 0; i < this.slides.length; i++) {
+                const slide = this.slides[i] as HTMLElement;
+                const slideWidth = slide.getBoundingClientRect().width;
+                offset += (slideWidth / 4); // we want to consider also partially hidden slides
+                // -1 = is hidden to the left, 1 = is hidden to the right, 0 is visible
+                const slidePosition = offset < this.scrollPosition ? -1 : (offset > this.availableWidth + this.scrollPosition ? 1 : 0);
+                if (slidePosition === -1 && slide.classList.contains(this.invalidClass)) {
+                    this.isButtonPrevInvalid = true;
+                } else if (slidePosition === 1 && slide.classList.contains(this.invalidClass)) {
+                    this.isButtonNextInvalid = true;
+                }
+                offset += (slideWidth / 4 * 3);
+            }
+        }
+    }
 
     private setupSlides = (): void => {
         this.$scope.$applyAsync(() => {
-            const template = this.$templateCache.get("rowSliderWrapper.html") as string;
+            const template = this.$templateCache.get("tabSliderWrapper.html") as string;
             const wrapper = this.$compile(template)(this.$scope)[0] as HTMLElement;
-            const container = wrapper.querySelector(".row-slider__container") as HTMLElement;
+            const container = wrapper.querySelector(".tab-slider__container") as HTMLElement;
 
             this.slides = this.getSlides();
             this.slidesContainer = this.slides[0].parentElement;
@@ -98,11 +126,11 @@ export class RowSliderController {
                 this.slidesTotalWidth = 0;
                 this.scrollPosition = 0;
                 this.scrollIndex = 0;
-                this.slidesContainer.classList.add("row-slider__content");
+                this.slidesContainer.classList.add("tab-slider__content");
 
                 for (let i = 0; i < this.slides.length; i++) {
                     const slide = this.slides[i] as HTMLElement;
-                    slide.classList.add("row-slider__slide");
+                    slide.classList.add("tab-slider__slide");
                 }
             }
         });
@@ -122,12 +150,13 @@ export class RowSliderController {
 
                 for (let i = 0; i < this.slides.length; i++) {
                     const slide = this.slides[i] as HTMLElement;
-                    const rect = slide.getBoundingClientRect();
-                    this.slidesTotalWidth += rect.width;
-                    this.slidesWidth.push(rect.width);
+                    const slideWidth = slide.getBoundingClientRect().width;
+                    this.slidesTotalWidth += slideWidth;
+                    this.slidesWidth.push(slideWidth);
                 }
 
                 this.showButtons = this.slidesTotalWidth > this.availableWidth;
+                this.checkIfInvalid();
             }
         });
     };

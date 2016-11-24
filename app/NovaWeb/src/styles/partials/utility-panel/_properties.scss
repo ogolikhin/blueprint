@@ -11,8 +11,8 @@ bp-properties-panel {
     $property-input-with-icon-width: $property-input-width - $property-input-icon-width;
     $tinymce-toolbar-height: 23px;
 
-    .row-slider__next,
-    .row-slider__prev {
+    .tab-slider__next,
+    .tab-slider__prev {
         font-size: $font-size-smallest !important;
         padding-top: 5px !important;
     }

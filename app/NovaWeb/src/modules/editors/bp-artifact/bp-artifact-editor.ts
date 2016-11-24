@@ -7,10 +7,10 @@ import {
 } from "../bp-base-editor";
 
 import {PropertyEditor} from "./bp-property-editor";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {IRowSliderControllerApi} from "../../shared";
+import {ITabSliderControllerApi} from "../../shared";
 
 export {
     IArtifactManager,
@@ -27,7 +27,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
-    public slider: IRowSliderControllerApi;
+    public slider: ITabSliderControllerApi;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,

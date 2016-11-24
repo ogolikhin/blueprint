@@ -55,7 +55,8 @@ export class RowSliderController {
     }
 
     public showButtonNext(): boolean {
-        return this.scrollIndex < this.slidesWidth.length - 1;
+        const isLastSlideVisible = this.slidesTotalWidth - this.scrollPosition < this.availableWidth;
+        return (this.scrollIndex < this.slidesWidth.length - 1 && !isLastSlideVisible);
     }
 
     private moveSlide(direction: number) {
@@ -70,6 +71,7 @@ export class RowSliderController {
         for (let i = 0; i < this.scrollIndex; i++) {
             scrollPosition += this.slidesWidth[i];
         }
+        this.scrollPosition = scrollPosition;
         this.slidesContainer.style.left = "-" + scrollPosition.toString() + "px";
     }
 

@@ -284,6 +284,61 @@ namespace ArtifactStoreTests
             Assert.Fail("Test not implemented yet.");
         }
         */
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 500 error "You do not have permission to edit the artifact".
+        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
+        [TestRail(191050)]
+        [Description("Create & save an artifact and create & publish a folder.   Add a manual trace between the artifact & folder.  Create user that does not have trace permissions.  " +
+            "Copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  " + 
+            "New copied artifact should not be published.")]
+        public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoPermissionsTrace_ReturnsNewArtifactWithManualTrace(
+            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
+        {
+            // Setup:
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            // Create & add manual trace to the source artifact:
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact, targetArtifact, ChangeType.Create,
+                Helper.ArtifactStore, direction, isSuspect);
+
+            if (shouldPublishTrace)
+            {
+                sourceArtifact.Publish();
+            }
+
+            // Execute:
+            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            Helper.AssignProjectRolePermissionsToUser(user,
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share,
+                        _project);
+
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, user),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifact, copyResult, _user);
+
+            // Get traces & compare.
+            Relationships sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, _user, copyResult.Artifact.Id, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
+
+            Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
+            Assert.AreEqual(2, targetRelationships.ManualTraces.Count, "Target artifact should have 2 manual traces.");
+
+            ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+        }
+
         #endregion 201 Created tests
 
         #region 400 Bad Request tests

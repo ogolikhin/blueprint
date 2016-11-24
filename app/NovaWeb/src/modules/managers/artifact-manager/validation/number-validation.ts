@@ -103,6 +103,6 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
             this.wrongFormat(newValue, oldValue, decimalPlaces, isValidated) &&
             this.isMin(newValue, oldValue, _min, isValidated) &&
             this.isMax(newValue, oldValue, _max, isValidated) &&
-            super.hasValueIfRequired(isRequired, newValue, oldValue, isValidated);
+            this.hasValueIfRequired(isRequired, newValue, oldValue, isValidated);
     }
 }

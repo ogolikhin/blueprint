@@ -1,6 +1,6 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
-import {IProjectManager} from "./../managers/project-manager/";
+//import {IProjectManager} from "./../managers/project-manager/";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
@@ -21,10 +21,15 @@ export class AppComponent implements ng.IComponentOptions {
 }
 
 export class AppController {
-    static $inject: [string] = ["navigationService", "projectManager", "selectionManager", "session", "settings", "$window", "localization"];
+    static $inject: [string] = [
+        "navigationService", 
+        "selectionManager", 
+        "session", 
+        "settings", 
+        "$window", 
+        "localization"];
 
-    constructor(private navigation: INavigationService,
-                private projectManager: IProjectManager,
+    constructor(private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private session: ISession,
                 private settings: ISettingsService,
@@ -52,12 +57,7 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.session.logout().finally(() => {
-            this.navigation.navigateToMain().finally(() => {
-                this.projectManager.removeAll();
-                this.$window.location.reload();
-            });
-        });
+        this.navigationService.navigateToLogout();
     }
 
     public navigateToHelpUrl(evt: ng.IAngularEvent) {

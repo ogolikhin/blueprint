@@ -181,9 +181,9 @@ describe("SystemTask", () => {
             statefulSubArtifact: StatefulProcessSubArtifact;
         
         const newPersonaReference = {
-            id: 1,
+            id: 2,
             projectId: 1,
-            name: "new persona",
+            name: "added persona",
             typePrefix: "PRO",
             baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: "test project",
@@ -206,12 +206,12 @@ describe("SystemTask", () => {
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
             viewModel.userTaskPersonaReferenceList = [];
-            viewModel.systemTaskPersonaReferenceList = [];
+            viewModel.systemTaskPersonaReferenceList = [node.personaReference];
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
         });
 
-        it("when modifying personaReference - personaReference matches", () => {
+        it("when modifying personaReference - personaReference matches and personaReference list updated", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -225,6 +225,7 @@ describe("SystemTask", () => {
 
             // assert
             expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.PersonaReference).value).toBe(node.personaReference.id);
+            expect(viewModel.systemTaskPersonaReferenceList.length).toBe(2);
         });
 
         it("when modifying personaReference - attempt lock is called", () => {

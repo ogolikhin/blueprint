@@ -6,43 +6,38 @@ export enum ProjectServiceStatusCode {
 }
 
 export interface IProjectService {
-    abort(): void;
-    getFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
-    getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]>;
-    getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem>;
-    getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta>;
-    getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]>;
-    getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean): ng.IPromise<Models.IArtifact[]>;
+    getFolders(id?: number, timeout?: ng.IPromise<void>): ng.IPromise<AdminStoreModels.IInstanceItem[]>;
+    getArtifacts(projectId: number, artifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Models.IArtifact[]>;
+    getProject(id?: number, timeout?: ng.IPromise<void>): ng.IPromise<AdminStoreModels.IInstanceItem>;
+    getProjectMeta(projectId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Models.IProjectMeta>;
+    getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<void>): ng.IPromise<Models.ISubArtifactNode[]>;
+    getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean, timeout?: ng.IPromise<void>): ng.IPromise<Models.IArtifact[]>;
     searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
-        resultCount?: number,
-        separatorString?: string): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
+                   resultCount?: number,
+                   separatorString?: string,
+                   timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
     searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
-        startOffset?: number,
-        pageSize?: number): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
-    getProjectNavigationPath(projectId: number, includeProjectItself: boolean): ng.IPromise<string[]>;
+                    startOffset?: number,
+                    pageSize?: number,
+                    separatorString?: string,
+                    timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
+    getProjectNavigationPath(projectId: number, includeProjectItself: boolean, timeout?: ng.IPromise<void>): ng.IPromise<string[]>;
 }
 
 export class ProjectService implements IProjectService {
     public static $inject = ["$q", "$http"];
 
-    private canceler: ng.IDeferred<any>;
-
     constructor(private $q: ng.IQService,
         private $http: ng.IHttpService) {
     }
 
-    public abort(): void {
-        this.canceler.resolve();
-    }
-
-    public getFolders(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem[]> {
+    public getFolders(id?: number, timeout?: ng.IPromise<void>): ng.IPromise<AdminStoreModels.IInstanceItem[]> {
         const defer = this.$q.defer<any>();
-        this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `svc/adminstore/instance/folders/${id || 1}/children`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         this.$http(requestObj).then(
@@ -62,14 +57,13 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem> {
+    public getProject(id?: number, timeout?: ng.IPromise<void>): ng.IPromise<AdminStoreModels.IInstanceItem> {
         const defer = this.$q.defer<any>();
-        this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `svc/adminstore/instance/projects/${id}`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         this.$http(requestObj).then(
@@ -84,18 +78,17 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getArtifacts(projectId: number, artifactId?: number): ng.IPromise<Models.IArtifact[]> {
+    public getArtifacts(projectId: number, artifactId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Models.IArtifact[]> {
         if (projectId && projectId === artifactId) {
             artifactId = null;
         }
 
         const defer = this.$q.defer<any>();
-        this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `svc/artifactstore/projects/${projectId}` + (artifactId ? `/artifacts/${artifactId}` : ``) + `/children`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         this.$http(requestObj).then(
@@ -110,18 +103,17 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean) {
+    public getProjectTree(projectId: number, artifactId: number, loadChildren?: boolean, timeout?: ng.IPromise<void>) {
         if (angular.isUndefined(loadChildren)) {
             loadChildren = false;
         }
 
         const defer = this.$q.defer<any>();
-        this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `svc/artifactstore/projects/${projectId}/artifacts/?expandedToArtifactId=${artifactId}&includeChildren=${loadChildren}`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         this.$http(requestObj).then(
@@ -136,14 +128,13 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getProjectMeta(projectId?: number): ng.IPromise<Models.IProjectMeta> {
+    public getProjectMeta(projectId?: number, timeout?: ng.IPromise<void>): ng.IPromise<Models.IProjectMeta> {
         const defer = this.$q.defer<any>();
-        this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `svc/artifactstore/projects/${projectId}/meta/customtypes`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         this.$http(requestObj).then(
@@ -158,14 +149,13 @@ export class ProjectService implements IProjectService {
         return defer.promise;
     }
 
-    public getSubArtifactTree(artifactId: number): ng.IPromise<Models.ISubArtifactNode[]> {
+    public getSubArtifactTree(artifactId: number, timeout?: ng.IPromise<void>): ng.IPromise<Models.ISubArtifactNode[]> {
         const defer = this.$q.defer<any>();
-        this.canceler = this.$q.defer<any>();
 
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/subartifacts`,
             method: "GET",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         this.$http(requestObj).then(
@@ -180,16 +170,15 @@ export class ProjectService implements IProjectService {
     }
 
     public searchProjects(searchCriteria: SearchServiceModels.ISearchCriteria,
-        resultCount: number = 100,
-        separatorString: string = " > "): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
-        this.canceler = this.$q.defer<any>();
-
+                          resultCount: number = 100,
+                          separatorString: string = " > ",
+                          timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IProjectSearchResultSet> {
         const requestObj: ng.IRequestConfig = {
             url: `/svc/searchservice/projectsearch/name`,
             params: {resultCount: resultCount, separatorString: separatorString},
             data: searchCriteria,
             method: "POST",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         return this.$http(requestObj).then(
@@ -206,17 +195,16 @@ export class ProjectService implements IProjectService {
     }
 
     public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
-        startOffset: number = 0,
-        pageSize: number = 100,
-        separatorString: string = " > "): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
-        this.canceler = this.$q.defer<any>();
-
+                          startOffset: number = 0,
+                          pageSize: number = 100,
+                          separatorString: string = " > ",
+                          timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         const requestObj: ng.IRequestConfig = {
             url: `/svc/searchservice/itemsearch/name`,
             params: {startOffset: startOffset, pageSize: pageSize, separatorString: separatorString},
             data: searchCriteria,
             method: "POST",
-            timeout: this.canceler.promise
+            timeout: timeout
         };
 
         return this.$http(requestObj).then(
@@ -232,12 +220,15 @@ export class ProjectService implements IProjectService {
         );
     }
 
-    public getProjectNavigationPath(projectId: number, includeProjectItself: boolean): ng.IPromise<string[]> {
+    public getProjectNavigationPath(projectId: number, includeProjectItself: boolean, timeout?: ng.IPromise<void>): ng.IPromise<string[]> {
         const deferred = this.$q.defer();
 
         const url = `/svc/adminstore/instance/projects/${projectId}/navigationPath?includeProjectItself=${includeProjectItself}`;
+        const requestObj: ng.IRequestShortcutConfig = {
+            timeout: timeout
+        };
 
-        this.$http.get(url)
+        this.$http.get(url, requestObj)
             .then((result) => {
                 deferred.resolve(result.data);
             },

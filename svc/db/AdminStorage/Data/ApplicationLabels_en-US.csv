@@ -190,7 +190,7 @@ Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After pu
 Publish_All_Success_Message,"All artifacts ({0}) have had their changes published."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
 
-Close_Project_UnpublishedArtifacts,"You have {0} saved but unpublished changes.<br/><br/>Consider publishing or discarding them before continuing."
+Close_Project_UnpublishedArtifacts,"You have saved but unpublished changes ({0}).<br/><br/>Consider publishing or discarding before continuing."
 
 Artifact_List_Show_More,"Show more"
 Artifact_List_Show_First_N_Results,"Displaying first {0} results"

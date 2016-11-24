@@ -6,6 +6,7 @@ import {ISelectValidation, SelectValidation, IMultiSelectValidation, MultiSelect
 import {ITextValidation, TextValidation, ITextRtfValidation, TextRtfValidation} from "./text-validation";
 import {IUserPickerValidation, UserPickerValidation} from "./user-picker-validation";
 import {BaseValidation} from "./base-validation";
+import {ISystemValidation, SystemValidation} from "./system-validation";
 
 export class ValidationServiceMock implements IValidationService {
     public numberValidation: INumberValidation;
@@ -15,6 +16,7 @@ export class ValidationServiceMock implements IValidationService {
     public textRtfValidation: ITextRtfValidation;
     public userPickerValidation: IUserPickerValidation;
     public textValidation: ITextValidation;
+    public systemValidation: ISystemValidation;
 
     public static $inject = [ "localization"];
 
@@ -26,6 +28,7 @@ export class ValidationServiceMock implements IValidationService {
         this.textRtfValidation = new TextRtfValidationMock();
         this.userPickerValidation = new UserPickerValidationMock();
         this.textValidation = new TextValidationMock();
+        this.systemValidation = new SystemValidationMock();
     }
 }
 
@@ -133,6 +136,12 @@ class UserPickerValidationMock extends BaseValidation implements IUserPickerVali
 
 class TextValidationMock extends BaseValidation implements ITextValidation {
     hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+        return true;
+    }
+}
+
+class SystemValidationMock extends BaseValidation implements ISystemValidation {
+    validateName(nameValue: string) {
         return true;
     }
 }

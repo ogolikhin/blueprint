@@ -1568,11 +1568,6 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        /// <summary>
-        /// Creates and adds an artifact reference to another artifact.
-        /// </summary>
-        /// <param name="artifact">The Nova artifact that will be added as a reference.</param>
-        /// <returns>The created artifact reference.</returns>
         public ArtifactReference AddAssociatedArtifact(NovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1594,16 +1589,9 @@ namespace Model.StorytellerModel.Impl
             return AssociatedArtifact;
         }
 
-        /// <summary>
-        /// Creates and adds a persona reference (actor) to another artifact.
-        /// </summary>
-        /// <param name="artifact">The actor artifact that will be added as a persona reference.</param>
-        /// <returns>The created actor artifact reference.</returns>
-        public ArtifactReference AddPersonaReference(NovaArtifactDetails artifact)
+        public ArtifactReference AddPersonaReference(NovaArtifactDetails artifact = null)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            if (artifact.PredefinedType != null && artifact.ProjectId != null)
+            if (artifact?.PredefinedType != null && artifact.ProjectId != null)
             {
                 PersonaReference = new ArtifactReference()
                 {
@@ -1617,7 +1605,26 @@ namespace Model.StorytellerModel.Impl
                 };
             }
 
-            return AssociatedArtifact;
+            return PersonaReference;
+        }
+
+        public ArtifactReference AddDefaultPersonaReference(ProcessShapeType processShapeType)
+        {
+            if (processShapeType == ProcessShapeType.UserTask || processShapeType == ProcessShapeType.SystemTask ||
+                processShapeType == ProcessShapeType.PreconditionSystemTask)
+            {
+                PersonaReference = new ArtifactReference()
+                {
+                    Id = processShapeType == ProcessShapeType.UserTask ? -1 : -2,
+                    Link = null,
+                    Name = processShapeType == ProcessShapeType.UserTask ? "User" : "System",
+                    ProjectId = 0,
+                    TypePrefix = null,
+                    BaseItemTypePredefined = ItemTypePredefined.Actor,
+                    Version = null
+                };
+            }
+            return PersonaReference;
         }
 
         public bool IsTypeOf(ProcessShapeType processShapeType)

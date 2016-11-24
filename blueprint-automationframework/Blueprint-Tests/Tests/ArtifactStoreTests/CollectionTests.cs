@@ -65,6 +65,33 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
         }
 
+        [TestCase()]
+        [TestRail(195445)]
+        [Description("Create new collection, publish new artifact, add artifact to collection and save changes, check collection content.")]
+        public void CreateCollectionWith2Artifacts_Remove1ArtifactFromCollectionAndSave_CheckContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifactToAdd = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var artifactToRemove = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+
+            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id, artifactToRemove.Id });
+            collectionArtifact.Lock(_authorUser);
+            Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection);
+
+            // Execute:
+            collection.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove.Id });
+            
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
+                "Updating collection content should throw no error.");
+
+            // Verify:
+            collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have 1 artifact");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
+        }
+
         /// <summary>
         /// Creates empty collection and return corresponding IArtifact.
         /// </summary>

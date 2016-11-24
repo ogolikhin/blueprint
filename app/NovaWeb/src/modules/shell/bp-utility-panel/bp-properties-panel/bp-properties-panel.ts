@@ -240,7 +240,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             return;
         }
         //here we need to update original model
-        const value = this.editor.convertToModelValue($field, this.editor.getModelValue(context.fieldPropertyName), $value);
+        const value = this.editor.convertToModelValue($field, $value);
         switch (context.lookup) {
             case PropertyLookupEnum.Custom:
                 this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);

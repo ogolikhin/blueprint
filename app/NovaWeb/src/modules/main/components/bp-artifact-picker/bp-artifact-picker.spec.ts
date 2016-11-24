@@ -104,7 +104,7 @@ describe("BpArtifactPickerController", () => {
         const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
-        controller = new BpArtifactPickerController($scope, localization, artifactManager,
+        controller = new BpArtifactPickerController($q, $scope, localization, artifactManager,
             projectManager, projectService, statefulArtifactFactory, metadataService);
     }));
 
@@ -132,7 +132,6 @@ describe("BpArtifactPickerController", () => {
         // Assert
         expect(controller.columns).toBeUndefined();
         expect(controller.onSelect).toBeUndefined();
-        expect(projectService.abort).toHaveBeenCalled();
     });
 
     it("clearSearch clears text and results", () => {
@@ -165,7 +164,7 @@ describe("BpArtifactPickerController", () => {
             predefinedTypeIds: undefined,
             itemTypeIds: [ ],
             includeArtifactPath: true
-        }, 0, 101);
+        }, 0, 101, undefined, controller.canceller.promise);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
@@ -183,7 +182,7 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.isSearching).toEqual(true);
-        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"}, 101);
+        expect(projectService.searchProjects).toHaveBeenCalledWith({query: "test"}, 101, undefined, controller.canceller.promise);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);

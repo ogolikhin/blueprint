@@ -402,9 +402,9 @@ describe("UserTask test", () => {
             statefulSubArtifact: StatefulProcessSubArtifact;
 
         const newPersonaReference = {
-            id: 1,
+            id: 2,
             projectId: 1,
-            name: "new persona",
+            name: "added persona",
             typePrefix: "PRO",
             baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: "test project",
@@ -426,13 +426,13 @@ describe("UserTask test", () => {
             node = new UserTask(<IUserTaskShape>statefulArtifact.shapes[0], rootScope, null, shapesFactory);
 
             viewModel = new ProcessViewModel(statefulArtifact, communicationManager);
-            viewModel.userTaskPersonaReferenceList = [];
+            viewModel.userTaskPersonaReferenceList = [node.personaReference];
             viewModel.systemTaskPersonaReferenceList = [];
 
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
         });
 
-        it("when modifying personaReference - personaReference matches", () => {
+        it("when modifying personaReference - personaReference matches and personaReference list updated", () => {
 
             // arrange
             spyOn(statefulArtifact, "refresh")();
@@ -446,6 +446,7 @@ describe("UserTask test", () => {
 
             // assert
             expect(statefulSubArtifact.specialProperties.get(PropertyTypePredefined.PersonaReference).value).toBe(node.personaReference.id);
+            expect(viewModel.userTaskPersonaReferenceList.length).toBe(2);
         });
 
         it("when modifying personaReference - attempt lock is called", () => {

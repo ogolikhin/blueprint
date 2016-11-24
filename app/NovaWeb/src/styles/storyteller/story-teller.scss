@@ -1064,3 +1064,14 @@ bp-select.persona-reference__dropdown .dropdown{
         width: 100%;
     }
 }
+
+.bp-select__selected-label {		
+    font-size: $font-size-big;          		
+    @include text-ellipsis-flex-width(95%);		
+    display: inline-block;		
+}		
+		
+.bp-select__item-label{		
+    @include text-ellipsis-flex-width(100%);		
+    display: inline-block;		
+}

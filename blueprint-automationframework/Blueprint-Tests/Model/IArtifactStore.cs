@@ -31,7 +31,7 @@ namespace Model
         /// </summary>
         /// <param name="artifact">The artifact to copy.</param>
         /// <param name="newParent">The new parent where this artifact will be copied to.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
@@ -39,7 +39,7 @@ namespace Model
         CopyNovaArtifactResultSet CopyArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent,
-            IUser user = null,
+            IUser user,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 

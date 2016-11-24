@@ -127,25 +127,8 @@ export class MainStateController {
         }
         this.$window.document.title = title;
     }
-
-        private logoutInternal= () => {
-        this.session.logout().then(() => {
-                this.projectManager.removeAll();
-                this.navigation.navigateToMain().finally(() => {
-//                    this.$window.location.reload();
-
-                });
-        });
-    }
-    public static autoSave($q: ng.IQService, selection: ISelectionManager): ng.IPromise<void> {
-        let artifact = selection.getArtifact();
-        if (artifact) {
-            return artifact.autosave();
-        }
-        return $q.resolve();
-    }  
-
 }
+
 export class LogoutStateController {
 public static $inject = [
         "$log",

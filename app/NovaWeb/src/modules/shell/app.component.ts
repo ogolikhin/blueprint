@@ -1,6 +1,5 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
-//import {IProjectManager} from "./../managers/project-manager/";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";

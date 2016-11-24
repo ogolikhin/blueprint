@@ -51,7 +51,8 @@ export class RowSliderController {
     };
 
     public showButtonPrev(): boolean {
-        return this.scrollIndex > 0;
+        const isFirtSlideVisible = !Math.round(this.scrollPosition);
+        return (this.scrollIndex > 0 && !isFirtSlideVisible);
     }
 
     public showButtonNext(): boolean {

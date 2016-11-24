@@ -118,10 +118,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         return origin + "/";
     };
 
-    protected handleValidation = () => {
+    protected handleValidation = (content: string) => {
         const $scope = this.$scope;
         $scope["$applyAsync"](() => {
-            const content = this.contentBuffer || "";
             const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, content, content);
             const formControl = $scope.fc as ng.IFormController;
             if (formControl) {
@@ -146,9 +145,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         if (_.isUndefined(newContent) && this.mceEditor) {
             newContent = this.mceEditor.getContent();
         }
-        this.contentBuffer = newContent || "";
+        newContent = newContent || "";
 
-        this.handleValidation();
+        this.handleValidation(newContent);
 
         const $scope = this.$scope;
         if (typeof this.onChange === "function") {
@@ -159,8 +158,10 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected prepRTF = (hasTables: boolean = false) => {
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
+        this.handleLinks(this.editorBody.querySelectorAll("a"));
         this.contentBuffer = this.mceEditor.getContent();
-        this.handleValidation();
+
+        this.handleValidation(this.contentBuffer);
         this.$scope.options["data"].isFresh = false;
     };
 
@@ -322,7 +323,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             `<a linkassemblyqualifiedname="BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, ` +
             `BluePrintSys.RC.Client.SL.RichText, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ` +
             `text="${escapedLinkText}" canclick="True" isvalid="True" canedit="False" ` +
-            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}" class="mceNonEditable">` +
+            `href="${linkUrl}" target="_blank" artifactid="${id.toString()}">` +
             `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
             `</a></span>&#65279;`;
         /* tslint:enable:max-line-length */
@@ -337,6 +338,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         event.preventDefault();
         const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
         if (itemId) {
+            if (this.mceEditor) {
+                this.mceEditor.destroy(false);
+            }
             navigationService.navigateTo({id: itemId});
         } else {
             window.open(target.getAttribute("href"), "_blank");

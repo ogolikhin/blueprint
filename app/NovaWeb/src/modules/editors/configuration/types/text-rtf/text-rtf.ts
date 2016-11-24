@@ -53,7 +53,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
-        const inlineBgColor = "#e8e8e8"; // this is $gray-lightest as defined in _colors.scss
+        const inlineBgColor = "#009cdc"; // this is $brand-secondary as defined in _colors.scss
         const bodyBgColor = "#fbf8e7"; // this is $yellow-pale as defined in _colors.scss
         /* tslint:disable:max-line-length */
         // pencil icon
@@ -73,7 +73,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 html:hover, html:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 body.mce-content-body *[contentEditable=false] *[contentEditable=true]:focus,
                 body.mce-content-body *[contentEditable=false] *[contentEditable=true]:hover,
-                body.mce-content-body *[contentEditable=false][data-mce-selected] {background: ${inlineBgColor}; outline: none !important; }
+                body.mce-content-body *[contentEditable=false][data-mce-selected] *,
+                body.mce-content-body *[contentEditable=false][data-mce-selected]
+                { color: #fff !important; background: ${inlineBgColor} !important; outline: none !important; }
                 a:hover { cursor: pointer !important; }
                 p { margin: 0 0 8px; }`,
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
@@ -187,14 +189,16 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    editor.on("Change", (e) => {
+                    editor.on("KeyUp", (e) => {
                         const currentContent = editor.getContent();
                         if (currentContent !== this.contentBuffer) {
-                            if (!$scope.options["data"].isFresh) {
-                                this.triggerChange(currentContent);
-                            } else { // this will get called when refreshing the artifact
-                                this.prepRTF(true);
-                            }
+                            this.triggerChange(currentContent);
+                        }
+                    });
+
+                    editor.on("Change", (e) => {
+                        if ($scope.options["data"].isFresh) {
+                            this.prepRTF(true);
                         }
                     });
 

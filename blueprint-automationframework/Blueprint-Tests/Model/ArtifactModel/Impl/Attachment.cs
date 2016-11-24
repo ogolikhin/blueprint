@@ -44,15 +44,25 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="expectedFile">The expected AttachedFile.</param>
         /// <param name="actualFile">The actual AttachedFile.</param>
+        /// <param name="skipAttachmentIds">(optional) Pass true if you want to skip comparison of the AttachmentId properties.</param>
+        /// <param name="skipUploadedDates">(optional) Pass true if you want to skip comparison of the UploadedDate properties.</param>
         /// <exception cref="AssertionException">If any properties are different.</exception>
-        public static void AssertEquals(AttachedFile expectedFile, AttachedFile actualFile)
+        public static void AssertEquals(AttachedFile expectedFile, AttachedFile actualFile, bool skipAttachmentIds = false, bool skipUploadedDates = false)
         {
             ThrowIf.ArgumentNull(expectedFile, nameof(expectedFile));
             ThrowIf.ArgumentNull(actualFile, nameof(actualFile));
 
-            Assert.AreEqual(expectedFile.AttachmentId, actualFile.AttachmentId, "The AttachmentId properties don't match!");
+            if (!skipAttachmentIds)
+            {
+                Assert.AreEqual(expectedFile.AttachmentId, actualFile.AttachmentId, "The AttachmentId properties don't match!");
+            }
+
+            if (!skipUploadedDates)
+            {
+                Assert.AreEqual(expectedFile.UploadedDate, actualFile.UploadedDate, "The UploadedDate properties don't match!");
+            }
+
             Assert.AreEqual(expectedFile.FileName, actualFile.FileName, "The FileName properties don't match!");
-            Assert.AreEqual(expectedFile.UploadedDate, actualFile.UploadedDate, "The UploadedDate properties don't match!");
             Assert.AreEqual(expectedFile.UserId, actualFile.UserId, "The UserId properties don't match!");
             Assert.AreEqual(expectedFile.UserName, actualFile.UserName, "The UserName properties don't match!");
         }

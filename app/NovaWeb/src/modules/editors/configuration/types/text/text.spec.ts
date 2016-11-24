@@ -6,8 +6,15 @@ import "angular-ui-bootstrap";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {createFormlyModule} from "../../formly-config.mock";
+import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {Models} from "../../../../main/models";
 
 describe("Formly Text", () => {
+    
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {        
+        $provide.service("validationService", ValidationService);
+    }));
+    
     let fieldsDefinition = [
         {
             type: "bpFieldText",
@@ -18,7 +25,17 @@ describe("Formly Text", () => {
         },
         {
             type: "bpFieldText",
-            key: "textNotVal"
+            key: "textNotVal",
+            data: {
+                propertyTypePredefined: Models.PropertyTypePredefined.Description
+            }
+        },
+        {
+            type: "bpFieldText",
+            key: "name",
+            data: {
+                propertyTypePredefined: Models.PropertyTypePredefined.Name
+            }
         }
     ];
 
@@ -53,7 +70,7 @@ describe("Formly Text", () => {
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldText");
         let fieldScope = angular.element(fieldNode[0]).isolateScope();
 
-        expect(fieldNode.length).toBe(2);
+        expect(fieldNode.length).toBe(3);
         expect(fieldNode[0]).toBeDefined();
         expect(fieldScope).toBeDefined();
     });
@@ -107,6 +124,39 @@ describe("Formly Text", () => {
 
         triggerKey(fieldInput, 13, "keyup");
         expect(fieldInput === document.activeElement).toBeFalsy();
+    });
+
+    it("should fail if system property name is empty", function () {
+        compileAndSetupStuff({model: {name: ""}});
+
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldText")[2];
+        let fieldScope = angular.element(fieldNode).isolateScope();
+
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$error.required).toBeUndefined();
+    });
+
+    it("should fail if system property name is whitespace", function () {
+        compileAndSetupStuff({model: {name: "   "}});
+
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldText")[2];
+        let fieldScope = angular.element(fieldNode).isolateScope();
+
+        expect((<any>fieldScope).fc.$valid).toBeFalsy();
+        expect((<any>fieldScope).fc.$invalid).toBeTruthy();
+        expect((<any>fieldScope).fc.$error.required).toBeUndefined();
+    });
+
+    it("should succeed if system property name has any value", function () {
+        compileAndSetupStuff({model: {name: "Artifact Name"}});
+
+        let fieldNode = node.querySelectorAll(".formly-field-bpFieldText")[2];
+        let fieldScope = angular.element(fieldNode).isolateScope();
+
+        expect((<any>fieldScope).fc.$valid).toBeTruthy();
+        expect((<any>fieldScope).fc.$invalid).toBeFalsy();
+        expect((<any>fieldScope).fc.$error.required).toBeUndefined();
     });
 
     function compileAndSetupStuff(extraScopeProps?) {

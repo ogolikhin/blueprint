@@ -5,9 +5,9 @@
     > li {
         font-size: $font-size-big;
 
-        &:first-child > a {
-            margin-left: 0;
-        }
+        //&:first-child > a {
+        //    margin-left: 0;
+        //}
     }
 
     > li.active {
@@ -48,24 +48,5 @@
 
 // proof of concept
 .page-body .artifact-overview .content .nav-tabs {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-start;
     margin-top: 20px;
-
-    > li {
-        overflow: hidden;
-        transition: flex .25s;
-        white-space: nowrap;
-
-        &.active,
-        &:hover {
-            flex: none;
-        }
-
-        > a {
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    }
 }

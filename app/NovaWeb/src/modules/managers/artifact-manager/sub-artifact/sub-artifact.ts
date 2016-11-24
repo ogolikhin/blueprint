@@ -148,7 +148,13 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public validate(): ng.IPromise<boolean> {
         return this.services.propertyDescriptor.createSubArtifactPropertyDescriptors(this).then((propertyTypes) => {
             const result = this.validateItem(propertyTypes);
-            return this.services.$q.resolve(result);
+
+            if (result) {
+                return this.services.$q.resolve(result);
+            } 
+
+            const  message: string = `The sub-artifact ${this.prefix + this.id.toString()} has validation errors.`;
+            return this.services.$q.reject(new Error(message));
         });
 
 

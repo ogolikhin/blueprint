@@ -185,9 +185,14 @@ export class Helper {
     }
 
     static getHtmlBodyContent(html: string): string {
-        const div = document.createElement("div");
-        div.innerHTML = html || "";
+        // this method is for cleaning extra tags added by SilverLight on Rich Text Areas
+        let content = html || "";
+        content = content.replace(/<span class="mceNonEditable">(.*)<\/span>/gi, "$1");
+        content = content.replace(/mceNonEditable/gi, "");
+        content = content.replace(/(<a [^>]*linkassemblyqualifiedname[^>]*>.*<\/a>)/gi, `<span class="mceNonEditable">$1</span>`);
 
+        const div = document.createElement("div");
+        div.innerHTML = content;
         return div.innerHTML;
     }
 

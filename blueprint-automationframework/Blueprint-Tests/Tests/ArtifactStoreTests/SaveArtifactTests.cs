@@ -842,10 +842,11 @@ namespace ArtifactStoreTests
 
         #region Subartifact Properties tests
 
+        // TODO: This test is not reviewed and will get updated on next pull request for full review
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestRail(195408)]
-        [Explicit(IgnoreReasons.ProductBug)] // TODO: (Trello case: https://trello.com/c/hKTwhfFM) Should returns other than 500 internal server error
+        [Explicit(IgnoreReasons.UnderDevelopment)] // TODO: (Trello case: https://trello.com/c/hKTwhfFM) Should returns other than 500 internal server error
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
              "Verify that the sub artifact returned the default text property.")]
         public void UpdateSubArtifact_ChangeTextPropertyWithEmpty_VerifyPropertyUnchanged(ItemTypePredefined itemType,
@@ -1202,25 +1203,25 @@ namespace ArtifactStoreTests
 
             switch (subArtifactCustomPropertyName)
             {
-                case "Std-Text-Required-RT-Multi-HasDefault":
+                case CustomPropertyName.TextRequiredRTMultiHasDefault:
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = subArtifactCustomPropertyValue;
                         subArtifactChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault":
+                case CustomPropertyName.NumberRequiredValidatedDecPlacesMinMaxHasDefault:
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = subArtifactCustomPropertyValue;
                         subArtifactChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Date-Required-Validated-Min-Max-HasDefault":
+                case CustomPropertyName.DateRequiredValidatedMinMaxHasDefault:
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = subArtifactCustomPropertyValue;
                         subArtifactChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Choice-Required-AllowMultiple-DefaultValue":
+                case CustomPropertyName.ChoiceRequiredAllowMultipleDefaultValue:
                     {
                         var choicePropertyValidValues = projectCustomData.NovaPropertyTypes.Find(pt => pt.Name.Equals(subArtifactCustomPropertyName)).ValidValues;
 
@@ -1233,7 +1234,7 @@ namespace ArtifactStoreTests
                         subArtifactChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-User-Required-HasDefault-User":
+                case CustomPropertyName.UserRequiredHasDefaultUser:
                     {
                         var userData = (IUser)subArtifactCustomPropertyValue;
                         var newIdentification = new Identification() { DisplayName = userData.DisplayName, Id = userData.Id };

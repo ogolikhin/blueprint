@@ -34,13 +34,14 @@ namespace Model.Impl
         public CopyNovaArtifactResultSet CopyArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent,
-            IUser user = null,
+            IUser user,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(newParent, nameof(newParent));
 
-            return CopyArtifact(Address, artifact, newParent.Id, user, orderIndex, expectedStatusCodes);
+            return CopyArtifact(Address, artifact.Id, newParent.Id, user, orderIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.CreateArtifact(IUser, ArtifactTypePredefined, string, IProject, IArtifactBase, double?, List{HttpStatusCode})"/>
@@ -640,24 +641,23 @@ namespace Model.Impl
         /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/copyTo/{newParentId}?orderIndex={orderIndex})
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifact">The artifact to copy.</param>
+        /// <param name="artifactId">The ID of artifact to copy.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will be copied to.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
         public static CopyNovaArtifactResultSet CopyArtifact(string address,
-            IArtifactBase artifact,
+            int artifactId,
             int newParentId,
-            IUser user = null,
+            IUser user,
             double? orderIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.COPY_TO_id_, artifact.Id, newParentId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.COPY_TO_id_, artifactId, newParentId);
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;

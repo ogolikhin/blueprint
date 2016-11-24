@@ -152,6 +152,8 @@ export class SelectionManager implements ISelectionManager {
         if (prevSelection && selection) {
             if (prevSelection.artifact && !_.isEqual(prevSelection.artifact, selection.artifact)) {
                 prevSelection.artifact.unsubscribe();
+                prevSelection.artifact.unload();
+
                 if (prevSelection.subArtifact && !_.isEqual(prevSelection.subArtifact, selection.subArtifact)) {
                     prevSelection.subArtifact.unsubscribe();
                 }

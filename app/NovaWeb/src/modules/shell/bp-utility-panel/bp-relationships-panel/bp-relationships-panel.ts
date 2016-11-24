@@ -53,6 +53,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public selectedTraces: IArtifactSelectedArtifactMap;
     public hasFlagged: boolean = false;
     public hasUnFlagged: boolean = false;
+    public categoryFilter: number;
     private subscribers: Rx.IDisposable[];
 
     constructor($q: ng.IQService,
@@ -85,6 +86,14 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
+    public get showTracesTitle() {
+        return this.manualTraces2.length && this.categoryFilter === 0;
+    }
+
+    public get showOtherTitle() {
+       return this.otherTraces.length && this.categoryFilter === 0;
+    }
+
     protected onSelectionChanged(artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact,
                                  timeout: ng.IPromise<void>): ng.IPromise<any> {
         this.hasFlagged = false;
@@ -98,7 +107,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.item = subArtifact || artifact;
         this.getRelationships();
 
-        if (this.item) {
+        if (this.item && this.item.supportRelationships()) {
             const relationshipSubscriber = this.item.relationships.getObservable().subscribe(this.onRelationshipUpdate);
             this.subscribers.push(relationshipSubscriber);
         }
@@ -124,7 +133,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.manualTraces = null;
         this.otherTraces = null;
 
-        if (this.item && Helper.hasArtifactEverBeenSavedOrPublished(this.item)) {
+        if (this.item &&
+            Helper.hasArtifactEverBeenSavedOrPublished(this.item) &&
+            this.item.supportRelationships()) {
             this.isLoading = true;
             const refresh = !this.item.relationships.changes(); //Todo implemt efficient method to check if has changes
             this.item.relationships.get(refresh).then((relationships: Relationships.IRelationship[]) => {
@@ -166,6 +177,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
         return !this.item.artifactState.readonly &&
+            this.item.supportRelationships() &&
             this.item.relationships.canEdit;
     }
 

@@ -191,15 +191,17 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                     onChange: this.onValueChange.bind(this)
                 });
 
-                    const isReadOnly = selectedItem.artifactState.readonly;
-                    if (isReadOnly) {
-                        field.templateOptions.disabled = true;
-                        if (field.key !== "documentFile" &&
-                            field.type !== "bpFieldImage" &&
-                            field.type !== "bpFieldInheritFrom") {
-                            field.type = "bpFieldReadOnly";
-                        }
+                const isReadOnly = selectedItem.artifactState.readonly ||
+                    (selectedItem.predefinedType !== Models.ItemTypePredefined.Process &&
+                        selectedItem.predefinedType !== Models.ItemTypePredefined.PROShape);
+                if (isReadOnly) {
+                    field.templateOptions.disabled = true;
+                    if (field.key !== "documentFile" &&
+                        field.type !== "bpFieldImage" &&
+                        field.type !== "bpFieldInheritFrom") {
+                        field.type = "bpFieldReadOnly";
                     }
+                }
 
                 this.onFieldUpdate(field);
 
@@ -233,14 +235,12 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
-
-        //here we need to update original model
         const context = $field.data as IPropertyDescriptor;
-        const invalid = ($field.formControl as ng.IFormController).$invalid;
-        if (!context) {
+        if (!context || !this.editor) {
             return;
         }
-        let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
+        //here we need to update original model
+        const value = this.editor.convertToModelValue($field, $value);
         switch (context.lookup) {
             case PropertyLookupEnum.Custom:
                 this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);
@@ -253,15 +253,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 break;
             }
         context.isFresh = false;
-
-
-        //TODO: REMOVE seems we don't need the following block of code since we never check INVALID state 
-        // this.selectedArtifact.validate().then(()  => {
-        //     this.selectedArtifact.artifactState.invalid = false;
-        // }).catch(() => {
-        //     this.selectedArtifact.artifactState.invalid = true;
-        // });
-            
     };
 
     private getSelectedItem(): IStatefulItem {

@@ -14,7 +14,7 @@ import "rx/dist/rx.lite.js";
 import "tinymce";
 import "moment";
 import "lodash";
-// "mxClient"; TODO: now it"s duplicated/included into app.js"
+import "angular-vs-repeat";
 import "mxClientCss/common.css";
 import "mxClientCss/explorer.css";
 import "ui-select";

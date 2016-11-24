@@ -239,9 +239,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         if (!context || !this.editor) {
             return;
         }
-        const invalid = ($field.formControl as ng.IFormController).$invalid;
         //here we need to update original model
-        let value = this.editor.convertToModelValue($field, this.editor.getModelValue(context.fieldPropertyName));
+        const value = this.editor.convertToModelValue($field, this.editor.getModelValue(context.fieldPropertyName), $value);
         switch (context.lookup) {
             case PropertyLookupEnum.Custom:
                 this.getSelectedItem().customProperties.set(context.modelPropertyName as number, value);
@@ -254,15 +253,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 break;
             }
         context.isFresh = false;
-
-
-        //TODO: REMOVE seems we don't need the following block of code since we never check INVALID state 
-        // this.selectedArtifact.validate().then(()  => {
-        //     this.selectedArtifact.artifactState.invalid = false;
-        // }).catch(() => {
-        //     this.selectedArtifact.artifactState.invalid = true;
-        // });
-            
     };
 
     private getSelectedItem(): IStatefulItem {

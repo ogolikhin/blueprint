@@ -17,42 +17,42 @@ export class PropertyEditor {
         this.locale = localization.current;
     }
 
-    public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $value: any): any {
+    public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $modelValue: any, $viewValue: any): any {
         if (!field) {
             return null;
         }
         let context = field.data as IPropertyDescriptor;
-        if (!context || angular.isUndefined($value)) {
+        if (!context || (angular.isUndefined($modelValue) && angular.isUndefined($viewValue))) {
             return null;
         }
 
         switch (context.primitiveType) {
             case Models.PrimitiveType.Number:
-                return this.locale.toNumber($value);
+                return this.locale.toNumber($modelValue);
 
             case Models.PrimitiveType.Date:
-                return this.locale.toDate($value, true, this.locale.shortDateFormat);
+                return this.locale.toDate($modelValue, true, this.locale.shortDateFormat);
 
             case Models.PrimitiveType.Choice:
-                if (angular.isArray($value)) {
+                if (angular.isArray($modelValue)) {
                     return {
-                        validValues: $value.map((it) => {
+                        validValues: $modelValue.map((it) => {
                             return {id: this.locale.toNumber(it)} as Models.IOption;
                         })
                     } as Models.IChoicePropertyValue;
-                } else if (angular.isObject(($value))) {
-                    return {customValue: $value.customValue} as Models.IChoicePropertyValue;
+                } else if (angular.isObject(($modelValue))) {
+                    return {customValue: $modelValue.customValue} as Models.IChoicePropertyValue;
                 } else if (context.propertyTypePredefined < 0) {
-                    return this.locale.toNumber($value);
+                    return this.locale.toNumber($modelValue);
                 }
                 return {
-                    validValues: [{id: this.locale.toNumber($value)} as Models.IOption]
+                    validValues: [{id: this.locale.toNumber($modelValue)} as Models.IOption]
                 } as Models.IChoicePropertyValue;
 
             case Models.PrimitiveType.User:
-                if (angular.isArray($value)) {
+                if (angular.isArray($modelValue)) {
                     return {
-                        usersGroups: $value.filter((elem) => {
+                        usersGroups: $modelValue.filter((elem) => {
                             // isImported is added in the Formly User Picker controller to users
                             // from imported project who don't exist in the database
                             return !elem.isImported;
@@ -63,9 +63,9 @@ export class PropertyEditor {
 
             default:
                 if (context.isRichText) {
-                    return Helper.tagsContainText($value) ? $value : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                    return Helper.tagsContainText($viewValue) ? $viewValue : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
                 }
-                return $value;
+                return $modelValue;
         }
     }
 
@@ -122,7 +122,7 @@ export class PropertyEditor {
         if (this._fields) {
             const newFieldNames = this.propertyContexts.map((prop) => prop.fieldPropertyName);
             const previousFieldNames = this._fields.map((field) => (field.data as IPropertyDescriptor).fieldPropertyName);
-            fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0; 
+            fieldNamesChanged = _.xor(newFieldNames, previousFieldNames).length > 0;
 
             const newNames = this.propertyContexts.map((prop) => prop.name);
             const previousNames = this._fields.map((field) => (field.data as IPropertyDescriptor).name);
@@ -261,7 +261,7 @@ export class PropertyEditor {
                         maxDate: context.maxDate,
                         minDate: context.minDate
                     };
-             
+
                     field.defaultValue = context.dateDefaultValue;
                     break;
                 case Models.PrimitiveType.Number:

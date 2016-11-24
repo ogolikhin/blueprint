@@ -107,7 +107,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.item = subArtifact || artifact;
         this.getRelationships();
 
-        if (this.item) {
+        if (this.item && this.item.supportRelationships()) {
             const relationshipSubscriber = this.item.relationships.getObservable().subscribe(this.onRelationshipUpdate);
             this.subscribers.push(relationshipSubscriber);
         }
@@ -177,6 +177,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public canManageTraces(): boolean {
         // if artifact is locked by other user we still can add/manage traces
         return !this.item.artifactState.readonly &&
+            this.item.supportRelationships() &&
             this.item.relationships.canEdit;
     }
 

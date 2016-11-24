@@ -1,0 +1,15 @@
+<div class="tab-slider" ng-transclude></div>
+<!-- this inline template will be wrapped around the tabs -->
+<script type="text/ng-template" id="tabSliderWrapper.html">
+    <div class="tab-slider__wrapper">
+        <button class="tab-slider__prev"
+                ng-class="{'tab-slider__prev--invalid': $ctrl.isButtonPrevInvalid}"
+                ng-if="$ctrl.showButtons && $ctrl.showButtonPrev()"
+                ng-click="$ctrl.previousSlide()"></button>
+        <div class="tab-slider__container"></div>
+        <button class="tab-slider__next"
+                ng-class="{'tab-slider__next--invalid': $ctrl.isButtonNextInvalid}"
+                ng-if="$ctrl.showButtons && $ctrl.showButtonNext()"
+                ng-click="$ctrl.nextSlide()"></button>
+    </div>
+</script>

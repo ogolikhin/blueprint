@@ -13,9 +13,11 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using System.Linq;
+using Common;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class CopyArtifactTests : TestBase
@@ -285,11 +287,6 @@ namespace ArtifactStoreTests
         */
         #endregion 201 Created tests
 
-        // TODO ---------------- POSITIVE TESTS
-        // TODO - Copy artifact to be a child of itself
-        // TODO - Copy artifact (possibly with descendants) to one of its child
-        // TODO - Copy orphan artifact
-
         #region 400 Bad Request tests
 
         [TestCase(-1.1)]
@@ -335,7 +332,7 @@ namespace ArtifactStoreTests
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of copy published artifact which has no token in a header.", expectedExceptionMessage);
+                    "{0} was not found in returned message of copy published artifact which has no token in a header.", expectedExceptionMessage);
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -416,6 +413,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(folder, artifact, _user),
+
                 "'POST {0}' should return 403 Forbidden when user tries to copy a folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -489,6 +487,182 @@ namespace ArtifactStoreTests
         }
 
         #endregion 403 Forbidden tests
+
+        #region 404 Not Found tests
+
+        [TestCase(BaseArtifactType.Actor, 0)]
+        [TestCase(BaseArtifactType.Actor, int.MaxValue)]
+        [TestRail(195411)]
+        [Description("Create & save an artifact. Copy an artifact to be a child of the non existing artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_SavedArtifact_ToNonExistingArtifact_404NotFound(BaseArtifactType artifactType, int nonExistingArtifactId)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, nonExistingArtifactId, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy artifact to be a child of non existing artifact", SVC_PATH);
+
+            // Verify:
+            if (nonExistingArtifactId > 0)
+            {
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                    I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", nonExistingArtifactId));
+            }
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(195412)]
+        [Description("Create & publish two artifacts.  Delete second artifact.  Copy first artifact to be a child of deleted artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_PublishedArtifact_ToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            targetArtifact.Delete();
+            targetArtifact.Publish();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy artifact to be a child of artifact that was removed", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", targetArtifact.Id));
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(195413)]
+        [Description("Create & publish two artifacts.  Delete first artifact.  Copy deleted artifact to be a child of second artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_SavedDeletedArtifacts_ToSavedArtifact_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+
+            sourceArtifact.Delete();
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy deleted artifact to be a child of another artifact", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", sourceArtifact.Id));
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(195414)]
+        [Description("Create & publish two artifacts.  Copy an artifact to be a child of the other one with user that does not have proper permissions " +
+            "to source artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_PublishedArtifacts_ForUserWithoutProperPermissionsToSource_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, sourceArtifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, userWithoutPermissions),
+                "'POST {0}' should return 404 Not Found when user tries to copy artifact without proper permissions", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", sourceArtifact.Id));
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(195415)]
+        [Description("Create & publish two artifacts.  Copy an artifact to be a child of the other one with user that does not have proper permissions " +
+            "to target artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_PublishedArtifacts_ForUserWithoutProperPermissionsToTarget_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, targetArtifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, targetArtifact, userWithoutPermissions),
+                "'POST {0}' should return 404 Not Found when user tries to copy artifact without proper permissions", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", targetArtifact.Id));
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestRail(192085)]
+        [Description("Create & publish two artifacts with sub-artifacts.  Copy an artifact to be a child of another artifact sub-artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_SavedArtifact_ToSubArtifact_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, targetArtifact.Id);
+
+            Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, subArtifacts.First().Id, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy an artifact to be a child of a sub-artifact", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", subArtifacts.First().Id));
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(192086)]
+        [Description("Create & publish two artifacts with sub-artifacts.  Copy a sub-artifact to be a child of another artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_PublishedSubArtifact_ToArtifact_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, sourceArtifact.Id);
+
+            Assert.IsNotNull(subArtifacts, "This artifact does not have sub-artifacts!");
+            Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, subArtifacts.First().Id, targetArtifact.Id, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy a sub-artifact to be a child of another artifact", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", subArtifacts.First().Id));
+        }
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestRail(192092)]
+        [Description("Create & publish an artifact.  Copy a project to be a child of the artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_PublishedArtifact_ProjectToArtifact_404NotFound(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, _project.Id, artifact.Id, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy a project to be a child of an artifact", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", _project.Id));
+
+        }
+
+        #endregion 404 Not Found tests
 
         #region Private functions
 

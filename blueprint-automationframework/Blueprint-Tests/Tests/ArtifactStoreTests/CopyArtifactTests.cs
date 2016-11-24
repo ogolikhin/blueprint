@@ -14,6 +14,7 @@ using TestCommon;
 using Utilities;
 using System.Linq;
 using Common;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -312,13 +313,17 @@ namespace ArtifactStoreTests
             Assert.IsEmpty(reuseTracesOfCopy.Traces, "There should be no Reuse traces on the copied artifact!");
         }
         
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Actor, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date,   "Std-Date-Required-Validated-Min-Max-HasDefault", 60*60*24 + 3600 + 60 + 13)]   // Add now + 1 day, 1 hour, 1 min & 13 seconds.
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Text,   "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
         [TestRail(191052)]
         [Description("Create and publish an artifact (that has custom properties) and a folder.  Copy the artifact into the folder.  Verify the source artifact is unchanged " +
             "and the new artifact is identical to the source artifact (including custom properties).  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedArtifactWithCustomProperties_ToNewFolder_ReturnsNewArtifactWithCustomProperties(
-            ItemTypePredefined itemType, string propertyName, string newChoiceValue)
+        public void CopyArtifact_SinglePublishedArtifactWithCustomProperties_ToNewFolder_ReturnsNewArtifactWithCustomProperties<T>(
+            ItemTypePredefined itemType, PropertyPrimitiveType propertyType, string propertyName, T newValue)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
@@ -329,16 +334,44 @@ namespace ArtifactStoreTests
 
             // Add custom properties to the source artifact.
             NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
-            CustomProperty property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+            CustomProperty property = null;
 
-            var novaPropertyType = _project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
-            var choicePropertyValidValues = novaPropertyType.ValidValues;
-            var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value == newChoiceValue);
+            switch (propertyType)
+            {
+                case PropertyPrimitiveType.Choice:
+                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
-            var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> { newPropertyValue };
+                    var novaPropertyType = _project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
+                    var choicePropertyValidValues = novaPropertyType.ValidValues;
+                    var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(newValue));
 
-            // Change custom property choice value
-            property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = newChoicePropertyValue };
+                    var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> {newPropertyValue};
+
+                    // Change custom property choice value
+                    property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues {ValidValues = newChoicePropertyValue};
+                    break;
+                case PropertyPrimitiveType.Date:
+                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    // Change custom property date value
+                    property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now.AddSeconds(newValue.ToInt32Invariant()));
+                    break;
+                case PropertyPrimitiveType.Number:
+                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    // Change custom property number value
+                    property.CustomPropertyValue = newValue;
+                    break;
+                case PropertyPrimitiveType.Text:
+                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    // Change custom property text value
+                    property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
+                    break;
+                default:
+                    Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
+                    break;
+            }
 
             // Execute:
             sourceArtifact.Lock();

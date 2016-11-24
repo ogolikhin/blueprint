@@ -14,7 +14,6 @@ import "rx/dist/rx.lite.js";
 import "tinymce";
 import "moment";
 import "lodash";
-import "angular-vs-repeat";
 import "mxClientCss/common.css";
 import "mxClientCss/explorer.css";
 import "ui-select";

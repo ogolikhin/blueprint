@@ -43,7 +43,6 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
     "ngAnimate",
-    "vs-repeat",
     "ngMessages",
     "ngSanitize",
     "app.shell",

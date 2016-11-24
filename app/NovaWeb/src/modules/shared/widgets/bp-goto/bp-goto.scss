@@ -1,5 +1,5 @@
 @import "../../../../styles/modules/variables";
-
+@import "../../../../styles/settings/colors";
 .bp-goto {
     &__search {
         position: absolute;
@@ -96,7 +96,7 @@
     .bp-goto__button-label {
         display: none;
     }
-    
+
     .bp-goto__button-icon {
         color: $brand-secondary;
         padding-left: 5px;

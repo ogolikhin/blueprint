@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using Common;
+﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -9,32 +6,27 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
-using Utilities;
-using Utilities.Facades;
-using Utilities.Factories;
-using System.Globalization;
 
 namespace ArtifactStoreTests
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class CollectionTests : TestBase
     {
-        private IUser _user = null;
+        private IUser _adminUser = null;
+        private IUser _authorUser = null;
         private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
         }
 
         [TearDown]
@@ -44,30 +36,79 @@ namespace ArtifactStoreTests
         }
 
         [TestCase()]
-        [TestRail(1)]
-        [Description(".")]
-        public void CreateCollection_GetCollectionContent_Validate()
+        [TestRail(195436)]
+        [Description("Create new collection, get collection content and validate it.")]
+        public void CreateEmptyCollection_GetCollectionContent_Validate()
+        {
+            CreateCollectionGetCollectionArtifact(_project, _authorUser);
+        }
+
+        [TestCase()]
+        [TestRail(195437)]
+        [Description("Create new collection, publish new artifact, add artifact to collection and save changes, check collection content.")]
+        public void CreateEmptyCollection_AddArtifactToCollectionAndSave_ValidateCollectionContent()
         {
             // Setup:
-            //var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
             // Execute:
-            var collectionArtifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _user,
-                ItemTypePredefined.ArtifactCollection, collectionFolder.Id);
-            Collection collection = null;
-            Assert.DoesNotThrow(() =>
-                collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id),
-                "!");
+            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
+            collectionArtifact.Lock(_authorUser);
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
+                "Updating collection content should throw no error.");
 
             // Verify:
-            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifact.Id });
-            var collectionArtifactBase = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Glossary, artifactId: collection.Id);
-            Artifact.Lock(collectionArtifactBase, Helper.BlueprintServer.Address, _user);
-            Artifact.UpdateArtifact(collectionArtifactBase, _user, collection);
-            collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
+            collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have 1 artifact");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
+        }
+
+        /// <summary>
+        /// Creates empty collection and return corresponding IArtifact.
+        /// </summary>
+        /// <param name="project">Project to create collection.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="parentId">(optional) Id of artifact under which collection should be created (no check for valid location).</param>
+        /// <param name="name">(optional) The name of collection.</param>
+        /// <returns>IArtifact which corresponds to the created collection.</returns>
+        private IArtifact CreateCollectionGetCollectionArtifact(IProject project, IUser user, int? parentId = null, string name = null)
+        {
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            parentId = collectionFolder.Id;
+
+            var collectionArtifact = Helper.CreateWrapAndSaveNovaArtifact(project, user,
+                ItemTypePredefined.ArtifactCollection, parentId.Value, name: name);
+
+            Collection collection = null;
+            Assert.DoesNotThrow(() =>
+                collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id),
+                "GetCollection shouldn't throw no error.");
+            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
+            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
+
+            return collectionArtifact;
+        }
+
+        /// <summary>
+        /// Compares list of CollectionItem with list of IArtifact.
+        /// </summary>
+        /// <param name="collectionArtifacts">List of CollectionItem.</param>
+        /// <param name="expectedArtifacts">List of IArtifact.</param>
+        private static void CheckCollectionArtifactsHaveExpectedValues (List<CollectionItem> collectionArtifacts,
+            List<IArtifact> expectedArtifacts)
+        {
+            Assert.AreEqual(collectionArtifacts.Count, expectedArtifacts.Count, "Number of artifacts should be the same");
+            for (int i = 0; i < collectionArtifacts.Count; i++)
+            {
+                Assert.AreEqual(expectedArtifacts[i].Id, collectionArtifacts[i].Id, "Id should have expected vaule");
+                Assert.AreEqual(expectedArtifacts[i].ArtifactTypeId, collectionArtifacts[i].ItemTypeId);
+                Assert.AreEqual(expectedArtifacts[i].Name, collectionArtifacts[i].Name);
+                /* Assert.AreEqual(expectedArtifacts[i].BaseArtifactType, collectionArtifacts[i].ItemTypePredefined);
+                ItemTypePredefined is a number defined in enum ItemTypePredefined
+                TODO: make proper comparison */
+            }
         }
     }
 }

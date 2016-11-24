@@ -592,6 +592,11 @@ namespace Helper
             if (baseType == null)
             {
                 baseType = ((ItemTypePredefined)novaArtifact.PredefinedType.Value).ToBaseArtifactType();
+
+                if (novaArtifact.ItemTypeName == "Collection")// fake type as far as we don't have Collection in OpenApi
+                {
+                    baseType = BaseArtifactType.PrimitiveFolder;
+                }
             }
 
             var fakeParent = ArtifactFactory.CreateArtifact(project, user, baseType.Value, novaArtifact.ParentId);

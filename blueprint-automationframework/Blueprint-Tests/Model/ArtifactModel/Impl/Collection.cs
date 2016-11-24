@@ -14,6 +14,11 @@ namespace Model.ArtifactModel.Impl
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<CollectionItem> Artifacts { get; set; }
 
+        /// <summary>
+        /// Updates Collection's artifacts.
+        /// </summary>
+        /// <param name="artifactsIdsToAdd">List of artifact's Id to add to Collection.</param>
+        /// <param name="artifactsIdsToRemove">List of artifact's Id to remove from Collection.</param>
         public void UpdateArtifacts (List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
             CollectionContentValue collectionContentValue = new CollectionContentValue();

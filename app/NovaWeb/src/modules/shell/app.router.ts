@@ -42,7 +42,6 @@ export class AppRoutes {
                 }
             })
             .state("logout", {
-                url: "/logout",
                 controller: LogoutStateController,
                 resolve: {
                     saved: ["$q", "selectionManager", LogoutStateController.autoSave]      

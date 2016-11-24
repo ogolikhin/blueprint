@@ -337,50 +337,13 @@ namespace ArtifactStoreTests
             NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
             CustomProperty property = null;
 
-            switch (propertyType)
+            if (propertyType == PropertyPrimitiveType.User)
             {
-                case PropertyPrimitiveType.Choice:
-                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-
-                    var novaPropertyType = _project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
-                    var choicePropertyValidValues = novaPropertyType.ValidValues;
-                    var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(newValue));
-
-                    var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> {newPropertyValue};
-
-                    // Change custom property choice value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues {ValidValues = newChoicePropertyValue};
-                    break;
-                case PropertyPrimitiveType.Date:
-                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-
-                    // Change custom property date value
-                    property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now.AddSeconds(newValue.ToInt32Invariant()));
-                    break;
-                case PropertyPrimitiveType.Number:
-                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-
-                    // Change custom property number value
-                    property.CustomPropertyValue = newValue;
-                    break;
-                case PropertyPrimitiveType.Text:
-                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-
-                    // Change custom property text value
-                    property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
-                    break;
-                case PropertyPrimitiveType.User:
-                    property = sourceArtifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-
-                    var newIdentification = new Identification { DisplayName = _user.DisplayName, Id = _user.Id };
-                    var newUserPropertyValue = new List<Identification> { newIdentification };
-
-                    // Change custom property user value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
-                    break;
-                default:
-                    Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
-                    break;
+                property = ArtifactStoreHelper.UpdateCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, _user);
+            }
+            else
+            {
+                property = ArtifactStoreHelper.UpdateCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, newValue);
             }
 
             // Execute:

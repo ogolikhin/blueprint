@@ -1,5 +1,4 @@
-import {IDialogSettings, IDialogData, BaseDialogController} from "../../../../shared/";
-import {IArtifactPickerDialogController} from "../../bp-artifact-picker/bp-artifact-picker-dialog";
+import {IDialogSettings} from "../../../../shared/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {MoveArtifactPickerDialogController, IMoveArtifactPickerOptions, MoveArtifactInsertMethod} from "./move-artifact";
 import {Models, Enums} from "../../../../main/models";

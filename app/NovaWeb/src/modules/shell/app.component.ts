@@ -66,8 +66,9 @@ export class AppController {
         //TODO: Localize!
         this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             if (unpublishedArtifactSet.artifacts.length > 0) {
-                const dialogMessage = "You have {0} unpublished changes".replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
-                this.dialogService.alert(dialogMessage, null, "Logout", "Cancel")
+                const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")
+                    .replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
+                this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
                     .then((success) => this.navigationService.navigateToLogout());
             } else {
                 this.navigationService.navigateToLogout();

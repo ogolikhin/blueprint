@@ -214,7 +214,7 @@ describe("BpArtifactPickerController", () => {
                 isGroup: true
             })]);
             expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.columns[0].innerRenderer)).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].cellRenderer)).toEqual(true);
         });
 
         it("getCellClass returns correct result", () => {
@@ -228,7 +228,7 @@ describe("BpArtifactPickerController", () => {
             expect(css).toEqual(["test"]);
         });
 
-        it("innerRenderer returns correct result", () => {
+        it("cellRenderer returns correct result", () => {
             // Arrange
             const vm = {
                 getIcon() {
@@ -246,10 +246,10 @@ describe("BpArtifactPickerController", () => {
             };
 
             // Act
-            const result = controller.columns[0].innerRenderer(params);
+            const result = controller.columns[0].cellRenderer(params);
 
             // Assert
-            expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);
+            expect(result).toEqual(`icon<span>name</span>`);
         });
     });
 

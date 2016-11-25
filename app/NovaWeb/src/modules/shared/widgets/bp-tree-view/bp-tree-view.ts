@@ -94,7 +94,7 @@ export interface IColumn {
     isCheckboxSelection?: boolean;
     isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeNode) => string[];
-    innerRenderer?: (params: IColumnRendererParams) => string;
+    cellRenderer?: (params: IColumnRendererParams) => string;
 }
 
 export interface IColumnRendererParams {
@@ -272,18 +272,12 @@ export class BPTreeViewController implements IBPTreeViewController {
             this.options.rowDeselection = this.selectionMode !== "single";
 
             this.options.api.setColumnDefs(this.columns.map(column => ({
-                   headerName: column.headerName ? column.headerName : "",
-                   field: column.field,
-                   width: column.width,
-                cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
-                   cellRenderer: column.isGroup ? "group" : column.innerRenderer,
-                   cellRendererParams: column.isGroup ? {
-                        checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
-                            (params: any) => (params.data as ITreeNode).selectable : undefined,
-                        innerRenderer: column.innerRenderer ?
-                            (params: any) => column.innerRenderer(params as IColumnRendererParams) : undefined,
-                        padding: 20
-                    } : undefined,
+                    headerName: column.headerName ? column.headerName : "",
+                    field: column.field,
+                    width: column.width,
+                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
+                    cellRenderer: column.isGroup ? "group" : column.cellRenderer,
+                    cellRendererParams: column.isGroup ? this.getCellRendererParams(column) : undefined,
                     checkboxSelection: column.isCheckboxSelection,
                     suppressMenu: true,
                     suppressSorting: true,
@@ -338,6 +332,19 @@ export class BPTreeViewController implements IBPTreeViewController {
         }
 
         return this.$q.resolve();
+    }
+
+    private getCellRendererParams(column: IColumn) {
+        if (column.isGroup) {
+            return {
+                checkbox: this.selectionMode === "checkbox" && !column.isCheckboxHidden ?
+                    (params: any) => (params.data as ITreeNode).selectable : undefined,
+                innerRenderer: column.cellRenderer ?
+                    (params: any) => `<span class="ag-group-value-wrapper">` + column.cellRenderer(params as IColumnRendererParams) + `</span>` : undefined,
+                padding: 20
+            };
+        }
+        return undefined;
     }
 
     private isLazyLoaded(vm: ITreeNode): boolean {

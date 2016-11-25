@@ -17,6 +17,9 @@ App_Button_Add,"Add"
 App_Button_Move,"Move"
 App_Button_ConfirmCloseProject,"Close Project"
 
+App_Error_No_Dialog_Service,"Dialog service is not provided or is null"
+App_Error_No_Project_Manager,"Project manager is not provided or is null"
+
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
 App_LoadingMsg,"Loading ..."

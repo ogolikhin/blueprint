@@ -733,11 +733,61 @@ describe("Artifact", () => {
              expect(error.message).toEqual(errormessage);
              expect(artifact.artifactState.deleted).toBeFalsy();
          }));
+    });
 
+    describe("move", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            const newParentId: number = 3;
+            const newOrderIndex: number = 15;
 
+            spyOn(artifactService, "moveArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.resolve([{
+                    id: 1, name: "TEST", parentId: newParentId, orderIndex: newOrderIndex
+                }]);
+                return deferred.promise;
+            });
 
-     });
+            // act
+            let result;
+            artifact.move(newParentId, newOrderIndex).then((it) => {
+                result = it;
+            });
+            $rootScope.$digest();
+            // assert
+            expect(result).toBeDefined();
+            expect(result).toEqual(jasmine.any(Array));
+            expect(error).toBeUndefined();
+        }));
 
+        it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            spyOn(artifactService, "moveArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict
+                });
+                return deferred.promise;
+            });
+            const newParentId: number = 3;
+
+            // act
+            artifact.move(newParentId);
+            $rootScope.$digest();
+
+            // assert
+            expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+        }));
+    });
 
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {

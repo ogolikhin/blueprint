@@ -22,22 +22,24 @@ export class MoveAction extends BPDropdownAction {
 
         super(undefined, undefined, undefined, undefined,
             new BPDropdownItemAction(
-                localization.get("App_Toolbar_Move"),
+                (() => {
+                    if (localization) {
+                        return localization.get("App_Toolbar_Move");
+                    } else {
+                        throw new Error("Localization service not provided or is null");
+                    }
+                })(),
                 () => this.execute(),
-                (): boolean => true,
+                (): boolean => this.canExecute(),
             )
         );
         
-        if (!localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
         if (!projectManager) {
-            throw new Error("Project manager not provided or is null");
+            throw new Error("App_Error_No_Project_Manager");
         }
 
         if (!dialogService) {
-            throw new Error("Dialog service not provided or is null");
+            throw new Error("App_Error_No_Dialog_Service");
         }
     }
 
@@ -91,9 +93,10 @@ export class MoveAction extends BPDropdownAction {
         }
 
         loadProjectPromise
-        .catch((err) => this.messageService.addError(err))
         .then(() => {
             this.openMoveDialog();
+        }).catch((err) => {
+            this.messageService.addError(err);
         });
     }
 

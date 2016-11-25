@@ -912,6 +912,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Publish
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Add', 'en-US', N'Add')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Move', 'en-US', N'Move')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_ConfirmCloseProject', 'en-US', N'Close Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Error_No_Dialog_Service', 'en-US', N'Dialog service is not provided or is null')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Error_No_Project_Manager', 'en-US', N'Project manager is not provided or is null')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading ...')

@@ -304,7 +304,7 @@ describe("BPTreeViewController", () => {
                 })
             })]);
             expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellClass)).toEqual(true);
-            expect(angular.isFunction(((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams as any).innerRenderer)).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["innerRenderer"])).toEqual(true);
         });
 
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {

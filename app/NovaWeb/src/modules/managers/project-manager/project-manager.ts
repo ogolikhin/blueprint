@@ -58,6 +58,7 @@ export class ProjectManager implements IProjectManager {
         "statefulArtifactFactory",
         "loadingOverlayService",
         "mainbreadcrumbService",
+        "itemInfoService",
         "localization",        
         "analytics"
     ];
@@ -178,7 +179,7 @@ export class ProjectManager implements IProjectManager {
 
     public openProjectWithDialog(): void {
         this.dialogService.open(<IDialogSettings>{
-            okButton: "Open",
+            okButton: this.localization.get("App_Button_Open"),
             template: require("../../main/components/dialogs/open-project/open-project.template.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
@@ -192,9 +193,9 @@ export class ProjectManager implements IProjectManager {
                         .finally(() => {
                             //(eventCollection, action, label?, value?, custom?, jQEvent?
                             const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                            //this.analytics.trackEvent("open", "project", label, project.id, {
-                            //    openProjects: openProjects
-                            //});                           
+                            this.analytics.trackEvent("open", "project", label, project.id, {
+                                openProjects: openProjects
+                            });                           
                             this.loadingOverlayService.endLoading(openProjectLoadingId);
                         });
                 } catch (err) {

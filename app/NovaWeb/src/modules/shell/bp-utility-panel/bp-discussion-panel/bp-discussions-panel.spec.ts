@@ -21,7 +21,7 @@ import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifa
 import {Helper} from "../../../shared/utils/helper";
 import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 
-let SetInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
+let setInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
     const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
     const artifact = new StatefulArtifact({id: 2, name: "Artifact 2", predefinedType: ItemTypePredefined.Process, version: 1}, services);
     spyOn(Helper, "canUtilityPanelUseSelectedArtifact").and.callFake((): boolean => { return true; });
@@ -76,7 +76,7 @@ describe("Component BPDiscussionPanel", () => {
                 predefinedType: ItemTypePredefined.Process,
                 version: 1
             });
-            let processShape = {
+            const processShape = {
                 projectId: 1,
                 parentId: 2,
                 id: -2,
@@ -107,7 +107,7 @@ describe("Component BPDiscussionPanel", () => {
             $timeout: ng.ITimeoutService,
             selectionManager: SelectionManagerMock) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -130,7 +130,7 @@ describe("Component BPDiscussionPanel", () => {
             const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
             const artifact = new StatefulArtifact({id: 2, name: "Artifact 2", predefinedType: ItemTypePredefined.Process, version: 1}, services);
             spyOn(Helper, "canUtilityPanelUseSelectedArtifact").and.callFake((): boolean => { return true; });
-            let processShape = {
+            const processShape = {
                 projectId: 1,
                 parentId: 2,
                 id: 4,
@@ -165,7 +165,7 @@ describe("Component BPDiscussionPanel", () => {
             const artifact = new StatefulArtifact({id: 2, name: "Collection", predefinedType: ItemTypePredefined.Collections, version: 1}, services);
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+
             $rootScope.$digest();
 
             //Assert
@@ -181,7 +181,7 @@ describe("Component BPDiscussionPanel", () => {
             artifactService: ArtifactServiceMock,
             $q: ng.IQService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -203,7 +203,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             artifactDiscussions: ArtifactDiscussionsMock) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             $rootScope.$digest();
             let deferred = $q.defer();
@@ -237,7 +237,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -257,7 +257,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -278,7 +278,7 @@ describe("Component BPDiscussionPanel", () => {
             $timeout: ng.ITimeoutService,
             artifactDiscussions: ArtifactDiscussionsMock) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             let deferred = $q.defer();
             spyOn(artifactDiscussions, "addDiscussion").and.callFake(
@@ -309,7 +309,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -320,7 +320,7 @@ describe("Component BPDiscussionPanel", () => {
 
             //Assert
             expect(newReply).toBeDefined;
-            expect(newReply).not.toBeNull;
+            expect(newReply.comment).toBe("test");
         }));
 
     it("add discussion reply throws exception",
@@ -331,7 +331,7 @@ describe("Component BPDiscussionPanel", () => {
             $timeout: ng.ITimeoutService,
             artifactDiscussions: ArtifactDiscussionsMock) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             let deferred = $q.defer();
             spyOn(artifactDiscussions, "addDiscussionReply").and.callFake(
@@ -362,7 +362,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -381,7 +381,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             vm.showAddComment = true;
 
@@ -401,7 +401,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
 
             vm.showAddComment = true;
 
@@ -422,7 +422,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
             vm.showAddComment = true;
             let reply: IReply = {
                 itemId: 100,
@@ -493,7 +493,7 @@ describe("Component BPDiscussionPanel", () => {
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
-            const artifact = SetInitialArtifact($q, artifactService);
+            const artifact = setInitialArtifact($q, artifactService);
             vm.showAddComment = true;
             let reply: IReply = {
                 itemId: 100,

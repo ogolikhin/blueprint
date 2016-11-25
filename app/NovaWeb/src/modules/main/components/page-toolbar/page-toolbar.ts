@@ -469,7 +469,7 @@ export class PageToolbarController implements IPageToolbarController {
 
     private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (!message.canBeClosed) {
+            if (!message.canBeClosedManually) {
                 this.messageService.deleteMessageById(message.id);
             }
         });

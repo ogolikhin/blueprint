@@ -129,7 +129,7 @@ export class ItemStateController {
 
     private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (!message.canBeClosed) {
+            if (!message.canBeClosedManually) {
                 this.messageService.deleteMessageById(message.id);
             }
         });

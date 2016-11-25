@@ -52,8 +52,8 @@
         "webpack-fail-plugin": "^1.0.5"
     },
     "devDependencies": {
-        "ag-grid": "6.2.0",
-        "ag-grid-enterprise": "6.2.0",
+        "ag-grid": "6.4.2",
+        "ag-grid-enterprise": "6.4.2",
         "angular": "~1.5.7",
         "angular-animate": "^1.5.8",
         "angular-formly": "^8.2.1",

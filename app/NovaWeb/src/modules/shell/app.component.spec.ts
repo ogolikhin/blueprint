@@ -22,9 +22,8 @@ describe("Component AppComponent", () => {
         }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
-        $provide.service("publishService", () => ({
-            getUnpublishedArtifacts: () => { return {artifacts: []}; }
-        }));
+        $provide.service("dialogService", () => ({}));
+        $provide.service("publishService", PublishServiceMock);
     }));
 
     let componentTest: ComponentTest<AppController>;
@@ -132,5 +131,15 @@ class SessionSvcMock {
     public ensureAuthenticated() {
         return this.$q.when([]);
     }
+}
 
+class PublishServiceMock {
+    public static $inject = ["$q"];
+
+    constructor(private $q: ng.IQService) {
+    }
+
+    public getUnpublishedArtifacts() {
+        return this.$q.when({artifacts: []});
+    }
 }

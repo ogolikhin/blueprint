@@ -368,9 +368,9 @@ Property_UserPicker_Searching,"Searching..."
 Property_UserPicker_ShowMore,"Show more"
 Property_UserPicker_Display_Top_N_Results,"Displaying first {0} results"
 Property_RTF_Add_InlineTrace,"Add Inline Trace"
-Property_RTF_InlineTrace_Error_Itself,"Cannot add an inline trace to itself"
-Property_RTF_InlineTrace_Error_Invalid_Selection,"Invalid selection"
-Property_RTF_InlineTrace_Error_Permissions,"You cannot add inline traces"
+Property_RTF_InlineTrace_Error_Itself,"An artifact cannot have an inline trace to itself."
+Property_RTF_InlineTrace_Error_Invalid_Selection,"The traced artifact could not be added. The selection is invalid."
+Property_RTF_InlineTrace_Error_Permissions,"You do not have permission to add inline traces. Please contact an administrator."
 
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."

@@ -44,13 +44,13 @@ describe("DeleteAction", () => {
     }));
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                                                             artifactManager: IArtifactManager,
-                                                             projectManager: IProjectManager,
-                                                             messageService: IMessageService,
-                                                             loadingOverlayService: ILoadingOverlayService,
-                                                             dialogService: IDialogService,
-                                                             navigationService: INavigationService
-            ) => {
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
+    ) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const localization: ILocalizationService = null;
@@ -69,13 +69,13 @@ describe("DeleteAction", () => {
     }));
 
     it("throws exception when dialogService is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                                                              localization: ILocalizationService,
-                                                              artifactManager: IArtifactManager,
-                                                              projectManager: IProjectManager,
-                                                              messageService: IMessageService,
-                                                              loadingOverlayService: ILoadingOverlayService,
-                                                              navigationService: INavigationService
-            ) => {
+        localization: ILocalizationService,
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        navigationService: INavigationService
+    ) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const dialogService: IDialogService = null;
@@ -95,123 +95,151 @@ describe("DeleteAction", () => {
 
 
     it("is disabled when artifact is null", inject((localization: ILocalizationService,
-                                                    artifactManager: IArtifactManager,
-                                                    projectManager: IProjectManager,
-                                                    messageService: IMessageService,
-                                                    loadingOverlayService: ILoadingOverlayService,
-                                                    dialogService: IDialogService,
-                                                    navigationService: INavigationService
-            ) => {
-            // arrange
-            const artifact: IStatefulArtifact = null;
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = null;
 
-            // act
+        // act
         const deleteAction = new DeleteAction(artifact,
             localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
-            // assert
-            expect(deleteAction.disabled).toBe(true);
-        }));
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
 
     it("is disabled when artifact is read-only", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                                                         localization: ILocalizationService,
-                                                         artifactManager: IArtifactManager,
-                                                         projectManager: IProjectManager,
-                                                         messageService: IMessageService,
-                                                         loadingOverlayService: ILoadingOverlayService,
-                                                         dialogService: IDialogService,
-                                                         navigationService: INavigationService
+        localization: ILocalizationService,
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
 
-            ) => {
-            // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-            artifact.artifactState.readonly = true;
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
+        artifact.artifactState.readonly = true;
 
-            // act
+        // act
         const deleteAction = new DeleteAction(artifact, localization,
             messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
-            // assert
-            expect(deleteAction.disabled).toBe(true);
-        }));
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
 
     it("is disabled when artifact is Project", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                                                       localization: ILocalizationService,
-                                                       artifactManager: IArtifactManager,
-                                                       projectManager: IProjectManager,
-                                                       messageService: IMessageService,
-                                                       loadingOverlayService: ILoadingOverlayService,
-                                                       dialogService: IDialogService,
-                                                       navigationService: INavigationService
+        localization: ILocalizationService,
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
 
-            ) => {
-            // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-                {
-                    id: 1,
-                    predefinedType: ItemTypePredefined.Project
-                });
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.Project
+            });
 
-            // act
+        // act
         const deleteAction = new DeleteAction(artifact, localization,
             messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
-            // assert
-            expect(deleteAction.disabled).toBe(true);
-        }));
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
 
     it("is disabled when artifact is Collections", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                                                           localization: ILocalizationService,
-                                                           artifactManager: IArtifactManager,
-                                                           projectManager: IProjectManager,
-                                                           messageService: IMessageService,
-                                                           loadingOverlayService: ILoadingOverlayService,
-                                                           dialogService: IDialogService,
-                                                           navigationService: INavigationService
+        localization: ILocalizationService,
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
 
-            ) => {
-            // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-                {
-                    id: 1,
-                    predefinedType: ItemTypePredefined.Collections
-                });
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.Collections
+            });
 
-            // act
-            const deleteAction = new DeleteAction(artifact, localization,
-                messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
-
-            // assert
-            expect(deleteAction.disabled).toBe(true);
-        }));
-
-    it("is enabled when artifact is valid", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                                                    localization: ILocalizationService,
-                                                    artifactManager: IArtifactManager,
-                                                    projectManager: IProjectManager,
-                                                    messageService: IMessageService,
-                                                    loadingOverlayService: ILoadingOverlayService,
-                                                    dialogService: IDialogService,
-                                                    navigationService: INavigationService
-
-            ) => {
-            // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-                {
-                    id: 1,
-                    predefinedType: ItemTypePredefined.TextualRequirement,
-                    lockedByUser: null,
-                    lockedDateTime: null,
-                    permissions: RolePermissions.Edit
-                });
-
-            // act
+        // act
         const deleteAction = new DeleteAction(artifact, localization,
             messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
-            // assert
-            expect(deleteAction.disabled).toBe(false);
-        }));
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
+
+    it("is disabled when artifact has no delete permissions", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService,
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
+
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.TextualRequirement,
+                lockedByUser: null,
+                lockedDateTime: null,
+                permissions: RolePermissions.Edit
+            });
+
+        // act
+        const deleteAction = new DeleteAction(artifact, localization,
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
+
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
+
+    it("is enabled when artifact is valid", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService,
+        artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
+
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.TextualRequirement,
+                lockedByUser: null,
+                lockedDateTime: null,
+                permissions: RolePermissions.Edit | RolePermissions.Delete
+            });
+
+        // act
+        const deleteAction = new DeleteAction(artifact, localization,
+            messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
+
+        // assert
+        expect(deleteAction.disabled).toBe(false);
+    }));
 
     describe("when executed", () => {
         let deleteAction: DeleteAction;
@@ -225,15 +253,15 @@ describe("DeleteAction", () => {
         let error: any;
 
         beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                           localization: ILocalizationService,
-                           artifactManager: IArtifactManager,
-                           projectManager: IProjectManager,
-                           messageService: IMessageService,
-                           loadingOverlayService: ILoadingOverlayService,
-                           dialogService: IDialogService,
-                           navigationService: INavigationService
+            localization: ILocalizationService,
+            artifactManager: IArtifactManager,
+            projectManager: IProjectManager,
+            messageService: IMessageService,
+            loadingOverlayService: ILoadingOverlayService,
+            dialogService: IDialogService,
+            navigationService: INavigationService
 
-            ) => {
+        ) => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
                     id: 1,
@@ -244,110 +272,111 @@ describe("DeleteAction", () => {
                 });
             deleteAction = new DeleteAction(artifact, localization, messageService, artifactManager,
                 projectManager, loadingOverlayService, dialogService, navigationService);
-                beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
-                endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
-                dialogOpenSpy = spyOn(dialogService, "open");
-                deleteSpy = spyOn(artifact, "delete");
-                completeDeleteSpy = spyOn(deleteAction, "complete").and.callFake(() => {
-                    return true;
+            beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
+            endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
+            dialogOpenSpy = spyOn(dialogService, "open");
+            deleteSpy = spyOn(artifact, "delete");
+            completeDeleteSpy = spyOn(deleteAction, "complete").and.callFake(() => {
+                return true;
+            });
+            spyOn(messageService, "addError").and.callFake((err) => {
+                error = err;
+            });
+            refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve(true);
+                return deferred.promise;
+            });
+            getDescendantsSpy = spyOn(projectManager, "getDescendantsToBeDeleted").and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve({
+                    id: 1, name: "Test", children: null
                 });
-                spyOn(messageService, "addError").and.callFake((err) => {
-                    error = err;
-                });
-                refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve(true);
-                    return deferred.promise;
-                });
-                getDescendantsSpy = spyOn(projectManager, "getDescendantsToBeDeleted").and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve({
-                        id: 1, name: "Test", children: null
-                    });
-                    return deferred.promise;
-                });
+                return deferred.promise;
+            });
 
         }));
 
-             it("confirm and delete", () => {
-                 // assert
-                dialogOpenSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve(true);
-                    return deferred.promise;
-                });
-                deleteSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve();
-                    return deferred.promise;
-                });
-
-                deleteAction.execute();
-                $scope.$digest();
-
-                 expect(getDescendantsSpy).toHaveBeenCalled();
-                 expect(deleteSpy).toHaveBeenCalled();
-
-             });
-
-             it("shows/hides loading screen", () => {
-                 // assert
-                dialogOpenSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve(true);
-                    return deferred.promise;
-                });
-                deleteSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve();
-                    return deferred.promise;
-                });
-
-
-                deleteAction.execute();
-                $scope.$digest();
-
-                 expect(beginLoadingSpy).toHaveBeenCalledTimes(2);
-                expect(endLoadingSpy).toHaveBeenCalledTimes(2);
-             });
-
-            it("rejects delete", () => {
-                // assert
-                dialogOpenSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.reject();
-                    return deferred.promise;
-                });
-
-
-                deleteAction.execute();
-                $scope.$digest();
-
-
-                expect(deleteSpy).not.toHaveBeenCalled();
+        it("confirm and delete", () => {
+            // assert
+            dialogOpenSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve(true);
+                return deferred.promise;
             });
-            it("failed delete", () => {
-                // assert
-                dialogOpenSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.resolve(true);
-                    return deferred.promise;
-                });
-                deleteSpy.and.callFake(() => {
-                    const deferred = $q_.defer();
-                    deferred.reject({});
-                    return deferred.promise;
-                });
-
-
-                deleteAction.execute();
-                $scope.$digest();
-
-
-                expect(completeDeleteSpy).not.toHaveBeenCalled();
-                expect(error).toBeDefined();
-
+            deleteSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve();
+                return deferred.promise;
             });
+
+            deleteAction.execute();
+            $scope.$digest();
+
+            expect(getDescendantsSpy).toHaveBeenCalled();
+            expect(deleteSpy).toHaveBeenCalled();
 
         });
+
+        it("shows/hides loading screen", () => {
+            // assert
+            dialogOpenSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve(true);
+                return deferred.promise;
+            });
+            deleteSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve();
+                return deferred.promise;
+            });
+
+
+            deleteAction.execute();
+            $scope.$digest();
+
+            expect(beginLoadingSpy).toHaveBeenCalledTimes(2);
+            expect(endLoadingSpy).toHaveBeenCalledTimes(2);
+        });
+
+        it("rejects delete", () => {
+            // assert
+            dialogOpenSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.reject();
+                return deferred.promise;
+            });
+
+
+            deleteAction.execute();
+            $scope.$digest();
+
+
+            expect(deleteSpy).not.toHaveBeenCalled();
+        });
+
+        it("failed delete", () => {
+            // assert
+            dialogOpenSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.resolve(true);
+                return deferred.promise;
+            });
+            deleteSpy.and.callFake(() => {
+                const deferred = $q_.defer();
+                deferred.reject({});
+                return deferred.promise;
+            });
+
+
+            deleteAction.execute();
+            $scope.$digest();
+
+
+            expect(completeDeleteSpy).not.toHaveBeenCalled();
+            expect(error).toBeDefined();
+
+        });
+
+    });
 });

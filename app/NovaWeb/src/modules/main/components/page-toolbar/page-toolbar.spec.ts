@@ -141,7 +141,7 @@ describe("Application toolbar:", () => {
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
-            const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
+            const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
             // Act
             toolbarCtrl.closeProject();
@@ -151,7 +151,7 @@ describe("Application toolbar:", () => {
             expect(navigateToSpy).not.toHaveBeenCalled();
             expect(navigateToMainSpy).toHaveBeenCalled();
             expect(removeProjectSpy).toHaveBeenCalled();
-            expect(clearLockedMessagesSpy).toHaveBeenCalled();
+            expect(clearStickyMessagesSpy).toHaveBeenCalled();
         }));
 
         it("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
@@ -178,7 +178,7 @@ describe("Application toolbar:", () => {
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove");
             const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
-            const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
+            const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
             // Act
             toolbarCtrl.closeProject();
@@ -190,7 +190,7 @@ describe("Application toolbar:", () => {
             expect(navigateToSpy).toHaveBeenCalledWith({id: 1});
             expect(navigateToMainSpy).not.toHaveBeenCalled();
             expect(removeProjectSpy).not.toHaveBeenCalled();
-            expect(clearLockedMessagesSpy).toHaveBeenCalled();
+            expect(clearStickyMessagesSpy).toHaveBeenCalled();
         }));
 
         it("navigates to project, selected artifact belongs to the project, but more than one project is opened",
@@ -216,7 +216,7 @@ describe("Application toolbar:", () => {
                 const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
                 const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
                 const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
-                const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
+                const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
                 // Act
                 toolbarCtrl.closeProject();
@@ -227,7 +227,7 @@ describe("Application toolbar:", () => {
                 expect(navigateToSpy).toHaveBeenCalledWith({id: 2});
                 expect(navigateToMainSpy).not.toHaveBeenCalled();
                 expect(removeProjectSpy).toHaveBeenCalled();
-                expect(clearLockedMessagesSpy).toHaveBeenCalled();
+                expect(clearStickyMessagesSpy).toHaveBeenCalled();
             }));
     });
 
@@ -257,7 +257,7 @@ describe("Application toolbar:", () => {
                     return;
                 });
                 const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
-                const clearLockedMessagesSpy = spyOn(toolbarCtrl, "clearLockedMessages");
+                const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
                 // Act
                 toolbarCtrl.closeAllProjects();
@@ -267,7 +267,7 @@ describe("Application toolbar:", () => {
                 expect(navigateToSpy).not.toHaveBeenCalled();
                 expect(navigateToMainSpy).toHaveBeenCalled();
                 expect(removeAllProjectSpy).toHaveBeenCalled();
-                expect(clearLockedMessagesSpy).toHaveBeenCalled();
+                expect(clearStickyMessagesSpy).toHaveBeenCalled();
             }));
     });
 

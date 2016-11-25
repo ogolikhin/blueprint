@@ -14,7 +14,7 @@ export {
     IDialogSettings,
     IDialogService,
     IDialogData,
-    IRowSliderControllerApi,
+    ITabSliderControllerApi,
     BaseDialogController,
     IBPAction,
     BPButtonAction,

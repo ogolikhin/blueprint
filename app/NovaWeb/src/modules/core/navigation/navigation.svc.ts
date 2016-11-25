@@ -6,6 +6,7 @@ export interface INavigationService {
     navigateTo(params: INavigationParams): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
     reloadParentState();
+    navigateToLogout(): ng.IPromise<any>;
 }
 
 export interface INavigationParams {
@@ -58,6 +59,15 @@ export class NavigationService implements INavigationService {
         const state: string = "main";
         const stateOptions: ng.ui.IStateOptions = {
             location: redirect ? "replace" : true
+        };
+
+        return this.$state.go(state, {}, stateOptions);
+    }
+
+    public navigateToLogout(): ng.IPromise<any> {
+        const state: string = "logout";
+        const stateOptions: ng.ui.IStateOptions = {
+            location: true
         };
 
         return this.$state.go(state, {}, stateOptions);

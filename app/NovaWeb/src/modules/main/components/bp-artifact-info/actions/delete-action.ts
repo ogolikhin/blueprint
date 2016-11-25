@@ -2,7 +2,7 @@ import {IApplicationError} from "../../../../core/error/applicationerror";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {Message, MessageType} from "../../../../core/messages/message";
-import {Models} from "../../../../main/models";
+import {Models, Enums} from "../../../../main/models";
 import {BPButtonAction, IDialogSettings, IDialogService} from "../../../../shared";
 import {IStatefulArtifact, IArtifactManager} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
@@ -14,16 +14,16 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class DeleteAction extends BPButtonAction {
     constructor(private artifact: IStatefulArtifact,
-                private localization: ILocalizationService,
-                private messageService: IMessageService,
-                private artifactManager: IArtifactManager,
-                private projectManager: IProjectManager,
-                private loadingOverlayService: ILoadingOverlayService,
-                private dialogService: IDialogService,
-                private navigationService: INavigationService
-                ) {
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private artifactManager: IArtifactManager,
+        private projectManager: IProjectManager,
+        private loadingOverlayService: ILoadingOverlayService,
+        private dialogService: IDialogService,
+        private navigationService: INavigationService
+    ) {
         super();
-        
+
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -49,7 +49,7 @@ export class DeleteAction extends BPButtonAction {
         return !this.canExecute();
     }
 
-    public get execute()  {
+    public get execute() {
         return this.deleteArtifact;
     }
 
@@ -71,8 +71,11 @@ export class DeleteAction extends BPButtonAction {
             return false;
         }
 
-        return true;
+        if ((this.artifact.permissions & Enums.RolePermissions.Delete) !== Enums.RolePermissions.Delete) {
+            return false;
+        }
 
+        return true;
     }
 
     private deleteArtifact() {
@@ -85,7 +88,7 @@ export class DeleteAction extends BPButtonAction {
                 okButton: this.localization.get("App_Button_Delete"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
                 message: this.localization.get(descendants.length ?
-                        "Delete_Artifact_Confirmation_All_Descendants" : "Delete_Artifact_Confirmation_Single"),
+                    "Delete_Artifact_Confirmation_All_Descendants" : "Delete_Artifact_Confirmation_Single"),
                 template: require("../../../../main/components/dialogs/bp-confirm-delete/bp-confirm-delete.html"),
                 controller: ConfirmDeleteController,
                 css: "nova-publish modal-alert",
@@ -113,21 +116,21 @@ export class DeleteAction extends BPButtonAction {
 
 
     private complete(deletedArtifacts: Models.IArtifact[]) {
-        const parentArtifact = this.artifactManager.get(this.artifact.parentId); 
+        const parentArtifact = this.artifactManager.get(this.artifact.parentId);
         if (parentArtifact) {
             this.projectManager.refresh(parentArtifact.projectId, true).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 this.navigationService.navigateTo({id: parentArtifact.id});
-                                    
+
             });
         } else {
             this.artifact.refresh();
         }
         const message = new Message(
-                MessageType.Info, 
-                deletedArtifacts.length > 1 ? "Delete_Artifact_All_Success_Message" : "Delete_Artifact_Single_Success_Message", 
-                true, 
-                deletedArtifacts.length);
+            MessageType.Info,
+            deletedArtifacts.length > 1 ? "Delete_Artifact_All_Success_Message" : "Delete_Artifact_Single_Success_Message",
+            true,
+            deletedArtifacts.length);
         message.timeout = 6000;
         this.messageService.addMessage(message);
 

@@ -11,6 +11,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
+    [BaseExceptionFilter]
     [RoutePrefix("log")]
     public class LogController : ApiController
     {
@@ -39,6 +40,11 @@ namespace AdminStore.Controllers
         [Route(""), SessionOptional]
         public async Task<IHttpActionResult> Log([FromBody]ClientLogModel logEntry)
         {
+            if (logEntry == null)
+            {
+                return BadRequest("Log entry not provided or malformed");
+            }
+
             var sessionToken = Request.Headers.GetValues("Session-Token").FirstOrDefault();
             var sessionId = string.IsNullOrEmpty(sessionToken) ? "" : sessionToken.Substring(0, 8);
             string userName = GetUserName();

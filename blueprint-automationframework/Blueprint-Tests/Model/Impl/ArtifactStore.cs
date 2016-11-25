@@ -606,7 +606,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
+                shouldControlJsonChanges: true);
 
             return collection;
         }

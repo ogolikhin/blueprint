@@ -77,9 +77,10 @@ namespace ArtifactStoreTests
         {
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
             parentId = collectionFolder.Id;
-
+            // fake type as far as we don't have Collection in OpenApi
             var collectionArtifact = Helper.CreateWrapAndSaveNovaArtifact(project, user,
-                ItemTypePredefined.ArtifactCollection, parentId.Value, name: name);
+                ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
+                name: name);
 
             Collection collection = null;
             Assert.DoesNotThrow(() =>
@@ -105,9 +106,7 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(expectedArtifacts[i].Id, collectionArtifacts[i].Id, "Id should have expected vaule");
                 Assert.AreEqual(expectedArtifacts[i].ArtifactTypeId, collectionArtifacts[i].ItemTypeId);
                 Assert.AreEqual(expectedArtifacts[i].Name, collectionArtifacts[i].Name);
-                /* Assert.AreEqual(expectedArtifacts[i].BaseArtifactType, collectionArtifacts[i].ItemTypePredefined);
-                ItemTypePredefined is a number defined in enum ItemTypePredefined
-                TODO: make proper comparison */
+                Assert.AreEqual(expectedArtifacts[i].BaseArtifactType.ToItemTypePredefined(), collectionArtifacts[i].ItemTypePredefined);
             }
         }
     }

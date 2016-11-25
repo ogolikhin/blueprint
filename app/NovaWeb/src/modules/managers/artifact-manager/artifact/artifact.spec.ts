@@ -247,6 +247,28 @@ describe("Artifact", () => {
             expect(error.message).toEqual("App_Save_Artifact_Error_409_115");
         }));
 
+        it("error 409 123", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            spyOn(artifactService, "updateArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict,
+                    errorCode: 123
+                });
+                return deferred.promise;
+            });
+
+            // act
+            let error: Error;
+            artifact.save().catch((err) => {
+                error = err;
+            });
+            $rootScope.$digest();
+
+            // assert
+            expect(error.message).toEqual("App_Save_Artifact_Error_409_123");
+        }));
+
         it("error 409 124", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
             // arrange
             spyOn(artifactService, "updateArtifact").and.callFake(() => {

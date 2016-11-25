@@ -43,7 +43,7 @@
                 </div>
             </div>
 
-            <row-slider slide-selector=".uib-tab__tab" ng-if="$ctrl.isRichTextPropertyAvailable">
+            <tab-slider slide-selector=".uib-tab__tab" ng-if="$ctrl.isRichTextPropertyAvailable">
                 <uib-tabset>
                     <uib-tab ng-repeat="field in $ctrl.richTextFields track by $index"
                              select="$ctrl.activeTab = $index"
@@ -53,7 +53,7 @@
                         </formly-form>
                     </uib-tab>
                 </uib-tabset>
-            </row-slider>
+            </tab-slider>
 
         </form>
     </div>

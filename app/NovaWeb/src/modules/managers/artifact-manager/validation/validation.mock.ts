@@ -78,6 +78,7 @@ class NumberValidationMock extends BaseValidation implements INumberValidation {
 }
 
 class DateValidationMock extends BaseValidation implements IDateValidation {
+    public baseSQLDate = new Date(1753, 0, 1);
 
     constructor(private localization: ILocalizationService) {
         super();
@@ -86,7 +87,7 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
     public wrongFormat(newValue): boolean {
         return true;
     }
-    public minSQLDate(newValue): boolean {
+    public minDateSQL(newValue): boolean {
         return true;
     }
     public minDate(newValue: string,

@@ -150,17 +150,22 @@ export class ProjectManager implements IProjectManager {
 
         let selectedArtifact = this.artifactManager.selection.getArtifact();
 
-        return selectedArtifact.autosave().then(() => {
+        if (selectedArtifact) {
+            return selectedArtifact.autosave().then(() => {
+                return this.doRefresh(projectNode, selectedArtifact, forceOpen);
+            });
+        } else {
             return this.doRefresh(projectNode, selectedArtifact, forceOpen);
-        });
+        }
+
 
     }
 
     private doRefresh(project: IArtifactNode, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
-        let selectedArtifactNode = this.getArtifactNode(expandToArtifact.id);
+        let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
 
         //if the artifact provided is not in the current project - just expand project node
-        if (expandToArtifact.projectId !== project.model.id) {
+        if (!expandToArtifact || expandToArtifact.projectId !== project.model.id) {
             expandToArtifact = this.getArtifact(project.model.id);
         }
 

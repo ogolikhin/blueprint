@@ -10,7 +10,11 @@ namespace Model.ArtifactModel.Impl
     public class Collection : NovaArtifactDetails
     {
         public string ReviewName { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
         public bool IsCreated { get; set; }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<CollectionItem> Artifacts { get; set; }
 

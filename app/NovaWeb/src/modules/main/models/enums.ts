@@ -193,46 +193,47 @@ export enum TraceType {
     Reuse = 8
 }
 
-
+// Must keep enum values insync with RolePermissions enum in Raptor solution 
+// ~\blueprint-current\Source\BluePrintSys.RC.Data.AccessAPI\Model\RolePermissions.cs
 export enum RolePermissions {
     // No privileges
-    None = 0,  //0
+    None = 0,  // = 0 | 0x0 
 
     // Allows the viewing of an artifact
-    Read = 1 << 0, // = 1
+    Read = 1 << 0, // = 1 | 0x1
 
     // Allows the editing of an artifact. This includes deleting & adding children.
-    Edit = 1 << 1, // = 2
+    Edit = 1 << 1, // = 2 | 0x2
 
     // Allows deleting an artifact.
-    Delete = 1 << 2, // = 4
+    Delete = 1 << 6, // = 64 | 0x40
 
     // Allow tracing from/To an artifact project.
-    Trace = 1 << 3, // = 8
+    Trace = 1 << 2, // = 4 | 0x4
 
     // Allow the user to comment on an artifact.
-    Comment = 1 << 4, // 16
+    Comment = 1 << 3, // 8 | 0x8
 
     // Allows a user to steal a lock on artifacts.
-    StealLock = 1 << 5, //= 32
+    StealLock = 1 << 4, //= 16 | 0x10
 
     // Allows a user to report on the project.
-    CanReport = 1 << 6, // = 64
+    CanReport = 1 << 7, // = 128 | 0x80
 
     // Allows a user to share an artifact.
-    Share = 1 << 7, // = 128
+    Share = 1 << 8, // = 256 | 0x100
 
     // Allow reuse traces from/To an artifact project.
-    Reuse = 1 << 8, // = 256
+    Reuse = 1 << 9, // = 512 | 0x200
 
     // Allows a user to perform Excel Update.
-    ExcelUpdate = 1 << 9, // = 512
+    ExcelUpdate = 1 << 10, // = 1024 | 0x400
 
     // Allow the user to delete someone else's comment on an artifact.
-    DeleteAnyComment = 1 << 10, // = 1024
+    DeleteAnyComment = 1 << 11, // = 2048 | 0x800
 
     // Allow the user to create/edit/save rapid review
-    CreateRapidReview = 1 << 11 // = 2048
+    CreateRapidReview = 1 << 12 // = 4096 | 0x1000
 }
 
 

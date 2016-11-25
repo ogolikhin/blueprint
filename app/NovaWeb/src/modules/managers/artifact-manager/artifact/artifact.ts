@@ -55,7 +55,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public unsubscribe() {
         super.unsubscribe();
         this.subject.onCompleted();
-        delete this._subject;
+        this._subject = undefined;
     }
 
     protected get subject(): Rx.BehaviorSubject<IStatefulArtifact> {
@@ -463,7 +463,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public autosave(): ng.IPromise<void> {
         if (this.canBeSaved() ) {
             return this.save(true).catch(() => {
-                return this.services.dialogService.confirm("Autosave has failed. Continue without saving?").then(() => {
+                return this.services.dialogService.open(<IDialogSettings>{
+                okButton: this.services.localizationService.get("App_Button_Proceed"),
+                //cancelButton: this.services.localizationService.get("Save"),
+                message: this.services.localizationService.get("App_Save_Auto_Confirm"),
+                header: this.services.localizationService.get("App_DialogTitle_Alert")
+                }).then(() => {
                     this.discard();
                 });
             });

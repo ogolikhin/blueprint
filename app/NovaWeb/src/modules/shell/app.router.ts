@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import {ISession} from "./login/session.svc";
-import {IArtifactManager} from "../managers";
+import {IProjectManager, ISelectionManager} from "../managers";
+import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 
 export class AppRoutes {
@@ -40,6 +41,12 @@ export class AppRoutes {
                     }]
                 }
             })
+            .state("logout", {
+                controller: LogoutStateController,
+                resolve: {
+                    saved: ["$q", "selectionManager", LogoutStateController.autoSave]      
+                } 
+            })
             .state("error", {
                 url: "/error",
                 template: require("./error/error-page.html")
@@ -60,16 +67,23 @@ export class MainStateController {
         "$window",
         "$state",
         "$log",
-        "artifactManager",
-        "isServerLicenseValid"
+        "selectionManager",
+        "isServerLicenseValid",
+        "session",
+        "projectManager",
+        "navigationService"
+        
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $window: ng.IWindowService,
                 private $state: angular.ui.IStateService,
                 private $log: ng.ILogService,
-                private artifactManager: IArtifactManager,
-                private isServerLicenseValid: boolean) {
+                private selectionManager: ISelectionManager,
+                private isServerLicenseValid: boolean,
+                private session: ISession,
+                private projectManager: IProjectManager,
+                private navigation: INavigationService) {
 
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
         $rootScope.$on("$stateChangeSuccess", this.stateChangeSuccess);
@@ -97,12 +111,12 @@ export class MainStateController {
             }
         } else if (toState.name === this.mainState) {
             this.$log.info("SelectionManager.clearAll()");
-            this.artifactManager.selection.clearAll();
-        }
+            this.selectionManager.clearAll();
+        } 
     };
 
     private updateAppTitle() {
-        const artifact = this.artifactManager.selection.getArtifact();
+        const artifact = this.selectionManager.getArtifact();
 
         let title: string;
         if (artifact) {
@@ -112,4 +126,34 @@ export class MainStateController {
         }
         this.$window.document.title = title;
     }
+}
+
+export class LogoutStateController {
+public static $inject = [
+        "$log",
+        "session",
+        "projectManager",
+        "navigationService"
+    ];
+
+    constructor(private $log: ng.ILogService,
+                private session: ISession,
+                private projectManager: IProjectManager, 
+                private navigation: INavigationService) {
+
+        this.session.logout().then(() => {
+            this.navigation.navigateToMain(true).finally(() => {
+                this.projectManager.removeAll();
+            });
+        });
+    }    
+    
+    
+    public static autoSave($q: ng.IQService, selection: ISelectionManager): ng.IPromise<void> {
+        let artifact = selection.getArtifact();
+        if (artifact) {
+            return artifact.autosave();
+        }
+        return $q.resolve();
+    }  
 }

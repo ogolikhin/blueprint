@@ -158,14 +158,16 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
-                    editor.on("Change", (e) => {
+                    editor.on("KeyUp", (e) => {
                         const currentContent = editor.getContent();
                         if (currentContent !== this.contentBuffer) {
-                            if (!$scope.options["data"].isFresh) {
-                                this.triggerChange(currentContent);
-                            } else { // this will get called when refreshing the artifact
-                                this.prepRTF();
-                            }
+                            this.triggerChange(currentContent);
+                        }
+                    });
+
+                    editor.on("Change", (e) => {
+                        if ($scope.options["data"].isFresh) {
+                            this.prepRTF();
                         }
                     });
 

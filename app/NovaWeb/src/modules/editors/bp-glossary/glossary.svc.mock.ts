@@ -1,6 +1,5 @@
 import {IGlossaryService} from "./glossary.svc";
-import {IArtifact} from "../../main/models/models";
-import {ISubArtifact} from "../../main/models/models";
+import {IArtifact, ISubArtifact} from "../../main/models/models";
 
 export class GlossaryServiceMock implements IGlossaryService {
     public static $inject = ["$q"];

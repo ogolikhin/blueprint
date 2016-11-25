@@ -99,9 +99,8 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
         $scope.options["validators"] = {
             minDateSQL: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.dateValidation.minSQLDate($viewValue);
-                    const minSQLDate = new Date(1753, 0, 1);
-                    scope.to.minDateSQL = localization.current.formatDate(minSQLDate, localization.current.shortDateFormat);
+                    const isValid = validationService.dateValidation.minDateSQL($viewValue);
+                    scope.to.minDateSQL = localization.current.formatDate(validationService.dateValidation.baseSQLDate, localization.current.shortDateFormat);
                     BPFieldBaseController.handleValidationMessage("minDateSQL", isValid, scope);
                     return true;
                 }

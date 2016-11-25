@@ -8,10 +8,6 @@ export class ProjectServiceMock implements IProjectService {
     constructor(private $q: ng.IQService) {
     }
 
-    public abort(): void {
-        return;
-    }
-
     public getFolders(id?: number): ng.IPromise<any[]> {
         const deferred = this.$q.defer<any[]>();
 

@@ -7,10 +7,10 @@ import {
 } from "../bp-base-editor";
 
 import {PropertyEditor} from "./bp-property-editor";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {IRowSliderControllerApi} from "../../shared";
+import {ITabSliderControllerApi} from "../../shared";
 
 export {
     IArtifactManager,
@@ -27,7 +27,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
-    public slider: IRowSliderControllerApi;
+    public slider: ITabSliderControllerApi;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -146,16 +146,12 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {
         $scope.$applyAsync(() => {
             try {
-                //here we need to update original model
                 const context = $field.data as IPropertyDescriptor;
-                const invalid = ($field.formControl as ng.IFormController).$invalid;
-                if (!context) {
+                if (!context || !this.editor) {
                     return;
                 }
-                if (!this.editor) {
-                    return;
-                }
-                let value = invalid ? $value : this.editor.convertToModelValue($field, $value);
+                //here we need to update original model
+                const value = this.editor.convertToModelValue($field, $value);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);
@@ -168,14 +164,6 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                         break;
                 }
                 context.isFresh = false;
-                
-                //TODO:REMOVE: seems we don't need the following block of code since we never check INVALID state 
-                // this.artifact.validate().then(()  => {
-                //     this.artifact.artifactState.invalid = false;
-                // }).catch(() => {
-                //     this.artifact.artifactState.invalid = true;
-                // });
-
             } catch (err) {
                 this.messageService.addError(err);
             }

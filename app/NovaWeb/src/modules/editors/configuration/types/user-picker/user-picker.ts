@@ -6,7 +6,7 @@ import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
-interface IUserGroup extends Models.IUserGroup {
+export interface IUserGroup extends Models.IUserGroup {
     isImported?: boolean;
 }
 
@@ -77,10 +77,10 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                     const isValid = validationService.userPickerValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
                         $viewValue, $modelValue);
-                        
+
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
-                    return true;                        
-                        
+                    return true;
+
                 }
             }
         };

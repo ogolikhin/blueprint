@@ -306,6 +306,22 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates collection artifact or collection folder.
+        /// </summary>
+        /// <param name="project">Project in which collection artifact or collection folder will be created.</param>
+        /// <param name="user">User who creates collection artifact or collection folder.</param>
+        /// <param name="artifactType">Collection artifact or collection folder.</param>
+        /// <returns>Open API artifact.</returns>
+        public IArtifact CreateCollectionOrCollectionFolder(IProject project, IUser user, BaselineAndCollectionTypePredefined artifactType)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+
+            return CreateWrapAndSaveNovaArtifact(project, user, (ItemTypePredefined)artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
+        }
+
+        /// <summary>
         /// Creates and saves a new Nova artifact (wrapped inside an IArtifact object).
         /// </summary>
         /// <param name="project">The project where the Nova artifact should be created.</param>

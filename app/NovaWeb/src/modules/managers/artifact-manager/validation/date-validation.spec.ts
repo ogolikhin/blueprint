@@ -39,6 +39,14 @@ describe("date validation tests - ", () => {
             expect(result).toBeTruthy();
         });
 
+        it("null date - success", () => {
+            // act
+            const result = validationService.dateValidation.maxDate(null, null, true);
+
+            // assert
+            expect(result).toBeTruthy();
+        });
+
         it("less than max date - success", () => {
             // arrange
             const date = new Date(2016, 11, 24);
@@ -77,10 +85,17 @@ describe("date validation tests - ", () => {
 
     describe("minDate -", () => {
 
-
         it("isValidated true - ignore validation", () => {
             // act
             const result = validationService.dateValidation.minDate(null, null, false);
+
+            // assert
+            expect(result).toBeTruthy();
+        });
+
+        it("null date - success", () => {
+            // act
+            const result = validationService.dateValidation.minDate(null, null, true);
 
             // assert
             expect(result).toBeTruthy();
@@ -122,6 +137,14 @@ describe("date validation tests - ", () => {
     });
     
     describe("minDateSQL -", () => {
+
+        it("null date - success", () => {
+            // act
+            const result = validationService.dateValidation.minDateSQL(null);
+
+            // assert
+            expect(result).toBeTruthy();
+        });
 
         it("exact min sql date - success", () => {
             // arrange

@@ -459,7 +459,8 @@ namespace Model.ArtifactModel.Impl
     public enum PropertyTypePredefined
     {
         ActorInheritance = 4128,
-        DocumentFile = 4129
+        DocumentFile = 4129,
+        Collection = 4135
     }
 
     public class CustomProperty

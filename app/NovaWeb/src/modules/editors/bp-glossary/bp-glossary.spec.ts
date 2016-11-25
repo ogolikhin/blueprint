@@ -43,7 +43,8 @@ describe("Component BP Glossary", () => {
         const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
         const artifact = new StatefulArtifact({id: 263, name: "Artifact 263", predefinedType: ItemTypePredefined.Process, version: 1}, services);
         spyOn(artifact, "lock").and.callFake(() => { return; });
-        GlossaryServiceMock.getTerms().forEach((value: ISubArtifact) => {
+        const terms = GlossaryServiceMock.getTerms();
+        _.each(terms, value => {
             artifact.subArtifactCollection.add(statefulArtifactFactory.createStatefulSubArtifact(artifact, value));
         });
         artifactManager.selection.setArtifact(artifact);

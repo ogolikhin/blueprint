@@ -109,7 +109,7 @@ namespace SearchService.Repositories
                 //Sql timeout error
                 if (sqlException.Number == -2)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -161,7 +161,7 @@ namespace SearchService.Repositories
                 //Sql timeout error
                 if (sqlException.Number == -2)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -210,7 +210,7 @@ namespace SearchService.Repositories
                 //Sql timeout error
                 if (sqlException.Number == -2)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }

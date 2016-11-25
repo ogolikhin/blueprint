@@ -25,6 +25,11 @@ export class DateValidation extends BaseValidation implements IDateValidation {
     }
 
     public wrongFormat(value: string | Date): boolean {
+
+        if (!value) {
+            return true;
+        }
+
         if (_.isDate(value)) {
             return true;
         }
@@ -67,7 +72,7 @@ export class DateValidation extends BaseValidation implements IDateValidation {
                this.minDateSQL(value) &&
                this.minDate(value, minDate, isValidated) &&
                this.maxDate(value, maxDate, isValidated) &&
-               super.hasValueIfRequired(isRequired, value, isValidated);
+               this.hasValueIfRequired(isRequired, value, isValidated);
     }
 
 }

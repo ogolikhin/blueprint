@@ -1,3 +1,4 @@
+import "angular";
 import "angular-mocks";
 import "angular-ui-router";
 import {INavigationService, NavigationService} from "./navigation.svc";
@@ -9,6 +10,7 @@ describe("NavigationService", () => {
     let navigationService: INavigationService;
 
     let mainState = "main";
+    let logoutState = "logout";
     let artifactState = "main.item";
 
     beforeEach(angular.mock.module("ui.router"));
@@ -32,6 +34,23 @@ describe("NavigationService", () => {
 
             // act
             navigationService.navigateToMain();
+
+            // assert
+            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
+            expect($state.current.params).toBeUndefined();
+        });
+
+        it("initiates state transition to main state from main state", () => {
+            // arrange
+            const expectedState = logoutState;
+            const expectedParams = {};
+            const expectedOptions = {location: true};
+            const stateGoSpy = spyOn($state, "go");
+
+            $state.current.name = "main";
+
+            // act
+            navigationService.navigateToLogout();
 
             // assert
             expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);

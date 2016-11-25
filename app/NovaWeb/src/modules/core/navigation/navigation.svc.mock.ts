@@ -22,6 +22,11 @@ export class NavigationServiceMock implements INavigationService {
 
         return deferred.promise;
     }
+    public navigateToLogout(): ng.IPromise<any> {
+        const deferred = this.$q.defer();
+        deferred.resolve();
+        return deferred.promise;
+    }
 
     public navigateTo(params: INavigationParams): ng.IPromise<any> {
         params.redirect = params.redirect || false;

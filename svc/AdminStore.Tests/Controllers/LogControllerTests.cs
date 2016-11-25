@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Hosting;
 using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -163,6 +166,24 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.AreEqual(HttpStatusCode.OK, result.Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostLog_LogEntryNotProvided_BadRequest()
+        {
+            // Arrange
+            var httpRequestMessage = new HttpRequestMessage();
+            httpRequestMessage.Properties.Add(HttpPropertyKeys.HttpConfigurationKey, new HttpConfiguration());
+            var controller = new LogController(null)
+            {
+                Request = httpRequestMessage,
+            };
+
+            // Act
+            var result = await controller.Log(null);
+
+            // Assert
+            Assert.AreEqual(HttpStatusCode.BadRequest, (await result.ExecuteAsync(CancellationToken.None)).StatusCode);
         }
         #endregion PostReset
     }

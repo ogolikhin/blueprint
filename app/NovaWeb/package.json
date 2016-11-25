@@ -1,6 +1,6 @@
 {
     "name": "nova",
-    "version": "7.4.0-0",
+    "version": "2.0.0-0",
     "description": "Requirements Management Software Web Application",
     "private": true,
     "license": "UNLICENSED",

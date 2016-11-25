@@ -51,9 +51,7 @@ describe("Component AppComponent", () => {
 
             //Arrange
             const vm: AppController = componentTest.createComponent({});
-            spyOn(session, "logout").and.callThrough();
-            spyOn(navigationService, "navigateToMain").and.callThrough();
-            spyOn($window.location, "reload").and.callThrough();
+            spyOn(navigationService, "navigateToLogout").and.callThrough();
             const event = componentTest.scope.$broadcast("dummyEvent");
 
             //Act
@@ -61,9 +59,7 @@ describe("Component AppComponent", () => {
             componentTest.scope.$digest();
 
             //Assert
-            expect(session.logout).toHaveBeenCalled();
-            expect(navigationService.navigateToMain).toHaveBeenCalled();
-            expect($window.location.reload).toHaveBeenCalled();
+            expect(navigationService.navigateToLogout).toHaveBeenCalled();
             expect(event.defaultPrevented).toBeTruthy();
 
 

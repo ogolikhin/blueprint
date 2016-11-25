@@ -13,6 +13,7 @@ export interface IMessage {
     messageText: string;
     persistent?: boolean;
     timeout?: number;
+    canBeClosed: boolean;
     parameters?: any[];
 }
 
@@ -20,12 +21,14 @@ export class Message implements IMessage {
     public onMessageAction: (actionName: string) => void;
     public id: number;
     public timeout: number;
+    public canBeClosed: boolean;
     public parameters: any[];
 
     constructor(public messageType: MessageType, public messageText: string, public persistent: boolean = false, ...params: any[]) {
         if (params.length) {
             this.parameters = params;
         }
+        this.canBeClosed = messageType === MessageType.Error || messageType === MessageType.Warning;
     }
 }
 

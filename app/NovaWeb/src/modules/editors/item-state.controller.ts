@@ -37,7 +37,7 @@ export class ItemStateController {
         const version = parseInt($state.params["version"], 10);
 
         if (_.isFinite(id)) {
-            this.clearLockedMessages();
+            this.clearStickyMessages();
 
             const artifact = artifactManager.get(id);
 
@@ -88,7 +88,7 @@ export class ItemStateController {
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
                 } else if (result.isDeleted) {
-                    
+
                     statefulArtifact.artifactState.deleted = true;
                     statefulArtifact.artifactState.historical = true;
 
@@ -127,9 +127,9 @@ export class ItemStateController {
         return invalidTypes.indexOf(itemType) >= 0;
     }
 
-    private clearLockedMessages() {
+    private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (message.messageType === MessageType.Deleted) {
+            if (!message.canBeClosed) {
                 this.messageService.deleteMessageById(message.id);
             }
         });
@@ -162,7 +162,7 @@ export class ItemStateController {
             case Models.ItemTypePredefined.Glossary:
                 stateName = "main.item.glossary";
                 break;
-            case Models.ItemTypePredefined.Project:           
+            case Models.ItemTypePredefined.Project:
                 stateName = "main.item.general";
                 break;
             case Models.ItemTypePredefined.CollectionFolder:

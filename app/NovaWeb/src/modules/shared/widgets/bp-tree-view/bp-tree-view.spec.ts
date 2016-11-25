@@ -247,7 +247,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("single");
             expect(controller.options.rowDeselection).toEqual(false);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toBeUndefined();
+            expect((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["checkbox"]).toBeUndefined();
         });
 
         it("When selection mode is multiple, sets rowSelection, rowDeselection and checkbox correctly", () => {
@@ -262,7 +262,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("multiple");
             expect(controller.options.rowDeselection).toEqual(true);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toBeUndefined();
+            expect((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["checkbox"]).toBeUndefined();
         });
 
         it("When selection mode is checkbox, sets rowSelection, rowDeselection and checkbox correctly", () => {
@@ -277,7 +277,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("multiple");
             expect(controller.options.rowDeselection).toEqual(true);
-            expect(angular.isFunction(controller.options.columnDefs[0].cellRendererParams["checkbox"])).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["checkbox"])).toEqual(true);
         });
 
         it("When columns change, sets column defs correctly", () => {
@@ -303,8 +303,8 @@ describe("BPTreeViewController", () => {
                     padding: 20
                 })
             })]);
-            expect(angular.isFunction(controller.options.columnDefs[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.options.columnDefs[0].cellRendererParams.innerRenderer)).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellClass)).toEqual(true);
+            expect(angular.isFunction(((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams as any).innerRenderer)).toEqual(true);
         });
 
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {

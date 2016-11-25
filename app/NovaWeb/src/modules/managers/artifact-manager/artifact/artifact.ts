@@ -462,7 +462,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public autosave(): ng.IPromise<void> {
         if (this.canBeSaved() ) {
-            return this.save().catch(() => {
+            return this.save(true).catch(() => {
                 return this.services.dialogService.open(<IDialogSettings>{
                 okButton: this.services.localizationService.get("App_Button_Proceed"),
                 //cancelButton: this.services.localizationService.get("Save"),

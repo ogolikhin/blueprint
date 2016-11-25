@@ -1,8 +1,9 @@
-import * as angular from "angular";
+import "angular";
 import "angular-mocks";
 import "angular-ui-router";
+import "rx/dist/rx.lite";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
-import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
+import {SelectionManagerMock} from "../managers/selection-manager/selection-manager.mock";
 import {MainStateController} from "./app.router";
 
 describe("AppRouter", () => {
@@ -17,7 +18,7 @@ describe("AppRouter", () => {
     beforeEach(angular.mock.module("ui.router"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("isServerLicenseValid", Boolean);
         $provide.service("session", Boolean);
     }));
@@ -37,7 +38,7 @@ describe("AppRouter", () => {
         isServerLicenseValid = true;
     }));
 
-    xdescribe("$stateChangeSuccess", () => {
+    describe("$stateChangeSuccess", () => {
         beforeEach(() => {
             ctrl = new MainStateController($rootScope, $window, $state, $log, selectionManager, isServerLicenseValid, null, null, null);
         });
@@ -54,7 +55,7 @@ describe("AppRouter", () => {
 
             // act
             $rootScope.$broadcast("$stateChangeSuccess");
-
+            $rootScope.$digest();
             // assert
             expect($window.document.title).toBe(expectedTitle);
         });

@@ -318,8 +318,22 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
+    
     protected initialize(artifact: Models.IArtifact): void {
         this.artifact = artifact;
+        if (this.artifact.createdOn) {
+            this.artifact.createdOn = this.services.localizationService.current.toDate(this.artifact.createdOn);
+        }
+        if (this.artifact.lastEditedOn) {
+            this.artifact.lastEditedOn = this.services.localizationService.current.toDate(this.artifact.lastEditedOn);
+        }
+        if (this.artifact.lastSavedOn) {
+            this.artifact.lastSavedOn = this.services.localizationService.current.toDate(this.artifact.lastSavedOn);
+        }
+        if (this.artifact.lockedDateTime) {
+            this.artifact.lockedDateTime = this.services.localizationService.current.toDate(this.artifact.lockedDateTime);
+        }
+
         this.customProperties.initialize(artifact.customPropertyValues);
         this.specialProperties.initialize(artifact.specificPropertyValues);
     }

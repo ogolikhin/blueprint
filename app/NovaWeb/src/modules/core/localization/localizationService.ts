@@ -150,7 +150,7 @@ export class BPLocale {
         let d = moment(value);
         let result: string = null;
         if (d.isValid()) {
-            result = d.format(format);
+            result = d.format(format || "YYYY-MM-DDTHH:mm:ss");
         }
         return result;
     }

@@ -158,9 +158,14 @@ export class ProjectManager implements IProjectManager {
 
         let selectedArtifact = this.artifactManager.selection.getArtifact();
 
-        return selectedArtifact.autosave().then(() => {
+        if (selectedArtifact) {
+            return selectedArtifact.autosave().then(() => {
+                return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
+            });
+        } else {
             return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
-        });
+        }
+
 
     }
 
@@ -173,7 +178,7 @@ export class ProjectManager implements IProjectManager {
 
     public openProjectWithDialog(): void {
         this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Open"),
+            okButton: "Open",
             template: require("../../main/components/dialogs/open-project/open-project.template.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
@@ -187,9 +192,9 @@ export class ProjectManager implements IProjectManager {
                         .finally(() => {
                             //(eventCollection, action, label?, value?, custom?, jQEvent?
                             const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                            this.analytics.trackEvent("open", "project", label, project.id, {
-                                openProjects: openProjects
-                            });
+                            //this.analytics.trackEvent("open", "project", label, project.id, {
+                            //    openProjects: openProjects
+                            //});                           
                             this.loadingOverlayService.endLoading(openProjectLoadingId);
                         });
                 } catch (err) {
@@ -207,7 +212,7 @@ export class ProjectManager implements IProjectManager {
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact.id);        
 
         //if the artifact provided is not in the current project - just expand project node
-        if (expandToArtifact.projectId !== projectId) {
+        if (!expandToArtifact || expandToArtifact.projectId !== projectId) {
             expandToArtifact = this.getArtifact(projectId);
         }
 

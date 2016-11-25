@@ -1110,7 +1110,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Message', 'en-US', N'Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Success_Message', 'en-US', N'All artifacts ({0}) have had their changes published.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_No_Unpublished_Changes', 'en-US', N'There are no artifacts that can be published.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Close_Project_UnpublishedArtifacts', 'en-US', N'You have saved but unpublished changes ({0}).<br/><br/>Consider publishing or discarding before continuing.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Close_Project_UnpublishedArtifacts', 'en-US', N'You have {0} saved but unpublished change(s).<br/><br/>Considering publishing or discarding before continuing.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_List_Show_More', 'en-US', N'Show more')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_List_Show_First_N_Results', 'en-US', N'Displaying first {0} results')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_Dependents_Dialog_Message', 'en-US', N'If you publish the artifact, other related artifacts will also need to be published. Please review and confirm:')

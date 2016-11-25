@@ -357,13 +357,13 @@ export class PageToolbarController implements IPageToolbarController {
         } else {
             this.navigationService.navigateToMain();
         }
-        this.clearLockedMessages();
+        this.clearStickyMessages();
     }
 
     private closeAllProjectsInternal() {
         this.projectManager.removeAll();
         this.artifactManager.selection.clearAll();
-        this.clearLockedMessages();
+        this.clearStickyMessages();
         this.navigationService.navigateToMain();
     }
 
@@ -441,9 +441,9 @@ export class PageToolbarController implements IPageToolbarController {
         evt.stopImmediatePropagation();
     }
 
-    private clearLockedMessages() {
+    private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (message.messageType === MessageType.Lock) {
+            if (!message.canBeClosedManually) {
                 this.messageService.deleteMessageById(message.id);
             }
         });
@@ -454,7 +454,7 @@ export class PageToolbarController implements IPageToolbarController {
     };
 
     public get isProjectOpened(): boolean {
-        return !!this.projectManager.getSelectedProjectId();
+        return this.projectManager.projectCollection.getValue().length > 0;
     }
 
     public get canCreateNew(): boolean {

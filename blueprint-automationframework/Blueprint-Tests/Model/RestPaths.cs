@@ -138,6 +138,7 @@ namespace Model
                 public const string DIAGRAM_id_                     = "/svc/bpartifactstore/diagram/{0}";   // NovaDiagramController.GetDiagram
                 public const string GLOSSARY_id_                    = "/svc/bpartifactstore/glossary/{0}";  // NovaGlossaryController.GetGlossary
                 public const string USECASE_id_                     = "/svc/bpartifactstore/usecase/{0}";   // NovaUseCaseController.GetUseCase
+                public const string COLLECTION_id_                  = "svc/bpartifactstore/collection/{0}"; // Collection
 
                 public const string STATUS                          = "svc/artifactstore/status";
 

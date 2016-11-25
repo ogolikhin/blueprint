@@ -480,7 +480,7 @@ export class PageToolbarController implements IPageToolbarController {
     };
 
     public get isProjectOpened(): boolean {
-        return !!this.projectManager.getSelectedProjectId();
+        return this.projectManager.projectCollection.getValue().length > 0;
     }
 
     public get canCreateNew(): boolean {

@@ -842,14 +842,15 @@ namespace ArtifactStoreTests
 
         #region Subartifact Properties tests
 
-        // TODO: This test is not reviewed and will get updated on next pull request for full review
+        // TODO: Should returns 409 Conflict error if server side validation works for customproperties of sub artifact but it's diabled for December release.
+        // TODO: Currently, artifact publish pass without serverside validation when there is invalid data for custom property of sub artifact 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestRail(195408)]
-        [Explicit(IgnoreReasons.UnderDevelopment)] // TODO: (Trello case: https://trello.com/c/hKTwhfFM) Should returns other than 500 internal server error
+        [Explicit(IgnoreReasons.ProductBug)]
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
-             "Verify that the sub artifact returned the default text property.")]
-        public void UpdateSubArtifact_ChangeTextPropertyWithEmpty_VerifyPropertyUnchanged(ItemTypePredefined itemType,
+             "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
+        public void UpdateSubArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType,
     string subArtifactDisplayName,
     string subArtifactCustomPropertyName)
         {
@@ -858,27 +859,32 @@ namespace ArtifactStoreTests
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
-            var subArtifact = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
-            var defaultCustomProperty = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id).CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             var subArtifactCustomPropertyValue = "";
             var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
 
-            // Execute:Attempt to update the target sub artifact with empty content
+            // Execute: Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
-            var ex = Assert.Throws < Http500InternalServerErrorException >(() => Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails), "'PATCH {0}' should return 500 Internal Server Error Exception if the invalid subartifact changeset is requested!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author), "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
-            const string currentErrorMsg = "Unable to cast object of type 'BluePrintSys.RC.Data.AccessAPI.Model.DSubArtifact' to type 'BluePrintSys.RC.Data.AccessAPI.Model.DArtifact'.";
-            Assert.That(ex.RestResponse.Content.Contains(currentErrorMsg));
+            // Validation: Exception should contain proper errorCode in the response content
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode, "Error code for PublishArtifact with the artifact containing invalid change should be {0}", InternalApiErrorCodes.CannotPublishOverValidationErrors);
 
+            // Commented code below is for debugging purpose:
+            /*
+            var subArtifact = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
+            var defaultCustomProperty = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id).CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            Helper.ArtifactStore.PublishArtifact(artifact, author);
             Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
             var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
             var returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(defaultCustomProperty, returnedProperty);
+            */
         }
 
         #endregion Subartifact Properties tests
@@ -1117,6 +1123,7 @@ namespace ArtifactStoreTests
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
 
+        // TODO: UpdateCustomProperty can be used for the tests that use this method after update on UpdateCustomProperty
         /// <summary>
         /// Create the changeset for the target artifact
         /// </summary>
@@ -1137,25 +1144,25 @@ namespace ArtifactStoreTests
 
             switch (artifactCustomPropertyName)
             {
-                case "Std-Text-Required-RT-Multi-HasDefault":
+                case CustomPropertyName.TextRequiredRTMultiHasDefault:
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = artifactCustomPropertyValue;
                         artifactDetailsChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault":
+                case CustomPropertyName.NumberRequiredValidatedDecPlacesMinMaxHasDefault:
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = artifactCustomPropertyValue;
                         artifactDetailsChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Date-Required-Validated-Min-Max-HasDefault":
+                case CustomPropertyName.DateRequiredValidatedMinMaxHasDefault:
                     {
                         customPropertyValueToUpdate.CustomPropertyValue = artifactCustomPropertyValue;
                         artifactDetailsChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-Choice-Required-AllowMultiple-DefaultValue":
+                case CustomPropertyName.ChoiceRequiredAllowMultipleDefaultValue:
                     {
                         var choicePropertyValidValues = projectCustomData.NovaPropertyTypes.Find(pt => pt.Name.Equals(artifactCustomPropertyName)).ValidValues;
 
@@ -1168,7 +1175,7 @@ namespace ArtifactStoreTests
                         artifactDetailsChangeSet.CustomPropertyValues.Add(customPropertyValueToUpdate);
                         break;
                     }
-                case "Std-User-Required-HasDefault-User":
+                case CustomPropertyName.UserRequiredHasDefaultUser:
                     {
                         var userData = (IUser)artifactCustomPropertyValue;
                         var newIdentification = new Identification() { DisplayName = userData.DisplayName, Id = userData.Id };
@@ -1182,6 +1189,7 @@ namespace ArtifactStoreTests
             return artifactDetailsChangeSet;
         }
 
+        // TODO: UpdateCustomProperty can be used for the tests that use this method after update on UpdateCustomProperty
         /// <summary>
         /// Create the changeset for the target sub artifact
         /// </summary>

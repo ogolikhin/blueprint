@@ -210,7 +210,7 @@ export class ProjectManager implements IProjectManager {
         //try with selected artifact
         const loadChildren = forceOpen || (selectedArtifactNode ? selectedArtifactNode.expanded : false);
         return this.projectService.getProjectTree(openProjectId, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {
-            return this.processProjectTree(openProjectId, data, project ? true : false).catch(() => {
+            return this.processProjectTree(openProjectId, data, expandToArtifact.id, project ? true : false).catch(() => {
                 this.clearProject(project);
                 return this.$q.reject();
             });
@@ -231,7 +231,7 @@ export class ProjectManager implements IProjectManager {
                 //try with selected artifact's parent
                 return this.projectService.getProjectTree(openProjectId, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
                     this.messageService.addInfo("Refresh_Artifact_Deleted");
-                    return this.processProjectTree(openProjectId, data, project ? true : false).catch(() => {
+                    return this.processProjectTree(openProjectId, data, expandToArtifact.parentId, project ? true : false).catch(() => {
                         this.clearProject(project);
                         return this.$q.reject();
                     });
@@ -240,7 +240,7 @@ export class ProjectManager implements IProjectManager {
                         //try it with project
                         return this.projectService.getArtifacts(openProjectId).then((data: Models.IArtifact[]) => {
                             this.messageService.addInfo("Refresh_Artifact_Deleted");
-                            return this.processProjectTree(openProjectId, data, project ? true : false).catch(() => {
+                            return this.processProjectTree(openProjectId, data, openProjectId, project ? true : false).catch(() => {
                                 this.clearProject(project);
                                 return this.$q.reject();
                             });
@@ -263,7 +263,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    private processProjectTree(projectId: number, data: Models.IArtifact[], closeOldProject: boolean = true): ng.IPromise<void> {
+    private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number, closeOldProject: boolean = true): ng.IPromise<void> {
         let oldProject: IArtifactNode;
         if (closeOldProject) {
             oldProject = this.getProject(projectId);
@@ -299,7 +299,7 @@ export class ProjectManager implements IProjectManager {
             });
 
             //open any children that have children
-            this.openChildNodes(newProjectNode.children, data);
+            const expandedStatefulArtifact =  this.openChildNodes(newProjectNode.children, data, artifactToSelectId);
 
             if (oldProject) {
                 //update project collection
@@ -307,7 +307,10 @@ export class ProjectManager implements IProjectManager {
                 oldProject.unloadChildren();
             } else {
                 this.projectCollection.getValue().unshift(newProjectNode);
-                this.projectCollection.onNext(this.projectCollection.getValue());
+                this.projectCollection.onNext(this.projectCollection.getValue());   
+                if (expandedStatefulArtifact) {
+                    this.artifactManager.selection.setExplorerArtifact(expandedStatefulArtifact);
+                }
             }
 
         });
@@ -320,7 +323,9 @@ export class ProjectManager implements IProjectManager {
         }        
     }
 
-    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {
+    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[], resultStatefulArtifactId: number): IStatefulArtifact {
+
+        let resultArtifact: IStatefulArtifact;
         //go through each node
         _.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(it => it.id === node.model.id);
@@ -329,14 +334,22 @@ export class ProjectManager implements IProjectManager {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);
+                    if (it.id === resultStatefulArtifactId) {
+                        resultArtifact = statefulArtifact;
+                    }
                     return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
                 });
                 node.expanded = true;
 
-                //process its children
-                this.openChildNodes(node.children, childData[0].children);
+                const openChildeResult = this.openChildNodes(node.children, childData[0].children, resultStatefulArtifactId);
+                if (!resultArtifact) {
+                    resultArtifact = openChildeResult;
+                }
+                //process its children                
             }
         });
+
+        return resultArtifact;
     }
 
     public add(project: AdminStoreModels.IInstanceItem): ng.IPromise<void> {

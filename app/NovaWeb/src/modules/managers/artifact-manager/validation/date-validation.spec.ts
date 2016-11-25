@@ -25,18 +25,18 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.wrongFormat(date);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
     });
 
     describe("maxDate -", () => {
 
-        it("isValidated true - ignore validation", () => {
+        it("returns true when it does not need to be validated", () => {
             // act
             const result = validationService.dateValidation.maxDate(null, null, false);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("null date - success", () => {
@@ -44,7 +44,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.maxDate(null, null, true);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("less than max date - success", () => {
@@ -55,7 +55,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.maxDate(date, maxDate, true);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("exact max date - success", () => {
@@ -66,7 +66,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.maxDate(date, maxDate, true);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("more than max date - fails", () => {
@@ -77,7 +77,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.maxDate(date, maxDate, true);
 
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
 
         
@@ -85,12 +85,12 @@ describe("date validation tests - ", () => {
 
     describe("minDate -", () => {
 
-        it("isValidated true - ignore validation", () => {
+        it("returns true when it does not need to be validated", () => {
             // act
             const result = validationService.dateValidation.minDate(null, null, false);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("null date - success", () => {
@@ -98,7 +98,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDate(null, null, true);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("more than min date - success", () => {
@@ -109,7 +109,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDate(date, minDate, true);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("exact min date - success", () => {
@@ -120,7 +120,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDate(date, minDate, true);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("less than min date - fails", () => {
@@ -131,7 +131,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDate(date, minDate, true);
 
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
 
     });
@@ -143,7 +143,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDateSQL(null);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("exact min sql date - success", () => {
@@ -153,7 +153,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDateSQL(date);
 
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
         it("less than min sql date - fails", () => {
             // arrange
@@ -162,7 +162,7 @@ describe("date validation tests - ", () => {
             const result = validationService.dateValidation.minDateSQL(date);
 
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
     });
 
@@ -182,7 +182,7 @@ describe("date validation tests - ", () => {
             // act
             const result = validationService.dateValidation.isValid(null, null, null, null, null);
             // assert
-            expect(result).toBeTruthy();
+            expect(result).toBe(true);
         });
 
         it("minDateSQL - fails", () => {
@@ -191,7 +191,7 @@ describe("date validation tests - ", () => {
             // act
             const result = validationService.dateValidation.isValid(null, null, null, null, null);
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
 
         it("wrongFormat - fails", () => {
@@ -200,7 +200,7 @@ describe("date validation tests - ", () => {
             // act
             const result = validationService.dateValidation.isValid(null, null, null, null, null);
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
 
         it("minDate - fails", () => {
@@ -209,7 +209,7 @@ describe("date validation tests - ", () => {
             // act
             const result = validationService.dateValidation.isValid(null, null, null, null, null);
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
 
         it("maxDate - fails", () => {
@@ -218,7 +218,7 @@ describe("date validation tests - ", () => {
             // act
             const result = validationService.dateValidation.isValid(null, null, null, null, null);
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
 
         it("hasValueIfRequired - fails", () => {
@@ -227,7 +227,7 @@ describe("date validation tests - ", () => {
             // act
             const result = validationService.dateValidation.isValid(null, null, null, null, null);
             // assert
-            expect(result).toBeFalsy();
+            expect(result).toBe(false);
         });
     });
 });

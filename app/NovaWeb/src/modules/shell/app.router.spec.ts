@@ -37,7 +37,7 @@ describe("AppRouter", () => {
         isServerLicenseValid = true;
     }));
 
-    describe("$stateChangeSuccess", () => {
+    xdescribe("$stateChangeSuccess", () => {
         beforeEach(() => {
             ctrl = new MainStateController($rootScope, $window, $state, $log, selectionManager, isServerLicenseValid, null, null, null);
         });

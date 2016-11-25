@@ -368,6 +368,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.canceller.reject();
             this.canceller = this.$q.defer<void>();
         }
+        this.filterItemType = undefined;
         this.searchText = undefined;
         this.searchResults = undefined;
         this.isMoreSearchResults = undefined;

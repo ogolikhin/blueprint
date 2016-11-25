@@ -27,6 +27,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {LoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../core/navigation/item-info.svc";
+import {AnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -35,9 +36,9 @@ describe("BpProcessHeader", () => {
     let controller: BpProcessHeaderController;
     let localization: LocalizationServiceMock;
     let breadcrumbService: IBreadcrumbService;
-    let navigationService: INavigationService;
+    let navigationService: INavigationService;    
 
-    beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
+    beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService, $windowProvider: ng.IServiceProvider, $window: ng.IWindowService) => {
         $provide.service("artifactManager", ArtifactManager);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
@@ -57,19 +58,20 @@ describe("BpProcessHeader", () => {
         $provide.service("artifactRelationships", ArtifactRelationshipsService);
         $provide.service("itemInfoService", ItemInfoService);
         $provide.service("projectManager", ProjectManager);
-        $provide.service("projectService", ProjectService);
+        $provide.service("projectService", ProjectService);        
+        $provide.service("analytics", AnalyticsProvider);        
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$compile_: ng.ICompileService,
-                       _$q_: ng.IQService,
+                       _$q_: ng.IQService,                       
                        _localization_: LocalizationServiceMock,
                        _breadcrumbService_: IBreadcrumbService,
                        _navigationService_: INavigationService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
-        $compile = _$compile_;
+        $compile = _$compile_;        
         localization = _localization_;
         breadcrumbService = _breadcrumbService_;
         navigationService = _navigationService_;

@@ -77,7 +77,7 @@ namespace SearchService.Helpers
         }
 
         [TestMethod]
-        public void SearchTimeoutValueStringSize_ValidValue_ReturnsValue()
+        public void MaxSearchableValueStringSize_ValidValue_ReturnsValue()
         {
             var configuration = new Mock<ISearchConfiguration>();
             var value = 10;
@@ -188,7 +188,7 @@ namespace SearchService.Helpers
         }
 
         [TestMethod]
-        public void MaxSearchableValueStringSize_ValidValue_ReturnsValue()
+        public void SearchTimeoutValueStringSize_ValidValue_ReturnsValue()
         {
             var configuration = new Mock<ISearchConfiguration>();
             var value = 10;

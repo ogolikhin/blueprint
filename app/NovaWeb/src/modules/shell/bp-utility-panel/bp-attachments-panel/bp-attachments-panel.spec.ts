@@ -247,8 +247,7 @@ describe("Component BP Attachments Panel", () => {
             spyOn(dialogService, "open").and.callFake((dialogSettings: any): ng.IPromise<File[]> => {
                 deferred.resolve([files[0]]);
                 return deferred.promise;
-            }
-            );
+            });
 
             //Act
             selectionManager.setArtifact(artifact);

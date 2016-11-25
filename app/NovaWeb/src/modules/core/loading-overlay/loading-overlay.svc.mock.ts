@@ -7,7 +7,7 @@ export class LoadingOverlayServiceMock implements ILoadingOverlayService {
     }
 
     public dispose(): void {
-        return;
+        return undefined;
     }
 
     public beginLoading(): number {
@@ -16,6 +16,6 @@ export class LoadingOverlayServiceMock implements ILoadingOverlayService {
 
 
     public endLoading(id: number): void {
-        return;
+        return undefined;
     }
 }

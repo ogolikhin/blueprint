@@ -33,6 +33,8 @@ Tooltip_Artifact_Header_LegacyArtifact,"Legacy artifact"
 
 App_Sidebar_Left,"Explorer"
 App_Sidebar_Right,"Utility Panel"
+App_Explorer_EmptyMessage,"You have no projects loaded in the project Explorer."
+App_Explorer_OpenProject_ButtonLabel,"Open a project"
 
 App_Project,"Project"
 App_Project_Open,"Open Project"

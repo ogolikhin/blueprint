@@ -165,10 +165,8 @@ export class ProjectManager implements IProjectManager {
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
 
         //if the artifact provided is not in the current project - just expand project node
-        if (expandToArtifact && expandToArtifact.projectId !== project.model.id) {
+        if (!expandToArtifact || expandToArtifact.projectId !== project.model.id) {
             expandToArtifact = this.getArtifact(project.model.id);
-        } else {
-            expandToArtifact = project.model;
         }
 
         //try with selected artifact

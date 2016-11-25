@@ -22,6 +22,9 @@ describe("Component AppComponent", () => {
         }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
+        $provide.service("publishService", () => ({
+            getUnpublishedArtifacts: () => { return {artifacts: []}; }
+        }));
     }));
 
     let componentTest: ComponentTest<AppController>;

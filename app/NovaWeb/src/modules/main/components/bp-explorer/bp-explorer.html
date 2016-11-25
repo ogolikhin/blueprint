@@ -1,5 +1,5 @@
 ﻿<bp-tree-view api="$ctrl.treeApi"
-              ng-show="$ctrl.projects && $ctrl.projects.length > 0"
+              ng-show="$ctrl.isProjectTreeVisible()"
               row-data="$ctrl.projects"
               columns="$ctrl.columns"
               size-columns-to-fit="true"
@@ -8,7 +8,7 @@
               on-grid-reset="$ctrl.onGridReset(isExpanding)">
 </bp-tree-view>
 
-<div ng-show="!$ctrl.projects || $ctrl.projects.length < 1"
+<div ng-show="!$ctrl.isProjectTreeVisible()"
      class="explorer-empty-state">
     <p>{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
     <label class="btn btn-secondary btn-small" ng-click="$ctrl.openProject()">

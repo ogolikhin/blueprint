@@ -118,6 +118,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
+
+    public isProjectTreeVisible(): boolean {
+        return this.projects && this.projects.length > 0;
+    }
     
     public openProject(): void {
         const selectedArtifact = this.selectionManager.getArtifact();
@@ -131,20 +135,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 
         let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-        try {
-            this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
-                .finally(() => {
-                    //(eventCollection, action, label?, value?, custom?, jQEvent?
-                    const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                    this.analytics.trackEvent("open", "project", label, projectId, {
-                        openProjects: openProjects
-                    });
-                    this.loadingOverlayService.endLoading(openProjectLoadingId);
+        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+            .finally(() => {
+                //(eventCollection, action, label?, value?, custom?, jQEvent?
+                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                this.analytics.trackEvent("open", "project", label, projectId, {
+                    openProjects: openProjects
                 });
-        } catch (err) {
-            this.loadingOverlayService.endLoading(openProjectLoadingId);
-            throw err;
-        }     
+                this.loadingOverlayService.endLoading(openProjectLoadingId);
+            });        
     }
 
     public onGridReset(isExpanding: boolean): void {

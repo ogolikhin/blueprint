@@ -144,6 +144,7 @@ describe("BpArtifactPickerController", () => {
         expect(controller.searchText).toBeUndefined();
         expect(controller.searchResults).toBeUndefined();
         expect(controller.isMoreSearchResults).toBeUndefined();
+        expect(controller.filterItemType).toBeUndefined();
     });
 
     it("search, when project is set, searches artifacts", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {

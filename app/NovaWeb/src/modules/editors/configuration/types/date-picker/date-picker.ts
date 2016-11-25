@@ -1,5 +1,4 @@
 import "angular-formly";
-import {Helper} from "../../../../shared";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
@@ -92,7 +91,7 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
 
         const validation = {
             messages: {
-                date: `"` + this.localization.get("Property_Wrong_Format") + ` (` + to.placeholder + `)"`
+                date: `"` + localization.get("Property_Wrong_Format") + ` (` + to.placeholder + `)"`
             }
         };
         _.merge($scope.options.validation, validation);
@@ -101,23 +100,26 @@ export class BpFieldDatePickerController extends BPFieldBaseController {
             minDateSQL: {
                 expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.dateValidation.minSQLDate($viewValue);
-                    
+                    const minSQLDate = new Date(1753, 0, 1);
+                    scope.to.minDateSQL = localization.current.formatDate(minSQLDate, localization.current.shortDateFormat);
                     BPFieldBaseController.handleValidationMessage("minDateSQL", isValid, scope);
                     return true;
                 }
             },
             minDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid = validationService.dateValidation.minDate($viewValue, scope.to.datepickerOptions.minDate, 
-                                                                                          scope.options.data.isValidated);
+                    const isValid = validationService.dateValidation.minDate($viewValue,
+                        scope.to.datepickerOptions.minDate, scope.options.data.isValidated);
+                    scope.to.minDate = localization.current.formatDate(scope.to.datepickerOptions.minDate, localization.current.shortDateFormat);
                     BPFieldBaseController.handleValidationMessage("minDate", isValid, scope);
                     return true;
                 }
             },
             maxDate: {
                 expression: function ($viewValue, $modelValue, scope) {
-                    const isValid =  validationService.dateValidation.maxDate($viewValue, scope.to.datepickerOptions.maxDate, 
-                                                                                          scope.options.data.isValidated);
+                    const isValid =  validationService.dateValidation.maxDate($viewValue,
+                        scope.to.datepickerOptions.maxDate, scope.options.data.isValidated);
+                    scope.to.maxDate = localization.current.formatDate(scope.to.datepickerOptions.maxDate, localization.current.shortDateFormat);
                     BPFieldBaseController.handleValidationMessage("maxDate", isValid, scope);
                     return true;
                 }

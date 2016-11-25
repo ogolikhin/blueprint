@@ -2,7 +2,7 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface IDateValidation extends IBaseValidation {
-    
+
     wrongFormat(value: string): boolean;
     minSQLDate(value: string | Date): boolean;
     minDate(value: string | Date, minDate: Date, isValidated: boolean): boolean;
@@ -32,10 +32,10 @@ export class DateValidation extends BaseValidation implements IDateValidation {
     }
 
     public minSQLDate(value: string | Date): boolean {
-        const minsqldate = new Date(1753, 1, 1);  
+        const minsqldate = new Date(1753, 0, 1);
         return this.minDate(value, minsqldate, true);
     }
-    
+
     public minDate(value: string | Date, minDate: Date, isValidated: boolean): boolean {
         if (!isValidated) {
             return true;
@@ -55,7 +55,7 @@ export class DateValidation extends BaseValidation implements IDateValidation {
         }
 
         const date = this.convert(value);
-      
+
         if (date && maxDate) {
             return date.getTime() <= maxDate.getTime();
         }

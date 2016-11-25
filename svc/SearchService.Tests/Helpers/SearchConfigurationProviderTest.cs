@@ -48,6 +48,7 @@ namespace SearchService.Helpers
             Assert.AreEqual(maxItems, 5);
         }
         #endregion
+
         #region MaxSearchableValueStringSize
         [TestMethod]
         public void MaxSearchableValueStringSize_InvalidValue_ReturnsServerConstant()
@@ -89,6 +90,7 @@ namespace SearchService.Helpers
             Assert.AreEqual(maxSearchableValueStringValue, value);
         }
         #endregion
+
         #region PageSize tests
         [TestMethod]
         public void PageSize_InvalidValue_ReturnsServerConstant()
@@ -128,7 +130,77 @@ namespace SearchService.Helpers
             var pageSize = helper.PageSize;
 
             Assert.AreEqual(pageSize, value);
-        }        
+        }
+        #endregion
+
+        #region SearchTimeout
+
+        [TestMethod]
+        public void SearchTimeoutValueStringSize_InvalidValueNull_ReturnsServerConstant()
+        {
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(a => a.SearchTimeout).Returns((string)null);
+
+            var helper = new SearchConfigurationProvider(configuration.Object);
+
+            var searchTimeout = helper.SearchTimeout;
+
+            Assert.AreEqual(searchTimeout, ServiceConstants.DefaultSearchTimeout);
+        }
+
+        [TestMethod]
+        public void SearchTimeoutValueStringSize_InvalidValueEmpty_ReturnsServerConstant()
+        {
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(a => a.SearchTimeout).Returns((string)null);
+
+            var helper = new SearchConfigurationProvider(configuration.Object);
+
+            var searchTimeout = helper.SearchTimeout;
+
+            Assert.AreEqual(searchTimeout, ServiceConstants.DefaultSearchTimeout);
+        }
+
+        [TestMethod]
+        public void SearchTimeoutValueStringSize_InvalidValue_ReturnsServerConstant()
+        {
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(a => a.SearchTimeout).Returns("abcd");
+
+            var helper = new SearchConfigurationProvider(configuration.Object);
+
+            var searchTimeout = helper.SearchTimeout;
+
+            Assert.AreEqual(searchTimeout, ServiceConstants.DefaultSearchTimeout);
+        }
+
+        [TestMethod]
+        public void SearchTimeoutValueStringSize_NegativeValue_ReturnsServerConstant()
+        {
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(a => a.SearchTimeout).Returns("-1");
+
+            var helper = new SearchConfigurationProvider(configuration.Object);
+
+            var searchTimeout = helper.SearchTimeout;
+
+            Assert.AreEqual(searchTimeout, ServiceConstants.DefaultSearchTimeout);
+        }
+
+        [TestMethod]
+        public void SearchTimeoutValueStringSize_ValidValue_ReturnsValue()
+        {
+            var configuration = new Mock<ISearchConfiguration>();
+            var value = 10;
+            configuration.Setup(a => a.SearchTimeout).Returns(value.ToString(CultureInfo.InvariantCulture));
+
+            var helper = new SearchConfigurationProvider(configuration.Object);
+
+            var searchTimeout = helper.SearchTimeout;
+
+            Assert.AreEqual(searchTimeout, value);
+        }
+
         #endregion
     }
 }

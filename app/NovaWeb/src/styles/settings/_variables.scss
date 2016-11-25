@@ -884,6 +884,7 @@ $hr-border:                   $gray-lighter !default;
     #CUSTOM VARIABLES
 
 \*------------------------------------*/
+$zindex-messages: 1039 !default;
 
 
 /*------------------------------------*\
@@ -894,6 +895,5 @@ $hamburger-padding-y: 5px;
 $hamburger-layer-width: 18px;
 $hamburger-layer-height: 2px;
 $hamburger-layer-spacing: 4px;
-$hamburger-layer-color: $brand-secondary;
 $hamburger-layer-border-radius: 1px;
 $hamburger-types: (collapse, collapse-r);

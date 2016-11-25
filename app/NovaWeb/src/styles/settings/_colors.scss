@@ -1,4 +1,4 @@
-@import "../base/variables";
+@import "variables";
 
 /*
  Colors and Typography
@@ -88,6 +88,7 @@ $left-sidebar-border: $brand-secondary;
 $right-sidebar-border: $brand-secondary;
 $default-disabled-color: #ccc;
 $utility-panel-border-color: #dde1e2;
+$hamburger-layer-color: $brand-secondary;
 
 /*
  Calculated Colors

@@ -1,4 +1,4 @@
-import {TabSliderController} from "./tabSlider-controller";
+import {TabSliderController} from "./tabSlider.controller";
 
 export class TabSliderComponent implements ng.IComponentOptions {
     public template: string = require("./tabSlider.html");
@@ -9,7 +9,8 @@ export class TabSliderComponent implements ng.IComponentOptions {
         api: "=?",
         // Input
         slideSelector: "@?",
-        invalidClass: "@?"
+        invalidClass: "@?",
+        activeClass: "@?"
     };
 }
 

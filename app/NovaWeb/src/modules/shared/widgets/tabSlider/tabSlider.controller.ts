@@ -7,11 +7,19 @@ export interface ITabSliderController {
     api: ITabSliderControllerApi;
 }
 
+enum SlidePosition {
+    HiddenLeft = -1,
+    HiddenRight = 1,
+    Visible = 0
+}
+
 export class TabSliderController {
-    static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile"];
+    static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile", "$timeout"];
 
     public slideSelector: string;
     public invalidClass: string;
+    public activeClass: string;
+
     public showButtons: boolean;
     public isButtonPrevInvalid: boolean;
     public isButtonNextInvalid: boolean;
@@ -27,9 +35,12 @@ export class TabSliderController {
     constructor(private $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
                 private $templateCache: ng.ITemplateCacheService,
-                private $compile: ng.ICompileService) {
+                private $compile: ng.ICompileService,
+                private $timeout: ng.ITimeoutService) {
         this.slideSelector = !_.isString(this.slideSelector) ? "li" : this.slideSelector;
         this.invalidClass = !_.isString(this.invalidClass) ? "invalid" : this.invalidClass;
+        this.activeClass = !_.isString(this.activeClass) ? "active" : this.activeClass;
+
         this.slidesTotalWidth = 0;
         this.scrollPosition = 0;
 
@@ -81,6 +92,7 @@ export class TabSliderController {
         this.scrollPosition = scrollPosition;
         this.slidesContainer.style.left = "-" + scrollPosition.toString() + "px";
         this.checkIfInvalid();
+        this.ensureActiveVisible();
     }
 
     public previousSlide(): void {
@@ -91,23 +103,53 @@ export class TabSliderController {
         this.moveSlide(1);
     }
 
+    private isSlideHidden(index: number): SlidePosition {
+        const slide = this.slides[index] as HTMLElement;
+        const slideWidth = slide.getBoundingClientRect().width;
+        const wiggleRoom = slideWidth / 4; // we want to consider also partially hidden slides
+
+        if (slide.offsetLeft + wiggleRoom < this.scrollPosition) {
+            return SlidePosition.HiddenLeft;
+        } else if (slide.offsetLeft + wiggleRoom > this.availableWidth + this.scrollPosition) {
+            return SlidePosition.HiddenRight;
+        } else {
+            return SlidePosition.Visible;
+        }
+    }
+
+    private ensureActiveVisible(): void {
+        if (this.slides.length) {
+            for (let i = 0; i < this.slides.length; i++) {
+                const slide = this.slides[i] as HTMLElement;
+                if (slide.classList.contains(this.activeClass)) {
+                    const slidePosition = this.isSlideHidden(i);
+                    if (slidePosition === SlidePosition.HiddenLeft || slidePosition === SlidePosition.HiddenRight) {
+                        this.setFirstVisible();
+                    }
+                }
+            }
+        }
+    }
+
+    private setFirstVisible(): void {
+        this.$timeout(() => {
+            angular.element(this.slides[3].firstElementChild).triggerHandler("click");
+        }, 300);
+    }
+
     private checkIfInvalid(): void {
         if (this.slides.length) {
             this.isButtonPrevInvalid = false;
             this.isButtonNextInvalid = false;
-            let offset = 0;
             for (let i = 0; i < this.slides.length; i++) {
                 const slide = this.slides[i] as HTMLElement;
-                const slideWidth = slide.getBoundingClientRect().width;
-                offset += (slideWidth / 4); // we want to consider also partially hidden slides
-                // -1 = is hidden to the left, 1 = is hidden to the right, 0 is visible
-                const slidePosition = offset < this.scrollPosition ? -1 : (offset > this.availableWidth + this.scrollPosition ? 1 : 0);
-                if (slidePosition === -1 && slide.classList.contains(this.invalidClass)) {
+                const slidePosition = this.isSlideHidden(i);
+
+                if (slidePosition === SlidePosition.HiddenLeft && slide.classList.contains(this.invalidClass)) {
                     this.isButtonPrevInvalid = true;
-                } else if (slidePosition === 1 && slide.classList.contains(this.invalidClass)) {
+                } else if (slidePosition === SlidePosition.HiddenRight && slide.classList.contains(this.invalidClass)) {
                     this.isButtonNextInvalid = true;
                 }
-                offset += (slideWidth / 4 * 3);
             }
         }
     }
@@ -157,6 +199,7 @@ export class TabSliderController {
 
                 this.showButtons = this.slidesTotalWidth > this.availableWidth;
                 this.checkIfInvalid();
+                this.ensureActiveVisible();
             }
         });
     };

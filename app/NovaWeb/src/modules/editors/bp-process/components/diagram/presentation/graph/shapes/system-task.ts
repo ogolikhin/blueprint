@@ -1,4 +1,4 @@
-import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
+﻿import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IDiagramNodeElement, ISystemTask, NodeType, ElementType} from "../models/";
@@ -9,8 +9,10 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
+import {BpAccordionCtrl, BpAccordionPanelCtrl} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
+    public static $inject = ["bpAccordionCtrl"];
 
     private LABEL_EDIT_MAXLENGTH = 140;
     private LABEL_VIEW_MAXLENGTH = 35;
@@ -41,7 +43,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
                 rootScope: any,
                 private defaultPersonaReferenceValue: IArtifactReference,
                 private nodeFactorySettings: NodeFactorySettings = null,
-                private shapesFactory: ShapesFactory) {
+                private shapesFactory: ShapesFactory,
+                private bpAccordionCtrl?: BpAccordionCtrl) {
         super(model);
 
         this.rootScope = rootScope;
@@ -97,10 +100,13 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
 
-        if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
+
             // #TODO interaction with utility panel is different in Nova
-            //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
-        }
+            this.commentsButton.setClickAction(() => {
+                console.log("test2");
+                this.bpAccordionCtrl.openDiscussionPanel();
+            });
+        //if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {}
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -108,7 +114,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));
             this.commentsButton.setHoverImage(this.getImageSource("/comments-active.svg"));
 
-            if (this.model.flags && this.model.flags.hasComments) {
+            if (this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
                 this.commentsButton.activate();
             }
         }

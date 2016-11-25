@@ -149,7 +149,12 @@ export class BpAccordionCtrl implements IBpAccordionController {
             .filter((p: IBpAccordionPanelController) => p.isPinned);
         this.openPanels.push(panel);
         this.recalculateLayout();
-    }
+    };
+
+    public openDiscussionPanel = () =>  {
+        console.log("testopenDiscussionPanel");
+        this.openPanel(this.panels[0]);
+    };
 
     public cleanUpOpenPanels = () => {
         const numPinnedPanels = this.openPanels.filter((p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;

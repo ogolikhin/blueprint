@@ -25,6 +25,7 @@ import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {SystemDecision} from "./";
 import {ProcessEvents} from "../../../process-diagram-communication";
+import {BpAccordionCtrl, BpAccordionPanelCtrl} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -32,6 +33,8 @@ export class UserStoryProperties implements IUserStoryProperties {
 }
 
 export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
+    public static $inject = ["bpAccordionCtrl"];
+
     private USER_TASK_WIDTH = 126;
     private USER_TASK_HEIGHT = 150;
     private LABEL_VIEW_MAXLENGTH = 60;
@@ -50,7 +53,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private linkButton: Button;
     private rootScope: any;
 
-    constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null, private shapesFactoryService: ShapesFactory) {
+    constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null,
+                private shapesFactoryService: ShapesFactory,
+                private bpAccordionCtrl?: BpAccordionCtrl) {
         super(model);
 
         this.rootScope = rootScope;
@@ -76,8 +81,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.commentsButton.isEnabled = !this.isNew;
 
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
-            // #TODO integrate with utility panel in Nova
-            // this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
+             this.commentsButton.setClickAction(() => {
+                 this.bpAccordionCtrl.openDiscussionPanel();
+             });
         }
 
         this.commentsButton.setTooltip(this.rootScope.config.labels["ST_Comments_Label"]);
@@ -85,7 +91,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.commentsButton.setHoverImage(this.getImageSource("/comments-active.svg"));
 
         if (this.commentsButton.isEnabled) {
-            if (this.model.flags && this.model.flags.hasComments) {
+            if (this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
                 this.commentsButton.activate();
             }
         }
@@ -469,7 +475,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     public activateButton(flag: ItemIndicatorFlags) {
         if (flag === ItemIndicatorFlags.HasComments) {
-            this.model.flags.hasComments = true;
+            this.model["artifact"].flags.hasComments = true;
             this.commentsButton.activate();
         }
     }

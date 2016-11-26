@@ -144,4 +144,16 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             )
         );
     }
+
+    // Temporary shortcut to communicate "Copy" button click
+    // We have a US to implement it properly
+    private fireCustomEvent(element, eventName: string) {
+        const evt = document.createEvent("CustomEvent");
+        evt.initCustomEvent(eventName, true, true, null);
+        element.dispatchEvent(evt);
+    }
+
+    public copy() {
+        this.fireCustomEvent(window, "PROCESS_COPY_EVENT");
+    }
 }

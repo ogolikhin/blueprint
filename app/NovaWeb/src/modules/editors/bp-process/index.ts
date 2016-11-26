@@ -21,6 +21,7 @@ import {UserTaskEditor} from "./components/modal-dialogs/task-editor";
 import {SystemTaskEditor} from "./components/modal-dialogs/task-editor";
 
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
+import {Clipboard} from "./services/clipboard.svc";
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessHeader", new BpProcessHeader())
@@ -36,6 +37,7 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
     .service("userStoryService", UserStoryService)
+    .service("clipboard", Clipboard)
     .directive("contextualHelp", ContextualHelpDirective.factory())
     .directive("cleartext", () => new ClearTextDirective())
     .directive("uploadImage", UploadImageDirective.factory());

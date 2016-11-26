@@ -55,11 +55,8 @@ export class ArtifactProperties implements IArtifactProperties {
 
 
     public set(id: number, value: any): Models.IPropertyValue {
-        let property = _.clone(this.get(id));
+        let property = this.get(id);
         if (property) {
-            if (property.primitiveType === Models.PrimitiveType.Date) {
-                value = this.statefulItem.getServices().localizationService.current.formatDate(value);
-            }
             property.value = value;
             let changeset = {
                 type: ChangeTypeEnum.Update,
@@ -84,6 +81,11 @@ export class ArtifactProperties implements IArtifactProperties {
         const changes = this.changeset.get() || [];
         changes.filter(change => change.type === ChangeTypeEnum.Update)
             .forEach(change => {
+                let property = change.value as Models.IPropertyValue;
+                if (_.isDate(property.value)) {
+                   property.value = this.statefulItem.getServices().localizationService.current.formatDate(property.value); 
+                }
+                
                 propertyChanges.push(change.value);
             });
         return propertyChanges;

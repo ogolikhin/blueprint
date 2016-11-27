@@ -394,7 +394,7 @@ namespace ArtifactStoreTests
             CopyNovaArtifactResultSet copyResult = null;
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+                "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, expectedVersionOfOriginalArtifact: -1);
@@ -431,7 +431,7 @@ namespace ArtifactStoreTests
             CopyNovaArtifactResultSet copyResult = null;
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+                "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,

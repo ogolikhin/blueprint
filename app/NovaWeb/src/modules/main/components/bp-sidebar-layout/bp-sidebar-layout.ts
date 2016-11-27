@@ -67,10 +67,6 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
             evt.preventDefault();
         }
 
-        console.log("begin");
-        console.log(this.isRightToggled);
         this.togglePanel({id: Enums.ILayoutPanel.Right});
-        console.log(this.isRightToggled);
-        console.log("end");
     }
 }

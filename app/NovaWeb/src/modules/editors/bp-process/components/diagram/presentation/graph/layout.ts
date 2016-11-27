@@ -148,7 +148,6 @@ export class Layout implements ILayout {
             }
 
         } catch (e) {
-            console.log(e);
             this.logError(e);
         }
         finally {

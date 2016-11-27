@@ -145,7 +145,7 @@ export class TabSliderController {
                     }
                 }
             }
-            if (_.isFinite(slideIndex)) {
+            if (_.isFinite(slideIndex) && this.slides[slideIndex].firstElementChild) {
                 angular.element(this.slides[slideIndex].firstElementChild).triggerHandler("click");
             }
         }, 300);

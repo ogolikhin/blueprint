@@ -5,12 +5,10 @@ export class TabSliderComponent implements ng.IComponentOptions {
     public transclude: boolean = true;
     public controller: ng.Injectable<ng.IControllerConstructor> = TabSliderController;
     public bindings: any = {
-        // Two-way
-        api: "=?",
-        // Input
         slideSelector: "@?",
         invalidClass: "@?",
-        activeClass: "@?"
+        activeClass: "@?",
+        responsive: "<?"
     };
 }
 

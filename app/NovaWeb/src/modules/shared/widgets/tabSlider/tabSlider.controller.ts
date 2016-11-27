@@ -1,11 +1,4 @@
-export interface ITabSliderControllerApi {
-    getWrapperElement(): HTMLElement;
-    updateWidth(availableWidth?: number);
-}
-
-export interface ITabSliderController {
-    api: ITabSliderControllerApi;
-}
+import {IWindowManager} from "../../../main/services/window-manager";
 
 enum SlidePosition {
     HiddenLeft = -1,
@@ -14,16 +7,18 @@ enum SlidePosition {
 }
 
 export class TabSliderController {
-    static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile", "$timeout"];
+    static $inject: [string] = ["$scope", "$element", "$templateCache", "$compile", "$timeout", "windowManager"];
 
     public slideSelector: string;
     public invalidClass: string;
     public activeClass: string;
+    public responsive: boolean;
 
     public showButtons: boolean;
     public isButtonPrevInvalid: boolean;
     public isButtonNextInvalid: boolean;
 
+    private subscribers: Rx.IDisposable[];
     private slides: HTMLElement[];
     private slidesWidth: number[];
     private slidesContainer: HTMLElement;
@@ -36,10 +31,13 @@ export class TabSliderController {
                 private $element: ng.IAugmentedJQuery,
                 private $templateCache: ng.ITemplateCacheService,
                 private $compile: ng.ICompileService,
-                private $timeout: ng.ITimeoutService) {
+                private $timeout: ng.ITimeoutService,
+                private windowManager: IWindowManager) {
+        this.subscribers = [];
         this.slideSelector = !_.isString(this.slideSelector) ? "li" : this.slideSelector;
         this.invalidClass = !_.isString(this.invalidClass) ? "invalid" : this.invalidClass;
         this.activeClass = !_.isString(this.activeClass) ? "active" : this.activeClass;
+        this.responsive = !!this.responsive;
 
         this.slidesTotalWidth = 0;
         this.scrollPosition = 0;
@@ -50,20 +48,18 @@ export class TabSliderController {
     }
 
     public $onDestroy = () => {
-        this.api = null;
+        this.subscribers.forEach(subscriber => {
+            subscriber.dispose();
+        });
+        delete this.subscribers;
     };
 
     public $postLink = () => {
         this.setupSlides();
-        this.recalculate();
-    };
-
-    public api: ITabSliderControllerApi = {
-        getWrapperElement: (): HTMLElement => {
-            return this.$element[0].firstElementChild as HTMLElement;
-        },
-        updateWidth: (availableWidth?: number) => {
-            this.recalculate(availableWidth);
+        if (this.responsive) {
+            this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.recalculate, this));
+        } else {
+            this.recalculate();
         }
     };
 
@@ -106,11 +102,11 @@ export class TabSliderController {
     private isSlideHidden(index: number): SlidePosition {
         const slide = this.slides[index] as HTMLElement;
         const slideWidth = slide.getBoundingClientRect().width;
-        const wiggleRoom = slideWidth / 4; // we want to consider also partially hidden slides
+        const wiggleRoom = slideWidth / 3; // we want to consider also partially hidden slides
 
         if (slide.offsetLeft + wiggleRoom < this.scrollPosition) {
             return SlidePosition.HiddenLeft;
-        } else if (slide.offsetLeft + wiggleRoom > this.availableWidth + this.scrollPosition) {
+        } else if (slide.offsetLeft + (slideWidth - wiggleRoom) > this.availableWidth + this.scrollPosition) {
             return SlidePosition.HiddenRight;
         } else {
             return SlidePosition.Visible;
@@ -118,27 +114,45 @@ export class TabSliderController {
     }
 
     private ensureActiveVisible(): void {
-        if (this.slides.length) {
+        if (this.slides && this.slides.length) {
             for (let i = 0; i < this.slides.length; i++) {
                 const slide = this.slides[i] as HTMLElement;
                 if (slide.classList.contains(this.activeClass)) {
                     const slidePosition = this.isSlideHidden(i);
                     if (slidePosition === SlidePosition.HiddenLeft || slidePosition === SlidePosition.HiddenRight) {
-                        this.setFirstVisible();
+                        this.setFirstVisible(slidePosition);
                     }
                 }
             }
         }
     }
 
-    private setFirstVisible(): void {
+    private setFirstVisible(direction: number): void {
         this.$timeout(() => {
-            angular.element(this.slides[3].firstElementChild).triggerHandler("click");
+            let slideIndex: number;
+            if (direction === SlidePosition.HiddenLeft) {
+                for (let i = 0; i < this.slides.length; i++) {
+                    if (this.isSlideHidden(i) === 0) {
+                        slideIndex = i;
+                        break;
+                    }
+                }
+            } else {
+                for (let i = this.slides.length - 1; i >= 0 ; i--) {
+                    if (this.isSlideHidden(i) === 0) {
+                        slideIndex = i;
+                        break;
+                    }
+                }
+            }
+            if (_.isFinite(slideIndex)) {
+                angular.element(this.slides[slideIndex].firstElementChild).triggerHandler("click");
+            }
         }, 300);
     }
 
     private checkIfInvalid(): void {
-        if (this.slides.length) {
+        if (this.slides && this.slides.length) {
             this.isButtonPrevInvalid = false;
             this.isButtonNextInvalid = false;
             for (let i = 0; i < this.slides.length; i++) {
@@ -178,15 +192,10 @@ export class TabSliderController {
         });
     };
 
-    private recalculate = (availableWidth?: number): void => {
+    private recalculate = (): void => {
         this.$scope.$applyAsync(() => {
-            if (this.slides.length) {
-                if (_.isFinite(availableWidth)) {
-                    this.availableWidth = availableWidth;
-                } else {
-                    this.availableWidth = this.slidesContainer.offsetWidth;
-                }
-
+            if (this.slides && this.slides.length) {
+                this.availableWidth = this.slidesContainer.offsetWidth;
                 this.slidesTotalWidth = 0;
                 this.slidesWidth = [];
 

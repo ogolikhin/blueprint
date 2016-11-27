@@ -11,6 +11,7 @@ import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shap
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {BpAccordionPanelService} from "../../main/components/bp-accordion/bp-accordion";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -39,7 +40,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         "dialogService",
         "navigationService",
         "statefulArtifactFactory",
-        "shapesFactory"
+        "shapesFactory",
+        "bpAccordionPanelService"
     ];
 
     constructor(messageService: IMessageService,
@@ -57,7 +59,8 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory = null) {
+                private shapesFactory: ShapesFactory = null,
+                private bpAccordionPanelService: BpAccordionPanelService) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -118,7 +121,8 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.localization,
             this.navigationService,
             this.statefulArtifactFactory,
-            this.shapesFactory
+            this.shapesFactory,
+            this.bpAccordionPanelService
         );
 
         let htmlElement = this.getHtmlElement();
@@ -179,8 +183,8 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if (this.disposing || this.isDestroyed) {		
-            return;		
+        if (this.disposing || this.isDestroyed) {
+            return;
         }
 
         if (elements.length > 0) {

@@ -21,6 +21,7 @@ import {UserTaskEditor} from "./components/modal-dialogs/task-editor";
 import {SystemTaskEditor} from "./components/modal-dialogs/task-editor";
 
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
+import {BpAccordionPanelService} from "../../main/components/bp-accordion/bp-accordion";
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessHeader", new BpProcessHeader())
@@ -33,6 +34,7 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .directive("zoomableImage", ZoomableImageDirective.directive)
     .service("processService", ProcessService)
     .service("shapesFactory", ShapesFactory)
+    .service("bpAccordionPanelService", BpAccordionPanelService)
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
     .service("userStoryService", UserStoryService)
@@ -47,7 +49,7 @@ export {
     ProcessService,
     ProcessModels,
     ProcessEnums,
-    ICommunicationManager, 
+    ICommunicationManager,
     CommunicationManager,
     ShapesFactory
 };

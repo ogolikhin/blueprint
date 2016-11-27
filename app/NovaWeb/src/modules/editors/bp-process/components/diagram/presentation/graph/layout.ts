@@ -37,7 +37,8 @@ export class Layout implements ILayout {
                 private rootScope: any,
                 private shapesFactoryService: ShapesFactory,
                 private messageService: IMessageService,
-                private $log: ng.ILogService) {
+                private $log: ng.ILogService,
+                private bpAccordionPanelService) {
 
         // cache reference to mxGraph
         this.mxgraph = processGraph.getMxGraph();
@@ -97,7 +98,8 @@ export class Layout implements ILayout {
         try {
             for (i in this.viewModel.shapes) {
                 const shape: IProcessShape = this.viewModel.shapes[i];
-                const node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings);
+                const node: IDiagramNode = NodeFactory.createNode(shape, this.rootScope, this.shapesFactoryService, nodeFactorySettings,
+                    this.bpAccordionPanelService);
 
                 if (node != null) {
                     node.render(this.processGraph, this.getXbyColumn(node.column), this.getYbyRow(node.row),

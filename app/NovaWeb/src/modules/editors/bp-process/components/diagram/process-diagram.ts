@@ -37,7 +37,8 @@ export class ProcessDiagram {
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory) {
+                private shapesFactory: ShapesFactory,
+                private bpAccordionPanelService) {
         this.processModel = null;
         this.selectionListeners = [];
     }
@@ -156,6 +157,7 @@ export class ProcessDiagram {
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
+                this.bpAccordionPanelService
             );
 
             this.registerSelectionListeners();

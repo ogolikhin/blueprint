@@ -12,7 +12,6 @@ import {ProcessEvents} from "../../../process-diagram-communication";
 import {BpAccordionCtrl, BpAccordionPanelCtrl} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
-    public static $inject = ["bpAccordionCtrl"];
 
     private LABEL_EDIT_MAXLENGTH = 140;
     private LABEL_VIEW_MAXLENGTH = 35;
@@ -103,9 +102,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
             // #TODO interaction with utility panel is different in Nova
             this.commentsButton.setClickAction(() => {
-                console.log("test2");
-                this.bpAccordionCtrl.openDiscussionPanel();
+                //console.log("test2");
             });
+
         //if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {}
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));

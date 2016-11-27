@@ -10,12 +10,14 @@ import {SystemTask} from "./system-task";
 import {UserDecision} from "./user-decision";
 import {SystemDecision} from "./system-decision";
 import {NodeFactorySettings} from "./node-factory-settings";
+import {BpAccordionPanelService} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class NodeFactory {
 
     public static createNode(model: IProcessShape, rootScope: any,
                              shapesFactoryService: ShapesFactory,
-                             nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
+                             nodeFactorySettings: NodeFactorySettings = null,
+                             bpAccordionPanelService?: BpAccordionPanelService): IDiagramNode {
 
         const type = <ProcessShapeType>model.propertyValues["clientType"].value;
         switch (type) {
@@ -26,7 +28,7 @@ export class NodeFactory {
                 return new ProcessEnd(model, nodeFactorySettings);
 
             case ProcessShapeType.UserTask:
-                return new UserTask(<IUserTaskShape>model, rootScope, nodeFactorySettings, shapesFactoryService);
+                return new UserTask(<IUserTaskShape>model, rootScope, nodeFactorySettings, shapesFactoryService, bpAccordionPanelService);
 
             case ProcessShapeType.PreconditionSystemTask:
                 return new SystemTask(

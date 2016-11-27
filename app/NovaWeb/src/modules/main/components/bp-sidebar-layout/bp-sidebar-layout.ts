@@ -66,6 +66,4 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
         evt.preventDefault();
         this.togglePanel({id: Enums.ILayoutPanel.Right});
     }
-
-
 }

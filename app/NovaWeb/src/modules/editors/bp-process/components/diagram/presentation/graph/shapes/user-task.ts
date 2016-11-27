@@ -25,7 +25,7 @@ import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {SystemDecision} from "./";
 import {ProcessEvents} from "../../../process-diagram-communication";
-import {BpAccordionCtrl, BpAccordionPanelCtrl} from "../../../../../../../main/components/bp-accordion/bp-accordion";
+import {BpAccordionPanelService} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -33,7 +33,6 @@ export class UserStoryProperties implements IUserStoryProperties {
 }
 
 export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
-    public static $inject = ["bpAccordionCtrl"];
 
     private USER_TASK_WIDTH = 126;
     private USER_TASK_HEIGHT = 150;
@@ -55,7 +54,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactoryService: ShapesFactory,
-                private bpAccordionCtrl?: BpAccordionCtrl) {
+                private bpAccordionPanelService?: BpAccordionPanelService) {
         super(model);
 
         this.rootScope = rootScope;
@@ -82,7 +81,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
              this.commentsButton.setClickAction(() => {
-                 this.bpAccordionCtrl.openDiscussionPanel();
+                 this.bpAccordionPanelService.open();
              });
         }
 

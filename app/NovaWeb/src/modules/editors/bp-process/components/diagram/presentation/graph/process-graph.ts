@@ -82,7 +82,8 @@ export class ProcessGraph implements IProcessGraph {
                 private shapesFactory: ShapesFactory,
                 public messageService: IMessageService = null,
                 private $log: ng.ILogService = null,
-                private statefulArtifactFactory: IStatefulArtifactFactory = null) {
+                private statefulArtifactFactory: IStatefulArtifactFactory = null,
+                private bpAccordionPanelService) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -90,7 +91,7 @@ export class ProcessGraph implements IProcessGraph {
         let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
         this.mxgraph = new mxGraph(this.htmlElement, new BpMxGraphModel());
-        this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log);
+        this.layout = new Layout(this, viewModel, rootScope, this.shapesFactory, this.messageService, this.$log, this.bpAccordionPanelService);
         this.init();
     }
 

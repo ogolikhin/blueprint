@@ -114,12 +114,12 @@ export class BpAccordionCtrl implements IBpAccordionController {
         } else {
             this.recalculateLayout();
         }
-    }
+    };
 
     public showPanel = (panel: IBpAccordionPanelController) => {
         panel.isVisible = true;
         this.recalculateLayout();
-    }
+    };
 
     private openNextAvailablePanel(currentPanel: IBpAccordionPanelController): void {
         let curLoc = this.panels.indexOf(currentPanel);
@@ -149,11 +149,6 @@ export class BpAccordionCtrl implements IBpAccordionController {
             .filter((p: IBpAccordionPanelController) => p.isPinned);
         this.openPanels.push(panel);
         this.recalculateLayout();
-    };
-
-    public openDiscussionPanel = () =>  {
-        console.log("testopenDiscussionPanel");
-        this.openPanel(this.panels[0]);
     };
 
     public cleanUpOpenPanels = () => {
@@ -216,7 +211,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
 }
 
 export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
-    static $inject: [string] = ["localization", "$element"];
+    static $inject: [string] = ["localization", "$element", "bpAccordionPanelService"];
 
     private _isOpen: boolean;
     private _isVisible: boolean;
@@ -228,14 +223,25 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public accordionPanelClass: string;
     public isPinned: boolean;
 
-    constructor(private localization: ILocalizationService, private $element) {
+    constructor(private localization: ILocalizationService, private $element, private bpAccordionPanelService) {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
         this.accordionPanelId = this.accordionPanelId || "bp-accordion-panel-" + Math.floor(Math.random() * 10000);
         this.isActiveSubject = new Rx.BehaviorSubject<boolean>(true);
         this.isOpen = false;
         this.isPinned = false;
         this._isVisible = true;
+        this.bpAccordionPanelService.open = this.openDiscussionPanel;
     }
+
+    public openDiscussionPanel = () =>  {
+        const discussionsPanel = this.accordionGroup.panels[2];
+
+        if (!discussionsPanel.isOpen) {
+            discussionsPanel.isOpen = true;
+            discussionsPanel.getElement().className += " bp-accordion-panel-open";
+            this.accordionGroup.openPanel(discussionsPanel);
+        }
+    };
 
     public get isOpen(): boolean {
         return this._isOpen;
@@ -312,4 +318,8 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public $postLink = () => {
         this.accordionGroup.addPanel(this);
     };
+}
+
+export class BpAccordionPanelService {
+    public open: Function;
 }

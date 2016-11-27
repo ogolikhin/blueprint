@@ -12,7 +12,6 @@ import {
     IPropertyDescriptorBuilder,
     PropertyDescriptorBuilder
 } from "./configuration/property-descriptor-builder";
-import {BpAccordionCtrl, BpAccordionPanelCtrl} from "../main/components/bp-accordion/bp-accordion";
 
 angular.module("bp.editors", [
         "formly",
@@ -24,7 +23,6 @@ angular.module("bp.editors", [
         "bp.editors.collection"
     ])
     .service("propertyDescriptorBuilder", PropertyDescriptorBuilder)
-    .service("bpAccordionCtrl", BpAccordionCtrl)
     .config(ArtifactRoutes);
 
 export {IPropertyDescriptor, IPropertyDescriptorBuilder}

@@ -230,7 +230,7 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
         this.isOpen = false;
         this.isPinned = false;
         this._isVisible = true;
-        this.bpAccordionPanelService.open = this.openDiscussionPanel;
+        this.bpAccordionPanelService.openDiscussionPanel = this.openDiscussionPanel;
     }
 
     public openDiscussionPanel = () =>  {
@@ -321,5 +321,6 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
 }
 
 export class BpAccordionPanelService {
-    public open: Function;
+    public openDiscussionPanel: Function;
+    public openRightPanel: Function;
 }

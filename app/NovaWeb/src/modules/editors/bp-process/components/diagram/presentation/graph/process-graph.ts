@@ -161,6 +161,7 @@ export class ProcessGraph implements IProcessGraph {
             this.deleteShapeHandler =
                 this.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.DeleteShape, this.deleteShape);
         } catch (e) {
+            console.log("error:", e);
             this.logError(e);
             if (this.messageService) {
                 this.messageService.addError(e.message);
@@ -177,6 +178,7 @@ export class ProcessGraph implements IProcessGraph {
         try {
             action();
         } catch (e) {
+            console.log("error:", e);
             this.logError(e);
         }
         finally {
@@ -973,6 +975,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private logError(arg: any) {
+        console.log("error:", arg);
         if (this.$log) {
             this.$log.error(arg);
         }

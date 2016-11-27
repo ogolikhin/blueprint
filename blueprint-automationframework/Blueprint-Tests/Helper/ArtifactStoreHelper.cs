@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using Utilities;
 using Utilities.Facades;
 
@@ -241,29 +242,54 @@ namespace Helper
         /// </summary>
         /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
         /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
+        /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2)
+        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
+            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false, bool skipPublishedProperties = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
 
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
+                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+            }
+
+            if (!skipParentId)
+            {
+                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+            }
+
+            if (!skipOrderIndex)
+            {
+                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            }
+
+            if (!skipCreatedBy)
+            {
+                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
+            }
+
+            if (!skipPublishedProperties)
+            {
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
+                Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
+            }
+
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
             Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
             Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
-            Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-            Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-            Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-
-            Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-            Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
-            Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
 
             Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
             Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
@@ -474,6 +500,82 @@ namespace Helper
             projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
 
             return projectCustomData;
+        }
+
+        /// <summary>
+        /// Updates the specified custom property of the artifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <typeparam name="T">The new value type.</typeparam>
+        /// <param name="artifactDetails">The artifact details containing the custom property to update.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="propertyType">The type of property to be updated.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="newValue">The new value to assign to the custom property.
+        ///     For Choice & Text property types, pass a string.
+        ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
+        ///     For User property types, pass an IUser.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomProperty<T>(NovaArtifactDetails artifactDetails,
+            IProject project,
+            PropertyPrimitiveType propertyType,
+            string propertyName,
+            T newValue)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            CustomProperty property = null;
+
+            switch (propertyType)
+            {
+                case PropertyPrimitiveType.Choice:
+                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
+                    var choicePropertyValidValues = novaPropertyType.ValidValues;
+                    var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(newValue));
+
+                    var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> { newPropertyValue };
+
+                    // Change custom property choice value
+                    property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = newChoicePropertyValue };
+                    break;
+                case PropertyPrimitiveType.Date:
+                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    // Change custom property date value
+                    property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now.AddSeconds(newValue.ToInt32Invariant()));
+                    break;
+                case PropertyPrimitiveType.Number:
+                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    // Change custom property number value
+                    property.CustomPropertyValue = newValue;
+                    break;
+                case PropertyPrimitiveType.Text:
+                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    // Change custom property text value
+                    property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
+                    break;
+                case PropertyPrimitiveType.User:
+                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+                    IUser user = (IUser)newValue;
+
+                    var newIdentification = new Identification { DisplayName = user.DisplayName, Id = user.Id };
+                    var newUserPropertyValue = new List<Identification> { newIdentification };
+
+                    // Change custom property user value
+                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
+                    break;
+                default:
+                    Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
+                    break;
+            }
+
+            return property;
         }
 
         /// <summary>
@@ -998,5 +1100,14 @@ namespace Helper
             [JsonProperty("label")]
             public string Label { get; set; }
         }
+    }
+
+    public static class CustomPropertyName
+    {
+        public const string TextRequiredRTMultiHasDefault = "Std-Text-Required-RT-Multi-HasDefault";
+        public const string NumberRequiredValidatedDecPlacesMinMaxHasDefault = "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault";
+        public const string DateRequiredValidatedMinMaxHasDefault = "Std-Date-Required-Validated-Min-Max-HasDefault";
+        public const string ChoiceRequiredAllowMultipleDefaultValue = "Std-Choice-Required-AllowMultiple-DefaultValue";
+        public const string UserRequiredHasDefaultUser = "Std-User-Required-HasDefault-User";
     }
 }

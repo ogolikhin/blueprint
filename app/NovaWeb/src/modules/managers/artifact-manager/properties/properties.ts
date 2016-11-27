@@ -31,6 +31,11 @@ export class ArtifactProperties implements IArtifactProperties {
 
     public initialize(properties: Models.IPropertyValue[]) {
         this.properties = properties || [];
+        _.each(this.properties, (property: Models.IPropertyValue) => {
+            if (property.primitiveType === Models.PrimitiveType.Date && property.value) {
+                property.value = this.statefulItem.getServices().localizationService.current.toDate(property.value);
+            }
+        }); 
         this._isLoaded = true;
     }
 
@@ -58,6 +63,8 @@ export class ArtifactProperties implements IArtifactProperties {
                 key: id,
                 value: property
             } as IChangeSet;
+
+            
             this.changeset.add(changeset);
             this.statefulItem.propertyChange.onNext({item: this.statefulItem, change: changeset} as IItemChangeSet);
             this.statefulItem.lock();
@@ -74,6 +81,11 @@ export class ArtifactProperties implements IArtifactProperties {
         const changes = this.changeset.get() || [];
         changes.filter(change => change.type === ChangeTypeEnum.Update)
             .forEach(change => {
+                let property = change.value as Models.IPropertyValue;
+                if (_.isDate(property.value)) {
+                   property.value = this.statefulItem.getServices().localizationService.current.formatDate(property.value); 
+                }
+                
                 propertyChanges.push(change.value);
             });
         return propertyChanges;

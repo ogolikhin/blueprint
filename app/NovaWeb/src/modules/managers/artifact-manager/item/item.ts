@@ -17,7 +17,7 @@ export interface IStatefulItem extends Models.IArtifact {
     customProperties: IArtifactProperties;
     specialProperties: IArtifactProperties;
     attachments: IArtifactAttachments;
-    relationships: IArtifactRelationships;    
+    relationships: IArtifactRelationships;
     docRefs: IDocumentRefs;
 
     supportRelationships(): boolean;
@@ -260,7 +260,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this._relationships;
     }
 
-    public supportRelationships(): boolean {        
+    public supportRelationships(): boolean {
         return true;
     }
 
@@ -274,20 +274,24 @@ export abstract class StatefulItem implements IIStatefulItem {
     public unload() {
         if (this._customProperties) {
             this._customProperties.dispose();
-            delete this._customProperties;
+            this._customProperties = undefined;
         }
+
         if (this._specialProperties) {
             this._specialProperties.dispose();
-            delete this._specialProperties;
+            this._specialProperties = undefined;
         }
+
         if (this._attachments) {
             this._attachments.dispose();
-            delete this._attachments;
+            this._attachments = undefined;
         }
+
         if (this._docRefs) {
             this._docRefs.dispose();
-            delete this._docRefs;
+            this._docRefs = undefined;
         }
+
         //TODO: REMOVE WHEN AUTO-SAVE GETS COMPLETED. AUTO-SAVE SHOULD ALREADY HAVE THIS FLAG SET TO FALSE.
         if (this.artifactState) {
             this.artifactState.dirty = false;
@@ -314,8 +318,22 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
+    
     protected initialize(artifact: Models.IArtifact): void {
         this.artifact = artifact;
+        if (this.artifact.createdOn) {
+            this.artifact.createdOn = this.services.localizationService.current.toDate(this.artifact.createdOn);
+        }
+        if (this.artifact.lastEditedOn) {
+            this.artifact.lastEditedOn = this.services.localizationService.current.toDate(this.artifact.lastEditedOn);
+        }
+        if (this.artifact.lastSavedOn) {
+            this.artifact.lastSavedOn = this.services.localizationService.current.toDate(this.artifact.lastSavedOn);
+        }
+        if (this.artifact.lockedDateTime) {
+            this.artifact.lockedDateTime = this.services.localizationService.current.toDate(this.artifact.lockedDateTime);
+        }
+
         this.customProperties.initialize(artifact.customPropertyValues);
         this.specialProperties.initialize(artifact.specificPropertyValues);
     }

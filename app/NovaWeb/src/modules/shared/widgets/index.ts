@@ -16,7 +16,7 @@ import "./bp-toolbar";
 import "./bp-artifact-list";
 import "./bp-filtered-input";
 import "./bp-goto";
-import "./rowSlider";
+import "./tabSlider";
 
 angular.module("bp.widgets", [
     "bp.widgets.dialog",
@@ -36,16 +36,12 @@ angular.module("bp.widgets", [
     "bp.widgets.artifactList",
     "bp.widgets.filtered-input",
     "bp.widgets.goto",
-    "bp.widgets.rowSlider"
+    "bp.widgets.tabSlider"
 ]);
 
 export {
     IUploadStatusDialogData
 } from "./bp-file-upload-status/bp-file-upload-status";
-
-export {
-    IRowSliderControllerApi
-} from "./rowSlider";
 
 export {
     IDialogSettings,

@@ -95,33 +95,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Open"),
-            template: require("../dialogs/open-project/open-project.template.html"),
-            controller: OpenProjectController,
-            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((project: AdminStoreModels.IInstanceItem) => {
-            if (project) {
-                const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-                let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-
-                try {
-                    this.projectManager.add(project)
-                        .finally(() => {
-                            //(eventCollection, action, label?, value?, custom?, jQEvent?
-                            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                            this.analytics.trackEvent("open", "project", label, project.id, {
-                                openProjects: openProjects
-                            });
-                            this.loadingOverlayService.endLoading(openProjectLoadingId);
-                        });
-                } catch (err) {
-                    this.loadingOverlayService.endLoading(openProjectLoadingId);
-                    throw err;
-                }
-            }
-        });
-
+        this.projectManager.openProjectWithDialog();        
     }
 
     /**
@@ -383,13 +357,13 @@ export class PageToolbarController implements IPageToolbarController {
         } else {
             this.navigationService.navigateToMain();
         }
-        this.clearLockedMessages();
+        this.clearStickyMessages();
     }
 
     private closeAllProjectsInternal() {
         this.projectManager.removeAll();
         this.artifactManager.selection.clearAll();
-        this.clearLockedMessages();
+        this.clearStickyMessages();
         this.navigationService.navigateToMain();
     }
 
@@ -467,9 +441,9 @@ export class PageToolbarController implements IPageToolbarController {
         evt.stopImmediatePropagation();
     }
 
-    private clearLockedMessages() {
+    private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (message.messageType === MessageType.Lock) {
+            if (!message.canBeClosedManually) {
                 this.messageService.deleteMessageById(message.id);
             }
         });
@@ -480,7 +454,7 @@ export class PageToolbarController implements IPageToolbarController {
     };
 
     public get isProjectOpened(): boolean {
-        return !!this.projectManager.getSelectedProjectId();
+        return this.projectManager.projectCollection.getValue().length > 0;
     }
 
     public get canCreateNew(): boolean {

@@ -151,11 +151,12 @@ export class BPDiagramController extends BpBaseEditor {
                         }
                     });
                 } else {
-                this.selectedElementId = element.id;
+                    this.selectedElementId = element.id;
                     const subArtifact = this.artifact.subArtifactCollection.get(element.id);
                     this.artifactManager.selection.setSubArtifact(subArtifact);
                 }
             } else {
+                this.selectedElementId = undefined;
                 this.artifactManager.selection.setArtifact(this.artifact);
             }
         });

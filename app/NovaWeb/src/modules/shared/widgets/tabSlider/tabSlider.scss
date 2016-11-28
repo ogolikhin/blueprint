@@ -78,6 +78,15 @@
     }
 }
 
+.tab-slider__next--show-empty {
+    pointer-events: none;
+    width: 32px;
+
+    &::before {
+        display: none;
+    }
+}
+
 .tab-slider__prev::before {
     content: $fonticon2-arrow-double-left;
 }

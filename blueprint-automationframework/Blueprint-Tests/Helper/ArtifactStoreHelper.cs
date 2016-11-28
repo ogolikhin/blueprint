@@ -244,12 +244,14 @@ namespace Helper
         /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
         /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
         /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
-        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
+        /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
-            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false, bool skipPublishedProperties = false)
+            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,
+            bool skipPublishedProperties = false, bool skipPermissions = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -275,6 +277,11 @@ namespace Helper
                 Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
             }
 
+            if (!skipPermissions)
+            {
+                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+            }
+
             if (!skipPublishedProperties)
             {
                 Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
@@ -286,7 +293,6 @@ namespace Helper
 
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
             Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");

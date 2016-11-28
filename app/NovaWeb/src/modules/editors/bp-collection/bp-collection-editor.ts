@@ -191,7 +191,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     return this.headerCellRendererSelectAll(params, this.artifact.artifactState.readonly);
                 },
                 field: "chck",
-                innerRenderer: (params: IColumnRendererParams) => {
+                cellRenderer: (params: IColumnRendererParams) => {
                     if (this.artifact.artifactState.readonly) {
                         return `<span class="ag-cell-wrapper"><span class="ag-selection-checkbox"><i class="ag-checkbox-unchecked disabled"></i></span></span>`;
                     }
@@ -206,20 +206,20 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 isGroup: true,
                 isCheckboxHidden: true,
                 cellClass: (vm: CollectionNodeVM) => vm.getCellClass(),
-                innerRenderer: (params: IColumnRendererParams) => {
+                cellRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const prefix = Helper.escapeHTMLText(vm.model.prefix);
                     const icon = vm.getIcon();
                     const url = this.$state.href("main.item", {id: vm.model.id});
-                    return `<span class="ag-group-value-wrapper">${icon} <a ng-href="${url}" target="_blank" class="collection__link"
-                            ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a></span>`;
+                    return `${icon} <a ng-href="${url}" target="_blank" class="collection__link" ` +
+                           `ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a>`;
                 }
             },
             {
                 headerName: this.localization.get("Label_Name"),
                 isGroup: true,
                 isCheckboxHidden: true,
-                innerRenderer: (params: IColumnRendererParams) => {
+                cellRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const path = vm.model.artifactPath;
                     const name = Helper.escapeHTMLText(vm.model.name);
@@ -242,7 +242,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 headerName: this.localization.get("Label_Description"),
                 isGroup: true,
                 isCheckboxHidden: true,
-                innerRenderer: (params: IColumnRendererParams) => {
+                cellRenderer: (params: IColumnRendererParams) => {
                     const vm = params.data as CollectionNodeVM;
                     const tooltip: string = Helper.escapeQuot(vm.model.description);
                     const desc = Helper.escapeHTMLText(vm.model.description);
@@ -260,7 +260,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 width: 60,
                 colWidth: 60,
                 isCheckboxHidden: true,
-                innerRenderer: (params: IColumnRendererParams) => {
+                cellRenderer: (params: IColumnRendererParams) => {
                     params.$scope["removeArtifact"] = ($event) => {
                         $event.stopPropagation();
 

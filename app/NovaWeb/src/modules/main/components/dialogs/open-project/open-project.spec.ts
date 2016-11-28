@@ -55,7 +55,7 @@ describe("OpenProjectController", () => {
                 isGroup: true
             })]);
             expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.columns[0].innerRenderer)).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].cellRenderer)).toEqual(true);
         });
 
         it("getCellClass returns correct result", () => {
@@ -69,7 +69,7 @@ describe("OpenProjectController", () => {
             expect(css).toEqual(["test"]);
         });
 
-        it("innerRenderer returns correct result", () => {
+        it("cellRenderer returns correct result", () => {
             // Arrange
             const vm = {
                 getLabel() {
@@ -85,13 +85,13 @@ describe("OpenProjectController", () => {
             };
 
             // Act
-            const result = controller.columns[0].innerRenderer(params);
+            const result = controller.columns[0].cellRenderer(params);
 
             // Assert
-            expect(result).toEqual(`<span class="ag-group-value-wrapper"><i></i><span>name</span></span>`);
+            expect(result).toEqual(`<i></i><span>name</span>`);
         });
 
-        it("innerRenderer, when project, calls ok on enter", () => {
+        it("cellRenderer, when project, calls ok on enter", () => {
             // Arrange
             const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
             const vm = controller.factory.createInstanceItemNodeVM(model);
@@ -102,7 +102,7 @@ describe("OpenProjectController", () => {
                 eGridCell: cell
             };
 
-            controller.columns[0].innerRenderer(params);
+            controller.columns[0].cellRenderer(params);
             spyOn(controller, "ok");
 
             // Act

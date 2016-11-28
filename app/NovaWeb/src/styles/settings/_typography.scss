@@ -2,15 +2,15 @@
 $font-family-base: 'Open Sans', Arial, Helvetica, sans-serif;
 
 $font-size-root: 10px;
-
-$font-size-normal: 1.2rem;
-$font-size-small: 1.1rem;
-$font-size-smaller: 1.0rem;
-$font-size-smallest: 0.9rem;
-$font-size-tiny: 0.8rem;
-$font-size-big: 1.4rem;
-$font-size-bigger: 1.6rem;
-$font-size-biggest: 1.8rem;
+//font sizes need to px not rem to allow for mixen calculations
+$font-size-normal: 12px;
+$font-size-small: 11px;
+$font-size-smaller: 10px;
+$font-size-smallest: 9px;
+$font-size-tiny: 8px;
+$font-size-big: 14px;
+$font-size-bigger: 16px;
+$font-size-biggest: 18px;
 
 $font-weight-light: 300;
 $font-weight-normal: 400;

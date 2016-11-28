@@ -159,6 +159,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (this.pendingSelectedArtifactId) {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
+            // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
+            } else if (!selectedArtifactId && this.numberOfProjectsOnLastLoad < this.projects.length && this.selectionManager.getArtifact()) {
+                navigateToId = this.selectionManager.getArtifact().id;
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {

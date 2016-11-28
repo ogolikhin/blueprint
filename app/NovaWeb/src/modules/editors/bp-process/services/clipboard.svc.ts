@@ -10,13 +10,13 @@ export interface IClipboardData {
     clearData();
 }
 
-export interface IClipboard {
+export interface IClipboardService {
     getData(): IClipboardData;
     setData (newVal: IClipboardData): void;
     clearData();
 }
 
-export class Clipboard implements IClipboard {
+export class Clipboard implements IClipboardService {
     private _data: IClipboardData;
 
     public getData(): IClipboardData {

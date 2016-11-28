@@ -67,7 +67,7 @@ export class ProcessAddHelper {
         const userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
         // COPY PROPERTIES
         userTaskShape.name = _userTaskShape.name; 
-        userTaskShape.personaReference = _userTaskShape.personaReference; 
+        userTaskShape.personaReference = _.cloneDeep(_userTaskShape.personaReference); 
         userTaskShape.propertyValues = _.cloneDeep(_userTaskShape.propertyValues); 
 
         ProcessAddHelper.addShape(userTaskShape, layout, shapesFactoryService);
@@ -101,7 +101,7 @@ export class ProcessAddHelper {
 
         // COPY PROPERTIES
         systemTaskShape.name = _systemTaskShape.name; 
-        systemTaskShape.personaReference = _systemTaskShape.personaReference; 
+        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference); 
         systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues); 
             
         ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);

@@ -41,7 +41,7 @@ import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localizationService";
-import {IClipboard} from "../../../../services/clipboard.svc";
+import {IClipboardService} from "../../../../services/clipboard.svc";
 
 
 export class ProcessGraph implements IProcessGraph {
@@ -85,7 +85,7 @@ export class ProcessGraph implements IProcessGraph {
                 public messageService: IMessageService = null,
                 private $log: ng.ILogService = null,
                 private statefulArtifactFactory: IStatefulArtifactFactory = null,
-                private clipboard: IClipboard = null) {
+                private clipboard: IClipboardService = null) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.

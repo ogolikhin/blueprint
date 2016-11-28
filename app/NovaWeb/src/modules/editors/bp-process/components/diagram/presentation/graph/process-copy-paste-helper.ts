@@ -6,18 +6,48 @@ import {ILayout, ProcessClipboardData, UserTaskShapeModel} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
-import {IProcessGraph} from "./models/";
+import {IProcessGraph, NodeType} from "./models/";
 import {ProcessGraph} from "./process-graph";
 import {ProcessAddHelper} from "./process-add-helper";
 import {SystemTask, DiagramNode, UserTask} from "./shapes/";
-import {IClipboard, ClipboardDataType} from "../../../../services/clipboard.svc";
+import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
 
 export class ProcessCopyPasteHelper {
 
-    public static copySectedShapes(processGraph: IProcessGraph, clipboard: IClipboard, shapesFactoryService: ShapesFactory): void {
+    public static copySectedShapes(processGraph: IProcessGraph, clipboard: IClipboardService, shapesFactoryService: ShapesFactory): void {
+
+        if (!clipboard) {
+            throw new Error("Clipboard does not exist");
+        }
+        
         let model: IProcessShape[] = [];
         let  nodes = processGraph.getMxGraph().getSelectionCells();
-        nodes = _.sortBy(nodes, (node: any) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        nodes = _.sortBy(nodes, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+
+
+        // let userDecisionRefs = [];
+        // let userDecisionIdsMap = [];
+        // let userTaskRefs = [];
+        // _.each(nodes, (node) => {
+        //     if (node instanceof UserTask) {
+        //         const previousShapeIds: number[] = processGraph.viewModel.getPrevShapeIds(node.model.id);
+        //         const shape = processGraph.viewModel.getShapeById(previousShapeIds[0]);
+
+        //         if (shape.propertyValues["clientType"]["value"] === NodeType.UserDecision) {
+        //             userTaskRefs[node.id.toString()] = {node:node, userDecisionId:shape.id.toString()};
+                    
+        //             const userDecisionRef = userDecisionRefs[shape.id.toString()];
+        //             if (userDecisionRef) {
+        //                 userDecisionRef.numberOfBranches++;
+        //             } else {
+        //                 userDecisionRefs[shape.id.toString()] = {node:shape, numberOfBranches:1};
+        //             } 
+        //         } else {
+        //             userTaskRefs[node.id.toString()] = {node:node, userDecisionId:null};
+        //         }
+        //     }
+        // });
+
         //
         // Copy from (clone) logic goes here. Implemented simple logic for cloning UserTask + first SystemTask
         // For the UserTasks only a plain collection is sufficient. For the decisions we will need a tree. 
@@ -26,8 +56,9 @@ export class ProcessCopyPasteHelper {
             if (node instanceof UserTask) {
                 const userTaskShape = shapesFactoryService.createModelUserTaskShape(-1, -1,  -1, -1, -1);
                 // COPY UT PROPERTIES - Can add more here if needed. It can be extracted into a method  
-                userTaskShape.name = node.model.name; 
-                userTaskShape.personaReference = node.model.personaReference; 
+                userTaskShape.name = node.model.name;
+                userTaskShape.id =  node.model.id;
+                userTaskShape.personaReference = _.cloneDeep(node.model.personaReference); 
                 userTaskShape.propertyValues = _.cloneDeep(node.model.propertyValues); 
                 model.push(userTaskShape);
                 
@@ -35,7 +66,7 @@ export class ProcessCopyPasteHelper {
                 const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(-1, -1,  -1, -1, -1);
                 // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method  
                 systemTaskShape.name = systemTask.model.name; 
-                systemTaskShape.personaReference = systemTask.personaReference; 
+                systemTaskShape.personaReference = _.cloneDeep(systemTask.personaReference); 
                 systemTaskShape.propertyValues = _.cloneDeep(systemTask.model.propertyValues); 
                 
                 model.push(systemTaskShape);
@@ -45,7 +76,12 @@ export class ProcessCopyPasteHelper {
         clipboard.setData(new ProcessClipboardData(model));
     };
 
-    public static insertSelectedShapes(edge: MxCell, layout: ILayout, clipboard: IClipboard, shapesFactoryService: ShapesFactory): void {
+    public static insertSelectedShapes(edge: MxCell, layout: ILayout, clipboard: IClipboardService, shapesFactoryService: ShapesFactory): void {
+
+        if (!clipboard) {
+            throw new Error("Clipboard does not exist");
+        }
+        
         const processClipboardData: ProcessClipboardData = clipboard.getData();
 
         if (!processClipboardData) {

@@ -37,7 +37,7 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
     .service("userStoryService", UserStoryService)
-    .service("clipboard", Clipboard)
+    .service("clipboardService", Clipboard)
     .directive("contextualHelp", ContextualHelpDirective.factory())
     .directive("cleartext", () => new ClearTextDirective())
     .directive("uploadImage", UploadImageDirective.factory());

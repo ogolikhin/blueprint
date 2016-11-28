@@ -3,7 +3,7 @@ import {IDiagramLink, IDiagramNodeElement} from "../models/";
 import {NodeType, ILayout} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILocalizationService} from "../../../../../../../core/localization/localizationService";
-import {IClipboard} from "../../../../../services/clipboard.svc";
+import {IClipboardService, ClipboardDataType} from "../../../../../services/clipboard.svc";
 
 export class NodePopupMenu {
 
@@ -14,7 +14,7 @@ export class NodePopupMenu {
     constructor(private layout: ILayout,
                 private shapesFactoryService: ShapesFactory,
                 private localization: ILocalizationService,
-                private clipboard: IClipboard,
+                private clipboard: IClipboardService,
                 private htmlElement: HTMLElement,
                 private mxgraph: MxGraph,
                 private insertTaskFn,
@@ -115,12 +115,14 @@ export class NodePopupMenu {
                     }
                 });
 
-                menu.addItem("Insert Selected Shapes", null, () => {
-                    if (this.insertSelectedShapesFn && this.insertionPoint) {
-                        this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
-                        this.insertionPoint = null;
-                    }
-                });
+                if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
+                    menu.addItem("Insert Selected Shapes", null, () => {
+                        if (this.insertSelectedShapesFn && this.insertionPoint) {
+                            this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
+                            this.insertionPoint = null;
+                        }
+                    });
+                }
 
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
@@ -146,13 +148,15 @@ export class NodePopupMenu {
                         this.insertionPoint = null;
                     }
                 });
-                // Added "paste" munu item here. Does not look good. Needs some work!
-                menu.addItem("Insert Selected Shapes", null, () => {
-                    if (this.insertSelectedShapesFn && this.insertionPoint) {
-                        this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
-                        this.insertionPoint = null;
-                    }
-                });
+                // Added "paste" menu item here. Does not look good. Needs some work!
+                if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
+                    menu.addItem("Insert Selected Shapes", null, () => {
+                        if (this.insertSelectedShapesFn && this.insertionPoint) {
+                            this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
+                            this.insertionPoint = null;
+                        }
+                    });
+                }
                 
             }
 

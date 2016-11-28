@@ -377,6 +377,7 @@ describe("Artifact", () => {
 
             // assert
             expect(saveSpy).toHaveBeenCalledWith(true);
+            expect(validateSpy).not.toHaveBeenCalled();
         });
 
     });

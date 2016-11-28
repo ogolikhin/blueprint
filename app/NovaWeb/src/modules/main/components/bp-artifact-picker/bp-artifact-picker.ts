@@ -169,7 +169,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public $onDestroy(): void {
         if (this.columns) {
             this.columns[0].cellClass = undefined;
-            this.columns[0].innerRenderer = undefined;
+            this.columns[0].cellRenderer = undefined;
             this.columns = undefined;
         }
         this.onSelect = undefined;
@@ -251,11 +251,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public columns: IColumn[] = [{
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (params: IColumnRendererParams) => {
+        cellRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeModels.ITreeNodeVM<any>;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
+            return `${icon}<span>${label}</span>`;
         }
     }];
 
@@ -368,6 +368,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.canceller.reject();
             this.canceller = this.$q.defer<void>();
         }
+        this.filterItemType = this.itemTypes[0];
         this.searchText = undefined;
         this.searchResults = undefined;
         this.isMoreSearchResults = undefined;

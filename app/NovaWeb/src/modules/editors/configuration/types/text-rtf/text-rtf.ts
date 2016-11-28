@@ -69,7 +69,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 statusbar: false,
                 content_style: `html { height: 100%; overflow: auto !important; }
                 body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px;
-                margin: 8px 20px 8px 8px; overflow: visible !important; padding-bottom: 0 !important; }
+                margin: 0 20px 0 0; overflow: visible !important; padding-bottom: 0 !important; }
                 html:hover, html:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 body.mce-content-body *[contentEditable=false] *[contentEditable=true]:focus,
                 body.mce-content-body *[contentEditable=false] *[contentEditable=true]:hover,

@@ -19,10 +19,8 @@ export class BpProcessEditor implements ng.IComponentOptions {
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
-    private disposing: boolean = false;
-
-    public processDiagram: ProcessDiagram;
-    public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
+    private processDiagram: ProcessDiagram;
+    private subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
 
     public static $inject: [string] = [
         "messageService",
@@ -69,25 +67,17 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-        this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
+
         this.subscribers.push(
-            //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.selectionObservable
-                .filter(this.clearSelectionFilter)
-                .subscribeOnNext(this.clearSelection, this)
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this),
+            this.artifactManager.selection.subArtifactObservable
+                .subscribeOnNext(this.onSubArtifactChanged, this)
         );
     }
 
-    private clearSelectionFilter = (selection: ISelection) => {
-        return this.artifact
-            && selection != null
-            && selection.artifact
-            && selection.artifact.id === this.artifact.id
-            && !selection.subArtifact;
-    }
-
-    private clearSelection(value: ISelection) {
-        if (this.processDiagram) {
+    private onSubArtifactChanged(subArtifact: IStatefulSubArtifact) {
+        if (!subArtifact && this.processDiagram) {
             this.processDiagram.clearSelection();
         }
     }
@@ -127,25 +117,18 @@ export class BpProcessEditorController extends BpBaseEditor {
 
         let htmlElement = this.getHtmlElement();
 
-        this.processDiagram.addSelectionListener((element) => {
-            this.onSelectionChanged(element);
-        });
+        this.processDiagram.addSelectionListener(
+            (elements: IDiagramNode[]) => {
+                this.onDiagramSelectionChanged(elements);
+            }
+        );
 
         this.processDiagram.createDiagram(this.artifact, htmlElement);
 
         super.onArtifactReady();
     }
 
-    public $onDestroy() {
-        this.disposing = true;
-        this.destroy();
-
-        super.$onDestroy();
-
-        this.disposing = false;
-    }
-
-    private destroy() {
+    protected destroy(): void {
         if (this.subArtifactEditorModalOpener) {
             this.subArtifactEditorModalOpener.destroy();
         }
@@ -153,6 +136,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         if (this.processDiagram) {
             this.processDiagram.destroy();
         }
+
+        super.destroy();
     }
 
     private getHtmlElement(): HTMLElement {
@@ -182,22 +167,24 @@ export class BpProcessEditorController extends BpBaseEditor {
         }
     }
 
-    private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if (this.disposing || this.isDestroyed) {
+    private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
+        if (this.isDestroyed) {
             return;
         }
 
         if (elements.length > 0) {
-            const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(elements[0].model.id);
+            const subArtifactId: number = elements[0].model.id;
+            const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(subArtifactId);
+
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        if (this.disposing || this.isDestroyed) {
+                        if (this.isDestroyed) {
                             return;
                         }
 
                         this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                });
+                    });
             }
         } else {
             this.artifactManager.selection.clearSubArtifact();

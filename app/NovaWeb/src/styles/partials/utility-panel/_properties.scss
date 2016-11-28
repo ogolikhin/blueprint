@@ -31,12 +31,8 @@ bp-properties-panel {
     .artifact-overview {
 
         > .content {
-            border: none;
+            border: 0;
             padding: 0 0 10px;
-        }
-
-        .nav-tabs {
-            margin-left: $property-left-margin;
         }
     }
 
@@ -161,7 +157,7 @@ bp-properties-panel {
         .formly-field-bpFieldTextRTF {
             .mce-toolbar-grp {
                 min-width: 244px;
-                top: -25px;
+                top: -26px;
 
                 .mce-btn button {
                     line-height: 15px;

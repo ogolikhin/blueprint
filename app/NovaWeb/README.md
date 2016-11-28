@@ -6,7 +6,7 @@ If you haven't installed node.js please install it first (latest LTS version fro
 Developers may use whatever IDE they wish, however the IDE must support the following:  
 * Editorconfig
 * TSLint
-* Sytnax highlighting  
+* Syntax highlighting  
 
 Most common IDE's are [Webstorm](https://www.jetbrains.com/webstorm/) or [VSCode](https://code.visualstudio.com). _VSCode requires additional plugins configuration_
 
@@ -60,13 +60,13 @@ or 'permanently' in the user profile
 npm config set nova:backend http://titan.blueprintsys.net
 ```
 
-### Styleguide  
+### Styleguide   
 
 To help with UX and Creative work flow as well as to ensure proper re-use of components we are leveraging a styleguid. 
-Serveral options for this exist however most involve maintaining a second site. As this is a costly options we have decided
- to use an automated utility to use [SC5 Style Guide Generator](http://styleguide.sc5.io/).  
+Several options for this exist however most involve maintaining a second site. Maintaining a second site is costly 
+as such we have decided to use [SC5 Style Guide Generator](http://styleguide.sc5.io/).  
  
- Usage of this automated generate depends on adding specifically formatted comments into the `.scss` files on the site. 
+ Usage of this automated generator depends on adding specifically formatted comments into the `.scss` files on the site. 
  These comments follow [KSS Syntax](http://warpspire.com/kss/syntax/). Take time to read the specific examples on [documenting syntax](https://github.com/SC5/sc5-styleguide#documenting-syntax).  
  
  You can access the style guide at [http://localhost:4000](http://localhost:4000) by the following commands:

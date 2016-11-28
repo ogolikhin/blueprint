@@ -386,13 +386,73 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that both NovaSubArtifact objects are equal.
+        /// </summary>
+        /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
+        /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
+        /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
+        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertSubArtifactsEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact,
+            bool skipId = false, bool skipParentId = false, bool skipOrderIndex = false)
+        {
+            ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
+            ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
+
+            Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
+
+            if (!skipId)
+            {
+                Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
+            }
+
+            if (!skipParentId)
+            {
+                Assert.AreEqual(expectedSubArtifact.ParentId, actualSubArtifact.ParentId, "The ParentId  parameters don't match!");
+            }
+
+            if (!skipOrderIndex)
+            {
+                Assert.AreEqual(expectedSubArtifact.OrderIndex, actualSubArtifact.OrderIndex, "The OrderIndex parameters don't match!");
+            }
+
+            Assert.AreEqual(expectedSubArtifact.Name, actualSubArtifact.Name, "The Name parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeId, actualSubArtifact.ItemTypeId, "The ItemTypeId parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeName, actualSubArtifact.ItemTypeName, "The ItemTypeName parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeVersionId, actualSubArtifact.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeIconId, actualSubArtifact.ItemTypeIconId, "The ItemTypeIconId parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.Prefix, actualSubArtifact.Prefix, "The Prefix parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
+
+            Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+
+            // Now compare each property in CustomProperties & SpecificPropertyValues.
+            foreach (CustomProperty property in expectedSubArtifact.CustomPropertyValues)
+            {
+                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == property.Name),
+                "Couldn't find a CustomProperty named '{0}'!", property.Name);
+            }
+
+            foreach (CustomProperty property in expectedSubArtifact.SpecificPropertyValues)
+            {
+                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == property.Name),
+                "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+            }
+
+            //TODO: Add assertions for Traces, Attachments and Doc References
+        }
+
+        /// <summary>
         /// Compares Two Custom Properties for Equality
         /// </summary>
         /// <param name="expectedProperty">The first custom property to compare.</param>
         /// <param name="actualProperty">The second custom property to compare.</param>
         public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
         {
-            ThrowIf.ArgumentNull(expectedProperty,nameof(expectedProperty));
+            ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
 
             Assert.IsNotNull(expectedProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
@@ -430,20 +490,20 @@ namespace Helper
                         Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.", primitiveType);
                     }
 
-                    if (!string.IsNullOrEmpty(((ChoiceValues) expectedProperty.CustomPropertyValue).CustomValue))
+                    if (!string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue))
                     {
                         var customValue1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue;
                         var customValue2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue;
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property CustomValues are not equal.", primitiveType);
                     }
-                    else if(string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue) &&
+                    else if (string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue) &&
                         !string.IsNullOrEmpty(JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue))
                     {
                         Assert.Fail("The custom {0} property CustomValue was null for the expected property but the CustomValue " +
                                     "for the actual property was not null.", primitiveType);
                     }
-                    
+
                     break;
 
                 case PropertyPrimitiveType.User:

@@ -16,6 +16,7 @@
                 ng-keydown="quickSearch.onKeyDown($event)"
                 required
                 ng-minlength="3"
+                maxlength="250"
                 ng-disabled="quickSearch.quickSearchService.canSearch()"
                 autocomplete="off"
                 placeholder="{{quickSearch.localization.get('Search_Placeholder')}}"

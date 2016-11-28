@@ -49,7 +49,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
-    public activeTab: number;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -65,7 +64,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private $window: ng.IWindowService,
                 private $scope: ng.IScope) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
-        this.activeTab = 0;
     }
 
     public get reviewUrl(): string {

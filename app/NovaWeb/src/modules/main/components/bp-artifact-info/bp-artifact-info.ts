@@ -24,6 +24,8 @@ import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
+import {ISelectionManager} from "../../../managers/selection-manager";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -45,7 +47,9 @@ export class BpArtifactInfoController {
         "navigationService",
         "projectManager",
         "metadataService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "selectionManager",        
+        "analytics"
     ];
 
     protected subscribers: Rx.IDisposable[];
@@ -78,7 +82,9 @@ export class BpArtifactInfoController {
                 protected navigationService: INavigationService,
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
-                protected mainBreadcrumbService: IMainBreadcrumbService) {
+                protected mainBreadcrumbService: IMainBreadcrumbService,
+                protected selectionManager: ISelectionManager,                
+                protected analytics: IAnalyticsProvider) {
         this.initProperties();
         this.subscribers = [];
     }
@@ -218,6 +224,39 @@ export class BpArtifactInfoController {
             default:
                 break;
         }
+    }
+
+    public get canLoadProject(): boolean {
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (!selectedArtifact || !selectedArtifact.projectId) {            
+            return false;
+        }
+        const project = this.projectManager.getProject(selectedArtifact.projectId);
+
+        return !project;
+    }
+
+    public loadProject(): void {
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (!selectedArtifact || !selectedArtifact.projectId) {
+            //this.projectManager.openProjectWithDialog();
+            return;
+        }
+        const projectId = selectedArtifact.projectId;
+        const artifactId = selectedArtifact.id;
+
+        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+
+        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
+        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+            .finally(() => {
+                //(eventCollection, action, label?, value?, custom?, jQEvent?
+                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                this.analytics.trackEvent("open", "project", label, projectId, {
+                    openProjects: openProjects
+                });
+                this.loadingOverlayService.endLoading(openProjectLoadingId);
+            });
     }
 
     public get artifactHeadingMinWidth() {

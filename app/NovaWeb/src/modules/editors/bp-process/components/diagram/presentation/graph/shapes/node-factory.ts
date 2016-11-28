@@ -32,12 +32,14 @@ export class NodeFactory {
 
             case ProcessShapeType.PreconditionSystemTask:
                 return new SystemTask(
-                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService,
+                        bpAccordionPanelService
                 );
 
             case ProcessShapeType.SystemTask:
                 return new SystemTask(
-                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService,
+                        bpAccordionPanelService
                 );
 
             case ProcessShapeType.UserDecision:

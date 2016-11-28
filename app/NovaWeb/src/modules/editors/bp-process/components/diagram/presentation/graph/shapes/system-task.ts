@@ -9,7 +9,7 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
-import {BpAccordionCtrl, BpAccordionPanelCtrl} from "../../../../../../../main/components/bp-accordion/bp-accordion";
+import {BpAccordionPanelService} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 
@@ -43,7 +43,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
                 private defaultPersonaReferenceValue: IArtifactReference,
                 private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactory: ShapesFactory,
-                private bpAccordionCtrl?: BpAccordionCtrl) {
+                private bpAccordionPanelService?: BpAccordionPanelService) {
         super(model);
 
         this.rootScope = rootScope;
@@ -99,13 +99,12 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.commentsButton = new Button(`CB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("comments-neutral.svg"));
         this.commentsButton.isEnabled = !this.isNew;
 
-
-            // #TODO interaction with utility panel is different in Nova
+        if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             this.commentsButton.setClickAction(() => {
-                //console.log("test2");
+                this.bpAccordionPanelService.openRightPanel();
+                this.bpAccordionPanelService.openDiscussionPanel();
             });
-
-        //if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {}
+        }
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
 
@@ -443,7 +442,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
     public activateButton(flag: ItemIndicatorFlags) {
         if (flag === ItemIndicatorFlags.HasComments) {
-            this.model.flags.hasComments = true;
+            this.model["artifact"].flags.hasComments = true;
             this.commentsButton.activate();
         }
     }

@@ -81,7 +81,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
              this.commentsButton.setClickAction(() => {
-                 console.log("this.commentsButton.setClickAction");
                  this.bpAccordionPanelService.openRightPanel();
                  this.bpAccordionPanelService.openDiscussionPanel();
              });

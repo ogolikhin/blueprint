@@ -7,7 +7,7 @@ export enum ClipboardDataType {
 export interface IClipboardData {
     type: ClipboardDataType;
     data: any;
-    clearData();
+    dispose();
 }
 
 export interface IClipboardService {
@@ -24,10 +24,13 @@ export class Clipboard implements IClipboardService {
     }
 
     public setData (newVal: IClipboardData): void {
+        this.clearData();
         this._data = newVal;
     }
 
-    clearData(): void {
-        this._data.clearData();
+    public clearData(): void {
+        if (!!this._data) {
+            this._data.dispose();
+        }
     } 
 }

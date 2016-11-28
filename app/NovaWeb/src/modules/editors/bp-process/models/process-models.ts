@@ -293,11 +293,17 @@ export class EdgeGeo {
 
 export class ProcessClipboardData implements IClipboardData {
     public type: ClipboardDataType = ClipboardDataType.Process;
-    constructor(public data: IProcessShape[]) {
+
+    constructor(private processData: IProcessShape[]) {
         // Empty constractor
     }
-    public clearData() {
-        this.data = null;
+
+    public get data() {
+        return this.processData;
+    }
+
+    public dispose() {
+        this.processData = null;
     }
 
 }

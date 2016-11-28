@@ -1,5 +1,7 @@
 @import '../../../../styles/modules/mixins';
-@import '../../../../styles/modules/variables';
+@import '../../../../styles/settings/variables';
+@import "../../../../styles/settings/colors";
+@import "../../../../styles/settings/typography";
 
 .bp-artifact-list {
     margin: 0;

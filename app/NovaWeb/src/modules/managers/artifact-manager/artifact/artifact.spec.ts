@@ -29,6 +29,7 @@ import {ValidationServiceMock} from "../../../managers/artifact-manager/validati
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
     let $q: ng.IQService;
+    let validateSpy: jasmine.Spy;
     beforeEach(angular.mock.module("app.shell"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -62,7 +63,7 @@ describe("Artifact", () => {
             version: 0
         } as Models.IArtifact;
         artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
-        spyOn(artifact, "validate").and.callFake(() => {
+        validateSpy = spyOn(artifact, "validate").and.callFake(() => {
                 return $q.resolve();
         });
 
@@ -332,9 +333,54 @@ describe("Artifact", () => {
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
+        
+        it("save calls validation when ignore validation flag is false", () => {
+            // arrange
+            spyOn(artifact, "saveArtifact").and.returnValue($q.when());
+            spyOn(artifact, "getCustomArtifactPromiseForSave").and.returnValue($q.when());
 
+            // act
+            artifact.save(false);
+
+            // assert
+            expect(validateSpy).toHaveBeenCalled();
+        });
+
+        it("save does not call validation when ignore validation flag is true", () => {
+            // arrange
+            spyOn(artifact, "saveArtifact").and.returnValue($q.when());
+            spyOn(artifact, "getCustomArtifactPromiseForSave").and.returnValue($q.when());
+
+            // act
+            artifact.save(true);
+            
+            // assert
+            expect(validateSpy).not.toHaveBeenCalled();
+        });
     });
 
+    describe("Autosave", () => {
+
+        it("autosave calls save with flag to ignore validation", () => {
+            // arrange
+            const saveSpy = spyOn(artifact, "save").and.returnValue($q.when());
+            const newStateValues = {
+                lockDateTime: new Date(),
+                lockedBy: Enums.LockedByEnum.CurrentUser,
+                lockOwner: "Default Instance Admin",
+                dirty: true
+            };
+            artifact.artifactState.setState(newStateValues, false);
+
+            // act
+            artifact.autosave();
+
+            // assert
+            expect(saveSpy).toHaveBeenCalledWith(true);
+            expect(validateSpy).not.toHaveBeenCalled();
+        });
+
+    });
 
     describe("Publish", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, messageService: IMessageService) => {

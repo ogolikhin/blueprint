@@ -93,8 +93,10 @@ module.exports = {
             {from: '../src/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
-            ENABLE_LOCAL_HOST_TRACKING:true,
-            ENABLE_LOG:true,
+            KEEN_PROJECT_ID: JSON.stringify('582cb85c8db53dfda8a78767'),
+            KEEN_WRITE_KEY: JSON.stringify('E011AFC42952D3500532FA364DA5DC06BB962F988B2F171CB252201B357F48BCBA671F8A8E62060148129B391FE2D1B3A4E8D9BD6F0629DFF66C9C7C2C1F8F612A80E44ACDEA4F6B1408AAF403649EFF9394A399844C744E0E4F72CA204A0E13'),
+            ENABLE_LOCAL_HOST_TRACKING: true,
+            ENABLE_LOG: true,
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })

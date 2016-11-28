@@ -18,8 +18,6 @@ export class BpProcessEditor implements ng.IComponentOptions {
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
-    private disposing: boolean = false;
-
     public processDiagram: ProcessDiagram;
     public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
 
@@ -132,16 +130,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         super.onArtifactReady();
     }
 
-    public $onDestroy() {
-        this.disposing = true;
-        this.destroy();
-
-        super.$onDestroy();
-
-        this.disposing = false;
-    }
-
-    private destroy() {
+    protected destroy(): void {
         if (this.subArtifactEditorModalOpener) {
             this.subArtifactEditorModalOpener.destroy();
         }
@@ -149,6 +138,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         if (this.processDiagram) {
             this.processDiagram.destroy();
         }
+
+        super.destroy();
     }
 
     private getHtmlElement(): HTMLElement {
@@ -179,8 +170,8 @@ export class BpProcessEditorController extends BpBaseEditor {
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if (this.disposing || this.isDestroyed) {		
-            return;		
+        if (this.isDestroyed) {
+            return;
         }
 
         if (elements.length > 0) {
@@ -188,7 +179,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        if (this.disposing || this.isDestroyed) {
+                        if (this.isDestroyed) {
                             return;
                         }
 

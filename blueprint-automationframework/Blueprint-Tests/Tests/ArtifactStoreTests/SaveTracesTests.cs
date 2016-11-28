@@ -484,7 +484,7 @@ namespace ArtifactStoreTests
 
             IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage(
                 "Cannot perform save, the artifact provided is attempting to override a read-only property.",
-                InternalApiErrorCodes.CannotSaveDueToReuseReadOnly);
+                InternalApiErrorCodes.CannotSaveDueToReadOnly);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
@@ -514,7 +514,7 @@ namespace ArtifactStoreTests
 
             IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage(
                 "Cannot perform save, the artifact provided is attempting to override a read-only property.",
-                InternalApiErrorCodes.CannotSaveDueToReuseReadOnly);
+                InternalApiErrorCodes.CannotSaveDueToReadOnly);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {
@@ -543,7 +543,7 @@ namespace ArtifactStoreTests
 
             IServiceErrorMessage traceToItselfMessage = new ServiceErrorMessage(
                 "Cannot perform save, the artifact provided is attempting to override a read-only property.",
-                InternalApiErrorCodes.CannotSaveDueToReuseReadOnly);
+                InternalApiErrorCodes.CannotSaveDueToReadOnly);
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => {

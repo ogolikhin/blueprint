@@ -61,7 +61,7 @@ namespace Helper
 
         public const int UnexpectedLockException = 115;
 
-        public const int CannotSaveDueToReuseReadOnly = 116;
+        public const int CannotSaveDueToReadOnly = 116;
 
         public const int ClientDataOutOfDate = 117;
 
@@ -80,6 +80,12 @@ namespace Helper
         public const int CycleRelationship = 124;
 
         public const int CannotSaveConflictWithParent = 125;
+
+        public const int InvalidPersonaType = 126;
+
+        // Copy Artifact errors
+        public const int UnexpectedConcurrencyError = 127;
+        public const int ExceedsLimit = 128;
 
         public const int Ok = 200;
 

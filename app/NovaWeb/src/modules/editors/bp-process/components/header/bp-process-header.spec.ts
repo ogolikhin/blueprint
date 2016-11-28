@@ -82,7 +82,7 @@ describe("BpProcessHeader", () => {
         navigationService = _navigationService_;
     }));
 
-    xit("correctly initializes breadcrumb", () => {
+    it("correctly initializes breadcrumb", () => {
         // arrange
         const deferred = $q.defer();
         deferred.resolve([
@@ -140,7 +140,7 @@ describe("BpProcessHeader", () => {
             controller = null;
         });
 
-        xit("doesn't navigate if link is null", () => {
+        it("doesn't navigate if link is null", () => {
             // arrange
             const navigateBackSpy = spyOn(navigationService, "navigateBack");
             controller.breadcrumbLinks = [];
@@ -152,7 +152,7 @@ describe("BpProcessHeader", () => {
             expect(navigateBackSpy).not.toHaveBeenCalled();
         });
 
-        xit("doesn't navigate to link that's not part of the breadcrumb", () => {
+        it("doesn't navigate to link that's not part of the breadcrumb", () => {
             // arrange
             const link = <IBreadcrumbLink>{id: 0, name: "enabled link", isEnabled: true};
             const navigateBackSpy = spyOn(navigationService, "navigateBack");
@@ -165,7 +165,7 @@ describe("BpProcessHeader", () => {
             expect(navigateBackSpy).not.toHaveBeenCalled();
         });
 
-        xit("does not navigate to disabled link", () => {
+        it("does not navigate to disabled link", () => {
             // arrange
             const link = <IBreadcrumbLink>{id: 0, name: "disabled link", isEnabled: false};
             const navigateBackSpy = spyOn(navigationService, "navigateBack");
@@ -178,7 +178,7 @@ describe("BpProcessHeader", () => {
             expect(navigateBackSpy).not.toHaveBeenCalled();
         });
 
-        xit("navigates to enabled link", () => {
+        it("navigates to enabled link", () => {
             // arrange
             const link = <IBreadcrumbLink>{id: 0, name: "enabled link", isEnabled: true};
             const navigateBackSpy = spyOn(navigationService, "navigateBack");

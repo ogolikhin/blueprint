@@ -1,4 +1,4 @@
-import {Models} from "../../../main";
+import {Enums, Models} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
@@ -8,10 +8,11 @@ import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-uplo
 import {Helper} from "../../../shared/utils/helper";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IArtifactManager} from "../../../managers";
-import {IStatefulItem} from "../../../managers/artifact-manager";
 import {
     IArtifactAttachmentsService,
     IArtifactDocRef,
+    IStatefulItem,
+    StatefulSubArtifact,
     IStatefulArtifact,
     IStatefulSubArtifact,
     IArtifactAttachment
@@ -216,6 +217,26 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     private docRefsUpdated = (docRefs: IArtifactDocRef[]) => {
         this.docRefList = docRefs;
+    }
+
+    private parentSubArtifactsSRO = (): boolean => {
+        return (this.item.readOnlyReuseSettings & Enums.ReuseSettings.Subartifacts) === Enums.ReuseSettings.Subartifacts;
+    }
+
+    public canUpdateAttachments = (): boolean => {
+        if (this.item instanceof StatefulSubArtifact) {
+            return !this.parentSubArtifactsSRO();
+        }
+        return (!this.item.artifactState.readonly && 
+        (this.item.readOnlyReuseSettings & Enums.ReuseSettings.Attachments) !== Enums.ReuseSettings.Attachments);
+    }
+
+    public canUpdateDocRefs = (): boolean => {
+        if (this.item instanceof StatefulSubArtifact) {
+            return !this.parentSubArtifactsSRO();
+        }
+        return (!this.item.artifactState.readonly && 
+        (this.item.readOnlyReuseSettings & Enums.ReuseSettings.DocumentReferences) !== Enums.ReuseSettings.DocumentReferences);
     }
 
 }

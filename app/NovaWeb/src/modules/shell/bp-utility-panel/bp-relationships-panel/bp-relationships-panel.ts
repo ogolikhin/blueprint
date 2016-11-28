@@ -1,9 +1,10 @@
-import {Relationships} from "../../../main";
+import {Enums, Models, Relationships} from "../../../main";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {
     IArtifactManager,
     IStatefulItem,
     IStatefulArtifact,
+    StatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactRelationships
 } from "../../../managers/artifact-manager";
@@ -178,7 +179,19 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         // if artifact is locked by other user we still can add/manage traces
         return !this.item.artifactState.readonly &&
             this.item.supportRelationships() &&
+            !this.reuseReadOnlyRelationships() &&
             this.item.relationships.canEdit;
+    }
+
+    private reuseReadOnlyRelationships(): boolean {
+        if (this.item instanceof StatefulSubArtifact) {
+            return this.parentSubArtifactsSRO();
+        }
+        return (this.item.readOnlyReuseSettings & Enums.ReuseSettings.Relationships) === Enums.ReuseSettings.Relationships;
+    }
+
+    private parentSubArtifactsSRO = (): boolean => {
+        return (this.item.readOnlyReuseSettings & Enums.ReuseSettings.Subartifacts) === Enums.ReuseSettings.Subartifacts;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {

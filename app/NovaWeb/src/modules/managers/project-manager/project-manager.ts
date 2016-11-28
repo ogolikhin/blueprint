@@ -59,7 +59,7 @@ export class ProjectManager implements IProjectManager {
         "loadingOverlayService",
         "mainbreadcrumbService",
         "itemInfoService",
-        "localization",        
+        "localization",
         "analytics"
     ];
 
@@ -72,8 +72,8 @@ export class ProjectManager implements IProjectManager {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
-                private itemInfoService: IItemInfoService,                
-                private localization: ILocalizationService,              
+                private itemInfoService: IItemInfoService,
+                private localization: ILocalizationService,
                 private analytics: IAnalyticsProvider) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.subscribers = [];
@@ -195,7 +195,7 @@ export class ProjectManager implements IProjectManager {
                             const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
                             this.analytics.trackEvent("open", "project", label, project.id, {
                                 openProjects: openProjects
-                            });                           
+                            });
                             this.loadingOverlayService.endLoading(openProjectLoadingId);
                         });
                 } catch (err) {
@@ -208,9 +208,9 @@ export class ProjectManager implements IProjectManager {
 
     private doRefresh(projectId: number, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
 
-        const project = this.getProject(projectId);        
-        
-        let selectedArtifactNode = this.getArtifactNode(expandToArtifact.id);        
+        const project = this.getProject(projectId);
+
+        let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
 
         //if the artifact provided is not in the current project - just expand project node
         if (!expandToArtifact || expandToArtifact.projectId !== projectId) {
@@ -274,13 +274,13 @@ export class ProjectManager implements IProjectManager {
     }
 
     private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number): ng.IPromise<void> {
-        
+
         const oldProject = this.getProject(projectId);
         // if old project is opened
         if (oldProject) {
             this.artifactManager.removeAll(projectId);
         }
-        
+
 
         return this.metadataService.get(projectId).then(() => {
 
@@ -319,7 +319,7 @@ export class ProjectManager implements IProjectManager {
                 oldProject.unloadChildren();
             } else {
                 this.projectCollection.getValue().unshift(newProjectNode);
-                this.projectCollection.onNext(this.projectCollection.getValue());   
+                this.projectCollection.onNext(this.projectCollection.getValue());
                 if (expandedStatefulArtifact) {
                     this.artifactManager.selection.setExplorerArtifact(expandedStatefulArtifact);
                 }
@@ -332,7 +332,7 @@ export class ProjectManager implements IProjectManager {
         if (project) {
             project.children = undefined;
             project.expanded = false;
-        }        
+        }
     }
 
     private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[], resultStatefulArtifactId: number): IStatefulArtifact {
@@ -357,7 +357,7 @@ export class ProjectManager implements IProjectManager {
                 if (!resultArtifact) {
                     resultArtifact = openChildeResult;
                 }
-                //process its children                
+                //process its children
             }
         });
 

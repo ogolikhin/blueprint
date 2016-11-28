@@ -260,6 +260,59 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
 
+        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
+        [TestRail(195487)]
+        [Description("Create & save an artifact and create & publish a folder.   Publish a manual trace between the artifact & folder.  Create user that does not have " +
+            "trace permissions and copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact is identical to the source" +
+            "artifact, except no Manual Trace should exist.  New copied artifact should not be published.")]
+        public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoTracePermissions_ReturnsNewArtifactWithoutManualTrace(
+            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect)
+        {
+            // Setup:
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            // Create & add manual trace to the source artifact:
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact, targetArtifact, ChangeType.Create,
+                Helper.ArtifactStore, direction, isSuspect);
+
+            sourceArtifact.Publish();
+
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            IUser userNoTracePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            Helper.AssignProjectRolePermissionsToUser(userNoTracePermission,
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.Delete |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share,
+                        _project);
+
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true);
+
+            // Get traces & compare.
+            Relationships sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
+
+            Assert.AreEqual(0, sourceRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
+            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
+
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+        }
+
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase(BaseArtifactType.TextualRequirement, 85, "User Story[reuse source]")]
@@ -365,63 +418,6 @@ namespace ArtifactStoreTests
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
-        }
-
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // Returns 500 error "You do not have permission to edit the artifact".
-        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true, true)]
-        [TestRail(000)]
-        [Description("Create & save an artifact and create & publish a folder.   Add a manual trace between the artifact & folder.  Create user that does not have trace permissions.  " +
-            "Copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact (and trace) is identical to the source artifact.  " + 
-            "New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoPermissionsTrace_ReturnsNewArtifactWithManualTrace(
-            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
-        {
-            // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-
-            // Create & add manual trace to the source artifact:
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact, targetArtifact, ChangeType.Create,
-                Helper.ArtifactStore, direction, isSuspect);
-
-            if (shouldPublishTrace)
-            {
-                sourceArtifact.Publish();
-            }
-
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
-
-            // Execute:
-            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
-            Helper.AssignProjectRolePermissionsToUser(user,
-                        RolePermissions.Edit |
-                        RolePermissions.CanReport |
-                        RolePermissions.Comment |
-                        RolePermissions.DeleteAnyComment |
-                        RolePermissions.CreateRapidReview |
-                        RolePermissions.ExcelUpdate |
-                        RolePermissions.Read |
-                        RolePermissions.Reuse |
-                        RolePermissions.Share,
-                        _project);
-
-            CopyNovaArtifactResultSet copyResult = null;
-
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, user),
-                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-
-            // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);
-
-            // Get traces & compare.
-            Relationships sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, _user, copyResult.Artifact.Id, addDrafts: true);
-            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
-
-            Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
-            Assert.AreEqual(2, targetRelationships.ManualTraces.Count, "Target artifact should have 2 manual traces.");
-
-            ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
-            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
 
         // TODO ---------------- POSITIVE TESTS
@@ -883,13 +879,15 @@ namespace ArtifactStoreTests
         /// <param name="expectedNumberOfArtifactsCopied">(optional) The number of artifacts that were expected to be copied.</param>
         /// <param name="expectedVersionOfOriginalArtifact">(optional) The expected version of the original artifact.</param>
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
+        /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(INovaArtifactDetails originalArtifact,
             CopyNovaArtifactResultSet copyResult,
             IUser user,
             int expectedNumberOfArtifactsCopied = 1,
             int expectedVersionOfOriginalArtifact = 1,
-            bool skipCreatedBy = false)
+            bool skipCreatedBy = false,
+            bool skipPermissions = false)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
@@ -902,7 +900,8 @@ namespace ArtifactStoreTests
 
             // We need to skip comparison of a lot of properties because the copy has different Id & Parent, and isn't published...
             ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact,
-                skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipCreatedBy: skipCreatedBy, skipPublishedProperties: true);
+                skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipCreatedBy: skipCreatedBy,
+                skipPublishedProperties: true, skipPermissions: skipPermissions);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
@@ -910,7 +909,7 @@ namespace ArtifactStoreTests
 
             // Make sure original artifact didn't change.
             var originalArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, originalArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipIdAndVersion: true, skipPermissions: skipPermissions);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
         }

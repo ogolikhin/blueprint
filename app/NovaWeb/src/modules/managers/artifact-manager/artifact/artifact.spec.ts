@@ -66,6 +66,9 @@ describe("Artifact", () => {
         validateSpy = spyOn(artifact, "validate").and.callFake(() => {
                 return $q.resolve();
         });
+        spyOn(artifact, "canBeSaved").and.callFake(() => {
+            return true;
+        });
 
     }));
 

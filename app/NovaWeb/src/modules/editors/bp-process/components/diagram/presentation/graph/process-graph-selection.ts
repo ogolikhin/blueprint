@@ -1,16 +1,15 @@
-﻿import { ISelectionListener } from "./models/";
-import { IProcessShape } from "./models/";
-import { IDiagramNode } from "./models/";
-import { NodeType } from "./models/";
-import { SystemTask, DiagramNode, UserTask } from "./shapes/";
+﻿import {ISelectionListener} from "./models/";
+import {IProcessShape} from "./models/";
+import {IDiagramNode} from "./models/";
+import {NodeType} from "./models/";
+import {SystemTask, DiagramNode} from "./shapes/";
 
 
-export class ProcessGraphMultiSelectionHelper {
+export class ProcessGraphSelectionHelper {
 
-    private isSingleSelection = false;
+    private isSingleSelection = true;
     private graph: MxGraph;
     private selectionListeners: Array<ISelectionListener> = [];
-    private programmaticSelectionChange: boolean = false;
 
     constructor(graph: MxGraph) {
         this.graph = graph;
@@ -84,8 +83,7 @@ export class ProcessGraphMultiSelectionHelper {
     }
 
     public initSelection() {
-        // this.graph.getSelectionModel().setSingleSelection(this.isSingleSelection);
-        new mxRubberband(this.graph);
+        this.graph.getSelectionModel().setSingleSelection(this.isSingleSelection);
         let baseIsEventIgnored = this.graph.isEventIgnored;
         this.graph.isEventIgnored = (evtName, me, sender) => {
             return baseIsEventIgnored.call(this.graph, evtName, me, sender);
@@ -93,33 +91,13 @@ export class ProcessGraphMultiSelectionHelper {
         this.graph.popupMenuHandler.selectOnPopup = false;
         this.graph.graphHandler.getInitialCellForEvent = this.getInitialCellForEvent;
         this.graph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
-            if (this.programmaticSelectionChange) {
-                this.programmaticSelectionChange = false;
-                return;
-            }
-            let cells = this.graph.getSelectionCells();
             if (evt.properties.removed && evt.properties.removed.length > 0) {
                 if (this.hasUnSelectableElement(evt)) {
-                    // this.graph.clearSelection();
-                }
-            }
-
-            if (cells.length > 1) {
-                cells = cells.filter(cell => cell instanceof UserTask);
-                {
-                    this.programmaticSelectionChange = true;
                     this.graph.clearSelection();
                 }
-                {
-                    this.programmaticSelectionChange = true;
-                    this.graph.getSelectionModel().addCells(cells);
-                }
             }
-
             let elements = this.getSelectedNodes();
-
             if (elements) {
-
                 elements = elements.filter(e => e instanceof DiagramNode);
                 this.selectionListeners.forEach((listener: ISelectionListener) => {
                     listener(elements);

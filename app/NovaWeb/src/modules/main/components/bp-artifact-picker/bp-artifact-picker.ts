@@ -211,6 +211,10 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
+    private clearSearchEnabeled(): boolean {
+        return !!this.searchText || !!this.searchResults;
+    }
+
     private resetItemTypes(): void {
         this.itemTypes =
                 [{

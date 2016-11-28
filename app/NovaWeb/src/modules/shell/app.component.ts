@@ -63,7 +63,6 @@ export class AppController {
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
 
-        //TODO: Localize!
         this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             if (unpublishedArtifactSet.artifacts.length > 0) {
                 const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")

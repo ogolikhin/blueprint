@@ -288,7 +288,7 @@ describe("BPTreeViewController", () => {
                 field: "field",
                 isGroup: true,
                 cellClass: () => [],
-                innerRenderer: () => ""
+                cellRenderer: () => "test"
             }] as IColumn[];
 
             // Act
@@ -304,7 +304,9 @@ describe("BPTreeViewController", () => {
                 })
             })]);
             expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellClass)).toEqual(true);
-            expect(angular.isFunction(((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams as any).innerRenderer)).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["innerRenderer"])).toEqual(true);
+            expect((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["innerRenderer"]())
+                .toEqual(`<span class="ag-group-value-wrapper">test</span>`);
         });
 
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {

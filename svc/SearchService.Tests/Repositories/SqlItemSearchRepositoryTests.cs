@@ -1,11 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SearchService.Helpers;
 using SearchService.Models;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -39,6 +43,77 @@ namespace SearchService.Repositories
         #endregion Constructor
 
         #region SearchName
+
+        [TestMethod]
+        public async Task SearchName_WithPredefinedTypeIdsWithSqlTimeoutException_SqlTimeoutExceptionOccurs()
+        {
+            // Arrange
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                Query = "test",
+                ProjectIds = new[] { 1 },
+                PredefinedTypeIds = new[] { 4104 }
+            };
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+
+            Exception sqlException = SqlExceptionCreator.NewSqlException(ErrorCodes.SqlTimeoutNumber);
+
+            var itemSearchRepository = CreateItemNameRepositoryWithExceptionExpectation<ItemNameSearchResult>(mockArtifactPermissionsRepository.Object, null, sqlException);
+
+            SqlTimeoutException sqlTimeoutException = null;
+
+            // Act
+            try
+            {
+                await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+            }
+            catch (SqlTimeoutException exception)
+            {
+                sqlTimeoutException = exception;
+            }
+
+            // Assert
+            Assert.IsNotNull(sqlTimeoutException, "sqlTimeoutException != null");
+            Assert.IsTrue(sqlTimeoutException.ErrorCode == ErrorCodes.Timeout, "Timeout exception should occur");
+        }
+
+        [TestMethod]
+        public async Task SearchName_WithPredefinedTypeIdsWithSqlException_SqlExceptionOccurs()
+        {
+            // Arrange
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                Query = "test",
+                ProjectIds = new[] { 1 },
+                PredefinedTypeIds = new[] { 4104 }
+            };
+            
+            var permissionsDictionary = new Dictionary<int, RolePermissions> { { 0, RolePermissions.Read } };
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
+
+            Exception sqlException = SqlExceptionCreator.NewSqlException(-4);
+
+            var itemSearchRepository = CreateItemNameRepositoryWithExceptionExpectation<ItemNameSearchResult>(mockArtifactPermissionsRepository.Object, null, sqlException);
+
+            SqlException actualSqlException = null;
+
+            // Act
+            try
+            {
+                await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+            }
+            catch (SqlException exception)
+            {
+                actualSqlException = exception;
+            }
+
+            // Assert
+            Assert.IsNotNull(actualSqlException, "sqlException != null");
+            Assert.IsTrue(actualSqlException.Number == -4, "Timeout exception should occur");
+        }
 
         [TestMethod]
         public async Task SearchName_WithPredefinedTypeIds_ReturnsResults()
@@ -267,6 +342,66 @@ namespace SearchService.Repositories
             Assert.AreEqual(queryResult2[0], result.TotalCount);
         }
 
+        [TestMethod]
+        public async Task FullTextMetaData_WithoutItemTypesThrowsTimeoutException_SqlTimeoutExceptionThrown()
+        {
+            // Arrange
+            var searchCriteria = new FullTextSearchCriteria
+            {
+                Query = "test",
+                ProjectIds = new[] { 1 }
+            };
+
+            var sqlException = SqlExceptionCreator.NewSqlException(-2);
+            var itemSearchRepository = CreateFullTextSearchRepositoryWithException<MetaDataSearchResult>(sqlException);
+
+            SqlTimeoutException sqlTimeoutException = null;
+
+            // Act
+            try
+            {
+                await itemSearchRepository.FullTextMetaData(UserId, searchCriteria);
+            }
+            catch (SqlTimeoutException exception)
+            {
+                sqlTimeoutException = exception;
+            }
+
+            // Assert
+            Assert.IsNotNull(sqlTimeoutException, "sqlTimeoutException != null");
+            Assert.IsTrue(sqlTimeoutException.ErrorCode == ErrorCodes.Timeout, "Timeout exception should occur");
+        }
+
+        [TestMethod]
+        public async Task FullTextMetaData_WithoutItemTypesThrowsSqlException_SqlExceptionReThrown()
+        {
+            // Arrange
+            var searchCriteria = new FullTextSearchCriteria
+            {
+                Query = "test",
+                ProjectIds = new[] { 1 }
+            };
+
+            var sqlException = SqlExceptionCreator.NewSqlException(-2146232060);
+            var itemSearchRepository = CreateFullTextSearchRepositoryWithException<MetaDataSearchResult>(sqlException);
+
+            SqlException thrownException = null;
+
+            // Act
+            try
+            {
+                await itemSearchRepository.FullTextMetaData(UserId, searchCriteria);
+            }
+            catch (SqlException exception)
+            {
+                thrownException = exception;
+            }
+
+            // Assert
+            Assert.IsNotNull(thrownException, "sqlException != null");
+            Assert.IsTrue(thrownException.ErrorCode == -2146232060, "Timeout exception should occur");
+        }
+
         #endregion SearchMetaData
 
         private static IItemSearchRepository CreateFullTextSearchRepository<T>(
@@ -318,6 +453,24 @@ namespace SearchService.Repositories
             return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object);
         }
 
+        private static IItemSearchRepository CreateFullTextSearchRepositoryWithException<T>(Exception exception)
+        {
+            var connectionWrapper = new Mock<ISqlConnectionWrapper>();
+            
+            connectionWrapper.Setup(
+                t => t.QueryMultipleAsync<T, int?>("SearchFullText", It.IsAny<object>(), It.IsAny<IDbTransaction>(),
+                    It.IsAny<int?>(), It.IsAny<CommandType?>())).Throws(exception);
+            connectionWrapper.Setup(
+                t => t.QueryMultipleAsync<T, int?>("SearchFullTextMetaData", It.IsAny<object>(), It.IsAny<IDbTransaction>(),
+                    It.IsAny<int?>(), It.IsAny<CommandType?>())).Throws(exception);
+
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(c => c.MaxItems).Returns(MaxItems.ToStringInvariant());
+            configuration.Setup(c => c.MaxSearchableValueStringSize).Returns(MaxSearchableValueStringSize.ToStringInvariant());
+
+            return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object);
+        }
+
         private static IItemSearchRepository CreateItemNameRepository<T>(
             ItemNameSearchCriteria searchCriteria,
             ICollection<T> queryResult,
@@ -339,6 +492,7 @@ namespace SearchService.Repositories
             {
                 parameters.Add("predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));
             }
+
             connectionWrapper.SetupQueryAsync(
                 "SearchItemNameByItemTypes",
                 parameters,
@@ -349,6 +503,52 @@ namespace SearchService.Repositories
             configuration.Setup(c => c.MaxSearchableValueStringSize).Returns(MaxSearchableValueStringSize.ToStringInvariant());
 
             return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object, artifactPermissionsRepository, artifactRepository);
+        }
+
+        private static IItemSearchRepository CreateItemNameRepositoryWithExceptionExpectation<T>(
+            
+            IArtifactPermissionsRepository artifactPermissionsRepository,
+            ISqlArtifactRepository artifactRepository,
+            Exception exception)
+        {
+            var connectionWrapper = new Mock<ISqlConnectionWrapper>();
+            connectionWrapper.Setup(
+                t => t.QueryAsync<T>("SearchItemNameByItemTypes", It.IsAny<object>(), It.IsAny<IDbTransaction>(),
+                    It.IsAny<int?>(), It.IsAny<CommandType?>())).Throws(exception);
+
+            var configuration = new Mock<ISearchConfiguration>();
+            configuration.Setup(c => c.MaxItems).Returns(MaxItems.ToStringInvariant());
+            configuration.Setup(c => c.MaxSearchableValueStringSize).Returns(MaxSearchableValueStringSize.ToStringInvariant());
+
+            return new SqlItemSearchRepository(connectionWrapper.Object, configuration.Object, artifactPermissionsRepository, artifactRepository);
+        }
+    }
+
+    public class SqlExceptionCreator
+    {
+        private static T Construct<T>(params object[] p)
+        {
+            var ctors = typeof(T).GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance);
+            return (T)ctors.First(ctor => ctor.GetParameters().Length == p.Length).Invoke(p);
+        }
+
+        internal static SqlException NewSqlException(int number = 1)
+        {
+            SqlErrorCollection collection = Construct<SqlErrorCollection>();
+            SqlError error = Construct<SqlError>(number, (byte)2, (byte)3, "server name", "error message", "proc", 100);
+
+            typeof(SqlErrorCollection)
+                .GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(collection, new object[] { error });
+
+
+            return typeof(SqlException)
+                .GetMethod("CreateException", BindingFlags.NonPublic | BindingFlags.Static,
+                    null,
+                    CallingConventions.ExplicitThis,
+                    new[] { typeof(SqlErrorCollection), typeof(string) },
+                    new ParameterModifier[] { })
+                .Invoke(null, new object[] { collection, "7.0.0" }) as SqlException;
         }
     }
 }

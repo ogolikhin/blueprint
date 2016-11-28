@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -106,9 +107,9 @@ namespace SearchService.Repositories
             catch (SqlException sqlException)
             {
                 //Sql timeout error
-                if (sqlException.Number == -2)
+                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -158,9 +159,9 @@ namespace SearchService.Repositories
             catch (SqlException sqlException)
             {
                 //Sql timeout error
-                if (sqlException.Number == -2)
+                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -195,7 +196,25 @@ namespace SearchService.Repositories
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
-            var items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
+            List<ItemNameSearchResult> items = null;
+
+            try
+            {
+                items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes",
+                    param,
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
+            }
+            catch (SqlException sqlException)
+            {
+                //Sql timeout error
+                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
+                {
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+                throw;
+            }
+            
 
             var itemIdsPermissions =
                 // Always getting permissions for the Head version of an artifact.

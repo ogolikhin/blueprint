@@ -6,22 +6,20 @@ import "../../";
 import {ComponentTest} from "../../../util/component.test";
 import {BPHistoryPanelController} from "./bp-history-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
-import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
 import {ArtifactHistoryMock} from "./artifact-history.mock";
-import {ISelectionManager, ISelection} from "../../../managers/selection-manager/selection-manager";
-import {DialogService} from "../../../shared/widgets/bp-dialog";
-import {IStatefulArtifact,
-        IStatefulArtifactFactory,
-        StatefulArtifactFactory,
-        StatefulArtifact}
-from "../../../managers/artifact-manager";
-import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
-// import {StateManager} from "../../../core/services/state-manager";
-// import {Models} from "../../../main/services/project-manager";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager";
+import {IArtifactHistoryVersion} from "./artifact-history.svc";
+import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
+import {ItemTypePredefined} from "../../../main/models/enums";
+import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {Models} from "../../../main";
+import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifact";
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 
 describe("Component BPHistoryPanel", () => {
 
@@ -38,111 +36,106 @@ describe("Component BPHistoryPanel", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("artifactManager", ArtifactManagerMock);
-        $provide.service("selectionManager", SelectionManager);
-        $provide.service("dialogService", DialogServiceMock);
+        $provide.service("selectionManager", SelectionManagerMock);
+        $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        artifactManager: ArtifactManagerMock,
-        selectionManager: ISelectionManager) => {
+    beforeEach(inject((artifactManager: ArtifactManagerMock, selectionManager: ISelectionManager) => {
         artifactManager.selection = selectionManager;
-    }));
-
-    beforeEach(() => {
         const template = `<bp-history-panel></bp-history-panel>`;
         directiveTest = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
-    });
+    }));
 
     afterEach( () => {
         vm = null;
     });
 
-    xit("should be visible by default", () => {
-//         //Assert
-//         expect(directiveTest.element.find(".filter-bar").length).toBe(0);
-//         expect(directiveTest.element.find(".empty-state").length).toBe(1);
+    it("should be visible by default", () => {
+        //Assert
+        expect(directiveTest.element.find(".filter-bar").length).toBe(0);
+        expect(directiveTest.element.find(".empty-state").length).toBe(1);
     });
 
-    xit("should load data for a selected artifact", (() => {//
-//         inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManager) => {
+    it("should load data for a selected artifact",
+        inject(($rootScope: ng.IRootScopeService,
+            selectionManager: ISelectionManager,
+            artifactService: ArtifactServiceMock,
+            $q: ng.IQService) => {
 
-//             //Arrange
-//             const artifact = {id: 22, name: "Artifact"} as Models.IArtifact;
+            //Arrange
+            const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
+            const artifact = new StatefulArtifact({id: 22, name: "Artifact", predefinedType: ItemTypePredefined.Collections, version: 1}, services);
 
-//             //Act
-//             selectionManager.selection = {artifact: artifact, source:  SelectionSource.Explorer};
-//             $rootScope.$digest();
-//             const selectedArtifact = selectionManager.selection.artifact;
+            //Act
+            selectionManager.setArtifact(artifact);
+            $rootScope.$digest();
+            const selectedArtifact = selectionManager.getArtifact();
 
-//             //Assert
-//             expect(selectedArtifact).toBeDefined();
-//             expect(vm.artifactHistoryList.length).toBe(11);
+            //Assert
+            expect(selectedArtifact).toBeDefined();
+            expect(vm.artifactHistoryList.length).toBe(11);
+        }));
+
+    it("should get more historical versions along with a draft", inject(($timeout: ng.ITimeoutService) => {
+        //Arrange
+        vm.artifactHistoryList = [{
+            "versionId": 52,
+            "userId": 1,
+            "displayName": "admin",
+            "hasUserIcon": false,
+            "timestamp": "2016-06-06T13:58:24.557",
+            "artifactState": Models.ArtifactStateEnum.Published
+        }];
+        vm.loadMoreHistoricalVersions();
+        $timeout.flush();
+
+        //Assert
+        expect(vm.artifactHistoryList.length).toBe(12);
     }));
 
-    xit("should get more historical versions along with a draft", inject(($timeout: ng.ITimeoutService) => {
+    it("should get empty list because it already has version 1", inject(($timeout: ng.ITimeoutService) => {
+        //Arrange
+        vm.artifactHistoryList = [{
+            "versionId": 1,
+            "userId": 1,
+            "displayName": "admin",
+            "hasUserIcon": false,
+            "timestamp": "2016-06-06T13:58:24.557",
+            "artifactState": Models.ArtifactStateEnum.Published
+        }];
+        vm.loadMoreHistoricalVersions();
 
-//        //Arrange
-//        vm.artifactHistoryList = [{
-//            "versionId": 52,
-//            "userId": 1,
-//            "displayName": "admin",
-//            "hasUserIcon": false,
-//            "timestamp": "2016-06-06T13:58:24.557",
-//            "artifactState" : Models.ArtifactStateEnum.Published
-//        }];
-//        vm.loadMoreHistoricalVersions();
-//        $timeout.flush();
-
-//        //Assert
-//        expect(vm.artifactHistoryList.length).toBe(12);
+        //Assert
+        expect(vm.artifactHistoryList.length).toBe(1);
     }));
 
-    xit("should get empty list because it already has version 1", inject(($timeout: ng.ITimeoutService) => {
+    it("should get list in ascending order if the flag is set", inject(($timeout: ng.ITimeoutService) => {
+        //Arrange
+        vm.sortAscending = true;
+        vm.changeSortOrder();
+        $timeout.flush();
 
-//        //Arrange
-//        vm.artifactHistoryList = [{
-//            "versionId": 1,
-//            "userId": 1,
-//            "displayName": "admin",
-//            "hasUserIcon": false,
-//            "timestamp": "2016-06-06T13:58:24.557",
-//            "artifactState" : Models.ArtifactStateEnum.Published
-//        }];
-//        vm.loadMoreHistoricalVersions();
-
-//        //Assert
-//        expect(vm.artifactHistoryList.length).toBe(1);
+        //Assert
+        expect(vm.artifactHistoryList.length).toBe(11);
     }));
 
-    xit("should get list in ascending order if the flag is set", inject(($timeout: ng.ITimeoutService) => {
+    it("should select specified artifact version", inject(($timeout: ng.ITimeoutService) => {
+       //Arrange
+       const artifact = {
+           "versionId": 1,
+           "userId": 1,
+           "displayName": "admin",
+           "hasUserIcon": false,
+           "timestamp": "2016-06-06T13:58:24.557",
+           "artifactState" : Models.ArtifactStateEnum.Published
+       };
+       vm.artifactHistoryList = [artifact];
+       vm.selectArtifactVersion(artifact);
 
-//        //Arrange
-//        vm.sortAscending = true;
-//        vm.changeSortOrder();
-//        $timeout.flush();
-
-//        //Assert
-//        expect(vm.artifactHistoryList.length).toBe(11);
-    }));
-
-    xit("should select specified artifact version", inject(($timeout: ng.ITimeoutService) => {
-
-//        //Arrange
-//        let artifact = {
-//            "versionId": 1,
-//            "userId": 1,
-//            "displayName": "admin",
-//            "hasUserIcon": false,
-//            "timestamp": "2016-06-06T13:58:24.557",
-//            "artifactState" : Models.ArtifactStateEnum.Published
-//        };
-//        vm.artifactHistoryList = [artifact];
-//        vm.selectedArtifactVersion = null;
-//        vm.selectArtifactVersion(artifact);
-
-//        //Assert
-//        expect(vm.selectedArtifactVersion).toBe(artifact);
+       //Assert
+       expect(vm.selectedVersionId).toBe(artifact.versionId);
     }));
 
     it("should navigate to head version on click", inject((
@@ -163,7 +156,7 @@ describe("Component BPHistoryPanel", () => {
         selectionManager.setArtifact(artifact);
         vm.selectArtifactVersion(historyVersion);
         $rootScope.$digest();
-        
+
         //Assert
         expect(navigateToSpy).toHaveBeenCalledWith({id: 1});
     }));
@@ -186,7 +179,7 @@ describe("Component BPHistoryPanel", () => {
         selectionManager.setArtifact(artifact);
         vm.selectArtifactVersion(historyVersion);
         $rootScope.$digest();
-        
+
         //Assert
         expect(navigateToSpy).toHaveBeenCalledWith({id: 1, version: 10});
     }));
@@ -205,7 +198,7 @@ describe("Component BPHistoryPanel", () => {
         //Act
         selectionManager.setArtifact(artifact);
         $rootScope.$digest();
-        
+
         //Assert
         expect(vm.selectedVersionId).toBe(10);
     }));

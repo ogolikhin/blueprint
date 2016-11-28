@@ -28,7 +28,7 @@ export interface IOverlayHandler {
 }
 
 export interface ISelectionListener {
-    (elements: Array<IDiagramNode>): void;
+    (elements: IDiagramNode[]): void;
 }
 
 export interface INotifyModelChanged {

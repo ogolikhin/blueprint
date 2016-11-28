@@ -52,7 +52,7 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
 
     public openRightPanel = () => {
         if (!this.isRightToggled) {
-            this.toggleRight(null);
+            this.togglePanel({id: Enums.ILayoutPanel.Right});
             this.$scope.$apply();
         }
     };
@@ -63,9 +63,7 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
     }
 
     public toggleRight(evt: ng.IAngularEvent) {
-        if (evt) {
-            evt.preventDefault();
-        }
+        evt.preventDefault();
 
         this.togglePanel({id: Enums.ILayoutPanel.Right});
     }

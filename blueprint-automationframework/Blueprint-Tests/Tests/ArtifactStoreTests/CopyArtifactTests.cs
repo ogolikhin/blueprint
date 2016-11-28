@@ -304,12 +304,13 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true);
 
             // Get traces & compare.
-            Relationships sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
+            Relationships copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
             Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
 
-            Assert.AreEqual(0, sourceRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
-            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
+            Assert.AreEqual(0, copyRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
 
+            // Verify that source and target artifacts still have the same traces they had before the copy.
+            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
 
@@ -820,12 +821,14 @@ namespace ArtifactStoreTests
             BaseArtifactType.Document,
             BaseArtifactType.TextualRequirement)]
         [TestRail(195434)]
-        [Description("Create & publish chain of six artifacts.  Change MaxNumberArtifactsToCopy setting in ApplicationSettings table to 5.  " +
+        [Description("Create & publish a chain of artifacts.  Change MaxNumberArtifactsToCopy DB setting in ApplicationSettings table to number of artifacts to copy - 1.  " +
             "Copy parent artifact into the project root.  Verify returned code 409 Conflict.")]
         public void CopyArtifact_PublishedArtifacts_ToProjectRoot_409Conflict(params BaseArtifactType[] artifactType)
         {
+            ThrowIf.ArgumentNull(artifactType, nameof(artifactType));
+
             // Setup:
-            const int maxNumberArtifactsToCopy = 4;
+            int maxNumberArtifactsToCopy = artifactType.Length - 1;
             const string UPDATE_MAX_TO_100 = "UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = 100 WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'";
 
             string UPDATE_MAX_TO_5 = I18NHelper.FormatInvariant("UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'", 
@@ -853,7 +856,7 @@ namespace ArtifactStoreTests
                             "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
 
                         // Verify:
-                        ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CopyArtifactsExceedTheLimit,
+                        ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
                             I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", maxNumberArtifactsToCopy));
                     }
                     catch (System.InvalidOperationException exception)

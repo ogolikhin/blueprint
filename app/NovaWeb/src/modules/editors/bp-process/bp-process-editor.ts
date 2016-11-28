@@ -11,7 +11,7 @@ import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shap
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {BpAccordionPanelService} from "../../main/components/bp-accordion/bp-accordion";
+import {UtilityPanelService} from "../../shell/bp-utility-panel/bp-utility-panel";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -39,7 +39,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         "navigationService",
         "statefulArtifactFactory",
         "shapesFactory",
-        "bpAccordionPanelService"
+        "utilityPanelService"
     ];
 
     constructor(messageService: IMessageService,
@@ -58,7 +58,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory = null,
-                private bpAccordionPanelService: BpAccordionPanelService) {
+                private utilityPanelService: UtilityPanelService) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -112,7 +112,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.navigationService,
             this.statefulArtifactFactory,
             this.shapesFactory,
-            this.bpAccordionPanelService
+            this.utilityPanelService
         );
 
         let htmlElement = this.getHtmlElement();

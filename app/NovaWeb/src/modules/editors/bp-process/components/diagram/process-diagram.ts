@@ -13,6 +13,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {PanelType} from "../../../../shell/bp-utility-panel/bp-utility-panel";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -39,7 +40,7 @@ export class ProcessDiagram {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory,
-                private bpAccordionPanelService) {
+                private utilityPanelService) {
         this.processModel = null;
         this.selectionListeners = [];
     }
@@ -122,11 +123,11 @@ export class ProcessDiagram {
                 this.graph.clearSelection();
             }
         }
-    }
+    };
 
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
-    }
+    };
 
     private navigateToAssociatedArtifact = (info: any) => {
         const options = {
@@ -135,21 +136,21 @@ export class ProcessDiagram {
             enableTracking: info.enableTracking
         };
         this.navigationService.navigateTo(options);
-    }
+    };
 
     private openUtilityPanel = () => {
-        this.bpAccordionPanelService.openRightPanel();
-        this.bpAccordionPanelService.openDiscussionPanel();
-    }
+        this.utilityPanelService.openRightSidebar();
+        this.utilityPanelService.openPanel(PanelType.Discussions);
+    };
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
-    }
+    };
 
     private userStoriesGenerated = (userStories: IUserStory[]) => {
         this.graph.onUserStoriesGenerated(userStories);
-    }
+    };
 
     private createProcessGraph(processViewModel: IProcessViewModel,
                                useAutolayout: boolean = false,
@@ -166,8 +167,7 @@ export class ProcessDiagram {
                 this.shapesFactory,
                 this.messageService,
                 this.$log,
-                this.statefulArtifactFactory,
-                this.bpAccordionPanelService
+                this.statefulArtifactFactory
             );
 
             this.registerSelectionListeners();

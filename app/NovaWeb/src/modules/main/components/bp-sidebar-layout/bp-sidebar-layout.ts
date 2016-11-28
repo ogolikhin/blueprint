@@ -1,5 +1,5 @@
 ﻿import {Enums} from "../../models";
-import {BpAccordionPanelService} from "../bp-accordion/bp-accordion";
+import {UtilityPanelService} from "../../../shell/bp-utility-panel/bp-utility-panel";
 
 export interface ISidebarController {
     isLeftToggled: boolean;
@@ -35,22 +35,22 @@ export class BpSidebarLayout implements ng.IComponentOptions {
 
 export class BpSidebarLayoutCtrl implements ISidebarController {
 
-    static $inject: [string] = ["$scope", "$element", "bpAccordionPanelService"];
+    static $inject: [string] = ["$scope", "$element", "utilityPanelService"];
     public isLeftToggled: boolean;
     public isRightToggled: boolean;
 
     public leftPanelTitle: string;
     public rightPanelTitle: string;
 
-    constructor(private $scope, private $element, private bpAccordionPanelService: BpAccordionPanelService) {
+    constructor(private $scope, private $element, private utilityPanelService: UtilityPanelService) {
         this.isLeftToggled = false;
         this.isRightToggled = false;
-        this.bpAccordionPanelService.openRightPanel = this.openRightPanel;
+        this.utilityPanelService.openRightSidebar = this.openRightSidebar;
     }
 
     public togglePanel: Function;
 
-    public openRightPanel = () => {
+    public openRightSidebar = () => {
         if (!this.isRightToggled) {
             this.togglePanel({id: Enums.ILayoutPanel.Right});
             this.$scope.$apply();

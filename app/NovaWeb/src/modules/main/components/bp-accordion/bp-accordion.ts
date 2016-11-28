@@ -211,7 +211,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
 }
 
 export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
-    static $inject: [string] = ["localization", "$element", "bpAccordionPanelService"];
+    static $inject: [string] = ["localization", "$element"];
 
     private _isOpen: boolean;
     private _isVisible: boolean;
@@ -223,25 +223,14 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public accordionPanelClass: string;
     public isPinned: boolean;
 
-    constructor(private localization: ILocalizationService, private $element, private bpAccordionPanelService) {
+    constructor(private localization: ILocalizationService, private $element) {
         // the accordionPanelId is/may be needed to target specific panels/nested elements
         this.accordionPanelId = this.accordionPanelId || "bp-accordion-panel-" + Math.floor(Math.random() * 10000);
         this.isActiveSubject = new Rx.BehaviorSubject<boolean>(true);
         this.isOpen = false;
         this.isPinned = false;
         this._isVisible = true;
-        this.bpAccordionPanelService.openDiscussionPanel = this.openDiscussionPanel;
     }
-
-    public openDiscussionPanel = () =>  {
-        const discussionsPanel = this.accordionGroup.panels[2];
-
-        if (!discussionsPanel.isOpen) {
-            discussionsPanel.isOpen = true;
-            discussionsPanel.getElement().className += " bp-accordion-panel-open";
-            this.accordionGroup.openPanel(discussionsPanel);
-        }
-    };
 
     public get isOpen(): boolean {
         return this._isOpen;
@@ -318,9 +307,4 @@ export class BpAccordionPanelCtrl implements IBpAccordionPanelController {
     public $postLink = () => {
         this.accordionGroup.addPanel(this);
     };
-}
-
-export class BpAccordionPanelService {
-    public openDiscussionPanel: Function;
-    public openRightPanel: Function;
 }

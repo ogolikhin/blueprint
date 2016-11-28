@@ -137,6 +137,17 @@ describe("BpArtifactPickerController", () => {
     it("clearSearch clears text and results", () => {
         // Arrange
 
+        controller.itemTypes =
+            [{
+                name : "All types",
+                id : null,
+                prefix : "",
+                predefinedType : null,
+                iconImageId: null,
+                usedInThisProject: null,
+                customPropertyTypeIds: null
+            }];
+
         // Act
         controller.clearSearch();
 

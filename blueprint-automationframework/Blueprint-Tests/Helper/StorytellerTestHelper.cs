@@ -992,17 +992,13 @@ namespace Helper
             return propertyFound;
         }
 
-        #endregion Public Methods
-
-        #region Private Methods
-
         /// <summary>
         /// Assert that Artifact References are equal
         /// </summary>
         /// <param name="artifactReference1">The first artifact reference</param>
         /// <param name="artifactReference2">The artifact reference being compared to the first</param>
         /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
-        private static void AssertArtifactReferencesAreEqual(ArtifactReference artifactReference1, ArtifactReference artifactReference2, bool doDeepCompare = true)
+        public static void AssertArtifactReferencesAreEqual(ArtifactReference artifactReference1, ArtifactReference artifactReference2, bool doDeepCompare = true)
         {
             if ((artifactReference1 == null) || (artifactReference2 == null))
             {
@@ -1023,6 +1019,10 @@ namespace Helper
                 }
             }
         }
+
+        #endregion Public Methods
+
+        #region Private Methods
 
         /// <summary>
         /// Assert that Property values are equal

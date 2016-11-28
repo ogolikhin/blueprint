@@ -44,6 +44,16 @@ export class TabSliderController {
         this.isButtonNextInvalid = false;
     }
 
+    public $onChanges = () => {
+        this.$scope.$applyAsync(() => {
+            this.setupSlides();
+            this.recalculate();
+            if (_.isFunction(this.slideSelect) && this.slides && this.slides.length) {
+                this.slideSelect()(0);
+            }
+        });
+    };
+
     public $onDestroy = () => {
         this.subscribers.forEach(subscriber => {
             subscriber.dispose();
@@ -52,7 +62,7 @@ export class TabSliderController {
     };
 
     public $postLink = () => {
-        this.setupSlides();
+        this.setupContainer();
         if (this.responsive) {
             this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.recalculate, this));
         } else {
@@ -171,7 +181,15 @@ export class TabSliderController {
         }
     }
 
-    private setupSlides = (): void => {
+    private setupSlides(): void {
+        this.slides = this.getSlides();
+        for (let i = 0; i < this.slides.length; i++) {
+            const slide = this.slides[i] as HTMLElement;
+            slide.classList.add("tab-slider__slide");
+        }
+    }
+
+    private setupContainer = (): void => {
         this.$scope.$applyAsync(() => {
             const template = this.$templateCache.get("tabSliderWrapper.html") as string;
             const wrapper = this.$compile(template)(this.$scope)[0] as HTMLElement;
@@ -185,11 +203,7 @@ export class TabSliderController {
                 this.scrollPosition = 0;
                 this.scrollIndex = 0;
                 this.slidesContainer.classList.add("tab-slider__content");
-
-                for (let i = 0; i < this.slides.length; i++) {
-                    const slide = this.slides[i] as HTMLElement;
-                    slide.classList.add("tab-slider__slide");
-                }
+                this.setupSlides();
             }
         });
     };

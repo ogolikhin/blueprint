@@ -1230,7 +1230,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_Inlin
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Invalid_Selection', 'en-US', N'The traced artifact could not be added. The selection is invalid.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Permissions', 'en-US', N'You do not have permission to add inline traces. Please contact an administrator.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The artifact cannot be opened. It is no longer accessible by you.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The artifact cannot be opened. It is not accessible by you.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Sorry, but the artifact cannot be found. It has likely been deleted or moved.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Collection_NotFound', 'en-US', N'The Collection has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_InternalServer', 'en-US', N'Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance.')

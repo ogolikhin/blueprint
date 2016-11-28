@@ -136,7 +136,6 @@ describe("BpArtifactPickerController", () => {
 
     it("clearSearch clears text and results", () => {
         // Arrange
-
         controller.itemTypes =
             [{
                 name : "All types",

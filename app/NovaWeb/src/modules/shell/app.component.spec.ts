@@ -6,6 +6,7 @@ import {ComponentTest} from "../util/component.test";
 import {AppController} from "./app.component";
 import {INavigationService} from "./../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "./../core/navigation/navigation.svc.mock";
+import {PublishServiceMock} from "../managers/artifact-manager/publish.svc/publish.svc.mock";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
@@ -130,16 +131,5 @@ class SessionSvcMock {
 
     public ensureAuthenticated() {
         return this.$q.when([]);
-    }
-}
-
-class PublishServiceMock {
-    public static $inject = ["$q"];
-
-    constructor(private $q: ng.IQService) {
-    }
-
-    public getUnpublishedArtifacts() {
-        return this.$q.when({artifacts: []});
     }
 }

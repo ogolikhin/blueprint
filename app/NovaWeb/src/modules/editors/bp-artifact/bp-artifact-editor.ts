@@ -41,15 +41,16 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
 
-    public $onDestroy() {
-        super.$onDestroy();
-
+    protected destroy(): void {
         if (this.editor) {
             this.editor.destroy();
         }
-        delete this.editor;
-        delete this.fields;
-        delete this.model;
+
+        this.editor = undefined;
+        this.fields = undefined;
+        this.model = undefined;
+
+        super.destroy();
     }
 
     public clearFields() {

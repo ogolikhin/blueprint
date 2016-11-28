@@ -119,8 +119,6 @@ export class ProcessGraphMultiSelectionHelper {
             let elements = this.getSelectedNodes();
 
             if (elements) {
-                // #DEBUG
-                console.log("There are " + elements.length + " selected nodes");
 
                 elements = elements.filter(e => e instanceof DiagramNode);
                 this.selectionListeners.forEach((listener: ISelectionListener) => {

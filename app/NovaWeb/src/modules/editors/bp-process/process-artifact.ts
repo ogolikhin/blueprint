@@ -29,7 +29,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public propertyValues: IHashMapOfPropertyValues;
     public requestedVersionInfo: IVersionInfo;
     protected hasCustomSave: boolean = true;
-    public hasSelection: boolean = true;
+    public hasSelection: boolean = false;
 
     public userTaskPersonaReferenceList: IArtifactReference[];
     public systemTaskPersonaReferenceList: IArtifactReference[];

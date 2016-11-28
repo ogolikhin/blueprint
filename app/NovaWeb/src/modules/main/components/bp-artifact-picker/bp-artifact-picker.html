@@ -28,13 +28,13 @@
     <div class="search-input">
         <div ng-if="!$ctrl.project">
             <input type="text" class="form-control"
-                placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText" ng-cloak/>
+                placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText"/>
         </div>
         <div ng-if="$ctrl.project">
             <input type="text" class="form-control"
-                placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText" ng-cloak/>
+                placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText"/>
         </div>
-        <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()" ng-cloak></i>
+        <i class="fonticon-error" ng-show="$ctrl.clearSearchEnabeled()" ng-click="$ctrl.clearSearch()"></i>
     </div>
 
     <div ng-show="$ctrl.filterItemType.name" class="filter" ng-if="$ctrl.filterItemType.id">
@@ -44,7 +44,7 @@
 </form>
 
 <div class="project-wrapper">
-    <div class="artifact-picker-container">
+    <div class="artifact-picker-container" ng-switch="$ctrl.action.type">
         <div class="search-wrapper" ng-show="$ctrl.isSearching || $ctrl.searchResults">
             <div class="search-message" ng-if="$ctrl.isSearching">
                 {{::$root.config.labels['Label_Searching']}}

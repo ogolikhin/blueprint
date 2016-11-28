@@ -109,7 +109,7 @@ namespace SearchService.Repositories
                 switch (sqlException.Number)
                 {
                     //Sql timeout error
-                    case -2:
+                    case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                     //Sql syntax error in full text search
                     case 7630:
@@ -165,7 +165,7 @@ namespace SearchService.Repositories
                 switch (sqlException.Number)
                 {
                     //Sql timeout error
-                    case -2:
+                    case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                     //Sql syntax error in full text search
                     case 7630:
@@ -218,7 +218,7 @@ namespace SearchService.Repositories
                 switch (sqlException.Number)
                 {
                     //Sql timeout error
-                    case -2:
+                    case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                     //Sql syntax error in full text search
                     case 7630:

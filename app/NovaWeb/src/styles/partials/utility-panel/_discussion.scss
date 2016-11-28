@@ -104,7 +104,7 @@ bp-discussion-panel {
     .discussion-status {
         @include text-ellipsis-flex-width(90px);
         font-size: $font-size-normal;
-        color: $gray-darker;
+        color: $gray-darkest;
         font-style: normal;
 
         &.inactive {
@@ -125,7 +125,7 @@ bp-discussion-panel {
         font-size: $font-size-normal;
 
         &.active {
-            color: $gray-darker;
+            color: $gray-darkest;
         }
 
         &.disabled {

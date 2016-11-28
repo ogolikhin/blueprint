@@ -13,6 +13,9 @@ import {IApplicationError, ApplicationError} from "../../../core/error/applicati
 import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
+    //extra properties
+    lastSaveInvalid: boolean;
+    
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact
@@ -44,7 +47,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.metadata = new MetaData(this);
         this.state = new ArtifactState(this);
     }
-
+    public get lastSaveInvalid(): boolean {
+        return this.artifact.lastSaveInvalid;
+    }
     public dispose() {
         super.dispose();
         if (this.state) {
@@ -389,14 +394,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
 
-        let validatePromise = this.services.$q.defer<any>();
+        let promise = this.services.$q.defer<any>();
+        if (!this.canBeSaved()) {
+            return this.services.$q.resolve(this);
+        }
         if (ignoreInvalidValues) {
-            validatePromise.resolve();
+            promise.resolve();
         } else {
-            validatePromise.promise = this.validate();
+            promise.promise = this.validate();
         }
 
-        return validatePromise.promise.then(() => {
+        return promise.promise.then(() => {
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
             const changes = this.changes();
@@ -461,19 +469,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public autosave(): ng.IPromise<void> {
-        if (this.canBeSaved() ) {
-            return this.save(true).catch(() => {
-                return this.services.dialogService.open(<IDialogSettings>{
-                okButton: this.services.localizationService.get("App_Button_Proceed"),
-                //cancelButton: this.services.localizationService.get("Save"),
-                message: this.services.localizationService.get("App_Save_Auto_Confirm"),
-                header: this.services.localizationService.get("App_DialogTitle_Alert")
-                }).then(() => {
-                    this.discard();
-                });
+        return this.save(true).catch(() => {
+            return this.services.dialogService.open(<IDialogSettings>{
+            okButton: this.services.localizationService.get("App_Button_Proceed"),
+            //cancelButton: this.services.localizationService.get("Save"),
+            message: this.services.localizationService.get("App_Save_Auto_Confirm"),
+            header: this.services.localizationService.get("App_DialogTitle_Alert"),
+            css: "modal-alert nova-messaging"
+            }).then(() => {
+                this.discard();
             });
-        }
-        return this.services.$q.resolve();
+        });
     }
 
     public supportRelationships(): boolean {
@@ -635,7 +641,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex)
         .catch((error: IApplicationError) => {
-            this.error.onNext(error);
             return this.services.$q.reject(error);
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(moveOverlayId);

@@ -117,34 +117,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
-    }
-
-    public isProjectTreeVisible(): boolean {
-        return this.projects && this.projects.length > 0;
-    }
-    
-    public openProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
-            this.projectManager.openProjectWithDialog();
-            return;
-        }
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
-
-        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-
-        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
-            .finally(() => {
-                //(eventCollection, action, label?, value?, custom?, jQEvent?
-                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                this.analytics.trackEvent("open", "project", label, projectId, {
-                    openProjects: openProjects
-                });
-                this.loadingOverlayService.endLoading(openProjectLoadingId);
-            });        
-    }
+    }           
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
@@ -159,6 +132,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (this.pendingSelectedArtifactId) {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
+            // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
+            } else if (!selectedArtifactId && this.numberOfProjectsOnLastLoad < this.projects.length && this.selectionManager.getArtifact()) {
+                navigateToId = this.selectionManager.getArtifact().id;
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
@@ -200,11 +176,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public columns: IColumn[] = [{
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (params: IColumnRendererParams) => {
+        cellRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeModels.ITreeNodeVM<any>;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
+            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
+                   `${icon}<span>${label}</span></a>`;
         }
     }];
 

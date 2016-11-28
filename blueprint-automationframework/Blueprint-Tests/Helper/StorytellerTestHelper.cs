@@ -17,58 +17,81 @@ namespace Helper
         #region Public Methods
 
         /// <summary>
-        /// Asserts that the two Processes are identical.
+        /// Asserts that the two Processes are equal.
         /// </summary>
-        /// <param name="process1">First Process</param>
-        /// <param name="process2">Second Process being compared to the first</param>
+        /// <param name="expectedProcess">The expected process</param>
+        /// <param name="actualProcess">The actual process being compared to the expected process</param>
         /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
-        /// <exception cref="AssertionException">If process1 is not identical to process2</exception>
+        /// <param name="isCopiedProcess">(optional) Flag indicating if the process being compared is a copied process</param>
+        /// <exception cref="AssertionException">If expectedProcess is not equal to actualProcess</exception>
         /// <remarks>If 1 of the 2 processes being compared has negative Ids, that process must be the first parameter</remarks>
-        public static void AssertProcessesAreIdentical(IProcess process1, IProcess process2, bool allowNegativeShapeIds = false)
+        public static void AssertProcessesAreEqual(IProcess expectedProcess, IProcess actualProcess, bool allowNegativeShapeIds = false, bool isCopiedProcess = false)
         {
-            ThrowIf.ArgumentNull(process1, nameof(process1));
-            ThrowIf.ArgumentNull(process2, nameof(process2));
+            ThrowIf.ArgumentNull(expectedProcess, nameof(expectedProcess));
+            ThrowIf.ArgumentNull(actualProcess, nameof(actualProcess));
 
             // Assert basic Process properties
-            Assert.AreEqual(process1.Id, process2.Id, "The ids of the processes don't match");
-            Assert.AreEqual(process1.Name, process2.Name, "The names of the processes don't match");
-            Assert.AreEqual(process1.BaseItemTypePredefined, process2.BaseItemTypePredefined,
+
+            // Artifact ids of copied processes must be different
+            if (isCopiedProcess)
+            {
+                Assert.AreNotEqual(expectedProcess.Id, actualProcess.Id, "The ids of copied processes must not match");
+            }
+            else
+            {
+                Assert.AreEqual(expectedProcess.Id, actualProcess.Id, "The ids of the processes don't match");
+            }
+            
+            Assert.AreEqual(expectedProcess.Name, actualProcess.Name, "The names of the processes don't match");
+            Assert.AreEqual(expectedProcess.BaseItemTypePredefined, actualProcess.BaseItemTypePredefined,
                 "The base item types of the processes don't match");
-            Assert.AreEqual(process1.ProjectId, process2.ProjectId, "The project ids of the processes don't match");
-            Assert.AreEqual(process1.TypePrefix, process2.TypePrefix, "The type prefixes of the processes don't match");
+
+            // A copied process does not necessarily have the same Project Id as it's source
+            if (!isCopiedProcess)
+            {
+                Assert.AreEqual(expectedProcess.ProjectId, actualProcess.ProjectId, "The project ids of the processes don't match");
+            }
+
+            Assert.AreEqual(expectedProcess.TypePrefix, actualProcess.TypePrefix, "The type prefixes of the processes don't match");
 
             // Assert that Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
-            Assert.AreEqual(process1.PropertyValues.Count, process2.PropertyValues.Count,
+            Assert.AreEqual(expectedProcess.PropertyValues.Count, actualProcess.PropertyValues.Count,
                 "The processes have different property counts");
-            Assert.AreEqual(process1.Links.Count, process2.Links.Count, "The processes have different link counts");
-            Assert.AreEqual(process1.Shapes.Count, process2.Shapes.Count,
+            Assert.AreEqual(expectedProcess.Links.Count, actualProcess.Links.Count, "The processes have different link counts");
+            Assert.AreEqual(expectedProcess.Shapes.Count, actualProcess.Shapes.Count,
                 "The processes have different process shape counts");
  
             // TODO This is a quick fix for tests deleting only decision from the process model
-            var process1DecisionBranchDestinationLinkCount = process1.DecisionBranchDestinationLinks?.Count ?? 0;
-            var process2DecisionBranchDestinationLinkCount = process2.DecisionBranchDestinationLinks?.Count ?? 0;
+            var process1DecisionBranchDestinationLinkCount = expectedProcess.DecisionBranchDestinationLinks?.Count ?? 0;
+            var process2DecisionBranchDestinationLinkCount = actualProcess.DecisionBranchDestinationLinks?.Count ?? 0;
 
             Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
                 "The processes have different decision branch destination link counts");
 
             // Assert that Process properties are equal
-            foreach (var process1Property in process1.PropertyValues)
+            foreach (var process1Property in expectedProcess.PropertyValues)
             {
-                var process2Property = FindPropertyValue(process1Property.Key, process2.PropertyValues);
+                var process2Property = FindPropertyValue(process1Property.Key, actualProcess.PropertyValues);
 
                 AssertPropertyValuesAreEqual(process1Property.Value, process2Property.Value);
             }
 
-            // Assert that process links are the same
-            // This involves finding the new id of shapes that had negative ids in the source process
-            AssertLinksAreEqual(process1, process2);
+
+            // TODO: Develop a method to see if the links are equivalent
+            // Copied processes do not have the same process links
+            if (!isCopiedProcess)
+            {
+                // Assert that process links are the same
+                // This involves finding the new id of shapes that had negative ids in the source process
+                AssertLinksAreEqual(expectedProcess, actualProcess);
+            }
 
             //Assert that Process shapes are equal
-            foreach (var process1Shape in process1.Shapes)
+            foreach (var process1Shape in expectedProcess.Shapes)
             {
-                var process2Shape = FindProcessShapeByName(process1Shape.Name, process2.Shapes);
+                var process2Shape = FindProcessShapeByName(process1Shape.Name, actualProcess.Shapes);
 
-                AssertShapesAreEqual(process1Shape, process2Shape, allowNegativeShapeIds);
+                AssertShapesAreEqual(process1Shape, process2Shape, allowNegativeShapeIds, isCopiedProcess);
             }
         }
 
@@ -156,7 +179,7 @@ namespace Helper
 
             // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
             // Allow negative shape ids in the process being verified
-            AssertProcessesAreIdentical(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
+            AssertProcessesAreEqual(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
 
             // Assert that the decision branch destination links are in sync during the update opertation
             AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromUpdate);
@@ -168,7 +191,7 @@ namespace Helper
 
             // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
             // Don't allow and negative shape ids
-            AssertProcessesAreIdentical(processReturnedFromUpdate, processReturnedFromGet);
+            AssertProcessesAreEqual(processReturnedFromUpdate, processReturnedFromGet);
 
             // Assert that the decision branch destination links are in sync during the get opertations
             AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromGet);
@@ -1087,29 +1110,40 @@ namespace Helper
         /// <param name="shape1">The first Shape</param>
         /// <param name="shape2">The Shape being compared to the first</param>
         /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
-        private static void AssertShapesAreEqual(IProcessShape shape1, IProcessShape shape2, bool allowNegativeShapeIds)
+        /// <param name="isCopiedProcess">(optional) Flag indicating if the process being compared is a copied process</param>
+        private static void AssertShapesAreEqual(IProcessShape shape1, IProcessShape shape2, bool allowNegativeShapeIds, bool isCopiedProcess)
         {
-            // Note that if a shape id of the first Process being compared is less than 0, then the first Process 
-            // is a process that will be updated with proper id values at the back end.  If the shape id of
-            // the first process being compared is greater than 0, then the shape ids should match.
-            if (allowNegativeShapeIds && shape1.Id < 0)
+            // Do not perform Id comparisons for copied processes
+            if (!isCopiedProcess)
             {
-                Assert.That(shape2.Id > 0, "Returned shape id was negative");
-            }
-            else if (allowNegativeShapeIds && shape2.Id < 0)
-            {
-                Assert.That(shape1.Id > 0, "Returned shape id was negative");
-            }
-            else
-            {
-                Assert.AreEqual(shape1.Id, shape2.Id, "Shape ids do not match");
+                // Note that if a shape id of the first Process being compared is less than 0, then the first Process 
+                // is a process that will be updated with proper id values at the back end.  If the shape id of
+                // the first process being compared is greater than 0, then the shape ids should match.
+                if (allowNegativeShapeIds && shape1.Id < 0)
+                {
+                    Assert.That(shape2.Id > 0, "Returned shape id was negative");
+                }
+                else if (allowNegativeShapeIds && shape2.Id < 0)
+                {
+                    Assert.That(shape1.Id > 0, "Returned shape id was negative");
+                }
+                else
+                {
+                    Assert.AreEqual(shape1.Id, shape2.Id, "Shape ids do not match");
+                }
             }
 
             Assert.AreEqual(shape1.Name, shape2.Name, "Shape names do not match");
             Assert.AreEqual(shape1.BaseItemTypePredefined, shape2.BaseItemTypePredefined,
                 "Shape base item types do not match");
-            Assert.AreEqual(shape1.ProjectId, shape2.ProjectId, "Shape project ids do not match");
-            Assert.AreEqual(shape1.ParentId, shape2.ParentId, "Shape parent ids do not match");
+
+            // Project and parent ids are not necessarily the same for copied processes
+            if (!isCopiedProcess)
+            {
+                Assert.AreEqual(shape1.ProjectId, shape2.ProjectId, "Shape project ids do not match");
+                Assert.AreEqual(shape1.ParentId, shape2.ParentId, "Shape parent ids do not match");
+            }
+
             Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
 
             // Assert associated artifacts are equal by checking artifact Id only

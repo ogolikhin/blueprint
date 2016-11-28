@@ -93,7 +93,7 @@ export interface IArtifact extends IItem {
 
     itemTypeIconId?: number;
     itemTypeName?: string;
-
+    lastSaveInvalid?: boolean;
     //for client use
     children?: IArtifact[];
     loaded?: boolean;

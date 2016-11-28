@@ -1,6 +1,61 @@
+/*
+ Buttons and Links
+
+ Styleguide 3.0
+*/
+
+/*
+ Bootstrap Buttons
+
+ This chapter outlines the over-ridden buttons we have defined
+
+ Styleguide 3.1
+*/
+
+/*
+ Bootstrap Buttons
+
+ .btn-default             - Standard button
+ .btn-primary             - Provides extra visual weight and identifies the primary action in a set of buttons
+ .btn-success             - Indicates a successful or positive action
+ .btn-info                - Contextual button for informational alert messages
+ .btn-warning             - Indicates caution should be taken with this action
+ .btn-danger              - Indicates a dangerous or potentially negative action
+ .btn-link                - Deemphasize a button by making it look like a link while maintaining button behavior
+
+ markup:
+ <button class="btn {$modifiers}">Button</button>
+
+ Styleguide 3.1.1
+*/
+
+/*
+ Custom Buttons
+
+  This chapter outlines the custom buttons we have defined
+
+ Styleguide 3.2
+*/
+
+/*
+ Custom Button
+
+ .btn-primary             - Primary Action Button
+ .btn-promoted-action     - Button used on login modal
+ .btn-cancel              - Cancel button?
+ .btn-secondary           - Secondary action button
+ .btn__icon               - another button with an icon?
+ .btn-dropdown-toggle     - a drop down toggle
+
+ markup:
+ <button class="btn {$modifiers}">Button</button>
+
+ Styleguide 3.2.1
+*/
+
 .btn {
     border-radius: 4px;
-    background-color: transparent;
+    //background-color: transparent;
     min-width: 100px;
     padding: 8px 19px;
     text-align: center;
@@ -22,15 +77,7 @@
         }
     }
 }
-.btn-small {
-        padding: 5px 10px;
-        min-width: 20px;
-        font-size: 1.2rem;
-}
-.btn-icon {
-    padding: 3px;
-    min-width: 10px;
-}
+
 .btn-primary {
     background-color: transparent;
     border: 1px solid $gray-light;
@@ -45,6 +92,7 @@
         outline: none;
     }
 }
+
 .btn-cancel {
     background-color: transparent;
     border: 1px solid $gray-light;
@@ -63,6 +111,7 @@
         outline: none;
     }
 }
+
 .btn-promoted-action {
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;
@@ -78,40 +127,6 @@
     }
 }
 
-.modal-alert .btn-promoted-action {
-    background-color: $brand-warning;
-    border: solid 1px $brand-warning;
-    color: $white;
-
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.focus,
-    &:active:focus{
-        background-color: darken($brand-warning, 10%);
-        border-color: darken($brand-warning, 10%);
-        color: $white;
-        outline: none;
-    }
-}
-.open > .dropdown-toggle.btn-primary {
-    background-color: transparent;
-    border: 1px solid $gray-light;
-    color: $gray-light;
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.focus,
-    &:active:hover{
-          background-color: transparent;
-          border-color: $brand-secondary;
-          color: $brand-secondary;
-           outline: none;
-      }
-}
-
 .btn-secondary {
     background-color: transparent;
     border: solid 1px $brand-secondary;
@@ -122,10 +137,79 @@
     &:active,
     &.active,
     &.focus,
-    &:active:focus{
+    &:active:focus {
         background-color: $brand-secondary;
         border: solid 1px $brand-secondary;
         color: $white;
+        outline: none;
+    }
+}
+
+.btn__icon {
+    border: 0;
+    background: transparent;
+    width: 24px;
+    max-width: 24px;
+    min-width: 24px;
+    padding: 0;
+    margin: 0;
+    outline: none;
+
+    &:focus,
+    &:active,
+    &:hover,
+    &:active:focus {
+        background: transparent;
+    }
+    .fonticon-error::before {
+        font-size: 2.2rem;
+    }
+}
+
+.btn-dropdown-toggle {
+    width: auto;
+    min-width: 20px;
+    padding-left: 9px;
+    padding-right: 9px;
+    background: $brand-secondary;
+    color: $white;
+
+    &:hover, &:focus {
+        color: $white;
+    }
+}
+
+.modal-alert .btn-promoted-action {
+    background-color: $brand-warning;
+    border: solid 1px $brand-warning;
+    color: $white;
+
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.focus,
+    &:active:focus {
+        background-color: darken($brand-warning, 10%);
+        border-color: darken($brand-warning, 10%);
+        color: $white;
+        outline: none;
+    }
+}
+
+.open > .dropdown-toggle.btn-primary {
+    background-color: transparent;
+    border: 1px solid $gray-light;
+    color: $gray-light;
+    &:hover,
+    &:focus,
+    &:active,
+    &.active,
+    &.focus,
+    &:active:hover {
+        background-color: transparent;
+        border-color: $brand-secondary;
+        color: $brand-secondary;
         outline: none;
     }
 }
@@ -141,37 +225,34 @@
     text-overflow: ellipsis;
     max-width: 90%;
 }
-.btn__icon {
-    border: 0;
-    background: transparent;
-    width: 24px;
-    max-width: 24px;
-    min-width: 24px;
-    padding: 0;
-    margin: 0;
-    outline: none;
 
-    &:focus,
-    &:active,
-    &:hover,
-    &:active:focus{
-        background: transparent;
-    }
-    .fonticon-error::before {
-        font-size: 2.2rem;
-    }
-}
 .input-group-btn__icon {
     max-width: 24px;
     min-width: 24px;
 }
+
+/*
+Helper classes
+*/
 .btn--absolute-right {
     position: absolute;
     right: 0;
     top: 5px;
 }
 
-.btn-action{
+/*malformed button classes*/
+.btn-small {
+    padding: 5px 10px;
+    min-width: 20px;
+    font-size: 1.2rem;
+}
+
+.btn-icon {
+    padding: 3px;
+    min-width: 10px;
+}
+
+.btn-action {
     float: right;
     height: 34px;
     font-size: 1.4rem;
@@ -184,15 +265,4 @@
     border-radius: 0;
 }
 
-.btn-dropdown-toggle {
-    width: auto;
-    min-width: 20px;
-    padding-left: 9px;
-    padding-right: 9px;
-    background: $brand-secondary;
-    color: $white;
 
-    &:hover, &:focus{
-        color:$white;
-    }
-}

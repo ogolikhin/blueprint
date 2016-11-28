@@ -8,7 +8,9 @@ export class TabSliderComponent implements ng.IComponentOptions {
         slideSelector: "@?",
         invalidClass: "@?",
         activeClass: "@?",
-        responsive: "<?"
+        responsive: "<?",
+        slideSelect: "&?",
+        slidesCollection: "<?"
     };
 }
 

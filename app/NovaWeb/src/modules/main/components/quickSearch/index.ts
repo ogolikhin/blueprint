@@ -1,4 +1,4 @@
-require("./_quickSearch.scss");
+require("./quickSearch.scss");
 import {QuickSearchController} from "./quickSearchController";
 import {QuickSearchComponent} from "./quickSearchComponent";
 import {QuickSearchService} from "./quickSearchService";

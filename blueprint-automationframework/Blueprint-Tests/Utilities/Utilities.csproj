@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DatabaseUtilities.cs" />
     <Compile Include="DateTimeUtilities.cs" />
     <Compile Include="Deserialization.cs" />
     <Compile Include="Factories\RandomGenerator.cs" />

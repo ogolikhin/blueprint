@@ -58,7 +58,7 @@ namespace SearchService.Repositories
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
 
-            Exception sqlException = SqlExceptionCreator.NewSqlException(-2);
+            Exception sqlException = SqlExceptionCreator.NewSqlException(ErrorCodes.SqlTimeoutNumber);
 
             var itemSearchRepository = CreateItemNameRepositoryWithExceptionExpectation<ItemNameSearchResult>(mockArtifactPermissionsRepository.Object, null, sqlException);
 

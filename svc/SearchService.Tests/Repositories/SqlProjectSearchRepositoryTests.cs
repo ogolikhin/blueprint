@@ -64,7 +64,7 @@ namespace SearchService.Repositories
             var searchCriteria = new SearchCriteria { Query = "test" };
             const int resultCount = 1;
             const string separatorString = "/";
-            Exception sqlException = SqlExceptionCreator.NewSqlException(-2);
+            Exception sqlException = SqlExceptionCreator.NewSqlException(ErrorCodes.SqlTimeoutNumber);
             var projectSearchRepository = CreateRepositoryWithExceptionExpectation<SearchResult>(sqlException);
             SqlTimeoutException sqlTimeoutException = null;
 

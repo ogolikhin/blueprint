@@ -2,47 +2,51 @@ import "angular";
 import "angular-mocks";
 import {BaseValidation} from "./base-validation";
 
-describe("date validation tests - ", () => {
+describe("BaseValidation tests -", () => {
     let baseValidation: BaseValidation;
 
     beforeEach(inject(() => {
         baseValidation = new BaseValidation();
     }));
 
+    describe("hasValueIfRequired -", () => {
 
-    it("required - some value - success", () => {
-        const value = "test";
-        // act
-        const result = baseValidation.hasValueIfRequired(true, value, value, true);
 
-        // assert
-        expect(result).toBeTruthy();
-    });
+        it("returns true when required value is provided", () => {
+            const value = "test";
+            // act
+            const result = baseValidation.hasValueIfRequired(true, value, value, true);
 
-    it("required - null value - fails", () => {
-        const value = null;
-        // act
-        const result = baseValidation.hasValueIfRequired(true, value, value, true);
+            // assert
+            expect(result).toBe(true);
+        });
 
-        // assert
-        expect(result).toBeFalsy();
-    });
+        it("returns false when required value is null", () => {
+            const value = null;
+            // act
+            const result = baseValidation.hasValueIfRequired(true, value, value, true);
 
-    it("not required - null value - success", () => {
-        const value = null;
-        // act
-        const result = baseValidation.hasValueIfRequired(false, value, value, true);
+            // assert
+            expect(result).toBe(false);
+        });
 
-        // assert
-        expect(result).toBeTruthy();
-    });
+        it("returns true when non-required value is provided", () => {
+            const value = null;
+            // act
+            const result = baseValidation.hasValueIfRequired(false, value, value, true);
 
-    it("required is not validatied- null value - success", () => {
-        const value = null;
-        // act
-        const result = baseValidation.hasValueIfRequired(true, value, value, false);
+            // assert
+            expect(result).toBe(true);
+        });
 
-        // assert
-        expect(result).toBeTruthy();
+        it("returns true when required value does not need to be validated", () => {
+            const value = null;
+            // act
+            const result = baseValidation.hasValueIfRequired(true, value, value, false);
+
+            // assert
+            expect(result).toBe(true);
+        });
+
     });
 });

@@ -8,6 +8,7 @@ export class BPLocale {
     private _locale: string;
     private _shortDateFormat: string;
     private _longDateFormat: string;
+    private _systemDateFormat: string;
     private _datePickerDayTitle: string;
     private _datePickerFormat: string;
     private _decimalSeparator: string;
@@ -24,6 +25,7 @@ export class BPLocale {
         }
 
         this._thousandSeparator = this.decimalSeparator === "." ? "," : ".";
+        this._systemDateFormat = "YYYY-MM-DDTHH:mm:ss";
 
         this._shortDateFormat = moment.localeData().longDateFormat("L");
         this._longDateFormat = this._shortDateFormat + " " + moment.localeData().longDateFormat("LT");
@@ -46,6 +48,10 @@ export class BPLocale {
 
     public get longDateFormat(): string {
         return this._longDateFormat;
+    }
+
+    public get systemDateFormat(): string {
+        return this._systemDateFormat;
     }
 
     public get datePickerDayTitle(): string {
@@ -150,7 +156,7 @@ export class BPLocale {
         let d = moment(value);
         let result: string = null;
         if (d.isValid()) {
-            result = d.format(format);
+            result = d.format(format || this.systemDateFormat);
         }
         return result;
     }

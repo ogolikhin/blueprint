@@ -56,7 +56,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Descri
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_CloseTabWithUnsavedChanges', 'en-US', N'You have unsaved changes that will be lost if you leave.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_WithUnpublishedArtifacts', 'en-US', N'You have {0} saved but unpublished changes. Artifacts will continue to be locked to other users if you do not discard or publish them before continuing.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_Logout', 'en-US', N'Logout')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ComfirmLogout_Cancel', 'en-US', N'Cancel')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_Cancel', 'en-US', N'Cancel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Artifact_Info_OpenLatestVersion', 'en-US', N'Open latest version')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Project', 'en-US', N'Open Project')

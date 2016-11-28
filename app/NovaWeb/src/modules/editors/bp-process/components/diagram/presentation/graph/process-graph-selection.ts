@@ -106,14 +106,10 @@ export class ProcessGraphSelectionHelper {
 
             if (cells.length > 1) {
                 cells = cells.filter(cell => cell instanceof UserTask);
-                {
-                    this.isProgrammaticSelectionChange = true;
-                    this.graph.clearSelection();
-                }
-                {
-                    this.isProgrammaticSelectionChange = true;
-                    this.graph.getSelectionModel().addCells(cells);
-                }
+                this.isProgrammaticSelectionChange = true;
+                this.graph.clearSelection();
+                this.isProgrammaticSelectionChange = true;
+                this.graph.getSelectionModel().addCells(cells);
             }
 
             let elements = this.getSelectedNodes();

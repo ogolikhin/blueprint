@@ -189,7 +189,7 @@ xdescribe("Project Explorer Test", () => {
 
     }));
 
-    it("close all projects", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
+    xit("close all projects", (() => {//inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, selectionManager: SelectionManager) => {
 //         // Arrange
 //         isReloadCalled = 1;
 //         projectManager.loadProject(new Models.Project({id: 2, name: "Project 1"}));

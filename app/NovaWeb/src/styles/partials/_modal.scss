@@ -8,6 +8,11 @@ $modal-side-clearance: 8px;
         border: 0;
     }
 
+    .modal-focus-stealer {
+        position: absolute;
+        top: -5000px;
+    }
+
     .modal-header {
         @include rounded-corners($border-radius-amount $border-radius-amount 0 0);
         background-color: $brand-secondary;
@@ -25,6 +30,10 @@ $modal-side-clearance: 8px;
 
         .modal-close {
             color: $blue-lightest;
+            background-color: transparent;
+            border: none;
+            padding: 5px;
+            margin: 0;
             cursor: pointer;
             float: right !important;
             text-decoration: none;

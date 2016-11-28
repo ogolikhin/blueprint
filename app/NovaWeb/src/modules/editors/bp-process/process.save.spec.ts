@@ -107,6 +107,9 @@ describe("When process is saved", () => {
         spyOn(processArtifact, "validate").and.callFake(() => {
             return $q.resolve();
         });
+        spyOn(processArtifact, "canBeSaved").and.callFake(() => {
+            return true;
+        });
 
         let newStateValues = {
             lockDateTime: new Date(),

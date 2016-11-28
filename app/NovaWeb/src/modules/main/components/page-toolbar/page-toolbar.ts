@@ -378,11 +378,11 @@ export class PageToolbarController implements IPageToolbarController {
 
     private publishAllInternal(data: Models.IPublishResultSet) {
         let artifact = this.artifactManager.selection.getArtifact();
-        let promise: ng.IPromise<void>;
+        let promise: ng.IPromise<IStatefulArtifact>;
         if (artifact) {
-            promise = artifact.autosave();
+            promise = artifact.save();
         } else {
-            let def = this.$q.defer<void>();
+            let def = this.$q.defer<IStatefulArtifact>();
             def.resolve();
             promise = def.promise;
         }
@@ -399,6 +399,9 @@ export class PageToolbarController implements IPageToolbarController {
                     }
 
                     this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
+                })
+                .catch((error) => {
+                    this.messageService.addError(error);
                 })
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);

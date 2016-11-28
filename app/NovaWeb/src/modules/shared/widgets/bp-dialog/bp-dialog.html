@@ -1,8 +1,8 @@
 ﻿<form ng-submit="$ctrl.ok()">
-    <input type="text" class="modal-hiddeninput" />
+    <input type="text" class="modal-focus-stealer" />
     <div class="modal-header">
-        <a href="#" ng-if="$ctrl.hasCloseButton" class="modal-close" ng-click="$ctrl.cancel()"><i
-            class="fonticon-close"></i></a>
+        <button class="modal-close" ng-if="$ctrl.hasCloseButton" ng-click="$ctrl.cancel()"><i
+            class="fonticon-close"></i></button>
         <h3 class="modal-title"><i class="fonticon-modal"></i><span ng-bind="$ctrl.dialogSettings.header"></span></h3>
     </div>
     <div class="modal-body">

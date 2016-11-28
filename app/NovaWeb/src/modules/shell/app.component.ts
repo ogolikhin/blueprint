@@ -4,6 +4,8 @@ import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILocalizationService} from "../core/localization/localizationService";
+import {IDialogService} from "../shared";
+import {IPublishService} from "../managers/artifact-manager/publish.svc";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -21,19 +23,23 @@ export class AppComponent implements ng.IComponentOptions {
 
 export class AppController {
     static $inject: [string] = [
-        "navigationService", 
-        "selectionManager", 
-        "session", 
-        "settings", 
-        "$window", 
-        "localization"];
+        "navigationService",
+        "selectionManager",
+        "session",
+        "settings",
+        "$window",
+        "localization",
+        "dialogService",
+        "publishService"];
 
     constructor(private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private session: ISession,
                 private settings: ISettingsService,
                 private $window: ng.IWindowService,
-                private localization: ILocalizationService) {
+                private localization: ILocalizationService,
+                private dialogService: IDialogService,
+                private publishService: IPublishService) {
 
 
         this.$window.onbeforeunload = (e) => {
@@ -56,7 +62,17 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        this.navigationService.navigateToLogout();
+
+        this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
+            if (unpublishedArtifactSet.artifacts.length > 0) {
+                const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")
+                    .replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
+                this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
+                    .then((success) => this.navigationService.navigateToLogout());
+            } else {
+                this.navigationService.navigateToLogout();
+            }
+        });
     }
 
     public navigateToHelpUrl(evt: ng.IAngularEvent) {

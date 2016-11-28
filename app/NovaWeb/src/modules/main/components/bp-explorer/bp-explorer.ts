@@ -1,4 +1,4 @@
-import {TreeModels} from "../../models";
+import {TreeModels, AdminStoreModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
@@ -6,6 +6,10 @@ import {ISelectionManager} from "../../../managers/selection-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
+import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -34,7 +38,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "artifactManager",
         "navigationService",
         "selectionManager",
-        "messageService"
+        "messageService",
+        "projectService",
+        "loadingOverlayService",
+        "analytics",
+        "localization"
     ];
 
     constructor(private $q: ng.IQService,
@@ -42,7 +50,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private projectService: IProjectService,
+                private loadingOverlayService: ILoadingOverlayService,
+                private analytics: IAnalyticsProvider,
+                public localization: ILocalizationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -105,6 +117,33 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
+    }
+
+    public isProjectTreeVisible(): boolean {
+        return this.projects && this.projects.length > 0;
+    }
+    
+    public openProject(): void {
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (!selectedArtifact || !selectedArtifact.projectId) {
+            this.projectManager.openProjectWithDialog();
+            return;
+        }
+        const projectId = selectedArtifact.projectId;
+        const artifactId = selectedArtifact.id;
+
+        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+
+        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
+        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+            .finally(() => {
+                //(eventCollection, action, label?, value?, custom?, jQEvent?
+                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                this.analytics.trackEvent("open", "project", label, projectId, {
+                    openProjects: openProjects
+                });
+                this.loadingOverlayService.endLoading(openProjectLoadingId);
+            });        
     }
 
     public onGridReset(isExpanding: boolean): void {

@@ -124,11 +124,11 @@ export class QuickSearchModalController {
         this.stateChangeStartListener = this.$rootScope.$on("$stateChangeStart", this.onStateChangeStart);
     }
 
-    onStateChangeStart(e, toState, toParams, fromState, fromParams) {
+    private onStateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
         this.$log.debug("state changing from search modal");
         // navigating to same artifact destroys the editor, but does not enter item state to load artifact.
         if (toParams.id === fromParams.id) {
-            e.preventDefault();
+            event.preventDefault();
         }
         this.closeModal();
     }

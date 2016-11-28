@@ -43,8 +43,8 @@
                 </div>
             </div>
 
-            <tab-slider slide-selector=".uib-tab__tab" ng-if="$ctrl.isRichTextPropertyAvailable">
-                <uib-tabset>
+            <tab-slider slide-selector=".uib-tab__tab" slide-select="$ctrl.setActive" ng-if="$ctrl.isRichTextPropertyAvailable">
+                <uib-tabset active="$ctrl.activeTab">
                     <uib-tab ng-repeat="field in $ctrl.richTextFields track by $index"
                              select="$ctrl.activeTab = $index"
                              heading="{{field.data.name}}"

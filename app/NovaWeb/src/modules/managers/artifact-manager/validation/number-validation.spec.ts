@@ -89,8 +89,8 @@ describe("number validation tests - ", () => {
         });
 
         it("less than max - success", () => {
-            const value = 99;
             // arrange
+            const value = 99;
             // act
             const result = validationService.numberValidation.isMax(value, value, 100, true);
 

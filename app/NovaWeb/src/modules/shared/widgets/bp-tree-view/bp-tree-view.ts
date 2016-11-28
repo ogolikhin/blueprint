@@ -228,15 +228,24 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public api: IBPTreeViewControllerApi = {
         setSelected: (comparator: ITreeNode | ((vm: ITreeNode) => boolean), selected: boolean = true, clearSelection: boolean = true) => {
-            let result = false;
-            this.options.api.forEachNode((node: agGrid.RowNode) => {
+            let found = false;
+            const model = this.options.api.getModel();
+            for (let index = 0, rowCount = model.getRowCount(); index < rowCount; index++) {
+                const node = model.getRow(index);
                 const vm = node.data as ITreeNode;
                 if (_.isFunction(comparator) ? comparator(vm) : vm === comparator) {
-                    node.setSelected(selected, clearSelection);
-                    result = true;
+                    if (!found && clearSelection) {
+                        this.options.api.deselectAll();
+                        const columns = this.options.columnApi.getAllColumns();
+                        if (columns.length) {
+                            this.options.api.setFocusedCell(index, columns[0]);
+                        }
+                    }
+                    node.setSelected(selected);
+                    found = true;
                 }
-            });
-            return result;
+            }
+            return found;
         },
         ensureNodeVisible: (comparator: ITreeNode | ((vm: ITreeNode) => boolean)): void => {
             if (_.isFunction(comparator)) {

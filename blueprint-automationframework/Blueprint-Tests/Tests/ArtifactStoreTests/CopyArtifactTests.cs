@@ -828,50 +828,33 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactType, nameof(artifactType));
 
             // Setup:
-            int maxNumberArtifactsToCopy = artifactType.Length - 1;
-            const string UPDATE_MAX_TO_100 = "UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = 100 WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'";
-
-            string UPDATE_MAX_TO_5 = I18NHelper.FormatInvariant("UPDATE [Blueprint].[dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='MaxNumberArtifactsToCopy'", 
-                maxNumberArtifactsToCopy);
+            int newMaxNumberArtifactsToCopy = artifactType.Length - 1;
+            const string MAX_NUMBER_ARTIFACTS_TO_COPY = "MaxNumberArtifactsToCopy";
 
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactType);
 
-            using (var database = DatabaseFactory.CreateDatabase("Blueprint"))
+            // Save original MaxNumberArtifactsToCopy setting and then change it to smaller value.
+            var originalMaxNumberArtifactsToCopy = TestHelper.GetApplicationSetting(MAX_NUMBER_ARTIFACTS_TO_COPY);
+
+            TestHelper.UpdateApplicationSettings(MAX_NUMBER_ARTIFACTS_TO_COPY, newMaxNumberArtifactsToCopy.ToStringInvariant());
+
+            try
             {
-                string query = UPDATE_MAX_TO_5;
+                // Execute:
+                var ex =
+                    Assert.Throws<Http409ConflictException>(
+                        () => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactChain.First().Id, _project.Id, _user),
+                        "'POST {0}' should return 409 Conflict when user tries to copy a artifact with large amount of children " +
+                        "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
 
-                Logger.WriteDebug("Running: {0}", query);
-
-                using (var cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-
-                    try
-                    {
-                        cmd.ExecuteReader();
-
-                        // Execute:
-                        var ex = Assert.Throws<Http409ConflictException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactChain.First().Id, _project.Id, _user),
-                            "'POST {0}' should return 409 Conflict when user tries to copy a artifact with large amount of children " +
-                            "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
-
-                        // Verify:
-                        ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
-                            I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", maxNumberArtifactsToCopy));
-                    }
-                    catch (System.InvalidOperationException exception)
-                    {
-                        Logger.WriteError("SQL query didn't get processed. Exception details = {0}", exception);
-                    }
-                    finally
-                    {
-                        query = UPDATE_MAX_TO_100;
-
-                        Logger.WriteDebug("Running: {0}", query);
-
-                        database.CreateSqlCommand(query);
-                    }
-                }
+                // Verify:
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
+                    I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", newMaxNumberArtifactsToCopy));
+            }
+            finally
+            {
+                // Restore MaxNumberArtifactsToCopy back to original value.
+                TestHelper.UpdateApplicationSettings(MAX_NUMBER_ARTIFACTS_TO_COPY, originalMaxNumberArtifactsToCopy);
             }
         }
 

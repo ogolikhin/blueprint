@@ -234,6 +234,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     }
 
+    public setActive = (index: number): void => {
+        this.activeTab = index;
+    };
+
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         const context = $field.data as IPropertyDescriptor;
         if (!context || !this.editor) {

@@ -13,6 +13,7 @@ export class TabSliderController {
     public invalidClass: string;
     public activeClass: string;
     public responsive: boolean;
+    public slideSelect: Function;
 
     public showButtons: boolean;
     public isButtonPrevInvalid: boolean;
@@ -128,27 +129,31 @@ export class TabSliderController {
     }
 
     private setFirstVisible(direction: number): void {
-        this.$timeout(() => {
-            let slideIndex: number;
-            if (direction === SlidePosition.HiddenLeft) {
-                for (let i = 0; i < this.slides.length; i++) {
-                    if (this.isSlideHidden(i) === 0) {
-                        slideIndex = i;
-                        break;
+        if (_.isFunction(this.slideSelect)) {
+            // the timeout is needed because, if we change the tab before the sliding animation ends,
+            // the calculation of which tab is visible can have unexpected results
+            this.$timeout(() => { // the timeout because w
+                let slideIndex: number;
+                if (direction === SlidePosition.HiddenLeft) {
+                    for (let i = 0; i < this.slides.length; i++) {
+                        if (this.isSlideHidden(i) === 0) {
+                            slideIndex = i;
+                            break;
+                        }
+                    }
+                } else {
+                    for (let i = this.slides.length - 1; i >= 0; i--) {
+                        if (this.isSlideHidden(i) === 0) {
+                            slideIndex = i;
+                            break;
+                        }
                     }
                 }
-            } else {
-                for (let i = this.slides.length - 1; i >= 0 ; i--) {
-                    if (this.isSlideHidden(i) === 0) {
-                        slideIndex = i;
-                        break;
-                    }
+                if (_.isFinite(slideIndex)) {
+                    this.slideSelect()(slideIndex);
                 }
-            }
-            if (_.isFinite(slideIndex) && this.slides[slideIndex].firstElementChild) {
-                angular.element(this.slides[slideIndex].firstElementChild).triggerHandler("click");
-            }
-        }, 300);
+            }, 300);
+        }
     }
 
     private checkIfInvalid(): void {

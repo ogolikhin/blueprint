@@ -26,6 +26,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
+    public activeTab: number;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -33,6 +34,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 public localization: ILocalizationService,
                 public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager);
+        this.activeTab = 0;
     }
 
     public $onInit() {
@@ -133,6 +135,10 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 pageBodyWrapper.classList.remove("single-column-property");
             }
         }
+    };
+
+    public setActive = (index: number): void => {
+        this.activeTab = index;
     };
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {

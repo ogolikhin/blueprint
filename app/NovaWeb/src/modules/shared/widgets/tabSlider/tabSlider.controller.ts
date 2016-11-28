@@ -21,10 +21,7 @@ export class TabSliderController {
 
     private subscribers: Rx.IDisposable[];
     private slides: HTMLElement[];
-    private slidesWidth: number[];
     private slidesContainer: HTMLElement;
-    private slidesTotalWidth: number;
-    private availableWidth: number;
     private scrollPosition: number;
     private scrollIndex: number;
 
@@ -40,7 +37,6 @@ export class TabSliderController {
         this.activeClass = !_.isString(this.activeClass) ? "active" : this.activeClass;
         this.responsive = !!this.responsive;
 
-        this.slidesTotalWidth = 0;
         this.scrollPosition = 0;
 
         this.showButtons = false;
@@ -66,25 +62,27 @@ export class TabSliderController {
 
     public showButtonPrev(): boolean {
         const isFirtSlideVisible = !Math.round(this.scrollPosition);
-        return (this.scrollIndex > 0 && !isFirtSlideVisible);
+        return this.showButtons && this.scrollIndex > 0 && !isFirtSlideVisible;
     }
 
     public showButtonNext(): boolean {
-        const isLastSlideVisible = this.slidesTotalWidth - this.scrollPosition < this.availableWidth;
-        return (this.scrollIndex < this.slidesWidth.length - 1 && !isLastSlideVisible);
+        const lastSlide = this.slides[this.slides.length - 1];
+        const isLastSlideVisible = lastSlide.offsetLeft + lastSlide.offsetWidth - this.scrollPosition < this.slidesContainer.offsetWidth;
+        return this.showButtons && this.scrollIndex < this.slides.length - 1 && !isLastSlideVisible;
     }
 
     private moveSlide(direction: number) {
         let scrollPosition = 0;
         let idx = this.scrollIndex;
-        const max = this.slidesWidth.length - 1;
+        const max = this.slides.length - 1;
 
         idx += direction;
         idx = idx < 0 ? 0 : (idx > max ? max : idx);
         this.scrollIndex = idx;
 
         for (let i = 0; i < this.scrollIndex; i++) {
-            scrollPosition += this.slidesWidth[i];
+            const slide = this.slides[i] as HTMLElement;
+            scrollPosition += slide.offsetWidth;
         }
         this.scrollPosition = scrollPosition;
         this.slidesContainer.style.left = "-" + scrollPosition.toString() + "px";
@@ -102,12 +100,12 @@ export class TabSliderController {
 
     private isSlideHidden(index: number): SlidePosition {
         const slide = this.slides[index] as HTMLElement;
-        const slideWidth = slide.getBoundingClientRect().width;
+        const slideWidth = slide.offsetWidth;
         const wiggleRoom = slideWidth / 3; // we want to consider also partially hidden slides
 
         if (slide.offsetLeft + wiggleRoom < this.scrollPosition) {
             return SlidePosition.HiddenLeft;
-        } else if (slide.offsetLeft + (slideWidth - wiggleRoom) > this.availableWidth + this.scrollPosition) {
+        } else if (slide.offsetLeft + (slideWidth - wiggleRoom) > this.slidesContainer.offsetWidth + this.scrollPosition) {
             return SlidePosition.HiddenRight;
         } else {
             return SlidePosition.Visible;
@@ -184,7 +182,6 @@ export class TabSliderController {
             if (this.slidesContainer) {
                 this.slidesContainer.parentElement.insertBefore(wrapper, this.slidesContainer);
                 container.appendChild(this.slidesContainer);
-                this.slidesTotalWidth = 0;
                 this.scrollPosition = 0;
                 this.scrollIndex = 0;
                 this.slidesContainer.classList.add("tab-slider__content");
@@ -200,18 +197,14 @@ export class TabSliderController {
     private recalculate = (): void => {
         this.$scope.$applyAsync(() => {
             if (this.slides && this.slides.length) {
-                this.availableWidth = this.slidesContainer.offsetWidth;
-                this.slidesTotalWidth = 0;
-                this.slidesWidth = [];
+                let slidesTotalWidth = 0;
 
                 for (let i = 0; i < this.slides.length; i++) {
                     const slide = this.slides[i] as HTMLElement;
-                    const slideWidth = slide.getBoundingClientRect().width;
-                    this.slidesTotalWidth += slideWidth;
-                    this.slidesWidth.push(slideWidth);
+                    slidesTotalWidth += slide.offsetWidth;
                 }
 
-                this.showButtons = this.slidesTotalWidth > this.availableWidth;
+                this.showButtons = slidesTotalWidth > this.slidesContainer.offsetWidth;
                 this.checkIfInvalid();
                 this.ensureActiveVisible();
             }

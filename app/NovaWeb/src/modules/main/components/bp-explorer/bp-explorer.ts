@@ -200,11 +200,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public columns: IColumn[] = [{
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (params: IColumnRendererParams) => {
+        cellRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeModels.ITreeNodeVM<any>;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
+            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
+                   `${icon}<span>${label}</span></a>`;
         }
     }];
 

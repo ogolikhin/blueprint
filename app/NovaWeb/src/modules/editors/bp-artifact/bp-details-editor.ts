@@ -27,7 +27,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
                 validationService: IValidationService) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
-        this.activeTab = 0;
         this.validationService = validationService;
     }
 
@@ -40,7 +39,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public isRichTextPropertyAvailable: boolean;
     public isSpecificPropertyAvailable: boolean;
     public specificPropertiesHeading: string;
-    public activeTab: number;
 
     private validationService: IValidationService;
 

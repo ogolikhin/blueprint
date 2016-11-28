@@ -17,6 +17,7 @@ import {
 import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editors/bp-glossary/glossary-artifact";
 import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editors/bp-diagram/diagram-artifact";
 import {StatefulUseCaseArtifact} from "../../../editors/bp-diagram/usecase-artifact";
+import {StatefulUseCaseDiagramArtifact} from "../../../editors/bp-diagram/usecase-diagram-artifact";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,
@@ -128,9 +129,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
             case ItemTypePredefined.BusinessProcess:
             case ItemTypePredefined.DomainDiagram:
             case ItemTypePredefined.Storyboard:
-            case ItemTypePredefined.UseCaseDiagram:
             case ItemTypePredefined.UIMockup:
                 return this.createStatefulDiagramArtifact(artifact);
+            case ItemTypePredefined.UseCaseDiagram:
+                return this.createStatefulUseCaseDiagramArtifact(artifact);
             case ItemTypePredefined.UseCase:
                 return this.createStatefulUseCaseArtifact(artifact);
             case ItemTypePredefined.Process:
@@ -166,6 +168,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulUseCaseArtifact(artifact: IArtifact): IStatefulDiagramArtifact {
         return new StatefulUseCaseArtifact(artifact, this.services);
+    }
+
+    public createStatefulUseCaseDiagramArtifact(artifact: IArtifact): IStatefulDiagramArtifact {
+        return new StatefulUseCaseDiagramArtifact(artifact, this.services);
     }
 
     private createStatefulProcessArtifact(artifact: IArtifact): IStatefulArtifact {

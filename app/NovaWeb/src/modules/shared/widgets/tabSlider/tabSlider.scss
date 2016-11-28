@@ -50,15 +50,40 @@
     font-weight: normal;
     line-height: 1.8rem;
     outline: none;
+    padding: 0;
     speak: none;
     text-align: center;
     text-decoration: none;
     text-transform: none;
+    transition: width ease .4s;
+    width: 0;
+
+    &::before {
+        display: none;
+    }
 }
 
 .tab-slider__prev--invalid,
 .tab-slider__next--invalid {
     color: $brand-error;
+}
+
+.tab-slider__prev--show,
+.tab-slider__next--show {
+    width: 32px;
+
+    &::before {
+        display: inline;
+    }
+}
+
+.tab-slider__next--show-empty {
+    pointer-events: none;
+    width: 32px;
+
+    &::before {
+        display: none;
+    }
 }
 
 .tab-slider__prev::before {

@@ -640,7 +640,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex)
         .catch((error: IApplicationError) => {
-            this.error.onNext(error);
             return this.services.$q.reject(error);
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(moveOverlayId);

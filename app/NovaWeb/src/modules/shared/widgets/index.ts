@@ -44,10 +44,6 @@ export {
 } from "./bp-file-upload-status/bp-file-upload-status";
 
 export {
-    ITabSliderControllerApi
-} from "./tabSlider";
-
-export {
     IDialogSettings,
     IDialogData,
     IDialogService,

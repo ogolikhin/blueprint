@@ -10,7 +10,6 @@ import {PropertyEditor} from "./bp-property-editor";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {ITabSliderControllerApi} from "../../shared";
 
 export {
     IArtifactManager,
@@ -27,7 +26,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
-    public slider: ITabSliderControllerApi;
+    public activeTab: number;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -35,6 +34,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 public localization: ILocalizationService,
                 public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager);
+        this.activeTab = 0;
     }
 
     public $onInit() {
@@ -43,15 +43,16 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
 
-    public $onDestroy() {
-        super.$onDestroy();
-
+    protected destroy(): void {
         if (this.editor) {
             this.editor.destroy();
         }
-        delete this.editor;
-        delete this.fields;
-        delete this.model;
+
+        this.editor = undefined;
+        this.fields = undefined;
+        this.model = undefined;
+
+        super.destroy();
     }
 
     public clearFields() {
@@ -129,18 +130,16 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         if (pageBodyWrapper) {
             const availableWidth: number = mainWindow ? mainWindow.contentWidth : pageBodyWrapper.offsetWidth;
 
-            if (this.slider) {
-                const sliderWrapper = this.slider.getWrapperElement();
-                const offset = pageBodyWrapper.offsetWidth - sliderWrapper.offsetWidth;
-                this.slider.updateWidth(availableWidth - offset);
-            }
-
             if (availableWidth < minimumWidth) {
                 pageBodyWrapper.classList.add("single-column-property");
             } else {
                 pageBodyWrapper.classList.remove("single-column-property");
             }
         }
+    };
+
+    public setActive = (index: number): void => {
+        this.activeTab = index;
     };
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {

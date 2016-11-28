@@ -379,7 +379,7 @@ Property_RTF_InlineTrace_Error_Permissions,"You do not have permission to add in
 
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
-HttpError_Forbidden, "The artifact cannot be opened. It is no longer accessible by you."
+HttpError_Forbidden, "The artifact cannot be opened. It is not accessible by you."
 HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been deleted or moved."
 HttpError_Collection_NotFound, "The Collection has been deleted."
 HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."

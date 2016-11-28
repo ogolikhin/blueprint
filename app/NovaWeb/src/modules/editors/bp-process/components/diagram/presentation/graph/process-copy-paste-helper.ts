@@ -82,7 +82,7 @@ export class ProcessCopyPasteHelper {
             throw new Error("Clipboard does not exist");
         }
         
-        const processClipboardData = clipboard.getData();
+        const processClipboardData = <ProcessClipboardData>clipboard.getData();
 
         if (!processClipboardData) {
             throw new Error("Clipboard is empty."); 

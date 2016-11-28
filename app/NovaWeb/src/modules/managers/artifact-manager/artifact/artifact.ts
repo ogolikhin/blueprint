@@ -474,7 +474,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             okButton: this.services.localizationService.get("App_Button_Proceed"),
             //cancelButton: this.services.localizationService.get("Save"),
             message: this.services.localizationService.get("App_Save_Auto_Confirm"),
-            header: this.services.localizationService.get("App_DialogTitle_Alert")
+            header: this.services.localizationService.get("App_DialogTitle_Alert"),
+            css: "modal-alert nova-messaging"
             }).then(() => {
                 this.discard();
             });

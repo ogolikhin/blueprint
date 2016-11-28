@@ -7,7 +7,10 @@ $modal-side-clearance: 8px;
         @include rounded-corners($border-radius-amount $border-radius-amount $border-radius-amount $border-radius-amount);
         border: 0;
     }
-
+    .modal-hiddeninput {
+        position: absolute;
+        top: -5000px;
+    }
     .modal-header {
         @include rounded-corners($border-radius-amount $border-radius-amount 0 0);
         background-color: $brand-secondary;

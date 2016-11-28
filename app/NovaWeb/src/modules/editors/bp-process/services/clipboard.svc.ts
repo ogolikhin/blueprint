@@ -16,7 +16,7 @@ export interface IClipboardService {
     clearData();
 }
 
-export class Clipboard implements IClipboardService {
+export class ClipboardService implements IClipboardService {
     private _data: IClipboardData;
 
     public getData(): IClipboardData {

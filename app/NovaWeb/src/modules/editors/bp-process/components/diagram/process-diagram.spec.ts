@@ -14,6 +14,7 @@ import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
+import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 
 describe("ProcessDiagram Tests", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -25,6 +26,7 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("shapesFactory", ShapesFactoryMock);
+        $provide.service("clipboardService", ClipboardService);
     }));
     let rootScope: ng.IRootScopeService,
         scope,
@@ -36,6 +38,7 @@ describe("ProcessDiagram Tests", () => {
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock,
+        clipboard: IClipboardService,
         navigationService: INavigationService,
         shapesFactory: ShapesFactory;
 
@@ -50,6 +53,7 @@ describe("ProcessDiagram Tests", () => {
                        _communicationManager_: ICommunicationManager,
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
+                       _clipboard_: ClipboardService,
                        _navigationService_: INavigationService,
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
                        _shapesFactory_: ShapesFactory) => {
@@ -70,6 +74,7 @@ describe("ProcessDiagram Tests", () => {
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
+        clipboard = _clipboard_;
         navigationService = _navigationService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
         shapesFactory = _shapesFactory_;
@@ -94,7 +99,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -121,7 +127,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -151,7 +158,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -181,7 +189,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -212,7 +221,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -242,7 +252,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -273,7 +284,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

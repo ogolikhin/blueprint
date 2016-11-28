@@ -386,6 +386,66 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that both NovaSubArtifact objects are equal.
+        /// </summary>
+        /// <param name="subArtifact1">The first NovaSubArtifact to compare against.</param>
+        /// <param name="subArtifact2">The second NovaSubArtifact to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertSubArtifactsEqual(NovaSubArtifact subArtifact1, NovaSubArtifact subArtifact2,
+            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false)
+        {
+            ThrowIf.ArgumentNull(subArtifact1, nameof(subArtifact1));
+            ThrowIf.ArgumentNull(subArtifact2, nameof(subArtifact2));
+
+            Assert.AreEqual(subArtifact1.IsDeleted, subArtifact2.IsDeleted, "The IsDeleted parameters don't match!");
+
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(subArtifact1.Id, subArtifact2.Id, "The Id parameters don't match!");
+            }
+
+            if (!skipParentId)
+            {
+                Assert.AreEqual(subArtifact1.ParentId, subArtifact2.ParentId, "The ParentId  parameters don't match!");
+            }
+
+            if (!skipOrderIndex)
+            {
+                Assert.AreEqual(subArtifact1.OrderIndex, subArtifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+            }
+
+            Assert.AreEqual(subArtifact1.Name, subArtifact2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(subArtifact1.Description, subArtifact2.Description, "The Description  parameters don't match!");
+            Assert.AreEqual(subArtifact1.ItemTypeId, subArtifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(subArtifact1.ItemTypeName, subArtifact2.ItemTypeName, "The ItemTypeName  parameters don't match!");
+            Assert.AreEqual(subArtifact1.ItemTypeVersionId, subArtifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
+            Assert.AreEqual(subArtifact1.ItemTypeIconId, subArtifact2.ItemTypeIconId, "The ItemTypeIconId  parameters don't match!");
+            Assert.AreEqual(subArtifact1.Prefix, subArtifact2.Prefix, "The Prefix  parameters don't match!");
+            Assert.AreEqual(subArtifact1.PredefinedType, subArtifact2.PredefinedType, "The PredefinedType  parameters don't match!");
+
+            Assert.AreEqual(subArtifact1.CustomPropertyValues.Count, subArtifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            Assert.AreEqual(subArtifact1.SpecificPropertyValues.Count, subArtifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+
+            // Now compare each property in CustomProperties & SpecificPropertyValues.
+            foreach (CustomProperty property in subArtifact1.CustomPropertyValues)
+            {
+                Assert.That(subArtifact2.CustomPropertyValues.Exists(p => p.Name == property.Name),
+                "Couldn't find a CustomProperty named '{0}'!", property.Name);
+            }
+
+            foreach (CustomProperty property in subArtifact1.SpecificPropertyValues)
+            {
+                Assert.That(subArtifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
+                "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+            }
+
+            //TODO: Add assertions for Traces, Attachments and Doc References
+        }
+
+        /// <summary>
         /// Compares Two Custom Properties for Equality
         /// </summary>
         /// <param name="expectedProperty">The first custom property to compare.</param>

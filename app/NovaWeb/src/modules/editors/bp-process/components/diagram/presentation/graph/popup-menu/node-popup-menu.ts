@@ -227,6 +227,8 @@ export class NodePopupMenu {
             menu.div.style.top = (y - 55) + "px";
         } else if (menu.itemCount === 2) {
             menu.div.style.top = (y - 90) + "px";
+        } else if (menu.itemCount === 3) {
+            menu.div.style.top = (y - 125) + "px";
         }
     }
 

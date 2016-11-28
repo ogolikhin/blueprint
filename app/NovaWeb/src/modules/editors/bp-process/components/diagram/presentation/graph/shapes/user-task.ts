@@ -25,7 +25,6 @@ import {DeleteShapeButton} from "../buttons/delete-shape-button";
 import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {SystemDecision} from "./";
 import {ProcessEvents} from "../../../process-diagram-communication";
-import {BpAccordionPanelService} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;
@@ -53,8 +52,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private rootScope: any;
 
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null,
-                private shapesFactoryService: ShapesFactory,
-                private bpAccordionPanelService?: BpAccordionPanelService) {
+                private shapesFactoryService: ShapesFactory) {
         super(model);
 
         this.rootScope = rootScope;
@@ -81,8 +79,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
              this.commentsButton.setClickAction(() => {
-                 this.bpAccordionPanelService.openRightPanel();
-                 this.bpAccordionPanelService.openDiscussionPanel();
+                 this.processDiagramManager.action(ProcessEvents.OpenUtilityPanel);
              });
         }
 

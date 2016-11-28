@@ -10,14 +10,12 @@ import {SystemTask} from "./system-task";
 import {UserDecision} from "./user-decision";
 import {SystemDecision} from "./system-decision";
 import {NodeFactorySettings} from "./node-factory-settings";
-import {BpAccordionPanelService} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class NodeFactory {
 
     public static createNode(model: IProcessShape, rootScope: any,
                              shapesFactoryService: ShapesFactory,
-                             nodeFactorySettings: NodeFactorySettings = null,
-                             bpAccordionPanelService?: BpAccordionPanelService): IDiagramNode {
+                             nodeFactorySettings: NodeFactorySettings = null): IDiagramNode {
 
         const type = <ProcessShapeType>model.propertyValues["clientType"].value;
         switch (type) {
@@ -28,18 +26,16 @@ export class NodeFactory {
                 return new ProcessEnd(model, nodeFactorySettings);
 
             case ProcessShapeType.UserTask:
-                return new UserTask(<IUserTaskShape>model, rootScope, nodeFactorySettings, shapesFactoryService, bpAccordionPanelService);
+                return new UserTask(<IUserTaskShape>model, rootScope, nodeFactorySettings, shapesFactoryService);
 
             case ProcessShapeType.PreconditionSystemTask:
                 return new SystemTask(
-                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService,
-                        bpAccordionPanelService
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService
                 );
 
             case ProcessShapeType.SystemTask:
                 return new SystemTask(
-                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService,
-                        bpAccordionPanelService
+                    <ISystemTaskShape>model, rootScope, shapesFactoryService.NEW_SYSTEM_TASK_PERSONAREFERENCE, nodeFactorySettings, shapesFactoryService
                 );
 
             case ProcessShapeType.UserDecision:

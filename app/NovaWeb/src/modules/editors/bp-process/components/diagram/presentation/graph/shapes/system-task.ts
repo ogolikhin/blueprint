@@ -9,7 +9,6 @@ import {NodeFactorySettings} from "./node-factory-settings";
 import {Button} from "../buttons/button";
 import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
 import {ProcessEvents} from "../../../process-diagram-communication";
-import {BpAccordionPanelService} from "../../../../../../../main/components/bp-accordion/bp-accordion";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 
@@ -42,8 +41,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
                 rootScope: any,
                 private defaultPersonaReferenceValue: IArtifactReference,
                 private nodeFactorySettings: NodeFactorySettings = null,
-                private shapesFactory: ShapesFactory,
-                private bpAccordionPanelService?: BpAccordionPanelService) {
+                private shapesFactory: ShapesFactory) {
         super(model);
 
         this.rootScope = rootScope;
@@ -101,8 +99,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
             this.commentsButton.setClickAction(() => {
-                this.bpAccordionPanelService.openRightPanel();
-                this.bpAccordionPanelService.openDiscussionPanel();
+                this.processDiagramManager.action(ProcessEvents.OpenUtilityPanel);
             });
         }
 

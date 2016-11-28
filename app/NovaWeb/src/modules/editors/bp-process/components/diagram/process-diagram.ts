@@ -23,6 +23,7 @@ export class ProcessDiagram {
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
+    private openUtilityPanelHandler: string;
 
     private selectionListeners: ISelectionListener[];
 
@@ -91,6 +92,8 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
         }
 
@@ -100,6 +103,8 @@ export class ProcessDiagram {
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
+        this.openUtilityPanelHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.OpenUtilityPanel, this.openUtilityPanel);
         this.userStoriesGeneratedHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.UserStoriesGenerated, this.userStoriesGenerated);
 
@@ -130,6 +135,11 @@ export class ProcessDiagram {
             enableTracking: info.enableTracking
         };
         this.navigationService.navigateTo(options);
+    }
+
+    private openUtilityPanel = () => {
+        this.bpAccordionPanelService.openRightPanel();
+        this.bpAccordionPanelService.openDiscussionPanel();
     }
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
@@ -206,6 +216,8 @@ export class ProcessDiagram {
                     .removeModelUpdateObserver(this.modelUpdateHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             }

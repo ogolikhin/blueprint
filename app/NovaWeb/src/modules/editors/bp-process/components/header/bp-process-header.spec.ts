@@ -28,6 +28,7 @@ import {LoadingOverlayService} from "../../../../core/loading-overlay/loading-ov
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../core/navigation/item-info.svc";
 import {AnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
+import {ISession} from "../../../../shell/login/session.svc";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -41,7 +42,8 @@ describe("BpProcessHeader", () => {
     beforeEach(angular.mock.module("bp.editors.process",
         ($provide: ng.auto.IProvideService,
          $windowProvider: ng.IServiceProvider,
-         $window: ng.IWindowService) => {
+         $window: ng.IWindowService,
+         session: ISession) => {
             $provide.service("artifactManager", ArtifactManager);
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("messageService", MessageServiceMock);

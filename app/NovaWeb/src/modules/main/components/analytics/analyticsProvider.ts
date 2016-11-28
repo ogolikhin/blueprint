@@ -53,14 +53,14 @@ export class AnalyticsProvider implements ng.IServiceProvider {
     public pageEvent: string = "$routeChangeSuccess";
     public trackRoutes: boolean = true;
     public enableLocalhostTracking: boolean;
-    public isServer: boolean;
+    private isNotLocalhost: boolean;
     static $inject: [string] = ["$injector", "$windowProvider"];
     public $window: ng.IWindowService;
 
 
     constructor(private $injector: ng.auto.IInjectorService, $windowProvider: ng.IServiceProvider) {
         this.$window = $windowProvider.$get();
-        this.isServer = this.$window.location.hostname !== "localhost";
+        this.isNotLocalhost = this.$window.location.hostname !== "localhost";
         this.$get.$inject = ["$rootScope", "$log", "$window", "session"];
     }
 
@@ -153,7 +153,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             }
             let pageView = _baseKeenEvent();
             let event = "pageView";
-            if (this.isServer || this.enableLocalhostTracking) {
+            if (this.isNotLocalhost || this.enableLocalhostTracking) {
                 this.client.addEvent(event, pageView, (error) => {
                     if (error) {
                         $log.warn("KeenIO:  ", error);
@@ -209,7 +209,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                 customEventData.custom = custom;
             }
             newEvent = _.extend(newEvent, customEventData);
-            if (this.isServer || this.enableLocalhostTracking) {
+            if (this.isNotLocalhost || this.enableLocalhostTracking) {
                 this.client.addEvent(eventCollection, newEvent, function (error) {
                     if (error) {
                         $log.warn("KeenIO: ", error);

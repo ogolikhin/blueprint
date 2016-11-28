@@ -1,5 +1,8 @@
 import {SessionTokenHelper} from "../../../shell/login/session.token.helper";
 import "lodash";
+import {ISession} from "../../../shell/login/session.svc";
+import {IUser} from "../../../shell/login/auth.svc";
+
 const Keen = require("keen-js");
 
 export interface IKeenEventObject {
@@ -49,14 +52,16 @@ export class AnalyticsProvider implements ng.IServiceProvider {
 
     public pageEvent: string = "$routeChangeSuccess";
     public trackRoutes: boolean = true;
-    public enableLocalhostTracking: boolean = false;
+    public enableLocalhostTracking: boolean;
+    public isServer: boolean;
     static $inject: [string] = ["$injector", "$windowProvider"];
     public $window: ng.IWindowService;
 
 
     constructor(private $injector: ng.auto.IInjectorService, $windowProvider: ng.IServiceProvider) {
         this.$window = $windowProvider.$get();
-        this.$get.$inject = ["$rootScope", "$log", "$window"];
+        this.isServer = this.$window.location.hostname !== "localhost";
+        this.$get.$inject = ["$rootScope", "$log", "$window", "session"];
     }
 
     public setAccount(account: IKeenAccount): void {
@@ -87,8 +92,16 @@ export class AnalyticsProvider implements ng.IServiceProvider {
 
     }
 
-    $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService) {
+    $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService, session: ISession) {
         let _baseKeenEvent = () => {
+            let sessionId = SessionTokenHelper.getSessionToken();
+            if (sessionId) {
+                sessionId = SessionTokenHelper.getSessionToken().substr(0, 8);
+            }
+            let userId: IUser|number = session.currentUser;
+            if (userId) {
+                userId = userId.id;
+            }
             return <IKeenEventObject> {
                 referrer: {
                     url: $window.document.referrer
@@ -129,7 +142,8 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                         }
                     ]
                 },
-                sessionId: SessionTokenHelper.getSessionToken()
+                userId: userId,
+                sessionId: sessionId
             };
         };
         this._trackPage = () => {
@@ -139,14 +153,18 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             }
             let pageView = _baseKeenEvent();
             let event = "pageView";
-            $log.info("Tracking Page view: ", pageView);
-            if (this.enableLocalhostTracking) {
+            if (this.isServer || this.enableLocalhostTracking) {
                 this.client.addEvent(event, pageView, (error) => {
                     if (error) {
                         $log.warn("KeenIO:  ", error);
                     }
                 });
             }
+            else {
+                $log.warn("Tracking Disabled");
+            }
+            $log.info("Tracking Page view: ", pageView);
+
         };
         /**
          * @param eventCollection:string -> The event Category/Site section (ie: search bar)
@@ -163,6 +181,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                 return $log.warn(track.message);
             }
             //send the event type
+
             let eventType;
             if (jQEvent) {
                 eventType = "Keyboard";
@@ -190,14 +209,18 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                 customEventData.custom = custom;
             }
             newEvent = _.extend(newEvent, customEventData);
-            $log.info("tracking eventCollection \'" + eventCollection + "\': ", newEvent);
-            if (this.enableLocalhostTracking) {
+            if (this.isServer || this.enableLocalhostTracking) {
                 this.client.addEvent(eventCollection, newEvent, function (error) {
                     if (error) {
                         $log.warn("KeenIO: ", error);
                     }
                 });
             }
+            else {
+                $log.warn("Tracking Disabled");
+            }
+            $log.info(`tracking event Collection ${eventCollection}: `, newEvent);
+
         };
         if (this.trackRoutes) {
             $rootScope.$on(this.pageEvent, () => {

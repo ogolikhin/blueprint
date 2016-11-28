@@ -124,23 +124,23 @@ export class BPLocale {
         return null;
     }
 
-    public isValidDate(value: string, format: string = this._shortDateFormat): boolean { 
+    public isValidDate(value: string, format: string = this._shortDateFormat): boolean {
         let d = moment(value, format, true).isValid();
         return d;
-    } 
+    }
 
     public toDate(value: string | Date, reset?: boolean, format?: string): Date {
-      let d: moment.Moment;
+        let d: moment.Moment;
         if (_.isDate(value)) {
             d = moment(value);
         } else {
             d = moment(String(value), format || moment.defaultFormat, !!format);
-        } 
+        }
         if (d.isValid()) {
             if (reset === true) {
                 d.startOf("day");
             }
-                return d.toDate();
+            return d.toDate();
         }
         return null;
     };
@@ -213,7 +213,13 @@ export class LocalizationService implements ILocalizationService {
     }
 
     get(name: string, defaultValue?: string): string {
-        return this.scope["config"].labels[name] || defaultValue || name || "";
+        let result = defaultValue || name || "";
+        if (this.scope["config"] &&
+            this.scope["config"].labels &&
+            this.scope["config"].labels[name]) {
+            result = this.scope["config"].labels[name];
+        }
+        return result;
     }
 
     public current: BPLocale;

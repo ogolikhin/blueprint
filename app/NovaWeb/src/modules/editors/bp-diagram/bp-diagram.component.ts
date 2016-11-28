@@ -78,18 +78,18 @@ export class BPDiagramController extends BpBaseEditor {
             && !selection.subArtifact;
     }
 
-    public $onDestroy() {
-        // this.diagramView.clearSelection();
+    protected destroy(): void {
         this.destroyDiagramView();
-        super.$onDestroy();
+        super.destroy();
     }
 
     private destroyDiagramView() {
         if (this.diagramView) {
             this.diagramView.destroy();
         }
-        delete this.diagramView;
-        delete this.diagram;
+
+        this.diagramView = undefined;
+        this.diagram = undefined;
     }
 
     public onArtifactReady() {

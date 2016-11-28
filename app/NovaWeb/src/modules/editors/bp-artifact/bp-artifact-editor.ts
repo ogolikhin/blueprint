@@ -26,6 +26,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public fields: AngularFormly.IFieldConfigurationObject[] = [];
     public artifactPreviouslyReadonly: boolean = false;
     public editor: PropertyEditor;
+    public activeTab: number;
 
     constructor(public messageService: IMessageService,
                 public artifactManager: IArtifactManager,
@@ -33,6 +34,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 public localization: ILocalizationService,
                 public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
         super(messageService, artifactManager);
+        this.activeTab = 0;
     }
 
     public $onInit() {
@@ -41,15 +43,16 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.setArtifactEditorLabelsWidth, this));
     }
 
-    public $onDestroy() {
-        super.$onDestroy();
-
+    protected destroy(): void {
         if (this.editor) {
             this.editor.destroy();
         }
-        delete this.editor;
-        delete this.fields;
-        delete this.model;
+
+        this.editor = undefined;
+        this.fields = undefined;
+        this.model = undefined;
+
+        super.destroy();
     }
 
     public clearFields() {
@@ -133,6 +136,10 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 pageBodyWrapper.classList.remove("single-column-property");
             }
         }
+    };
+
+    public setActive = (index: number): void => {
+        this.activeTab = index;
     };
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: ng.IScope) {

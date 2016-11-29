@@ -32,7 +32,6 @@ export class ProcessGraph implements IProcessGraph {
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     public nodeLabelEditor: NodeLabelEditor;
-    //#TODO fix up references later
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -88,8 +87,6 @@ export class ProcessGraph implements IProcessGraph {
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
-        // Enables tooltips in the graph
-        //this.graph.setTooltips(true);
         //Selection logic
         this.selectionHelper = new ProcessGraphSelectionHelper(this.mxgraph);
         this.addSelectionEventHandlers();
@@ -187,11 +184,9 @@ export class ProcessGraph implements IProcessGraph {
         return this.htmlElement;
     }
 
-    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number,
-                                                                   layout: ILayout,
-                                                                   shapesFactoryService: ShapesFactory,
-                                                                   label?: string,
-                                                                   conditionDestinationId?: number) => number {
+    private getDecisionConditionInsertMethod(decisionId: number): (
+        decisionId: number, layout: ILayout, shapesFactoryService: ShapesFactory,
+        label?: string, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:

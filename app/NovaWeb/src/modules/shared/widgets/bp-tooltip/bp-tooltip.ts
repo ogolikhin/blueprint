@@ -63,10 +63,16 @@ export class BPTooltip implements ng.IDirective {
             }
         }
 
-        // only checks the immediate text, not nested HTML elements
+        // only checks the immediate text or the immediate (and only) child, not nested HTML elements
         function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
             if (element.attr("bp-tooltip-truncated") === "true") {
-                const elem = element[0];
+                let elem = element[0];
+                if (elem.childElementCount === 1) {
+                    let child = elem.firstElementChild as HTMLElement;
+                    if (elem.innerText === child.innerText) {
+                        elem = child;
+                    }
+                }
                 // the "- 1" allows some wiggle room in IE, as scrollWidth/Height round to the biggest integer
                 // while offsetWidth/Height to the smallest
                 let compensateWidth: boolean = false;
@@ -122,10 +128,6 @@ export class BPTooltip implements ng.IDirective {
             }
         }
     };
-
-    constructor() {
-        //fixme: empty constructors are not needed
-    }
 
     public static factory() {
         const directive = (//list of dependencies

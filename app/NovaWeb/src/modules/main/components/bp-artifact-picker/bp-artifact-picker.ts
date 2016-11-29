@@ -98,8 +98,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "projectManager",
         "projectService",
         "statefulArtifactFactory",
-        "metadataService",
-        "$rootScope"
+        "metadataService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -109,8 +108,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private projectManager: IProjectManager,
                 private projectService: IProjectService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private metadataService: IMetaDataService,
-                private $rootScope: any) {
+                private metadataService: IMetaDataService) {
         this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
@@ -220,7 +218,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     public get searchPlaceholder(): string{
-        return this.$rootScope.config.labels[this.project ? "Label_Search_Artifacts" : "Label_Search_Projects"];
+        return this.localization.get[this.project ? "Label_Search_Artifacts" : "Label_Search_Projects"];
     }
 
     private resetItemTypes(): void {

@@ -35,14 +35,6 @@ describe("BpArtifactPicker", () => {
         }));
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService) => {
-        $rootScope["config"] = {};
-        $rootScope["config"].labels = {
-            "Label_Search_Artifacts": "Search for artifacts",
-            "Label_Search_Projects": "Search for projects"
-        };
-    }));
-
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $q: ng.IQService, metadataService: IMetaDataService) => {
         // Arrange
         spyOn(metadataService, "get").and.callFake(() => {
@@ -113,7 +105,7 @@ describe("BpArtifactPickerController", () => {
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
         controller = new BpArtifactPickerController($q, $scope, localization, artifactManager,
-            projectManager, projectService, statefulArtifactFactory, metadataService, $rootScope);
+            projectManager, projectService, statefulArtifactFactory, metadataService);
     }));
 
     it("$onInit sets selected project", () => {

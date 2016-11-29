@@ -259,17 +259,17 @@ namespace Helper
             if (!skipIdAndVersion)
             {
                 Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version parameters don't match!");
             }
 
             if (!skipParentId)
             {
-                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId parameters don't match!");
             }
 
             if (!skipOrderIndex)
             {
-                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex parameters don't match!");
             }
 
             if (!skipCreatedBy)
@@ -279,23 +279,24 @@ namespace Helper
 
             if (!skipPermissions)
             {
-                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions parameters don't match!");
             }
 
             if (!skipPublishedProperties)
             {
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn parameters don't match!");
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime parameters don't match!");
                 Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
 
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
+            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
+            Assert.AreEqual(artifact1.LastSaveInvalid, artifact2.LastSaveInvalid, "The LastSaveInvalid parameters don't match!");
 
             Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
             Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");

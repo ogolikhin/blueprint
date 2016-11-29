@@ -112,7 +112,7 @@ namespace SearchService.Repositories
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                     //Sql syntax error in full text search
-                    case 7630:
+                    case ErrorCodes.SqlErrorInFtsSyntax:
                         throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
                 }
                 throw;
@@ -168,7 +168,7 @@ namespace SearchService.Repositories
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                     //Sql syntax error in full text search
-                    case 7630:
+                    case ErrorCodes.SqlErrorInFtsSyntax:
                         throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
                 }
                 throw;
@@ -221,7 +221,7 @@ namespace SearchService.Repositories
                     case ErrorCodes.SqlTimeoutNumber:
                         throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                     //Sql syntax error in full text search
-                    case 7630:
+                    case ErrorCodes.SqlErrorInFtsSyntax:
                         throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
                 }
                 throw;

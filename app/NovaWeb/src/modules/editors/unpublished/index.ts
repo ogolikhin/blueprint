@@ -1,6 +1,5 @@
 require("./unpublished.scss");
 
-import * as angular from "angular";
 import {UnpublishedComponent} from "./unpublished";
 
 angular.module("bp.editors.unpublished", [])

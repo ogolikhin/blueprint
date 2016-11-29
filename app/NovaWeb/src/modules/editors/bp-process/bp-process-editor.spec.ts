@@ -66,7 +66,7 @@ describe("BpProcessEditor", () => {
         $rootScope = _$rootScope_;
     }));
 
-    describe("initialization", () => {
+    describe("on initialization", () => {
         it("registers mainWindow listener", () => {
             // arrange
             const element = "<bp-process-editor></bp-process-editor>";
@@ -94,7 +94,7 @@ describe("BpProcessEditor", () => {
         });
     });
 
-    describe("process loaded", () => {
+    describe("on process loaded/reloaded", () => {
         it("destroys previous process diagram", () => {
             // arrange
             const element = "<bp-process-editor></bp-process-editor>";
@@ -110,7 +110,7 @@ describe("BpProcessEditor", () => {
         });
     });
 
-    describe("sub-artifact selection handler", () => {
+    describe("on selection manager sub-artifact selection change", () => {
         it("clears process diagram selection when sub-artifact is not selected", () => {
             // arrange
             const element = "<bp-process-editor></bp-process-editor>";
@@ -140,7 +140,7 @@ describe("BpProcessEditor", () => {
         });
     });
 
-    describe("diagram selection handler", () => {
+    describe("on diagram selection change", () => {
         it("sets sub-artifact selection when a shape is selected in the diagram", () => {
             // arrange
             const shape = <IDiagramNode>{model: {id: 345}};
@@ -244,7 +244,7 @@ describe("BpProcessEditor", () => {
         });
     });
 
-    describe("resize handler", () => {
+    describe("on resize", () => {
         it("resizes process diagram due to sidebar toggle", () => {
             // arrange
             const element = "<bp-process-editor></bp-process-editor>";
@@ -284,7 +284,7 @@ describe("BpProcessEditor", () => {
         });
     });
 
-    describe("destroy", () => {
+    describe("on destroy", () => {
         it("destroys sub-artifact editor modal opener", () => {
                         // arrange
             const element = "<bp-process-editor></bp-process-editor>";

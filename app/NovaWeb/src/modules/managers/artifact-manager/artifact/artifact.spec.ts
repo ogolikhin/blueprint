@@ -722,15 +722,14 @@ describe("Artifact", () => {
         }));
     });
 
-
-     describe("Delete", () => {
-       it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
-             // arrange
-          // act
-             let error: ApplicationError;
-             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                 error = err;
-             });
+    describe("Delete", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+            // arrange
+            // act
+                let error: ApplicationError;
+                artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                    error = err;
+                });
 
             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
@@ -739,76 +738,74 @@ describe("Artifact", () => {
                 }]);
                 return deferred.promise;
             });
+            spyOn(artifact, "discard").and.callThrough();
             let result;
-           artifact.delete().then((it) => {
-               result = it;
-           });
-           $rootScope.$digest();
-          // assert
-           expect(result).toBeDefined();
-           expect(result).toEqual(jasmine.any(Array));
-           expect(error).toBeUndefined();
-           expect(artifact.artifactState.deleted).toBeTruthy();
-         }));
+            artifact.delete().then((it) => {
+                result = it;
+            });
+            $rootScope.$digest();
+            // assert
+            expect(result).toBeDefined();
+            expect(result).toEqual(jasmine.any(Array));
+            expect(error).toBeUndefined();
+            expect(artifact.discard).toHaveBeenCalled();
+            expect(artifact.artifactState.deleted).toBeTruthy();
+        }));
 
-         it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
-             // arrange
-             let error: ApplicationError;
-             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                 error = err;
-             });
-             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
-                 const deferred = $q.defer<any>();
-                 deferred.reject({
-                     statusCode: HttpStatusCode.Conflict
-                 });
-                 return deferred.promise;
-             });
+        it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict
+                });
+                return deferred.promise;
+            });
 
-             // act
+            // act
 
-             artifact.delete();
-             $rootScope.$digest();
+            artifact.delete();
+            $rootScope.$digest();
 
-             // assert
-             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
-             expect(artifact.artifactState.deleted).toBeFalsy();
-         }));
+            // assert
+            expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+            expect(artifact.artifactState.deleted).toBeFalsy();
+        }));
 
-         it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
-             // arrange
-             let error: ApplicationError;
-             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                 error = err;
-             });
-             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
-                 const deferred = $q.defer<any>();
-                 deferred.reject({
-                     statusCode: HttpStatusCode.Conflict,
-                     errorContent : {
-                         id: 222,
-                         name: "TEST",
-                         prefix: "PREFIX"
-                     }
-                 });
-                 return deferred.promise;
-             });
-             const errormessage = "The artifact PREFIX222 is already locked by another user.";
-             // act
+        it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict,
+                    errorContent : {
+                        id: 222,
+                        name: "TEST",
+                        prefix: "PREFIX"
+                    }
+                });
+                return deferred.promise;
+            });
+            const errormessage = "The artifact PREFIX222 is already locked by another user.";
+            // act
 
-             artifact.delete();
-             $rootScope.$digest();
+            artifact.delete();
+            $rootScope.$digest();
 
-             // assert
-             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
-             expect(error.message).toEqual(errormessage);
-             expect(artifact.artifactState.deleted).toBeFalsy();
-         }));
-
-
-
-     });
-
+            // assert
+            expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+            expect(error.message).toEqual(errormessage);
+            expect(artifact.artifactState.deleted).toBeFalsy();
+        }));
+    });
 
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {

@@ -107,7 +107,7 @@ namespace StorytellerTests
             var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            var publishedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
 
             var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
 
@@ -137,7 +137,7 @@ namespace StorytellerTests
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
 
             // Get the actor artifact from the persona reference
             var actorArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, personaReference.Id);

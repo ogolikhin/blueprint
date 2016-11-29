@@ -244,8 +244,6 @@ export class ProcessGraph implements IProcessGraph {
         mxEvent.disableContextMenu(this.htmlElement);
         // This enables scrolling for the container of mxGraph
 
-        window.addEventListener("PROCESS_COPY_EVENT", this.copyShapes, true);
-
         if (this.viewModel.isSpa) {
             window.addEventListener("resize", this.resizeWrapper, true);
             this.htmlElement.style.overflow = "auto";
@@ -269,10 +267,6 @@ export class ProcessGraph implements IProcessGraph {
         }
         return {x: xPosition, y: yPosition};
     }
-
-    private copyShapes = () =>  {
-        ProcessCopyPasteHelper.copySectedShapes(this, this.clipboard, this.shapesFactory);
-    };
 
     private getMinHeight(): string {
         const shift = this.getPosition(this.htmlElement).y;

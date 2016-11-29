@@ -15,6 +15,7 @@ import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {PanelType} from "../../../../shell/bp-utility-panel/bp-utility-panel";
 import {IClipboardService} from "../../services/clipboard.svc";
+import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -134,10 +135,7 @@ export class ProcessDiagram {
     };
 
     private copySelection = () => {
-        // #TODO - get selected shapes from mxGraph SelectionModel and create copies of the
-        // shapes. The result will be a sub-graph of copied shapes that can be inserted
-        // into another process diagram
-        ;
+        ProcessCopyPasteHelper.copySectedShapes(this.graph, this.clipboard, this.shapesFactory);
     }
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);

@@ -64,10 +64,10 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-        const onWidthResizedSubscriber = this.windowManager.mainWindow
-                .subscribeOnNext(this.onWidthResized, this);
+
         this.subscribers.push(
-            onWidthResizedSubscriber,
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this),
             this.artifactManager.selection.subArtifactObservable
                 .subscribeOnNext(this.onSubArtifactChanged, this)
         );

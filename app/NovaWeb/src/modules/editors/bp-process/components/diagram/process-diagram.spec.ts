@@ -133,7 +133,7 @@ describe("ProcessDiagram Tests", () => {
         diagram.destroy();
 
         // assert
-        expect(diagram.processViewModel).toBeNull(null);
+        expect(diagram.processViewModel).not.toBeDefined();
         expect(container.childElementCount).toBe(0);
     });
 
@@ -164,7 +164,7 @@ describe("ProcessDiagram Tests", () => {
             error = err;
         }
 
-        // assert 
+        // assert
         expect(error.message).toBe("Process id '-1' is invalid.");
     });
     it("creatediagram - Null element", () => {
@@ -194,7 +194,7 @@ describe("ProcessDiagram Tests", () => {
             error = err;
         }
 
-        // assert 
+        // assert
         expect(error.message).toBe("There is no html element for the diagram");
     });
 

@@ -12,8 +12,10 @@ import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/wind
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
 
 describe("BpProcessEditor", () => {
+    let $q: ng.IQService;
     let $compile: ng.ICompileService;
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
@@ -35,13 +37,15 @@ describe("BpProcessEditor", () => {
         artifactManager = <IArtifactManager>{
             selection: {
                 subArtifactObservable: subArtifactSubject.asObservable(),
-                getArtifact: () => <IStatefulArtifact>{ 
+                getArtifact: () => <IStatefulArtifact>{
                     id: 1,
-                    getObservable: () => artifactSubject.asObservable()
-                 }
+                    getObservable: () => artifactSubject.asObservable(),
+                    subArtifactCollection: {get: (id: number) => { /* no op */ }}
+                },
+                setSubArtifact: (subArtifact: IStatefulSubArtifact) => { /* no op */ },
+                clearSubArtifact: () => { /* no op */ }
             }
         };
-
 
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
@@ -53,9 +57,11 @@ describe("BpProcessEditor", () => {
     }));
 
     beforeEach(inject((
+        _$q_: ng.IQService,
         _$compile_: ng.ICompileService,
          _$rootScope_: ng.IRootScopeService
         ) => {
+        $q = _$q_;
         $compile = _$compile_;
         $rootScope = _$rootScope_;
     }));
@@ -66,7 +72,7 @@ describe("BpProcessEditor", () => {
             const element = "<bp-process-editor></bp-process-editor>";
             const scope = $rootScope.$new();
             const mainWindowSpy = spyOn(windowManager.mainWindow, "subscribeOnNext").and.callThrough();
-            
+
             // act
             const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
 
@@ -79,7 +85,7 @@ describe("BpProcessEditor", () => {
             const element = "<bp-process-editor></bp-process-editor>";
             const scope = $rootScope.$new();
             const subArtifactObservableSpy = spyOn(artifactManager.selection.subArtifactObservable, "subscribeOnNext").and.callThrough();
-            
+
             // act
             const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
 
@@ -98,7 +104,7 @@ describe("BpProcessEditor", () => {
 
             // act
             artifactSubject.onNext(<IStatefulArtifact>{id: 2});
-            
+
             // assert
             expect(spy).toHaveBeenCalledTimes(1);
         });
@@ -134,6 +140,110 @@ describe("BpProcessEditor", () => {
         });
     });
 
+    describe("diagram selection handler", () => {
+        it("sets sub-artifact selection when a shape is selected in the diagram", () => {
+            // arrange
+            const shape = <IDiagramNode>{model: {id: 345}};
+            const selectedShapes = [shape];
+            const element = "<bp-process-editor></bp-process-editor>";
+            const scope = $rootScope.$new();
+            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
+            const subArtifact = {id: 345, loadProperties: () => {
+                return $q.resolve(subArtifact);
+            }};
+
+            spyOn(controller.artifact.subArtifactCollection, "get").and.returnValue(subArtifact);
+            const spy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
+
+            // act
+            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
+            $rootScope.$digest(); // resolve a promise
+
+            // assert
+            expect(spy).toHaveBeenCalledWith(subArtifact);
+        });
+
+        it("clears sub-artifact selection when no shapes are selected in the diagram", () => {
+            // arrange
+            const selectedShapes = [];
+            const element = "<bp-process-editor></bp-process-editor>";
+            const scope = $rootScope.$new();
+            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
+
+            const spy = spyOn(artifactManager.selection, "clearSubArtifact").and.callThrough();
+
+            // act
+            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
+
+            // assert
+            expect(spy).toHaveBeenCalled();
+        });
+
+        it("doesn't change sub-artifact selection if sub-artifact is no corresponding sub-artifact exists", () => {
+            // arrange
+            const shape = <IDiagramNode>{model: {id: 345}};
+            const selectedShapes = [shape];
+            const element = "<bp-process-editor></bp-process-editor>";
+            const scope = $rootScope.$new();
+            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
+
+            spyOn(controller.artifact.subArtifactCollection, "get").and.returnValue(undefined);
+            const spy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
+
+            // act
+            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
+            controller.$onDestroy();
+            $rootScope.$digest(); // resolve a promise
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't change sub-artifact selection if editor is already destroyed", () => {
+            // arrange
+            const shape = <IDiagramNode>{model: {id: 345}};
+            const selectedShapes = [shape];
+            const element = "<bp-process-editor></bp-process-editor>";
+            const scope = $rootScope.$new();
+            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
+            const listener = controller["processDiagram"]["selectionListeners"][0];
+            controller.$onDestroy();
+
+            const setSpy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
+            const clearSpy = spyOn(artifactManager.selection, "clearSubArtifact").and.callThrough();
+
+            // act
+            listener(selectedShapes);
+
+            // assert
+            expect(setSpy).not.toHaveBeenCalled();
+            expect(clearSpy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't change sub-artifact selection if editor is destroyed while properties are loaded", () => {
+            // arrange
+            const shape = <IDiagramNode>{model: {id: 345}};
+            const selectedShapes = [shape];
+            const element = "<bp-process-editor></bp-process-editor>";
+            const scope = $rootScope.$new();
+            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
+            const subArtifact = {id: 345, loadProperties: () => {
+                return $q.resolve(subArtifact);
+            }};
+
+            spyOn(controller.artifact.subArtifactCollection, "get").and.returnValue(subArtifact);
+            const spy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
+
+            // act
+            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
+            controller.$onDestroy();
+            $rootScope.$digest(); // resolve a promise
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+    });
+
     describe("resize handler", () => {
         it("resizes process diagram due to sidebar toggle", () => {
             // arrange
@@ -146,8 +256,8 @@ describe("BpProcessEditor", () => {
 
             // act
             mainWindowSubject.onNext(<IMainWindow>{
-                causeOfChange: ResizeCause.sidebarToggle, 
-                contentHeight: height, 
+                causeOfChange: ResizeCause.sidebarToggle,
+                contentHeight: height,
                 contentWidth: width
             });
 
@@ -184,7 +294,7 @@ describe("BpProcessEditor", () => {
 
             // act
             controller.$onDestroy();
-            
+
             // assert
             expect(spy).toHaveBeenCalledTimes(1);
         });
@@ -198,7 +308,7 @@ describe("BpProcessEditor", () => {
 
             // act
             controller.$onDestroy();
-            
+
             // assert
             expect(spy).toHaveBeenCalledTimes(1);
         });

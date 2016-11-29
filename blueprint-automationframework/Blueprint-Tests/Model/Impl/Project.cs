@@ -80,7 +80,7 @@ namespace Model.Impl
         public INovaArtifact GetDefaultCollectionFolder(string address, IUser user)
         {
             var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
-            return novaArtifacts.Find(a => a.PredefinedType == (int)BaselineAndCollectionTypePredefined.CollectionFolder);
+            return novaArtifacts.Find(a => a.PredefinedType.Value == (int)BaselineAndCollectionTypePredefined.CollectionFolder);
         }
 
         /// <seealso cref="IProject.GetItemTypeIdForPredefinedType(ItemTypePredefined)"/>

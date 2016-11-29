@@ -378,11 +378,11 @@ export class PageToolbarController implements IPageToolbarController {
 
     private publishAllInternal(data: Models.IPublishResultSet) {
         let artifact = this.artifactManager.selection.getArtifact();
-        let promise: ng.IPromise<void>;
+        let promise: ng.IPromise<IStatefulArtifact>;
         if (artifact) {
-            promise = artifact.autosave();
+            promise = artifact.save();
         } else {
-            let def = this.$q.defer<void>();
+            let def = this.$q.defer<IStatefulArtifact>();
             def.resolve();
             promise = def.promise;
         }
@@ -399,6 +399,9 @@ export class PageToolbarController implements IPageToolbarController {
                     }
 
                     this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
+                })
+                .catch((error) => {
+                    this.messageService.addError(error);
                 })
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);
@@ -460,8 +463,7 @@ export class PageToolbarController implements IPageToolbarController {
     public get canCreateNew(): boolean {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return this.isProjectOpened &&
-            currArtifact && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
+        return currArtifact && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     }
 

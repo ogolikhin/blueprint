@@ -55,10 +55,14 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Execute & Verify:
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, savedPersonaReference);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -71,15 +75,23 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            var publishedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
 
-            DeletePersonaReferenceFromTask(taskName, publishedProcess);
+            var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
+
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, publishedPersonaReference);
+
+            var defaultPersonaReference = DeletePersonaReferenceFromTask(taskName, publishedProcess);
 
             // Execute & Verify:
-            StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
+
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(defaultPersonaReference, savedPersonaReference);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -92,16 +104,24 @@ namespace StorytellerTests
             // Create and get the default process
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
-            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            var publishedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
+
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, publishedPersonaReference);
 
             // Changes the persona reference to a new artifact reference
-            AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
+            var changedPersonaReference = AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
 
             // Execute & Verify:
-            StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(publishedProcess, Helper.Storyteller, _authorFullAccess);
+
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(changedPersonaReference, savedPersonaReference);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -117,7 +137,7 @@ namespace StorytellerTests
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
 
             // Get the actor artifact from the persona reference
             var actorArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, personaReference.Id);
@@ -136,7 +156,7 @@ namespace StorytellerTests
             var defaultUserTask = updatedProcess.GetProcessShapeByShapeName(taskName);
             var updatedPersonaReferenceName = defaultUserTask.PersonaReference.Name;
 
-            Assert.That(updatedPersonaReferenceName.Equals(actorArtifactDetails.Name), "The persona reference name was {0} but {1} was expected!",
+            Assert.AreEqual(updatedPersonaReferenceName, actorArtifactDetails.Name, "The persona reference name was {0} but {1} was expected!",
                 updatedPersonaReferenceName, actorArtifactDetails.Name);
         }
 
@@ -200,6 +220,19 @@ namespace StorytellerTests
         #region Private Methods
 
         /// <summary>
+        /// Gets a persona reference from a task
+        /// </summary>
+        /// <param name="taskName">The name of the task that contains the persona reference.</param>
+        /// <param name="process">The process containing the task </param>
+        /// <returns>The persona reference</returns>
+        private static ArtifactReference GetPersonaReferenceFromTask(string taskName, IProcess process)
+        {
+            var task = process.GetProcessShapeByShapeName(taskName);
+
+            return task.PersonaReference;
+        }
+
+        /// <summary>
         /// Creates an actor artifact and adds it to a task as a persona reference
         /// </summary>
         /// <param name="taskName">The name of the task that will contain the persona reference.</param>
@@ -217,9 +250,9 @@ namespace StorytellerTests
             var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
             // Add persona reference to default user task
-            var defaultUserTask = process.GetProcessShapeByShapeName(taskName);
+            var task = process.GetProcessShapeByShapeName(taskName);
 
-            return defaultUserTask.AddPersonaReference(actorDetails);
+            return task.AddPersonaReference(actorDetails);
         }
 
         /// <summary>
@@ -227,13 +260,15 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="taskName">The name of the task that contains the persona reference.</param>
         /// <param name="process">The process containing the task </param>
-        private static void DeletePersonaReferenceFromTask(string taskName, IProcess process)
+        /// <returns>The default persona reference</returns>
+        private static ArtifactReference DeletePersonaReferenceFromTask(string taskName, IProcess process)
         {
-            var defaultUserTask = process.GetProcessShapeByShapeName(taskName);
+            var task = process.GetProcessShapeByShapeName(taskName);
 
-            var processShapeType = (ProcessShapeType)defaultUserTask.PropertyValues["clientType"].Value.ToInt32Invariant();
+            var processShapeType = (ProcessShapeType)task.PropertyValues["clientType"].Value.ToInt32Invariant();
 
-            defaultUserTask.AddDefaultPersonaReference(processShapeType);
+            // Deletes persona reference by replacing it with the default persona reference
+            return task.AddDefaultPersonaReference(processShapeType);
         }
 
         /// <summary>

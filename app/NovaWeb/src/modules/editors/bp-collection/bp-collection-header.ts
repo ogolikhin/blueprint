@@ -10,6 +10,8 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {ISelectionManager} from "../../managers/selection-manager";
+import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -31,7 +33,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "navigationService",
         "projectManager",
         "metadataService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "selectionManager",
+        "analytics"
     ];
 
     constructor($q: ng.IQService,
@@ -46,7 +50,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 navigationService: INavigationService,
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
-                mainBreadcrumbService: IMainBreadcrumbService) {
+                mainBreadcrumbService: IMainBreadcrumbService,
+                selectionManager: ISelectionManager,
+                analytics: IAnalyticsProvider) {
         super(
             $q,
             $scope,
@@ -60,7 +66,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             navigationService,
             projectManager,
             metadataService,
-            mainBreadcrumbService
+            mainBreadcrumbService,
+            selectionManager,
+            analytics
         );
     }
 

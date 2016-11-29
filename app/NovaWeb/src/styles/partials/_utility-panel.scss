@@ -64,12 +64,13 @@ bp-utility-panel {
         text-align: center;
         p {
             font-size: 1.2rem;
-            color: $gray-darker;
+            color: $gray-darkest;
             margin-bottom: 20px;
         }
     }
     .tab-slider__prev--show,
-    .tab-slider__next--show {
+    .tab-slider__next--show,
+    .tab-slider__next--show-empty {
         width: 24px;
     }
 
@@ -215,7 +216,7 @@ bp-utility-panel {
         .icon:before {
             -webkit-transition-duration: 0.4s;
             transition-duration: 0.4s;
-            color: $gray-darker;
+            color: $gray-darkest;
             font-size: $font-size-bigger;
             margin: 0;
         }
@@ -230,7 +231,7 @@ bp-utility-panel {
 
         p {
             font-size: 1.2rem;
-            color: $gray-darker;
+            color: $gray-darkest;
             margin-bottom: 20px;
         }
     }

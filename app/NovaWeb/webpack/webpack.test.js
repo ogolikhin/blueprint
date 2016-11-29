@@ -67,8 +67,10 @@ module.exports = {
             'window.jquery': 'jquery'
         }),
         new webpack.DefinePlugin({
-            ENABLE_LOCAL_HOST_TRACKING:false,
-            ENABLE_LOG:true,
+            KEEN_PROJECT_ID: undefined,
+            KEEN_WRITE_KEY: undefined,
+            ENABLE_LOCAL_HOST_TRACKING: false,
+            ENABLE_LOG: true,
             VERSION: JSON.stringify(require('../package.json').version),
             BUILD_YEAR: new Date().getFullYear().toString()
         })

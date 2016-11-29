@@ -123,15 +123,13 @@ export class PageToolbarController implements IPageToolbarController {
             evt.preventDefault();
         }
 
-        let artifact = this.artifactManager.selection.getArtifact();
-        if (artifact) {
-            artifact.autosave()
-                .then(this.getProjectsWithUnpublishedArtifacts)
-                .then((projectsWithUnpublishedArtifacts) => {
-                    const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
-                    const openProjects = _.map(this.projectManager.projectCollection.getValue(), (project) => project.model.id);
-                    let numberOfUnpublishedArtifacts = 0;
-                    _.forEach(openProjects, (projectId) => numberOfUnpublishedArtifacts += unpublishedArtifactsByProject[projectId] || 0);
+        this.artifactManager.autosave()
+            .then(this.getProjectsWithUnpublishedArtifacts)
+            .then((projectsWithUnpublishedArtifacts) => {
+                const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
+                const openProjects = _.map(this.projectManager.projectCollection.getValue(), (project) => project.model.id);
+                let numberOfUnpublishedArtifacts = 0;
+                _.forEach(openProjects, (projectId) => numberOfUnpublishedArtifacts += unpublishedArtifactsByProject[projectId] || 0);
 
                 if (numberOfUnpublishedArtifacts > 0) {
                     //If the project we're closing has unpublished artifacts, we display a modal
@@ -144,9 +142,7 @@ export class PageToolbarController implements IPageToolbarController {
                     //Otherwise, just close it
                     this.closeAllProjectsInternal();
                 }
-
-                });
-        }
+            });
     }
 
     public createNewArtifact = (evt?: ng.IAngularEvent) => {
@@ -228,19 +224,21 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        const getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
-        //get a list of unpublished artifacts
-        this.publishService.getUnpublishedArtifacts()
-            .then((data: Models.IPublishResultSet) => {
-                if (data.artifacts.length === 0) {
-                    this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
-                } else {
-                    this.confirmPublishAll(data);
-                }
-            })
-            .finally(() => {
-                this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
-            });
+        this.artifactManager.autosave().then(() => {
+            const getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
+            //get a list of unpublished artifacts
+            this.publishService.getUnpublishedArtifacts()
+                .then((data: Models.IPublishResultSet) => {
+                    if (data.artifacts.length === 0) {
+                        this.messageService.addInfo("Publish_All_No_Unpublished_Changes");
+                    } else {
+                        this.confirmPublishAll(data);
+                    }
+                })
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
+                });
+        });
     }
 
     public discardAll = (evt?: ng.IAngularEvent) => {
@@ -267,10 +265,9 @@ export class PageToolbarController implements IPageToolbarController {
             evt.preventDefault();
         }
         let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
-        this.projectManager.refreshAll()
-            .finally(() => {
-                this.loadingOverlayService.endLoading(refreshAllLoadingId);
-            });
+        this.projectManager.refreshAll().finally(() => {
+            this.loadingOverlayService.endLoading(refreshAllLoadingId);
+        });
     }
     public openTour = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -377,36 +374,25 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     private publishAllInternal(data: Models.IPublishResultSet) {
-        let artifact = this.artifactManager.selection.getArtifact();
-        let promise: ng.IPromise<IStatefulArtifact>;
-        if (artifact) {
-            promise = artifact.save();
-        } else {
-            let def = this.$q.defer<IStatefulArtifact>();
-            def.resolve();
-            promise = def.promise;
-        }
+        const publishAllLoadingId = this.loadingOverlayService.beginLoading();
+        //perform publish all
+        this.publishService.publishAll()
+            .then(() => {
+                let artifact = this.artifactManager.selection.getArtifact();
+                //remove lock on current artifact
+                if (artifact) {
+                    artifact.artifactState.unlock();
+                    artifact.refresh();
+                }
 
-        promise.then(() => {
-            const publishAllLoadingId = this.loadingOverlayService.beginLoading();
-            //perform publish all
-            this.publishService.publishAll()
-                .then(() => {
-                    //remove lock on current artifact
-                    if (artifact) {
-                        artifact.artifactState.unlock();
-                        artifact.refresh();
-                    }
-
-                    this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
-                })
-                .catch((error) => {
-                    this.messageService.addError(error);
-                })
-                .finally(() => {
-                    this.loadingOverlayService.endLoading(publishAllLoadingId);
-                });
-        });
+                this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
+            })
+            .catch((error) => {
+                this.messageService.addError(error);
+            })
+            .finally(() => {
+                this.loadingOverlayService.endLoading(publishAllLoadingId);
+            });
     }
 
     private discardAllInternal(data: Models.IPublishResultSet) {

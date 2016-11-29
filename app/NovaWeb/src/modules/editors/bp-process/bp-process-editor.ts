@@ -85,7 +85,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         }
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         // when this method is called the process artifact should
         // be loaded and assigned to the base class' artifact
         // property (this.artifact)
@@ -161,9 +161,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         return htmlElement;
     }
 
-    public onWidthResized(mainWindow: IMainWindow) {
+    private onWidthResized(mainWindow: IMainWindow) {
         if (this.processDiagram && this.processDiagram.resize) {
-            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
+            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
                 this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
             } else {
                 this.processDiagram.resize(0, 0);

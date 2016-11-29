@@ -92,7 +92,7 @@ export class BPDiagramController extends BpBaseEditor {
         this.diagram = undefined;
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         super.onArtifactReady();
         if (this.isDestroyed) {
             return;

@@ -163,7 +163,7 @@ describe("ProcessDiagram Tests", () => {
         diagram.destroy();
 
         // assert
-        expect(diagram.processViewModel).toBeNull(null);
+        expect(diagram.processViewModel).not.toBeDefined();
         expect(container.childElementCount).toBe(0);
     });
 

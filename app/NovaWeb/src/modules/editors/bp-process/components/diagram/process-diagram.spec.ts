@@ -16,18 +16,19 @@ import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 
+class ExecutionEnvironmentDetectorMock {
+    private browserInfo: any;
+
+    constructor() {
+        this.browserInfo = {msie: false, firefox: false, version: 0};
+    }
+
+    public getBrowserInfo(): any {
+        return this.browserInfo;
+    }
+}
+
 describe("ProcessDiagram Tests", () => {
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("messageService", MessageServiceMock);
-        $provide.service("communicationManager", CommunicationManager);
-        $provide.service("$uibModal", ModalServiceMock);
-        $provide.service("dialogService", DialogService);
-        $provide.service("localization", LocalizationServiceMock);
-        $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("shapesFactory", ShapesFactoryMock);
-        $provide.service("clipboardService", ClipboardService);
-    }));
     let rootScope: ng.IRootScopeService,
         scope,
         timeout: ng.ITimeoutService,
@@ -45,6 +46,21 @@ describe("ProcessDiagram Tests", () => {
     let container: HTMLElement,
         wrapper: HTMLElement;
 
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
+        $provide.service("$uibModal", ModalServiceMock);
+        $provide.service("dialogService", DialogService);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactoryMock);
+        $provide.service("clipboardService", ClipboardService);
+    }));
+
     beforeEach(inject(($rootScope: ng.IRootScopeService,
                        $timeout: ng.ITimeoutService,
                        $q: ng.IQService,
@@ -53,10 +69,10 @@ describe("ProcessDiagram Tests", () => {
                        _communicationManager_: ICommunicationManager,
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
-                       _clipboard_: ClipboardService,
                        _navigationService_: INavigationService,
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory) => {
+                       _shapesFactory_: ShapesFactory,
+                       _clipboardService_: ClipboardService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -74,7 +90,7 @@ describe("ProcessDiagram Tests", () => {
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
-        clipboard = _clipboard_;
+        clipboard = _clipboardService_;
         navigationService = _navigationService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
         shapesFactory = _shapesFactory_;

@@ -19,7 +19,7 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
-import {ItemTypePredefined} from "../../../main/models/enums";
+import {ItemTypePredefined, LockedByEnum} from "../../../main/models/enums";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -111,6 +111,20 @@ describe("BpArtifactInfo", () => {
             expect(spy).toHaveBeenCalled();
         });
 
+        it("doesn't register artifact-related handlers if no artifact is selected", () => {
+            // arrange
+            const element = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+            artifactManager.selection.getArtifact = () => undefined;
+            const artifactSpy = spyOn(artifactManager.selection.artifactObservable, "subscribeOnNext").and.callThrough();
+
+            // act
+            const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
+
+            // assert
+            expect(artifactSpy).not.toHaveBeenCalled();
+        });
+
         it("registers artifact loaded handler", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
@@ -151,7 +165,7 @@ describe("BpArtifactInfo", () => {
         });
     });
 
-    describe("on artifact loaded/reloaded", () => {
+    describe("once initialized", () => {
         let controller: BpArtifactInfoController;
 
         beforeEach(() => {
@@ -160,181 +174,330 @@ describe("BpArtifactInfo", () => {
             controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
         });
 
-        it("adds historical message for historical artifact", () => {
-            // arrange
-            const historicalArtifact = artifactManager.selection.getArtifact();
-            historicalArtifact.lastEditedBy = {displayName: "Author"};
-            historicalArtifact.lastEditedOn = new Date();
-            historicalArtifact.artifactState.historical = true;
-            historicalArtifact.artifactState.deleted = false;
+        describe("on artifact loaded/reloaded", () => {
+            it("adds historical message for historical artifact", () => {
+                // arrange
+                const historicalArtifact = artifactManager.selection.getArtifact();
+                historicalArtifact.lastEditedBy = {displayName: "Author"};
+                historicalArtifact.lastEditedOn = new Date();
+                historicalArtifact.artifactState.historical = true;
+                historicalArtifact.artifactState.deleted = false;
 
-            // act
-            artifactSubject.onNext(historicalArtifact);
+                // act
+                artifactSubject.onNext(historicalArtifact);
 
-            // assert
-            expect(controller.historicalMessage).toBeDefined();
+                // assert
+                expect(controller.historicalMessage).toBeDefined();
+            });
+
+            it("doesn't add historical message for deleted artifact", () => {
+                // arrange
+                const deletedArtifact = artifactManager.selection.getArtifact();
+                deletedArtifact.lastEditedBy = {displayName: "Author"};
+                deletedArtifact.lastEditedOn = new Date();
+                deletedArtifact.artifactState.historical = true;
+                deletedArtifact.artifactState.deleted = true;
+
+                // act
+                artifactSubject.onNext(deletedArtifact);
+
+                // assert
+                expect(controller.historicalMessage).not.toBeDefined();
+            });
+
+            it("doesn't add historical message for live artifact", () => {
+                // arrange
+                const liveArtifact = artifactManager.selection.getArtifact();
+
+                // act
+                artifactSubject.onNext(liveArtifact);
+
+                // assert
+                expect(controller.historicalMessage).not.toBeDefined();
+            });
+
+            it("updates artifact name", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.name = "Up-to-date";
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactName).toEqual(updatedArtifact.name);
+            });
+
+            it("updates artifact type", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.itemTypeName = "Textual Requirement";
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactType).toEqual(updatedArtifact.itemTypeName);
+            });
+
+            it("updates artifact type id", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.itemTypeId = 123;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactTypeId).toEqual(updatedArtifact.itemTypeId);
+            });
+
+            it("updates artifact type description", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.prefix = "TR";
+                updatedArtifact.itemTypeName = "Textual Requirement";
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactTypeDescription).toEqual(`${updatedArtifact.itemTypeName} - ${(updatedArtifact.prefix || "")}${updatedArtifact.id}`);
+            });
+
+            it("updates artifact class of collection folder", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.itemTypeId = ItemTypePredefined.Collections;
+                updatedArtifact.predefinedType = ItemTypePredefined.CollectionFolder;
+                const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections])}`;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactClass).toEqual(expectedArtifactClass);
+            });
+
+            it("updates artifact class of general artifact", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.itemTypeId = ItemTypePredefined.TextualRequirement;
+                updatedArtifact.predefinedType = ItemTypePredefined.TextualRequirement;
+                const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[updatedArtifact.predefinedType])}`;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactClass).toEqual(expectedArtifactClass);
+            });
+
+            it("updates artifact type icon id", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.itemTypeIconId = 456;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactTypeIconId).toEqual(updatedArtifact.itemTypeIconId);
+            });
+
+            it("sets hasCustomIcon to true when item type icon id is present", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.itemTypeIconId = 456;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.hasCustomIcon).toEqual(true);
+            });
+
+            it("sets hasCustomIcon to false when item type icon id is not present", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.hasCustomIcon).toEqual(false);
+            });
+
+            it("sets isLegacy to true when artifact is not Process", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.predefinedType = ItemTypePredefined.Glossary;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.isLegacy).toEqual(true);
+            });
+
+            it("sets isLegacy to false when artifact is Process", () => {
+                // arrange
+                const updatedArtifact = artifactManager.selection.getArtifact();
+                updatedArtifact.predefinedType = ItemTypePredefined.Process;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.isLegacy).toEqual(false);
+            });
         });
 
-        it("doesn't add historical message for deleted artifact", () => {
-            // arrange
-            const deletedArtifact = artifactManager.selection.getArtifact();
-            deletedArtifact.lastEditedBy = {displayName: "Author"};
-            deletedArtifact.lastEditedOn = new Date();
-            deletedArtifact.artifactState.historical = true;
-            deletedArtifact.artifactState.deleted = true;
+        describe("on artifact state changed", () => {
+            it("doesn't update state properties if state is falsy", () => {
+                // arrange
+                const spy = spyOn(controller, "updateStateProperties");
 
-            // act
-            artifactSubject.onNext(deletedArtifact);
+                // act
+                stateSubject.onNext(undefined);
 
-            // assert
-            expect(controller.historicalMessage).not.toBeDefined();
+                // assert
+                expect(spy).not.toHaveBeenCalled();
+            });
+
+            it("sets selfLocked to true if locked by current user", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.CurrentUser;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.selfLocked).toEqual(true);
+            });
+
+            it("sets selfLocked to false if locked by another user", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.OtherUser;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.selfLocked).toEqual(false);
+            });
+
+            it("sets isReadonly to true if artifact is read-only", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.readonly = true;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.isReadonly).toEqual(true);
+            });
+
+            it("sets isReadonly to false if artifact is not read-only", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.readonly = false;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.isReadonly).toEqual(false);
+            });
+
+            it("sets isChanged to true if artifact is dirty", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.dirty = true;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.isChanged).toEqual(true);
+            });
+
+            it("sets isChanged to false if artifact is not dirty", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.dirty = false;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.isChanged).toEqual(false);
+            });
+
+            it("adds lockMessage if artifact locked by another user", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.OtherUser;
+                updatedState.lockDateTime = new Date();
+                updatedState.lockOwner = "Another User";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockMessage).toBeDefined();
+            });
+
+            it("doesn't add lockMessage if artifact locked by current user", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.CurrentUser;
+                updatedState.lockDateTime = new Date();
+                updatedState.lockOwner = "Current User";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockMessage).not.toBeDefined();
+            });
+
+            it("doesn't add lockMessage if artifact is not locked", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.None;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockMessage).not.toBeDefined();
+            });
         });
 
-        it("doesn't add historical message for live artifact", () => {
-            // arrange
-            const liveArtifact = artifactManager.selection.getArtifact();
+        describe("on property change", () => {
+            it("sets name to updated value", () => {
+                // arrange
+                const expectedName = "Test";
 
-            // act
-            artifactSubject.onNext(liveArtifact);
+                // act
+                propertySubject.onNext({item: {name: expectedName}});
 
-            // assert
-            expect(controller.historicalMessage).not.toBeDefined();
-        });
-
-        it("updates artifact name", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.name = "Up-to-date";
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactName).toEqual(updatedArtifact.name);
-        });
-
-        it("updates artifact type", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.itemTypeName = "Textual Requirement";
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactType).toEqual(updatedArtifact.itemTypeName);
-        });
-
-        it("updates artifact type id", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.itemTypeId = 123;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactTypeId).toEqual(updatedArtifact.itemTypeId);
-        });
-
-        it("updates artifact type description", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.prefix = "TR";
-            updatedArtifact.itemTypeName = "Textual Requirement";
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactTypeDescription).toEqual(`${updatedArtifact.itemTypeName} - ${(updatedArtifact.prefix || "")}${updatedArtifact.id}`);
-        });
-
-        it("updates artifact class of collection folder", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.itemTypeId = ItemTypePredefined.Collections;
-            updatedArtifact.predefinedType = ItemTypePredefined.CollectionFolder;
-            const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections])}`;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactClass).toEqual(expectedArtifactClass);
-        });
-
-        it("updates artifact class of general artifact", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.itemTypeId = ItemTypePredefined.TextualRequirement;
-            updatedArtifact.predefinedType = ItemTypePredefined.TextualRequirement;
-            const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[updatedArtifact.predefinedType])}`;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactClass).toEqual(expectedArtifactClass);
-        });
-
-        it("updates artifact type icon id", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.itemTypeIconId = 456;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.artifactTypeIconId).toEqual(updatedArtifact.itemTypeIconId);
-        });
-
-        it("sets hasCustomIcon to true when item type icon id is present", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.itemTypeIconId = 456;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.hasCustomIcon).toEqual(true);
-        });
-
-        it("sets hasCustomIcon to false when item type icon id is not present", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.hasCustomIcon).toEqual(false);
-        });
-
-        it("sets isLegacy to true when artifact is not Process", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.predefinedType = ItemTypePredefined.Glossary;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.isLegacy).toEqual(true);
-        });
-
-        it("sets isLegacy to false when artifact is Process", () => {
-            // arrange
-            const updatedArtifact = artifactManager.selection.getArtifact();
-            updatedArtifact.predefinedType = ItemTypePredefined.Process;
-
-            // act
-            artifactSubject.onNext(updatedArtifact);
-
-            // assert
-            expect(controller.isLegacy).toEqual(false);
+                // assert
+                expect(controller.artifactName).toEqual(expectedName);
+            });
         });
     });
 });

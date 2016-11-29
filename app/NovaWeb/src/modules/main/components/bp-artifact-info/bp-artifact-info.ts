@@ -56,7 +56,6 @@ export class BpArtifactInfoController {
     protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
-    public isLocked: boolean;
     public lockMessage: Message;
     public selfLocked: boolean;
     public isLegacy: boolean;
@@ -166,7 +165,6 @@ export class BpArtifactInfoController {
     private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
-        this.isLocked = false;
         this.selfLocked = false;
 
         if (this.lockMessage) {

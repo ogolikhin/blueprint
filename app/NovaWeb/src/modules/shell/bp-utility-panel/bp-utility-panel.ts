@@ -22,7 +22,8 @@ export class BPUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "artifactManager",
-        "$element"
+        "$element",
+        "utilityPanelService"
     ];
 
     private _subscribers: Rx.IDisposable[];
@@ -36,8 +37,10 @@ export class BPUtilityPanelController {
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
-                private $element: ng.IAugmentedJQuery) {
+                private $element: ng.IAugmentedJQuery,
+                private utilityPanelService: UtilityPanelService) {
         this.isAnyPanelVisible = true;
+        this.utilityPanelService.openPanel = this.openPanelExternal;
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -63,6 +66,15 @@ export class BPUtilityPanelController {
             accordionCtrl.hidePanel(accordionCtrl.getPanels()[panelType]);
         }
     }
+
+    private openPanelExternal = (panel: PanelType) => {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+
+        if (accordionCtrl) {
+            const panelToOpen = accordionCtrl.getPanels()[panel];
+            panelToOpen.openPanel();
+        }
+    };
 
     private showPanel(panelType: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
@@ -108,7 +120,7 @@ export class BPUtilityPanelController {
         if (item) {
             this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
         }
-        
+
         if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
@@ -199,4 +211,9 @@ export class BPUtilityPanelController {
             this.isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
+}
+
+export class UtilityPanelService {
+    public openPanel: Function;
+    public openRightSidebar: Function;
 }

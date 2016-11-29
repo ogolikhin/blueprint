@@ -14,7 +14,7 @@ import {
     RelationshipDetailsService,
     IRelationshipDetailsService
 } from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/relationship-details.svc";
-import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
+import {BPUtilityPanel, UtilityPanelService} from "./bp-utility-panel/bp-utility-panel";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPPropertiesPanel} from "./bp-utility-panel/bp-properties-panel/bp-properties-panel";
 import {BPRelationshipsPanel} from "./bp-utility-panel/bp-relationships-panel/bp-relationships-panel";
@@ -59,6 +59,7 @@ angular.module("app.shell",
     .service("mentionService", MentionService)
     .service("usersAndGroupsService", UsersAndGroupsService)
     .service("licenseService", LicenseService)
+    .service("utilityPanelService", UtilityPanelService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpPropertiesPanel", new BPPropertiesPanel())

@@ -39,10 +39,7 @@ describe("BpProcessHeader", () => {
     let navigationService: INavigationService;
 
     beforeEach(angular.mock.module("bp.editors.process",
-        ($provide: ng.auto.IProvideService,
-         $windowProvider: ng.IServiceProvider,
-         $window: ng.IWindowService) => {
-            $provide.value("$window", $window);
+        ($provide: ng.auto.IProvideService) => {
 
             $provide.service("artifactManager", ArtifactManager);
             $provide.service("localization", LocalizationServiceMock);
@@ -64,8 +61,8 @@ describe("BpProcessHeader", () => {
             $provide.service("itemInfoService", ItemInfoService);
             $provide.service("projectManager", ProjectManager);
             $provide.service("projectService", ProjectService);
-            $provide.service("analytics", AnalyticsProvider);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
+            $provide.provider("analytics", AnalyticsProvider);
         }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
@@ -82,7 +79,7 @@ describe("BpProcessHeader", () => {
         navigationService = _navigationService_;
     }));
 
-    xit("correctly initializes breadcrumb", () => {
+    it("correctly initializes breadcrumb", () => {
         // arrange
         const deferred = $q.defer();
         deferred.resolve([
@@ -129,7 +126,7 @@ describe("BpProcessHeader", () => {
         // expect(controller.breadcrumbLinks[2]).toEqual(link2);
     });
 
-    xdescribe("navigateTo method", () => {
+    describe("navigateTo method", () => {
         beforeEach(() => {
             const template = "<bp-process-header></bp-process-header>";
             const element = $compile(template)($rootScope.$new());

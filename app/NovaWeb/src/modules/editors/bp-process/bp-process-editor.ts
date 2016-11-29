@@ -40,7 +40,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         "navigationService",
         "statefulArtifactFactory",
         "shapesFactory",
-        "utilityPanelService"
+        "utilityPanelService",
         "clipboardService"
     ];
 
@@ -60,7 +60,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory = null,
-                private utilityPanelService: UtilityPanelService) {
+                private utilityPanelService: UtilityPanelService,
                 private clipboard: IClipboardService = null) {
         super(messageService, artifactManager);
 
@@ -115,7 +115,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.navigationService,
             this.statefulArtifactFactory,
             this.shapesFactory,
-            this.utilityPanelService
+            this.utilityPanelService,
             this.clipboard
         );
 

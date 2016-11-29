@@ -41,7 +41,7 @@ export class ProcessDiagram {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory,
-                private utilityPanelService) {
+                private utilityPanelService,
                 private clipboard: IClipboardService) {
         this.processModel = null;
         this.selectionListeners = [];

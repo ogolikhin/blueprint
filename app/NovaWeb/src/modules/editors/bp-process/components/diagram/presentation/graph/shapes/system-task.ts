@@ -109,7 +109,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));
             this.commentsButton.setHoverImage(this.getImageSource("/comments-active.svg"));
 
-            if (this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
+            if (this.model["artifact"] && this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
                 this.commentsButton.activate();
             }
         }
@@ -438,7 +438,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     }
 
     public activateButton(flag: ItemIndicatorFlags) {
-        if (flag === ItemIndicatorFlags.HasComments) {
+        if (flag === ItemIndicatorFlags.HasComments && this.model["artifact"]) {
             this.model["artifact"].flags.hasComments = true;
             this.commentsButton.activate();
         }

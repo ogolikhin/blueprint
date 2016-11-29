@@ -88,7 +88,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.commentsButton.setHoverImage(this.getImageSource("/comments-active.svg"));
 
         if (this.commentsButton.isEnabled) {
-            if (this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
+            if (this.model["artifact"] && this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
                 this.commentsButton.activate();
             }
         }
@@ -471,7 +471,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public activateButton(flag: ItemIndicatorFlags) {
-        if (flag === ItemIndicatorFlags.HasComments) {
+        if (flag === ItemIndicatorFlags.HasComments && this.model["artifact"]) {
             this.model["artifact"].flags.hasComments = true;
             this.commentsButton.activate();
         }

@@ -11,12 +11,16 @@ export {
 } from "./bp-toolbar-button";
 
 export {
+    BPToolbarToggle
+} from "./bp-toolbar-toggle";
+
+export {
     BPToolbarDropdown
 } from "./bp-toolbar-dropdown";
 
 export {
-    BPToolbarToggle
-} from "./bp-toolbar-toggle";
+    BPToolbarButtonDropdown
+} from "./bp-toolbar-button-dropdown";
 
 export {
     BPToolbarButtonGroup

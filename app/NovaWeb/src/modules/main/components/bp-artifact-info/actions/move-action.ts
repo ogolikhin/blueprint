@@ -47,7 +47,7 @@ export class MoveAction extends BPDropdownAction {
     }
 
     public get tooltip(): string {
-        return this.localization.get("App_Toolbar_Move");
+        return this.localization.get("App_Toolbar_Move_Copy");
     }
 
     public get disabled(): boolean {

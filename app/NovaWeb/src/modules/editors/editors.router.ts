@@ -1,6 +1,6 @@
-import * as angular from "angular";
+import "angular";
 import {ItemStateController} from "./item-state.controller";
-import {ISelectionManager} from "./../managers/selection-manager/selection-manager";
+import {IArtifactManager} from "./../managers";
 
 export class ArtifactRoutes {
 
@@ -22,7 +22,7 @@ export class ArtifactRoutes {
                 reloadOnSearch: false,
                 controller: ItemStateController,
                 resolve: {
-                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]      
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]      
                 }          
             })
 
@@ -45,13 +45,4 @@ export class ArtifactRoutes {
                 template: require("./bp-diagram/diagram.state.html")
             });
     }
-
-    public static autoSave($q: ng.IQService, selection: ISelectionManager): ng.IPromise<void> {
-        let artifact = selection.getArtifact();
-        if (artifact) {
-            return artifact.autosave();
-        }
-        return $q.resolve();
-    }  
-
 }

@@ -109,13 +109,12 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-
-        let artifact = this.artifactManager.selection.getArtifact();
-        if (artifact) {
-            artifact.autosave().then(() => {
+        this.artifactManager.autosave().then(() => {
+            let artifact = this.artifactManager.selection.getArtifact();
+            if (artifact) {
                 this.closeProjectInternal(artifact.projectId);
-            });
-        }
+            }
+        });
     }
 
     public closeAllProjects = (evt?: ng.IAngularEvent) => {

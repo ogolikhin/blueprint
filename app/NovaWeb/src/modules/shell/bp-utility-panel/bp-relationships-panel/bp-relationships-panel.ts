@@ -14,7 +14,6 @@ import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Helper} from "../../../shared/utils/helper";
 import {ManageTracesDialogController} from "../../../main/components/dialogs/bp-manage-traces";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {StatefulUseCaseDiagramArtifact} from "../../../editors/bp-diagram/usecase-diagram-artifact";
 
 interface IOptions {
     value: string;
@@ -180,7 +179,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         // if artifact is locked by other user we still can add/manage traces
         return !this.item.artifactState.readonly &&
             this.item.supportRelationships() &&
-            !(this.item instanceof StatefulUseCaseDiagramArtifact) &&
             !this.reuseReadOnlyRelationships() &&
             this.item.relationships.canEdit;
     }

@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import {ItemStateController} from "./item-state.controller";
-import {ISelectionManager} from "./../managers/selection-manager/selection-manager";
+import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 
 export class ArtifactRoutes {
 
@@ -16,14 +16,21 @@ export class ArtifactRoutes {
 
         // register states with the router
         $stateProvider
+            .state("main.unpublished", <ng.ui.IState>{
+                url: "/unpublished",
+                template: "<unpublished></unpublished>",
+                resolve: {
+                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]
+                }
+            })
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:string}",
                 template: "<div ui-view class='artifact-state'></div>",
                 reloadOnSearch: false,
                 controller: ItemStateController,
                 resolve: {
-                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]      
-                }          
+                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]
+                }
             })
 
             .state("main.item.process", {
@@ -52,6 +59,5 @@ export class ArtifactRoutes {
             return artifact.autosave();
         }
         return $q.resolve();
-    }  
-
+    }
 }

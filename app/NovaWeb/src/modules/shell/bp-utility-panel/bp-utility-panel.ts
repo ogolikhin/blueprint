@@ -72,12 +72,7 @@ export class BPUtilityPanelController {
 
         if (accordionCtrl) {
             const panelToOpen = accordionCtrl.getPanels()[panel];
-
-            if (!panelToOpen.isOpen) {
-                panelToOpen.isOpen = true;
-                panelToOpen.getElement().className += " bp-accordion-panel-open";
-                accordionCtrl.openPanel(panelToOpen);
-            }
+            panelToOpen.openPanel();
         }
     };
 

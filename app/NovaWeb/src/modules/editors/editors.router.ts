@@ -1,6 +1,10 @@
 import "angular";
 import {ItemStateController} from "./item-state.controller";
+<<<<<<< HEAD
 import {IArtifactManager} from "./../managers";
+=======
+import {ISelectionManager} from "../managers/selection-manager/selection-manager";
+>>>>>>> c0e08d5d9bc7f5945202d9a68ed9729ac26f3286
 
 export class ArtifactRoutes {
 
@@ -16,6 +20,13 @@ export class ArtifactRoutes {
 
         // register states with the router
         $stateProvider
+            .state("main.unpublished", <ng.ui.IState>{
+                url: "/unpublished",
+                template: "<unpublished></unpublished>",
+                resolve: {
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]   
+                }
+            })
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:string}",
                 template: "<div ui-view class='artifact-state'></div>",

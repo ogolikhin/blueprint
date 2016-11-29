@@ -1,0 +1,58 @@
+<div class='artifact-state'>
+    <div class="page-content">
+        <div class="page-heading">
+
+            <div class="artifact-heading">
+                <div class="artifact-heading-group1">
+                    <div class="artifact-heading-group2">
+                        <div class="name">Unpublished Changes</div>
+                    </div>
+                </div>
+            </div>
+            <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>
+
+        </div>
+        <div class="page-body-wrapper">
+            <div class="page-body">
+                <div ng-if="$ctrl.isLoading" class="app-loading">
+                    <span class="glyphicon glyphicon-refresh spin"></span>
+                    {{::$ctrl.localization.get('App_LoadingMsg') }}
+                </div>
+
+                <table class="unpublished" ng-if="!$ctrl.isLoading">
+                    <thead class="unpublished__header" ng-click="$ctrl.clearSelection()">
+                    <tr>
+                        <th class="unpublished__checkbox-col">
+                            <input type="checkbox"
+                                   ng-checked="$ctrl.unpublishedArtifacts.length === $ctrl.selectedArtifacts.length"
+                                   ng-click="$ctrl.toggleAll()" />
+                        </th>
+                        <th class="unpublished__id-col">ID</th>
+                        <th class="unpublished__name-col">Name</th>
+                    </tr>
+                    </thead>
+                    <tbody class="unpublished__body">
+                    <tr ng-repeat="artifact in $ctrl.unpublishedArtifacts track by artifact.id"
+                        ng-class="{'unpublished__row--selected': $ctrl.isSelected(artifact)}">
+                        <td><input type="checkbox"
+                                   ng-checked="$ctrl.isSelected(artifact)"
+                                   ng-click="$ctrl.toggleSelection(artifact)" /></td>
+                        <td>
+                            <bp-item-type-icon
+                                item-type-id="::artifact.itemTypeId"
+                                item-type-icon-id="::artifact.itemTypeIconId"
+                                predefined-type="::artifact.predefinedType"
+                                fallback="::true" class="bp-artifact-list__icon"></bp-item-type-icon>
+                            <a ui-sref="main.item({id: artifact.id, version: undefined})">{{::artifact.prefix + artifact.id}}</a>
+                        </td>
+                        <td>{{::artifact.name}}</td>
+                    </tr>
+                    <tr class="unpublished__empty" ng-if="!$ctrl.unpublishedArtifacts.length">
+                        <td colspan="3">{{::$ctrl.localization.get('Artifact_Glossary_Empty') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

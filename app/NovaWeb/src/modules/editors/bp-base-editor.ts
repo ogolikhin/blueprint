@@ -37,11 +37,14 @@ export class BpBaseEditor {
     protected destroy(): void {
         this.artifact = undefined;
 
-        this.subscribers.forEach(
-            (subscriber: Rx.IDisposable) => {
-                subscriber.dispose();
-            }
-        );
+        if (this.subscribers) {
+            this.subscribers.forEach(
+                (subscriber: Rx.IDisposable) => {
+                    subscriber.dispose();
+                }
+            );
+        }
+        
         this.subscribers = undefined;
     }
 
@@ -49,7 +52,7 @@ export class BpBaseEditor {
         this.onArtifactReady();
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         this.isLoading = false;
     }
 }

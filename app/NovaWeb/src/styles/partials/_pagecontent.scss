@@ -137,7 +137,7 @@ pagecontent, bp-properties-panel {
     .btn-load-project{
         background: $white;
     }
-    
+
     .artifact-heading {
         display: flex;
         //max-width: calc(100% - #{$page-top-toolbar-width});
@@ -231,20 +231,6 @@ pagecontent, bp-properties-panel {
     .artifact-overview {
         background: $white;
         position: relative;
-
-        > .heading {
-            background: $gray-lighter;
-            color: $gray-dark;
-            font-size: $font-size-big;
-            font-weight: 600;
-            line-height: 1em;
-            min-height: 36px;
-            padding: 11px 14px;
-
-            + .content {
-                border-top: 0;
-            }
-        }
 
         > .content {
             border: solid 1px $gray-lighter;

@@ -8,7 +8,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
 import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
+import {GenerateUserStoriesAction, ToggleProcessTypeAction, CopyAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
@@ -144,6 +144,11 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 this.dialogService,
                 this.loadingOverlayService,
                 this.communicationManager.processDiagramCommunication
+            ),
+            new CopyAction(
+                processArtifact,
+                this.communicationManager.toolbarCommunicationManager,
+                this.localization
             ),
             new ToggleProcessTypeAction(
                 processArtifact,

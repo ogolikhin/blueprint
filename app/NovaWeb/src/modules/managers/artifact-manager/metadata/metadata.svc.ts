@@ -351,8 +351,9 @@ export class MetaDataService implements IMetaDataService {
     private getCustomPropertyTypes(projectMeta: ProjectMetaData, itemType: IItemType): IPropertyType[] {
         let properties: IPropertyType[] = [];
         if (projectMeta && projectMeta.data) {
-            projectMeta.data.propertyTypes.forEach(propertyType => {
-                if (itemType.customPropertyTypeIds.indexOf(propertyType.id) >= 0) {
+            itemType.customPropertyTypeIds.forEach(id => {
+                let propertyType = projectMeta.data.propertyTypes.find(pt => pt.id === id);
+                if (propertyType) {
                     propertyType.propertyTypePredefined = PropertyTypePredefined.CustomGroup;
                     properties.push(propertyType);
                 }
@@ -360,5 +361,5 @@ export class MetaDataService implements IMetaDataService {
         }
         return properties;
     }
-
+    
 }

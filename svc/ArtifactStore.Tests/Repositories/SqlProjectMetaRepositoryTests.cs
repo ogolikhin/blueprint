@@ -552,7 +552,7 @@ namespace ArtifactStore.Repositories
         public void OrderProperties_AdvancedSettingsNull_Success()
         {
             // Arrange
-            var expectedOrder = new List<int> { 6, 8, 10, 12, 13, 17, 18, 20, 5, 7, 9, 11, 14, 15, 16, 19, 2, 4, 1, 3 };
+            var expectedOrder = new List<int> { 8, 10, 13, 17, 18, 20, 5, 9, 14, 15, 16, 19, 2, 4, 6, 12, 1, 3, 7, 11 };
 
             // Act and Assert
             TestOrderProperties(null, expectedOrder);

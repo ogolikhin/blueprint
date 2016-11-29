@@ -100,6 +100,8 @@ describe("Application toolbar:", () => {
                 return;
             }
         } as ISelectionManager;
+        spyOn(artifactManager, "autosave").and.callFake(() => { return $q.resolve(); }); 
+
     }));
     describe("close project->", () => {
 
@@ -115,6 +117,7 @@ describe("Application toolbar:", () => {
                     id: "projectclose"
                 }
             };
+
             spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");

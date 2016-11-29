@@ -1,3 +1,5 @@
+import "./bp-toolbar-dots-menu.scss";
+
 import {IBPButtonOrDropdownAction} from "../actions";
 
 export class BPToolbarDotsMenu implements ng.IComponentOptions {
@@ -6,7 +8,6 @@ export class BPToolbarDotsMenu implements ng.IComponentOptions {
     public bindings: {[boundProperty: string]: string} = {
         icon: "@",
         actions: "<",
-        disabled: "=?",
         tooltip: "@?"
     };
 }
@@ -14,6 +15,5 @@ export class BPToolbarDotsMenu implements ng.IComponentOptions {
 export class BPToolbarDotsMenuController implements ng.IComponentController {
     public icon: string;
     public actions: IBPButtonOrDropdownAction[];
-    public disabled: boolean;
     public tooltip?: string;
 }

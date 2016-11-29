@@ -295,7 +295,7 @@ export class BpArtifactInfoController {
                 this.dotsMenuActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
             }
             this.toolbarActions.push(
-                new BPDotsMenuAction(() => true, "pippo", ...this.dotsMenuActions)
+                new BPDotsMenuAction(this.localization.get("App_Toolbar_DotsMenu"), ...this.dotsMenuActions)
             );
         }
     }

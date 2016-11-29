@@ -27,7 +27,6 @@ describe("BPDotsMenuAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const type = "dotsmenu";
-        const canExecute = () => true;
         const tooltip = "tooltip2";
         const item1 = new BPButtonOrDropdownAction(() => {
             return;
@@ -37,11 +36,10 @@ describe("BPDotsMenuAction", () => {
         }, () => false, "iconItem2", "tooltipItem2", "labelItem2");
 
         // act
-        const dotsMenu = new BPDotsMenuAction(canExecute, tooltip, item1, item2);
+        const dotsMenu = new BPDotsMenuAction(tooltip, item1, item2);
 
         // assert
         expect(dotsMenu.type).toBe(type);
-        expect(dotsMenu.disabled).toBe(!canExecute());
         expect(dotsMenu.tooltip).toBe(tooltip);
         expect(dotsMenu.actions).toEqual([item1, item2]);
     });

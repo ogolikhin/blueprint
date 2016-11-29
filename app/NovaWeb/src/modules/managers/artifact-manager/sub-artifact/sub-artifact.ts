@@ -83,6 +83,10 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         return this.parentArtifact.readOnlyReuseSettings;
     }
 
+    public isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean {
+        return (this.parentArtifact.readOnlyReuseSettings & Enums.ReuseSettings.Subartifacts) === Enums.ReuseSettings.Subartifacts;
+    }
+
     public changes(): Models.ISubArtifact {
         const traces = this.relationships.changes();
         const attachmentValues = this.attachments.changes();

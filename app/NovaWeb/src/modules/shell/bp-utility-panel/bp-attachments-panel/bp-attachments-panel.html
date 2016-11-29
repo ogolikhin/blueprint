@@ -92,8 +92,8 @@
         <hr/>
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canUpdateDocRefs()}">
+        <button class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canUpdateDocRefs()}">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
-        </label>
+        </button>
     </div>
 </div>

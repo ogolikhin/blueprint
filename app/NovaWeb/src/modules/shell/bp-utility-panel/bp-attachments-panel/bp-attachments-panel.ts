@@ -219,24 +219,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = docRefs;
     }
 
-    private parentSubArtifactsSRO = (): boolean => {
-        return (this.item.readOnlyReuseSettings & Enums.ReuseSettings.Subartifacts) === Enums.ReuseSettings.Subartifacts;
-    }
-
     public canUpdateAttachments = (): boolean => {
-        if (this.item instanceof StatefulSubArtifact) {
-            return !this.parentSubArtifactsSRO();
-        }
-        return (!this.item.artifactState.readonly && 
-        (this.item.readOnlyReuseSettings & Enums.ReuseSettings.Attachments) !== Enums.ReuseSettings.Attachments);
+        return !this.item.artifactState.readonly && !this.item.isReuseSettingSRO(Enums.ReuseSettings.Attachments);
     }
 
     public canUpdateDocRefs = (): boolean => {
-        if (this.item instanceof StatefulSubArtifact) {
-            return !this.parentSubArtifactsSRO();
-        }
-        return (!this.item.artifactState.readonly && 
-        (this.item.readOnlyReuseSettings & Enums.ReuseSettings.DocumentReferences) !== Enums.ReuseSettings.DocumentReferences);
+        return !this.item.artifactState.readonly && !this.item.isReuseSettingSRO(Enums.ReuseSettings.DocumentReferences);
     }
-
 }

@@ -1,24 +1,3 @@
-//font
-$font-family-base: 'Open Sans', Arial, Helvetica, sans-serif;
-
-$font-size-root: 10px;
-//font sizes need to px not rem to allow for mixen calculations
-$font-size-normal: 12px;
-$font-size-small: 11px;
-$font-size-smaller: 10px;
-$font-size-smallest: 9px;
-$font-size-tiny: 8px;
-$font-size-big: 14px;
-$font-size-bigger: 16px;
-$font-size-biggest: 18px;
-
-$font-weight-light: 300;
-$font-weight-normal: 400;
-$font-weight-semibold: 600;
-$font-weight-bold: 700;
-$font-weight-extrabold: 800;
-
-
 @font-face {
     font-family: 'Open Sans';
     src: local('Open Sans Light'), local('OpenSans-Light'),
@@ -119,12 +98,6 @@ $font-weight-extrabold: 800;
     font-style: italic;
 }
 
-html,
-body {
-    font-family: $font-family-base;
-    font-size: $font-size-root;
-}
-
 // The following is needed to reliably test for webfont download.
 // The test font face uses the same files as Open Sans so not to require additional resources/files
 @font-face {
@@ -136,6 +109,45 @@ body {
     font-style: normal;
 }
 
+//font
+$font-family-sans-serif: 'Open Sans', Arial, Helvetica, sans-serif;
+
+$font-family-base: $font-family-sans-serif;
+
+/*We should find and replace all these values to use the bootstrap standard named values and expand on that. We can slice
+the math any way we want to get usable sizes but we should at least use these value names as it will effect more components*/
+
+/*
+$font-size-base:          12px;
+$font-size-large:         ceil(($font-size-base * 1.25)); // ~15px
+$font-size-small:         floor(($font-size-base * 0.85)); // ~10px
+
+$font-size-h1:            ceil(($font-size-base * 2.6)); // ~32px
+$font-size-h2:            floor(($font-size-base * 2.15)); // ~26px
+$font-size-h3:            floor(($font-size-base * 1.7)); // ~20px
+$font-size-h4:            ceil(($font-size-base * 1.25)); // ~15px
+$font-size-h5:            $font-size-base; // 12px
+$font-size-h6:            floor(($font-size-base * 0.85)); // ~10px
+*/
+
+$font-size-root: 10px;
+//font sizes need to px not rem to allow for mixen calculations
+
+$font-size-biggest: ceil(($font-size-root * 1.8)); // 18px;
+$font-size-bigger: ceil(($font-size-root * 1.6)); // 16px;
+$font-size-big: ceil(($font-size-root * 1.4)); // 14px;
+$font-size-normal: ceil(($font-size-root * 1.2)); // 12px;
+$font-size-small: ceil(($font-size-root * 1.1)); // 11px;
+$font-size-smaller: ceil(($font-size-root * 1)); // 10px;
+$font-size-smallest: ceil(($font-size-root * .9)); // 9px;
+$font-size-tiny: ceil(($font-size-root * .8)); // 8px;
+
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
 // Some browsers require an actual element to download the webfont
 #webfont-tester {
     display: block;
@@ -143,3 +155,6 @@ body {
     position: absolute;
     top: -100px;
 }
+
+
+

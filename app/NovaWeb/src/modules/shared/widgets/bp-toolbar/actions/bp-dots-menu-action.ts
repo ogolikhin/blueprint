@@ -42,16 +42,13 @@ export interface IBPDotsMenuAction extends IBPAction {
     actions: IBPButtonOrDropdownAction[];
     disabled?: boolean;
     tooltip?: string;
-    label?: string;
 }
 
 export class BPDotsMenuAction implements IBPDotsMenuAction {
     private _actions: IBPButtonOrDropdownAction[];
 
     constructor(private _canExecute?: () => boolean,
-                private _icon?: string,
                 private _tooltip?: string,
-                private _label?: string,
                 ...actions: IBPButtonOrDropdownAction[]) {
         this._actions = actions;
     }
@@ -61,7 +58,7 @@ export class BPDotsMenuAction implements IBPDotsMenuAction {
     }
 
     public get icon(): string {
-        return this._icon;
+        return "fonticon2-navigation";
     }
 
     public get disabled(): boolean {
@@ -74,9 +71,5 @@ export class BPDotsMenuAction implements IBPDotsMenuAction {
 
     public get tooltip(): string {
         return this._tooltip;
-    }
-
-    public get label(): string {
-        return this._label;
     }
 }

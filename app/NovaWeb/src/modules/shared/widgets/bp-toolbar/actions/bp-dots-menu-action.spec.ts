@@ -1,4 +1,4 @@
-import {BPDotsMenuAction, BPButtonOrDropdownAction} from "./bp-dotsmenu-action";
+import {BPDotsMenuAction, BPButtonOrDropdownAction} from "./bp-dots-menu-action";
 
 describe("BPButtonOrDropdownAction", () => {
     it("initializes properties and methods successfully", () => {
@@ -28,9 +28,7 @@ describe("BPDotsMenuAction", () => {
         // arrange
         const type = "dotsmenu";
         const canExecute = () => true;
-        const icon = "icon2";
         const tooltip = "tooltip2";
-        const label = "label2";
         const item1 = new BPButtonOrDropdownAction(() => {
             return;
         }, () => true, "iconItem1", "tooltipItem1", "labelItem1");
@@ -39,14 +37,12 @@ describe("BPDotsMenuAction", () => {
         }, () => false, "iconItem2", "tooltipItem2", "labelItem2");
 
         // act
-        const dotsMenu = new BPDotsMenuAction(canExecute, icon, tooltip, label, item1, item2);
+        const dotsMenu = new BPDotsMenuAction(canExecute, tooltip, item1, item2);
 
         // assert
         expect(dotsMenu.type).toBe(type);
         expect(dotsMenu.disabled).toBe(!canExecute());
-        expect(dotsMenu.icon).toBe(icon);
         expect(dotsMenu.tooltip).toBe(tooltip);
-        expect(dotsMenu.label).toBe(label);
         expect(dotsMenu.actions).toEqual([item1, item2]);
     });
 });

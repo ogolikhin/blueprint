@@ -98,7 +98,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public $onDestroy() {
         if (this.toolbarActions) {
             const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
-            
+
             if (toggleAction) {
                 toggleAction.dispose();
             }
@@ -126,17 +126,42 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        this.toolbarActions.push(
-            new GenerateUserStoriesAction(
-                processArtifact,
-                this.userStoryService,
-                this.artifactManager.selection,
-                this.messageService,
-                this.localization,
-                this.dialogService,
-                this.loadingOverlayService,
-                this.communicationManager.processDiagramCommunication
-            ),
+        // this.toolbarActions.push(
+        //     new GenerateUserStoriesAction(
+        //         processArtifact,
+        //         this.userStoryService,
+        //         this.artifactManager.selection,
+        //         this.messageService,
+        //         this.localization,
+        //         this.dialogService,
+        //         this.loadingOverlayService,
+        //         this.communicationManager.processDiagramCommunication
+        //     ),
+        //     new ToggleProcessTypeAction(
+        //         processArtifact,
+        //         this.communicationManager.toolbarCommunicationManager,
+        //         this.localization
+        //     )
+        // );
+
+        // for (let i = 0; i < this.toolbarActions.length; i++) {
+        //     if (this.toolbarActions[i].type === "buttondropdown") {
+        //         const buttonDropdown = this.toolbarActions[i];
+        //         buttonDropdown.actions.push(
+        //             new GenerateUserStoriesAction(
+        //                 processArtifact,
+        //                 this.userStoryService,
+        //                 this.artifactManager.selection,
+        //                 this.messageService,
+        //                 this.localization,
+        //                 this.dialogService,
+        //                 this.loadingOverlayService,
+        //                 this.communicationManager.processDiagramCommunication
+        //         );
+        //     }
+        // }
+
+        this.toolbarActions.unshift(
             new ToggleProcessTypeAction(
                 processArtifact,
                 this.communicationManager.toolbarCommunicationManager,

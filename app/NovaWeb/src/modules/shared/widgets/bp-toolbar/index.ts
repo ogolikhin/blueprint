@@ -5,7 +5,7 @@ import {
     BPToolbarButton,
     BPToolbarToggle,
     BPToolbarDropdown,
-    BPToolbarButtonDropdown,
+    BPToolbarDotsMenu,
     BPToolbarButtonGroup
 } from "./components";
 
@@ -15,17 +15,18 @@ angular.module("bp.widgets.toolbar", [])
     .component("bpToolbarButton", new BPToolbarButton())
     .component("bpToolbarToggle", new BPToolbarToggle())
     .component("bpToolbarDropdown", new BPToolbarDropdown())
-    .component("bpToolbarButtonDropdown", new BPToolbarButtonDropdown())
+    .component("bpToolbarDotsMenu", new BPToolbarDotsMenu())
     .component("bpToolbarButtonGroup", new BPToolbarButtonGroup());
 
 export {
     IBPAction,
+    IBPButtonOrDropdownAction,
     BPButtonAction,
     BPToggleItemAction,
     BPToggleAction,
     BPDropdownItemAction,
     BPDropdownAction,
-    BPButtonDropdownItemAction,
-    BPButtonDropdownAction,
+    BPButtonOrDropdownAction,
+    BPDotsMenuAction,
     BPButtonGroupAction
 } from "./actions";

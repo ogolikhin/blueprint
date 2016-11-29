@@ -9,7 +9,7 @@ import {
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IDialogService, IBPAction, BPButtonGroupAction} from "../../../shared";
+import {IDialogService, IBPAction, BPButtonGroupAction, BPDotsMenuAction, IBPButtonOrDropdownAction} from "../../../shared";
 import {
     SaveAction,
     PublishAction,
@@ -64,6 +64,7 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public dotsMenuActions: IBPButtonOrDropdownAction[] = [];
     public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
@@ -247,32 +248,55 @@ export class BpArtifactInfoController {
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
         if (artifact) {
-            this.toolbarActions.push(
-                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
-            );
+            // this.toolbarActions.push(
+            //     new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
+            // );
+            // this.toolbarActions.push(
+            //     new BPButtonGroupAction(
+            //         new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
+            //         new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
+            //         new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
+            //         new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
+            //             this.mainBreadcrumbService),
+            //         new DeleteAction(
+            //             this.artifact,
+            //             this.localization,
+            //             this.messageService,
+            //             this.artifactManager,
+            //             this.projectManager,
+            //             this.loadingOverlayService,
+            //             this.dialogService,
+            //             this.navigationService)
+            //     ),
+            // );
+            //
+            // //we don't want to show impact analysis on collection artifact page
+            // if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+            //     this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
+            // }
+
             this.toolbarActions.push(
                 new BPButtonGroupAction(
                     new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
                     new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
                     new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
-                        this.mainBreadcrumbService),
-                    new DeleteAction(
-                        this.artifact,
-                        this.localization,
-                        this.messageService,
-                        this.artifactManager,
-                        this.projectManager,
-                        this.loadingOverlayService,
-                        this.dialogService,
-                        this.navigationService)
+                        this.mainBreadcrumbService)
                 ),
             );
 
+            this.dotsMenuActions.push(
+                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
+                new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager, this.projectManager,
+                    this.loadingOverlayService, this.dialogService, this.navigationService)
+            );
             //we don't want to show impact analysis on collection artifact page
             if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
+                this.dotsMenuActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
             }
+            this.toolbarActions.push(
+                new BPDotsMenuAction(() => true, "pippo", ...this.dotsMenuActions)
+            );
         }
     }
 

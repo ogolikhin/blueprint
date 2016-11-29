@@ -26,7 +26,7 @@ export {
     IBPDotsMenuAction,
     BPButtonOrDropdownAction,
     BPDotsMenuAction
-} from "./bp-dotsmenu-action";
+} from "./bp-dots-menu-action";
 
 export {
     IBPButtonGroupAction,

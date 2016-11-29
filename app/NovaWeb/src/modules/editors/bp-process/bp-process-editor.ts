@@ -64,10 +64,10 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-
+        const onWidthResizedSubscriber = this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this);
         this.subscribers.push(
-            this.windowManager.mainWindow
-                .subscribeOnNext(this.onWidthResized, this),
+            onWidthResizedSubscriber,
             this.artifactManager.selection.subArtifactObservable
                 .subscribeOnNext(this.onSubArtifactChanged, this)
         );
@@ -153,9 +153,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         return htmlElement;
     }
 
-    public onWidthResized(mainWindow: IMainWindow) {
+    private onWidthResized(mainWindow: IMainWindow) {
         if (this.processDiagram && this.processDiagram.resize) {
-            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
+            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
                 this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
             } else {
                 this.processDiagram.resize(0, 0);

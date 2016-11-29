@@ -1,10 +1,6 @@
 import "angular";
 import {ItemStateController} from "./item-state.controller";
-<<<<<<< HEAD
 import {IArtifactManager} from "./../managers";
-=======
-import {ISelectionManager} from "../managers/selection-manager/selection-manager";
->>>>>>> c0e08d5d9bc7f5945202d9a68ed9729ac26f3286
 
 export class ArtifactRoutes {
 

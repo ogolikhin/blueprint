@@ -24,9 +24,9 @@ namespace Model.ArtifactModel
         #region Serialized JSON Properties
 
         bool HasChildren { get; set; }
-        int Permissions { get; set; }
-        int PredefinedType { get; set; }
-        double OrderIndex { get; set; }
+        RolePermissions? Permissions { get; set; }
+        int? PredefinedType { get; set; }
+        double? OrderIndex { get; set; }
         string Prefix { get; set; }
         Identification LockedByUser { get; set; } // this is an optional properties depending on state status of the target artifact
         DateTime? LockedDateTime { get; set; } // its existance depends on presense of LockedByUser property

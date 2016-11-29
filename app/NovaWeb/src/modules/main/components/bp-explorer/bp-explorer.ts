@@ -117,34 +117,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
-    }
-
-    public isProjectTreeVisible(): boolean {
-        return this.projects && this.projects.length > 0;
-    }
-    
-    public openProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
-            this.projectManager.openProjectWithDialog();
-            return;
-        }
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
-
-        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-
-        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
-            .finally(() => {
-                //(eventCollection, action, label?, value?, custom?, jQEvent?
-                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                this.analytics.trackEvent("open", "project", label, projectId, {
-                    openProjects: openProjects
-                });
-                this.loadingOverlayService.endLoading(openProjectLoadingId);
-            });        
-    }
+    }           
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;

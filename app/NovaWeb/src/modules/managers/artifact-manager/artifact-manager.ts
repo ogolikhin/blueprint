@@ -14,6 +14,8 @@ export interface IArtifactManager extends IDispose {
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
     create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
+    autosave(): ng.IPromise<any>;    
+
 }
 
 export class ArtifactManager implements IArtifactManager {
@@ -105,5 +107,13 @@ export class ArtifactManager implements IArtifactManager {
             });
 
         return deferred.promise;
+    }
+
+    public autosave(): ng.IPromise<any> {
+        const artifact = this.selection.getArtifact();
+        if (artifact) {
+            return artifact.autosave();
+        }
+        return this.$q.resolve();
     }
 }

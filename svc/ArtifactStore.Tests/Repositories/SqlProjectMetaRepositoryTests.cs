@@ -552,7 +552,7 @@ namespace ArtifactStore.Repositories
         public void OrderProperties_AdvancedSettingsNull_Success()
         {
             // Arrange
-            var expectedOrder = new List<int> { 6, 8, 10, 12, 13, 17, 18, 20, 5, 7, 9, 11, 14, 15, 16, 19, 2, 4, 1, 3 };
+            var expectedOrder = new List<int> { 8, 10, 13, 17, 18, 20, 5, 9, 14, 15, 16, 19, 2, 4, 6, 12, 1, 3, 7, 11 };
 
             // Act and Assert
             TestOrderProperties(null, expectedOrder);
@@ -574,7 +574,9 @@ namespace ArtifactStore.Repositories
                             new PropertyLayout {PropertyTypeId = 17, OrderIndex = 0},
                             new PropertyLayout {PropertyTypeId = 16, OrderIndex = 1},
                             new PropertyLayout {PropertyTypeId = 20, OrderIndex = 2},
-                            new PropertyLayout {PropertyTypeId = 14, OrderIndex = 3}
+                            new PropertyLayout {PropertyTypeId = 14, OrderIndex = 3},
+                            new PropertyLayout {PropertyTypeId = 11, OrderIndex = 3},
+                            new PropertyLayout {PropertyTypeId = 3, OrderIndex = 4}
                         }
                     },
                     new PropertyLayoutGroup
@@ -584,14 +586,12 @@ namespace ArtifactStore.Repositories
                         {
                             new PropertyLayout {PropertyTypeId = 7, OrderIndex = 0},
                             new PropertyLayout {PropertyTypeId = 6, OrderIndex = 1},
-                            new PropertyLayout {PropertyTypeId = 12, OrderIndex = 2},
-                            new PropertyLayout {PropertyTypeId = 11, OrderIndex = 3},
-                            new PropertyLayout {PropertyTypeId = 3, OrderIndex = 4}
+                            new PropertyLayout {PropertyTypeId = 12, OrderIndex = 2}
                         }
                     }
                 }
             };
-            var expectedOrder = new List<int> { 17, 16, 20, 14, 7, 6, 12, 11, 8, 10, 13, 18, 5, 9, 15, 19, 3, 2, 4, 1 };
+            var expectedOrder = new List<int> { 17, 16, 20, 14, 8, 10, 13, 18, 5, 9, 15, 19, 7, 6, 12, 11, 3, 2, 4, 1 };
 
             // Act and Assert
             TestOrderProperties(advancedSettings, expectedOrder);
@@ -607,13 +607,13 @@ namespace ArtifactStore.Repositories
                 new PropertyType {Id = 3, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 102},
                 new PropertyType {Id = 4, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
                 new PropertyType {Id = 5, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 103},
-                new PropertyType {Id = 6, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 7, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 104},
+                new PropertyType {Id = 6, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 7, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 104},
                 new PropertyType {Id = 8, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
                 new PropertyType {Id = 9, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 105},
                 new PropertyType {Id = 10, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
-                new PropertyType {Id = 11, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 106},
-                new PropertyType {Id = 12, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 11, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 106},
+                new PropertyType {Id = 12, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
                 new PropertyType {Id = 13, InstancePropertyTypeId = null},
                 new PropertyType {Id = 14, InstancePropertyTypeId = 107},
                 new PropertyType {Id = 15, InstancePropertyTypeId = 108},

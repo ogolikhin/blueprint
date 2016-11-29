@@ -9,7 +9,11 @@ export class NavigationServiceMock implements INavigationService {
     }
 
     public reloadParentState() {
-        ;
+        //
+    }
+
+    public reloadCurrentState() {
+        //
     }
 
     public getNavigationState(): INavigationState {

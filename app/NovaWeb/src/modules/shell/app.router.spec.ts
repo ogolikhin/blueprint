@@ -52,9 +52,11 @@ describe("AppRouter", () => {
                 prefix: "PR",
                 name: "Artifact Name"
             });
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "main.item.process"};
 
             // act
-            $rootScope.$broadcast("$stateChangeSuccess");
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
             $rootScope.$digest();
             // assert
             expect($window.document.title).toBe(expectedTitle);
@@ -65,9 +67,11 @@ describe("AppRouter", () => {
             $window.document.title = "";
             const expectedTitle = "Storyteller";
             spyOn(selectionManager, "getArtifact").and.returnValue(undefined);
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "main"};
 
             // act
-            $rootScope.$broadcast("$stateChangeSuccess");
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
 
             // assert
             expect($window.document.title).toBe(expectedTitle);

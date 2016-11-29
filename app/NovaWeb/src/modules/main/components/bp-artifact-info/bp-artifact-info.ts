@@ -48,7 +48,7 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "selectionManager",        
+        "selectionManager",
         "analytics"
     ];
 
@@ -83,27 +83,31 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected selectionManager: ISelectionManager,                
+                protected selectionManager: ISelectionManager,
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
         this.subscribers = [];
     }
 
     public $onInit() {
-        this.subscribers.push(this.windowManager.mainWindow
-                                                .subscribeOnNext(this.onWidthResized, this));
+        this.subscribers.push(
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this)
+        );
 
         this.artifact = this.artifactManager.selection.getArtifact();
 
         if (this.artifact) {
-            this.subscribers.push(this.artifact.getObservable()
-                                                .subscribeOnNext(this.onArtifactLoaded));
-            this.subscribers.push(this.artifact.artifactState.onStateChange
-                                                            .debounce(100)
-                                                            .subscribe(this.onArtifactStateChanged));
-            this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
-                                                .subscribeOnNext(this.onArtifactPropertyChanged));
+            this.subscribers.push(
+                this.artifact.getObservable()
+                    .subscribeOnNext(this.onArtifactLoaded, this),
+                this.artifact.artifactState.onStateChange
+                    .debounce(100)
+                    .subscribeOnNext(this.onArtifactStateChanged, this),
+                this.artifact.getProperyObservable()
+                    .distinctUntilChanged(changes => changes.item && changes.item.name)
+                    .subscribeOnNext(this.onArtifactPropertyChanged, this)
+            );
         }
 
         this.updateToolbarOptions(this.artifact);
@@ -116,13 +120,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
 
-        delete this["subscribers"];
-        delete this["artifact"];
+        this.subscribers = undefined;
+        this.artifact = undefined;
     }
 
-    protected onArtifactLoaded = () => {
+    protected onArtifactLoaded(): void {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+
             if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
                 const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
                 const publishedBy = this.artifact.lastEditedBy.displayName;
@@ -131,7 +136,7 @@ export class BpArtifactInfoController {
         }
     };
 
-    protected onArtifactStateChanged = (state: IArtifactState) => {
+    protected onArtifactStateChanged(state: IArtifactState): void {
         if (state) {
             this.initStateProperties();
             this.updateStateProperties(state);
@@ -140,7 +145,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
+    protected onArtifactPropertyChanged(change: IItemChangeSet): void {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
@@ -228,9 +233,10 @@ export class BpArtifactInfoController {
 
     public get canLoadProject(): boolean {
         const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {            
+        if (!selectedArtifact || !selectedArtifact.projectId) {
             return false;
         }
+
         const project = this.projectManager.getProject(selectedArtifact.projectId);
 
         return !project;
@@ -239,9 +245,9 @@ export class BpArtifactInfoController {
     public loadProject(): void {
         const selectedArtifact = this.selectionManager.getArtifact();
         if (!selectedArtifact || !selectedArtifact.projectId) {
-            //this.projectManager.openProjectWithDialog();
             return;
         }
+
         const projectId = selectedArtifact.projectId;
         const artifactId = selectedArtifact.id;
 
@@ -255,6 +261,7 @@ export class BpArtifactInfoController {
                 this.analytics.trackEvent("open", "project", label, projectId, {
                     openProjects: openProjects
                 });
+
                 this.loadingOverlayService.endLoading(openProjectLoadingId);
             });
     }

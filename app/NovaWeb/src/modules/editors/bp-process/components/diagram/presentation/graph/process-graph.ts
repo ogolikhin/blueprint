@@ -84,6 +84,7 @@ export class ProcessGraph implements IProcessGraph {
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
         // non movable
         this.mxgraph.setCellsMovable(false);
+        this.mxgraph.isCellSelectable = this.isCellSelectable;
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
@@ -99,6 +100,13 @@ export class ProcessGraph implements IProcessGraph {
         }
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
+    }
+    
+    private isCellSelectable = (cell: MxCell) => {
+        if (cell instanceof DiagramNode) {
+            return cell.isVertex();
+        }
+        return false;
     }
 
     public addSelectionListener(listener: ISelectionListener) {
@@ -244,8 +252,6 @@ export class ProcessGraph implements IProcessGraph {
         mxEvent.disableContextMenu(this.htmlElement);
         // This enables scrolling for the container of mxGraph
 
-        window.addEventListener("PROCESS_COPY_EVENT", this.copyShapes, true);
-
         if (this.viewModel.isSpa) {
             window.addEventListener("resize", this.resizeWrapper, true);
             this.htmlElement.style.overflow = "auto";
@@ -269,10 +275,6 @@ export class ProcessGraph implements IProcessGraph {
         }
         return {x: xPosition, y: yPosition};
     }
-
-    private copyShapes = () =>  {
-        ProcessCopyPasteHelper.copySectedShapes(this, this.clipboard, this.shapesFactory);
-    };
 
     private getMinHeight(): string {
         const shift = this.getPosition(this.htmlElement).y;

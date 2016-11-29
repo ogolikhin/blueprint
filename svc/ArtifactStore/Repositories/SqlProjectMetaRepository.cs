@@ -142,8 +142,8 @@ namespace ArtifactStore.Repositories
                 var isMultiLineRichText = pt.IsRichText.GetValueOrDefault() && pt.IsMultipleAllowed.GetValueOrDefault();
                 var key = Tuple.Create(
                     isMultiLineRichText,
-                    isNotInGneralGroup,
                     isNotInDetailsGroup,
+                    isNotInGneralGroup,
                     isNotInGneralGroup && isNotInDetailsGroup ? int.MaxValue : orderIndex,
                     pt.InstancePropertyTypeId.HasValue,
                     pvId);

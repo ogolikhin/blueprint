@@ -1,4 +1,4 @@
-import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
+﻿import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
 import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
 import {IProcessGraph, IDiagramNode, IDiagramNodeElement, ISystemTask, NodeType, ElementType} from "../models/";
@@ -98,8 +98,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.commentsButton.isEnabled = !this.isNew;
 
         if (nodeFactorySettings && nodeFactorySettings.isCommentsButtonEnabled) {
-            // #TODO interaction with utility panel is different in Nova
-            //this.commentsButton.setClickAction(() => this.openPropertiesDialog(this.rootScope, Shell.UtilityTab.discussions));
+            this.commentsButton.setClickAction(() => {
+                this.processDiagramManager.action(ProcessEvents.OpenUtilityPanel);
+            });
         }
 
         this.commentsButton.setTooltip(this.getLocalizedLabel("ST_Comments_Label"));
@@ -108,7 +109,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             this.commentsButton.setActiveImage(this.getImageSource("/comments-active.svg"));
             this.commentsButton.setHoverImage(this.getImageSource("/comments-active.svg"));
 
-            if (this.model.flags && this.model.flags.hasComments) {
+            if (this.model["artifact"] && this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
                 this.commentsButton.activate();
             }
         }
@@ -437,8 +438,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     }
 
     public activateButton(flag: ItemIndicatorFlags) {
-        if (flag === ItemIndicatorFlags.HasComments) {
-            this.model.flags.hasComments = true;
+        if (flag === ItemIndicatorFlags.HasComments && this.model["artifact"]) {
+            this.model["artifact"].flags.hasComments = true;
             this.commentsButton.activate();
         }
     }

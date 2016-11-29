@@ -546,5 +546,97 @@ namespace ArtifactStore.Repositories
 
         #endregion
 
+        #region Properties Layout
+
+        [TestMethod]
+        public void OrderProperties_AdvancedSettingsNull_Success()
+        {
+            // Arrange
+            var expectedOrder = new List<int> { 6, 8, 10, 12, 13, 17, 18, 20, 5, 7, 9, 11, 14, 15, 16, 19, 2, 4, 1, 3 };
+
+            // Act and Assert
+            TestOrderProperties(null, expectedOrder);
+        }
+
+        [TestMethod]
+        public void OrderProperties_AdvancedSettingsNotNull_Success()
+        {
+            // Arrange
+            var advancedSettings = new AdvancedSettings
+            {
+                LayoutGroups = new List<PropertyLayoutGroup>
+                {
+                    new PropertyLayoutGroup
+                    {
+                        Type = GroupType.General,
+                        Properties = new List<PropertyLayout>
+                        {
+                            new PropertyLayout {PropertyTypeId = 17, OrderIndex = 0},
+                            new PropertyLayout {PropertyTypeId = 16, OrderIndex = 1},
+                            new PropertyLayout {PropertyTypeId = 20, OrderIndex = 2},
+                            new PropertyLayout {PropertyTypeId = 14, OrderIndex = 3}
+                        }
+                    },
+                    new PropertyLayoutGroup
+                    {
+                        Type = GroupType.Details,
+                        Properties = new List<PropertyLayout>
+                        {
+                            new PropertyLayout {PropertyTypeId = 7, OrderIndex = 0},
+                            new PropertyLayout {PropertyTypeId = 6, OrderIndex = 1},
+                            new PropertyLayout {PropertyTypeId = 12, OrderIndex = 2},
+                            new PropertyLayout {PropertyTypeId = 11, OrderIndex = 3},
+                            new PropertyLayout {PropertyTypeId = 3, OrderIndex = 4}
+                        }
+                    }
+                }
+            };
+            var expectedOrder = new List<int> { 17, 16, 20, 14, 7, 6, 12, 11, 8, 10, 13, 18, 5, 9, 15, 19, 3, 2, 4, 1 };
+
+            // Act and Assert
+            TestOrderProperties(advancedSettings, expectedOrder);
+        }
+
+        private void TestOrderProperties(AdvancedSettings advancedSettings, List<int> expectedOrder)
+        {
+            //Arrange
+            var propertyTypes = new List<PropertyType>
+            {
+                new PropertyType {Id = 1, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 101},
+                new PropertyType {Id = 2, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 3, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = 102},
+                new PropertyType {Id = 4, IsRichText = true, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 5, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 103},
+                new PropertyType {Id = 6, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 7, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 104},
+                new PropertyType {Id = 8, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 9, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 105},
+                new PropertyType {Id = 10, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 11, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = 106},
+                new PropertyType {Id = 12, IsRichText = false, IsMultipleAllowed = true, InstancePropertyTypeId = null},
+                new PropertyType {Id = 13, InstancePropertyTypeId = null},
+                new PropertyType {Id = 14, InstancePropertyTypeId = 107},
+                new PropertyType {Id = 15, InstancePropertyTypeId = 108},
+                new PropertyType {Id = 16, InstancePropertyTypeId = 109},
+                new PropertyType {Id = 17, InstancePropertyTypeId = null},
+                new PropertyType {Id = 18, InstancePropertyTypeId = null},
+                new PropertyType {Id = 19, InstancePropertyTypeId = 110},
+                new PropertyType {Id = 20, InstancePropertyTypeId = null}
+            };
+
+            var propertyTypeIds = new List<int>
+            {
+                20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1
+            };
+
+            // Act
+            var actualOrder = OrderProperties(propertyTypeIds,
+                propertyTypes, advancedSettings);
+
+            // Assert
+            CollectionAssert.AreEqual(expectedOrder, actualOrder);
+        }
+
+        #endregion
     }
 }

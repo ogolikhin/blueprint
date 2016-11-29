@@ -54,6 +54,7 @@ describe("Application toolbar:", () => {
         });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
 

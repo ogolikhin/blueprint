@@ -26,6 +26,7 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isSpa: boolean;
     isSMB: boolean;
     shapeLimit: number;
+    hasSelection: boolean;
     communicationManager: ICommunicationManager;
     isWithinShapeLimit(additionalShapes: number, isLoading?: boolean): boolean;
     getMessageText(message_id: string);
@@ -132,6 +133,14 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public set shapeLimit(value: number) {
         this._shapeLimit = value;
+    }
+
+    public get hasSelection(): boolean {
+        return this.process.hasSelection;
+    }
+
+    public set hasSelection(value: boolean) {
+        this.process.hasSelection = value;
     }
 
     public get licenseType(): Enums.LicenseTypeEnum {

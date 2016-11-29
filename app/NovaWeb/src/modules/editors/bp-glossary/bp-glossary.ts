@@ -42,7 +42,7 @@ export class BpGlossaryController extends BpBaseEditor {
         super.destroy();
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         super.onArtifactReady();
         this.terms = this.artifact.subArtifactCollection.list();
     }

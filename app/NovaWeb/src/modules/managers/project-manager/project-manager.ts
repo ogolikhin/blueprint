@@ -27,9 +27,9 @@ export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>;
 
     // eventManager
-    initialize();
+    initialize(): void;
     load(projectId: number): ng.IPromise<void>;
-    add(project: AdminStoreModels.IInstanceItem);
+    add(project: AdminStoreModels.IInstanceItem): void;
     openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
     openProjectWithDialog(): void;
     remove(projectId: number): void;
@@ -39,7 +39,7 @@ export interface IProjectManager extends IDispose {
     refreshAll(): ng.IPromise<void>;
     getProject(id: number): Models.IViewModel<IStatefulArtifact>;
     getSelectedProjectId(): number;
-    triggerProjectCollectionRefresh();
+    triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
     calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }

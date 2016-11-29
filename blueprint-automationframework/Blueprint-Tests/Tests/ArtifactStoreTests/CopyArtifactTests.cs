@@ -533,8 +533,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.UseCase, 17, "MainUseCase", 2)]
         [TestCase(BaseArtifactType.UseCaseDiagram, 29, "Use Case Diagram", 3)]
         [TestRail(195562)]
-        [Description("Create & publishh a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is unchanged " +
-            "and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
+        [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
+            "unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
         public void CopyArtifact_SinglePublishedLegacyDiagramArtifact_ToNewFolder_NewArtifactIsIdenticalToOriginal(
             BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
         {
@@ -557,7 +557,7 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
                 expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
 
-            // TODO: Verify sub-artifacts of diagrams.
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
         }
 
         // TODO ---------------- POSITIVE TESTS
@@ -1064,6 +1064,32 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipIdAndVersion: true, skipPermissions: skipPermissions);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
+        }
+
+        /// <summary>
+        /// Asserts that the sub-artifacts of the copied artifact are equal to those in the source artifact (except for the IDs).
+        /// </summary>
+        /// <param name="user">User to authenticate with.</param>
+        /// <param name="sourceArtifactDetails">The original source artifact.</param>
+        /// <param name="copiedArtifactDetails">The new copied artifact.</param>
+        private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, NovaArtifactDetails sourceArtifactDetails, NovaArtifactDetails copiedArtifactDetails)
+        {
+            ThrowIf.ArgumentNull(sourceArtifactDetails, nameof(sourceArtifactDetails));
+            ThrowIf.ArgumentNull(copiedArtifactDetails, nameof(copiedArtifactDetails));
+
+            var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, sourceArtifactDetails.Id);
+            var copiedSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, copiedArtifactDetails.Id);
+
+            Assert.AreEqual(sourceSubArtifacts.Count, copiedSubArtifacts.Count, "Number of sub-artifacts copied doesn't match the original artifact!");
+
+            // NOTE: We're assuming the copied sub-artifacts are returned in the same order as those in the source artifact.
+            for (int i = 0; i < sourceSubArtifacts.Count; ++i)
+            {
+                var sourceSubArtifact = Helper.ArtifactStore.GetSubartifact(user, sourceArtifactDetails.Id, sourceSubArtifacts[i].Id);
+                var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifactDetails.Id, copiedSubArtifacts[i].Id);
+
+                ArtifactStoreHelper.AssertSubArtifactsEqual(sourceSubArtifact, copiedSubArtifact, skipId: true, expectedParentId: copiedArtifactDetails.Id);
+            }
         }
 
         /// <summary>

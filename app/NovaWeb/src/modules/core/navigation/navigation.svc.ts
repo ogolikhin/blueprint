@@ -6,6 +6,7 @@ export interface INavigationService {
     navigateTo(params: INavigationParams): ng.IPromise<any>;
     navigateBack(pathIndex?: number): ng.IPromise<any>;
     reloadParentState();
+    reloadCurrentState();
     navigateToLogout(): ng.IPromise<any>;
 }
 
@@ -27,6 +28,10 @@ export class NavigationService implements INavigationService {
 
     constructor(private $q: ng.IQService,
                 private $state: ng.ui.IStateService) {
+    }
+
+    public reloadCurrentState() {
+        this.$state.reload();
     }
 
     public reloadParentState() {

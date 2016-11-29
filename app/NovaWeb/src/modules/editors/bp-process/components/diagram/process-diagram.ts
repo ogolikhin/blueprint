@@ -14,6 +14,7 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {PanelType} from "../../../../shell/bp-utility-panel/bp-utility-panel";
+import {IClipboardService} from "../../services/clipboard.svc";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -41,6 +42,7 @@ export class ProcessDiagram {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory,
                 private utilityPanelService) {
+                private clipboard: IClipboardService) {
         this.processModel = null;
         this.selectionListeners = [];
     }
@@ -167,7 +169,8 @@ export class ProcessDiagram {
                 this.shapesFactory,
                 this.messageService,
                 this.$log,
-                this.statefulArtifactFactory
+                this.statefulArtifactFactory,
+                this.clipboard
             );
 
             this.registerSelectionListeners();

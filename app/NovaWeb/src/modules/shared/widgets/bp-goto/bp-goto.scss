@@ -1,4 +1,6 @@
-@import "../../../../styles/modules/variables";
+@import "../../../../styles/settings/variables";
+@import "../../../../styles/settings/colors";
+@import "../../../../styles/settings/typography";
 
 .bp-goto {
     &__search {
@@ -13,7 +15,7 @@
         height: 40px;
         width: 50px;
         padding: 10px 0 0 28px;
-        color: $gray-darker;
+        color: $gray-darkest;
         border: none;
         border-bottom: 1px solid $brand-secondary;
         margin: 0 0 3px 5px;
@@ -96,7 +98,7 @@
     .bp-goto__button-label {
         display: none;
     }
-    
+
     .bp-goto__button-icon {
         color: $brand-secondary;
         padding-left: 5px;

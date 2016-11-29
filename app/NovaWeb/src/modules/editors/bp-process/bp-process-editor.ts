@@ -12,6 +12,7 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {UtilityPanelService} from "../../shell/bp-utility-panel/bp-utility-panel";
+import {IClipboardService} from "./services/clipboard.svc";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -40,6 +41,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         "statefulArtifactFactory",
         "shapesFactory",
         "utilityPanelService"
+        "clipboardService"
     ];
 
     constructor(messageService: IMessageService,
@@ -59,6 +61,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory = null,
                 private utilityPanelService: UtilityPanelService) {
+                private clipboard: IClipboardService = null) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -113,6 +116,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.statefulArtifactFactory,
             this.shapesFactory,
             this.utilityPanelService
+            this.clipboard
         );
 
         let htmlElement = this.getHtmlElement();

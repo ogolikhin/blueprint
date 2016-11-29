@@ -32,6 +32,7 @@ import {ShapeInformation} from "./shapes/shape-information";
 import {NodeLabelEditor} from "./node-label-editor";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ProcessAddHelper} from "./process-add-helper";
+import {ProcessCopyPasteHelper} from "./process-copy-paste-helper";
 import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
@@ -40,6 +41,7 @@ import {ProcessEvents} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localizationService";
+import {IClipboardService} from "../../../../services/clipboard.svc";
 
 
 export class ProcessGraph implements IProcessGraph {
@@ -79,7 +81,8 @@ export class ProcessGraph implements IProcessGraph {
                 private shapesFactory: ShapesFactory,
                 public messageService: IMessageService = null,
                 private $log: ng.ILogService = null,
-                private statefulArtifactFactory: IStatefulArtifactFactory = null) {
+                private statefulArtifactFactory: IStatefulArtifactFactory = null,
+                private clipboard: IClipboardService = null) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -136,13 +139,15 @@ export class ProcessGraph implements IProcessGraph {
             this.layout,
             this.shapesFactory,
             this.localization,
+            this.clipboard,
             this.htmlElement,
             this.mxgraph,
             ProcessAddHelper.insertTaskWithUpdate,
             ProcessAddHelper.insertUserDecision,
             ProcessAddHelper.insertUserDecisionConditionWithUpdate,
             ProcessAddHelper.insertSystemDecision,
-            ProcessAddHelper.insertSystemDecisionConditionWithUpdate);
+            ProcessAddHelper.insertSystemDecisionConditionWithUpdate,
+            ProcessCopyPasteHelper.insertSelectedShapes);
     }
 
     public render(useAutolayout, selectedNodeId) {
@@ -251,6 +256,9 @@ export class ProcessGraph implements IProcessGraph {
     private initializeGraphContainer() {
         mxEvent.disableContextMenu(this.htmlElement);
         // This enables scrolling for the container of mxGraph
+
+        window.addEventListener("PROCESS_COPY_EVENT", this.copyShapes, true);
+
         if (this.viewModel.isSpa) {
             window.addEventListener("resize", this.resizeWrapper, true);
             this.htmlElement.style.overflow = "auto";
@@ -274,6 +282,10 @@ export class ProcessGraph implements IProcessGraph {
         }
         return {x: xPosition, y: yPosition};
     }
+
+    private copyShapes = () =>  {
+        ProcessCopyPasteHelper.copySectedShapes(this, this.clipboard, this.shapesFactory);
+    };
 
     private getMinHeight(): string {
         const shift = this.getPosition(this.htmlElement).y;

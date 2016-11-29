@@ -183,16 +183,25 @@ describe("BPTreeViewController", () => {
             // Arrange
             const comparator = {} as ITreeNode;
             const selected = true;
-            const clearSelection = false;
+            const clearSelection = true;
             const rows = [{data: comparator} as agGrid.RowNode, {data: {} as ITreeNode} as agGrid.RowNode];
             rows.forEach(row => row.setSelected = jasmine.createSpy("setSelected"));
-            (controller.options.api.forEachNode as jasmine.Spy).and.callFake((callback: (node: agGrid.RowNode) => void) => rows.forEach(callback));
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({
+                getRow: i => rows[i],
+                getRowCount: () => rows.length
+            });
+            const columns = [{}];
+            controller.options.columnApi.getAllColumns = jasmine.createSpy("getAllColumns").and.returnValue(columns);
+            controller.options.api.deselectAll = jasmine.createSpy("deselectAll");
+            controller.options.api.setFocusedCell = jasmine.createSpy("setFocusedCell");
 
             // Act
             controller.api.setSelected(comparator, selected, clearSelection);
 
             // Assert
-            expect(rows[0].setSelected).toHaveBeenCalledWith(true, false);
+            expect(controller.options.api.deselectAll).toHaveBeenCalled();
+            expect(controller.options.api.setFocusedCell).toHaveBeenCalledWith(0, columns[0]);
+            expect(rows[0].setSelected).toHaveBeenCalledWith(true);
             expect(rows[1].setSelected).not.toHaveBeenCalled();
         });
 
@@ -312,9 +321,7 @@ describe("BPTreeViewController", () => {
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             controller.rowData = [{} as ITreeNode];
 
@@ -336,9 +343,7 @@ describe("BPTreeViewController", () => {
         it("When root node loads asynchronously, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             const children = [{key: "child"}] as ITreeNode[];
             controller.rowData = [{
@@ -372,9 +377,7 @@ describe("BPTreeViewController", () => {
             // Arrange
             controller.onError = jasmine.createSpy("onError");
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             const reason = "reason";
             controller.rowData = [{
@@ -405,9 +408,7 @@ describe("BPTreeViewController", () => {
         it("When root node not visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             controller.rowData = [{
                 key: "",
@@ -438,9 +439,7 @@ describe("BPTreeViewController", () => {
         it("When root node is undefined, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 0;
-                }
+                getRowCount: () => 0
             });
 
             // Act
@@ -468,9 +467,7 @@ describe("BPTreeViewController", () => {
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue(rows);
             (controller.options.api.forEachNode as jasmine.Spy).and.callFake(callback => nodes.forEach(callback));
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return rows.length;
-                }
+                getRowCount: () => rows.length
             });
 
             // Act

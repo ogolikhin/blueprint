@@ -42,7 +42,13 @@ namespace ArtifactStoreTests
         [TearDown]
         public void TearDown()
         {
-            _wrappedArtifact?.Delete();
+            if (_wrappedArtifact != null)
+            {
+                Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _wrappedArtifact.CreatedBy, all: true),
+                    "Failed to discard the copied artifact(s)!");
+                _wrappedArtifact = null;
+            }
+
             Helper?.Dispose();
         }
 
@@ -260,6 +266,60 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
 
+        [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
+        [TestRail(195487)]
+        [Description("Create & save an artifact and create & publish a folder.   Publish a manual trace between the artifact & folder.  Create user that does not have " +
+            "trace permissions and copy the artifact into the folder.  Verify the source artifact is unchanged and the new artifact is identical to the source" +
+            "artifact, except no Manual Trace should exist.  New copied artifact should not be published.")]
+        public void CopyArtifact_SinglePublishedArtifactWithManualTrace_ToNewFolder_NoTracePermissions_ReturnsNewArtifactWithoutManualTrace(
+            BaseArtifactType artifactType, TraceDirection direction, bool isSuspect)
+        {
+            // Setup:
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            // Create & add manual trace to the source artifact:
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact, targetArtifact, ChangeType.Create,
+                Helper.ArtifactStore, direction, isSuspect);
+
+            sourceArtifact.Publish();
+
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            IUser userNoTracePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            Helper.AssignProjectRolePermissionsToUser(userNoTracePermission,
+                        RolePermissions.Edit |
+                        RolePermissions.CanReport |
+                        RolePermissions.Comment |
+                        RolePermissions.Delete |
+                        RolePermissions.DeleteAnyComment |
+                        RolePermissions.CreateRapidReview |
+                        RolePermissions.ExcelUpdate |
+                        RolePermissions.Read |
+                        RolePermissions.Reuse |
+                        RolePermissions.Share,
+                        _project);
+
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true);
+
+            // Get traces & compare.
+            Relationships copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
+            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
+
+            Assert.AreEqual(0, copyRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
+
+            // Verify that source and target artifacts still have the same traces they had before the copy.
+            Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+        }
+
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase(BaseArtifactType.TextualRequirement, 85, "User Story[reuse source]")]
@@ -367,6 +427,75 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
+        [TestCase(BaseArtifactType.Document, 3, 1, 0.1)]
+        [TestCase(BaseArtifactType.Glossary, 3, 1, 2)]
+        [TestCase(BaseArtifactType.TextualRequirement, 3, 1, 999)]
+        [TestRail(195485)]
+        [Description("Create and save several artifacts in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
+            "and has the OrderIndex that was specified.")]
+        public void CopyArtifactWithOrderIndex_SingleSavedArtifact_ToSameFolderWithArtifacts_ReturnsNewArtifactWithSpecifiedOrderIndex(
+            BaseArtifactType sourceArtifactType, int numberOfArtifacts, int sourceArtifactIndex, double orderIndex)
+        {
+            // Setup:
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, sourceArtifactType, numberOfArtifacts, parentFolder);
+            var sourceArtifact = artifacts[sourceArtifactIndex];
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, expectedVersionOfOriginalArtifact: -1);
+
+            Assert.AreEqual(orderIndex, copyResult.Artifact.OrderIndex, "The OrderIndex of the copied artifact should be: {0}", orderIndex);
+        }
+
+        [TestCase(BaseArtifactType.Document, 3, 1, 0.1)]
+        [TestCase(BaseArtifactType.Glossary, 3, 1, 2)]
+        [TestCase(BaseArtifactType.TextualRequirement, 3, 1, 999)]
+        [TestRail(195486)]
+        [Description("Create and save several artifacts with children in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
+            "and has the OrderIndex that was specified.")]
+        public void CopyArtifactWithOrderIndex_MultiplePublishedArtifacts_ToSameFolderWithArtifacts_ReturnsNewArtifactWithSpecifiedOrderIndex(
+            BaseArtifactType sourceArtifactType, int numberOfArtifacts, int sourceArtifactIndex, double orderIndex)
+        {
+            // Setup:
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifacts = new List<List<IArtifact>>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                var artifactTypeChain = new BaseArtifactType[] { sourceArtifactType, sourceArtifactType, sourceArtifactType };
+                var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+                artifacts.Add(artifactChain);
+            }
+
+            var sourceArtifact = artifacts[sourceArtifactIndex][0];
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedNumberOfArtifactsCopied: numberOfArtifacts);
+
+            Assert.AreEqual(orderIndex, copyResult.Artifact.OrderIndex, "The OrderIndex of the copied artifact should be: {0}", orderIndex);
+
+            VerifyChildrenWereCopied(sourceArtifactDetails, copyResult.Artifact);
+        }
+
         // TODO ---------------- POSITIVE TESTS
         // TODO - Copy artifact (possibly with descendants) to one of its child
         // TODO - Copy orphan artifact
@@ -400,7 +529,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(191209)]
-        [Description("Create & publish two artifacts.  Copy one artifact to be a child of the other with invalid token in a request.  Verify response returns code 401 Unauthorized.")]
+        [Description("Create & publish two artifacts.  Copy one artifact to be a child of the other with invalid token in a request.  " +
+            "Verify response returns code 401 Unauthorized.")]
         public void CopyArtifact_PublishedArtifact_ToParentArtifactWithInvalidToken_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
@@ -461,10 +591,12 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, newParentArtifact, user),
-                "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to be a child of another artifact to which he/she has viewer permissions only", SVC_PATH);
+                "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to be a child of another artifact to which he/she has viewer permissions only",
+                SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permissions to copy the artifact in the selected location.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+                "You do not have permissions to copy the artifact in the selected location.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -509,7 +641,8 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192081)]
-        [Description("Create collection or collection folder. Copy regular artifact to be a child of the collection or collection folder. Verify returned code 403 Forbidden.")]
+        [Description("Create a collection or collection folder.  Copy a regular artifact to be a child of the collection or collection folder.  " +
+            "Verify returned code 403 Forbidden.")]
         public void CopyArtifact_PublishedArtifact_ToCollectionOrCollectionFolder_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
@@ -554,7 +687,8 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(192083)]
-        [Description("Create a collection or collection folder. Copy a collection or collection folder to be a child of a collection artifact. Verify returned code 403 Forbidden.")]
+        [Description("Create a collection or collection folder.  Copy a collection or collection folder to be a child of a collection folder.  " +
+            "Verify returned code 403 Forbidden.")]
         public void CopyArtifact_CollectionOrCollectionFolder_ToCollectionArtifact_403Forbidden(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
@@ -594,6 +728,27 @@ namespace ArtifactStoreTests
             {
                 ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                     I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", nonExistingArtifactId));
+            }
+        }
+
+        [TestCase(BaseArtifactType.Actor, 0)]
+        [TestCase(BaseArtifactType.Actor, int.MaxValue)]
+        [TestRail(195511)]
+        [Description("Create & publish an artifact. Copy a non existing artifact to be a child of the published artifact.  Verify returned code 404 Not Found.")]
+        public void CopyArtifact_NonExistingArtifact_ToPublishedArtifact_404NotFound(BaseArtifactType artifactType, int nonExistingArtifactId)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, nonExistingArtifactId, artifact.Id, _user),
+                "'POST {0}' should return 404 Not Found when user tries to copy artifact to be a child of non existing artifact", SVC_PATH);
+
+            // Verify:
+            if (nonExistingArtifactId > 0)
+            {
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                    I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", nonExistingArtifactId));
             }
         }
 
@@ -685,7 +840,8 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestCase(BaseArtifactType.PrimitiveFolder)]
         [TestRail(192085)]
-        [Description("Create & publish two artifacts with sub-artifacts.  Copy an artifact to be a child of another artifact sub-artifact.  Verify returned code 404 Not Found.")]
+        [Description("Create & publish two artifacts with sub-artifacts.  Copy an artifact to be a child of another artifact sub-artifact.  " +
+            "Verify returned code 404 Not Found.")]
         public void CopyArtifact_SavedArtifact_ToSubArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
@@ -698,7 +854,8 @@ namespace ArtifactStoreTests
             Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, subArtifacts.First().Id, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceArtifact.Id, subArtifacts.First().Id, _user),
                 "'POST {0}' should return 404 Not Found when user tries to copy an artifact to be a child of a sub-artifact", SVC_PATH);
 
             // Verify:
@@ -721,7 +878,8 @@ namespace ArtifactStoreTests
             Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, subArtifacts.First().Id, targetArtifact.Id, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, subArtifacts.First().Id, targetArtifact.Id, _user),
                 "'POST {0}' should return 404 Not Found when user tries to copy a sub-artifact to be a child of another artifact", SVC_PATH);
 
             // Verify:
@@ -745,10 +903,58 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", _project.Id));
-
         }
 
         #endregion 404 Not Found tests
+
+        #region 409 Conflict tests    
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+            BaseArtifactType.Actor,
+            BaseArtifactType.Glossary,
+            BaseArtifactType.Document,
+            BaseArtifactType.TextualRequirement)]
+        [TestRail(195434)]
+        [Description("Create & publish a chain of artifacts.  Change MaxNumberArtifactsToCopy DB setting in ApplicationSettings table to number of artifacts to copy - 1.  " +
+            "Copy parent artifact into the project root.  Verify returned code 409 Conflict.")]
+        public void CopyArtifact_PublishedArtifacts_ToProjectRoot_409Conflict(params BaseArtifactType[] artifactType)
+        {
+            ThrowIf.ArgumentNull(artifactType, nameof(artifactType));
+
+            // Setup:
+            int newMaxNumberArtifactsToCopy = artifactType.Length - 1;
+            const string MAX_NUMBER_ARTIFACTS_TO_COPY = "MaxNumberArtifactsToCopy";
+
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactType);
+
+            // Save original MaxNumberArtifactsToCopy setting and then change it to smaller value.
+            var originalMaxNumberArtifactsToCopy = TestHelper.GetApplicationSetting(MAX_NUMBER_ARTIFACTS_TO_COPY);
+
+            TestHelper.UpdateApplicationSettings(MAX_NUMBER_ARTIFACTS_TO_COPY, newMaxNumberArtifactsToCopy.ToStringInvariant());
+
+            try
+            {
+                // Execute:
+                var ex =
+                    Assert.Throws<Http409ConflictException>(
+                        () => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactChain.First().Id, _project.Id, _user),
+                        "'POST {0}' should return 409 Conflict when user tries to copy a artifact with large amount of children " +
+                        "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
+
+                // Verify:
+                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
+                    I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", newMaxNumberArtifactsToCopy));
+            }
+            finally
+            {
+                // Restore MaxNumberArtifactsToCopy back to original value.
+                TestHelper.UpdateApplicationSettings(MAX_NUMBER_ARTIFACTS_TO_COPY, originalMaxNumberArtifactsToCopy);
+            }
+        }
+
+        #endregion 409 Conflict tests
 
         #region Private functions
 
@@ -762,13 +968,15 @@ namespace ArtifactStoreTests
         /// <param name="expectedNumberOfArtifactsCopied">(optional) The number of artifacts that were expected to be copied.</param>
         /// <param name="expectedVersionOfOriginalArtifact">(optional) The expected version of the original artifact.</param>
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
+        /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(INovaArtifactDetails originalArtifact,
             CopyNovaArtifactResultSet copyResult,
             IUser user,
             int expectedNumberOfArtifactsCopied = 1,
             int expectedVersionOfOriginalArtifact = 1,
-            bool skipCreatedBy = false)
+            bool skipCreatedBy = false,
+            bool skipPermissions = false)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
@@ -781,7 +989,8 @@ namespace ArtifactStoreTests
 
             // We need to skip comparison of a lot of properties because the copy has different Id & Parent, and isn't published...
             ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact,
-                skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipCreatedBy: skipCreatedBy, skipPublishedProperties: true);
+                skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipCreatedBy: skipCreatedBy,
+                skipPublishedProperties: true, skipPermissions: skipPermissions);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
@@ -789,7 +998,7 @@ namespace ArtifactStoreTests
 
             // Make sure original artifact didn't change.
             var originalArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, originalArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipIdAndVersion: true);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipIdAndVersion: true, skipPermissions: skipPermissions);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
         }
@@ -845,6 +1054,40 @@ namespace ArtifactStoreTests
             }
 
             return copyResult;
+        }
+
+        /// <summary>
+        /// Veifies that all the children of the source artifact were copied to the target.
+        /// </summary>
+        /// <param name="sourceArtifact">The source artifact.</param>
+        /// <param name="copiedArtifact">The copied artifact.</param>
+        private void VerifyChildrenWereCopied(INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact)
+        {
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
+            Assert.AreEqual(copiedArtifact.Name, sourceArtifact.Name, "The wrong source artifact was provided.");
+
+            var sourceChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(sourceArtifact.ProjectId.Value,
+                sourceArtifact.Id, _user);
+            var copiedChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(copiedArtifact.ProjectId.Value,
+                copiedArtifact.Id, _user);
+
+            Assert.AreEqual(sourceChildren.Count, copiedChildren.Count, "The number of artifacts copied is incorrect!");
+
+            for (int i = 0; i < sourceChildren.Count; ++i)
+            {
+                var sourceChild = sourceChildren[i];
+                var copiedChild = copiedChildren[i];
+
+                sourceChild.AssertEquals(copiedChild,
+                    skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipPublishedProperties: true);
+
+                // Recursively verify all children below this one.
+                if (sourceChild.HasChildren)
+                {
+                    VerifyChildrenWereCopied(sourceChild, copiedChild);
+                }
+            }
         }
 
         #endregion Private functions

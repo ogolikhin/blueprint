@@ -1,26 +1,9 @@
-﻿import {
-    IProcessGraph,
-    ILayout,
-    INotifyModelChanged,
-    IConditionContext,
-    ICondition,
-    IScopeContext,
-    IStopTraversalCondition,
-    IUserStory,
-    IUserTask,
-    INextIdsProvider,
-    IOverlayHandler,
-    IShapeInformation,
-    IDiagramNode,
-    IDiagramNodeElement,
-    IProcessShape,
-    IProcessLink,
-    SourcesAndDestinations,
-    ProcessShapeType,
-    NodeType,
-    NodeChange,
-    ISelectionListener
-} from "./models/";
+﻿import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
+import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
+import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
+import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
+import {SourcesAndDestinations, ProcessShapeType, NodeType, NodeChange} from "./models/";
+import {ISelectionListener} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -49,7 +32,6 @@ export class ProcessGraph implements IProcessGraph {
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     public nodeLabelEditor: NodeLabelEditor;
-    //#TODO fix up references later
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -76,8 +58,6 @@ export class ProcessGraph implements IProcessGraph {
     constructor(public rootScope: any,
                 private scope: any,
                 private htmlElement: HTMLElement,
-                // #TODO fix up references later
-                //private artifactVersionControlService: Shell.IArtifactVersionControlService,
                 public viewModel: IProcessViewModel,
                 private dialogService: IDialogService,
                 private localization: ILocalizationService,
@@ -100,23 +80,16 @@ export class ProcessGraph implements IProcessGraph {
     private init() {
         this.setIsIe11();
         this.initializeGraphContainer();
-        // #TODO: interaction with the toolbar will be different in Nova
-        // this.subscribeToToolbarEvents();
-//fixme: dont use event listenters where you can use ng-click and other such events
+        //fixme: dont use event listenters where you can use ng-click and other such events
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
         // non movable
         this.mxgraph.setCellsMovable(false);
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
-        // Enables tooltips in the graph
-        //this.graph.setTooltips(true);
         //Selection logic
         this.selectionHelper = new ProcessGraphSelectionHelper(this.mxgraph);
-        // add selection event handlers
-        this.selectionHelper.addSelectionListener((elements) => {
-            this.highlightNodeEdges(elements);
-        });
+        this.addSelectionEventHandlers();
         this.selectionHelper.initSelection();
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
@@ -136,6 +109,17 @@ export class ProcessGraph implements IProcessGraph {
 
     public clearSelection() {
         this.mxgraph.clearSelection();
+    }
+
+    private addSelectionEventHandlers() {
+        // highlight edges for selected shapes 
+        this.selectionHelper.addSelectionListener((elements) => {
+            this.highlightNodeEdges(elements);
+        });
+        // notify system that shapes have been selected
+        this.selectionHelper.addSelectionListener((elements) => {
+            this.setSelection(elements);
+        });
     }
 
     private initializePopupMenu() {
@@ -200,11 +184,9 @@ export class ProcessGraph implements IProcessGraph {
         return this.htmlElement;
     }
 
-    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number,
-                                                                   layout: ILayout,
-                                                                   shapesFactoryService: ShapesFactory,
-                                                                   label?: string,
-                                                                   conditionDestinationId?: number) => number {
+    private getDecisionConditionInsertMethod(decisionId: number): (
+        decisionId: number, layout: ILayout, shapesFactoryService: ShapesFactory,
+        label?: string, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:
@@ -933,6 +915,23 @@ export class ProcessGraph implements IProcessGraph {
             return true;
         }
         return false;
+    }
+
+    private setSelection(elements: IDiagramNode[]) {
+        let validSelection: boolean = false;
+        if (elements && elements.length > 0) {
+            for (let i = 0; i < elements.length; i++) {
+                let node = elements[i];
+                 if ((node.getNodeType() === NodeType.UserTask) || 
+                    (node.getNodeType() === NodeType.UserDecision)) {
+                    validSelection = true; 
+                } else {
+                    validSelection = false;
+                    break;
+                }
+            }
+        } 
+        this.viewModel.hasSelection = validSelection;
     }
 
     private highlightNodeEdges(nodes: Array<IDiagramNode>) {

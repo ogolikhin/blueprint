@@ -133,12 +133,12 @@ export class ProcessGraphSelectionHelper {
     private hasInvisibleSelectedSystemTask(evt): boolean {
         //using variables as alias due to line length restrictions
         const systemTasks = evt.properties.removed.filter(e => e instanceof SystemTask);
-        
+
         if (systemTasks.length > 0) {
             const isInvisible = !systemTasks[0].callout.isVisible();
             return isInvisible;
         }
-        
+
         return false;
     }
 

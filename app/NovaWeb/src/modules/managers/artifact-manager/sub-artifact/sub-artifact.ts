@@ -1,4 +1,5 @@
 import {Models} from "../../../main/models";
+import {Enums} from "../../../main";
 import {IStatefulArtifactServices} from "../services";
 import {IStatefulArtifact} from "../artifact";
 import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
@@ -76,6 +77,14 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
             this.loadWithNotify();
         }
         return this.subject.filter(it => !!it).asObservable();
+    }
+
+    public get readOnlyReuseSettings(): Enums.ReuseSettings {
+        return this.parentArtifact.readOnlyReuseSettings;
+    }
+
+    public isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean {
+        return (this.parentArtifact.readOnlyReuseSettings & Enums.ReuseSettings.Subartifacts) === Enums.ReuseSettings.Subartifacts;
     }
 
     public changes(): Models.ISubArtifact {

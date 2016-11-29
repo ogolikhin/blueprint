@@ -1,4 +1,4 @@
-import {Models} from "../../../main";
+import {Enums, Models} from "../../../main";
 import {ISession} from "../../../shell";
 import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
@@ -8,10 +8,11 @@ import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-uplo
 import {Helper} from "../../../shared/utils/helper";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IArtifactManager} from "../../../managers";
-import {IStatefulItem} from "../../../managers/artifact-manager";
 import {
     IArtifactAttachmentsService,
     IArtifactDocRef,
+    IStatefulItem,
+    StatefulSubArtifact,
     IStatefulArtifact,
     IStatefulSubArtifact,
     IArtifactAttachment
@@ -218,4 +219,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         this.docRefList = docRefs;
     }
 
+    public canUpdateAttachments = (): boolean => {
+        return !this.item.artifactState.readonly && !this.item.isReuseSettingSRO(Enums.ReuseSettings.Attachments);
+    }
+
+    public canUpdateDocRefs = (): boolean => {
+        return !this.item.artifactState.readonly && !this.item.isReuseSettingSRO(Enums.ReuseSettings.DocumentReferences);
+    }
 }

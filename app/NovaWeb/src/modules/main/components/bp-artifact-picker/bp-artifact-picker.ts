@@ -218,7 +218,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     }
 
     public get searchPlaceholder(): string{
-        return this.localization.get[this.project ? "Label_Search_Artifacts" : "Label_Search_Projects"];
+        return this.localization.get(this.project ? "Label_Search_Artifacts" : "Label_Search_Projects");
     }
 
     private resetItemTypes(): void {

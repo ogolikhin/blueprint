@@ -99,23 +99,29 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(164531)]
-        [Description("Create & publish an artifact. Update the artifact property 'Name' with Empty space. Get the artifact. Verify the artifact returned has the same properties as the artifact we updated.")]
+        [Description("Create & publish an artifact.  Update the artifact property 'Name' with Empty space.  Get the artifact.  " +
+            "Verify the artifact returned has the same properties as the artifact we updated.")]
         public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock(author);
+            artifact.Lock();
 
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", string.Empty, author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", string.Empty, _user);
 
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
+            Assert.IsNullOrEmpty(artifactDetailsAfter.Name, "The Name property should be empty!");
+            Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
+            Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
+
+            // Set the Name & LastSaveInvalid equal to the original so they don't cause the comparison to fail.
+            artifactDetailsAfter.Name = artifactDetails.Name;
+            artifactDetailsAfter.LastSaveInvalid = artifactDetails.LastSaveInvalid;
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
 
@@ -275,7 +281,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property choice value
-            var artifactCustomPropertyValue = new List<string>() { newChoiceValue }; ;
+            var artifactCustomPropertyValue = new List<string>() { newChoiceValue };
             var artifactDetailsChangeSet = CreateArtifactChangeSet(author, projectCustomData, artifact, artifactCustomPropertyName, artifactCustomPropertyValue);
             var requestedCustomProperty = artifactDetailsChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(artifactCustomPropertyName));
 
@@ -925,10 +931,15 @@ namespace ArtifactStoreTests
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
+            Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
+            Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
+
             CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
             Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
 
+            // Set LastSaveInvalid equal to original so that doesn't cause the comparison to fail.
+            artifactDetailsAfter.LastSaveInvalid = artifactDetails.LastSaveInvalid;
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
 
@@ -962,6 +973,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
+            Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
 
             CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
@@ -1031,6 +1045,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
+            Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
 
             CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
@@ -1117,6 +1134,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(artifactDetails.CreatedBy?.DisplayName, updateResult.CreatedBy?.DisplayName, "The CreatedBy properties don't match!");
+            Assert.NotNull(artifactDetails.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
+            Assert.IsFalse(artifactDetails.LastSaveInvalid.Value, "LastSaveInvalid should be false for artifacts with valid properties!");
 
             IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.ArtifactStore.Address, _project, artifact.Id, user);
             ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
@@ -1130,7 +1149,6 @@ namespace ArtifactStoreTests
         /// <param name="user">The user updating the artifact</param>
         /// <param name="projectCustomData">The project with all the avaliable Nova artifact types</param>
         /// <param name="artifact">The artifact that the target sub artifact resides</param>
-        /// <param name="artifactDisplayName">display name for the artifact to update</param>
         /// <param name="artifactCustomPropertyName">custom property name for the artifact to update</param>
         /// <param name="artifactCustomPropertyValue">custom property value for the artifact to update</param>
         /// <returns>NovaArtifactDetails that contains the change for the artifact</returns>

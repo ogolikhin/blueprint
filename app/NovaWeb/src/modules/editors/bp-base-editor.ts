@@ -49,7 +49,7 @@ export class BpBaseEditor {
         this.onArtifactReady();
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         this.isLoading = false;
     }
 }

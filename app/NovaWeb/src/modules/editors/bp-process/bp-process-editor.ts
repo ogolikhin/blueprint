@@ -79,7 +79,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         }
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         // when this method is called the process artifact should
         // be loaded and assigned to the base class' artifact
         // property (this.artifact)

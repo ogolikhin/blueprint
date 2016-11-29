@@ -50,11 +50,23 @@ describe("MoveArtifactPickerDialogController", () => {
         expect(result).toEqual(true);
     });
 
-    it("okDisabled", () => {
+    it("okDisabled selection exists", () => {
         // Arrange
-        const model = {};
+        const model = {id: 3, name: "test"};
         const vm = {model: model};
-        //spyOn(controller, "ok");
+        controller.selectedVMs = [vm];
+        controller.insertMethod = MoveArtifactInsertMethod.Above;
+
+        // Act
+        let result: boolean = controller.okDisabled;
+
+        // Assert
+        expect(result).toEqual(false);
+    });
+
+    it("okDisabled no selection", () => {
+        // Arrange
+        controller.selectedVMs = [];
 
         // Act
         let result: boolean = controller.okDisabled;

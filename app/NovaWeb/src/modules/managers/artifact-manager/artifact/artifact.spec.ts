@@ -765,12 +765,13 @@ describe("Artifact", () => {
             });
             const newParentId: number = 3;
             const newOrderIndex: number = 15;
+            const expectedResult = [{
+                    id: 1, name: "TEST", parentId: newParentId, orderIndex: newOrderIndex
+                }];
 
             spyOn(artifactService, "moveArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
-                deferred.resolve([{
-                    id: 1, name: "TEST", parentId: newParentId, orderIndex: newOrderIndex
-                }]);
+                deferred.resolve(expectedResult);
                 return deferred.promise;
             });
 
@@ -781,8 +782,7 @@ describe("Artifact", () => {
             });
             $rootScope.$digest();
             // assert
-            expect(result).toBeDefined();
-            expect(result).toEqual(jasmine.any(Array));
+            expect(result).toEqual(expectedResult);
             expect(error).toBeUndefined();
         }));
 
@@ -806,7 +806,7 @@ describe("Artifact", () => {
             $rootScope.$digest();
 
             // assert
-            expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);
         }));
     });
 

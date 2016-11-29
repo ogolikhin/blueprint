@@ -186,11 +186,9 @@ describe("MoveAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            const moveSpy = spyOn(artifact, "move").and.callFake(() => {
-                return $q.reject(null);
-            });
+            const moveSpy = spyOn(artifact, "move").and.callFake(() => $q.reject(null));
             const moveAction = new MoveAction($q, artifact, localization, messageService, projectManager, dialogService);
-            const dialogSpy = spyOn(dialogService, "open").and.callFake(() => {
+            spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveArtifactResult[] = [
                     {
                         artifacts: [
@@ -204,9 +202,7 @@ describe("MoveAction", () => {
                 ];
                 return $q.resolve(result);
             });
-            const artifactSpy = spyOn(artifact, "lock").and.callFake(() => {
-                return $q.resolve();
-            });
+            spyOn(artifact, "lock").and.callFake(() => $q.resolve());
 
             // act
             moveAction.execute();
@@ -230,11 +226,9 @@ describe("MoveAction", () => {
                     permissions: RolePermissions.Edit
                 });
             artifact.artifactState.dirty = true;
-            const moveSpy = spyOn(artifact, "move").and.callFake(() => {
-                return $q.resolve();
-            });
+            spyOn(artifact, "move").and.callFake(() => $q.resolve());
             const moveAction = new MoveAction($q, artifact, localization, messageService, projectManager, dialogService);
-            const dialogSpy = spyOn(dialogService, "open").and.callFake(() => {
+            spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveArtifactResult[] = [
                     {
                         artifacts: [
@@ -248,12 +242,8 @@ describe("MoveAction", () => {
                 ];
                 return $q.resolve(result);
             });
-            const artifactSpy = spyOn(artifact, "save").and.callFake(() => {
-                return $q.resolve();
-            });
-            const refreshSpy = spyOn(projectManager, "refresh").and.callFake(() => {
-                return $q.resolve();
-            });
+            spyOn(artifact, "save").and.callFake(() => $q.resolve());
+            const refreshSpy = spyOn(projectManager, "refresh").and.callFake(() => $q.resolve());
 
             // act
             moveAction.execute();

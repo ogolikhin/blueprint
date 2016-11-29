@@ -13,6 +13,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IClipboardService} from "../../services/clipboard.svc";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -37,7 +38,8 @@ export class ProcessDiagram {
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory) {
+                private shapesFactory: ShapesFactory,
+                private clipboard: IClipboardService) {
         this.processModel = null;
         this.selectionListeners = [];
     }
@@ -156,6 +158,7 @@ export class ProcessDiagram {
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
+                this.clipboard
             );
 
             this.registerSelectionListeners();

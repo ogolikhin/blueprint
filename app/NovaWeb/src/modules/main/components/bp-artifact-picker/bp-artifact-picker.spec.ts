@@ -35,6 +35,14 @@ describe("BpArtifactPicker", () => {
         }));
     }));
 
+    beforeEach(inject(($rootScope: ng.IRootScopeService) => {
+        $rootScope["config"] = {};
+        $rootScope["config"].labels = {
+            "Label_Search_Artifacts": "Search for artifacts",
+            "Label_Search_Projects": "Search for projects"
+        };
+    }));
+
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService, $q: ng.IQService, metadataService: IMetaDataService) => {
         // Arrange
         spyOn(metadataService, "get").and.callFake(() => {
@@ -105,7 +113,7 @@ describe("BpArtifactPickerController", () => {
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
         controller = new BpArtifactPickerController($q, $scope, localization, artifactManager,
-            projectManager, projectService, statefulArtifactFactory, metadataService);
+            projectManager, projectService, statefulArtifactFactory, metadataService, $rootScope);
     }));
 
     it("$onInit sets selected project", () => {
@@ -149,11 +157,13 @@ describe("BpArtifactPickerController", () => {
 
         // Act
         controller.clearSearch();
+        const clearSearchEnabled = controller.clearSearchEnabled();
 
         // Assert
         expect(controller.searchText).toBeUndefined();
         expect(controller.searchResults).toBeUndefined();
         expect(controller.isMoreSearchResults).toBeUndefined();
+        expect(clearSearchEnabled).toBe(false);
     });
 
     it("search, when project is set, searches artifacts", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -165,6 +175,7 @@ describe("BpArtifactPickerController", () => {
 
         // Act
         controller.search();
+        const clearSearchEnabled = controller.clearSearchEnabled();
 
         // Assert
         expect(controller.isSearching).toEqual(true);
@@ -179,6 +190,7 @@ describe("BpArtifactPickerController", () => {
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
         expect(controller.isMoreSearchResults).toEqual(false);
+        expect(clearSearchEnabled).toBe(true);
     }));
 
     it("search, when project is not set, searches projects", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {

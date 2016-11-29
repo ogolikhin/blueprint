@@ -70,7 +70,9 @@ export interface IArtifactPickerController {
     isMoreSearchResults: boolean;
     search(): void;
     clearSearch(): void;
+    clearSearchEnabled(): boolean;
     onDouble(vm: SearchResultVM<any>): void;
+    searchPlaceholder: string;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
@@ -96,7 +98,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "projectManager",
         "projectService",
         "statefulArtifactFactory",
-        "metadataService"
+        "metadataService",
+        "$rootScope"
     ];
 
     constructor(private $q: ng.IQService,
@@ -106,7 +109,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private projectManager: IProjectManager,
                 private projectService: IProjectService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private metadataService: IMetaDataService) {
+                private metadataService: IMetaDataService,
+                private $rootScope: any) {
         this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
@@ -211,8 +215,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    private clearSearchEnabeled(): boolean {
+    public clearSearchEnabled(): boolean {
         return !!this.searchText || !!this.searchResults;
+    }
+
+    public get searchPlaceholder(): string{
+        return this.$rootScope.config.labels[this.project ? "Label_Search_Artifacts" : "Label_Search_Projects"];
     }
 
     private resetItemTypes(): void {

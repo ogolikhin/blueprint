@@ -1,9 +1,8 @@
 import {IDialogSettings, IDialogService} from "../../../shared";
-import {Models, Enums, AdminStoreModels} from "../../models";
+import {Models, Enums} from "../../models";
 import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
-import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {
     CreateNewArtifactController,
@@ -13,7 +12,6 @@ import {
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {MessageType} from "../../../core/messages/message";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
@@ -95,8 +93,8 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.projectManager.openProjectWithDialog();        
-    }
+        this.projectManager.openProjectWithDialog();
+    };
 
     /**
      * Closes the selected project.
@@ -115,7 +113,7 @@ export class PageToolbarController implements IPageToolbarController {
                 this.closeProjectInternal(artifact.projectId);
             }
         });
-    }
+    };
 
     public closeAllProjects = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -142,7 +140,7 @@ export class PageToolbarController implements IPageToolbarController {
                     this.closeAllProjectsInternal();
                 }
             });
-    }
+    };
 
     public createNewArtifact = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -217,7 +215,7 @@ export class PageToolbarController implements IPageToolbarController {
                         }
                     });
             });
-    }
+    };
 
     public publishAll = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -238,7 +236,7 @@ export class PageToolbarController implements IPageToolbarController {
                     this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
                 });
         });
-    }
+    };
 
     public discardAll = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -257,7 +255,7 @@ export class PageToolbarController implements IPageToolbarController {
             .finally(() => {
                 this.loadingOverlayService.endLoading(getUnpublishedLoadingId);
             });
-    }
+    };
 
     public refreshAll = (evt: ng.IAngularEvent) => {
         if (evt) {
@@ -267,7 +265,7 @@ export class PageToolbarController implements IPageToolbarController {
         this.projectManager.refreshAll().finally(() => {
             this.loadingOverlayService.endLoading(refreshAllLoadingId);
         });
-    }
+    };
     public openTour = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
@@ -278,7 +276,7 @@ export class PageToolbarController implements IPageToolbarController {
             backdrop: true,
             css: "nova-tour"
         });
-    }
+    };
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProjectId: number = this.projectManager.getSelectedProjectId();
@@ -348,7 +346,6 @@ export class PageToolbarController implements IPageToolbarController {
         }
         const nextProject = _.first(this.projectManager.projectCollection.getValue());
         if (nextProject) {
-            this.artifactManager.selection.clearAll();
             this.navigationService.navigateTo({id: nextProject.model.id});
         } else {
             this.navigationService.navigateToMain();
@@ -358,7 +355,6 @@ export class PageToolbarController implements IPageToolbarController {
 
     private closeAllProjectsInternal() {
         this.projectManager.removeAll();
-        this.artifactManager.selection.clearAll();
         this.clearStickyMessages();
         this.navigationService.navigateToMain();
     }

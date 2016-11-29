@@ -427,29 +427,52 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
 
             Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            
+            // Compare each property in CustomPropertiess.
+            foreach (CustomProperty expectedProperty in expectedSubArtifact.CustomPropertyValues)
+            {
+                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+
+                var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+            }
+
             Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
-
-            // Now compare each property in CustomProperties & SpecificPropertyValues.
-            foreach (CustomProperty property in expectedSubArtifact.CustomPropertyValues)
+            
+            // Compare each property in SpecificPropertyValues.
+            foreach (CustomProperty expectedProperty in expectedSubArtifact.SpecificPropertyValues)
             {
-                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == property.Name),
-                "Couldn't find a CustomProperty named '{0}'!", property.Name);
+                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
+
+                var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
             }
 
-            foreach (CustomProperty property in expectedSubArtifact.SpecificPropertyValues)
+            Assert.AreEqual(expectedSubArtifact.AttachmentValues.Count, actualSubArtifact.AttachmentValues.Count, "The number of attachments is different!");
+
+            // Compare each attachment.
+            foreach (AttachmentValue attachment in expectedSubArtifact.AttachmentValues)
             {
-                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == property.Name),
-                "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+                Assert.That(actualSubArtifact.AttachmentValues.Exists(a => a.Guid == attachment.Guid),
+                    "Couldn't find attachment with GUID: {0}!", attachment.Guid);
+
+                var actualAttachment = actualSubArtifact.AttachmentValues.Find(a => a.Guid == attachment.Guid);
+
+                AssertAttachmentsAreEqual(attachment, actualAttachment);
             }
 
-            //TODO: Add assertions for Traces, Attachments and Doc References
+            //TODO: Add assertions for Traces and Doc References
         }
 
         /// <summary>
         /// Compares Two Custom Properties for Equality
         /// </summary>
-        /// <param name="expectedProperty">The first custom property to compare.</param>
-        /// <param name="actualProperty">The second custom property to compare.</param>
+        /// <param name="expectedProperty">The expected custom property.</param>
+        /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
         public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
         {
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
@@ -544,6 +567,29 @@ namespace Helper
                 default:
                     throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType.ToString()));
             }
+        }
+
+        /// <summary>
+        /// Compares Two Attachments for Equality
+        /// </summary>
+        /// <param name="expectedAttachment">The expected attachment.</param>
+        /// <param name="actualAttachment">The actual attachment to be compared with the expected attachment.</param>
+        public static void AssertAttachmentsAreEqual(AttachmentValue expectedAttachment, AttachmentValue actualAttachment)
+        {
+            ThrowIf.ArgumentNull(expectedAttachment, nameof(expectedAttachment));
+            ThrowIf.ArgumentNull(actualAttachment, nameof(actualAttachment));
+
+            Assert.AreEqual(expectedAttachment.AttachmentId, actualAttachment.AttachmentId, "The AttachmentId values do not match!");
+            Assert.AreEqual(expectedAttachment.Guid, actualAttachment.Guid, "The attachment GUID values do not match!");
+
+            // TODO: Investigate the impact of this change type assertion
+            // Assert.AreEqual(expectedAttachment.ChangeType, actualAttachment.ChangeType);
+
+            Assert.AreEqual(expectedAttachment.FileName, actualAttachment.FileName, "The attachment FileName values do not match!");
+            Assert.AreEqual(expectedAttachment.FileType, actualAttachment.FileType, "The attachment FileType values do not match!");
+            Assert.AreEqual(expectedAttachment.UploadedDate, actualAttachment.UploadedDate, "The attachment UploadedDate values do not match!");
+            Assert.AreEqual(expectedAttachment.UserId, actualAttachment.UserId, "The attachment UserId values do not match!");
+            Assert.AreEqual(expectedAttachment.UserName, actualAttachment.UserName, "The attachment UserName values do not match!");
         }
 
         #endregion Custom Asserts

@@ -22,11 +22,11 @@ export {
 } from "./bp-dropdown-action";
 
 export {
-    IBPButtonDropdownItemAction,
-    IBPButtonDropdownAction,
-    BPButtonDropdownItemAction,
-    BPButtonDropdownAction
-} from "./bp-button-dropdown-action";
+    IBPButtonOrDropdownAction,
+    IBPDotsMenuAction,
+    BPButtonOrDropdownAction,
+    BPDotsMenuAction
+} from "./bp-dotsmenu-action";
 
 export {
     IBPButtonGroupAction,

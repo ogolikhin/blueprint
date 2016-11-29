@@ -103,7 +103,10 @@ export class ProcessGraph implements IProcessGraph {
     }
     
     private isCellSelectable = (cell: MxCell) => {
-        return cell.isVertex();
+        if (cell instanceof DiagramNode) {
+            return cell.isVertex();
+        }
+        return false;
     }
 
     public addSelectionListener(listener: ISelectionListener) {

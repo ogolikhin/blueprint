@@ -24,6 +24,7 @@
                                 required
                                 autocomplete="off"
                                 ng-minlength="3"
+                                ng-maxlength="250"
                                 placeholder="{{$ctrl.localization.get('Search_Placeholder')}}"
                                 class="quick-serach__input quick-serach__input--full-width"
                                 name="searchTerm"
@@ -41,6 +42,7 @@
                              ng-if="$ctrl.form.$submitted">
                             <span ng-message="required">{{$ctrl.localization.get('Search_Validation_Required')}}</span>
                             <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
+                            <span ng-message="maxlength">{{::$root.config.labels["Search_Validation_MaxTwoFiftyChars"]}}</span>
                         </div>
                     </div>
                 </form>

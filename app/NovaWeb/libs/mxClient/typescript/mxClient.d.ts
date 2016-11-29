@@ -3119,6 +3119,7 @@ interface MxGraphSelectionModel {
     clear();
     addCells(cells: MxCell[]);
     setSingleSelection(value: boolean);
+    addCells(cells);
 }
 
 

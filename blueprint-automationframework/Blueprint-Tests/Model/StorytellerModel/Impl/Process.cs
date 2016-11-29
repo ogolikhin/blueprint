@@ -1568,6 +1568,7 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
+        /// <seealso cref="IProcessShape.AddAssociatedArtifact(NovaArtifactDetails)"/>
         public ArtifactReference AddAssociatedArtifact(NovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1589,6 +1590,7 @@ namespace Model.StorytellerModel.Impl
             return AssociatedArtifact;
         }
 
+        /// <seealso cref="IProcessShape.AddPersonaReference(NovaArtifactDetails)"/>
         public ArtifactReference AddPersonaReference(NovaArtifactDetails artifact = null)
         {
             if (artifact?.PredefinedType != null && artifact.ProjectId != null)
@@ -1608,6 +1610,7 @@ namespace Model.StorytellerModel.Impl
             return PersonaReference;
         }
 
+        /// <seealso cref="IProcessShape.AddDefaultPersonaReference(ProcessShapeType)"/>
         public ArtifactReference AddDefaultPersonaReference(ProcessShapeType processShapeType)
         {
             if (processShapeType == ProcessShapeType.UserTask || processShapeType == ProcessShapeType.SystemTask ||

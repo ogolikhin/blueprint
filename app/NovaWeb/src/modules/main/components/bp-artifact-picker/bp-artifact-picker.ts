@@ -70,7 +70,9 @@ export interface IArtifactPickerController {
     isMoreSearchResults: boolean;
     search(): void;
     clearSearch(): void;
+    clearSearchEnabled(): boolean;
     onDouble(vm: SearchResultVM<any>): void;
+    searchPlaceholder: string;
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
@@ -209,6 +211,14 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.populateItemTypes(project.id);
             this.filterItemType = this.itemTypes[0];
         }
+    }
+
+    public clearSearchEnabled(): boolean {
+        return !!this.searchText || !!this.searchResults;
+    }
+
+    public get searchPlaceholder(): string{
+        return this.localization.get[this.project ? "Label_Search_Artifacts" : "Label_Search_Projects"];
     }
 
     private resetItemTypes(): void {

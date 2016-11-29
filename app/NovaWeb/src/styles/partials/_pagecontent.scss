@@ -129,6 +129,15 @@ pagecontent, bp-properties-panel {
         text-decoration: underline;
     }
 
+    .load-project{
+       width: 100%;
+       padding-bottom: $padding-large-vertical;
+    }
+
+    .btn-load-project{
+        background: $white;
+    }
+    
     .artifact-heading {
         display: flex;
         //max-width: calc(100% - #{$page-top-toolbar-width});

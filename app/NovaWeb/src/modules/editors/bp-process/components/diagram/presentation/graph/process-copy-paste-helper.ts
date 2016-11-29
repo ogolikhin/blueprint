@@ -129,7 +129,7 @@ export class ProcessCopyPasteHelper {
 
             });
 
-            layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(sourceIds[0]);
+            layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(null); //sourceIds[0]);
         }
     };
     

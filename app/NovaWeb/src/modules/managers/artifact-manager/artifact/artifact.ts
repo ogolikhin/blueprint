@@ -437,6 +437,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected handleSaveError(error: any): Error {
         let message: string;
 
+        if (error.handled) {
+            return null;
+        }
+
         if (error.statusCode === 400) {
             if (error.errorCode === 114) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");

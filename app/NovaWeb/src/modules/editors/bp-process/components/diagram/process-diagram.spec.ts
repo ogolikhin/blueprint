@@ -15,19 +15,21 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
+import {UtilityPanelService} from "../../../../shell/bp-utility-panel/bp-utility-panel";
+
+class ExecutionEnvironmentDetectorMock {
+    private browserInfo: any;
+
+    constructor() {
+        this.browserInfo = {msie: false, firefox: false, version: 0};
+    }
+
+    public getBrowserInfo(): any {
+        return this.browserInfo;
+    }
+}
 
 describe("ProcessDiagram Tests", () => {
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("messageService", MessageServiceMock);
-        $provide.service("communicationManager", CommunicationManager);
-        $provide.service("$uibModal", ModalServiceMock);
-        $provide.service("dialogService", DialogService);
-        $provide.service("localization", LocalizationServiceMock);
-        $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("shapesFactory", ShapesFactoryMock);
-        $provide.service("clipboardService", ClipboardService);
-    }));
     let rootScope: ng.IRootScopeService,
         scope,
         timeout: ng.ITimeoutService,
@@ -40,10 +42,27 @@ describe("ProcessDiagram Tests", () => {
         localization: LocalizationServiceMock,
         clipboard: IClipboardService,
         navigationService: INavigationService,
+        utilityPanelService: UtilityPanelService,
         shapesFactory: ShapesFactory;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
+
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
+        $provide.service("$uibModal", ModalServiceMock);
+        $provide.service("dialogService", DialogService);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactoryMock);
+        $provide.service("clipboardService", ClipboardService);
+        $provide.service("utilityPanelService", UtilityPanelService);
+    }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
                        $timeout: ng.ITimeoutService,
@@ -53,10 +72,11 @@ describe("ProcessDiagram Tests", () => {
                        _communicationManager_: ICommunicationManager,
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
-                       _clipboard_: ClipboardService,
                        _navigationService_: INavigationService,
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory) => {
+                       _shapesFactory_: ShapesFactory,
+                       _utilityPanelService_: UtilityPanelService,
+                       _clipboardService_: ClipboardService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -74,9 +94,10 @@ describe("ProcessDiagram Tests", () => {
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
-        clipboard = _clipboard_;
+        clipboard = _clipboardService_;
         navigationService = _navigationService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
+        utilityPanelService = _utilityPanelService_;
         shapesFactory = _shapesFactory_;
 
         wrapper = document.createElement("DIV");
@@ -100,6 +121,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
 
@@ -128,6 +150,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
 
@@ -140,7 +163,7 @@ describe("ProcessDiagram Tests", () => {
         diagram.destroy();
 
         // assert
-        expect(diagram.processViewModel).toBeNull(null);
+        expect(diagram.processViewModel).not.toBeDefined();
         expect(container.childElementCount).toBe(0);
     });
 
@@ -159,6 +182,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
 
@@ -172,7 +196,7 @@ describe("ProcessDiagram Tests", () => {
             error = err;
         }
 
-        // assert 
+        // assert
         expect(error.message).toBe("Process id '-1' is invalid.");
     });
     it("creatediagram - Null element", () => {
@@ -190,6 +214,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
 
@@ -203,7 +228,7 @@ describe("ProcessDiagram Tests", () => {
             error = err;
         }
 
-        // assert 
+        // assert
         expect(error.message).toBe("There is no html element for the diagram");
     });
 
@@ -222,6 +247,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
 
@@ -253,6 +279,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
 
@@ -285,6 +312,7 @@ describe("ProcessDiagram Tests", () => {
             navigationService,
             statefulArtifactFactory,
             shapesFactory,
+            utilityPanelService,
             clipboard
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");

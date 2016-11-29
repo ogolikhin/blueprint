@@ -50,4 +50,8 @@ export class ArtifactManagerMock implements IArtifactManager {
         deferred.resolve(ArtifactServiceMock.createNewArtifact(name, projectId, parentId, itemTypeId, orderIndex));
         return deferred.promise;
     }
+
+    public autosave(): ng.IPromise<any> {
+        return this.$q.resolve();
+    }
 }

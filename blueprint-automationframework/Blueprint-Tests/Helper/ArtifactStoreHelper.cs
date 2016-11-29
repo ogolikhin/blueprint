@@ -392,11 +392,12 @@ namespace Helper
         /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
         /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
         /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
-        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
         /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
+        ///     should have the same ParentId.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact,
-            bool skipId = false, bool skipParentId = false, bool skipOrderIndex = false)
+            bool skipId = false, bool skipOrderIndex = false, int? expectedParentId = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -408,10 +409,8 @@ namespace Helper
                 Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
             }
 
-            if (!skipParentId)
-            {
-                Assert.AreEqual(expectedSubArtifact.ParentId, actualSubArtifact.ParentId, "The ParentId  parameters don't match!");
-            }
+            expectedParentId = expectedParentId ?? expectedSubArtifact.ParentId;
+            Assert.AreEqual(expectedParentId, actualSubArtifact.ParentId, "The ParentId parameters don't match!");
 
             if (!skipOrderIndex)
             {

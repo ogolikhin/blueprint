@@ -14,7 +14,6 @@ using TestCommon;
 using Utilities;
 using System.Linq;
 using Common;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -522,6 +521,43 @@ namespace ArtifactStoreTests
                 expectedNumberOfArtifactsCopied: artifactChain.Count);
 
             VerifyChildrenWereCopied(sourceArtifactDetails, copyResult.Artifact, parentWasCopiedToChild: true);
+        }
+
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase(BaseArtifactType.BusinessProcess, 33, "Business Process Diagram", 2)]
+        [TestCase(BaseArtifactType.DomainDiagram, 31, "Domain Diagram", 2)]
+        [TestCase(BaseArtifactType.GenericDiagram, 49, "Generic Diagram", 2)]
+        [TestCase(BaseArtifactType.Storyboard, 32, "Storyboard", 2)]
+        [TestCase(BaseArtifactType.UIMockup, 22, "UI Mockup", 4)]
+        [TestCase(BaseArtifactType.UseCase, 17, "MainUseCase", 2)]
+        [TestCase(BaseArtifactType.UseCaseDiagram, 29, "Use Case Diagram", 3)]
+        [TestRail(195562)]
+        [Description("Create & publishh a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is unchanged " +
+            "and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
+        public void CopyArtifact_SinglePublishedLegacyDiagramArtifact_ToNewFolder_NewArtifactIsIdenticalToOriginal(
+            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+        {
+            // Setup:
+            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+
+            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
+            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
+
+            // TODO: Verify sub-artifacts of diagrams.
         }
 
         // TODO ---------------- POSITIVE TESTS

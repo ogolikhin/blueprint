@@ -1,4 +1,3 @@
-import "angular";
 import {ItemStateController} from "./item-state.controller";
 import {IArtifactManager} from "./../managers";
 
@@ -20,7 +19,7 @@ export class ArtifactRoutes {
                 url: "/unpublished",
                 template: "<unpublished></unpublished>",
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]   
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
                 }
             })
             .state("main.item", <ng.ui.IState>{
@@ -29,8 +28,8 @@ export class ArtifactRoutes {
                 reloadOnSearch: false,
                 controller: ItemStateController,
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]      
-                }          
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
+                }
             })
 
             .state("main.item.process", {

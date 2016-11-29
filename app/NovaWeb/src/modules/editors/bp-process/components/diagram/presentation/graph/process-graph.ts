@@ -84,6 +84,7 @@ export class ProcessGraph implements IProcessGraph {
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
         // non movable
         this.mxgraph.setCellsMovable(false);
+        this.mxgraph.isCellSelectable = this.isCellSelectable;
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
@@ -99,6 +100,10 @@ export class ProcessGraph implements IProcessGraph {
         }
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
+    }
+    
+    private isCellSelectable = (cell: MxCell) => {
+        return cell.isVertex();
     }
 
     public addSelectionListener(listener: ISelectionListener) {

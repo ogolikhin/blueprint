@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
@@ -108,28 +106,6 @@ namespace ArtifactStore.Repositories
 
             var advancedSettings = SerializationHelper.FromXml<AdvancedSettings>(xmlAdvancedSettings);
             return OrderProperties(itPtIds, propertyTypes, advancedSettings);
-        }
-
-        private static T FromXml<T>(string xml) where T : class
-        {
-            if (string.IsNullOrEmpty(xml))
-            {
-                return null;
-            }
-
-            try
-            {
-                using (var reader = XmlReader.Create(new StringReader(xml)))
-                {
-                    var serializer = new XmlSerializer(typeof(T));
-                    var obj = serializer.Deserialize(reader);
-                    return obj as T;
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         internal static List<int> OrderProperties(IEnumerable<int> propertyValueIds,

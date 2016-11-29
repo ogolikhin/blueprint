@@ -460,7 +460,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Glossary, 3, 1, 2)]
         [TestCase(BaseArtifactType.TextualRequirement, 3, 1, 999)]
         [TestRail(195486)]
-        [Description("Create and save several artifacts with children in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
+        [Description("Create and publish several artifacts with children in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
             "and has the OrderIndex that was specified.")]
         public void CopyArtifactWithOrderIndex_MultiplePublishedArtifacts_ToSameFolderWithArtifacts_ReturnsNewArtifactWithSpecifiedOrderIndex(
@@ -496,8 +496,35 @@ namespace ArtifactStoreTests
             VerifyChildrenWereCopied(sourceArtifactDetails, copyResult.Artifact);
         }
 
+        [TestCase(BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.Document, BaseArtifactType.Glossary, BaseArtifactType.Actor)]
+        [TestRail(195554)]
+        [Description("Create and publish several artifacts with children.  Copy the top level artifact to be under one of its children.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
+            "and has the OrderIndex that was specified.")]
+        public void CopyArtifact_MultiplePublishedArtifacts_ToChildOfItself_ReturnsNewArtifactWithSpecifiedOrderIndex(params BaseArtifactType[] artifactTypeChain)
+        {
+            // Setup:
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            var sourceArtifact = artifactChain[0];
+            var targetArtifact = artifactChain[1];
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _user),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedNumberOfArtifactsCopied: artifactChain.Count);
+
+            VerifyChildrenWereCopied(sourceArtifactDetails, copyResult.Artifact, parentWasCopiedToChild: true);
+        }
+
         // TODO ---------------- POSITIVE TESTS
-        // TODO - Copy artifact (possibly with descendants) to one of its child
         // TODO - Copy orphan artifact
 
         #endregion 201 Created tests
@@ -1061,7 +1088,10 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="sourceArtifact">The source artifact.</param>
         /// <param name="copiedArtifact">The copied artifact.</param>
-        private void VerifyChildrenWereCopied(INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact)
+        /// <param name="parentWasCopiedToChild">(optional) Pass true if the source artifact was copied to one of its children.</param>
+        /// <param name="previousParentArtifact">(optional) Should only be used internally by this function to specify the parent from the previous recursive call.</param>
+        private void VerifyChildrenWereCopied(INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
+            bool parentWasCopiedToChild = false, INovaArtifactBase previousParentArtifact = null)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
@@ -1071,6 +1101,12 @@ namespace ArtifactStoreTests
                 sourceArtifact.Id, _user);
             var copiedChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(copiedArtifact.ProjectId.Value,
                 copiedArtifact.Id, _user);
+
+            // If a parent was copied to one of its children, remove the copy from the source list so the Count comparison doesn't fail.
+            if (parentWasCopiedToChild)
+            {
+                sourceChildren.RemoveAll(a => a.Name == previousParentArtifact?.Name);
+            }
 
             Assert.AreEqual(sourceChildren.Count, copiedChildren.Count, "The number of artifacts copied is incorrect!");
 
@@ -1085,7 +1121,7 @@ namespace ArtifactStoreTests
                 // Recursively verify all children below this one.
                 if (sourceChild.HasChildren)
                 {
-                    VerifyChildrenWereCopied(sourceChild, copiedChild);
+                    VerifyChildrenWereCopied(sourceChild, copiedChild, parentWasCopiedToChild, sourceArtifact);
                 }
             }
         }

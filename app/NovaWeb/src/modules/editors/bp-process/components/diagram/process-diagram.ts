@@ -21,6 +21,7 @@ export class ProcessDiagram {
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement;
     private toggleProcessTypeHandler: string;
+    private copySelectionHandler: string; 
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
@@ -87,16 +88,21 @@ export class ProcessDiagram {
             this.processViewModel.updateProcessGraphModel(process);
             this.processViewModel.communicationManager.toolbarCommunicationManager
                 .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+            this.processViewModel.communicationManager.toolbarCommunicationManager
+                .removeCopySelectionObserver(this.copySelectionHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .removeModelUpdateObserver(this.modelUpdateHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
+          
         }
 
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
             .registerToggleProcessTypeObserver(this.processTypeChanged);
+        this.copySelectionHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
+            .registerCopySelectionObserver(this.copySelection);
         this.modelUpdateHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
@@ -120,6 +126,12 @@ export class ProcessDiagram {
         }
     }
 
+    private copySelection = () => {
+        // #TODO - get selected shapes from mxGraph SelectionModel and create copies of the
+        // shapes. The result will be a sub-graph of copied shapes that can be inserted
+        // into another process diagram
+        ;
+    }
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     }
@@ -200,6 +212,8 @@ export class ProcessDiagram {
             if (this.communicationManager.toolbarCommunicationManager) {
                 this.communicationManager.toolbarCommunicationManager
                     .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+                this.communicationManager.toolbarCommunicationManager
+                    .removeCopySelectionObserver(this.copySelectionHandler);
             }
 
             if (this.communicationManager.processDiagramCommunication) {

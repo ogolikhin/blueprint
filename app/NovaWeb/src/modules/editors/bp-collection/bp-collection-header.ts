@@ -33,7 +33,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "navigationService",
         "projectManager",
         "metadataService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "selectionManager",
+        "analytics"
     ];
 
     constructor($q: ng.IQService,

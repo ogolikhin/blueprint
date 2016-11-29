@@ -14,15 +14,22 @@ import {IClipboardService, ClipboardDataType} from "../../../../services/clipboa
 
 export class ProcessCopyPasteHelper {
 
+    private static getSelectedCellsForCopy(processGraph: IProcessGraph): MxCell[] {
+        const graphSelectedCells = processGraph.getMxGraph().getSelectionCells();
+
+        const sortedCells = _.sortBy(graphSelectedCells, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        
+        return sortedCells;
+    }
+
     public static copySectedShapes(processGraph: IProcessGraph, clipboard: IClipboardService, shapesFactoryService: ShapesFactory): void {
 
         if (!clipboard) {
             throw new Error("Clipboard does not exist");
         }
         
-        let model: IProcessShape[] = [];
-        let  nodes = processGraph.getMxGraph().getSelectionCells();
-        nodes = _.sortBy(nodes, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        let model: IProcessShape[] = [];        
+        const nodes = this.getSelectedCellsForCopy(processGraph);
 
 
         // let userDecisionRefs = [];

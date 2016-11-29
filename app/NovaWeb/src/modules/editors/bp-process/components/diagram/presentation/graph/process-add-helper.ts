@@ -63,17 +63,17 @@ export class ProcessAddHelper {
     }
 
     public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
+        
         layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        // COPY PROPERTIES
-        userTaskShape.name = _userTaskShape.name; 
-        userTaskShape.personaReference = _.cloneDeep(_userTaskShape.personaReference); 
-        userTaskShape.propertyValues = _.cloneDeep(_userTaskShape.propertyValues); 
 
-        ProcessAddHelper.addShape(userTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
+        // update clone task with current process's information.
+        _userTaskShape.parentId = layout.viewModel.id;
+        _userTaskShape.projectId = layout.viewModel.projectId;
+        _userTaskShape.id = layout.getTempShapeId();
+        
+        ProcessAddHelper.addShape(_userTaskShape, layout, shapesFactoryService);
 
-        return userTaskShape.id;
+        return _userTaskShape.id;
     }
 
     // #DEBUG

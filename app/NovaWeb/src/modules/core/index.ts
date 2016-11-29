@@ -23,12 +23,3 @@ angular.module("bp.core", [
     "bp.core.navigation",
     "bp.core.services"
 ]);
-
-export {
-    IWindowResize,
-    IWindowVisibility,
-    IUserOrGroupInfo,
-    IUsersAndGroupsService,
-    UsersAndGroupsService
-} from "./services";
-

@@ -618,7 +618,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public delete(): ng.IPromise<Models.IArtifact[]> {
         let deferred = this.services.getDeferred<Models.IArtifact[]>();
-
+        this.discard();
         this.services.artifactService.deleteArtifact(this.id).then((it: Models.IArtifact[]) => {
             this.artifactState.deleted = true;
             deferred.resolve(it);

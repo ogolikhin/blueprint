@@ -1,6 +1,6 @@
-import * as angular from "angular";
+import "angular";
 import {ItemStateController} from "./item-state.controller";
-import {ISelectionManager} from "../managers/selection-manager/selection-manager";
+import {IArtifactManager} from "./../managers";
 
 export class ArtifactRoutes {
 
@@ -20,7 +20,7 @@ export class ArtifactRoutes {
                 url: "/unpublished",
                 template: "<unpublished></unpublished>",
                 resolve: {
-                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]   
                 }
             })
             .state("main.item", <ng.ui.IState>{
@@ -29,8 +29,8 @@ export class ArtifactRoutes {
                 reloadOnSearch: false,
                 controller: ItemStateController,
                 resolve: {
-                    saved: ["$q",  "selectionManager", ArtifactRoutes.autoSave]
-                }
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]      
+                }          
             })
 
             .state("main.item.process", {
@@ -51,13 +51,5 @@ export class ArtifactRoutes {
             .state("main.item.diagram", {
                 template: require("./bp-diagram/diagram.state.html")
             });
-    }
-
-    public static autoSave($q: ng.IQService, selection: ISelectionManager): ng.IPromise<void> {
-        let artifact = selection.getArtifact();
-        if (artifact) {
-            return artifact.autosave();
-        }
-        return $q.resolve();
     }
 }

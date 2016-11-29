@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import {ISession} from "./login/session.svc";
-import {IProjectManager, ISelectionManager} from "../managers";
+import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 
@@ -44,8 +44,7 @@ export class AppRoutes {
             .state("logout", {
                 controller: LogoutStateController,
                 resolve: {
-                    saved: ["$q", "selectionManager", LogoutStateController.autoSave]      
-                } 
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]                    } 
             })
             .state("error", {
                 url: "/error",
@@ -147,13 +146,4 @@ public static $inject = [
             });
         });
     }    
-    
-    
-    public static autoSave($q: ng.IQService, selection: ISelectionManager): ng.IPromise<void> {
-        let artifact = selection.getArtifact();
-        if (artifact) {
-            return artifact.autosave();
-        }
-        return $q.resolve();
-    }  
 }

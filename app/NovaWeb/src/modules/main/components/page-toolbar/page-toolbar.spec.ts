@@ -13,6 +13,8 @@ import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-m
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {PublishServiceMock} from "../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import {IAnalyticsProvider, AnalyticsProvider} from "../analytics/analyticsProvider";
+import {SessionSvc, ISession} from "../../../shell/login/session.svc";
+import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 
 
 describe("Application toolbar:", () => {
@@ -52,6 +54,11 @@ describe("Application toolbar:", () => {
         });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("auth", AuthSvcMock);
+        $provide.service("$uibModal", ModalServiceMock);
+
+        $provide.service("session", SessionSvc);
+
         $provide.provider("analytics", AnalyticsProvider);
 
     }));
@@ -67,7 +74,8 @@ describe("Application toolbar:", () => {
                        messageService: IMessageService,
                        navigationService: NavigationServiceMock,
                        loadingOverlayService: LoadingOverlayService,
-                       analytics: IAnalyticsProvider) => {
+                       analytics: IAnalyticsProvider,
+                       session: ISession) => {
         $scope = $rootScope.$new();
         _$q = $q;
 

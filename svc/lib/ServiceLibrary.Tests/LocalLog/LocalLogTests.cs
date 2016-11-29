@@ -10,6 +10,7 @@ namespace ServiceLibrary.LocalLog
     /// Summary description for LocalLogTests
     /// </summary>
     [TestClass]
+    [Ignore] // These tests create Files and have no asserts!
     public class LocalLogTests
     {
         #region LocalFileLog Tests

@@ -95,33 +95,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Open"),
-            template: require("../dialogs/open-project/open-project.template.html"),
-            controller: OpenProjectController,
-            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((project: AdminStoreModels.IInstanceItem) => {
-            if (project) {
-                const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-                let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-
-                try {
-                    this.projectManager.add(project)
-                        .finally(() => {
-                            //(eventCollection, action, label?, value?, custom?, jQEvent?
-                            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                            this.analytics.trackEvent("open", "project", label, project.id, {
-                                openProjects: openProjects
-                            });
-                            this.loadingOverlayService.endLoading(openProjectLoadingId);
-                        });
-                } catch (err) {
-                    this.loadingOverlayService.endLoading(openProjectLoadingId);
-                    throw err;
-                }
-            }
-        });
-
+        this.projectManager.openProjectWithDialog();        
     }
 
     /**
@@ -404,11 +378,11 @@ export class PageToolbarController implements IPageToolbarController {
 
     private publishAllInternal(data: Models.IPublishResultSet) {
         let artifact = this.artifactManager.selection.getArtifact();
-        let promise: ng.IPromise<void>;
+        let promise: ng.IPromise<IStatefulArtifact>;
         if (artifact) {
-            promise = artifact.autosave();
+            promise = artifact.save();
         } else {
-            let def = this.$q.defer<void>();
+            let def = this.$q.defer<IStatefulArtifact>();
             def.resolve();
             promise = def.promise;
         }
@@ -425,6 +399,9 @@ export class PageToolbarController implements IPageToolbarController {
                     }
 
                     this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
+                })
+                .catch((error) => {
+                    this.messageService.addError(error);
                 })
                 .finally(() => {
                     this.loadingOverlayService.endLoading(publishAllLoadingId);

@@ -56,7 +56,7 @@
         {{::$ctrl.localization.get('App_UP_Relationships_Manage_Traces') }}
     </label>
     <div class="tabs">
-        <uib-tabset active="$ctrl.categoryFilter">
+        <uib-tabset active="$ctrl.categoryFilter" class="nav-tabs-as-filters">
             <uib-tab index="0" heading="{{::$ctrl.localization.get('App_UP_Relationships_All') }}"></uib-tab>
             <uib-tab index="1" heading="{{::$ctrl.localization.get('App_UP_Relationships_Traces') }}"></uib-tab>
             <uib-tab index="2" heading="{{::$ctrl.localization.get('App_UP_Relationships_Association') }}"></uib-tab>

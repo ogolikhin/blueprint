@@ -136,14 +136,26 @@ describe("BpArtifactPickerController", () => {
 
     it("clearSearch clears text and results", () => {
         // Arrange
+        controller.itemTypes =
+            [{
+                name : "All types",
+                id : null,
+                prefix : "",
+                predefinedType : null,
+                iconImageId: null,
+                usedInThisProject: null,
+                customPropertyTypeIds: null
+            }];
 
         // Act
         controller.clearSearch();
+        const clearSearchEnabled = controller.clearSearchEnabled();
 
         // Assert
         expect(controller.searchText).toBeUndefined();
         expect(controller.searchResults).toBeUndefined();
         expect(controller.isMoreSearchResults).toBeUndefined();
+        expect(clearSearchEnabled).toBe(false);
     });
 
     it("search, when project is set, searches artifacts", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -155,6 +167,7 @@ describe("BpArtifactPickerController", () => {
 
         // Act
         controller.search();
+        const clearSearchEnabled = controller.clearSearchEnabled();
 
         // Assert
         expect(controller.isSearching).toEqual(true);
@@ -169,6 +182,7 @@ describe("BpArtifactPickerController", () => {
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
         expect(controller.isMoreSearchResults).toEqual(false);
+        expect(clearSearchEnabled).toBe(true);
     }));
 
     it("search, when project is not set, searches projects", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -214,7 +228,7 @@ describe("BpArtifactPickerController", () => {
                 isGroup: true
             })]);
             expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.columns[0].innerRenderer)).toEqual(true);
+            expect(angular.isFunction(controller.columns[0].cellRenderer)).toEqual(true);
         });
 
         it("getCellClass returns correct result", () => {
@@ -228,7 +242,7 @@ describe("BpArtifactPickerController", () => {
             expect(css).toEqual(["test"]);
         });
 
-        it("innerRenderer returns correct result", () => {
+        it("cellRenderer returns correct result", () => {
             // Arrange
             const vm = {
                 getIcon() {
@@ -246,10 +260,10 @@ describe("BpArtifactPickerController", () => {
             };
 
             // Act
-            const result = controller.columns[0].innerRenderer(params);
+            const result = controller.columns[0].cellRenderer(params);
 
             // Assert
-            expect(result).toEqual(`<span class="ag-group-value-wrapper">icon<span>name</span></span>`);
+            expect(result).toEqual(`icon<span>name</span>`);
         });
     });
 

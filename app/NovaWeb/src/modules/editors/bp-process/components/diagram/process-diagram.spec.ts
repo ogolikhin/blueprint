@@ -14,18 +14,21 @@ import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
+import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
+
+class ExecutionEnvironmentDetectorMock {
+    private browserInfo: any;
+
+    constructor() {
+        this.browserInfo = {msie: false, firefox: false, version: 0};
+    }
+
+    public getBrowserInfo(): any {
+        return this.browserInfo;
+    }
+}
 
 describe("ProcessDiagram Tests", () => {
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("messageService", MessageServiceMock);
-        $provide.service("communicationManager", CommunicationManager);
-        $provide.service("$uibModal", ModalServiceMock);
-        $provide.service("dialogService", DialogService);
-        $provide.service("localization", LocalizationServiceMock);
-        $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("shapesFactory", ShapesFactoryMock);
-    }));
     let rootScope: ng.IRootScopeService,
         scope,
         timeout: ng.ITimeoutService,
@@ -36,11 +39,27 @@ describe("ProcessDiagram Tests", () => {
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock,
+        clipboard: IClipboardService,
         navigationService: INavigationService,
         shapesFactory: ShapesFactory;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
+
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
+        $provide.service("$uibModal", ModalServiceMock);
+        $provide.service("dialogService", DialogService);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("shapesFactory", ShapesFactoryMock);
+        $provide.service("clipboardService", ClipboardService);
+    }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
                        $timeout: ng.ITimeoutService,
@@ -52,7 +71,8 @@ describe("ProcessDiagram Tests", () => {
                        _localization_: LocalizationServiceMock,
                        _navigationService_: INavigationService,
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory) => {
+                       _shapesFactory_: ShapesFactory,
+                       _clipboardService_: ClipboardService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -70,6 +90,7 @@ describe("ProcessDiagram Tests", () => {
         communicationManager = _communicationManager_;
         dialogService = _dialogService_;
         localization = _localization_;
+        clipboard = _clipboardService_;
         navigationService = _navigationService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
         shapesFactory = _shapesFactory_;
@@ -94,7 +115,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -121,7 +143,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -151,7 +174,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -181,7 +205,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -212,7 +237,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -242,7 +268,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -273,7 +300,8 @@ describe("ProcessDiagram Tests", () => {
             localization,
             navigationService,
             statefulArtifactFactory,
-            shapesFactory
+            shapesFactory,
+            clipboard
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

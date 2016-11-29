@@ -325,7 +325,7 @@ pagecontent, bp-properties-panel {
                         height: $property-choice-height;
 
                         .ui-select-choices-row-inner {
-                            color: $gray-darker;
+                            color: $gray-darkest;
                             cursor: pointer;
                             text-decoration: none;
 
@@ -486,7 +486,7 @@ pagecontent, bp-properties-panel {
                 }
 
                 .ui-select-match-item-chosen {
-                    color: $gray-darker;
+                    color: $gray-darkest;
                     font-size: 1.2rem;
                     line-height: 18px;
                     overflow: hidden;
@@ -524,7 +524,7 @@ pagecontent, bp-properties-panel {
                         height: $property-choice-height;
 
                         .ui-select-choices-row-inner {
-                            color: $gray-darker;
+                            color: $gray-darkest;
                             cursor: pointer;
                             text-decoration: none;
 
@@ -901,11 +901,11 @@ pagecontent, bp-properties-panel {
 
             .mce-toolbar-grp {
                 border-color: $gray-lighter;
-                border-width: 1px 1px 0 !important;
+                border-width: 1px !important;
                 min-width: 350px;
                 padding: 0;
                 position: absolute;
-                top: -28px;
+                top: -29px;
 
                 .mce-flow-layout-item {
                     margin: 0;
@@ -918,7 +918,7 @@ pagecontent, bp-properties-panel {
             }
 
             .mce-edit-area {
-                border-color: $gray-lighter;
+                border-color: transparent;
                 border-width: 1px !important;
             }
 
@@ -1309,7 +1309,7 @@ pagecontent, bp-properties-panel {
 .tab-pane {
     border: solid 1px $gray-lighter;
     border-radius: $border-radius-amount;
-    padding: 18px 20px;
+    padding: 18px 15px;
 
     .rich-text-wrapper {
         min-height: $richtext-min-height;
@@ -1356,7 +1356,7 @@ bp-properties-panel {
     }
 
     .tab-pane {
-        padding: 8px 15px;
+        padding: 8px 10px 12px;
     }
 }
 

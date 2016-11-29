@@ -112,7 +112,7 @@ export interface IDialogController {
 
 export class BaseDialogController implements IDialogController {
 
-    public hasCloseButton: boolean;
+    public hasCloseButton: boolean = false;
 
     public get returnValue(): any {
         return undefined;

@@ -175,38 +175,38 @@ namespace Model.Factories
 
                     while (reader.Read())
                     {
-                        UserSource source = (UserSource)GetValueOrDefault<int>(reader, "Source");
+                        UserSource source = (UserSource) DatabaseUtilities.GetValueOrDefault<int>(reader, "Source");
                         User user = (User)CreateUserOnly(source);
 
-                        user.Department = GetValueOrDefault<string>(reader, "Department");
-                        user.DisplayName = GetValueOrDefault<string>(reader, "DisplayName");
-                        user.Email = GetValueOrDefault<string>(reader, "Email");
-                        user.EncryptedPassword = GetValueOrDefault<string>(reader, "Password");
-                        user.Enabled = GetValueOrDefault<bool>(reader, "Enabled");
-                        user.FirstName = GetValueOrDefault<string>(reader, "FirstName");
+                        user.Department = DatabaseUtilities.GetValueOrDefault<string>(reader, "Department");
+                        user.DisplayName = DatabaseUtilities.GetValueOrDefault<string>(reader, "DisplayName");
+                        user.Email = DatabaseUtilities.GetValueOrDefault<string>(reader, "Email");
+                        user.EncryptedPassword = DatabaseUtilities.GetValueOrDefault<string>(reader, "Password");
+                        user.Enabled = DatabaseUtilities.GetValueOrDefault<bool>(reader, "Enabled");
+                        user.FirstName = DatabaseUtilities.GetValueOrDefault<string>(reader, "FirstName");
                         // TODO: Get Group Membership list.
-                        user.InstanceAdminRole = (InstanceAdminRole)GetValueOrDefault<int>(reader, "InstanceAdminRoleId");
-                        user.LastName = GetValueOrDefault<string>(reader, "LastName");
+                        user.InstanceAdminRole = (InstanceAdminRole) DatabaseUtilities.GetValueOrDefault<int>(reader, "InstanceAdminRoleId");
+                        user.LastName = DatabaseUtilities.GetValueOrDefault<string>(reader, "LastName");
                         //user.License = ??
                         //user.Password = ?? (can we decrypt the password?)
                         //user.Picture = ??
                         user.Picture = null;
-                        user.Title = GetValueOrDefault<string>(reader, "Title");
-                        user.Id = GetValueOrDefault<int>(reader, "UserId");
-                        user.Username = GetValueOrDefault<string>(reader, "Login");
+                        user.Title = DatabaseUtilities.GetValueOrDefault<string>(reader, "Title");
+                        user.Id = DatabaseUtilities.GetValueOrDefault<int>(reader, "UserId");
+                        user.Username = DatabaseUtilities.GetValueOrDefault<string>(reader, "Login");
 
                         // These are properties not in IUser:
-                        user.AllowFallback = GetValueOrNull<bool>(reader, "AllowFallback");
-                        user.CurrentVersion = GetValueOrDefault<int>(reader, "CurrentVersion");
-                        user.EndTimestamp = GetValueOrNull<DateTime>(reader, "EndTimestamp");
-                        user.EULAccepted = GetValueOrDefault<bool>(reader, "EULAccepted");
-                        user.ExpirePassword = GetValueOrNull<bool>(reader, "ExpirePassword");
-                        user.Guest = GetValueOrDefault<bool>(reader, "Guest");
-                        user.InvalidLogonAttemptsNumber = GetValueOrDefault<int>(reader, "InvalidLogonAttemptsNumber");
-                        user.LastInvalidLogonTimeStamp = GetValueOrNull<DateTime>(reader, "LastInvalidLogonTimeStamp");
-                        user.LastPasswordChangeTimestamp = GetValueOrNull<DateTime>(reader, "LastPasswordChangeTimestamp");
-                        user.StartTimestamp = GetValueOrDefault<DateTime>(reader, "StartTimestamp");
-                        user.UserSALT = GetValueOrDefault<Guid>(reader, "UserSALT");
+                        user.AllowFallback = DatabaseUtilities.GetValueOrNull<bool>(reader, "AllowFallback");
+                        user.CurrentVersion = DatabaseUtilities.GetValueOrDefault<int>(reader, "CurrentVersion");
+                        user.EndTimestamp = DatabaseUtilities.GetValueOrNull<DateTime>(reader, "EndTimestamp");
+                        user.EULAccepted = DatabaseUtilities.GetValueOrDefault<bool>(reader, "EULAccepted");
+                        user.ExpirePassword = DatabaseUtilities.GetValueOrNull<bool>(reader, "ExpirePassword");
+                        user.Guest = DatabaseUtilities.GetValueOrDefault<bool>(reader, "Guest");
+                        user.InvalidLogonAttemptsNumber = DatabaseUtilities.GetValueOrDefault<int>(reader, "InvalidLogonAttemptsNumber");
+                        user.LastInvalidLogonTimeStamp = DatabaseUtilities.GetValueOrNull<DateTime>(reader, "LastInvalidLogonTimeStamp");
+                        user.LastPasswordChangeTimestamp = DatabaseUtilities.GetValueOrNull<DateTime>(reader, "LastPasswordChangeTimestamp");
+                        user.StartTimestamp = DatabaseUtilities.GetValueOrDefault<DateTime>(reader, "StartTimestamp");
+                        user.UserSALT = DatabaseUtilities.GetValueOrDefault<Guid>(reader, "UserSALT");
 
                         Logger.WriteTrace(user.ToString());
 
@@ -217,69 +217,5 @@ namespace Model.Factories
                 }
             }
         }
-
-        #region private functions
-
-        /// <summary>
-        /// Gets the specified field from the SqlDataReader stream, or returns the default value if the field is null.
-        /// </summary>
-        /// <typeparam name="T">The field type.</typeparam>
-        /// <param name="reader">The SqlDataReader that holds the query results.</param>
-        /// <param name="name">The name of the field to get.</param>
-        /// <returns>The field value or the default value for the specified type.</returns>
-        private static T GetValueOrDefault<T>(SqlDataReader reader, string name)
-        {
-            ThrowIf.ArgumentNull(reader, nameof(reader));
-            ThrowIf.ArgumentNull(name, nameof(name));
-
-            try
-            {
-                int ordinal = reader.GetOrdinal(name);
-
-                if (reader.IsDBNull(ordinal))
-                {
-                    return default(T);
-                }
-
-                return (T)reader.GetValue(ordinal);
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Logger.WriteError("*** Caught a IndexOutOfRangeException with field: {0}\n{1}", name, e.Message);
-                return default(T);
-            }
-        }
-
-        /// <summary>
-        /// Gets the specified field from the SqlDataReader stream, or null.
-        /// </summary>
-        /// <typeparam name="T">The field type.</typeparam>
-        /// <param name="reader">The SqlDataReader that holds the query results.</param>
-        /// <param name="name">The name of the field to get.</param>
-        /// <returns>The field value or null.</returns>
-        private static Nullable<T> GetValueOrNull<T>(SqlDataReader reader, string name) where T : struct
-        {
-            ThrowIf.ArgumentNull(reader, nameof(reader));
-            ThrowIf.ArgumentNull(name, nameof(name));
-
-            try
-            {
-                int ordinal = reader.GetOrdinal(name);
-
-                if (reader.IsDBNull(ordinal))
-                {
-                    return null;
-                }
-
-                return (T)reader.GetValue(ordinal);
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                Logger.WriteError("*** Caught a IndexOutOfRangeException with field: {0}\n{1}", name, e.Message);
-                return default(T);
-            }
-        }
-
-        #endregion private functions
     }
 }

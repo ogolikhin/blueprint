@@ -64,16 +64,37 @@ bp-utility-panel {
         text-align: center;
         p {
             font-size: 1.2rem;
-            color: $gray-darker;
+            color: $gray-darkest;
             margin-bottom: 20px;
         }
     }
+    .tab-slider__prev--show,
+    .tab-slider__next--show {
+        width: 24px;
+    }
 
     .nav-tabs {
-        clear: both;
-        padding-top: 7px;
-        margin-bottom: 0;
+        margin-bottom: 5px;
+        margin-top: 10px;
+
+        > li, > li.active {
+            font-size: $font-size-small;
+        }
+
+        > li > a {
+            margin: 0 8px;
+        }
+
+        > li:first-child {
+            padding-left: 3px;
+        }
+    }
+
+    .nav-tabs-as-filters .nav-tabs {
         border-bottom: 1px solid $gray-lightest;
+        clear: both;
+        margin-bottom: 0;
+        padding-top: 7px;
 
         > li, > li.active {
             font-size: $font-size-small;
@@ -194,7 +215,7 @@ bp-utility-panel {
         .icon:before {
             -webkit-transition-duration: 0.4s;
             transition-duration: 0.4s;
-            color: $gray-darker;
+            color: $gray-darkest;
             font-size: $font-size-bigger;
             margin: 0;
         }
@@ -209,7 +230,7 @@ bp-utility-panel {
 
         p {
             font-size: 1.2rem;
-            color: $gray-darker;
+            color: $gray-darkest;
             margin-bottom: 20px;
         }
     }

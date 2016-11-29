@@ -106,7 +106,7 @@ namespace StorytellerTests
 
             // Verifies that the historical process matches the original version of the published process
             // before a change was made.
-            StorytellerTestHelper.AssertProcessesAreIdentical(publishedProcess, historicalProcess);
+            StorytellerTestHelper.AssertProcessesAreEqual(publishedProcess, historicalProcess);
         }
 
         /// <summary>

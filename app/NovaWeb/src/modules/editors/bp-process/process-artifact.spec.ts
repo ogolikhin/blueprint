@@ -223,6 +223,9 @@ describe("StatefulProcessArtifact", () => {
             processArtifact.artifactState.readonly = false;
               
             spyOn(processArtifact, "lock");
+            spyOn(processArtifact, "canBeSaved").and.callFake(() => {
+                return true;
+            });
 
             const testUserTask = ShapeModelMock.instance().UserTaskMock();
             testUserTask.id = -1;

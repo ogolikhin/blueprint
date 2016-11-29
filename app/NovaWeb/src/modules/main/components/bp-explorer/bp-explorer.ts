@@ -1,4 +1,4 @@
-import {TreeModels} from "../../models";
+import {TreeModels, AdminStoreModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
@@ -6,6 +6,10 @@ import {ISelectionManager} from "../../../managers/selection-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
+import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -34,7 +38,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "artifactManager",
         "navigationService",
         "selectionManager",
-        "messageService"
+        "messageService",
+        "projectService",
+        "loadingOverlayService",
+        "analytics",
+        "localization"
     ];
 
     constructor(private $q: ng.IQService,
@@ -42,7 +50,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private projectService: IProjectService,
+                private loadingOverlayService: ILoadingOverlayService,
+                private analytics: IAnalyticsProvider,
+                public localization: ILocalizationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -105,7 +117,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
-    }
+    }           
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
@@ -120,6 +132,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (this.pendingSelectedArtifactId) {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
+            // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
+            } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
+                this.selectionManager.getArtifact() &&
+                // selectedArtifactId = undefined only if there is no projects open.
+                // if there are some artifact pre selected in the tree before opening project
+                // we need to check if this artifact is not from this.projects[0] (last opened project)
+                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
+                navigateToId = this.selectionManager.getArtifact().id;                
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
@@ -161,11 +181,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public columns: IColumn[] = [{
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (params: IColumnRendererParams) => {
+        cellRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeModels.ITreeNodeVM<any>;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
+            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
+                   `${icon}<span>${label}</span></a>`;
         }
     }];
 

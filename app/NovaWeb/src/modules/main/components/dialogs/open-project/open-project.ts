@@ -104,7 +104,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
         headerName: this.localization.get("App_Header_Name"),
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (params: IColumnRendererParams) => {
+        cellRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeModels.ITreeNodeVM<any>;
             if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 //TODO this listener is never removed
@@ -115,7 +115,7 @@ export class OpenProjectController extends BaseDialogController implements IOpen
                 params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
             }
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<span class="ag-group-value-wrapper"><i></i><span>${label}</span></span>`;
+            return `<i></i><span>${label}</span>`;
         }
     }];
 

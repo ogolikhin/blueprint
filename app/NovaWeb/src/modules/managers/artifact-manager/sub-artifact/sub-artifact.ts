@@ -153,7 +153,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
                 return this.services.$q.resolve(result);
             } 
 
-            const  message: string = `The sub-artifact ${this.prefix + this.id.toString()} has validation errors.`;
+            const  message: string = `The Sub Artifact ${this.prefix + this.id.toString() + ":" + this.name} has validation errors.`;
             return this.services.$q.reject(new Error(message));
         });
 

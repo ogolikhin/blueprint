@@ -1,22 +1,71 @@
-$gray-darker: #333;
+@import "variables";
+
+/*
+ Colors and Typography
+
+ Styleguide 1.0
+*/
+
+/*
+ Custom Colors
+
+ This chapter outlines the custom colors we have defined
+
+ Styleguide 1.2.0
+*/
+
+/*
+ Custom Colors
+
+ site theme colors as as follows
+
+ $black								- Black
+ $text-highlight-color				- text-highlight-color
+ $white								- white
+ $gray-lightest						- gray-lightest
+ $modal-bg-color						- modal-bg-color
+ $blue-light							- blue-light
+ $brand-secondary						- brand-secondary
+ $tree-focus-border					- tree-focus-border
+ $tree-hover-background				- tree-hover-background
+ $tree-focus-background				- tree-focus-background
+ $blue-lightest						- blue-lightest
+ $body-bg-color						- body-bg-color
+ $brand-error							- brand-error
+ $messages-bg-error					- messages-bg-error
+ $brand-success						- brand-success
+ $brand-warning						- brand-warning
+ $yellow-pale							- yellow-pale
+ $text-highlight-background-color		- text-highlight-background-color
+
+ markup:
+ <div style="background: {$modifiers};" class="styleguide-color">{$modifiers}</div>
+
+ Styleguide 1.2.1
+*/
+
+
+
+$white: #fff;
+$black: #000;
+
+$gray-darkest: #333;
 $gray-dark: #616161;
 $gray: #999;
 $gray-light: #aaa;
 $gray-lighter: #ccc;
 $gray-lightest: #e8e8e8;
+
 $blue-light: #01a7e1;
 $blue-lightest: #e7ebf2;
 $yellow-pale: #fbf8e7;
-$white: #fff;
-$black: #000;
-
 $brand-primary: #1c285c;
 $brand-secondary: #009cdc;
 $brand-success: #36a2b0;
 $brand-error: #d95f5e;
 $brand-warning: #e4b169;
 
-$text-color: $gray-darker;
+$text-color: $gray-darkest;
 $text-highlight-background-color: #ffffb3;
 $text-highlight-color: $black;
 
@@ -34,3 +83,131 @@ $link-hover-color: lighten($brand-secondary, 10%);
 $tree-hover-background: #e5f3fb;
 $tree-focus-background: #e5f3fb;
 $tree-focus-border: #70c0e7;
+
+$left-sidebar-border: $brand-secondary;
+$right-sidebar-border: $brand-secondary;
+$default-disabled-color: #ccc;
+$utility-panel-border-color: #dde1e2;
+$hamburger-layer-color: $brand-secondary;
+
+/*
+ Calculated Colors
+
+ .text-color							- $text-color
+ .gray-darkest					    - gray-darkest
+ .gray-dark							- gray-dark
+ .gray-light							- gray-light
+ .gray-lighter						- gray-lighter
+ .gray                                - $gray
+ .brand-primary                       - $brand-primary
+ .messages-bg-info                    - $messages-bg-info
+ .messages-bg-warning                 - $messages-bg-warning
+
+ markup:
+ <div class="styleguide-color {$modifiers}">&#36;{$modifiers}</div>
+
+ Styleguide 1.2.2
+*/
+
+.styleguide-color {
+    &.text-color {
+        background-color: $text-color;
+    }
+    &.gray-darkest {
+        background-color: $gray-darkest;
+    }
+    &.gray-dark {
+        background-color: $gray-dark;
+    }
+    &.gray-light {
+        background-color: $gray-light;
+    }
+    &.gray-lighter {
+        background-color: $gray-lighter;
+    }
+    &.gray {
+        background-color: $gray;
+    }
+    &.text-color {
+        background-color: $text-color;
+    }
+    &.brand-primary {
+        background-color: $brand-primary;
+    }
+    &.messages-bg-info {
+        background-color: $messages-bg-info;
+    }
+    &.messages-bg-warning {
+        background-color: $messages-bg-warning;
+    }
+}
+
+/*
+ bootstrap Colors
+
+ This chapter outlines the over-ridden bootstrap colors we have defined
+
+ Styleguide 1.1.0
+*/
+
+/*
+ bootstrap Colors
+
+ $gray-base                     - Color
+ $brand-success                     - Color
+ $brand-info                     - Color
+ $brand-warning                     - Color
+ $brand-danger                     - Color
+ $link-color                     - Color
+ $body-bg                     - Color
+
+ markup:
+ <div style="background: {$modifiers};" class="styleguide-color">{$modifiers}</div>
+
+ Styleguide 1.1.1
+*/
+
+/*
+ Calculated Colors
+
+ .gray-darkest                     - Color
+ .gray-dark                     - Color
+ .gray                     - Color
+ .gray-light                     - Color
+ .gray-lighter                     - Color
+ .brand-primary                     - Color
+ .text-color                     - Color
+ .link-hover-color                - Color
+
+ markup:
+ <div class="styleguide-color {$modifiers}">&#36;{$modifiers}</div>
+
+ Styleguide 1.1.2
+*/
+
+.styleguide-color {
+    &.gray-darkest {
+        background-color: $gray-base;
+    }
+    &.gray-dark {
+        background-color: $gray-dark;
+    }
+    &.gray {
+        background-color: $gray;
+    }
+    &.gray-light {
+        background-color: $gray-light;
+    }
+    &.gray-lighter {
+        background-color: $gray-lighter;
+    }
+    &.brand-primary {
+        background-color: $brand-primary;
+    }
+    &.text-color {
+        background-color: $text-color;
+    }
+    &.link-hover-color {
+        background-color: $link-hover-color;
+    }
+}

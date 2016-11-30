@@ -33,10 +33,11 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public systemFields: AngularFormly.IFieldConfigurationObject[];
     public noteFields: AngularFormly.IFieldConfigurationObject[];
 
-    public $onDestroy() {
-        delete this.systemFields;
-        delete this.noteFields;
-        super.$onDestroy();
+    protected destroy(): void {
+        this.systemFields = undefined;
+        this.noteFields = undefined;
+
+        super.destroy();
     }
 
     public get isLoaded(): boolean {

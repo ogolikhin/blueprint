@@ -28,7 +28,7 @@ $tab-slider-transition-delay: .5s; // must be >= .2s
 
 .tab-slider__slide {
     flex: none;
-    max-width: 100%;
+    max-width: 50%;
     overflow: hidden;
     white-space: nowrap;
 

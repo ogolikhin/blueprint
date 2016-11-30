@@ -42,12 +42,13 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     private validationService: IValidationService;
 
-    public $onDestroy() {
-        delete this.systemFields;
-        delete this.customFields;
-        delete this.specificFields;
-        delete this.richTextFields;
-        super.$onDestroy();
+    protected destroy(): void {
+        this.systemFields = undefined;
+        this.customFields = undefined;
+        this.specificFields = undefined;
+        this.richTextFields = undefined;
+
+        super.destroy();
     }
 
     public clearFields() {

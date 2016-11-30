@@ -11,10 +11,10 @@ import {LoadingOverlayService} from "../../../core/loading-overlay/loading-overl
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
-import {PublishServiceMock} from "../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import {IAnalyticsProvider, AnalyticsProvider} from "../analytics/analyticsProvider";
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 
 
 describe("Application toolbar:", () => {
@@ -48,12 +48,13 @@ describe("Application toolbar:", () => {
             };
         });
         $provide.service("artifactManager", ArtifactManagerMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("messageService", () => {
             return {};
         });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
 
@@ -70,7 +71,7 @@ describe("Application toolbar:", () => {
                        dialogService: IDialogService,
                        projectManager: IProjectManager,
                        artifactManager: ArtifactManagerMock,
-                       publishService: PublishServiceMock,
+                       publishService: UnpublishedArtifactsServiceMock,
                        messageService: IMessageService,
                        navigationService: NavigationServiceMock,
                        loadingOverlayService: LoadingOverlayService,
@@ -99,6 +100,8 @@ describe("Application toolbar:", () => {
                 return;
             }
         } as ISelectionManager;
+        spyOn(artifactManager, "autosave").and.callFake(() => { return $q.resolve(); });
+
     }));
     describe("close project->", () => {
 
@@ -114,6 +117,7 @@ describe("Application toolbar:", () => {
                     id: "projectclose"
                 }
             };
+
             spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
@@ -180,12 +184,9 @@ describe("Application toolbar:", () => {
 
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
             const selectionSpy = spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
-
-
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove");
-            const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
             const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
             // Act
@@ -194,7 +195,6 @@ describe("Application toolbar:", () => {
 
             // Assert
             expect(selectionSpy).toHaveBeenCalled();
-            expect(clearAllSpy).toHaveBeenCalled();
             expect(navigateToSpy).toHaveBeenCalledWith({id: 1});
             expect(navigateToMainSpy).not.toHaveBeenCalled();
             expect(removeProjectSpy).not.toHaveBeenCalled();
@@ -223,7 +223,6 @@ describe("Application toolbar:", () => {
                 const navigateToSpy = spyOn(navigationService, "navigateTo");
                 const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
                 const removeProjectSpy = spyOn(projectManager, "remove").and.callFake(() => openedProjects.pop());
-                const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
                 const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
                 // Act
@@ -231,7 +230,6 @@ describe("Application toolbar:", () => {
                 $scope.$digest();
 
                 // Assert
-                expect(clearAllSpy).toHaveBeenCalled();
                 expect(navigateToSpy).toHaveBeenCalledWith({id: 2});
                 expect(navigateToMainSpy).not.toHaveBeenCalled();
                 expect(removeProjectSpy).toHaveBeenCalled();

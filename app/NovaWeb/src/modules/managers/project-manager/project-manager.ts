@@ -27,9 +27,9 @@ export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>;
 
     // eventManager
-    initialize();
+    initialize(): void;
     load(projectId: number): ng.IPromise<void>;
-    add(project: AdminStoreModels.IInstanceItem);
+    add(project: AdminStoreModels.IInstanceItem): void;
     openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
     openProjectWithDialog(): void;
     remove(projectId: number): void;
@@ -39,7 +39,7 @@ export interface IProjectManager extends IDispose {
     refreshAll(): ng.IPromise<void>;
     getProject(id: number): Models.IViewModel<IStatefulArtifact>;
     getSelectedProjectId(): number;
-    triggerProjectCollectionRefresh();
+    triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
     calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }
@@ -134,18 +134,21 @@ export class ProjectManager implements IProjectManager {
 
     public refreshAll(): ng.IPromise<any> {
         let refreshQueue = [];
+        return this.artifactManager.autosave().then(() => {
+            this.projectCollection.getValue().forEach((project) => {
+                refreshQueue.push(this.refreshProject(project));
+            });
 
-        this.projectCollection.getValue().forEach((project) => {
-            refreshQueue.push(this.refreshProject(project));
-        });
-
-        return this.$q.all(refreshQueue).finally(() => {
-            this.triggerProjectCollectionRefresh();
-        });
+            return this.$q.all(refreshQueue).finally(() => {
+                this.triggerProjectCollectionRefresh();
+            });
+        }); 
     }
 
     public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<void> {
-        return this.refreshProject(this.getProject(projectId), forceOpen);
+        return this.artifactManager.autosave().then(() => {
+            return this.refreshProject(this.getProject(projectId), forceOpen);
+        });
     }
 
     public refreshCurrent(): ng.IPromise<void> {
@@ -158,16 +161,7 @@ export class ProjectManager implements IProjectManager {
         }
 
         let selectedArtifact = this.artifactManager.selection.getArtifact();
-
-        if (selectedArtifact) {
-            return selectedArtifact.autosave().then(() => {
-                return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
-            });
-        } else {
-            return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
-        }
-
-
+        return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
     }
 
     public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {

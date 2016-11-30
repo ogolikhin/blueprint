@@ -142,8 +142,8 @@ namespace ArtifactStore.Repositories
                 var isMultiLineRichText = pt.IsRichText.GetValueOrDefault() && pt.IsMultipleAllowed.GetValueOrDefault();
                 var key = Tuple.Create(
                     isMultiLineRichText,
-                    isNotInGneralGroup,
                     isNotInDetailsGroup,
+                    isNotInGneralGroup,
                     isNotInGneralGroup && isNotInDetailsGroup ? int.MaxValue : orderIndex,
                     pt.InstancePropertyTypeId.HasValue,
                     pvId);
@@ -338,6 +338,7 @@ namespace ArtifactStore.Repositories
         public class AdvancedSettings
         {
             [XmlArray]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:For unit tests.")]
             public List<PropertyLayoutGroup> LayoutGroups { get; set; }
         }
 
@@ -346,6 +347,7 @@ namespace ArtifactStore.Repositories
             [XmlAttribute]
             public GroupType Type { get; set; }
             [XmlArray]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:For unit tests.")]
             public List<PropertyLayout> Properties { get; set; }
         }
 

@@ -117,7 +117,11 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     }
 
     public limitChars(str) {
-        return Helper.limitChars(Helper.stripHTMLTags(str));
+        if (str) {
+            return Helper.limitChars(Helper.stripHTMLTags(str));
+        }
+
+        return "";
     }
 
     private getRelationshipDetails(artifactId: number, versionId?: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {

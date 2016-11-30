@@ -68,8 +68,13 @@ bp-utility-panel {
             margin-bottom: 20px;
         }
     }
+
+    .tab-slider__slide {
+        max-width: 100%;
+    }
     .tab-slider__prev--show,
-    .tab-slider__next--show {
+    .tab-slider__next--show,
+    .tab-slider__next--show-empty {
         width: 24px;
     }
 

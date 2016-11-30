@@ -1,19 +1,19 @@
 import * as angular from "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {Models} from "../../../main/models";
-import {PublishService, IPublishService} from "./publish.svc";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {Models} from "../../main/models";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {UnpublishedArtifactsService, IUnpublishedArtifactsService} from "./unpublished.svc";
 
 describe("Publish Service", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("publishService", PublishService);
+        $provide.service("publishService", UnpublishedArtifactsService);
     }));
 
     describe("Get Unpublished Changes", () => {
-        it("get unpublished changes successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+        it("get unpublished changes successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IUnpublishedArtifactsService) => {
             // Arrange
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/unpublished")
                 .respond(HttpStatusCode.Success, <Models.IPublishResultSet>{
@@ -46,7 +46,7 @@ describe("Publish Service", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("get unpublished changes error", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+        it("get unpublished changes error", inject(($httpBackend: ng.IHttpBackendService, publishService: IUnpublishedArtifactsService) => {
             // Arrange
             $httpBackend.expectGET("/svc/bpartifactstore/artifacts/unpublished")
                 .respond(HttpStatusCode.NotFound, {
@@ -71,7 +71,7 @@ describe("Publish Service", () => {
     });
 
     describe("Post Publish All", () => {
-        it("post publish all successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+        it("post publish all successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IUnpublishedArtifactsService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=true")
                 .respond(HttpStatusCode.Success, <Models.IPublishResultSet>{
@@ -96,7 +96,7 @@ describe("Publish Service", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("post publish all error", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+        it("post publish all error", inject(($httpBackend: ng.IHttpBackendService, publishService: IUnpublishedArtifactsService) => {
             // Arrange
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=true")
                 .respond(HttpStatusCode.NotFound, {
@@ -121,7 +121,7 @@ describe("Publish Service", () => {
     });
 
     describe("Post Publish Specific Artifacts", () => {
-        it("successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+        it("successfully", inject(($httpBackend: ng.IHttpBackendService, publishService: IUnpublishedArtifactsService) => {
             // Arrange
             let Ids: number[] = [1, 2, 4];
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=false", Ids)
@@ -147,7 +147,7 @@ describe("Publish Service", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        it("error", inject(($httpBackend: ng.IHttpBackendService, publishService: IPublishService) => {
+        it("error", inject(($httpBackend: ng.IHttpBackendService, publishService: IUnpublishedArtifactsService) => {
             // Arrange
             let Ids: number[] = [1, 2, 4];
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/publish?all=false", Ids)

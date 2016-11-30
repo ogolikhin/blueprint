@@ -31,6 +31,7 @@ export class ClipboardService implements IClipboardService {
     public clearData(): void {
         if (!!this._data) {
             this._data.dispose();
+            this._data = null;
         }
     } 
 }

@@ -4,6 +4,7 @@ import {IAuth, IUser} from "./auth.svc";
 import {SessionTokenHelper} from "./session.token.helper";
 import {LoginCtrl, ILoginInfo} from "./login.ctrl";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {ClipboardService, IClipboardService} from "../../editors/bp-process/services/clipboard.svc";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;
@@ -27,13 +28,14 @@ export interface ISession {
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService", "clipboardService"];
 
     constructor(private $q: ng.IQService,
                 private auth: IAuth,
                 private $uibModal: ng.ui.bootstrap.IModalService,
                 private localization: ILocalizationService,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private clipboardService: IClipboardService) {
     }
 
     private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
@@ -66,6 +68,10 @@ export class SessionSvc implements ISession {
         if (this._currentUser) {
             this._prevLogin = "";
         }
+        if (this.clipboardService) {
+            this.clipboardService.clearData();
+        }
+
         this._currentUser = null;
 
         return defer.promise;

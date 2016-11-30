@@ -6,17 +6,15 @@ import "../../";
 import {ComponentTest} from "../../../util/component.test";
 import {BPPropertiesController} from "./bp-properties-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "./../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {PublishServiceMock} from "./../../../managers/artifact-manager/publish.svc/publish.svc.mock";
+import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {Enums, Models} from "../../../main";
-import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {DialogService} from "../../../shared/widgets/bp-dialog";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
+import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {
     IArtifactManager,
@@ -26,6 +24,7 @@ import {
     MetaDataService
 } from "../../../managers/artifact-manager";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -51,7 +50,7 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);
     }));

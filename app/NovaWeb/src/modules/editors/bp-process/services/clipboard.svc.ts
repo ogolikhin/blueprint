@@ -28,7 +28,7 @@ export class ClipboardService implements IClipboardService {
 
     public setData (newVal: IClipboardData): void {
         this.clearData();
-        this._data = newVal;
+        this._data = _.cloneDeep(newVal);
     }
 
     public getDataType(): ClipboardDataType {

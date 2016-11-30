@@ -18,6 +18,7 @@ using Utilities.Facades;
 
 namespace Helper
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
     public static class ArtifactStoreHelper
     {
         #region Custom Asserts
@@ -391,16 +392,19 @@ namespace Helper
         /// </summary>
         /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
         /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
+        /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
+        /// <param name="user">User to authenticate with.</param>
         /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
         /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
         ///     should have the same ParentId.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertSubArtifactsEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact,
+        public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
             bool skipId = false, bool skipOrderIndex = false, int? expectedParentId = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
             Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
 
@@ -441,6 +445,21 @@ namespace Helper
                 Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
             }
+
+            // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
+            Assert.AreEqual(0, expectedSubArtifact?.AttachmentValues.Count, "AttachmentValues should always be empty!");
+            Assert.AreEqual(0, expectedSubArtifact?.DocRefValues.Count, "DocRefValues should always be empty!");
+            Assert.AreEqual(0, expectedSubArtifact?.Traces.Count, "Traces should always be empty!");
+            Assert.AreEqual(expectedSubArtifact?.AttachmentValues.Count, actualSubArtifact?.AttachmentValues.Count, "The number of Sub-Artifact Attachments don't match!");
+            Assert.AreEqual(expectedSubArtifact?.DocRefValues.Count, actualSubArtifact?.DocRefValues.Count, "The number of Sub-Artifact Document References don't match!");
+            Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
+
+            var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
+                expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
+            var actualRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
+                actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
+
+            Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
 
             //TODO: Add assertions for Traces, Attachments and Doc References
         }

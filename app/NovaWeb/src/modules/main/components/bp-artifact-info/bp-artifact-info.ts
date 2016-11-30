@@ -248,6 +248,7 @@ export class BpArtifactInfoController {
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
         if (artifact) {
+            // ORIGINAL CODE, DO NOT REMOVE
             // this.toolbarActions.push(
             //     new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
             // );
@@ -275,28 +276,39 @@ export class BpArtifactInfoController {
             //     this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
             // }
 
-            this.toolbarActions.push(
-                new BPButtonGroupAction(
-                    new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
-                        this.mainBreadcrumbService)
-                ),
-            );
-
-            this.dotsMenuActions.push(
-                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
-                new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager, this.projectManager,
-                    this.loadingOverlayService, this.dialogService, this.navigationService)
-            );
-            //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                this.dotsMenuActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
-            }
-            this.toolbarActions.push(
-                new BPDotsMenuAction(this.localization.get("App_Toolbar_DotsMenu"), ...this.dotsMenuActions)
-            );
+            // NEW PROPOSED CODE
+            const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+            const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+            const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
+                this.projectManager, this.loadingOverlayService);
+            const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
+                this.metadataService, this.mainBreadcrumbService);
+            const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+                this.dialogService);
+            const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+                this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+            const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+            // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
+            // if (availableWidth > XXX) {
+            //     this.toolbarActions.push(
+            //         moveAction,
+            //         new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
+            //     );
+            //     //we don't want to show impact analysis on collection artifact page
+            //     if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+            //         this.toolbarActions.push(openImpactAnalysisAction);
+            //     }
+            // } else {
+                this.toolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
+                this.dotsMenuActions.push(moveAction, deleteAction);
+                //we don't want to show impact analysis on collection artifact page
+                if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+                    this.dotsMenuActions.push(openImpactAnalysisAction);
+                }
+                this.toolbarActions.push(
+                    new BPDotsMenuAction(this.localization.get("App_Toolbar_DotsMenu"), ...this.dotsMenuActions)
+                );
+            // }
         }
     }
 

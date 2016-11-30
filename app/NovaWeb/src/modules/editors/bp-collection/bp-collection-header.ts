@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../shared";
+import {IDialogService, BPDotsMenuAction} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
@@ -73,8 +73,24 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
+        // ORIGINAL CODE, DO NOT REMOVE
+        // this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
+        //
+        // this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
 
-        this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
+        // NEW PROPOSED CODE
+        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
+        const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
+        // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
+        // if (availableWidth > XXX) {
+        //     this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
+        // } else {
+            for (let i = 0; i < this.toolbarActions.length; i++) {
+                if (this.toolbarActions[i].type === "dotsmenu") {
+                    const buttonDropdown = this.toolbarActions[i] as BPDotsMenuAction;
+                    buttonDropdown.actions.push(rapidReviewAction, addCollectionArtifactAction);
+                }
+            }
+        // }
     }
 }

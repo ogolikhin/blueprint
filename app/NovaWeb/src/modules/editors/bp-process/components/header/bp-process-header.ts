@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../../../shared";
+import {IDialogService, BPDotsMenuAction} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -126,6 +126,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             return;
         }
 
+        // ORIGINAL CODE, DO NOT REMOVE
         // this.toolbarActions.push(
         //     new GenerateUserStoriesAction(
         //         processArtifact,
@@ -144,29 +145,32 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         //     )
         // );
 
-        // for (let i = 0; i < this.toolbarActions.length; i++) {
-        //     if (this.toolbarActions[i].type === "buttondropdown") {
-        //         const buttonDropdown = this.toolbarActions[i];
-        //         buttonDropdown.actions.push(
-        //             new GenerateUserStoriesAction(
-        //                 processArtifact,
-        //                 this.userStoryService,
-        //                 this.artifactManager.selection,
-        //                 this.messageService,
-        //                 this.localization,
-        //                 this.dialogService,
-        //                 this.loadingOverlayService,
-        //                 this.communicationManager.processDiagramCommunication
-        //         );
-        //     }
-        // }
+        // NEW PROPOSED CODE
+        const generateUserStoriesAction = new GenerateUserStoriesAction(
+            processArtifact,
+            this.userStoryService,
+            this.artifactManager.selection,
+            this.messageService,
+            this.localization,
+            this.dialogService,
+            this.loadingOverlayService,
+            this.communicationManager.processDiagramCommunication);
+        const toggleProcessTypeAction = new ToggleProcessTypeAction(
+            processArtifact,
+            this.communicationManager.toolbarCommunicationManager,
+            this.localization);
+        // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
+        // if (availableWidth > XXX) {
+        //     this.toolbarActions.push(generateUserStoriesAction, toggleProcessTypeAction);
+        // } else {
+            for (let i = 0; i < this.toolbarActions.length; i++) {
+                if (this.toolbarActions[i].type === "dotsmenu") {
+                    const buttonDropdown = this.toolbarActions[i] as BPDotsMenuAction;
+                    generateUserStoriesAction.actions.forEach((action) => buttonDropdown.actions.push(action));
+                }
+            }
 
-        this.toolbarActions.unshift(
-            new ToggleProcessTypeAction(
-                processArtifact,
-                this.communicationManager.toolbarCommunicationManager,
-                this.localization
-            )
-        );
+            this.toolbarActions.unshift(toggleProcessTypeAction);
+        // }
     }
 }

@@ -147,12 +147,17 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 this.pendingSelectedArtifactId = undefined;
             // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
             } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
-                this.selectionManager.getArtifact() &&
+                this.selectionManager.getArtifact() &&                
                 // selectedArtifactId = undefined only if there is no projects open.
                 // if there are some artifact pre selected in the tree before opening project
                 // we need to check if this artifact is not from this.projects[0] (last opened project)
-                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
-                navigateToId = this.selectionManager.getArtifact().id;
+                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {                
+                if (!this.selectionManager.getArtifact().artifactState.historical) {
+                    navigateToId = this.selectionManager.getArtifact().id;
+                } else {
+                    // for historical artifact we do not need to change selection in main area US3489
+                    navigateToId = selectedArtifactId;
+                }
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {

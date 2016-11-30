@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPDotsMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
+import {IDialogService, BPDotsMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -185,7 +185,18 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                     const dropdownSeparator = new BPButtonOrDropdownSeparator();
                     const buttonDropdown = this.toolbarActions[i] as BPDotsMenuAction;
                     buttonDropdown.actions.push(dropdownSeparator);
-                    generateUserStoriesAction.actions.forEach((action) => buttonDropdown.actions.push(action));
+                    generateUserStoriesAction.actions.forEach((action: BPButtonOrDropdownAction) => {
+                        if (action.icon) {
+                            buttonDropdown.actions.push(action);
+                        } else {
+                            buttonDropdown.actions.push(new BPButtonOrDropdownAction(
+                                action.execute,
+                                () => !action.disabled,
+                                generateUserStoriesAction.icon,
+                                action.label
+                            ));
+                        }
+                    });
                     buttonDropdown.actions.push(dropdownSeparator, copyAction);
                 }
             }

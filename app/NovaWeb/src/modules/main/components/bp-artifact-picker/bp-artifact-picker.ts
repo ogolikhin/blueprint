@@ -345,9 +345,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     predefinedTypeIds: this.filterItemType.id ? [] : this.selectableItemTypes,
                     itemTypeIds: this.filterItemType.id ? [this.filterItemType.id] : [],
                     includeArtifactPath: true
-                };
-                searchResults = this.projectService.searchItemNames(searchCriteria, 0, maxSearchResults + 1, undefined, this.canceller.promise)
-                    .then(result => result.items.map(r => new ArtifactSearchResultVM(r, this.onSelect, this.isItemSelectable, this.selectableItemTypes)));
+                };                
+                searchResults = this.projectService.searchItemNames(searchCriteria, 0, maxSearchResults + 1, this.canceller.promise)
+                    .then(result => result.items.map(r => {
+                        r.artifactPath = r.path;                        
+                        return new ArtifactSearchResultVM(r, this.onSelect, this.isItemSelectable, this.selectableItemTypes);
+                    }));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText
@@ -371,6 +374,13 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             return true;
         }
         return false;
+    }
+
+    public getArtifactTextPath (path: string[]): string {
+        if (!path) {
+            return "";
+        }
+        return path.join(" > ");
     }
 
     public clearSearch(): void {

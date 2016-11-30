@@ -104,8 +104,7 @@ namespace SearchService.Controllers
         /// </summary>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
-        /// <param name="pageSize">Page Size</param>
-        /// <param name="separatorString"></param>
+        /// <param name="pageSize">Page Size</param>        
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
@@ -115,22 +114,18 @@ namespace SearchService.Controllers
         public async Task<ItemNameSearchResultSet> SearchName(
             [FromBody] ItemNameSearchCriteria searchCriteria, 
             int? startOffset = null, 
-            int? pageSize = null,
-            string separatorString = DefaultSeparator)
+            int? pageSize = null)
         {
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateItemNameCriteria(searchCriteria);
-
-            if (string.IsNullOrEmpty(separatorString))
-                separatorString = DefaultSeparator;
+            ValidateItemNameCriteria(searchCriteria);           
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize, MaxResultCount);
 
             int searchStartOffset = GetStartCounter(startOffset, 0, 0);
 
-            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize, separatorString);
+            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
             foreach (var searchItem in results.Items)
             {

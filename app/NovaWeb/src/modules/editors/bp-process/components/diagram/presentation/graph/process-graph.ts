@@ -937,8 +937,8 @@ export class ProcessGraph implements IProcessGraph {
 
     private highlightNodeEdges(nodes: Array<IDiagramNode>) {
         this.clearHighlightEdges();
-        _.each(nodes, (selectedNode) => {
-            let highLightEdges = this.getHighlightScope(selectedNode, this.mxgraph.getModel());
+        _.each(nodes, (node) => {
+            let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());
             for (let edge of highLightEdges) {
                 this.highlightEdge(edge);
             }

@@ -43,8 +43,8 @@ App_Project_Name,"Name"
 App_Project_Description,"Description"
 
 App_CloseTabWithUnsavedChanges,"You have unsaved changes that will be lost if you leave."
-App_ConfirmLogout_WithUnpublishedArtifacts,"You have {0} saved but unpublished changes. Artifacts will continue to be locked to other users if you do not discard or publish them before continuing."
-App_ConfirmLogout_Logout,"Logout"
+App_ConfirmLogout_WithUnpublishedArtifacts,"You have {0} saved but unpublished change(s). Artifacts will continue to be locked to other users if you do not discard or publish them before continuing."
+App_ConfirmLogout_Logout,"Log Out"
 App_ConfirmLogout_Cancel,"Cancel"
 
 App_Artifact_Info_OpenLatestVersion,"Open latest version"

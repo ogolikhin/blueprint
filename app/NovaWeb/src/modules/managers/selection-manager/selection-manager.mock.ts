@@ -21,13 +21,14 @@ export class SelectionManagerMock implements ISelectionManager {
     }
 
     public get artifactObservable() {
-        return null;
+        return undefined;
     }
 
     public get explorerArtifactObservable() {
-        return null;
+        return undefined;
     }
 
+    //ToDo: should be mocked individually in unit tests
     public get subArtifactObservable() {
         return this.selectionSubject
             .filter(s => s != null)
@@ -39,7 +40,7 @@ export class SelectionManagerMock implements ISelectionManager {
      * Observable that always corresponds to the currently selected artifact's observable.
      */
     public get currentlySelectedArtifactObservable() {
-        return null;
+        return undefined;
     }
 
     public get selectionObservable() {
@@ -50,6 +51,7 @@ export class SelectionManagerMock implements ISelectionManager {
         return this.selectionSubject.getValue().artifact;
     }
 
+    //ToDo: should be mocked individually in unit tests
     public setArtifact(artifact: IStatefulArtifact) {
 
         const selection = <ISelection>{
@@ -60,6 +62,7 @@ export class SelectionManagerMock implements ISelectionManager {
         this.setSelectionSubject(selection);
     }
 
+    //ToDo: should be mocked individually in unit tests
     public getSubArtifact(): IStatefulSubArtifact {
         const val = this.selectionSubject.getValue();
         if (val && val.subArtifact) {
@@ -69,6 +72,7 @@ export class SelectionManagerMock implements ISelectionManager {
         return null;
     }
 
+    //ToDo: should be mocked individually in unit tests
     public setSubArtifact(subArtifact: IStatefulSubArtifact) {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{

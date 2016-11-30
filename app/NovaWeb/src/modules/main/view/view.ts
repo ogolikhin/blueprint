@@ -5,6 +5,7 @@ import {IProjectManager} from "../../managers/project-manager";
 import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manager";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -38,7 +39,7 @@ export class MainViewController {
                 private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private windowVisibility: IWindowVisibility,
-                private utilityPanelService) {
+                private utilityPanelService: IUtilityPanelService) {
     }
 
     public $onInit() {

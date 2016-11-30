@@ -3,6 +3,8 @@ import {ISession} from "./login/session.svc";
 import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
+import {ClipboardService, IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
+
 
 export class AppRoutes {
 
@@ -132,17 +134,20 @@ public static $inject = [
         "$log",
         "session",
         "projectManager",
-        "navigationService"
+        "navigationService",
+        "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
                 private projectManager: IProjectManager, 
-                private navigation: INavigationService) {
+                private navigation: INavigationService,
+                private clipboardService: IClipboardService) {
 
         this.session.logout().then(() => {
             this.navigation.navigateToMain(true).finally(() => {
                 this.projectManager.removeAll();
+                this.clipboardService.clearData();
             });
         });
     }    

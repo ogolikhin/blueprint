@@ -48,7 +48,6 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -82,7 +81,6 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected selectionManager: ISelectionManager,
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
         this.subscribers = [];
@@ -173,12 +171,8 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected updateProperties(artifact: IStatefulArtifact): void {
+    private updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
-
-        if (!artifact) {
-            return;
-        }
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
@@ -230,24 +224,22 @@ export class BpArtifactInfoController {
     }
 
     public get canLoadProject(): boolean {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
+        if (!this.artifact || !this.artifact.projectId) {
             return false;
         }
 
-        const project = this.projectManager.getProject(selectedArtifact.projectId);
+        const project = this.projectManager.getProject(this.artifact.projectId);
 
         return !project;
     }
 
     public loadProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
+        if (!this.artifact || !this.artifact.projectId) {
             return;
         }
 
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
+        const projectId = this.artifact.projectId;
+        const artifactId = this.artifact.id;
 
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 

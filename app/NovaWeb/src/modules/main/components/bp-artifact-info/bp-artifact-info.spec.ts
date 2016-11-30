@@ -6,9 +6,11 @@ import ".";
 import {BpArtifactInfoController} from "./bp-artifact-info";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services/window-manager";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
+import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {ProjectManagerMock} from "../../../managers/project-manager/project-manager.mock";
@@ -26,11 +28,13 @@ describe("BpArtifactInfo", () => {
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
     let artifactManager: IArtifactManager;
+    let projectManager: IProjectManager;
+    let loadingOverlayService: ILoadingOverlayService;
     let analytics: IAnalyticsProvider;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     let stateSubject: Rx.BehaviorSubject<IArtifactState>;
-    let propertySubject: Rx.BehaviorSubject<any>;
+    let propertySubject: Rx.BehaviorSubject<IItemChangeSet>;
 
     beforeEach(angular.mock.module("bp.components.artifactinfo"));
 
@@ -45,7 +49,7 @@ describe("BpArtifactInfo", () => {
         };
 
         const artifactObservable = artifactSubject.asObservable();
-        const stateObservable = stateSubject.filter(state => !!state).asObservable();
+        const stateObservable = stateSubject.asObservable();
         stateObservable.debounce = () => stateObservable;
         const propertyObservable = propertySubject.filter(changeSet => !!changeSet).asObservable();
         propertyObservable.distinctUntilChanged = () => propertyObservable;
@@ -91,10 +95,14 @@ describe("BpArtifactInfo", () => {
 
     beforeEach(inject((
         _$compile_: ng.ICompileService,
-        _$rootScope_: ng.IRootScopeService
+        _$rootScope_: ng.IRootScopeService,
+        _projectManager_: IProjectManager,
+        _loadingOverlayService_: ILoadingOverlayService
         ) => {
         $compile = _$compile_;
         $rootScope = _$rootScope_;
+        projectManager = _projectManager_;
+        loadingOverlayService = _loadingOverlayService_;
     }));
 
     describe("on initialization", () => {
@@ -488,15 +496,121 @@ describe("BpArtifactInfo", () => {
         });
 
         describe("on property change", () => {
-            it("sets name to updated value", () => {
+            it("sets name to new value when updated", () => {
                 // arrange
-                const expectedName = "Test";
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = _.clone(artifact);
+                updatedArtifact.name = "Test";
 
                 // act
-                propertySubject.onNext({item: {name: expectedName}});
+                propertySubject.onNext({item: updatedArtifact});
 
                 // assert
-                expect(controller.artifactName).toEqual(expectedName);
+                expect(controller.artifactName).toEqual(updatedArtifact.name);
+            });
+
+            it("ignores update if no update to name", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = _.clone(artifact);
+                const spy = spyOn(controller, "onArtifactPropertyChanged");
+
+                // act
+                propertySubject.onNext({item: updatedArtifact});
+
+                // assert
+                expect(spy).not.toHaveBeenCalled();
+            });
+        });
+
+        describe("canLoadProject", () => {
+            it("returns false when no artifact is selected", () => {
+                // arrange
+                spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
+
+                // act
+                const result = controller.canLoadProject;
+
+                // assert
+                expect(result).toEqual(false);
+            });
+
+            it("returns false when selected artifact doesn't specify project information", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = undefined;
+
+                // act
+                const result = controller.canLoadProject;
+
+                // assert
+                expect(result).toEqual(false);
+            });
+
+            it("returns false for artifact from open project", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = 34;
+                spyOn(projectManager, "getProject").and.returnValue({});
+
+                // act
+                const result = controller.canLoadProject;
+                
+                // assert
+                expect(result).toEqual(false);
+            });
+
+            it("returns true for artifact from closed project", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = 34;
+                spyOn(projectManager, "getProject").and.returnValue(undefined);
+
+                // act
+                const result = controller.canLoadProject;
+                
+                // assert
+                expect(result).toEqual(true);
+            });
+        });
+
+        describe("loadProject", () => {
+            it("does not load project when no artifact is selected", () => {
+                // arrange
+                spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
+                const spy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(undefined);
+
+                // act
+                controller.loadProject();
+
+                // assert
+                expect(spy).not.toHaveBeenCalled();
+            });
+
+            it("does not load project when selected artifact doesn't specify project information", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = undefined;
+                const spy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(undefined);
+
+                // act
+                controller.loadProject();
+
+                // assert
+                expect(spy).not.toHaveBeenCalled();
+            });
+
+            it("displays loading overlay", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = 34;
+                const spy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(undefined);
+
+                // act
+                controller.loadProject();
+
+                // assert
+                expect(spy).toHaveBeenCalled();
             });
         });
     });

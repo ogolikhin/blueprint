@@ -29,9 +29,7 @@ export class SelectionManagerMock implements ISelectionManager {
 
     public get explorerArtifactObservable() {
         return this.explorerArtifactSelectionSubject
-            .filter(s => s != null)
             .distinctUntilChanged(this.distinctById)
-            .map((s) => s.id)
             .asObservable();
     }
 

@@ -13,6 +13,9 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {PanelType} from "../../../../shell/bp-utility-panel/bp-utility-panel";
+import {IClipboardService} from "../../services/clipboard.svc";
+import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -20,9 +23,11 @@ export class ProcessDiagram {
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement;
     private toggleProcessTypeHandler: string;
+    private copySelectionHandler: string; 
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
+    private openUtilityPanelHandler: string;
 
     private selectionListeners: ISelectionListener[];
 
@@ -37,7 +42,9 @@ export class ProcessDiagram {
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory) {
+                private shapesFactory: ShapesFactory,
+                private utilityPanelService,
+                private clipboard: IClipboardService) {
         this.processModel = null;
         this.selectionListeners = [];
     }
@@ -85,20 +92,29 @@ export class ProcessDiagram {
             this.processViewModel.updateProcessGraphModel(process);
             this.processViewModel.communicationManager.toolbarCommunicationManager
                 .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+            this.processViewModel.communicationManager.toolbarCommunicationManager
+                .removeCopySelectionObserver(this.copySelectionHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .removeModelUpdateObserver(this.modelUpdateHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
+          
         }
 
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
             .registerToggleProcessTypeObserver(this.processTypeChanged);
+        this.copySelectionHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
+            .registerCopySelectionObserver(this.copySelection);
         this.modelUpdateHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
+        this.openUtilityPanelHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.OpenUtilityPanel, this.openUtilityPanel);
         this.userStoriesGeneratedHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.UserStoriesGenerated, this.userStoriesGenerated);
 
@@ -116,11 +132,14 @@ export class ProcessDiagram {
                 this.graph.clearSelection();
             }
         }
-    }
+    };
 
+    private copySelection = () => {
+        ProcessCopyPasteHelper.copySectedShapes(this.graph, this.clipboard, this.shapesFactory);
+    }
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
-    }
+    };
 
     private navigateToAssociatedArtifact = (info: any) => {
         const options = {
@@ -129,16 +148,21 @@ export class ProcessDiagram {
             enableTracking: info.enableTracking
         };
         this.navigationService.navigateTo(options);
-    }
+    };
+
+    private openUtilityPanel = () => {
+        this.utilityPanelService.openRightSidebar();
+        this.utilityPanelService.openPanel(PanelType.Discussions);
+    };
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
-    }
+    };
 
     private userStoriesGenerated = (userStories: IUserStory[]) => {
         this.graph.onUserStoriesGenerated(userStories);
-    }
+    };
 
     private createProcessGraph(processViewModel: IProcessViewModel,
                                useAutolayout: boolean = false,
@@ -156,6 +180,7 @@ export class ProcessDiagram {
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
+                this.clipboard
             );
 
             this.registerSelectionListeners();
@@ -197,6 +222,8 @@ export class ProcessDiagram {
             if (this.communicationManager.toolbarCommunicationManager) {
                 this.communicationManager.toolbarCommunicationManager
                     .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+                this.communicationManager.toolbarCommunicationManager
+                    .removeCopySelectionObserver(this.copySelectionHandler);
             }
 
             if (this.communicationManager.processDiagramCommunication) {
@@ -204,6 +231,8 @@ export class ProcessDiagram {
                     .removeModelUpdateObserver(this.modelUpdateHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             }

@@ -6,6 +6,7 @@ export interface IBPButtonOrDropdownAction {
     disabled?: boolean;
     label?: string;
     tooltip?: string;
+    separator?: boolean;
 }
 
 export class BPButtonOrDropdownAction implements IBPButtonOrDropdownAction {
@@ -13,7 +14,8 @@ export class BPButtonOrDropdownAction implements IBPButtonOrDropdownAction {
                 private _canExecute?: () => boolean,
                 private _icon?: string,
                 private _tooltip?: string,
-                private _label?: string) {
+                private _label?: string,
+                private _separator: boolean = false) {
     }
 
     public get execute(): () => void {
@@ -34,6 +36,16 @@ export class BPButtonOrDropdownAction implements IBPButtonOrDropdownAction {
 
     public get tooltip(): string {
         return this._tooltip;
+    }
+
+    public get separator(): boolean {
+        return this._separator;
+    }
+}
+
+export class BPButtonOrDropdownSeparator extends BPButtonOrDropdownAction {
+    constructor() {
+        super(undefined, undefined, undefined, undefined, undefined, true);
     }
 }
 

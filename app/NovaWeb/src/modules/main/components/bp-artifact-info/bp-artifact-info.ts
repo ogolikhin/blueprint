@@ -9,7 +9,14 @@ import {
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IDialogService, IBPAction, BPButtonGroupAction, BPDotsMenuAction, IBPButtonOrDropdownAction} from "../../../shared";
+import {
+    IDialogService,
+    IBPAction,
+    BPButtonGroupAction,
+    BPDotsMenuAction,
+    IBPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator
+} from "../../../shared";
 import {
     SaveAction,
     PublishAction,
@@ -345,11 +352,13 @@ export class BpArtifactInfoController {
             //         this.toolbarActions.push(openImpactAnalysisAction);
             //     }
             // } else {
+                const dropdownSeparator = new BPButtonOrDropdownSeparator();
+
                 this.toolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
                 this.dotsMenuActions.push(moveAction, deleteAction);
                 //we don't want to show impact analysis on collection artifact page
                 if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                    this.dotsMenuActions.push(openImpactAnalysisAction);
+                    this.dotsMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
                 }
                 this.toolbarActions.push(
                     new BPDotsMenuAction(this.localization.get("App_Toolbar_DotsMenu"), ...this.dotsMenuActions)

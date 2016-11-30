@@ -27,6 +27,7 @@ export {
     BPDropdownItemAction,
     BPDropdownAction,
     BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
     BPDotsMenuAction,
     BPButtonGroupAction
 } from "./actions";

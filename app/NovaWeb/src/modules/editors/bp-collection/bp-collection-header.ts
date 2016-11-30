@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPDotsMenuAction} from "../../shared";
+import {IDialogService, BPDotsMenuAction, BPButtonOrDropdownSeparator} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
@@ -96,7 +96,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             for (let i = 0; i < this.toolbarActions.length; i++) {
                 if (this.toolbarActions[i].type === "dotsmenu") {
                     const buttonDropdown = this.toolbarActions[i] as BPDotsMenuAction;
-                    buttonDropdown.actions.push(rapidReviewAction, addCollectionArtifactAction);
+                    const dropdownSeparator = new BPButtonOrDropdownSeparator();
+                    buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
                 }
             }
         // }

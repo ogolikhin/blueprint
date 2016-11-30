@@ -1,3 +1,12 @@
+.dots-menu__separator {
+    display: none;
+    pointer-events: none;
+}
+
+.dots-menu__separator + .dots-menu__item {
+    border-top: solid 1px black;
+}
+
 .dots-menu__item-disabled {
     color: red; //temp
     pointer-events: none;

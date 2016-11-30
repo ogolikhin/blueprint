@@ -24,6 +24,7 @@ export {
     BPToggleAction,
     BPButtonGroupAction,
     BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
     BPDotsMenuAction
 } from "./widgets"
 

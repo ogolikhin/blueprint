@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPDotsMenuAction} from "../../../../shared";
+import {IDialogService, BPDotsMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -146,6 +146,11 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         //         this.loadingOverlayService,
         //         this.communicationManager.processDiagramCommunication
         //     ),
+        //     new CopyAction(
+        //         processArtifact,
+        //         this.communicationManager.toolbarCommunicationManager,
+        //         this.localization
+        //     ),
         //     new ToggleProcessTypeAction(
         //         processArtifact,
         //         this.communicationManager.toolbarCommunicationManager,
@@ -163,18 +168,25 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.dialogService,
             this.loadingOverlayService,
             this.communicationManager.processDiagramCommunication);
+        const copyAction = new CopyAction(
+            processArtifact,
+            this.communicationManager.toolbarCommunicationManager,
+            this.localization);
         const toggleProcessTypeAction = new ToggleProcessTypeAction(
             processArtifact,
             this.communicationManager.toolbarCommunicationManager,
             this.localization);
         // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
         // if (availableWidth > XXX) {
-        //     this.toolbarActions.push(generateUserStoriesAction, toggleProcessTypeAction);
+        //     this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
         // } else {
             for (let i = 0; i < this.toolbarActions.length; i++) {
                 if (this.toolbarActions[i].type === "dotsmenu") {
+                    const dropdownSeparator = new BPButtonOrDropdownSeparator();
                     const buttonDropdown = this.toolbarActions[i] as BPDotsMenuAction;
+                    buttonDropdown.actions.push(dropdownSeparator);
                     generateUserStoriesAction.actions.forEach((action) => buttonDropdown.actions.push(action));
+                    buttonDropdown.actions.push(dropdownSeparator, copyAction);
                 }
             }
 

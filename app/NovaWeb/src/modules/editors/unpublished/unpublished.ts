@@ -2,13 +2,13 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {IPublishService} from "../../managers/artifact-manager/publish.svc/publish.svc";
 import {IPublishResultSet, IArtifact} from "../../main/models/models";
 import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IUnpublishedArtifactsService} from "./unpublished.svc";
 
 export class UnpublishedComponent implements ng.IComponentOptions {
     public template: string = require("./unpublished.html");
@@ -37,7 +37,7 @@ export class UnpublishedController {
     constructor(private $log: ng.ILogService,
                 public localization: ILocalizationService,
                 public messageService: IMessageService,
-                private publishService: IPublishService,
+                private publishService: IUnpublishedArtifactsService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private navigationService: INavigationService,
                 private projectManager: IProjectManager) {
@@ -102,6 +102,10 @@ export class UnpublishedController {
         }
 
         this.updateToolbarButtons();
+    }
+
+    public isGroupToggleChecked(): boolean {
+        return this.unpublishedArtifacts.length > 0 && this.unpublishedArtifacts.length === this.selectedArtifacts.length;
     }
 
     private updateToolbarButtons() {

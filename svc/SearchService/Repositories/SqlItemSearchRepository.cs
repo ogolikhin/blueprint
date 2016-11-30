@@ -175,15 +175,13 @@ namespace SearchService.Repositories
         /// <param name="userId"></param>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
-        /// <param name="pageSize">Page Size</param>
-        /// <param name="separatorString"></param>
+        /// <param name="pageSize">Page Size</param>        
         /// <returns></returns>
         public async Task<ItemNameSearchResultSet> SearchName(
             int userId, 
             ItemNameSearchCriteria searchCriteria, 
             int startOffset, 
-            int pageSize,
-            string separatorString)
+            int pageSize)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -251,7 +249,7 @@ namespace SearchService.Repositories
                 result.item.Permissions = result.permission.Value;
                 if (searchCriteria.IncludeArtifactPath)
                 {
-                    result.item.Path = string.Join(separatorString, result.lpath.Value);
+                    result.item.Path = result.lpath.Value;
                 }
             }
 

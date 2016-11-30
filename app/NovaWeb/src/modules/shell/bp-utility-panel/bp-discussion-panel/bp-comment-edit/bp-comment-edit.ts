@@ -1,5 +1,6 @@
 ﻿import "angular-ui-tinymce";
 import {IMentionService, MentionService} from "./mention.svc";
+import {Helper} from "../../../../shared/utils/helper";
 
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
@@ -62,6 +63,9 @@ export class BPCommentEditController {
         "-p/div[align],-a[href|name],sub,sup,strike,br,del,table[align|width],tr," +
         "td[colspan|rowspan|width|align|valign],th[colspan|rowspan|width],thead,tfoot,tbody",
         paste_filter_drop: false,
+        paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
+            Helper.removeAttributeFromNode(args.node, "id");
+        },
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             this.commentEditor = editor;

@@ -42,14 +42,14 @@ namespace ArtifactStore.Repositories
             return await _connectionWrapper.QueryAsync<LinkInfo>("GetRelationshipLinkInfo", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool? addDrafts, int? revisionId)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@artifactId", artifactId);
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
-            return await _connectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetPathIdsNamesToProject", parameters, commandType: CommandType.StoredProcedure);
+            return await _connectionWrapper.QueryAsync<ItemIdItemNameParentId>("GetArtifactNavigationPath", parameters, commandType: CommandType.StoredProcedure);
         }
 
 
@@ -209,22 +209,20 @@ namespace ArtifactStore.Repositories
             return pathToProject;
         }
 
-        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool addDraft = true, int? versionId = null)
+        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool isDeleted)
         {
-            var revisionId = int.MaxValue;
-            if (versionId.HasValue)
+            bool? addDrafts = null;
+            int? revisionId = null;
+            if (!isDeleted)
             {
-                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
+                addDrafts = true;
+                revisionId = int.MaxValue;
             }
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException(string.Format("Version index (Id:{0}) is not found.", versionId), ErrorCodes.ResourceNotFound);
-            }
-            var pathInfoDictionary = (await GetPathInfoToRoute(artifactId, userId, addDraft, revisionId)).ToDictionary(a => a.ItemId);
+            var pathInfoDictionary = (await GetPathInfoToRoute(artifactId, userId, addDrafts, revisionId)).ToDictionary(a => a.ItemId);
             if (pathInfoDictionary.Keys.Count == 0)
                 throw new ResourceNotFoundException($"Artifact in revision {revisionId} does not exist.", ErrorCodes.ResourceNotFound);
             var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
-            var description = (await GetItemDescription(artifactId, userId, addDraft, revisionId));
+            var description = (await GetItemDescription(artifactId, userId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
     }

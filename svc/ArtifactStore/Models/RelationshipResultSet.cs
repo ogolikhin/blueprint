@@ -88,9 +88,13 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public int ItemId { get; set; }
         [JsonProperty]
+        public int VersionProjectId { get; set; }
+        [JsonProperty]
         public int? ParentId { get; set; }
         [JsonProperty]
-        public string ItemName { get; set; }
+        public string Name { get; set; }
+        [JsonProperty]
+        public int ItemTypeId { get; set; }
     }
 
     [JsonObject]

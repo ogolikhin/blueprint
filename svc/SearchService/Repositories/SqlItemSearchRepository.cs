@@ -106,10 +106,11 @@ namespace SearchService.Repositories
             }
             catch (SqlException sqlException)
             {
-                //Sql timeout error
-                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
+                switch (sqlException.Number)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -158,10 +159,11 @@ namespace SearchService.Repositories
             }
             catch (SqlException sqlException)
             {
-                //Sql timeout error
-                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
+                switch (sqlException.Number)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -205,10 +207,11 @@ namespace SearchService.Repositories
             }
             catch (SqlException sqlException)
             {
-                //Sql timeout error
-                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
+                switch (sqlException.Number)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -262,7 +265,7 @@ namespace SearchService.Repositories
             //doubling the quote to "" fixes it. 
             //Likewise, ' needs to be doubled to '' before passing to FTI (completely separate to TSQL escaping)
             return string.IsNullOrWhiteSpace(input) ? string.Empty :
-                string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\""));
+                string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\"").Replace(@"\", @"\\").Replace(Environment.NewLine, string.Empty));
         }
     }
 }

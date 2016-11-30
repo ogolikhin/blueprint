@@ -49,7 +49,7 @@ export {
     ProcessService,
     ProcessModels,
     ProcessEnums,
-    ICommunicationManager, 
+    ICommunicationManager,
     CommunicationManager,
     ShapesFactory
 };

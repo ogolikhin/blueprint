@@ -48,7 +48,6 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "selectionManager",        
         "analytics"
     ];
 
@@ -56,7 +55,6 @@ export class BpArtifactInfoController {
     protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
-    public isLocked: boolean;
     public lockMessage: Message;
     public selfLocked: boolean;
     public isLegacy: boolean;
@@ -83,27 +81,30 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected selectionManager: ISelectionManager,                
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
         this.subscribers = [];
     }
 
     public $onInit() {
-        this.subscribers.push(this.windowManager.mainWindow
-                                                .subscribeOnNext(this.onWidthResized, this));
+        this.subscribers.push(
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this)
+        );
 
         this.artifact = this.artifactManager.selection.getArtifact();
 
         if (this.artifact) {
-            this.subscribers.push(this.artifact.getObservable()
-                                                .subscribeOnNext(this.onArtifactLoaded));
-            this.subscribers.push(this.artifact.artifactState.onStateChange
-                                                            .debounce(100)
-                                                            .subscribe(this.onArtifactStateChanged));
-            this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
-                                                .subscribeOnNext(this.onArtifactPropertyChanged));
+            this.subscribers.push(
+                this.artifact.getObservable()
+                    .subscribeOnNext(this.onArtifactLoaded, this),
+                this.artifact.artifactState.onStateChange
+                    .debounce(100)
+                    .subscribeOnNext(this.onArtifactStateChanged, this),
+                this.artifact.getProperyObservable()
+                    .distinctUntilChanged(changes => changes.item && changes.item.name)
+                    .subscribeOnNext(this.onArtifactPropertyChanged, this)
+            );
         }
 
         this.updateToolbarOptions(this.artifact);
@@ -116,13 +117,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
 
-        delete this["subscribers"];
-        delete this["artifact"];
+        this.subscribers = undefined;
+        this.artifact = undefined;
     }
 
-    protected onArtifactLoaded = () => {
+    protected onArtifactLoaded(): void {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+
             if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
                 const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
                 const publishedBy = this.artifact.lastEditedBy.displayName;
@@ -131,7 +133,7 @@ export class BpArtifactInfoController {
         }
     };
 
-    protected onArtifactStateChanged = (state: IArtifactState) => {
+    protected onArtifactStateChanged(state: IArtifactState): void {
         if (state) {
             this.initStateProperties();
             this.updateStateProperties(state);
@@ -140,7 +142,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
+    protected onArtifactPropertyChanged(change: IItemChangeSet): void {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
@@ -161,7 +163,6 @@ export class BpArtifactInfoController {
     private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
-        this.isLocked = false;
         this.selfLocked = false;
 
         if (this.lockMessage) {
@@ -170,12 +171,8 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected updateProperties(artifact: IStatefulArtifact): void {
+    private updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
-
-        if (!artifact) {
-            return;
-        }
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
@@ -227,23 +224,26 @@ export class BpArtifactInfoController {
     }
 
     public get canLoadProject(): boolean {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {            
+        return this.canLoadProjectInternal();
+    }
+
+    private canLoadProjectInternal(): boolean {
+        if (!this.artifact || !this.artifact.projectId) {
             return false;
         }
-        const project = this.projectManager.getProject(selectedArtifact.projectId);
+
+        const project = this.projectManager.getProject(this.artifact.projectId);
 
         return !project;
     }
 
     public loadProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
-            //this.projectManager.openProjectWithDialog();
+        if (!this.canLoadProjectInternal()) {
             return;
         }
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
+
+        const projectId = this.artifact.projectId;
+        const artifactId = this.artifact.id;
 
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 
@@ -255,6 +255,7 @@ export class BpArtifactInfoController {
                 this.analytics.trackEvent("open", "project", label, projectId, {
                     openProjects: openProjects
                 });
+
                 this.loadingOverlayService.endLoading(openProjectLoadingId);
             });
     }

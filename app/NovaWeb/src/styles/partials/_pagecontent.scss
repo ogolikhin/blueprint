@@ -1,16 +1,18 @@
 $page-body-min-width: 386px;
 
 .explorer-empty-state {
-        font-size: $font-size-big;
-        color: $gray-light;
-        padding: 30px 10px;
-        text-align: center;
-        p {
-            font-size: 1.2rem;
-            color: $gray-darker;
-            margin-bottom: 20px;
-        }
-    }
+    padding: 30px 10px;
+    text-align: center;
+    display: flex;
+    height:100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.explorer-empty-state-text{
+    font-size: $font-size-big;
+    color: $gray-darker;
+}
 
 pagecontent, bp-properties-panel {
     box-sizing: border-box;
@@ -137,7 +139,7 @@ pagecontent, bp-properties-panel {
     .btn-load-project{
         background: $white;
     }
-    
+
     .artifact-heading {
         display: flex;
         //max-width: calc(100% - #{$page-top-toolbar-width});
@@ -232,20 +234,6 @@ pagecontent, bp-properties-panel {
         background: $white;
         position: relative;
 
-        > .heading {
-            background: $gray-lighter;
-            color: $gray-dark;
-            font-size: $font-size-big;
-            font-weight: 600;
-            line-height: 1em;
-            min-height: 36px;
-            padding: 11px 14px;
-
-            + .content {
-                border-top: 0;
-            }
-        }
-
         > .content {
             border: solid 1px $gray-lighter;
             padding: 18px 15px;
@@ -315,7 +303,6 @@ pagecontent, bp-properties-panel {
 
         &.empty-panel{
             border-left: solid 2px $right-sidebar-border;
-            border-top: solid 1px $right-sidebar-border;
         }
     }
 }

@@ -42,8 +42,7 @@ namespace ArtifactStore.Controllers
         /// <remarks>
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token or parameters are missing or malformed</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="404">Not Found. The requested artifact or subartifact is deleted or does not exist.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>

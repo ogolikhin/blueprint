@@ -42,7 +42,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "metadataService",
         "userStoryService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -62,7 +61,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 private userStoryService: IUserStoryService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                selectionManager: ISelectionManager,
                 analytics: IAnalyticsProvider) {
         super(
             $q,
@@ -78,7 +76,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            selectionManager,
             analytics
         );
 

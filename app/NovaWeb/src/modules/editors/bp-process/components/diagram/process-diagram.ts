@@ -13,7 +13,9 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "../../services/clipboard.svc";
+import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
 
 export class ProcessDiagram {
     public processModel: IProcess;
@@ -25,6 +27,7 @@ export class ProcessDiagram {
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
+    private openUtilityPanelHandler: string;
 
     private selectionListeners: ISelectionListener[];
 
@@ -40,6 +43,7 @@ export class ProcessDiagram {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory,
+                private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService) {
         this.processModel = null;
         this.selectionListeners = [];
@@ -95,6 +99,8 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
           
         }
@@ -107,6 +113,8 @@ export class ProcessDiagram {
             .registerModelUpdateObserver(this.modelUpdate);
         this.navigateToAssociatedArtifactHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
+        this.openUtilityPanelHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.OpenUtilityPanel, this.openUtilityPanel);
         this.userStoriesGeneratedHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.UserStoriesGenerated, this.userStoriesGenerated);
 
@@ -124,17 +132,14 @@ export class ProcessDiagram {
                 this.graph.clearSelection();
             }
         }
-    }
+    };
 
     private copySelection = () => {
-        // #TODO - get selected shapes from mxGraph SelectionModel and create copies of the
-        // shapes. The result will be a sub-graph of copied shapes that can be inserted
-        // into another process diagram
-        ;
+        ProcessCopyPasteHelper.copySectedShapes(this.graph, this.clipboard, this.shapesFactory);
     }
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
-    }
+    };
 
     private navigateToAssociatedArtifact = (info: any) => {
         const options = {
@@ -143,16 +148,20 @@ export class ProcessDiagram {
             enableTracking: info.enableTracking
         };
         this.navigationService.navigateTo(options);
-    }
+    };
+
+    private openUtilityPanel = () => {
+        this.utilityPanelService.openPanelAsync(PanelType.Discussions);
+    };
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
-    }
+    };
 
     private userStoriesGenerated = (userStories: IUserStory[]) => {
         this.graph.onUserStoriesGenerated(userStories);
-    }
+    };
 
     private createProcessGraph(processViewModel: IProcessViewModel,
                                useAutolayout: boolean = false,
@@ -222,22 +231,24 @@ export class ProcessDiagram {
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
                 this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
+                this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             }
         }
 
         // tear down persistent objects and event handlers
-        if (this.graph != null) {
+        if (this.graph) {
             this.graph.destroy();
-            this.graph = null;
+            this.graph = undefined;
         }
 
-        if (this.processViewModel != null) {
+        if (this.processViewModel) {
             this.processViewModel.destroy();
-            this.processViewModel = null;
+            this.processViewModel = undefined;
         }
 
-        this.selectionListeners = null;
+        this.selectionListeners = undefined;
     }
 
     private handleInitProcessGraphFailed(processId: number, err: any) {

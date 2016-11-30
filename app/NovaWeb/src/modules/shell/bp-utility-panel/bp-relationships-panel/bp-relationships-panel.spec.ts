@@ -8,12 +8,11 @@ import {ProcessServiceMock} from "../../../editors/bp-process/services/process.s
 import {ComponentTest} from "../../../util/component.test";
 import {BPRelationshipsPanelController} from "./bp-relationships-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
-import {PublishServiceMock} from "./../../../managers/artifact-manager/publish.svc/publish.svc.mock";
 
 import {
     IArtifactManager,
@@ -27,6 +26,7 @@ import {
 } from "../../../managers/artifact-manager";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -52,7 +52,7 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
 

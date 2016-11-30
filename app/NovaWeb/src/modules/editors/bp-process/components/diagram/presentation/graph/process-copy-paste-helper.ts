@@ -14,15 +14,22 @@ import {IClipboardService, ClipboardDataType} from "../../../../services/clipboa
 
 export class ProcessCopyPasteHelper {
 
+    private static getSelectedCellsForCopy(processGraph: IProcessGraph): MxCell[] {
+        const graphSelectedCells = processGraph.getMxGraph().getSelectionCells();
+
+        const sortedCells = _.sortBy(graphSelectedCells, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        
+        return sortedCells;
+    }
+
     public static copySectedShapes(processGraph: IProcessGraph, clipboard: IClipboardService, shapesFactoryService: ShapesFactory): void {
 
         if (!clipboard) {
             throw new Error("Clipboard does not exist");
         }
         
-        let model: IProcessShape[] = [];
-        let  nodes = processGraph.getMxGraph().getSelectionCells();
-        nodes = _.sortBy(nodes, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        let model: IProcessShape[] = [];        
+        const nodes = this.getSelectedCellsForCopy(processGraph);
 
 
         // let userDecisionRefs = [];
@@ -93,11 +100,11 @@ export class ProcessCopyPasteHelper {
         }
 
         if (layout.viewModel.isWithinShapeLimit(processClipboardData.data.length)) {
-            let sourcesAndDestinations = layout.getSourcesAndDestinations(edge);
+            const sourcesAndDestinations = layout.getSourcesAndDestinations(edge);
+            const destinationId = sourcesAndDestinations.destinationIds[0];
+            const newUserTaskShapeIds: number[] = [];
+
             let sourceIds = sourcesAndDestinations.sourceIds;
-            let destinationId = sourcesAndDestinations.destinationIds[0];
-            let userTaskShapeId: number = null;
-            let systemTaskId: number = null;
 
             //
             // Paste to (clone) logic goes here. Implemented simple logic for cloning User/System Tasks
@@ -106,8 +113,8 @@ export class ProcessCopyPasteHelper {
             //
             _.each(processClipboardData.data, (node) => {
                 if (node instanceof UserTaskShapeModel) {
-                    userTaskShapeId = ProcessAddHelper.insertClonedUserTaskInternal(layout, shapesFactoryService, <any>node);
-
+                    const userTaskShapeId = ProcessAddHelper.insertClonedUserTaskInternal(layout, shapesFactoryService, <any>node);
+                    newUserTaskShapeIds.push(userTaskShapeId);
                     if (sourceIds.length > 1) {
                         layout.updateBranchDestinationId(destinationId, userTaskShapeId);
                     }
@@ -118,9 +125,8 @@ export class ProcessCopyPasteHelper {
                     }
 
                 } else {
-                    systemTaskId = ProcessAddHelper.insertClonedSystemTaskInternal(layout, shapesFactoryService, <any>node);
-                    
-                    ProcessAddHelper.addLinkInfo(userTaskShapeId, systemTaskId, layout);
+                    const systemTaskId = ProcessAddHelper.insertClonedSystemTaskInternal(layout, shapesFactoryService, <any>node);
+                    ProcessAddHelper.addLinkInfo(newUserTaskShapeIds[newUserTaskShapeIds.length - 1], systemTaskId, layout);
                     ProcessAddHelper.addLinkInfo(systemTaskId, destinationId, layout);
 
                     sourceIds = [];
@@ -128,8 +134,8 @@ export class ProcessCopyPasteHelper {
                 }
 
             });
-
-            layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(sourceIds[0]);
+            const focusUserTaskId = newUserTaskShapeIds.length > 0 ? newUserTaskShapeIds[0] : null;
+            layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(focusUserTaskId);
         }
     };
     

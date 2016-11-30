@@ -345,12 +345,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     predefinedTypeIds: this.filterItemType.id ? [] : this.selectableItemTypes,
                     itemTypeIds: this.filterItemType.id ? [this.filterItemType.id] : [],
                     includeArtifactPath: true
-                };                
+                };
                 searchResults = this.projectService.searchItemNames(searchCriteria, 0, maxSearchResults + 1, this.canceller.promise)
                     .then(result => result.items.map(r => {
-                        r.artifactPath = r.path;                        
+                        r.artifactPath = r.path;
                         return new ArtifactSearchResultVM(r, this.onSelect, this.isItemSelectable, this.selectableItemTypes);
-                    }));
+                    }, this.project));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText

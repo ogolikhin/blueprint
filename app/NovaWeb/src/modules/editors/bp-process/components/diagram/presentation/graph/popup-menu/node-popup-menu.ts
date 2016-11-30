@@ -116,7 +116,7 @@ export class NodePopupMenu {
                 });
 
                 if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
-                    menu.addItem("Insert Selected Shapes", null, () => {
+                    menu.addItem("ST_Popup_Menu_Insert_Shapes_Label", null, () => {
                         if (this.insertSelectedShapesFn && this.insertionPoint) {
                             this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
                             this.insertionPoint = null;
@@ -150,7 +150,7 @@ export class NodePopupMenu {
                 });
                 // Added "paste" menu item here. Does not look good. Needs some work!
                 if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
-                    menu.addItem("Insert Selected Shapes", null, () => {
+                    menu.addItem("ST_Popup_Menu_Insert_Shapes_Label", null, () => {
                         if (this.insertSelectedShapesFn && this.insertionPoint) {
                             this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
                             this.insertionPoint = null;

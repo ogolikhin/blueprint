@@ -411,6 +411,35 @@ namespace StorytellerTests
             Assert.AreEqual(expectedStoryTitle, stTitleProperty.Value);
         }
 
+        [TestCase]
+        [Description("Verify that total number of generated or updated user stories are equal to total number of user tasks for the default process")]
+        public void UserStory_GenerationProcessWithDefaultUserTask_Persona()
+        {
+            // Setup:
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            // Create and get the default process
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, author);
+
+            var addedPersonaReference = Helper.AddPersonaReferenceToTask(Process.DefaultUserTaskName, process, author, _project);
+
+            // Execute & Verify:
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, savedPersonaReference);
+
+            AssertPersonaReferenceEqualsPersonaProperty(taskName, savedProcess);
+
+
+
+
+//            var process = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.Process);
+
+            Helper.ArtifactStore.GetSubartifacts(_user, process.Id);
+        }
+
         #endregion Tests
 
         /// <summary>

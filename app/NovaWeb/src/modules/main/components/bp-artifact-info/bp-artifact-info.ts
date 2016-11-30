@@ -13,7 +13,7 @@ import {
     IDialogService,
     IBPAction,
     BPButtonGroupAction,
-    BPDotsMenuAction,
+    BPMenuAction,
     IBPButtonOrDropdownAction,
     BPButtonOrDropdownSeparator
 } from "../../../shared";
@@ -75,7 +75,7 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
-    public dotsMenuActions: IBPButtonOrDropdownAction[] = [];
+    public additionalMenuActions: IBPButtonOrDropdownAction[] = [];
     public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
@@ -355,13 +355,13 @@ export class BpArtifactInfoController {
                 const dropdownSeparator = new BPButtonOrDropdownSeparator();
 
                 this.toolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
-                this.dotsMenuActions.push(moveAction, deleteAction);
+                this.additionalMenuActions.push(moveAction, deleteAction);
                 //we don't want to show impact analysis on collection artifact page
                 if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                    this.dotsMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
+                    this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
                 }
                 this.toolbarActions.push(
-                    new BPDotsMenuAction(this.localization.get("App_Toolbar_DotsMenu"), ...this.dotsMenuActions)
+                    new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
                 );
             // }
         }

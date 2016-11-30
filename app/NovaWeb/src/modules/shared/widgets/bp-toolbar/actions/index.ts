@@ -23,10 +23,10 @@ export {
 
 export {
     IBPButtonOrDropdownAction,
-    IBPDotsMenuAction,
+    IBPMenuAction,
     BPButtonOrDropdownAction,
     BPButtonOrDropdownSeparator,
-    BPDotsMenuAction
+    BPMenuAction
 } from "./bp-dots-menu-action";
 
 export {

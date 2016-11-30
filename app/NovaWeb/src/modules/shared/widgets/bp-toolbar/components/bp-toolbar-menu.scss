@@ -1,0 +1,8 @@
+.toolbar-menu__separator {
+    display: none;
+    pointer-events: none;
+}
+
+.toolbar-menu__separator:not(:first-child) + .toolbar-menu__item {
+    border-top: solid 1px black;
+}

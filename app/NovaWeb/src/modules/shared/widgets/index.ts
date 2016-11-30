@@ -61,5 +61,5 @@ export {
     BPButtonGroupAction,
     BPButtonOrDropdownAction,
     BPButtonOrDropdownSeparator,
-    BPDotsMenuAction
+    BPMenuAction
 } from "./bp-toolbar";

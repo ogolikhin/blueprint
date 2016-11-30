@@ -19,8 +19,8 @@ export {
 } from "./bp-toolbar-dropdown";
 
 export {
-    BPToolbarDotsMenu
-} from "./bp-toolbar-dots-menu";
+    BPToolbarMenu
+} from "./bp-toolbar-menu";
 
 export {
     BPToolbarButtonGroup

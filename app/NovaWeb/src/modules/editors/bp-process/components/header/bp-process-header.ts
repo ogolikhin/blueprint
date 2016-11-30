@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPDotsMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -181,9 +181,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         //     this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
         // } else {
             for (let i = 0; i < this.toolbarActions.length; i++) {
-                if (this.toolbarActions[i].type === "dotsmenu") {
+                if (this.toolbarActions[i].type === "menu") {
                     const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                    const buttonDropdown = this.toolbarActions[i] as BPDotsMenuAction;
+                    const buttonDropdown = this.toolbarActions[i] as BPMenuAction;
                     buttonDropdown.actions.push(dropdownSeparator);
                     generateUserStoriesAction.actions.forEach((action: BPButtonOrDropdownAction) => {
                         if (action.icon) {

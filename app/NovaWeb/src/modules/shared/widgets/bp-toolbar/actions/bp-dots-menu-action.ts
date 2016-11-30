@@ -45,13 +45,13 @@ export class BPButtonOrDropdownSeparator extends BPButtonOrDropdownAction {
     }
 }
 
-export interface IBPDotsMenuAction extends IBPAction {
+export interface IBPMenuAction extends IBPAction {
     icon: string;
     actions: IBPButtonOrDropdownAction[];
     tooltip?: string;
 }
 
-export class BPDotsMenuAction implements IBPDotsMenuAction {
+export class BPMenuAction implements IBPMenuAction {
     private _actions: IBPButtonOrDropdownAction[];
 
     constructor(private _tooltip?: string, ...actions: IBPButtonOrDropdownAction[]) {
@@ -59,7 +59,7 @@ export class BPDotsMenuAction implements IBPDotsMenuAction {
     }
 
     public get type(): string {
-        return "dotsmenu";
+        return "menu";
     }
 
     public get icon(): string {

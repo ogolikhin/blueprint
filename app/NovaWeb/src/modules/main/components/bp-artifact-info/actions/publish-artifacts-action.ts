@@ -26,11 +26,11 @@ export class PublishArtifactsAction extends BPButtonAction {
 
                 publishService.publishArtifacts(artifactIds)
                     .catch(error => {
+                        publishService.getUnpublishedArtifacts();
                         messageService.addError(error);
                     })
                     .finally(() => {
                         loadingOverlayService.endLoading(overlayId);
-                        navigationService.reloadCurrentState();
                     });
             },
 

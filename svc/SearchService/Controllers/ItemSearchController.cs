@@ -23,6 +23,7 @@ namespace SearchService.Controllers
 
         internal readonly IItemSearchRepository _itemSearchRepository;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
+        private readonly CriteriaValidator _criteriaValidator;
 
         public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration())
         {
@@ -32,6 +33,7 @@ namespace SearchService.Controllers
         {
             _itemSearchRepository = itemSearchRepository;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
+            _criteriaValidator = new CriteriaValidator();
         }
 
         #region SearchFullText
@@ -54,7 +56,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateFullTextCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -83,7 +85,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             int userId = ValidateAndExtractUserId();
 
-            ValidateFullTextCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit); 
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -121,7 +123,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateItemNameCriteria(searchCriteria);
+            _criteriaValidator.Validate(SearchOption.ItemName, ModelState.IsValid, searchCriteria, 1);
 
             if (string.IsNullOrEmpty(separatorString))
                 separatorString = DefaultSeparator;
@@ -153,29 +155,7 @@ namespace SearchService.Controllers
             return ((Session)sessionValue).UserId;
         }
 
-        private void ValidateItemNameCriteria(ItemNameSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            if (IsCriteriaQueryInvalid(searchCriteria, minSearchQueryLimit) || 
-                !searchCriteria.ProjectIds.Any())
-            {
-                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
-            }
-        }
-
-        private void ValidateFullTextCriteria(FullTextSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            if (IsCriteriaQueryInvalid(searchCriteria, minSearchQueryLimit) || !searchCriteria.ProjectIds.Any())
-            {
-                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
-            }
-        }
-
-        private bool IsCriteriaQueryInvalid(SearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            return !ModelState.IsValid ||
-                   string.IsNullOrWhiteSpace(searchCriteria?.Query) ||
-                   searchCriteria.Query.Trim().Length < minSearchQueryLimit;
-        }
+        
 
         private int GetPageSize(ISearchConfigurationProvider searchConfigurationProvider, int? requestedPageSize, int maxPageSize = Int32.MaxValue)
         {

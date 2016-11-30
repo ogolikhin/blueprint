@@ -69,7 +69,7 @@ export class BPTooltip implements ng.IDirective {
                 let elem = element[0];
                 if (elem.childElementCount === 1) {
                     let child = elem.firstElementChild as HTMLElement;
-                    if (elem.innerText === child.innerText) {
+                    if (elem.textContent.trim() === child.textContent.trim()) {
                         elem = child;
                     }
                 }

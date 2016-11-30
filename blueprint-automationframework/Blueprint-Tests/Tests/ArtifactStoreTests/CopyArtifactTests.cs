@@ -352,7 +352,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             const int expectedVersionOfOriginalArtifact = 2;    // The pre-created artifacts in use here have 2 versions.
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, skipCreatedBy: true, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                skipCreatedBy: true, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
 
             // Verify Reuse traces of source artifact didn't change.
             var sourceAfterCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
@@ -492,7 +493,7 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(orderIndex, copyResult.Artifact.OrderIndex, "The OrderIndex of the copied artifact should be: {0}", orderIndex);
 
-            VerifyChildrenWereCopied(sourceArtifactDetails, copyResult.Artifact);
+            VerifyChildrenWereCopied(_user, sourceArtifactDetails, copyResult.Artifact);
         }
 
         [TestCase(BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.Document, BaseArtifactType.Glossary, BaseArtifactType.Actor)]
@@ -520,7 +521,7 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedNumberOfArtifactsCopied: artifactChain.Count);
 
-            VerifyChildrenWereCopied(sourceArtifactDetails, copyResult.Artifact, parentWasCopiedToChild: true);
+            VerifyChildrenWereCopied(_user, sourceArtifactDetails, copyResult.Artifact, parentWasCopiedToChild: true);
         }
 
         [Category(Categories.CustomData)]
@@ -556,6 +557,42 @@ namespace ArtifactStoreTests
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
                 expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
+
+            // Publish the copied artifact so we can add a breakpoint and check it in the UI.
+            _wrappedArtifact.Publish(author);
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
+        }
+
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, 7, "BaseArtifacts", 1)]
+        [TestRail(195567)]
+        [Description("Create & publish a destination folder.  Copy a folder containing pre-created source artifacts to the destination folder.  " +
+            "Verify the source artifacts are unchanged and the new artifacts are identical to the source artifacts.  New copied artifacts should not be published.")]
+        public void CopyArtifact_MultiplePublishedLegacyDiagramArtifacts_ToNewFolder_NewArtifactsAreIdenticalToOriginal(
+            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+        {
+            // Setup:
+            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+
+            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
+            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                expectedNumberOfArtifactsCopied: 15, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
+
+            VerifyChildrenWereCopied(author, sourceArtifactDetails, copyResult.Artifact);
 
             AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
         }
@@ -1070,25 +1107,25 @@ namespace ArtifactStoreTests
         /// Asserts that the sub-artifacts of the copied artifact are equal to those in the source artifact (except for the IDs).
         /// </summary>
         /// <param name="user">User to authenticate with.</param>
-        /// <param name="sourceArtifactDetails">The original source artifact.</param>
-        /// <param name="copiedArtifactDetails">The new copied artifact.</param>
-        private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, NovaArtifactDetails sourceArtifactDetails, NovaArtifactDetails copiedArtifactDetails)
+        /// <param name="sourceArtifact">The original source artifact.</param>
+        /// <param name="copiedArtifact">The new copied artifact.</param>
+        private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact)
         {
-            ThrowIf.ArgumentNull(sourceArtifactDetails, nameof(sourceArtifactDetails));
-            ThrowIf.ArgumentNull(copiedArtifactDetails, nameof(copiedArtifactDetails));
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
 
-            var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, sourceArtifactDetails.Id);
-            var copiedSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, copiedArtifactDetails.Id);
+            var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, sourceArtifact.Id);
+            var copiedSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, copiedArtifact.Id);
 
             Assert.AreEqual(sourceSubArtifacts.Count, copiedSubArtifacts.Count, "Number of sub-artifacts copied doesn't match the original artifact!");
 
             // NOTE: We're assuming the copied sub-artifacts are returned in the same order as those in the source artifact.
             for (int i = 0; i < sourceSubArtifacts.Count; ++i)
             {
-                var sourceSubArtifact = Helper.ArtifactStore.GetSubartifact(user, sourceArtifactDetails.Id, sourceSubArtifacts[i].Id);
-                var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifactDetails.Id, copiedSubArtifacts[i].Id);
+                var sourceSubArtifact = Helper.ArtifactStore.GetSubartifact(user, sourceArtifact.Id, sourceSubArtifacts[i].Id);
+                var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifact.Id, copiedSubArtifacts[i].Id);
 
-                ArtifactStoreHelper.AssertSubArtifactsEqual(sourceSubArtifact, copiedSubArtifact, skipId: true, expectedParentId: copiedArtifactDetails.Id);
+                ArtifactStoreHelper.AssertSubArtifactsEqual(sourceSubArtifact, copiedSubArtifact, skipId: true, expectedParentId: copiedArtifact.Id);
             }
         }
 
@@ -1148,11 +1185,12 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Veifies that all the children of the source artifact were copied to the target.
         /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="sourceArtifact">The source artifact.</param>
         /// <param name="copiedArtifact">The copied artifact.</param>
         /// <param name="parentWasCopiedToChild">(optional) Pass true if the source artifact was copied to one of its children.</param>
         /// <param name="previousParentArtifact">(optional) Should only be used internally by this function to specify the parent from the previous recursive call.</param>
-        private void VerifyChildrenWereCopied(INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
+        private void VerifyChildrenWereCopied(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
             bool parentWasCopiedToChild = false, INovaArtifactBase previousParentArtifact = null)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
@@ -1160,9 +1198,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(copiedArtifact.Name, sourceArtifact.Name, "The wrong source artifact was provided.");
 
             var sourceChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(sourceArtifact.ProjectId.Value,
-                sourceArtifact.Id, _user);
+                sourceArtifact.Id, user);
             var copiedChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(copiedArtifact.ProjectId.Value,
-                copiedArtifact.Id, _user);
+                copiedArtifact.Id, user);
 
             // If a parent was copied to one of its children, remove the copy from the source list so the Count comparison doesn't fail.
             if (parentWasCopiedToChild)
@@ -1177,13 +1215,15 @@ namespace ArtifactStoreTests
                 var sourceChild = sourceChildren[i];
                 var copiedChild = copiedChildren[i];
 
+                AssertCopiedSubArtifactsAreEqualToOriginal(user, sourceChild, copiedChild);
+
                 sourceChild.AssertEquals(copiedChild,
                     skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipPublishedProperties: true);
 
                 // Recursively verify all children below this one.
                 if (sourceChild.HasChildren)
                 {
-                    VerifyChildrenWereCopied(sourceChild, copiedChild, parentWasCopiedToChild, sourceArtifact);
+                    VerifyChildrenWereCopied(user, sourceChild, copiedChild, parentWasCopiedToChild, sourceArtifact);
                 }
             }
         }

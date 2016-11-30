@@ -35,6 +35,7 @@ App_Sidebar_Left,"Explorer"
 App_Sidebar_Right,"Utility Panel"
 App_Explorer_EmptyMessage,"You have no projects loaded in the project Explorer."
 App_Explorer_LoadProject_ButtonLabel,"Load project"
+App_Explorer_LoadProject_ButtonTooltip,"Loads project in Explorer Window"
 
 App_Project,"Project"
 App_Project_Open,"Open Project"
@@ -381,7 +382,7 @@ Property_RTF_InlineTrace_Error_Permissions,"You do not have permission to add in
 
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
-HttpError_Forbidden, "The artifact cannot be opened. It is not accessible by you."
+HttpError_Forbidden, "The operation could not be completed because of privilege-related issues."
 HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been deleted or moved."
 HttpError_Collection_NotFound, "The Collection has been deleted."
 HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
@@ -484,6 +485,7 @@ ag-Grid_noRowsToShow,"Empty"
 
 # Search
 Search_Validation_MinThreeChars, "At least 3 characters."
+Search_Validation_MaxTwoFiftyChars, "At most 250 characters."
 Search_Validation_Required, "Required search term."
 Search_Results_Author, "Author"
 Search_Results_CreatedOn, "Created On:"

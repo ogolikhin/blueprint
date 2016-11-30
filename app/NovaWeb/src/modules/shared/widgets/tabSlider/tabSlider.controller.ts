@@ -82,7 +82,7 @@ export class TabSliderController {
 
     public showButtonNext(): boolean {
         const lastSlide = this.slidesContainer.lastElementChild as HTMLElement;
-        const isLastSlideVisible = lastSlide.offsetLeft - this.scrollPosition <= 0;
+        const isLastSlideVisible = lastSlide.offsetLeft + lastSlide.offsetWidth < this.scrollPosition + this.slidesContainer.offsetWidth;
         return this.showButtons && this.scrollIndex < this.slides.length - 1 && !isLastSlideVisible;
     }
 

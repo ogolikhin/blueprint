@@ -29,7 +29,8 @@
         <div class="type-id"> {{$ctrl.artifactTypeDescription}}</div>
     </div>
 </div>
-<bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>
+<bp-toolbar-2 ng-if="!$ctrl.isToolbarCollapsed" actions="$ctrl.toolbarActions"></bp-toolbar-2>
+<bp-toolbar-2 ng-if="$ctrl.isToolbarCollapsed" actions="$ctrl.collapsedToolbarActions"></bp-toolbar-2>
 <div class="load-project" ng-if="$ctrl.canLoadProject">
     <label class="btn btn-load-project btn-secondary btn-small" ng-click="$ctrl.loadProject()">
         {{::$ctrl.localization.get('App_Explorer_LoadProject_ButtonLabel')}}

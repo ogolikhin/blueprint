@@ -24,6 +24,7 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     public breadcrumbLinks: IBreadcrumbLink[];
+    public isToolbarCollapsed: boolean = true;
 
     static $inject: [string] = [
         "$q",
@@ -134,31 +135,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        // ORIGINAL CODE, DO NOT REMOVE
-        // this.toolbarActions.push(
-        //     new GenerateUserStoriesAction(
-        //         processArtifact,
-        //         this.userStoryService,
-        //         this.artifactManager.selection,
-        //         this.messageService,
-        //         this.localization,
-        //         this.dialogService,
-        //         this.loadingOverlayService,
-        //         this.communicationManager.processDiagramCommunication
-        //     ),
-        //     new CopyAction(
-        //         processArtifact,
-        //         this.communicationManager.toolbarCommunicationManager,
-        //         this.localization
-        //     ),
-        //     new ToggleProcessTypeAction(
-        //         processArtifact,
-        //         this.communicationManager.toolbarCommunicationManager,
-        //         this.localization
-        //     )
-        // );
-
-        // NEW PROPOSED CODE
         const generateUserStoriesAction = new GenerateUserStoriesAction(
             processArtifact,
             this.userStoryService,
@@ -176,32 +152,31 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             processArtifact,
             this.communicationManager.toolbarCommunicationManager,
             this.localization);
-        // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
-        // if (availableWidth > XXX) {
-        //     this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
-        // } else {
-            for (let i = 0; i < this.toolbarActions.length; i++) {
-                if (this.toolbarActions[i].type === "menu") {
-                    const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                    const buttonDropdown = this.toolbarActions[i] as BPMenuAction;
-                    buttonDropdown.actions.push(dropdownSeparator);
-                    generateUserStoriesAction.actions.forEach((action: BPButtonOrDropdownAction) => {
-                        if (action.icon) {
-                            buttonDropdown.actions.push(action);
-                        } else {
-                            buttonDropdown.actions.push(new BPButtonOrDropdownAction(
-                                action.execute,
-                                () => !action.disabled,
-                                generateUserStoriesAction.icon,
-                                action.label
-                            ));
-                        }
-                    });
-                    buttonDropdown.actions.push(dropdownSeparator, copyAction);
-                }
-            }
 
-            this.toolbarActions.unshift(toggleProcessTypeAction);
-        // }
+        // expanded toolbar
+            this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
+        // collapsed toolbar
+        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
+            if (this.collapsedToolbarActions[i].type === "menu") {
+                const dropdownSeparator = new BPButtonOrDropdownSeparator();
+                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
+                buttonDropdown.actions.push(dropdownSeparator);
+                generateUserStoriesAction.actions.forEach((action: BPButtonOrDropdownAction) => {
+                    if (action.icon) {
+                        buttonDropdown.actions.push(action);
+                    } else {
+                        buttonDropdown.actions.push(new BPButtonOrDropdownAction(
+                            action.execute,
+                            () => !action.disabled,
+                            generateUserStoriesAction.icon,
+                            action.label
+                        ));
+                    }
+                });
+                buttonDropdown.actions.push(dropdownSeparator, copyAction);
+            }
+        }
+
+        this.collapsedToolbarActions.unshift(toggleProcessTypeAction);
     }
 }

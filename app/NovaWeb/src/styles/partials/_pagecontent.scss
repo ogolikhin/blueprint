@@ -78,21 +78,6 @@ pagecontent, bp-properties-panel {
         width: 100%;
     }
 
-    //$page-top-toolbar-width: 420px; // this value changes whenever the number of buttons (and their labels) in the toolbar changes
-    .page-top-toolbar {
-        flex-grow: 0;
-        flex-shrink: 0;
-        margin-bottom: 15px;
-
-        .btn-bluelight + .btn-bluelight {
-            margin-left: 5px;
-        }
-
-        .btn-bluelight + .btn-primary {
-            margin-left: 10px;
-        }
-    }
-
     .artifact-status {
         color: $white;
         margin: 0 0 10px;
@@ -140,8 +125,6 @@ pagecontent, bp-properties-panel {
 
     .artifact-heading {
         display: flex;
-        //max-width: calc(100% - #{$page-top-toolbar-width});
-        //min-width: $page-top-toolbar-width;
         overflow: hidden;
 
 

@@ -81,25 +81,18 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        // ORIGINAL CODE, DO NOT REMOVE
-        // this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
-        //
-        // this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
-
-        // NEW PROPOSED CODE
         const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
-        // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
-        // if (availableWidth > XXX) {
-        //     this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
-        // } else {
-            for (let i = 0; i < this.toolbarActions.length; i++) {
-                if (this.toolbarActions[i].type === "menu") {
-                    const buttonDropdown = this.toolbarActions[i] as BPMenuAction;
-                    const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                    buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
-                }
+
+        // expanded toolbar
+        this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
+        // collapsed toolbar
+        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
+            if (this.collapsedToolbarActions[i].type === "menu") {
+                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
+                const dropdownSeparator = new BPButtonOrDropdownSeparator();
+                buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
             }
-        // }
+        }
     }
 }

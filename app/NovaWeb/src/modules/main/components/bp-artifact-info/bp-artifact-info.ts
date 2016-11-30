@@ -75,7 +75,9 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public collapsedToolbarActions: IBPAction[] = [];
     public additionalMenuActions: IBPButtonOrDropdownAction[] = [];
+    public isToolbarCollapsed: boolean = true;
     public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
@@ -279,7 +281,7 @@ export class BpArtifactInfoController {
 
         if (this.$element.length) {
             let container: HTMLElement = this.$element[0];
-            let toolbar: Element = container.querySelector(".page-top-toolbar");
+            let toolbar: Element = container.querySelector(".page-top-toolbar"); //TODO: removed
             let heading: Element = container.querySelector(".artifact-heading");
             let iconWidth: number = heading && heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
             let nameWidth: number = heading && heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
@@ -300,36 +302,8 @@ export class BpArtifactInfoController {
 
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
+        this.collapsedToolbarActions = [];
         if (artifact) {
-            // ORIGINAL CODE, DO NOT REMOVE
-            // this.toolbarActions.push(
-            //     new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
-            // );
-            // this.toolbarActions.push(
-            //     new BPButtonGroupAction(
-            //         new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-            //         new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-            //         new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-            //         new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
-            //             this.mainBreadcrumbService),
-            //         new DeleteAction(
-            //             this.artifact,
-            //             this.localization,
-            //             this.messageService,
-            //             this.artifactManager,
-            //             this.projectManager,
-            //             this.loadingOverlayService,
-            //             this.dialogService,
-            //             this.navigationService)
-            //     ),
-            // );
-            //
-            // //we don't want to show impact analysis on collection artifact page
-            // if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-            //     this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
-            // }
-
-            // NEW PROPOSED CODE
             const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
             const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
             const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
@@ -341,29 +315,28 @@ export class BpArtifactInfoController {
             const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
                 this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
             const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
-            // AT SOME POINT, WE CAN DO THIS BASED ON THE AVAILABLE WIDTH
-            // if (availableWidth > XXX) {
-            //     this.toolbarActions.push(
-            //         moveAction,
-            //         new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
-            //     );
-            //     //we don't want to show impact analysis on collection artifact page
-            //     if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-            //         this.toolbarActions.push(openImpactAnalysisAction);
-            //     }
-            // } else {
-                const dropdownSeparator = new BPButtonOrDropdownSeparator();
 
-                this.toolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
-                this.additionalMenuActions.push(moveAction, deleteAction);
-                //we don't want to show impact analysis on collection artifact page
-                if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                    this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
-                }
-                this.toolbarActions.push(
-                    new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
-                );
-            // }
+            // expanded toolbar
+            this.toolbarActions.push(
+                moveAction,
+                new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
+            );
+            //we don't want to show impact analysis on collection artifact page
+            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+                this.toolbarActions.push(openImpactAnalysisAction);
+            }
+            // collapsed toolbar
+            const dropdownSeparator = new BPButtonOrDropdownSeparator();
+
+            this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
+            this.additionalMenuActions.push(moveAction, deleteAction);
+            //we don't want to show impact analysis on collection artifact page
+            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+                this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
+            }
+            this.collapsedToolbarActions.push(
+                new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
+            );
         }
     }
 
@@ -390,7 +363,7 @@ export class BpArtifactInfoController {
 
             if (this.$element.length) {
                 let container: HTMLElement = this.$element[0];
-                let toolbar: Element = container.querySelector(".page-top-toolbar");
+                let toolbar: Element = container.querySelector(".page-top-toolbar"); //TODO: removed
                 let heading: Element = container.querySelector(".artifact-heading");
                 if (heading && toolbar) {
                     angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?

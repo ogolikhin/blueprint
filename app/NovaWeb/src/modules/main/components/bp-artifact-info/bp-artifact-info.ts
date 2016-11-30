@@ -224,6 +224,10 @@ export class BpArtifactInfoController {
     }
 
     public get canLoadProject(): boolean {
+        return this.canLoadProjectInternal();
+    }
+
+    private canLoadProjectInternal(): boolean {
         if (!this.artifact || !this.artifact.projectId) {
             return false;
         }
@@ -234,7 +238,7 @@ export class BpArtifactInfoController {
     }
 
     public loadProject(): void {
-        if (!this.artifact || !this.artifact.projectId) {
+        if (!this.canLoadProjectInternal()) {
             return;
         }
 

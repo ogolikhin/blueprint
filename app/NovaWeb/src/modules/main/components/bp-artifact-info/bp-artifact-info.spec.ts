@@ -613,10 +613,10 @@ describe("BpArtifactInfo", () => {
         });
 
         describe("loadProject", () => {
-            it("does not load project when no artifact is selected", () => {
+            it("does not load project when canLoadProject is false", () => {
                 // arrange
-                spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
-                const spy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(undefined);
+                spyOn(controller, "canLoadProjectInternal").and.returnValue(false);
+                const spy = spyOn(projectManager, "openProjectAndExpandToNode").and.callThrough();
 
                 // act
                 controller.loadProject();
@@ -625,17 +625,16 @@ describe("BpArtifactInfo", () => {
                 expect(spy).not.toHaveBeenCalled();
             });
 
-            it("does not load project when selected artifact doesn't specify project information", () => {
+            it("load project when canLoadProject is true", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
-                artifact.projectId = undefined;
-                const spy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(undefined);
+                spyOn(controller, "canLoadProjectInternal").and.returnValue(true);
+                const spy = spyOn(projectManager, "openProjectAndExpandToNode").and.callThrough();
 
                 // act
                 controller.loadProject();
 
                 // assert
-                expect(spy).not.toHaveBeenCalled();
+                expect(spy).toHaveBeenCalled();
             });
 
             it("displays loading overlay when started", () => {

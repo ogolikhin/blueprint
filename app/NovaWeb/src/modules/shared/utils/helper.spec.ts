@@ -237,12 +237,16 @@ describe("Remove Attribute From Node", () => {
             </div>`;
 
         // Act
+        const innerDiv = node.children[0].children[1];
         const mainDivId = node.children[0].id;
+        const innerDivId = innerDiv.id;
         Helper.removeAttributeFromNode(node, "id");
 
         // Assert
         expect(mainDivId).toBe("mainDiv");
         expect(node.children[0].hasAttribute("id")).toBe(false);
+        expect(innerDivId).toBe("childDiv");
+        expect(innerDiv.hasAttribute("id")).toBe(false);
     });
 });
 

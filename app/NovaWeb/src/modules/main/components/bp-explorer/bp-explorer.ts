@@ -132,6 +132,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.projects = projects.slice(0); // create a copy
     }
 
+    public isProjectTreeVisible(): boolean {
+        return this.projects && this.projects.length > 0;
+    }
+
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
 
@@ -147,11 +151,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 this.pendingSelectedArtifactId = undefined;
             // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
             } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
-                this.selectionManager.getArtifact() &&                
+                this.selectionManager.getArtifact() &&
                 // selectedArtifactId = undefined only if there is no projects open.
                 // if there are some artifact pre selected in the tree before opening project
                 // we need to check if this artifact is not from this.projects[0] (last opened project)
-                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {                
+                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
                 if (!this.selectionManager.getArtifact().artifactState.historical) {
                     navigateToId = this.selectionManager.getArtifact().id;
                 } else {

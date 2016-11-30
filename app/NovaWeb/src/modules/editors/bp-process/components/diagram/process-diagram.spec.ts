@@ -15,7 +15,7 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
-import {UtilityPanelService} from "../../../../shell/bp-utility-panel/bp-utility-panel";
+import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 
 class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;

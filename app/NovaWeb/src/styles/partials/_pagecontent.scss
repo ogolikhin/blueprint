@@ -67,9 +67,9 @@ pagecontent, bp-properties-panel {
         overflow:hidden;
     }
 
-    bp-artifact-info {
+    .responsive-header {
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row nowrap;
         justify-content: space-between;
     }
 
@@ -115,8 +115,8 @@ pagecontent, bp-properties-panel {
     }
 
     .load-project{
-       width: 100%;
-       padding-bottom: $padding-large-vertical;
+        flex: none;
+        padding-bottom: $padding-large-vertical;
     }
 
     .btn-load-project{
@@ -125,8 +125,7 @@ pagecontent, bp-properties-panel {
 
     .artifact-heading {
         display: flex;
-        overflow: hidden;
-
+        width: 100%;
 
         .icon,
         .artifact-heading-group1 {
@@ -155,21 +154,22 @@ pagecontent, bp-properties-panel {
         }
 
         .artifact-heading-group1 {
-            overflow: hidden;
+            width: 100%;
         }
 
         .artifact-heading-group2 {
-            align-items: center;
+            align-items: baseline;
             display: flex;
         }
 
         .name {
             color: $gray-dark;
             display: block;
+            flex: 1 1;
             font-size: $font-size-biggest;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            //white-space: nowrap;
+            white-space: normal;
+            word-break: break-all;
+            word-wrap: break-word;
         }
 
         .indicators {

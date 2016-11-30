@@ -154,7 +154,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.localization);
 
         // expanded toolbar
-            this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
+        this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
         // collapsed toolbar
         for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
             if (this.collapsedToolbarActions[i].type === "menu") {

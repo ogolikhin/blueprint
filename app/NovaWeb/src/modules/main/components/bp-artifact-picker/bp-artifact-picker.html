@@ -24,15 +24,11 @@
             ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>
-
     <div class="search-input">
-        <input type="text" class="form-control" ng-if="!$ctrl.project"
-               placeholder="{{::$root.config.labels['Label_Search_Projects']}}" ng-model="$ctrl.searchText"/>
-        <input type="text" class="form-control" ng-if="$ctrl.project"
-               placeholder="{{::$root.config.labels['Label_Search_Artifacts']}}" ng-model="$ctrl.searchText"/>
-        <i class="fonticon-error" ng-show="$ctrl.searchText || $ctrl.searchResults" ng-click="$ctrl.clearSearch()"></i>
+        <input type="text" class="form-control"
+            placeholder="{{$ctrl.searchPlaceholder}}" ng-model="$ctrl.searchText"/>
+        <i class="fonticon-error" ng-show="$ctrl.clearSearchEnabled()" ng-click="$ctrl.clearSearch()"></i>
     </div>
-
     <div ng-show="$ctrl.filterItemType.name" class="filter" ng-if="$ctrl.filterItemType.id">
         {{::$ctrl.localization.get('Label_Filter_By_Type')}}: <strong>{{$ctrl.filterItemType.name}}</strong>
         <i class="fonticon-error filter__icon-clear-search" ng-click="$ctrl.clearFilter()"></i>

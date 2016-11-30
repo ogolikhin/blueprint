@@ -259,17 +259,17 @@ namespace Helper
             if (!skipIdAndVersion)
             {
                 Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version parameters don't match!");
             }
 
             if (!skipParentId)
             {
-                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId parameters don't match!");
             }
 
             if (!skipOrderIndex)
             {
-                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex parameters don't match!");
             }
 
             if (!skipCreatedBy)
@@ -279,23 +279,24 @@ namespace Helper
 
             if (!skipPermissions)
             {
-                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
+                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions parameters don't match!");
             }
 
             if (!skipPublishedProperties)
             {
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn parameters don't match!");
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime parameters don't match!");
                 Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
 
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
+            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
+            Assert.AreEqual(artifact1.LastSaveInvalid, artifact2.LastSaveInvalid, "The LastSaveInvalid parameters don't match!");
 
             Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
             Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
@@ -391,11 +392,12 @@ namespace Helper
         /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
         /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
         /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
-        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
         /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
+        ///     should have the same ParentId.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact,
-            bool skipId = false, bool skipParentId = false, bool skipOrderIndex = false)
+            bool skipId = false, bool skipOrderIndex = false, int? expectedParentId = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -407,10 +409,8 @@ namespace Helper
                 Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
             }
 
-            if (!skipParentId)
-            {
-                Assert.AreEqual(expectedSubArtifact.ParentId, actualSubArtifact.ParentId, "The ParentId  parameters don't match!");
-            }
+            expectedParentId = expectedParentId ?? expectedSubArtifact.ParentId;
+            Assert.AreEqual(expectedParentId, actualSubArtifact.ParentId, "The ParentId parameters don't match!");
 
             if (!skipOrderIndex)
             {
@@ -427,29 +427,52 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
 
             Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            
+            // Compare each property in CustomPropertiess.
+            foreach (CustomProperty expectedProperty in expectedSubArtifact.CustomPropertyValues)
+            {
+                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+
+                var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+            }
+
             Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
-
-            // Now compare each property in CustomProperties & SpecificPropertyValues.
-            foreach (CustomProperty property in expectedSubArtifact.CustomPropertyValues)
+            
+            // Compare each property in SpecificPropertyValues.
+            foreach (CustomProperty expectedProperty in expectedSubArtifact.SpecificPropertyValues)
             {
-                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == property.Name),
-                "Couldn't find a CustomProperty named '{0}'!", property.Name);
+                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
+
+                var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
             }
 
-            foreach (CustomProperty property in expectedSubArtifact.SpecificPropertyValues)
+            Assert.AreEqual(expectedSubArtifact.AttachmentValues.Count, actualSubArtifact.AttachmentValues.Count, "The number of attachments is different!");
+
+            // Compare each attachment.
+            foreach (AttachmentValue attachment in expectedSubArtifact.AttachmentValues)
             {
-                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == property.Name),
-                "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
+                Assert.That(actualSubArtifact.AttachmentValues.Exists(a => a.Guid == attachment.Guid),
+                    "Couldn't find attachment with GUID: {0}!", attachment.Guid);
+
+                var actualAttachment = actualSubArtifact.AttachmentValues.Find(a => a.Guid == attachment.Guid);
+
+                AssertAttachmentsAreEqual(attachment, actualAttachment);
             }
 
-            //TODO: Add assertions for Traces, Attachments and Doc References
+            //TODO: Add assertions for Traces and Doc References
         }
 
         /// <summary>
         /// Compares Two Custom Properties for Equality
         /// </summary>
-        /// <param name="expectedProperty">The first custom property to compare.</param>
-        /// <param name="actualProperty">The second custom property to compare.</param>
+        /// <param name="expectedProperty">The expected custom property.</param>
+        /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
         public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
         {
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
@@ -544,6 +567,29 @@ namespace Helper
                 default:
                     throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType.ToString()));
             }
+        }
+
+        /// <summary>
+        /// Compares Two Attachments for Equality
+        /// </summary>
+        /// <param name="expectedAttachment">The expected attachment.</param>
+        /// <param name="actualAttachment">The actual attachment to be compared with the expected attachment.</param>
+        public static void AssertAttachmentsAreEqual(AttachmentValue expectedAttachment, AttachmentValue actualAttachment)
+        {
+            ThrowIf.ArgumentNull(expectedAttachment, nameof(expectedAttachment));
+            ThrowIf.ArgumentNull(actualAttachment, nameof(actualAttachment));
+
+            Assert.AreEqual(expectedAttachment.AttachmentId, actualAttachment.AttachmentId, "The AttachmentId values do not match!");
+            Assert.AreEqual(expectedAttachment.Guid, actualAttachment.Guid, "The attachment GUID values do not match!");
+
+            // TODO: Investigate the impact of this change type assertion
+            // Assert.AreEqual(expectedAttachment.ChangeType, actualAttachment.ChangeType);
+
+            Assert.AreEqual(expectedAttachment.FileName, actualAttachment.FileName, "The attachment FileName values do not match!");
+            Assert.AreEqual(expectedAttachment.FileType, actualAttachment.FileType, "The attachment FileType values do not match!");
+            Assert.AreEqual(expectedAttachment.UploadedDate, actualAttachment.UploadedDate, "The attachment UploadedDate values do not match!");
+            Assert.AreEqual(expectedAttachment.UserId, actualAttachment.UserId, "The attachment UserId values do not match!");
+            Assert.AreEqual(expectedAttachment.UserName, actualAttachment.UserName, "The attachment UserName values do not match!");
         }
 
         #endregion Custom Asserts

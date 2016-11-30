@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using ArtifactStore.Helpers;
 using ArtifactStore.Models;
 using ArtifactStore.Repositories.PropertyXml;
@@ -82,6 +84,7 @@ namespace ArtifactStore.Repositories
             {
                 IEnumerable<int> ptIds;
                 itPtMap.TryGetValue(itv.ItemTypeId, out ptIds);
+                ptIds = OrderProperties(ptIds?.ToList(), projectTypes.PropertyTypes, itv.AdvancedSettings);
                 var at = ConvertItemTypeVersion(itv, ptIds, projectId);
 
                 if(itv.Predefined != null && itv.Predefined.Value.HasFlag(ItemTypePredefined.CustomArtifactGroup))
@@ -92,6 +95,73 @@ namespace ArtifactStore.Repositories
 
             return projectTypes;
         }
+
+
+        #region Ordering properties
+
+        private static List<int> OrderProperties(List<int> itPtIds, List<PropertyType> propertyTypes, string xmlAdvancedSettings)
+        {
+            if (itPtIds == null || !itPtIds.Any())
+                return itPtIds;
+
+            var advancedSettings = SerializationHelper.FromXml<AdvancedSettings>(xmlAdvancedSettings);
+            return OrderProperties(itPtIds, propertyTypes, advancedSettings);
+        }
+
+        internal static List<int> OrderProperties(IEnumerable<int> propertyValueIds,
+            IEnumerable<PropertyType> propertyTypes, AdvancedSettings advancedSettings)
+        {
+            var mapPropertyTypes = propertyTypes.ToDictionary(t => t.Id);
+            var mapGeneralGroup = GetLayoutGroupMap(advancedSettings, GroupType.General);
+            var mapDetailsGroup = GetLayoutGroupMap(advancedSettings, GroupType.Details);
+
+            // Tuple Key for sorting properties:
+            // isMultiLineRichText - bool, multi line rich text properties go to the end
+            // isNotInGneralGroup - bool, properties in General group come first
+            // isNotInDetailsGroup - bool, then properties in Details group
+            // orderIndex - int, int.MaxValue for properties not from layout groups
+            // isStandard - bool, standard properties come after project ones
+            // propertyTypeId - finally sorted by the property type Id
+            var sortedDic = new SortedDictionary<Tuple<bool, bool, bool, int, bool, int>, int>();
+            foreach (var pvId in propertyValueIds)
+            {
+                PropertyType pt;
+                if (!mapPropertyTypes.TryGetValue(pvId, out pt))
+                {
+                    Debug.Assert(false);
+                    continue;
+                }
+
+                int orderIndex;
+                var isNotInGneralGroup = !mapGeneralGroup.TryGetValue(pvId, out orderIndex);
+
+                var isNotInDetailsGroup = true;
+                if (isNotInGneralGroup)
+                    isNotInDetailsGroup = !mapDetailsGroup.TryGetValue(pvId, out orderIndex);
+
+                var isMultiLineRichText = pt.IsRichText.GetValueOrDefault() && pt.IsMultipleAllowed.GetValueOrDefault();
+                var key = Tuple.Create(
+                    isMultiLineRichText,
+                    isNotInDetailsGroup,
+                    isNotInGneralGroup,
+                    isNotInGneralGroup && isNotInDetailsGroup ? int.MaxValue : orderIndex,
+                    pt.InstancePropertyTypeId.HasValue,
+                    pvId);
+                sortedDic.Add(key, pvId);
+            }
+
+            return sortedDic.OrderBy(p => p.Key).Select(r => r.Value).ToList();
+        }
+
+        // key = PropertyTypeId, value = OrderIndex
+        private static IDictionary<int, int> GetLayoutGroupMap(AdvancedSettings advancedSettings, GroupType groupType)
+        {
+            return advancedSettings?.LayoutGroups?.FirstOrDefault(g => g.Type == groupType)?
+                .Properties?.ToDictionary(pl => pl.PropertyTypeId, pl => pl.OrderIndex)
+                ?? new Dictionary<int, int>();
+        }
+
+        #endregion Ordering properties
 
         private PropertyType ConvertPropertyTypeVersion(PropertyTypeVersion pv)
         {
@@ -253,12 +323,45 @@ namespace ArtifactStore.Repositories
             internal int? IconImageId { get; set; }
             internal int? ItemTypeGroupId { get; set; }
             internal bool UsedInThisProject { get; set; }
+            internal string AdvancedSettings { get; set; }
         }
 
         internal class ItemTypePropertyTypeMapRecord
         {
             internal int ItemTypeId { get; set; }
             internal int PropertyTypeId { get; set; }
+        }
+
+
+        // Lightweight Advanced Settings object model for ordering properties in Nova
+        [XmlRoot("AdvancedSettings", Namespace = "http://www.blueprintsys.com/RC2011", IsNullable = false)]
+        public class AdvancedSettings
+        {
+            [XmlArray]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:For unit tests.")]
+            public List<PropertyLayoutGroup> LayoutGroups { get; set; }
+        }
+
+        public class PropertyLayoutGroup
+        {
+            [XmlAttribute]
+            public GroupType Type { get; set; }
+            [XmlArray]
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:For unit tests.")]
+            public List<PropertyLayout> Properties { get; set; }
+        }
+
+        public enum GroupType
+        {
+            General, Details, Custom
+        }
+
+        public class PropertyLayout
+        {
+            [XmlAttribute]
+            public int PropertyTypeId { get; set; }
+            [XmlAttribute]
+            public int OrderIndex { get; set; }
         }
     }
 }

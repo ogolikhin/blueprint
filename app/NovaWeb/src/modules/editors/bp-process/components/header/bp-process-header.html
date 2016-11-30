@@ -30,3 +30,8 @@
     </div>
 </div>
 <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>
+<div class="load-project" ng-if="$ctrl.canLoadProject">
+    <label class="btn btn-load-project btn-secondary btn-small" ng-click="$ctrl.loadProject()">
+        {{::$ctrl.localization.get('App_Explorer_LoadProject_ButtonLabel')}}
+    </label>
+</div>

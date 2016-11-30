@@ -1,5 +1,7 @@
 import {SessionTokenHelper} from "../../../shell/login/session.token.helper";
 import "lodash";
+import {ISession} from "../../../shell/login/session.svc";
+import {IUser} from "../../../shell/login/auth.svc";
 
 const Keen = require("keen-js");
 
@@ -59,7 +61,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
     constructor(private $injector: ng.auto.IInjectorService, $windowProvider: ng.IServiceProvider) {
         this.$window = $windowProvider.$get();
         this.isNotLocalhost = this.$window.location.hostname !== "localhost";
-        this.$get.$inject = ["$rootScope", "$log", "$window"];
+        this.$get.$inject = ["$rootScope", "$log", "$window", "session"];
     }
 
     public setAccount(account: IKeenAccount): void {
@@ -90,19 +92,16 @@ export class AnalyticsProvider implements ng.IServiceProvider {
 
     }
 
-    $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService) {
+    $get($rootScope: ng.IRootScopeService, $log: ng.ILogService, $window: ng.IWindowService, session: ISession) {
         let _baseKeenEvent = () => {
             let sessionId = SessionTokenHelper.getSessionToken();
             if (sessionId) {
                 sessionId = SessionTokenHelper.getSessionToken().substr(0, 8);
             }
-
-            /*
-             let userId: IUser|number = session.currentUser;
+            let userId: IUser|number = session.currentUser;
             if (userId) {
                 userId = userId.id;
             }
-             */
             return <IKeenEventObject> {
                 referrer: {
                     url: $window.document.referrer
@@ -143,7 +142,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
                         }
                     ]
                 },
-                //userId: userId,
+                userId: userId,
                 sessionId: sessionId
             };
         };

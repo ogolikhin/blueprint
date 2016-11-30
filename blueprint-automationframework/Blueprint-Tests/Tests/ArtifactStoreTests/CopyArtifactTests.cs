@@ -14,7 +14,6 @@ using TestCommon;
 using Utilities;
 using System.Linq;
 using Common;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -42,7 +41,13 @@ namespace ArtifactStoreTests
         [TearDown]
         public void TearDown()
         {
-            _wrappedArtifact?.Delete();
+            if (_wrappedArtifact != null)
+            {
+                Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: null, user: _wrappedArtifact.CreatedBy, all: true),
+                    "Failed to discard the copied artifact(s)!");
+                _wrappedArtifact = null;
+            }
+
             Helper?.Dispose();
         }
 
@@ -347,7 +352,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             const int expectedVersionOfOriginalArtifact = 2;    // The pre-created artifacts in use here have 2 versions.
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, skipCreatedBy: true, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                skipCreatedBy: true, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
 
             // Verify Reuse traces of source artifact didn't change.
             var sourceAfterCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
@@ -421,8 +427,177 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
+        [TestCase(BaseArtifactType.Document, 3, 1, 0.1)]
+        [TestCase(BaseArtifactType.Glossary, 3, 1, 2)]
+        [TestCase(BaseArtifactType.TextualRequirement, 3, 1, 999)]
+        [TestRail(195485)]
+        [Description("Create and save several artifacts in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
+            "and has the OrderIndex that was specified.")]
+        public void CopyArtifactWithOrderIndex_SingleSavedArtifact_ToSameFolderWithArtifacts_ReturnsNewArtifactWithSpecifiedOrderIndex(
+            BaseArtifactType sourceArtifactType, int numberOfArtifacts, int sourceArtifactIndex, double orderIndex)
+        {
+            // Setup:
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, sourceArtifactType, numberOfArtifacts, parentFolder);
+            var sourceArtifact = artifacts[sourceArtifactIndex];
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, expectedVersionOfOriginalArtifact: -1);
+
+            Assert.AreEqual(orderIndex, copyResult.Artifact.OrderIndex, "The OrderIndex of the copied artifact should be: {0}", orderIndex);
+        }
+
+        [TestCase(BaseArtifactType.Document, 3, 1, 0.1)]
+        [TestCase(BaseArtifactType.Glossary, 3, 1, 2)]
+        [TestCase(BaseArtifactType.TextualRequirement, 3, 1, 999)]
+        [TestRail(195486)]
+        [Description("Create and publish several artifacts with children in a folder.  Copy one of the artifacts under the same folder and specify a positive OrderIndex.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
+            "and has the OrderIndex that was specified.")]
+        public void CopyArtifactWithOrderIndex_MultiplePublishedArtifacts_ToSameFolderWithArtifacts_ReturnsNewArtifactWithSpecifiedOrderIndex(
+            BaseArtifactType sourceArtifactType, int numberOfArtifacts, int sourceArtifactIndex, double orderIndex)
+        {
+            // Setup:
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifacts = new List<List<IArtifact>>();
+
+            for (int i = 0; i < numberOfArtifacts; ++i)
+            {
+                var artifactTypeChain = new BaseArtifactType[] { sourceArtifactType, sourceArtifactType, sourceArtifactType };
+                var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+                artifacts.Add(artifactChain);
+            }
+
+            var sourceArtifact = artifacts[sourceArtifactIndex][0];
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentFolder.Id, _user, orderIndex),
+                "'POST {0}?orderIndex={1}' should return 201 Created when valid parameters are passed.", SVC_PATH, orderIndex);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedNumberOfArtifactsCopied: numberOfArtifacts);
+
+            Assert.AreEqual(orderIndex, copyResult.Artifact.OrderIndex, "The OrderIndex of the copied artifact should be: {0}", orderIndex);
+
+            VerifyChildrenWereCopied(_user, sourceArtifactDetails, copyResult.Artifact);
+        }
+
+        [TestCase(BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder, BaseArtifactType.Document, BaseArtifactType.Glossary, BaseArtifactType.Actor)]
+        [TestRail(195554)]
+        [Description("Create and publish several artifacts with children.  Copy the top level artifact to be under one of its children.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published " +
+            "and has the OrderIndex that was specified.")]
+        public void CopyArtifact_MultiplePublishedArtifacts_ToChildOfItself_ReturnsNewArtifactWithSpecifiedOrderIndex(params BaseArtifactType[] artifactTypeChain)
+        {
+            // Setup:
+            var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
+
+            var sourceArtifact = artifactChain[0];
+            var targetArtifact = artifactChain[1];
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, _user),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedNumberOfArtifactsCopied: artifactChain.Count);
+
+            VerifyChildrenWereCopied(_user, sourceArtifactDetails, copyResult.Artifact, parentWasCopiedToChild: true);
+        }
+
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase(BaseArtifactType.BusinessProcess, 33, "Business Process Diagram", 2)]
+        [TestCase(BaseArtifactType.DomainDiagram, 31, "Domain Diagram", 2)]
+        [TestCase(BaseArtifactType.GenericDiagram, 49, "Generic Diagram", 2)]
+        [TestCase(BaseArtifactType.Storyboard, 32, "Storyboard", 2)]
+        [TestCase(BaseArtifactType.UIMockup, 22, "UI Mockup", 4)]
+        [TestCase(BaseArtifactType.UseCase, 17, "MainUseCase", 2)]
+        [TestCase(BaseArtifactType.UseCaseDiagram, 29, "Use Case Diagram", 3)]
+        [TestRail(195562)]
+        [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
+            "unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
+        public void CopyArtifact_SinglePublishedLegacyDiagramArtifact_ToNewFolder_NewArtifactIsIdenticalToOriginal(
+            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+        {
+            // Setup:
+            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+
+            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
+            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
+
+            // Publish the copied artifact so we can add a breakpoint and check it in the UI.
+            _wrappedArtifact.Publish(author);
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
+        }
+
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase(BaseArtifactType.PrimitiveFolder, 7, "BaseArtifacts", 1)]
+        [TestRail(195567)]
+        [Description("Create & publish a destination folder.  Copy a folder containing pre-created source artifacts to the destination folder.  " +
+            "Verify the source artifacts are unchanged and the new artifacts are identical to the source artifacts.  New copied artifacts should not be published.")]
+        public void CopyArtifact_MultiplePublishedLegacyDiagramArtifacts_ToNewFolder_NewArtifactsAreIdenticalToOriginal(
+            BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
+        {
+            // Setup:
+            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+
+            var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
+            var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                expectedNumberOfArtifactsCopied: 15, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
+
+            VerifyChildrenWereCopied(author, sourceArtifactDetails, copyResult.Artifact);
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
+        }
+
         // TODO ---------------- POSITIVE TESTS
-        // TODO - Copy artifact (possibly with descendants) to one of its child
         // TODO - Copy orphan artifact
 
         #endregion 201 Created tests
@@ -929,6 +1104,32 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
+        /// Asserts that the sub-artifacts of the copied artifact are equal to those in the source artifact (except for the IDs).
+        /// </summary>
+        /// <param name="user">User to authenticate with.</param>
+        /// <param name="sourceArtifact">The original source artifact.</param>
+        /// <param name="copiedArtifact">The new copied artifact.</param>
+        private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact)
+        {
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
+
+            var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, sourceArtifact.Id);
+            var copiedSubArtifacts = Helper.ArtifactStore.GetSubartifacts(user, copiedArtifact.Id);
+
+            Assert.AreEqual(sourceSubArtifacts.Count, copiedSubArtifacts.Count, "Number of sub-artifacts copied doesn't match the original artifact!");
+
+            // NOTE: We're assuming the copied sub-artifacts are returned in the same order as those in the source artifact.
+            for (int i = 0; i < sourceSubArtifacts.Count; ++i)
+            {
+                var sourceSubArtifact = Helper.ArtifactStore.GetSubartifact(user, sourceArtifact.Id, sourceSubArtifacts[i].Id);
+                var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifact.Id, copiedSubArtifacts[i].Id);
+
+                ArtifactStoreHelper.AssertSubArtifactsEqual(sourceSubArtifact, copiedSubArtifact, skipId: true, expectedParentId: copiedArtifact.Id);
+            }
+        }
+
+        /// <summary>
         /// Compares two lists of OpenApiTrace's and asserts they are equal.
         /// </summary>
         /// <param name="expectedTraces">The list of expected OpenApiTrace's.</param>
@@ -979,6 +1180,52 @@ namespace ArtifactStoreTests
             }
 
             return copyResult;
+        }
+
+        /// <summary>
+        /// Veifies that all the children of the source artifact were copied to the target.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="sourceArtifact">The source artifact.</param>
+        /// <param name="copiedArtifact">The copied artifact.</param>
+        /// <param name="parentWasCopiedToChild">(optional) Pass true if the source artifact was copied to one of its children.</param>
+        /// <param name="previousParentArtifact">(optional) Should only be used internally by this function to specify the parent from the previous recursive call.</param>
+        private void VerifyChildrenWereCopied(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
+            bool parentWasCopiedToChild = false, INovaArtifactBase previousParentArtifact = null)
+        {
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
+            Assert.AreEqual(copiedArtifact.Name, sourceArtifact.Name, "The wrong source artifact was provided.");
+
+            var sourceChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(sourceArtifact.ProjectId.Value,
+                sourceArtifact.Id, user);
+            var copiedChildren = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(copiedArtifact.ProjectId.Value,
+                copiedArtifact.Id, user);
+
+            // If a parent was copied to one of its children, remove the copy from the source list so the Count comparison doesn't fail.
+            if (parentWasCopiedToChild)
+            {
+                sourceChildren.RemoveAll(a => a.Name == previousParentArtifact?.Name);
+            }
+
+            Assert.AreEqual(sourceChildren.Count, copiedChildren.Count, "The number of artifacts copied is incorrect!");
+
+            for (int i = 0; i < sourceChildren.Count; ++i)
+            {
+                var sourceChild = sourceChildren[i];
+                var copiedChild = copiedChildren[i];
+
+                AssertCopiedSubArtifactsAreEqualToOriginal(user, sourceChild, copiedChild);
+
+                sourceChild.AssertEquals(copiedChild,
+                    skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipPublishedProperties: true);
+
+                // Recursively verify all children below this one.
+                if (sourceChild.HasChildren)
+                {
+                    VerifyChildrenWereCopied(user, sourceChild, copiedChild, parentWasCopiedToChild, sourceArtifact);
+                }
+            }
         }
 
         #endregion Private functions

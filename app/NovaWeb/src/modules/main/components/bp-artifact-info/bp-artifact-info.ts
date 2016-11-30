@@ -24,6 +24,8 @@ import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
+import {ISelectionManager} from "../../../managers/selection-manager";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -45,7 +47,9 @@ export class BpArtifactInfoController {
         "navigationService",
         "projectManager",
         "metadataService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "selectionManager",
+        "analytics"
     ];
 
     protected subscribers: Rx.IDisposable[];
@@ -79,26 +83,32 @@ export class BpArtifactInfoController {
                 protected navigationService: INavigationService,
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
-                protected mainBreadcrumbService: IMainBreadcrumbService) {
+                protected mainBreadcrumbService: IMainBreadcrumbService,
+                protected selectionManager: ISelectionManager,
+                protected analytics: IAnalyticsProvider) {
         this.initProperties();
         this.subscribers = [];
     }
 
     public $onInit() {
-        this.subscribers.push(this.windowManager.mainWindow
-                                                .subscribeOnNext(this.onWidthResized, this));
+        this.subscribers.push(
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this)
+        );
 
         this.artifact = this.artifactManager.selection.getArtifact();
 
         if (this.artifact) {
-            this.subscribers.push(this.artifact.getObservable()
-                                                .subscribeOnNext(this.onArtifactLoaded));
-            this.subscribers.push(this.artifact.artifactState.onStateChange
-                                                            .debounce(100)
-                                                            .subscribe(this.onArtifactStateChanged));
-            this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
-                                                .subscribeOnNext(this.onArtifactPropertyChanged));
+            this.subscribers.push(
+                this.artifact.getObservable()
+                    .subscribeOnNext(this.onArtifactLoaded, this),
+                this.artifact.artifactState.onStateChange
+                    .debounce(100)
+                    .subscribeOnNext(this.onArtifactStateChanged, this),
+                this.artifact.getProperyObservable()
+                    .distinctUntilChanged(changes => changes.item && changes.item.name)
+                    .subscribeOnNext(this.onArtifactPropertyChanged, this)
+            );
         }
 
         this.updateToolbarOptions(this.artifact);
@@ -111,13 +121,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
 
-        delete this["subscribers"];
-        delete this["artifact"];
+        this.subscribers = undefined;
+        this.artifact = undefined;
     }
 
-    protected onArtifactLoaded = () => {
+    protected onArtifactLoaded(): void {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+
             if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
                 const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
                 const publishedBy = this.artifact.lastEditedBy.displayName;
@@ -126,7 +137,7 @@ export class BpArtifactInfoController {
         }
     };
 
-    protected onArtifactStateChanged = (state: IArtifactState) => {
+    protected onArtifactStateChanged(state: IArtifactState): void {
         if (state) {
             this.initStateProperties();
             this.updateStateProperties(state);
@@ -135,7 +146,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
+    protected onArtifactPropertyChanged(change: IItemChangeSet): void {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
@@ -219,6 +230,41 @@ export class BpArtifactInfoController {
             default:
                 break;
         }
+    }
+
+    public get canLoadProject(): boolean {
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (!selectedArtifact || !selectedArtifact.projectId) {
+            return false;
+        }
+
+        const project = this.projectManager.getProject(selectedArtifact.projectId);
+
+        return !project;
+    }
+
+    public loadProject(): void {
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (!selectedArtifact || !selectedArtifact.projectId) {
+            return;
+        }
+
+        const projectId = selectedArtifact.projectId;
+        const artifactId = selectedArtifact.id;
+
+        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+
+        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
+        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+            .finally(() => {
+                //(eventCollection, action, label?, value?, custom?, jQEvent?
+                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                this.analytics.trackEvent("open", "project", label, projectId, {
+                    openProjects: openProjects
+                });
+
+                this.loadingOverlayService.endLoading(openProjectLoadingId);
+            });
     }
 
     public get artifactHeadingMinWidth() {

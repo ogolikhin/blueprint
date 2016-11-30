@@ -10,6 +10,7 @@ import {IProjectService} from "../../../managers/project-manager/project-service
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -63,7 +64,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.explorerArtifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
+            this.selectionManager.explorerArtifactObservable.subscribeOnNext(this.setSelectedNode, this)
         ];
     }
 
@@ -78,10 +79,22 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
-    private setSelectedNode(artifactId: number) {
-        // If this method is called after onLoadProject, but before onGridReset, the artifact will be
-        // selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
-        // artifact, to work as expected.
+    /**
+     * If this method is called after onLoadProject, but before onGridReset, the artifact will be
+     * selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
+     * artifact, to work as expected.
+     * If selection becomes null, all nodes get deselected.
+     * @param  artifact - stateful artifact, can be null if nothing is selected
+     */
+    private setSelectedNode(artifact: IStatefulArtifact) {
+        if (!artifact) {
+            if (this.treeApi) {
+                this.treeApi.deselectAll();
+            }
+            return;
+        }
+
+        const artifactId = artifact.id;
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
         } else if (this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId)) {
@@ -119,33 +132,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.projects = projects.slice(0); // create a copy
     }
 
-    public isProjectTreeVisible(): boolean {
-        return this.projects && this.projects.length > 0;
-    }
-    
-    public openProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
-            this.projectManager.openProjectWithDialog();
-            return;
-        }
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
-
-        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-
-        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
-            .finally(() => {
-                //(eventCollection, action, label?, value?, custom?, jQEvent?
-                const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                this.analytics.trackEvent("open", "project", label, projectId, {
-                    openProjects: openProjects
-                });
-                this.loadingOverlayService.endLoading(openProjectLoadingId);
-            });        
-    }
-
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
 
@@ -160,7 +146,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
             // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
-            } else if (!selectedArtifactId && this.numberOfProjectsOnLastLoad < this.projects.length && this.selectionManager.getArtifact()) {
+            } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
+                this.selectionManager.getArtifact() &&
+                // selectedArtifactId = undefined only if there is no projects open.
+                // if there are some artifact pre selected in the tree before opening project
+                // we need to check if this artifact is not from this.projects[0] (last opened project)
+                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
                 navigateToId = this.selectionManager.getArtifact().id;
             } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
                 navigateToId = this.projects[0].model.id;

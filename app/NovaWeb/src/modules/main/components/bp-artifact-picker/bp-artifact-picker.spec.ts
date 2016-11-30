@@ -149,11 +149,13 @@ describe("BpArtifactPickerController", () => {
 
         // Act
         controller.clearSearch();
+        const clearSearchEnabled = controller.clearSearchEnabled();
 
         // Assert
         expect(controller.searchText).toBeUndefined();
         expect(controller.searchResults).toBeUndefined();
         expect(controller.isMoreSearchResults).toBeUndefined();
+        expect(clearSearchEnabled).toBe(false);
     });
 
     it("search, when project is set, searches artifacts", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
@@ -165,6 +167,7 @@ describe("BpArtifactPickerController", () => {
 
         // Act
         controller.search();
+        const clearSearchEnabled = controller.clearSearchEnabled();
 
         // Assert
         expect(controller.isSearching).toEqual(true);
@@ -179,6 +182,7 @@ describe("BpArtifactPickerController", () => {
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
         expect(controller.isMoreSearchResults).toEqual(false);
+        expect(clearSearchEnabled).toBe(true);
     }));
 
     it("search, when project is not set, searches projects", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {

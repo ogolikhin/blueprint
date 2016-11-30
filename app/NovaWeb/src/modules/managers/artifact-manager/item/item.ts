@@ -29,6 +29,7 @@ export interface IStatefulItem extends Models.IArtifact {
     getEffectiveVersion(): number;
     getProperyObservable(): Rx.Observable<IItemChangeSet>;
     validateItem(propertyDescriptors: IPropertyDescriptor[]): boolean;
+    isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean;
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -191,6 +192,10 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public get readOnlyReuseSettings(): Enums.ReuseSettings {
         return this.artifact.readOnlyReuseSettings;
+    }
+
+    public isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean {
+        return (this.artifact.readOnlyReuseSettings & reuseSetting) === reuseSetting;
     }
 
     public getServices(): IStatefulArtifactServices {

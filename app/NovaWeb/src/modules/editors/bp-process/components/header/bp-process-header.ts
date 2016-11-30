@@ -8,12 +8,14 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
 import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
+import {GenerateUserStoriesAction, ToggleProcessTypeAction, CopyAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {ISelectionManager} from "../../../../managers/selection-manager";
+import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("./bp-process-header.html");
@@ -39,7 +41,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "userStoryService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "selectionManager",
+        "analytics"
     ];
 
     constructor($q: ng.IQService,
@@ -57,7 +61,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 private userStoryService: IUserStoryService,
-                mainBreadcrumbService: IMainBreadcrumbService) {
+                mainBreadcrumbService: IMainBreadcrumbService,
+                selectionManager: ISelectionManager,
+                analytics: IAnalyticsProvider) {
         super(
             $q,
             $scope,
@@ -71,7 +77,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             navigationService,
             projectManager,
             metadataService,
-            mainBreadcrumbService
+            mainBreadcrumbService,
+            selectionManager,
+            analytics
         );
 
         this.breadcrumbLinks = [];

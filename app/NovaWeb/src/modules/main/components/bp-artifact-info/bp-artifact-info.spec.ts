@@ -22,9 +22,11 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/art
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
 import {ItemTypePredefined, LockedByEnum} from "../../../main/models/enums";
+import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
+    let $q: ng.IQService;
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
     let artifactManager: IArtifactManager;
@@ -77,7 +79,13 @@ describe("BpArtifactInfo", () => {
             }
         };
 
-        analytics = <IAnalyticsProvider>{};
+        analytics = <IAnalyticsProvider>{
+            trackEvent: () => "",
+            trackPage: () => "",
+            setAccount: () => {/* no op */},
+            pageEvent: undefined,
+            enableLocalhostTracking: false
+        };
 
         $provide.service("messageService", MessageServiceMock);
         $provide.service("windowManager", () => windowManager);
@@ -95,11 +103,13 @@ describe("BpArtifactInfo", () => {
 
     beforeEach(inject((
         _$compile_: ng.ICompileService,
+        _$q_: ng.IQService,
         _$rootScope_: ng.IRootScopeService,
         _projectManager_: IProjectManager,
         _loadingOverlayService_: ILoadingOverlayService
         ) => {
         $compile = _$compile_;
+        $q = _$q_;
         $rootScope = _$rootScope_;
         projectManager = _projectManager_;
         loadingOverlayService = _loadingOverlayService_;
@@ -170,6 +180,34 @@ describe("BpArtifactInfo", () => {
 
             // assert
             expect(spy).toHaveBeenCalled();
+        });
+
+        it("adds Open Impact Analysis action for other artifacts", () => {
+            // arrange
+            const artifact = artifactManager.selection.getArtifact();
+            artifact.predefinedType = ItemTypePredefined.Process;
+            const element = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+
+            // act
+            const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
+
+            // assert
+            expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toBeGreaterThan(0);
+        });
+
+        it("doesn't add Open Impact Analysis action for collection", () => {
+            // arrange
+            const artifact = artifactManager.selection.getArtifact();
+            artifact.predefinedType = ItemTypePredefined.ArtifactCollection;
+            const element = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+
+            // act
+            const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
+
+            // assert
+            expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toEqual(0);
         });
     });
 
@@ -555,7 +593,7 @@ describe("BpArtifactInfo", () => {
 
                 // act
                 const result = controller.canLoadProject;
-                
+
                 // assert
                 expect(result).toEqual(false);
             });
@@ -568,7 +606,7 @@ describe("BpArtifactInfo", () => {
 
                 // act
                 const result = controller.canLoadProject;
-                
+
                 // assert
                 expect(result).toEqual(true);
             });
@@ -600,7 +638,7 @@ describe("BpArtifactInfo", () => {
                 expect(spy).not.toHaveBeenCalled();
             });
 
-            it("displays loading overlay", () => {
+            it("displays loading overlay when started", () => {
                 // arrange
                 const artifact = artifactManager.selection.getArtifact();
                 artifact.projectId = 34;
@@ -608,6 +646,40 @@ describe("BpArtifactInfo", () => {
 
                 // act
                 controller.loadProject();
+
+                // assert
+                expect(spy).toHaveBeenCalled();
+            });
+
+            it("hides loading overlay when completed successfully", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = 34;
+                spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.resolve());
+                spyOn(analytics, "trackEvent").and.returnValue("");
+                const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
+
+                // act
+                controller.loadProject();
+                // resolve the promise
+                $rootScope.$digest();
+
+                // assert
+                expect(spy).toHaveBeenCalled();
+            });
+
+            it("hides loading overlay when completed with failure", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.projectId = 34;
+                spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.reject(new Error()));
+                spyOn(analytics, "trackEvent").and.returnValue("");
+                const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
+
+                // act
+                controller.loadProject();
+                // reject the promise
+                $rootScope.$digest();
 
                 // assert
                 expect(spy).toHaveBeenCalled();

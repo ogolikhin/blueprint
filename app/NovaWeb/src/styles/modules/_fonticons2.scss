@@ -127,6 +127,7 @@ $fonticon2-copy: '\e84a'; /* '' */
 $fonticon2-copy-shapes: '\e84d'; /* '' */
 $fonticon2-add: '\e84c'; /* '' */
 $fonticon2-actor-add: '\e84f'; /* '' */
+$fontello2-more-menu: '\e850'; /* '' */
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -504,6 +505,9 @@ $fonticon2-actor-add: '\e84f'; /* '' */
 }
 .fonticon2-actor-add:before {
     content: $fonticon2-actor-add;
+}
+.fonticon2-more-menu:before {
+    content: $fontello2-more-menu;
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;

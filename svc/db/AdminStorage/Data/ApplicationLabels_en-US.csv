@@ -35,6 +35,7 @@ App_Sidebar_Left,"Explorer"
 App_Sidebar_Right,"Utility Panel"
 App_Explorer_EmptyMessage,"You have no projects loaded in the project Explorer."
 App_Explorer_LoadProject_ButtonLabel,"Load project"
+App_Explorer_LoadProject_ButtonTooltip,"Loads project in Explorer Window"
 
 App_Project,"Project"
 App_Project_Open,"Open Project"

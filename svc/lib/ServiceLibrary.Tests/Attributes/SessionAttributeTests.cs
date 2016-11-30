@@ -83,7 +83,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public async Task OnActionExecutingAsync_InvalidSessionToken_Unauthorized()
+        public async Task OnActionExecutingAsync_InvalidSessionToken_()
         {
             // Arrange
             string session = Session.Convert(new Guid());
@@ -117,7 +117,7 @@ namespace ServiceLibrary.Attributes
         }
 
         [TestMethod]
-        public async Task OnActionExecutingAsync_AllowCookieAndNoSessionTokenOrCookie_BadRequest()
+        public async Task OnActionExecutingAsync_AllowCookieAndNoSessionTokenOrCookie_Unauthorized()
         {
             // Arrange
             var attribute = new SessionAttribute(true);
@@ -128,11 +128,11 @@ namespace ServiceLibrary.Attributes
             await attribute.OnActionExecutingAsync(actionContext, CancellationToken.None);
 
             // Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, actionContext.Response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, actionContext.Response.StatusCode);
         }
 
         [TestMethod]
-        public async Task OnActionExecutingAsync_DoNotAllowCookieAndValidCookie_BadRequest()
+        public async Task OnActionExecutingAsync_DoNotAllowCookieAndValidCookie_Unauthorized()
         {
             // Arrange
             string session = Session.Convert(new Guid());
@@ -145,7 +145,7 @@ namespace ServiceLibrary.Attributes
             await attribute.OnActionExecutingAsync(actionContext, CancellationToken.None);
 
             // Assert
-            Assert.AreEqual(HttpStatusCode.BadRequest, actionContext.Response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.Unauthorized, actionContext.Response.StatusCode);
         }
 
         [TestMethod]

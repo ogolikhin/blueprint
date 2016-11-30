@@ -1,7 +1,7 @@
-import {IPublishService} from "./publish.svc";
-import {Models, Enums} from "../../../main/models";
+import {Models} from "../../main/models";
+import {IUnpublishedArtifactsService} from "./unpublished.svc";
 
-export class PublishServiceMock implements IPublishService {
+export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsService {
     public static $inject = ["$q"];
 
     constructor(private $q: ng.IQService) {

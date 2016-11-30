@@ -25,12 +25,13 @@ import {
     IStatefulProcessArtifactServices
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
-import {IPublishService, IValidationService} from "../../../managers/artifact-manager";
+import {IValidationService} from "../validation/validation.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {StatefulProjectArtifact} from "../project/project-artifact";
 import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
+import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: IArtifact): IStatefulArtifact;
@@ -75,7 +76,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private processService: IProcessService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private publishService: IPublishService,
+                private publishService: IUnpublishedArtifactsService,
                 private validationService: IValidationService,
                 private propertyDescriptor: IPropertyDescriptorBuilder) {
 

@@ -924,8 +924,7 @@ export class ProcessGraph implements IProcessGraph {
         if (elements && elements.length > 0) {
             for (let i = 0; i < elements.length; i++) {
                 let node = elements[i];
-                 if ((node.getNodeType() === NodeType.UserTask) || 
-                    (node.getNodeType() === NodeType.UserDecision)) {
+                 if ((node.getNodeType() === NodeType.UserTask)) {
                     validSelection = true; 
                 } else {
                     validSelection = false;

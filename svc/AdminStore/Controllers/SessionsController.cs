@@ -53,8 +53,6 @@ namespace AdminStore.Controllers
         /// <param name="password">The encrypted password.</param>
         /// <param name="force">True to override the existing session, if any.</param>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="409">Conflict. A session already exists for this user and <paramref name="force" /> is false.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
@@ -150,8 +148,6 @@ namespace AdminStore.Controllers
         /// <param name="samlResponse">The SAML response from the Identity Provider.</param>
         /// <param name="force">True to override the existing session, if any.</param>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="409">Conflict. A session already exists for this user and <paramref name="force" /> is false.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
@@ -202,8 +198,7 @@ namespace AdminStore.Controllers
         /// Terminates the current session, releasing the associated license.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpDelete]
         [Route(""), SessionRequired]

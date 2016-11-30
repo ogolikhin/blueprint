@@ -24,6 +24,8 @@ describe("BpProcessEditor", () => {
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     let subArtifactSubject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
+    beforeEach(angular.mock.module("app.shell"));
+
     beforeEach(angular.mock.module("bp.editors.process"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

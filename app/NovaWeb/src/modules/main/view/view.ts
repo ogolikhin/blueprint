@@ -5,6 +5,7 @@ import {IProjectManager} from "../../managers/project-manager";
 import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manager";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -14,8 +15,7 @@ export class MainView implements ng.IComponentOptions {
 }
 
 export class MainViewController {
-    private _subscribers: Rx.IDisposable[];
-
+    
     static $inject: [string] = [
         "$state",
         "session",
@@ -23,8 +23,14 @@ export class MainViewController {
         "messageService",
         "localization",
         "artifactManager",
-        "windowVisibility"
+        "windowVisibility",
+        "utilityPanelService"
     ];
+
+    private _subscribers: Rx.IDisposable[];
+
+    public isLeftToggled: boolean;
+    public isActive: boolean;
 
     constructor(private $state: ng.ui.IState,
                 private session: ISession,
@@ -32,7 +38,8 @@ export class MainViewController {
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
-                private windowVisibility: IWindowVisibility) {
+                private windowVisibility: IWindowVisibility,
+                private utilityPanelService: IUtilityPanelService) {
     }
 
     public $onInit() {
@@ -73,8 +80,6 @@ export class MainViewController {
         this.toggle(Enums.ILayoutPanel.Right, Boolean(projects.length));
     };
 
-    public isLeftToggled: boolean;
-    public isRightToggled: boolean;
     public toggle = (id?: Enums.ILayoutPanel, state?: boolean) => {
         if (Enums.ILayoutPanel.Left === id) {
             this.isLeftToggled = angular.isDefined(state) ? state : !this.isLeftToggled;
@@ -83,7 +88,13 @@ export class MainViewController {
         }
     };
 
-    public isActive: boolean;
+    public get isRightToggled() {
+        return this.utilityPanelService.isUtilityPanelOpened;
+    }
+
+    public set isRightToggled(value: boolean) {
+        this.utilityPanelService.isUtilityPanelOpened = value;
+    }
 
     public get currentUser(): IUser {
         return this.session.currentUser;

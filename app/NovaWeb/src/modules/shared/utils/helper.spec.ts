@@ -225,3 +225,24 @@ describe("autoLinkURLText", () => {
     });
 });
 
+describe("Remove Attribute From Node", () => {
+    it("should remove id from Node and children", () => {
+        // Arrange
+        let node = document.createElement("div");
+        node.innerHTML = `
+            <div id='mainDiv'>
+                <span>This is an inline trace:&nbsp;</span>
+                <div id='childDiv'>
+                </div>
+            </div>`;
+
+        // Act
+        const mainDivId = node.children[0].id;
+        Helper.removeAttributeFromNode(node, "id");
+
+        // Assert
+        expect(mainDivId).toBe("mainDiv");
+        expect(node.children[0].hasAttribute("id")).toBe(false);
+    });
+});
+

@@ -21,16 +21,11 @@ export class SelectionManagerMock implements ISelectionManager {
     }
 
     public get artifactObservable() {
-        return this.selectionSubject
-            .filter(s => s != null)
-            .map(s => s.artifact)
-            .distinctUntilChanged(this.distinctById).asObservable();
+        return null;
     }
 
     public get explorerArtifactObservable() {
-        return this.explorerArtifactSelectionSubject
-            .distinctUntilChanged(this.distinctById)
-            .asObservable();
+        return null;
     }
 
     public get subArtifactObservable() {
@@ -44,11 +39,7 @@ export class SelectionManagerMock implements ISelectionManager {
      * Observable that always corresponds to the currently selected artifact's observable.
      */
     public get currentlySelectedArtifactObservable() {
-        return this.selectionSubject
-            .filter(selection => !!(selection && selection.artifact))
-            .flatMap(selection => selection.artifact.getObservable())
-            //.distinctUntilChanged(this.distinctById) -Don't re-enable without testing refreshing a deleted artifact; we need every artifact event.
-            .asObservable();
+        return null;
     }
 
     public get selectionObservable() {
@@ -93,26 +84,15 @@ export class SelectionManagerMock implements ISelectionManager {
     }
 
     public setExplorerArtifact(artifact: IStatefulArtifact) {
-        this.explorerArtifactSelectionSubject.onNext(artifact);
+        return undefined;
     }
 
     public clearAll() {
-        const emptyselection = <ISelection>{
-            artifact: undefined,
-            subArtifact: undefined
-        };
-        this.setExplorerArtifact(undefined);
-        this.setSelectionSubject(emptyselection);
+        return undefined;
     }
 
     public clearSubArtifact() {
-        const val = this.selectionSubject.getValue();
-        const selection = <ISelection>{
-            artifact: val.artifact,
-            subArtifact: undefined
-        };
-
-        this.setSelectionSubject(selection);
+        return undefined;
     }
 
     private distinctById(item: IItem) {

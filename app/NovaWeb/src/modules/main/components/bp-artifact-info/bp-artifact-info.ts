@@ -276,30 +276,6 @@ export class BpArtifactInfoController {
             });
     }
 
-    public get artifactHeadingMinWidth() {
-        let style = {};
-
-        if (this.$element.length) {
-            let container: HTMLElement = this.$element[0];
-            let toolbar: Element = container.querySelector(".page-top-toolbar"); //TODO: removed
-            let heading: Element = container.querySelector(".artifact-heading");
-            let iconWidth: number = heading && heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
-            let nameWidth: number = heading && heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
-            let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
-            let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
-            let headingWidth: number = iconWidth + (
-                    typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
-                ) + 20 + 5; // heading's margins + wiggle room
-            if (heading && toolbar) {
-                style = {
-                    "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
-                };
-            }
-        }
-
-        return style;
-    }
-
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
         this.collapsedToolbarActions = [];
@@ -342,34 +318,24 @@ export class BpArtifactInfoController {
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
-            let sidebarWrapper: Element;
-            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
-
-            let sidebarSize = 0;
-            if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
-                sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
-            }
-
-            let sidebarsWidth: number = 20 * 2; // main content area padding
-            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
-
-            if (sidebarWrapper) {
-                for (let c = 0; c < sidebarWrapper.classList.length; c++) {
-                    if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
-                        sidebarsWidth += sidebarSize;
-                    }
-                }
-            }
-
-            if (this.$element.length) {
-                let container: HTMLElement = this.$element[0];
-                let toolbar: Element = container.querySelector(".page-top-toolbar"); //TODO: removed
-                let heading: Element = container.querySelector(".artifact-heading");
-                if (heading && toolbar) {
-                    angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
-                        "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
-                }
-            }
+            // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR
+            // let sidebarWrapper: Element;
+            //
+            // let sidebarSize = 0;
+            // if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
+            //     sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
+            // }
+            //
+            // let sidebarsWidth: number = 20 * 2; // main content area padding
+            // sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
+            //
+            // if (sidebarWrapper) {
+            //     for (let c = 0; c < sidebarWrapper.classList.length; c++) {
+            //         if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
+            //             sidebarsWidth += sidebarSize;
+            //         }
+            //     }
+            // }
         }
     }
 }

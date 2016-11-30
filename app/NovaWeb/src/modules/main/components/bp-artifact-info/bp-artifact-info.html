@@ -5,7 +5,7 @@
         <a class="artifact-status__open-latest" ui-sref="main.item({ id: $ctrl.artifact.id, version: undefined })">{{::$root.config.labels['App_Artifact_Info_OpenLatestVersion']}}</a>
     </span>
 </div>
-<div class="artifact-heading" ng-style="$ctrl.artifactHeadingMinWidth">
+<div class="artifact-heading">
     <div class="icon" ng-class="!$ctrl.hasCustomIcon ? $ctrl.artifactClass : ''"
          bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
         <bp-item-type-icon ng-if="$ctrl.hasCustomIcon"
@@ -20,7 +20,6 @@
             <div class="indicators">
                 <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
                 <i class="fonticon-lock self-locked" ng-if="$ctrl.selfLocked" bp-tooltip="Locked"> </i>
-                <!--TODO  please do not remove, I'll remove after testing-->
                 <i class="dirty-indicator fonticon2-asterisk" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
                 <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
             </div>

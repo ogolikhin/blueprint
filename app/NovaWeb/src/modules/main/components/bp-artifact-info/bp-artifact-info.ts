@@ -318,23 +318,12 @@ export class BpArtifactInfoController {
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
+            const pageHeading = document.querySelector(".page-heading") as HTMLElement;
+            const pageToolbar = document.querySelector(".page-heading .page-toolbar__container") as HTMLElement;
+
             // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR
-            // let sidebarWrapper: Element;
-            //
-            // let sidebarSize = 0;
-            // if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
-            //     sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
-            // }
-            //
-            // let sidebarsWidth: number = 20 * 2; // main content area padding
-            // sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
-            //
-            // if (sidebarWrapper) {
-            //     for (let c = 0; c < sidebarWrapper.classList.length; c++) {
-            //         if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
-            //             sidebarsWidth += sidebarSize;
-            //         }
-            //     }
+            // if (pageHeading && pageToolbar) {
+            //     this.isToolbarCollapsed = pageToolbar.offsetWidth > pageHeading.offsetWidth / 3;
             // }
         }
     }

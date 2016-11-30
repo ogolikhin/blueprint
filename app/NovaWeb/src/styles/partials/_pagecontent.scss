@@ -160,12 +160,12 @@ pagecontent, bp-properties-panel {
         .artifact-heading-group2 {
             align-items: baseline;
             display: flex;
+            justify-content: flex-start;
         }
 
         .name {
             color: $gray-dark;
             display: block;
-            flex: 1 1;
             font-size: $font-size-biggest;
             white-space: normal;
             //word-break: break-all;
@@ -174,8 +174,7 @@ pagecontent, bp-properties-panel {
 
         .indicators {
             display: block;
-            flex-grow: 0;
-            flex-shrink: 0;
+            flex: none;
 
             i {
                 color: $gray;

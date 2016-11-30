@@ -313,7 +313,7 @@ namespace StorytellerTests
         private static void AssertPersonaReferenceEqualsPersonaProperty(string taskName, IProcess savedProcess)
         {
             var task = savedProcess.GetProcessShapeByShapeName(taskName);
-            var personaPropertyValue = task.PropertyValues["persona"].Value.ToString();
+            var personaPropertyValue = task.PropertyValues[Model.StorytellerModel.PropertyTypePredefined.Persona.ToString()].Value.ToString();
 
             Assert.AreEqual(task.PersonaReference.Name, personaPropertyValue,
                 "The persona reference name and persona property value should be the same " +

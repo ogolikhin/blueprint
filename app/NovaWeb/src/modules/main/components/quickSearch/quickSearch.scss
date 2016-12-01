@@ -63,15 +63,15 @@
     border-bottom: solid 1px $gray;
     padding: .2em 1.5em .2em .2em;
     &::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-        color: $gray-dark !important;
+        color: $gray-light !important;
     }
 
     &::-moz-placeholder { /* Firefox 19+ */
-        color: $gray-dark !important;
+        color: $gray-light !important;
     }
 
     &:-ms-input-placeholder {
-        color: $gray-dark !important;
+        color: $gray-light !important;
     }
 
     &:focus {

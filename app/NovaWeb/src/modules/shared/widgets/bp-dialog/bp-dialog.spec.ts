@@ -125,7 +125,7 @@ describe("DialogService", () => {
             // Assert
             expect(dialogService.dialogSettings.type).toEqual(DialogTypeEnum.Alert, "invalid type [" + dialogService.dialogSettings.type + "]");
             expect(dialogService.dialogSettings.okButton).toEqual("App_Button_Ok", "invalid ok button [" + dialogService.dialogSettings.okButton + "]");
-            expect(dialogService.dialogSettings.cancelButton).toEqual(null, "invalid cancel button [" + dialogService.dialogSettings.cancelButton + "]");
+            expect(dialogService.dialogSettings.cancelButton).toEqual(undefined, "invalid cancel button [" + dialogService.dialogSettings.cancelButton + "]");
             expect(dialogService.dialogSettings.message).toEqual("MESSAGE", "invalid message [" + dialogService.dialogSettings.message + "]");
         }));
         it("alert dialog with header", inject((dialogService: IDialogService) => {

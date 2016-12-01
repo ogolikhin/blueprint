@@ -6,7 +6,8 @@ export enum ProcessEvents {
     NavigateToAssociatedArtifact,
     ArtifactUpdate,
     UserStoriesGenerated,
-    PersonaReferenceUpdated
+    PersonaReferenceUpdated,
+    OpenUtilityPanel
 }
 
 export interface IProcessDiagramCommunication {
@@ -28,6 +29,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     private setArtifactUpdateSubject: ICommunicationWrapper;
     private setUserStoriesGeneratedSubject: ICommunicationWrapper;
     private setPersonaReferenceUpdatedSubject: ICommunicationWrapper;
+    private setOpenUtilityPanelSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
@@ -37,6 +39,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setArtifactUpdateSubject = new CommunicationWrapper();
         this.setUserStoriesGeneratedSubject = new CommunicationWrapper();
         this.setPersonaReferenceUpdatedSubject = new CommunicationWrapper();
+        this.setOpenUtilityPanelSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -72,12 +75,19 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     result = this.setArtifactUpdateSubject.subscribe(observer);
                 }
                 break;
+
             case ProcessEvents.UserStoriesGenerated: {
                     result = this.setUserStoriesGeneratedSubject.subscribe(observer);
                 }
                 break;
+
             case ProcessEvents.PersonaReferenceUpdated: {
                     result = this.setPersonaReferenceUpdatedSubject.subscribe(observer);
+                }
+                break;
+
+            case ProcessEvents.OpenUtilityPanel: {
+                    result = this.setOpenUtilityPanelSubject.subscribe(observer);
                 }
                 break;
             default:
@@ -109,13 +119,19 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                    this.setArtifactUpdateSubject.disposeObserver(observer);
                 }
                 break;
-            
+
             case ProcessEvents.UserStoriesGenerated: {
                     this.setUserStoriesGeneratedSubject.disposeObserver(observer);
                 }
                 break;
+
             case ProcessEvents.PersonaReferenceUpdated: {
                     this.setPersonaReferenceUpdatedSubject.disposeObserver(observer);
+                }
+                break;
+
+            case ProcessEvents.OpenUtilityPanel: {
+                    this.setOpenUtilityPanelSubject.disposeObserver(observer);
                 }
                 break;
         }
@@ -151,8 +167,14 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     this.setUserStoriesGeneratedSubject.notify(eventPayload);
                 }
                 break;
+
             case ProcessEvents.PersonaReferenceUpdated: {
                     this.setPersonaReferenceUpdatedSubject.notify(eventPayload);
+                }
+                break;
+
+            case ProcessEvents.OpenUtilityPanel: {
+                    this.setOpenUtilityPanelSubject.notify({});
                 }
                 break;
         }

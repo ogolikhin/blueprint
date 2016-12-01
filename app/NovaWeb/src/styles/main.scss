@@ -7,9 +7,10 @@
     #SETTINGS
     global variables
 \*------------------------------------*/
-@import "settings/_variables";
 @import "settings/_colors";
 @import "settings/_typography";
+@import "settings/_variables";
+
 /*------------------------------------*\
     #TOOLS
     sass mixins and functions

@@ -3117,8 +3117,9 @@ interface MxGraphSelectionModel {
      * empty.
      */
     clear();
-
+    addCells(cells: MxCell[]);
     setSingleSelection(value: boolean);
+    addCells(cells);
 }
 
 

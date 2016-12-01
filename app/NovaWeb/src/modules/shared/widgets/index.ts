@@ -52,10 +52,15 @@ export {
 
 export {
     IBPAction,
+    IBPDropdownAction,
+    IBPButtonOrDropdownAction,
     BPButtonAction,
     BPDropdownItemAction,
     BPDropdownAction,
     BPToggleItemAction,
     BPToggleAction,
-    BPButtonGroupAction
+    BPButtonGroupAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
+    BPMenuAction
 } from "./bp-toolbar";

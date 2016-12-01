@@ -1,6 +1,7 @@
 import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/enums";
 import {IHashMap} from "../../../main/models/models";
 import {PropertyType, PropertyValueFormat, ArtifactUpdateType} from "./enums";
+import {IClipboardData, ClipboardDataType} from "../services/clipboard.svc";
 
 export {
     ItemTypePredefined, 
@@ -288,4 +289,21 @@ export class SourcesAndDestinations {
 export class EdgeGeo {
     edge: MxCell;
     state: MxCellState;
+}
+
+export class ProcessClipboardData implements IClipboardData {
+    public type: ClipboardDataType = ClipboardDataType.Process;
+
+    constructor(private processData: IProcessShape[]) {
+        // Empty constractor
+    }
+
+    public get data() {
+        return this.processData;
+    }
+
+    public dispose() {
+        this.processData = null;
+    }
+
 }

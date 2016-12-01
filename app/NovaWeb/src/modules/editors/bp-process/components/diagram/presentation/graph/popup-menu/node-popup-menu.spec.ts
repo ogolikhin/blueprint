@@ -9,6 +9,7 @@ import {ILayout} from "./../models/";
 import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/localizationService";
+import {IClipboardService, ClipboardService} from "../../../../../services/clipboard.svc";
 
 describe("Popup Menu", () => {
     let mxgraph: MxGraph;
@@ -19,20 +20,24 @@ describe("Popup Menu", () => {
     let shapesFactory: ShapesFactory;
     let layout: ILayout;
     let localization: ILocalizationService;
+    let clipboard: IClipboardService;
     let popupMenu: NodePopupMenu;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         // inject any services that are required
         $provide.service("localization", LocalizationService);
+        $provide.service("clipboardService", ClipboardService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
     beforeEach(inject((_$window_: ng.IWindowService,
                        $rootScope: ng.IRootScopeService,
                        _localization_: ILocalizationService,
+                       _clipboardService_: IClipboardService,
                        statefulArtifactFactory: IStatefulArtifactFactory) => {
 
         localization = _localization_;
+        clipboard = _clipboardService_;
         rootScope = $rootScope;
 
         rootScope["config"] = {};
@@ -40,7 +45,8 @@ describe("Popup Menu", () => {
             "ST_Decision_Modal_Add_Condition_Button_Label": "Add Condition",
             "ST_Popup_Menu_Add_User_Task_Label": "Add User Task",
             "ST_Popup_Menu_Add_System_Decision_Label": "Add System Decision Point",
-            "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point"
+            "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point",
+            "ST_Popup_Menu_Insert_Shapes_Label": "Insert Selected Shapes"
         };
 
         const wrapper = document.createElement("DIV");
@@ -56,7 +62,7 @@ describe("Popup Menu", () => {
         shapesFactory = new ShapesFactory(rootScope, statefulArtifactFactory);
 
         popupMenu = new NodePopupMenu(
-              layout, shapesFactory, localization, htmlElement, mxgraph, null, null, null, null, null);
+              layout, shapesFactory, localization, clipboard, htmlElement, mxgraph, null, null, null, null, null, null);
     }));
 
     it("should have options to 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {

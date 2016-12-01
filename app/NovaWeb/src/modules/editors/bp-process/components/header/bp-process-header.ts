@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -8,7 +8,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
 import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
+import {GenerateUserStoriesAction, ToggleProcessTypeAction, CopyAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
@@ -24,6 +24,7 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     public breadcrumbLinks: IBreadcrumbLink[];
+    public isToolbarCollapsed: boolean = true;
 
     static $inject: [string] = [
         "$q",
@@ -42,7 +43,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "metadataService",
         "userStoryService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -62,7 +62,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 private userStoryService: IUserStoryService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                selectionManager: ISelectionManager,
                 analytics: IAnalyticsProvider) {
         super(
             $q,
@@ -78,7 +77,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            selectionManager,
             analytics
         );
 
@@ -106,7 +104,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public $onDestroy() {
         if (this.toolbarActions) {
             const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
-            
+
             if (toggleAction) {
                 toggleAction.dispose();
             }
@@ -134,22 +132,36 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        this.toolbarActions.push(
-            new GenerateUserStoriesAction(
-                processArtifact,
-                this.userStoryService,
-                this.artifactManager.selection,
-                this.messageService,
-                this.localization,
-                this.dialogService,
-                this.loadingOverlayService,
-                this.communicationManager.processDiagramCommunication
-            ),
-            new ToggleProcessTypeAction(
-                processArtifact,
-                this.communicationManager.toolbarCommunicationManager,
-                this.localization
-            )
-        );
+        const generateUserStoriesAction = new GenerateUserStoriesAction(
+            processArtifact,
+            this.userStoryService,
+            this.artifactManager.selection,
+            this.messageService,
+            this.localization,
+            this.dialogService,
+            this.loadingOverlayService,
+            this.communicationManager.processDiagramCommunication);
+        const copyAction = new CopyAction(
+            processArtifact,
+            this.communicationManager.toolbarCommunicationManager,
+            this.localization);
+        const toggleProcessTypeAction = new ToggleProcessTypeAction(
+            processArtifact,
+            this.communicationManager.toolbarCommunicationManager,
+            this.localization);
+
+        // expanded toolbar
+        this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
+        // collapsed toolbar
+        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
+            if (this.collapsedToolbarActions[i].type === "menu") {
+                const dropdownSeparator = new BPButtonOrDropdownSeparator();
+                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
+                buttonDropdown.actions.push(dropdownSeparator, ...this.getNestedDropdownActions(generateUserStoriesAction));
+                buttonDropdown.actions.push(dropdownSeparator, copyAction);
+            }
+        }
+
+        this.collapsedToolbarActions.unshift(toggleProcessTypeAction);
     }
 }

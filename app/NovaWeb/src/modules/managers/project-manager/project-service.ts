@@ -18,8 +18,7 @@ export interface IProjectService {
                    timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IProjectSearchResultSet>;
     searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
                     startOffset?: number,
-                    pageSize?: number,
-                    separatorString?: string,
+                    pageSize?: number,                    
                     timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet>;
     getProjectNavigationPath(projectId: number, includeProjectItself: boolean, timeout?: ng.IPromise<void>): ng.IPromise<string[]>;
 }
@@ -196,12 +195,11 @@ export class ProjectService implements IProjectService {
 
     public searchItemNames(searchCriteria: SearchServiceModels.IItemNameSearchCriteria,
                           startOffset: number = 0,
-                          pageSize: number = 100,
-                          separatorString: string = " > ",
+                          pageSize: number = 100,                       
                           timeout?: ng.IPromise<void>): ng.IPromise<SearchServiceModels.IItemNameSearchResultSet> {
         const requestObj: ng.IRequestConfig = {
             url: `/svc/searchservice/itemsearch/name`,
-            params: {startOffset: startOffset, pageSize: pageSize, separatorString: separatorString},
+            params: {startOffset: startOffset, pageSize: pageSize},
             data: searchCriteria,
             method: "POST",
             timeout: timeout

@@ -33,6 +33,8 @@ namespace ServiceLibrary.Helpers
 
         public const int MinSearchQueryCharLimit = 3;
 
+        public const int MaxSearchQueryCharLimit = 250;
+
         public const int DefaultSearchTimeout = 120;
     }
 }

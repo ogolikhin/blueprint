@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import {ISelectionManager} from "../selection-manager/selection-manager";
+import {IDialogService, IDialogSettings} from "../../shared";
 import {IMetaDataService} from "./metadata";
 import {IStatefulArtifactFactory, IStatefulArtifact, IArtifactService} from "./artifact";
 import {IDispose} from "../models";
@@ -14,6 +15,8 @@ export interface IArtifactManager extends IDispose {
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
     create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
+    autosave(showConfirm?: boolean): ng.IPromise<any>;    
+
 }
 
 export class ArtifactManager implements IArtifactManager {
@@ -25,14 +28,16 @@ export class ArtifactManager implements IArtifactManager {
         "$q",
         "selectionManager",
         "artifactService",
-        "metadataService"
+        "metadataService",
+        "dialogService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private $q: ng.IQService,
                 private selectionService: ISelectionManager,
                 private artifactService: IArtifactService,
-                private metadataService: IMetaDataService) {
+                private metadataService: IMetaDataService,
+                private dialogService: IDialogService) {
         this.artifactDictionary = {};
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
@@ -105,5 +110,26 @@ export class ArtifactManager implements IArtifactManager {
             });
 
         return deferred.promise;
+    }
+
+    public autosave(showConfirm: boolean = true): ng.IPromise<any> {
+        const artifact = this.selection.getArtifact();
+        if (artifact) {
+            return artifact.save(true).catch(() => {
+                if (showConfirm) {
+                    return this.dialogService.open(<IDialogSettings>{
+                    okButton: "App_Button_Proceed",
+                    message: "App_Save_Auto_Confirm",
+                    header: "App_DialogTitle_Alert",
+                    css: "modal-alert nova-messaging"
+                    }).then(() => {
+                        artifact.discard();
+                    });
+                } else {
+                    return this.$q.reject();
+                }
+            });
+            }
+        return this.$q.resolve();
     }
 }

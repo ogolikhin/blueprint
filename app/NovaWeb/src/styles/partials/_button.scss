@@ -32,7 +32,10 @@
 /*
  Custom Buttons
 
-  This chapter outlines the custom buttons we have defined
+  This chapter outlines the custom buttons we have defined<br/>
+  New custom buttons should be created using bootstrap button-variant mixen:
+
+  <code>@include button-variant($color, $background, $border);</code>
 
  Styleguide 3.2
 */
@@ -79,13 +82,15 @@
 }
 
 .btn-primary {
+    //@include button-variant($gray-light, transparent, 1px solid $gray-light);
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
     &:hover,
     &:focus,
     &:active,
-    &.active {
+    &.active,
+    &:hover:focus{
         background-color: transparent;
         border-color: $brand-secondary;
         color: $brand-secondary;
@@ -94,6 +99,8 @@
 }
 
 .btn-cancel {
+    //@include button-variant($gray-light, transparent, 1px solid $gray-light);
+
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
@@ -113,6 +120,8 @@
 }
 
 .btn-promoted-action {
+    //@include button-variant($gray-light, transparent, 1px solid $gray-light);
+
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;
     color: $white;

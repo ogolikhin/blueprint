@@ -24,8 +24,8 @@
                            ng-class="{'disabled': $ctrl.isReadonly}"
                            button-label="{{$ctrl.getPersonaLabel()}}">
                 </bp-select>
-                <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
-                    +
+                <button class="btn btn-primary btn-small btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
+                    <span class="fonticon2-more-menu"></span>
                 </button>
             </div>
             <span class="storyteller-helper-text">{{::$root.config.labels['ST_Persona_Helper_Text']}}</span>
@@ -61,8 +61,8 @@
                             </button>
                         </div>
                         <div ng-show="$ctrl.isIncludeResultsVisible">
-                            <div class="label-divider">
-                                <label class="process-dividing-label"><i class="fonticon2-link"></i>Include:</label>
+                            <div class="label-divider"> 
+                                <label class="process-dividing-label"><i class="fonticon2-link"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}:</label>
                             </div>
                             <div class="storyteller-include_container">
                                 <div class="storyteller-include">

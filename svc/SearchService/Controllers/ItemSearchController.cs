@@ -23,6 +23,7 @@ namespace SearchService.Controllers
 
         internal readonly IItemSearchRepository _itemSearchRepository;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
+        private readonly CriteriaValidator _criteriaValidator;
 
         public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration())
         {
@@ -32,6 +33,7 @@ namespace SearchService.Controllers
         {
             _itemSearchRepository = itemSearchRepository;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
+            _criteriaValidator = new CriteriaValidator();
         }
 
         #region SearchFullText
@@ -54,7 +56,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateFullTextCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -83,7 +85,7 @@ namespace SearchService.Controllers
             // get the UserId from the session
             int userId = ValidateAndExtractUserId();
 
-            ValidateFullTextCriteria(searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit); 
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
@@ -104,8 +106,7 @@ namespace SearchService.Controllers
         /// </summary>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
-        /// <param name="pageSize">Page Size</param>
-        /// <param name="separatorString"></param>
+        /// <param name="pageSize">Page Size</param>        
         /// <response code="200">OK.</response>
         /// <response code="400">Bad Request.</response>
         /// <response code="404">Not Found.</response>
@@ -115,22 +116,18 @@ namespace SearchService.Controllers
         public async Task<ItemNameSearchResultSet> SearchName(
             [FromBody] ItemNameSearchCriteria searchCriteria, 
             int? startOffset = null, 
-            int? pageSize = null,
-            string separatorString = DefaultSeparator)
+            int? pageSize = null)
         {
             // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            ValidateItemNameCriteria(searchCriteria);
-
-            if (string.IsNullOrEmpty(separatorString))
-                separatorString = DefaultSeparator;
+            _criteriaValidator.Validate(SearchOption.ItemName, ModelState.IsValid, searchCriteria, 1);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize, MaxResultCount);
 
             int searchStartOffset = GetStartCounter(startOffset, 0, 0);
 
-            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize, separatorString);
+            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
             foreach (var searchItem in results.Items)
             {
@@ -153,29 +150,7 @@ namespace SearchService.Controllers
             return ((Session)sessionValue).UserId;
         }
 
-        private void ValidateItemNameCriteria(ItemNameSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            if (IsCriteriaQueryInvalid(searchCriteria, minSearchQueryLimit) || 
-                !searchCriteria.ProjectIds.Any())
-            {
-                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
-            }
-        }
-
-        private void ValidateFullTextCriteria(FullTextSearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            if (IsCriteriaQueryInvalid(searchCriteria, minSearchQueryLimit) || !searchCriteria.ProjectIds.Any())
-            {
-                throw new BadRequestException("Please provide correct search criteria", ErrorCodes.IncorrectSearchCriteria);
-            }
-        }
-
-        private bool IsCriteriaQueryInvalid(SearchCriteria searchCriteria, int minSearchQueryLimit = 1)
-        {
-            return !ModelState.IsValid ||
-                   string.IsNullOrWhiteSpace(searchCriteria?.Query) ||
-                   searchCriteria.Query.Trim().Length < minSearchQueryLimit;
-        }
+        
 
         private int GetPageSize(ISearchConfigurationProvider searchConfigurationProvider, int? requestedPageSize, int maxPageSize = Int32.MaxValue)
         {

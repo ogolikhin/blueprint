@@ -11,6 +11,8 @@ import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shap
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
+import {IClipboardService} from "./services/clipboard.svc";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -37,7 +39,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         "dialogService",
         "navigationService",
         "statefulArtifactFactory",
-        "shapesFactory"
+        "shapesFactory",
+        "utilityPanelService",
+        "clipboardService"
     ];
 
     constructor(messageService: IMessageService,
@@ -55,7 +59,9 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory = null) {
+                private shapesFactory: ShapesFactory = null,
+                private utilityPanelService: IUtilityPanelService,
+                private clipboard: IClipboardService = null) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -79,7 +85,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         }
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         // when this method is called the process artifact should
         // be loaded and assigned to the base class' artifact
         // property (this.artifact)
@@ -108,7 +114,9 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.localization,
             this.navigationService,
             this.statefulArtifactFactory,
-            this.shapesFactory
+            this.shapesFactory,
+            this.utilityPanelService,
+            this.clipboard
         );
 
         let htmlElement = this.getHtmlElement();
@@ -153,9 +161,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         return htmlElement;
     }
 
-    public onWidthResized(mainWindow: IMainWindow) {
+    private onWidthResized(mainWindow: IMainWindow) {
         if (this.processDiagram && this.processDiagram.resize) {
-            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
+            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
                 this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
             } else {
                 this.processDiagram.resize(0, 0);

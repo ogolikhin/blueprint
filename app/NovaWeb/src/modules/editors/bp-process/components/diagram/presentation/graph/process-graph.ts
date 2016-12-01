@@ -42,8 +42,6 @@ import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localizationService";
 import {IClipboardService} from "../../../../services/clipboard.svc";
-
-
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
@@ -83,9 +81,6 @@ export class ProcessGraph implements IProcessGraph {
                 private $log: ng.ILogService = null,
                 private statefulArtifactFactory: IStatefulArtifactFactory = null,
                 private clipboard: IClipboardService = null) {
-        // Creates the graph inside the given container
-        // This is temporary code. It will be replaced with
-        // a class that wraps this global functionality.
         //fixme: angular provides a service to access window
         let w: any = window;
         this.executionEnvironmentDetector = new w.executionEnvironmentDetector();
@@ -97,7 +92,6 @@ export class ProcessGraph implements IProcessGraph {
     private init() {
         this.setIsIe11();
         this.initializeGraphContainer();
-        //fixme: dont use event listenters where you can use ng-click and other such events
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
         // non movable
         this.mxgraph.setCellsMovable(false);
@@ -124,7 +118,7 @@ export class ProcessGraph implements IProcessGraph {
             return cell.isVertex();
         }
         return false;
-    }
+    };
 
     public addSelectionListener(listener: ISelectionListener) {
         if (listener != null) {
@@ -166,7 +160,6 @@ export class ProcessGraph implements IProcessGraph {
 
     public render(useAutolayout, selectedNodeId) {
         try {
-            // uses layout object to draw a new diagram for process model
             this.layout.render(useAutolayout, selectedNodeId);
             if (this.nodeLabelEditor != null) {
                 this.nodeLabelEditor.init();
@@ -209,9 +202,8 @@ export class ProcessGraph implements IProcessGraph {
         return this.htmlElement;
     }
 
-    private getDecisionConditionInsertMethod(decisionId: number): (
-        decisionId: number, layout: ILayout, shapesFactoryService: ShapesFactory,
-        label?: string, conditionDestinationId?: number) => number {
+    private getDecisionConditionInsertMethod(decisionId: number): (decisionId: number, layout: ILayout, shapesFactoryService: ShapesFactory,
+                                                                   label?: string, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:
@@ -267,8 +259,6 @@ export class ProcessGraph implements IProcessGraph {
 
     private initializeGraphContainer() {
         mxEvent.disableContextMenu(this.htmlElement);
-        // This enables scrolling for the container of mxGraph
-
         if (this.viewModel.isSpa) {
             window.addEventListener("resize", this.resizeWrapper, true);
             this.htmlElement.style.overflow = "auto";
@@ -323,7 +313,6 @@ export class ProcessGraph implements IProcessGraph {
 
     public updateSizeChanges(width: number = 0, height: number = 0) {
         this.setContainerSize(width, height);
-        //// This prevents some weird issue with the graph growing as we drag off the container edge.
         const svgElement = angular.element(this.htmlElement.children[0])[0];
         const containerElement: any = angular.element(this.htmlElement)[0];
         if (svgElement && containerElement) {
@@ -352,7 +341,6 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private applyReadOnlyStyles() {
-        //init readonly mode
         this.mxgraph.edgeLabelsMovable = false;
         this.mxgraph.isCellDisconnectable = () => false;
         this.mxgraph.isTerminalPointMovable = () => false;
@@ -360,11 +348,10 @@ export class ProcessGraph implements IProcessGraph {
         this.mxgraph.isCellResizable = () => false;
         this.mxgraph.isCellEditable = () => false;
         this.mxgraph.isCellDeletable = () => false;
-        //this.graph.isCellsLocked = () => true;
     }
 
     private applyDefaultStyles() {
-        //Selection styles
+        /*this shoudl use a class not hard coded values*/
         mxConstants.DEFAULT_VALID_COLOR = "#d4d5da";
         mxConstants.VERTEX_SELECTION_COLOR = "#32CFFF";
         mxConstants.VERTEX_SELECTION_STROKEWIDTH = 2;
@@ -383,13 +370,11 @@ export class ProcessGraph implements IProcessGraph {
             window.removeEventListener("resize", this.resizeWrapper, true);
         }
         window.removeEventListener("buttonUpdated", this.buttonUpdated);
-        // remove graph
         this.mxgraph.getModel().clear();
         this.mxgraph.destroy();
         while (this.htmlElement.hasChildNodes()) {
             this.htmlElement.removeChild(this.htmlElement.firstChild);
         }
-        // Dispose handlers
         if (this.dragDropHandler != null) {
             this.dragDropHandler.dispose();
         }
@@ -421,7 +406,6 @@ export class ProcessGraph implements IProcessGraph {
                     }
                     let cell = graph.getCellAt(me.graphX, me.graphY);
                     let tmp = sender.view.getState(cell);
-                    // Ignores everything but vertices
                     if (sender.isMouseDown || (tmp != null && !sender.getModel().isVertex(tmp.cell))) {
                         tmp = null;
                     }

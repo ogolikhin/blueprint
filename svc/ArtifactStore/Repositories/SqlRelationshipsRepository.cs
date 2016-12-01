@@ -44,6 +44,7 @@ namespace ArtifactStore.Repositories
 
         private async Task<IEnumerable<ItemIdItemNameParentId>> GetPathInfoToRoute(int artifactId, int userId, bool? addDrafts, int? revisionId)
         {
+            // SP [GetArtifactNavigationPath] returns last published version for deleted items only when addDrafts and revisionId are NULL.
             var parameters = new DynamicParameters();
             parameters.Add("@artifactId", artifactId);
             parameters.Add("@userId", userId);

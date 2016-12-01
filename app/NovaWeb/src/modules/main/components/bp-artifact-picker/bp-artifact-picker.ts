@@ -76,19 +76,29 @@ export interface IArtifactPickerController {
 }
 
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
-    // BpArtifactPicker bindings
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showSubArtifacts: boolean;
     public isOneProjectLevel: boolean;
+    public factory: TreeModels.TreeNodeVMFactory;
+    public treeApi: IBPTreeViewControllerApi;
+
     public isItemSelectable: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     public onSelectionChanged: (params: {selectedVMs: Models.IViewModel<any>[]}) => any;
     public onDoubleClick: (params: {vm: Models.IViewModel<any>}) => any;
 
-    public factory: TreeModels.TreeNodeVMFactory;
-    public treeApi: IBPTreeViewControllerApi;
-
-    public canceller: ng.IDeferred<void> = this.$q.defer<any>();
+    private _project: AdminStoreModels.IInstanceItem;
+    public rowData: TreeModels.InstanceItemNodeVM[];
+    public searchResults: SearchResultVM<any>[];
+    public isMoreSearchResults: boolean;
+    public canceller: ng.IDeferred<void>;
+    private _selectedVMs: Models.IViewModel<any>[];
+    public isSearching: boolean;
+    public itemTypes: Models.IItemType[];
+    public filterItemType: Models.IItemType;
+    public searchText: string;
+    public columns: IColumn[];
+    public api: IArtifactPickerAPI;
 
     static $inject = [
         "$q",
@@ -109,6 +119,33 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private projectService: IProjectService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private metadataService: IMetaDataService) {
+
+        /*todo: refactor much of this 'setup' into the onInit lifecycle hook*/
+        this.api = {
+            deselectAll: () => {
+                this.treeApi.deselectAll();
+            },
+            updateSelectableNodes: (): void => {
+                this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+                (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
+            }
+        };
+        this.columns = [{
+            cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
+            isGroup: true,
+            cellRenderer: (params: IColumnRendererParams) => {
+                const vm = params.data as TreeModels.ITreeNodeVM<any>;
+                const icon = vm.getIcon();
+                const label = Helper.escapeHTMLText(vm.getLabel());
+                return `${icon}<span>${label}</span>`;
+            }
+        }];
+        this.searchText = "";
+        this.isSearching = false;
+        this.itemTypes = null;
+        this.filterItemType = null;
+        this._selectedVMs = [];
+        this.canceller = this.$q.defer<any>();
         this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
@@ -129,13 +166,53 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     name: project.model.name,
                     hasChildren: project.model.hasChildren
                 } as AdminStoreModels.IInstanceItem;
-            } else {
+            }
+            else {
                 this.projectService.getProject(projectId, this.canceller.promise)
                     .then(project => this.project = project);
             }
-        } else {
+        }
+        else {
             this.project = undefined;
         }
+    }
+
+    private _previousSelectedVMs = [];
+    public currentSelectionMode: "single" | "multiple" | "checkbox";
+
+
+    public get project(): AdminStoreModels.IInstanceItem {
+        return this._project;
+    }
+
+    public set project(project: AdminStoreModels.IInstanceItem) {
+        this.selectedVMs = [];
+        this._project = project;
+        this.currentSelectionMode = project ? this.selectionMode : "single";
+        this.rowData = [this.factory.createInstanceItemNodeVM(project || {
+                id: 0,
+                type: AdminStoreModels.InstanceItemType.Folder,
+                name: "",
+                hasChildren: true
+            } as AdminStoreModels.IInstanceItem, true)];
+        this.resetItemTypes();
+        if (project) {
+            this.populateItemTypes(project.id);
+            this.filterItemType = this.itemTypes[0];
+        }
+    }
+
+    private get selectedVMs(): Models.IViewModel<any>[] {
+        return this._selectedVMs;
+    }
+
+    private set selectedVMs(value: Models.IViewModel<any>[]) {
+        this._selectedVMs = value;
+        this.raiseSelectionChanged();
+    }
+
+    public get searchPlaceholder(): string {
+        return this.localization.get(this.project ? "Label_Search_Artifacts" : "Label_Search_Projects");
     }
 
     private populateItemTypes(projectId: number): void {
@@ -144,15 +221,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             if (this.selectableItemTypes) {
                 artifactTypes = artifactTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
             } else {
-            artifactTypes = artifactTypes.filter(a =>
-                a.predefinedType !== Models.ItemTypePredefined.Project
-                && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
-                && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
-                && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
-                && a.predefinedType !== Models.ItemTypePredefined.Baseline
-                && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
-                && a.predefinedType !== Models.ItemTypePredefined.Collections
-                && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
+                artifactTypes = artifactTypes.filter(a =>
+                    a.predefinedType !== Models.ItemTypePredefined.Project
+                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
+                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
+                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
+                    && a.predefinedType !== Models.ItemTypePredefined.Baseline
+                    && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
+                    && a.predefinedType !== Models.ItemTypePredefined.Collections
+                    && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
                 );
             }
             artifactTypes.sort(function (a, b) {
@@ -182,94 +259,31 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.itemTypes = null;
     }
 
-    public api: IArtifactPickerAPI = {
-        deselectAll: () => {
-            this.treeApi.deselectAll();
-        },
-        updateSelectableNodes: (): void => {
-            this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
-            (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
-        }
-    };
-
-    private _project: AdminStoreModels.IInstanceItem;
-
-    public get project(): AdminStoreModels.IInstanceItem {
-        return this._project;
-    }
-
-    public set project(project: AdminStoreModels.IInstanceItem) {
-        this.selectedVMs = [];
-        this._project = project;
-        this.currentSelectionMode = project ? this.selectionMode : "single";
-        this.rowData = [this.factory.createInstanceItemNodeVM(project || {
-            id: 0,
-            type: AdminStoreModels.InstanceItemType.Folder,
-            name: "",
-            hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true)];
-        this.resetItemTypes();
-        if (project) {
-            this.populateItemTypes(project.id);
-            this.filterItemType = this.itemTypes[0];
-        }
-    }
-
     public clearSearchEnabled(): boolean {
         return !!this.searchText || !!this.searchResults;
     }
 
-    public get searchPlaceholder(): string{
-        return this.localization.get(this.project ? "Label_Search_Artifacts" : "Label_Search_Projects");
-    }
-
     private resetItemTypes(): void {
         this.itemTypes =
-                [{
-                    name : this.localization.get("Filter_Artifact_All_Types", "All types"),
-                    id : null,
-                    prefix : "",
-                    predefinedType : null,
-                    iconImageId: null,
-                    usedInThisProject: null,
-                    customPropertyTypeIds: null
-                }];
+            [{
+                name: this.localization.get("Filter_Artifact_All_Types", "All types"),
+                id: null,
+                prefix: "",
+                predefinedType: null,
+                iconImageId: null,
+                usedInThisProject: null,
+                customPropertyTypeIds: null
+            }];
         this.filterItemType = this.itemTypes[0];
-    }
-
-    private _selectedVMs: Models.IViewModel<any>[] = [];
-
-    private get selectedVMs(): Models.IViewModel<any>[] {
-        return this._selectedVMs;
-    }
-
-    private set selectedVMs(value: Models.IViewModel<any>[]) {
-        this._selectedVMs = value;
-        this.raiseSelectionChanged();
     }
 
     private raiseSelectionChanged() {
         if (this.onSelectionChanged) {
-            this.$scope.$applyAsync((s) => {
+            this.$scope.$applyAsync(() => {
                 this.onSelectionChanged({selectedVMs: this.selectedVMs});
             });
         }
     }
-
-    // BpTreeView bindings
-
-    public currentSelectionMode: "single" | "multiple" | "checkbox";
-    public rowData: TreeModels.InstanceItemNodeVM[];
-    public columns: IColumn[] = [{
-        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
-        isGroup: true,
-        cellRenderer: (params: IColumnRendererParams) => {
-            const vm = params.data as TreeModels.ITreeNodeVM<any>;
-            const icon = vm.getIcon();
-            const label = Helper.escapeHTMLText(vm.getLabel());
-            return `${icon}<span>${label}</span>`;
-        }
-    }];
 
     public onSelect = (vm: Models.IViewModel<any>, isSelected: boolean = undefined): boolean => {
         if (angular.isDefined(isSelected)) {
@@ -313,16 +327,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    // Search
-
-    public searchText: string = "";
-    public isSearching: boolean = false;
-    public searchResults: SearchResultVM<any>[];
-    public isMoreSearchResults: boolean;
-    private _preiousSelectedVMs = [];
-    public itemTypes: Models.IItemType[] = null;
-    public filterItemType: Models.IItemType = null;
-
     public clearFilter(): void {
         this.filterItemType = this.itemTypes[0];
         this.search();
@@ -363,7 +367,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             searchResults.then(items => {
                 this.searchResults = items.slice(0, maxSearchResults);
                 this.isMoreSearchResults = (items.length > maxSearchResults);
-                this._preiousSelectedVMs = this.selectedVMs;
+                this._previousSelectedVMs = this.selectedVMs;
                 this.selectedVMs = [];
             }).finally(() => {
                 this.isSearching = false;
@@ -371,12 +375,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         }
     }
 
-    public hasCustomIcon = (searchResult: ArtifactSearchResultVM) => {
-        if (searchResult.model && _.isFinite(searchResult.model.itemTypeIconId)) {
-            return true;
-        }
-        return false;
-    }
+    public hasCustomIcon(searchResult: ArtifactSearchResultVM) {
+        return !!(searchResult.model && _.isFinite(searchResult.model.itemTypeIconId));
+    };
 
     public getArtifactTextPath(path: string[]): string {
         if (!path) {
@@ -394,6 +395,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.searchText = undefined;
         this.searchResults = undefined;
         this.isMoreSearchResults = undefined;
-        this.selectedVMs = this._preiousSelectedVMs;
+        this.selectedVMs = this._previousSelectedVMs;
     }
 }

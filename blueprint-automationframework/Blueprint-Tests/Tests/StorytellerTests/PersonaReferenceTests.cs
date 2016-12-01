@@ -234,7 +234,7 @@ namespace StorytellerTests
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
         [TestRail(195627)]
-        [Description("Persona reference added to task.  User story is generated.  Verify persona name added to properly")]
+        [Description("Persona reference added to task.  User story is generated.  Verify persona name added properly")]
         public void PersonaReference_UserStoryGenerated_VerifyPersonaNameInProperty(string taskName)
         {
             // Setup:
@@ -269,7 +269,7 @@ namespace StorytellerTests
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
         [TestRail(195628)]
-        [Description("Persona reference added to task.  Actor artifact is removed.  User story is generated.  Verify default name added to properly")]
+        [Description("Persona reference added to task.  Actor artifact is removed.  User story is generated.  Verify default name added properly")]
         public void PersonaReference_ActorArtifactDeleted_UserStoryGenerated_VerifyDefaultNameInProperty(string taskName)
         {
             // Setup:
@@ -301,7 +301,7 @@ namespace StorytellerTests
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
         [TestRail(195629)]
-        [Description("Persona reference added to task.  Another user does not have permissions to actor.  User story is generated.  Verify default name added to properly")]
+        [Description("Persona reference added to task.  Another user does not have permissions to actor.  User story is generated.  Verify default name added properly")]
         public void PersonaReference_NoPermissionsToArtifact_UserStoryGenerated_VerifyDefaultNameInProperty(string taskName)
         {
             // Setup:

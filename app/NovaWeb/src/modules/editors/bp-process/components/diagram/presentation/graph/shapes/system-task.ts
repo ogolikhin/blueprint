@@ -117,7 +117,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
 
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
-        this.linkButton.isEnabled = !this.isNew;
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
@@ -127,12 +126,10 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
         this.linkButton.setActiveImage(this.getImageSource("include-active.svg"));
 
-        if (this.linkButton.isEnabled) {
-            if (this.model.associatedArtifact) {
-                this.linkButton.activate();
-            } else {
-                this.linkButton.disable();
-            }
+        if (this.model.associatedArtifact) {
+            this.linkButton.activate();
+        } else {
+            this.linkButton.disable();
         }
 
         //Mockup Preview Button

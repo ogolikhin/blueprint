@@ -234,10 +234,8 @@ export class NodePopupMenu {
     private clipboardHasProcessData(): boolean {
         let hasData: boolean = false;
         if (this.clipboard) {
-            let clipboardData: IClipboardData = this.clipboard.getData();
-            if (clipboardData &&
-                clipboardData.data &&
-                clipboardData.type === ClipboardDataType.Process) {
+            if (!this.clipboard.isEmpty() &&
+                this.clipboard.getDataType() === ClipboardDataType.Process) {
                 hasData = true;
             }
         }

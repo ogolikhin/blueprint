@@ -4,14 +4,14 @@ import {IArtifactService} from "../artifact";
 import {IMetaDataService} from "../metadata";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IArtifactRelationshipsService} from "../relationships";
-import {IPublishService, IValidationService} from "../../../managers/artifact-manager";
+import {IValidationService} from "../validation/validation.svc";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
+import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 export interface IStatefulArtifactServices {
-    //request<T>(config: ng.IRequestConfig): ng.IPromise<T>;
     getDeferred<T>(): ng.IDeferred<T>;
     $q: ng.IQService;
     $log: ng.ILogService;
@@ -24,7 +24,7 @@ export interface IStatefulArtifactServices {
     relationshipsService: IArtifactRelationshipsService;
     metaDataService: IMetaDataService;
     loadingOverlayService: ILoadingOverlayService;
-    publishService: IPublishService;
+    publishService: IUnpublishedArtifactsService;
     validationService: IValidationService;
     propertyDescriptor: IPropertyDescriptorBuilder;
 }
@@ -41,7 +41,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
                 private _relationshipsService: IArtifactRelationshipsService,
                 private _metadataService: IMetaDataService,
                 private _loadingOverlayService: ILoadingOverlayService,
-                private _publishService: IPublishService,
+                private _publishService: IUnpublishedArtifactsService,
                 private _validationService: IValidationService,
                 private _propertyDescriptor: IPropertyDescriptorBuilder) {
     }
@@ -86,7 +86,7 @@ export class StatefulArtifactServices implements IStatefulArtifactServices {
         return this._loadingOverlayService;
     }
 
-    public get publishService(): IPublishService {
+    public get publishService(): IUnpublishedArtifactsService {
         return this._publishService;
     }
 

@@ -5,7 +5,7 @@ import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILocalizationService} from "../core/localization/localizationService";
 import {IDialogService} from "../shared";
-import {IPublishService} from "../managers/artifact-manager/publish.svc";
+import {IUnpublishedArtifactsService} from "../editors/unpublished/unpublished.svc";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -39,7 +39,7 @@ export class AppController {
                 private $window: ng.IWindowService,
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
-                private publishService: IPublishService) {
+                private publishService: IUnpublishedArtifactsService) {
 
 
         this.$window.onbeforeunload = (e) => {

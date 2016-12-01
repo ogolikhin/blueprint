@@ -11,7 +11,7 @@ import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shap
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {UtilityPanelService} from "../../shell/bp-utility-panel/bp-utility-panel";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "./services/clipboard.svc";
 
 export class BpProcessEditor implements ng.IComponentOptions {
@@ -60,7 +60,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory = null,
-                private utilityPanelService: UtilityPanelService,
+                private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService = null) {
         super(messageService, artifactManager);
 

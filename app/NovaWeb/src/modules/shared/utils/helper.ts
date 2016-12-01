@@ -214,4 +214,21 @@ export class Helper {
     public static isInt(n: number): boolean {
         return parseInt(n.toString(), 10) === n;
     }
+
+    public static removeAttributeFromNode(node: Node, attribute: string) {
+        let result: string;
+        const walk_the_Node = function walk(node, func) {
+            func(node);
+            node = node.firstChild;
+            while (node) {
+                walk(node, func);
+                node = node.nextSibling;
+            }
+        };
+        walk_the_Node(node, function (element) {
+            if (element.removeAttribute && element.hasAttribute(attribute)) {
+                element.removeAttribute(attribute);
+            }
+        });
+    };
 }

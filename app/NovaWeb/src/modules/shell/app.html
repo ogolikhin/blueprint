@@ -1,4 +1,4 @@
-﻿<bp-loading-overlay class="loading-overlay"></bp-loading-overlay>
+<bp-loading-overlay class="loading-overlay"></bp-loading-overlay>
 <nav class="navbar navbar-default navbar-fixed-top" ng-if="app.currentUser">
     <div class="navbar-header">
         <div class="navbar-brand">{{::$root.config.labels["App_Header_Name"]}}</div>
@@ -6,7 +6,7 @@
             <span>{{::$root.config.labels["App_Header_Welcome"]}}</span> <span class="signed-in-as">{{app.currentUser.displayName}}</span>
             <a ng-click="app.logout($event)" class="fonticon fonticon-sign-out"
                bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Logout']}}"></a>
-            <a ng-click="app.navigateToHelpUrl($event)" class="fonticon fonticon-help"
+            <a ng-click="app.navigateToHelpUrl($event)" class="fonticon fonticon2-help"
                bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Help']}}"></a>
         </div>
     </div>

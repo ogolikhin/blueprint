@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 -- --------------------------------------------------
 -- Set the DB
 -- --------------------------------------------------
@@ -964,15 +964,16 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Artifact_Header_LegacyArtifact', 'en-US', N'Legacy artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Left', 'en-US', N'Explorer')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Right', 'en-US', N'Utility Panel')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_EmptyMessage', 'en-US', N'You have no projects loaded in the project Explorer.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_EmptyMessage', 'en-US', N'You have no projects loaded in the Explorer')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonLabel', 'en-US', N'Load project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonTooltip', 'en-US', N'Loads project in Explorer Window')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open', 'en-US', N'Open Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_CloseTabWithUnsavedChanges', 'en-US', N'You have unsaved changes that will be lost if you leave.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_WithUnpublishedArtifacts', 'en-US', N'You have {0} saved but unpublished changes. Artifacts will continue to be locked to other users if you do not discard or publish them before continuing.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_Logout', 'en-US', N'Logout')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_WithUnpublishedArtifacts', 'en-US', N'You have {0} saved but unpublished change(s). Artifacts will continue to be locked to other users if you do not discard or publish them before continuing.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_Logout', 'en-US', N'Log Out')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_ConfirmLogout_Cancel', 'en-US', N'Cancel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Artifact_Info_OpenLatestVersion', 'en-US', N'Open latest version')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Project', 'en-US', N'Project')
@@ -995,7 +996,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Tour',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move_Copy', 'en-US', N'Move/Copy Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move', 'en-US', N'Move')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Copy', 'en-US', N'Copy')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Menu', 'en-US', N'Additional actions')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Copy_Shapes', 'en-US', N'Copy Shapes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowMore', 'en-US', N'Show more')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowLess', 'en-US', N'Show less')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Discussions', 'en-US', N'Discussions')
@@ -1272,7 +1273,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_Inlin
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Invalid_Selection', 'en-US', N'The traced artifact could not be added. The selection is invalid.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Permissions', 'en-US', N'You do not have permission to add inline traces. Please contact an administrator.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The artifact cannot be opened. It is not accessible by you.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The operation could not be completed because of privilege-related issues.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Sorry, but the artifact cannot be found. It has likely been deleted or moved.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Collection_NotFound', 'en-US', N'The Collection has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_InternalServer', 'en-US', N'Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance.')
@@ -1309,6 +1310,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_NEW_MERGE_NODE_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_User_Task_Label', 'en-US', N'Add User Task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_System_Decision_Label', 'en-US', N'Add System Decision Point')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Add_User_Decision_Label', 'en-US', N'Add User Decision Point')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Popup_Menu_Insert_Shapes_Label', 'en-US', N'Insert Copied Shapes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_User_Task_Name_Label', 'en-US', N'Action:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_System_Task_Name_Label', 'en-US', N'System Response:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_TaskNameNotValid_Label', 'en-US', N'The shape requires a label.')

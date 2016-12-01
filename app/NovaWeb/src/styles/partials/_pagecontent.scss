@@ -1,16 +1,18 @@
 $page-body-min-width: 386px;
 
 .explorer-empty-state {
-        font-size: $font-size-big;
-        color: $gray-light;
-        padding: 30px 10px;
-        text-align: center;
-        p {
-            font-size: 1.2rem;
-            color: $gray-darker;
-            margin-bottom: 20px;
-        }
-    }
+    padding: 30px 10px;
+    text-align: center;
+    display: flex;
+    height:100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.explorer-empty-state-text{
+    font-size: $font-size-big;
+    color: $gray-darker;
+}
 
 pagecontent, bp-properties-panel {
     box-sizing: border-box;
@@ -283,7 +285,6 @@ pagecontent, bp-properties-panel {
 
         &.empty-panel{
             border-left: solid 2px $right-sidebar-border;
-            border-top: solid 1px $right-sidebar-border;
         }
     }
 }

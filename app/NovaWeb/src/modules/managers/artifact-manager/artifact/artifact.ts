@@ -15,7 +15,7 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
     lastSaveInvalid: boolean;
-    
+
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact
@@ -507,7 +507,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         this.services.publishService.publishArtifacts([this.id])
             .then(() => {
-                this.services.messageService.addInfo("Publish_Success_Message");
+                this.displaySuccessPublishMessage();
                 this.artifactState.unlock();
                 this.refresh();
                 deffered.resolve();
@@ -524,6 +524,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
 
         return deffered.promise;
+    }
+
+    protected displaySuccessPublishMessage() {
+        this.services.messageService.addInfo("Publish_Success_Message");
     }
 
     private publishDependents(dependents: Models.IPublishResultSet) {
@@ -666,7 +670,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.subArtifactCollection.validate().catch((error) => {
                     return this.services.$q.reject(error);
                 });
-            } 
+            }
 
             const message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
             return this.services.$q.reject(new Error(message));

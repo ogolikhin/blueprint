@@ -436,6 +436,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Publish_User_St
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Search_Project_Scope_Mentions', 'en-US', N'#mention artifacts from the current project only')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_BusinessProcess_Label', 'en-US', N'Business Process mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-System Process mode')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_RegenerateUS_Warning', 'en-US', N'Regenerate user stories to synchronize your changes.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_RegenerateUSS_Warning', 'en-US', N'Published artifacts include one or more Processes. Regenerate corresponding user stories to synchronize changes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Breadcrumb_InaccessibleArtifact', 'en-US', N'<Inaccessible>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_Dropdown_Tooltip', 'en-US', N'User Stories')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_All_Label', 'en-US', N'Generate All')

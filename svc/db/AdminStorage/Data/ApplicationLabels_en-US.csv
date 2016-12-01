@@ -468,6 +468,7 @@ ST_Publish_User_Story, "Publish User Story"
 ST_Search_Project_Scope_Mentions, "#mention artifacts from the current project only"
 ST_ProcessType_BusinessProcess_Label, "Business Process mode"
 ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
+ST_ProcessType_RegenerateUT_Warning, "The Process has been published. Regenerate user stories to synchronize your changes."
 
 # Breadcrumb
 ST_Breadcrumb_InaccessibleArtifact, "<Inaccessible>"

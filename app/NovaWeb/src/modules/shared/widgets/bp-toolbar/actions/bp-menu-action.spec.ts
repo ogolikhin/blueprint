@@ -1,4 +1,4 @@
-import {BPMenuAction, BPButtonOrDropdownAction} from "./bp-menu-action";
+import {BPMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "./bp-menu-action";
 
 describe("BPButtonOrDropdownAction", () => {
     it("initializes properties and methods successfully", () => {
@@ -7,9 +7,9 @@ describe("BPButtonOrDropdownAction", () => {
             return;
         };
         const canExecute = () => false;
-        const icon = "icon1";
-        const label = "label1";
-        const tooltip = "tooltip1";
+        const icon = "icon";
+        const label = "label";
+        const tooltip = "tooltip";
 
         // act
         const buttonOrDropdownAction = new BPButtonOrDropdownAction(execute, canExecute, icon, tooltip, label);
@@ -27,20 +27,42 @@ describe("BPMenuAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const type = "menu";
-        const tooltip = "tooltip2";
+        const icon = "fonticon2-more-menu";
+        const tooltip = "tooltip";
         const item1 = new BPButtonOrDropdownAction(() => {
             return;
-        }, () => true, "iconItem1", "tooltipItem1", "labelItem1");
+        }, () => true, "icon1", "tooltip1", "label1");
         const item2 = new BPButtonOrDropdownAction(() => {
             return;
-        }, () => false, "iconItem2", "tooltipItem2", "labelItem2");
+        }, () => false, "icon2", "tooltip2", "label2");
+        const separator = new BPButtonOrDropdownSeparator();
 
         // act
-        const additionalMenu = new BPMenuAction(tooltip, item1, item2);
+        const additionalMenu = new BPMenuAction(tooltip, item1, separator, item2);
 
         // assert
         expect(additionalMenu.type).toBe(type);
         expect(additionalMenu.tooltip).toBe(tooltip);
-        expect(additionalMenu.actions).toEqual([item1, item2]);
+        expect(additionalMenu.icon).toBe(icon);
+        expect(additionalMenu.disabled).toBeFalsy();
+        expect(additionalMenu.actions).toEqual([item1, separator, item2]);
+    });
+
+    it("is disabled if all its children are disabled", () => {
+        // arrange
+        const item1 = new BPButtonOrDropdownAction(() => {
+            return;
+        }, () => false, "icon1", "tooltip1", "label1");
+        const item2 = new BPButtonOrDropdownAction(() => {
+            return;
+        }, () => false, "icon2", "tooltip2", "label2");
+        const separator = new BPButtonOrDropdownSeparator();
+
+        // act
+        const additionalMenu = new BPMenuAction("tooltip", item1, separator, item2);
+
+        // assert
+        expect(additionalMenu.disabled).toBeTruthy();
+        expect(additionalMenu.actions).toEqual([item1, separator, item2]);
     });
 });

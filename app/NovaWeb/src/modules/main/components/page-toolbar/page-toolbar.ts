@@ -381,6 +381,10 @@ export class PageToolbarController implements IPageToolbarController {
                 }
 
                 this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
+
+                if (_.find(data.artifacts, {itemTypeId: 76})) {
+                    this.messageService.addWarning("ST_ProcessType_RegenerateUSS_Warning");
+                 }
             })
             .catch((error) => {
                 this.messageService.addError(error);

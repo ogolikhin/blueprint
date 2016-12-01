@@ -59,13 +59,13 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(146294)]
-        [Description("Run:  GET /config/settings  but don't include any Session-Token header.  Verify it returns 400 Bad Request.")]
-        public void GetSettings_MissingTokenHeader_400BadRequest()
+        [Description("Run:  GET /config/settings  but don't include any Session-Token header.  Verify it returns 401 Unauthorized.")]
+        public void GetSettings_MissingTokenHeader_401Unauthorized()
         {
-            Assert.Throws<Http400BadRequestException>(() =>
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.GetSettings(session: null);
-            }, "GetSettings() should return 400 Bad Request if no Session-Token header is provided!");
+            }, "GetSettings() should return 401 Unauthorized if no Session-Token header is provided!");
         }
 
         [TestCase]

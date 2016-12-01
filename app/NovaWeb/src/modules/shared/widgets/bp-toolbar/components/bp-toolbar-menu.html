@@ -1,11 +1,12 @@
-<div uib-dropdown
-     ng-disabled="$ctrl.disabled">
-    <button uib-dropdown-toggle type="button" class="btn btn-primary btn-small"
+<div uib-dropdown class="toolbar-menu__container">
+    <button uib-dropdown-toggle type="button" class="btn btn-secondary btn-small"
+            ng-disabled="$ctrl.disabled"
             bp-tooltip="{{$ctrl.tooltip}}"><span ng-class="$ctrl.icon"></span></button>
-    <ul uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
-        <li ng-repeat="action in $ctrl.actions track by $index" ng-if="!action.disabled"
+    <ul uib-dropdown-menu class="toolbar-menu__dropdown dropdown-menu dropdown-menu-right">
+        <li ng-repeat="action in $ctrl.actions track by $index" ng-if="!action.disabled || action.separator"
             ng-class="{'toolbar-menu__separator': action.separator, 'toolbar-menu__item': !action.separator}">
-            <a ng-if="!action.separator" ng-click="action.execute()"><span ng-if="action.icon" ng-class="action.icon"></span> {{action.label || action.tooltip}}</a>
+            <a class="toolbar-menu__action" ng-if="!action.separator" ng-click="action.execute()">
+                <span ng-if="action.icon" ng-class="action.icon"></span> {{action.label || action.tooltip}}</a>
         </li>
     </ul>
 </div>

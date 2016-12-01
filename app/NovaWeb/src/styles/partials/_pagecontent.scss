@@ -163,7 +163,7 @@ pagecontent, bp-properties-panel {
             color: $gray-dark;
             display: block;
             font-size: $font-size-biggest;
-            white-space: normal;
+            white-space: pre-wrap;
             //word-break: break-all;
             word-wrap: break-word;
         }

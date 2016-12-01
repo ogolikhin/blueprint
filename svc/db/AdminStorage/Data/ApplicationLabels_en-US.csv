@@ -35,7 +35,7 @@ App_Sidebar_Left,"Explorer"
 App_Sidebar_Right,"Utility Panel"
 App_Explorer_EmptyMessage,"You have no projects loaded in the Explorer"
 App_Explorer_LoadProject_ButtonLabel,"Load project"
-App_Explorer_LoadProject_ButtonTooltip,"Loads project in Explorer Window"
+App_Explorer_LoadProject_ButtonTooltip,"Load project in Explorer"
 
 App_Project,"Project"
 App_Project_Open,"Open Project"
@@ -468,6 +468,9 @@ ST_Publish_User_Story, "Publish User Story"
 ST_Search_Project_Scope_Mentions, "#mention artifacts from the current project only"
 ST_ProcessType_BusinessProcess_Label, "Business Process mode"
 ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
+ST_ProcessType_RegenerateUS_Warning, "Regenerate user stories to synchronize your changes."
+ST_ProcessType_RegenerateUSS_Warning, "Published artifacts include one or more Processes. Regenerate corresponding user stories to synchronize changes"
+
 
 # Breadcrumb
 ST_Breadcrumb_InaccessibleArtifact, "<Inaccessible>"

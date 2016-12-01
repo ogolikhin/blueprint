@@ -5,11 +5,7 @@ export enum DialogTypeEnum {
     Alert,
     Confirm
 }
-/*fixme: what is the point of this?*/
-export interface IDialogData {
-}
 
-/*fixme: why is everything optional? some values must be required*/
 export interface IDialogSettings {
     type?: DialogTypeEnum;
     header?: string;
@@ -26,19 +22,18 @@ export interface IDialogSettings {
 }
 
 export interface IDialogService {
-    open(dialogSettings: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any>;
+    open(dialogSettings: IDialogSettings, dialogData?): ng.IPromise<any>;
     alert(message: string, header?: string, okButton?: string, cancelButton?: string): ng.IPromise<any>;
     confirm(message: string, header?: string, css?: string): ng.IPromise<any>;
     dialogSettings: IDialogSettings;
 }
 
 export class DialogService implements IDialogService {
-
-    public static $inject = ["localization", "$uibModal"];
     public dialogSettings: IDialogSettings = {};
     public dialogData: any;
     private defaultSettings: IDialogSettings;
 
+    public static $inject = ["localization", "$uibModal"];
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
         this.defaultSettings = {
             type: DialogTypeEnum.Base,
@@ -72,7 +67,7 @@ export class DialogService implements IDialogService {
         return this.dialogSettings.type;
     }
 
-    public open(dialogSettings?: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any> {
+    public open(dialogSettings?: IDialogSettings, dialogData?): ng.IPromise<any> {
         this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
         if (dialogData) {
             this.dialogData = dialogData;
@@ -116,6 +111,7 @@ export interface IDialogController {
     ok: Function;
     cancel: Function;
 }
+
 /*fixme: one class per file*/
 export class BaseDialogController implements IDialogController {
 

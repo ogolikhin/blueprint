@@ -45,7 +45,6 @@ export {
 
 export {
     IDialogSettings,
-    IDialogData,
     IDialogService,
     BaseDialogController
 } from "./bp-dialog";

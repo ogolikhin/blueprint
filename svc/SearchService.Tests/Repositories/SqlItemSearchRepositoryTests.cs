@@ -143,7 +143,7 @@ namespace SearchService.Repositories
             Assert.AreEqual(result.Items.First().Permissions, RolePermissions.Read);
         }
 
-       
+        [TestMethod]
         public async Task SearchName_IncludeArtifactPath_ReturnsResults()
         {
             // Arrange
@@ -173,7 +173,8 @@ namespace SearchService.Repositories
             // Assert
             CollectionAssert.AreEqual(queryResult, result.Items.ToList());
             Assert.AreEqual(queryResult.Length, result.PageItemCount);
-           // Assert.AreEqual(result.Items.First().Path, "ArtifactPath");
+            Assert.AreEqual(result.Items.First().Path.Count(), 1);
+            Assert.AreEqual(result.Items.First().Path.First(), "ArtifactPath");
         }
 
         [TestMethod]

@@ -267,14 +267,14 @@ describe("Project Repository", () => {
     });
 
     describe("searchProjects", () => {
-        xit("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+        it("post - successful", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
             const searchResult: SearchServiceModels.IProjectSearchResultSet = {items: [
                 {itemId: 1, name: "New project 1", path: ["Blueprint"]},
                 {itemId: 2, name: "New project 2", path: ["Blueprint"]}
             ]};
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Success, searchResult);
 
             // Act
@@ -290,10 +290,10 @@ describe("Project Repository", () => {
             $httpBackend.verifyNoOutstandingRequest();
         }));
 
-        xit("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
+        it("post - unsuccessfully", inject(($httpBackend: ng.IHttpBackendService, projectService: IProjectService) => {
             // Arrange
             const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
-            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100", searchCriteria)
+            $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Unauthorized);
 
             // Act

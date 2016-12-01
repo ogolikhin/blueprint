@@ -22,7 +22,6 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     unload();
     save(ignoreInvalidValues?: boolean ): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
-    autosave(): ng.IPromise<void>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
@@ -470,20 +469,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         const compoundId: string = this.prefix + this.id.toString();
         message = message.replace("{0}", compoundId);
         return new Error(message);
-    }
-
-    public autosave(): ng.IPromise<void> {
-        return this.save(true).catch(() => {
-            return this.services.dialogService.open(<IDialogSettings>{
-            okButton: this.services.localizationService.get("App_Button_Proceed"),
-            //cancelButton: this.services.localizationService.get("Save"),
-            message: this.services.localizationService.get("App_Save_Auto_Confirm"),
-            header: this.services.localizationService.get("App_DialogTitle_Alert"),
-            css: "modal-alert nova-messaging"
-            }).then(() => {
-                this.discard();
-            });
-        });
     }
 
     public supportRelationships(): boolean {

@@ -1,4 +1,4 @@
-﻿import {IWindowVisibility} from "../../core";
+﻿import {IWindowVisibility} from "../../core/services/window-visibility";
 import {IUser, ISession} from "../../shell";
 import {Models, Enums} from "../models";
 import {IProjectManager} from "../../managers/project-manager";
@@ -64,6 +64,12 @@ export class MainViewController {
     }
 
     private onVisibilityChanged = (isHidden: boolean) => {
+        if (isHidden) {
+            this.artifactManager.autosave(false).catch(() => {
+                alert("Autosave has failed!");
+            });
+        }
+
         document.body.classList.remove(isHidden ? "is-visible" : "is-hidden");
         document.body.classList.add(isHidden ? "is-hidden" : "is-visible");
     };

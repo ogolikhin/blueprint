@@ -47,7 +47,12 @@ export class DialogService implements IDialogService {
     };
 
     private initialize(dialogSettings: IDialogSettings) {
+
         this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
+        this.dialogSettings.cancelButton = this.localization.get(this.dialogSettings.cancelButton) || undefined;
+        this.dialogSettings.okButton = this.localization.get(this.dialogSettings.okButton) || undefined;
+        this.dialogSettings.header = this.localization.get(this.dialogSettings.header) || undefined;
+        this.dialogSettings.message = this.localization.get(this.dialogSettings.message) || undefined;
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
@@ -76,16 +81,16 @@ export class DialogService implements IDialogService {
     }
 
     public alert(message: string, header?: string, okButton?: string, cancelButton?: string) {
-        const dialogSettings = {
+        const dialogSettings = <IDialogSettings>{
             type: DialogTypeEnum.Alert,
-            header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Alert"),
-            message: this.localization.get(message) || message,
-            cancelButton: this.localization.get(cancelButton) || cancelButton || null, //Don't show cancel button if not defined
+            header:  header || "App_DialogTitle_Alert",
+            message: message,
+            cancelButton: cancelButton || null, //Don't show cancel button if not defined
             css: "modal-alert nova-messaging"
         };
         if (okButton) {
             //We only want to set the okButton if it's specified, otherwise use the initialize default.
-            dialogSettings["okButton"] = this.localization.get(okButton) || okButton;
+            dialogSettings["okButton"] = okButton;
         }
         this.initialize(dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
@@ -96,9 +101,9 @@ export class DialogService implements IDialogService {
     public confirm(message: string, header?: string, css?: string) {
         this.initialize({
             type: DialogTypeEnum.Confirm,
-            header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Confirmation"),
+            header: header || "App_DialogTitle_Confirmation",
             css: css,
-            message: this.localization.get(message) || message
+            message: message
         } as IDialogSettings);
         return this.openInternal().result;
     }

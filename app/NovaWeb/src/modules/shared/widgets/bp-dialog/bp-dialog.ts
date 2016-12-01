@@ -5,10 +5,11 @@ export enum DialogTypeEnum {
     Alert,
     Confirm
 }
-
+/*fixme: what is the point of this?*/
 export interface IDialogData {
 }
 
+/*fixme: why is everything optional? some values must be required*/
 export interface IDialogSettings {
     type?: DialogTypeEnum;
     header?: string;
@@ -31,30 +32,32 @@ export interface IDialogService {
 export class DialogService implements IDialogService {
 
     public static $inject = ["localization", "$uibModal"];
-
-    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
-    }
-
     public dialogSettings: IDialogSettings = {};
     public dialogData: any;
+    private defaultSettings: IDialogSettings;
 
-    private defaultSettings: IDialogSettings = {
-        type: DialogTypeEnum.Base,
-        cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
-        okButton: this.localization.get("App_Button_Ok", "Ok"),
-        template: require("./bp-dialog.html"),
-        controller: BaseDialogController
-    };
+    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
+        this.defaultSettings = {
+            type: DialogTypeEnum.Base,
+            cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
+            okButton: this.localization.get("App_Button_Ok", "Ok"),
+            template: require("./bp-dialog.html"),
+            controller: BaseDialogController
+        };
+    }
 
     private initialize(dialogSettings: IDialogSettings) {
         this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
+        /*fixme: things that are constant here should be set on the default controller*/
+        /*fixme: should not have || properties. should set default and then override if provided*/
         const dialogSettings = <ng.ui.bootstrap.IModalSettings>{
             template: this.dialogSettings.template,
             controller: this.dialogSettings.controller,
             controllerAs: "$ctrl",
+            bindToController: true,
             windowClass: this.dialogSettings.css || "nova-messaging",
             backdrop: this.dialogSettings.backdrop || false,
             resolve: {
@@ -109,7 +112,7 @@ export interface IDialogController {
     ok: Function;
     cancel: Function;
 }
-
+/*fixme: one class per file*/
 export class BaseDialogController implements IDialogController {
 
     public hasCloseButton: boolean = false;
@@ -130,9 +133,15 @@ export class BaseDialogController implements IDialogController {
 
     public cancel() {
         this.$instance.dismiss("cancel");
+
+        /*manual gargabe clean */
+        this.$instance = undefined;
+        this.dialogSettings = undefined;
+
     };
 }
 
+/*fixme: one class per file*/
 export class DialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
 

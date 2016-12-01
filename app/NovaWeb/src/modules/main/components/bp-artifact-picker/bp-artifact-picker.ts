@@ -170,14 +170,16 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     public $onDestroy(): void {
         if (this.columns) {
-            this.columns[0].cellClass = undefined;
-            this.columns[0].cellRenderer = undefined;
-            this.columns = undefined;
+            this.columns[0].cellClass = null;
+            this.columns[0].cellRenderer = null;
+            this.columns = null;
         }
-        this.onSelect = undefined;
+        this.onSelect = null;
         this.canceller.reject();
-        this.canceller = undefined;
-        delete this.itemTypes;
+        this.canceller = null;
+        this.rowData = null;
+        this.treeApi = null;
+        this.itemTypes = null;
     }
 
     public api: IArtifactPickerAPI = {

@@ -457,19 +457,6 @@ namespace Helper
                 AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
             }
 
-            Assert.AreEqual(expectedSubArtifact.AttachmentValues.Count, actualSubArtifact.AttachmentValues.Count, "The number of attachments is different!");
-
-            // Compare each attachment.
-            foreach (AttachmentValue attachment in expectedSubArtifact.AttachmentValues)
-            {
-                Assert.That(actualSubArtifact.AttachmentValues.Exists(a => a.Guid == attachment.Guid),
-                    "Couldn't find attachment with GUID: {0}!", attachment.Guid);
-
-                var actualAttachment = actualSubArtifact.AttachmentValues.Find(a => a.Guid == attachment.Guid);
-
-                AssertAttachmentsAreEqual(attachment, actualAttachment);
-            }
-
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
             Assert.AreEqual(0, expectedSubArtifact?.AttachmentValues.Count, "AttachmentValues should always be empty!");
             Assert.AreEqual(0, expectedSubArtifact?.DocRefValues.Count, "DocRefValues should always be empty!");
@@ -478,6 +465,27 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact?.DocRefValues.Count, actualSubArtifact?.DocRefValues.Count, "The number of Sub-Artifact Document References don't match!");
             Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
 
+            // Get and compare sub-artifact Attachments & DocumentReferences.
+            var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
+            var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
+
+            foreach (AttachedFile expectedAttachment in expectedAttachments.AttachedFiles)
+            {
+                var actualAttachment = actualAttachments.AttachedFiles.Find(a => a.AttachmentId.Equals(expectedAttachment.AttachmentId));
+
+                Assert.NotNull(actualAttachment, "Couldn't find actual attachment with AttachmentId: {0}", expectedAttachment.AttachmentId);
+                AttachedFile.AssertAreEqual(expectedAttachment, actualAttachment);
+            }
+
+            foreach (DocumentReference expectedDocumentReference in expectedAttachments.DocumentReferences)
+            {
+                var actualDocumentReference = actualAttachments.DocumentReferences.Find(a => a.ArtifactId.Equals(expectedDocumentReference.ArtifactId));
+
+                Assert.NotNull(actualDocumentReference, "Couldn't find actual DocumentReference with ArtifactId: {0}", expectedDocumentReference.ArtifactId);
+                DocumentReference.AssertAreEqual(expectedDocumentReference, actualDocumentReference);
+            }
+
+            // Get and compare sub-artifact Traces.
             if (!skipTraces)
             {
                 var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
@@ -487,8 +495,6 @@ namespace Helper
 
                 Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
             }
-
-            //TODO: Add assertions for Doc References
         }
 
         /// <summary>

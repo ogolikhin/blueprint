@@ -47,7 +47,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="skipAttachmentIds">(optional) Pass true if you want to skip comparison of the AttachmentId properties.</param>
         /// <param name="skipUploadedDates">(optional) Pass true if you want to skip comparison of the UploadedDate properties.</param>
         /// <exception cref="AssertionException">If any properties are different.</exception>
-        public static void AssertEquals(AttachedFile expectedFile, AttachedFile actualFile, bool skipAttachmentIds = false, bool skipUploadedDates = false)
+        public static void AssertAreEqual(AttachedFile expectedFile, AttachedFile actualFile, bool skipAttachmentIds = false, bool skipUploadedDates = false)
         {
             ThrowIf.ArgumentNull(expectedFile, nameof(expectedFile));
             ThrowIf.ArgumentNull(actualFile, nameof(actualFile));
@@ -82,6 +82,24 @@ namespace Model.ArtifactModel.Impl
         public string UserName { get; set; }
 
         public DateTime ReferencedDate { get; set; }
+
+        /// <summary>
+        /// Asserts that both DocumentReferences are equal.
+        /// </summary>
+        /// <param name="expectedDocument">The expected DocumentReference.</param>
+        /// <param name="actualDocument">The actual DocumentReference.</param>
+        /// <exception cref="AssertionException">If any of the properties don't match.</exception>
+        public static void AssertAreEqual(DocumentReference expectedDocument, DocumentReference actualDocument)
+        {
+            ThrowIf.ArgumentNull(expectedDocument, nameof(expectedDocument));
+            ThrowIf.ArgumentNull(actualDocument, nameof(actualDocument));
+
+            Assert.AreEqual(expectedDocument.ArtifactId, actualDocument.ArtifactId, "The ArtifactId properties don't match!");
+            Assert.AreEqual(expectedDocument.ArtifactName, actualDocument.ArtifactName, "The ArtifactName properties don't match!");
+            Assert.AreEqual(expectedDocument.ReferencedDate, actualDocument.ReferencedDate, "The ReferencedDate properties don't match!");
+            Assert.AreEqual(expectedDocument.UserId, actualDocument.UserId, "The UserId properties don't match!");
+            Assert.AreEqual(expectedDocument.UserName, actualDocument.UserName, "The UserName properties don't match!");
+        }
     }
 
 

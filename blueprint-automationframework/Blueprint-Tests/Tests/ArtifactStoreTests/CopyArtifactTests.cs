@@ -209,7 +209,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, sourceArtifactAttachments.DocumentReferences.Count, "Source artifact shouldn't have any Document References.");
 
             // Nova copy does a shallow copy of attachments, so sourceArtifactAttachments should equal copiedArtifactAttachments.
-            AttachedFile.AssertEquals(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0],
+            AttachedFile.AssertAreEqual(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0],
                 skipAttachmentIds: true, skipUploadedDates: true);
 
             // Compare file contents.
@@ -652,7 +652,7 @@ namespace ArtifactStoreTests
         [Explicit(IgnoreReasons.UnderDevelopment)]  // Don't review this yet.  It's not working yet.
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
-        [TestCase(BaseArtifactType.UseCase, 565, "New Use Case 1", 2)]
+        [TestCase(BaseArtifactType.UseCase, 565, "New Use Case 1", 3)]
         [TestRail(000)]
         [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
             "unchanged and the new artifact is identical to the source artifact (including sub-artifact traces, attachments and document references.  " +

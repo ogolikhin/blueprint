@@ -27,28 +27,32 @@
                                    ng-checked="$ctrl.isGroupToggleChecked()"
                                    ng-click="$ctrl.toggleAll()" />
                         </th>
+                        <th class="unpublished__icon-col">&nbsp;</th>
                         <th class="unpublished__id-col">ID</th>
                         <th class="unpublished__name-col">Name</th>
                     </tr>
                     </thead>
                     <tbody class="unpublished__body">
                     <tr ng-repeat="artifact in $ctrl.publishService.unpublishedArtifacts track by artifact.id"
+                        class="unpublished__row"
                         ng-class="{'unpublished__row--selected': $ctrl.isSelected(artifact)}">
-                        <td><input type="checkbox"
+                        <td class="unpublished__checkbox-col"><input type="checkbox"
                                    ng-checked="$ctrl.isSelected(artifact)"
                                    ng-click="$ctrl.toggleSelection(artifact)" /></td>
-                        <td>
+                        <td class="unpublished__icon-col">
                             <bp-item-type-icon
                                 item-type-id="::artifact.itemTypeId"
                                 item-type-icon-id="::artifact.itemTypeIconId"
                                 predefined-type="::artifact.predefinedType"
                                 fallback="::true" class="bp-artifact-list__icon"></bp-item-type-icon>
+                        </td>
+                        <td class="unpublished__id-col">
                             <a ui-sref="main.item({id: artifact.id, version: undefined})">{{::artifact.prefix + artifact.id}}</a>
                         </td>
-                        <td>{{::artifact.name}}</td>
+                        <td class="unpublished__name-col">{{::artifact.name}}</td>
                     </tr>
-                    <tr class="unpublished__empty" ng-if="!$ctrl.publishService.unpublishedArtifacts.length">
-                        <td colspan="3">{{::$ctrl.localization.get('') }}
+                    <tr class="unpublished__empty-row" ng-if="!$ctrl.publishService.unpublishedArtifacts.length">
+                        <td colspan="4" class="unpublished__empty-message">{{::$ctrl.localization.get('') }}
                             No Unpublished Changes
                         </td>
                     </tr>

@@ -7,48 +7,48 @@
     font-size: 1.2rem;
 }
 
-.unpublished__empty {
-    color: $gray-light;
-    text-align: center;
-}
-
 .unpublished__checkbox-col {
+    padding: 8px 25px;
     width: 20px;
 }
+
+.unpublished__icon-col {
+    padding: 8px 0;
+    width: 10px;
+}
+
 .unpublished__id-col {
-    width: 150px;
+    padding: 8px 0;
     white-space: nowrap;
+}
+
+.unpublished__name-col {
+    padding: 8px 25px;
 }
 
 .unpublished__header {
     background: $gray;
-
-    th {
-        color: $white;
-        padding: 8px 25px;
-    }
+    color: $white;
 }
 
 .unpublished__body {
     background: $white;
+}
 
-    > tr {
-        border-bottom: 1px solid $gray-lighter;
-
-        > td {
-            padding: 8px 25px;
-
-            > pre {
-                border: none;
-                background: none;
-                padding: 0;
-                display: inline;
-                font-family: "Courier New", monospace;
-            }
-        }
-    }
+.unpublished__row {
+    border-bottom: 1px solid $gray-lighter;
 }
 
 .unpublished__row--selected {
     background: $tree-hover-background;
+}
+
+.unpublished__empty-row {
+    color: $gray-light;
+    text-align: center;
+    @extend .unpublished__row;
+}
+
+.unpublished__empty-message {
+    padding: 8px 25px;
 }

@@ -43,6 +43,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "projectService",
         "loadingOverlayService",
         "analytics",
+        "$state",
         "localization"
     ];
 
@@ -55,6 +56,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private projectService: IProjectService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private analytics: IAnalyticsProvider,
+                private $state: ng.ui.IStateService,
                 public localization: ILocalizationService) {
     }
 
@@ -76,6 +78,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
         });
         if (this.selectedArtifactSubscriber) {
             this.selectedArtifactSubscriber.dispose();
+        }
+    }
+
+    public navigateToUnpublishedChanges() {
+        if (this.$state.current.name === "main.unpublished") {
+            this.navigationService.reloadCurrentState();
+        } else {
+            this.$state.go("main.unpublished");
         }
     }
 

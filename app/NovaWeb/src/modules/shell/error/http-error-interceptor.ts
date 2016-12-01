@@ -84,7 +84,7 @@ export class HttpErrorInterceptor {
             // Bad Request. Server rejected the request because failed to satisfy API semantics
             response.data = _.assign(error, {
                 message: "HttpError_BadRequest",
-                handled: true
+                handled: false
             });
             deferred.reject(response);
 

@@ -11,6 +11,7 @@ using Utilities;
 namespace SearchServiceTests
 {
     [TestFixture]
+    [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ZJgWmElf project search returns 500 error
     [Category(Categories.SearchService)]
     public class ProjectSearchTests : TestBase
     {

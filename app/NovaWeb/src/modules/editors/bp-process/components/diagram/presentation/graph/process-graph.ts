@@ -121,9 +121,9 @@ export class ProcessGraph implements IProcessGraph {
 
     private addSelectionEventHandlers() {
         // highlight edges for selected shapes
-        this.selectionHelper.addSelectionListener(this.highlightNodeEdges);
+        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.highlightNodeEdges(elements));
         // notify system that shapes have been selected
-        this.selectionHelper.addSelectionListener(this.onSelectionChanged);
+        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.onSelectionChanged(elements));
     }
 
     private initializePopupMenu() {

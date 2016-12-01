@@ -17,7 +17,7 @@ import {
     RefreshAction,
     DeleteAction,
     OpenImpactAnalysisAction,
-    MoveAction
+    MoveCopyAction
 } from "./actions";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {Message, MessageType} from "../../../core/messages/message";
@@ -294,7 +294,8 @@ export class BpArtifactInfoController {
         this.toolbarActions = [];
         if (artifact) {
             this.toolbarActions.push(
-                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
+                new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService,
+                        this.selectionManager, this.artifactManager, this.loadingOverlayService),
             );
             this.toolbarActions.push(
                 new BPButtonGroupAction(

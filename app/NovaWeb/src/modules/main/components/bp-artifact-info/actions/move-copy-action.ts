@@ -11,19 +11,36 @@ import {
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
 import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
+//import {INavigationService, INavigationParams} from "../../../../core/navigation/navigation.svc";
+import {ISelectionManager} from "../../../../managers/selection-manager";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 
-export class MoveAction extends BPDropdownAction {
+enum Action {
+    Move, Copy
+}
+
+export class MoveCopyAction extends BPDropdownAction {
+    private action: Action;
+
     constructor(private $q: ng.IQService, 
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private selectionManager: ISelectionManager,
+                private artifactManager: IArtifactManager,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         super(undefined, undefined, undefined, undefined,
             new BPDropdownItemAction(
                 localization.get("App_Toolbar_Move"),
-                () => this.execute(),
+                () => this.executeMove(),
+                (): boolean => true,
+            ),
+            new BPDropdownItemAction(
+                localization.get("App_Toolbar_Copy"),
+                () => this.executeCopy(),
                 (): boolean => true,
             )
         );
@@ -41,7 +58,6 @@ export class MoveAction extends BPDropdownAction {
         }
     }
 
-    
     public get icon(): string {
         return "fonticon2-move";
     }
@@ -81,6 +97,16 @@ export class MoveAction extends BPDropdownAction {
         return true;
     }
 
+    private executeMove() {
+        this.action = Action.Move;
+        this.checkProjectLoaded();
+    }
+
+    private executeCopy() {
+        this.action = Action.Copy;
+        this.checkProjectLoaded();
+    }
+
     private checkProjectLoaded() {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
@@ -99,12 +125,15 @@ export class MoveAction extends BPDropdownAction {
 
     private openMoveDialog(): ng.IPromise<void> {
         //next - open the move to dialog
+        const okButtonLabel = this.action === Action.Move ? "App_Button_Move" : (this.action === Action.Copy ? "App_Button_Copy" : undefined);
+        const headerLabel = this.action === Action.Move ? "Move_Artifacts_Picker_Header" : 
+            (this.action === Action.Copy ? "Copy_Artifacts_Picker_Header" : undefined);
         const dialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Move"),
+            okButton: this.localization.get(okButtonLabel),
             template: require("../../../../main/components/dialogs/move-artifact/move-artifact-dialog.html"),
             controller: MoveArtifactPickerDialogController,
             css: "nova-open-project",
-            header: this.localization.get("Move_Artifacts_Picker_Header")
+            header: this.localization.get(headerLabel)
         };
 
         const dialogData: IMoveArtifactPickerOptions = {
@@ -127,7 +156,13 @@ export class MoveAction extends BPDropdownAction {
         if (artifacts && artifacts.length === 1) {
             let insertMethod: MoveArtifactInsertMethod = result.insertMethod;
             return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]).then((orderIndex: number) => {
-                return this.prepareArtifactForMove(insertMethod, artifacts[0], orderIndex);
+                if (this.action === Action.Move) {
+                    return this.prepareArtifactForMove(insertMethod, artifacts[0], orderIndex);
+                } else if (this.action === Action.Copy) {
+                    return this.copyArtifact(insertMethod, artifacts[0], orderIndex);
+                } else {
+                    return this.$q.reject("unknown action");  //to prevent mistakes when adding more actions
+                }
             });
         }
     }
@@ -163,6 +198,25 @@ export class MoveAction extends BPDropdownAction {
             //refresh project
             this.projectManager.refresh(this.artifact.projectId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
+            });
+        });
+    }
+
+    private copyArtifact(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+        //finally, move the artifact
+        return this.artifact
+        .copy(insertMethod === MoveArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+        .then((result: Models.ICopyResultSet) => {
+            let selectionId = result && result.artifact ? result.artifact.id : null;
+            //refresh project
+            let refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
+            this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
+                this.projectManager.triggerProjectCollectionRefresh();
+                if (selectionId) {
+                    this.selectionManager.setExplorerArtifact(this.artifactManager.get(selectionId));
+                }
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
             });
         });
     }

@@ -34,7 +34,7 @@ export interface IProjectManager extends IDispose {
     openProjectWithDialog(): void;
     remove(projectId: number): void;
     removeAll(): void;
-    refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
+    refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
     refreshAll(): ng.IPromise<void>;
     getProject(id: number): Models.IViewModel<IStatefulArtifact>;
@@ -145,9 +145,9 @@ export class ProjectManager implements IProjectManager {
         }); 
     }
 
-    public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<void> {
+    public refresh(projectId: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
         return this.artifactManager.autosave().then(() => {
-            return this.refreshProject(this.getProject(projectId), forceOpen);
+            return this.refreshProject(this.getProject(projectId), selectionId, forceOpen);
         });
     }
 
@@ -155,12 +155,18 @@ export class ProjectManager implements IProjectManager {
         return this.refresh(this.getSelectedProjectId());
     }
 
-    private refreshProject(projectNode: IArtifactNode, forceOpen?: boolean): ng.IPromise<void> {
+    private refreshProject(projectNode: IArtifactNode, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
         if (!projectNode) {
             return this.$q.reject();
         }
+        let selectedArtifact = {} as IStatefulArtifact;
+        if (selectionId) {
+            selectedArtifact.id = selectionId;
+            selectedArtifact.projectId = projectNode.model.id;
+        } else {
+            selectedArtifact = this.artifactManager.selection.getArtifact();
+        }
 
-        let selectedArtifact = this.artifactManager.selection.getArtifact();
         return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
     }
 

@@ -118,7 +118,7 @@ export class DeleteAction extends BPButtonAction {
     private complete(deletedArtifacts: Models.IArtifact[]) {
         const parentArtifact = this.artifactManager.get(this.artifact.parentId);
         if (parentArtifact) {
-            this.projectManager.refresh(parentArtifact.projectId, true).then(() => {
+            this.projectManager.refresh(parentArtifact.projectId, null, true).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 this.navigationService.navigateTo({id: parentArtifact.id});
 

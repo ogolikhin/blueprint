@@ -1,8 +1,33 @@
-.toolbar-menu__separator {
-    display: none;
-    pointer-events: none;
-}
+@import '../../../../../styles/settings/colors';
 
-.toolbar-menu__separator:not(:first-child) + .toolbar-menu__item {
-    border-top: solid 1px black;
+.toolbar-menu__container {
+    .toolbar-menu__dropdown {
+        padding: 0;
+    }
+
+    .toolbar-menu__action {
+        background: $gray-lightest;
+        border: 0;
+        color: $text-color;
+        line-height: inherit;
+        padding: 6px 20px;
+
+        &:hover {
+            background: $brand-secondary;
+            color: $white;
+        }
+        &.disabled {
+            color: $gray-light;
+            pointer-events: none;
+        }
+    }
+
+    .toolbar-menu__separator {
+        display: none;
+        pointer-events: none;
+    }
+
+    .toolbar-menu__separator:not(:first-child) + .toolbar-menu__item {
+        border-top: solid 1px $gray-lighter;
+    }
 }

@@ -1,6 +1,5 @@
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
-import {IPublishService} from "../../../managers/artifact-manager/publish.svc";
 import {IArtifactManager, IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
@@ -16,6 +15,7 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent);
@@ -61,7 +61,7 @@ export class PageToolbarController implements IPageToolbarController {
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
                 private artifactManager: IArtifactManager,
-                private publishService: IPublishService,
+                private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,

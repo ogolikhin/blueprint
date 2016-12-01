@@ -66,7 +66,7 @@ namespace StorytellerTests
 
             StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -88,7 +88,7 @@ namespace StorytellerTests
 
             StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, publishedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, publishedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
 
             var defaultPersonaReference = DeletePersonaReferenceFromTask(taskName, publishedProcess);
 
@@ -99,7 +99,7 @@ namespace StorytellerTests
 
             StorytellerTestHelper.AssertArtifactReferencesAreEqual(defaultPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -121,7 +121,7 @@ namespace StorytellerTests
 
             StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, publishedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, publishedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
 
             // Changes the persona reference to a new artifact reference
             var changedPersonaReference = AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
@@ -133,7 +133,7 @@ namespace StorytellerTests
 
             StorytellerTestHelper.AssertArtifactReferencesAreEqual(changedPersonaReference, savedPersonaReference);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, savedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -149,9 +149,9 @@ namespace StorytellerTests
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
 
             // Publish Process with added persona reference
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, process);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
 
             // Get the actor artifact from the persona reference
             var actorArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorFullAccess, personaReference.Id);
@@ -173,7 +173,7 @@ namespace StorytellerTests
             Assert.AreEqual(updatedPersonaReferenceName, actorArtifactDetails.Name, "The persona reference name was {0} but {1} was expected!",
                 updatedPersonaReferenceName, actorArtifactDetails.Name);
 
-            AssertPersonaReferenceEqualsPersonaProperty(taskName, updatedProcess);
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, updatedProcess);
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -474,10 +474,10 @@ namespace StorytellerTests
         /// </summary>
         /// <param name="taskName">The name of the task containing the persona reference.</param>
         /// <param name="savedProcess">The process containing the task.</param>
-        private static void AssertPersonaReferenceEqualsPersonaProperty(string taskName, IProcess savedProcess)
+        private static void AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(string taskName, IProcess savedProcess)
         {
             var task = savedProcess.GetProcessShapeByShapeName(taskName);
-            var personaPropertyValue = task.PropertyValues[Model.StorytellerModel.PropertyTypePredefined.Persona.ToString()].Value.ToString();
+            var personaPropertyValue = task.PropertyValues[Model.StorytellerModel.PropertyTypePredefined.Persona.ToString().LowerCaseFirstCharacter()].Value.ToString();
 
             Assert.AreEqual(task.PersonaReference.Name, personaPropertyValue,
                 "The persona reference name and persona property value should be the same " +

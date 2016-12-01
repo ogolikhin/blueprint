@@ -924,8 +924,7 @@ export class ProcessGraph implements IProcessGraph {
         if (elements && elements.length > 0) {
             for (let i = 0; i < elements.length; i++) {
                 let node = elements[i];
-                 if ((node.getNodeType() === NodeType.UserTask) || 
-                    (node.getNodeType() === NodeType.UserDecision)) {
+                 if ((node.getNodeType() === NodeType.UserTask)) {
                     validSelection = true; 
                 } else {
                     validSelection = false;
@@ -938,14 +937,13 @@ export class ProcessGraph implements IProcessGraph {
 
     private highlightNodeEdges(nodes: Array<IDiagramNode>) {
         this.clearHighlightEdges();
-        if (nodes.length > 0) {
-            let selectedNode: IDiagramNode = nodes[0];
-            let highLightEdges = this.getHighlightScope(selectedNode, this.mxgraph.getModel());
+        _.each(nodes, (node) => {
+            let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());
             for (let edge of highLightEdges) {
                 this.highlightEdge(edge);
             }
             this.mxgraph.orderCells(false, highLightEdges);
-        }
+        });
     }
 
     private getHighlightScope(diagramNode: IDiagramNode, graphModel: MxGraphModel): MxCell[] {

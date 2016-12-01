@@ -219,12 +219,16 @@ describe("BPTreeViewController", () => {
 
         it("deselectAll calls ag-grid deselectAll", () => {
             // Arrange
+            const columns = [{}];
+            controller.options.columnApi.getAllColumns = jasmine.createSpy("getAllColumns").and.returnValue(columns);
             controller.options.api.deselectAll = jasmine.createSpy("deselectAll");
+            controller.options.api.setFocusedCell = jasmine.createSpy("setFocusedCell");
 
             // Act
             controller.api.deselectAll();
 
             // Assert
+            expect(controller.options.api.setFocusedCell).toHaveBeenCalledWith(-1, columns[0]);
             expect(controller.options.api.deselectAll).toHaveBeenCalled();
         });
 

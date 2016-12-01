@@ -2,13 +2,13 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {IPublishService} from "../../managers/artifact-manager/publish.svc/publish.svc";
-import {IPublishResultSet, IArtifact} from "../../main/models/models";
+import {IArtifact} from "../../main/models/models";
 import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IUnpublishedArtifactsService} from "./unpublished.svc";
 
 export class UnpublishedComponent implements ng.IComponentOptions {
     public template: string = require("./unpublished.html");
@@ -27,30 +27,27 @@ export class UnpublishedController {
     ];
 
     public toolbarActions: IBPAction[] = [];
-    public unpublishedArtifacts: IArtifact[];
     public selectedArtifacts: IArtifact[];
     public isLoading: boolean;
 
     private publishArtifactsButton: PublishArtifactsAction;
     private discardArtifactsButton: DiscardArtifactsAction;
+    private unpublishedArtifactsObserver: Rx.Disposable;
 
     constructor(private $log: ng.ILogService,
                 public localization: ILocalizationService,
                 public messageService: IMessageService,
-                private publishService: IPublishService,
+                private publishService: IUnpublishedArtifactsService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private navigationService: INavigationService,
                 private projectManager: IProjectManager) {
 
         this.isLoading = true;
         this.selectedArtifacts = [];
-        this.publishService.getUnpublishedArtifacts()
-            .then((data: IPublishResultSet) => {
-                this.unpublishedArtifacts = data.artifacts;
-            })
-            .finally(() => {
-                this.isLoading = false;
-            });
+        this.unpublishedArtifactsObserver = this.publishService.unpublishedArtifactsObservable.subscribeOnNext(this.updateSelectedArtifacts, this);
+        this.publishService.getUnpublishedArtifacts().finally(() => {
+            this.isLoading = false;
+        });
     }
 
     public $onInit() {
@@ -77,10 +74,14 @@ export class UnpublishedController {
     }
 
     public $onDestroy() {
-        this.unpublishedArtifacts = undefined;
         this.publishArtifactsButton = undefined;
         this.discardArtifactsButton = undefined;
+        this.unpublishedArtifactsObserver.dispose();
     }
+
+    private updateSelectedArtifacts(unpublishedArtifacts: IArtifact[]) {
+        this.selectedArtifacts = _.intersectionBy(this.selectedArtifacts, unpublishedArtifacts, "id");
+    };
 
     public toggleSelection(artifact: IArtifact) {
         const selectedId = this.selectedArtifacts.indexOf(artifact);
@@ -95,13 +96,17 @@ export class UnpublishedController {
     }
 
     public toggleAll() {
-        if (this.selectedArtifacts.length === this.unpublishedArtifacts.length) {
+        if (this.selectedArtifacts.length === this.publishService.unpublishedArtifacts.length) {
             this.selectedArtifacts = [];
         } else {
-            this.selectedArtifacts = this.unpublishedArtifacts.slice(0);
+            this.selectedArtifacts = this.publishService.unpublishedArtifacts.slice(0);
         }
 
         this.updateToolbarButtons();
+    }
+
+    public isGroupToggleChecked(): boolean {
+        return this.publishService.unpublishedArtifacts.length > 0 && this.publishService.unpublishedArtifacts.length === this.selectedArtifacts.length;
     }
 
     private updateToolbarButtons() {

@@ -3,14 +3,14 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IArtifact} from "../../../models/models";
-import {IPublishService} from "../../../../managers/artifact-manager/publish.svc/publish.svc";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
 
 export class DiscardArtifactsAction extends BPButtonAction {
     private artifactList: IArtifact[];
 
-    constructor(publishService: IPublishService,
+    constructor(publishService: IUnpublishedArtifactsService,
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 loadingOverlayService: ILoadingOverlayService,
@@ -33,11 +33,11 @@ export class DiscardArtifactsAction extends BPButtonAction {
                         }
                     })
                     .catch(error => {
+                        publishService.getUnpublishedArtifacts();
                         messageService.addError(error);
                     })
                     .finally(() => {
                         loadingOverlayService.endLoading(overlayId);
-                        navigationService.reloadCurrentState();
                     });
             },
 

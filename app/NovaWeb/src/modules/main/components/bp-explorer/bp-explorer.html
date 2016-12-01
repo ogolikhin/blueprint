@@ -1,8 +1,13 @@
-﻿<bp-tree-view api="$ctrl.treeApi"              
+﻿<bp-tree-view api="$ctrl.treeApi"
+              ng-show="$ctrl.isProjectTreeVisible()"
               row-data="$ctrl.projects"
               columns="$ctrl.columns"
-              size-columns-to-fit="true"
               on-select="$ctrl.onSelect(vm, isSelected)"
               on-error="$ctrl.onError(reason)"
               on-grid-reset="$ctrl.onGridReset(isExpanding)">
 </bp-tree-view>
+
+<div ng-show="!$ctrl.isProjectTreeVisible()"
+     class="explorer-empty-state">
+    <p class="explorer-empty-state-text">{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
+</div>

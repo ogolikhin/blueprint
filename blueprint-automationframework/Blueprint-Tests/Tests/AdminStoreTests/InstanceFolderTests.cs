@@ -118,33 +118,33 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(119385)]
-        [Description("Gets the folder without sending any token header and verifies '400 Bad Request' is returned.")]
-        public static void GetFolderById_NoTokenHeader_BadRequest()
+        [Description("Gets the folder without sending any token header and verifies '401 Unauthorized' is returned.")]
+        public static void GetFolderById_NoTokenHeader_401Unauthorized()
         {
             using (TestHelper helper = new TestHelper())
             {
-                Assert.Throws<Http400BadRequestException>(() =>
+                Assert.Throws<Http401UnauthorizedException>(() =>
                 {
                     /*Executes get folder REST call and returns HTTP code*/
                     /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
                     helper.AdminStore.GetFolderById(DEFAULT_FOLDER_ID);
-                }, "AdminStore should return a 400 Bad Request error when trying to send a malformed request");
+                }, "AdminStore should return a 401 Unauthorized error when trying to send a malformed request");
             }
         }
 
         [TestCase]
         [TestRail(145864)]
-        [Description("Gets the children of a folder without sending any token header and verifies '400 Bad Request' is returned.")]
-        public static void GetFolderChildrenByFolderId_NoTokenHeader_BadRequest()
+        [Description("Gets the children of a folder without sending any token header and verifies '401 Unauthorized' is returned.")]
+        public static void GetFolderChildrenByFolderId_NoTokenHeader_401Unauthorized()
         {
             using (TestHelper helper = new TestHelper())
             {
-                Assert.Throws<Http400BadRequestException>(() =>
+                Assert.Throws<Http401UnauthorizedException>(() =>
                 {
                     /*Executes get folder children REST call and returns HTTP code*/
                     /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
                     helper.AdminStore.GetFolderChildrenByFolderId(DEFAULT_FOLDER_ID);
-                }, "AdminStore should return a 400 Bad Request error when trying to send a malformed request");
+                }, "AdminStore should return a 401 Unauthorized error when trying to send a malformed request");
             }
         }
     }

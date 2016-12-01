@@ -331,14 +331,13 @@ namespace ArtifactStore.Controllers
         {
             //Arrange
             const int artifactId = 10;
-            const int versionId = 0;
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage()
             };
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
             //Act
-            await controller.GetRelationshipDetails(artifactId, versionId: versionId);
+            await controller.GetRelationshipDetails(artifactId);
         }
 
         [ExpectedException(typeof(HttpResponseException))]
@@ -372,7 +371,7 @@ namespace ArtifactStore.Controllers
 
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(It.IsAny<int>(), _session.UserId, true, int.MaxValue)).ReturnsAsync(new ItemInfo { });
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _relationshipsRepositoryMock.Setup(m => m.GetRelationshipExtendedInfo(artifactId, _session.UserId, true, null)).ReturnsAsync(new RelationshipExtendedInfo { ArtifactId = 1 });
+            _relationshipsRepositoryMock.Setup(m => m.GetRelationshipExtendedInfo(artifactId, _session.UserId, false)).ReturnsAsync(new RelationshipExtendedInfo { ArtifactId = 1 });
 
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -486,17 +485,17 @@ namespace ArtifactStore.Controllers
         {
             //Arrange
             const int artifactId = 1;
-            const int versionId = 9;
+            const bool isDeleted = true;
             const int projectId = 10;
             var itemInfo = new DeletedItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
             var permisionDictionary = new Dictionary<int, RolePermissions>();
             permisionDictionary.Add(artifactId, RolePermissions.Read);
             var expected = new RelationshipExtendedInfo { ArtifactId = artifactId };
 
-            _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(true);
+            _artifactVersionsRepositoryMock.Setup(m => m.IsItemDeleted(artifactId)).ReturnsAsync(isDeleted);
             _artifactVersionsRepositoryMock.Setup(m => m.GetDeletedItemInfo(artifactId)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissions(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
-            _relationshipsRepositoryMock.Setup(m => m.GetRelationshipExtendedInfo(artifactId, _session.UserId, false, versionId)).ReturnsAsync(expected);
+            _relationshipsRepositoryMock.Setup(m => m.GetRelationshipExtendedInfo(artifactId, _session.UserId, isDeleted)).ReturnsAsync(expected);
 
             var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
             {
@@ -506,7 +505,7 @@ namespace ArtifactStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
             //Act
-            var actual = await controller.GetRelationshipDetails(artifactId, versionId: versionId);
+            var actual = await controller.GetRelationshipDetails(artifactId);
 
             //Assert
             Assert.AreSame(expected, actual);

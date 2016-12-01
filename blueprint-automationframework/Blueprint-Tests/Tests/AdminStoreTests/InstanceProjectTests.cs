@@ -71,17 +71,17 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(123272)]
-        [Description("Gets an existing project but doesn't send any token header field and verifies '400 Bad Request' is returned.")]
-        public static void GetProjectById_NoTokenHeader_BadRequest()
+        [Description("Gets an existing project but doesn't send any token header field and verifies '401 Unauthorized' is returned.")]
+        public static void GetProjectById_NoTokenHeader_401Unauthorized()
         {
             using (TestHelper helper = new TestHelper())
             {
-                Assert.Throws<Http400BadRequestException>(() =>
+                Assert.Throws<Http401UnauthorizedException>(() =>
                 {
                     /*Executes get project REST call and returns HTTP code*/
                     /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
                     helper.AdminStore.GetProjectById(DEFAULT_FOLDER_ID);
-                }, "AdminStore should return a 400 Bad reques error when trying to call without session token");
+                }, "AdminStore should return a 401 Unauthorized error when trying to call without session token");
             }
         }
     }

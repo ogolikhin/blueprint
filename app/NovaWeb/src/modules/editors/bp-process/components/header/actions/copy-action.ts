@@ -43,7 +43,7 @@ export class CopyAction extends BPButtonAction {
                 return false;
             },
             "fonticon2-copy-shapes",
-            localization.get("App_Toolbar_Copy")
+            localization.get("App_Toolbar_Copy_Shapes")
         );
     }
     

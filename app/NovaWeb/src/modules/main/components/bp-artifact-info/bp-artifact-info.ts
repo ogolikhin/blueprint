@@ -12,9 +12,11 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {
     IDialogService,
     IBPAction,
+    IBPDropdownAction,
+    IBPButtonOrDropdownAction,
     BPButtonGroupAction,
     BPMenuAction,
-    IBPButtonOrDropdownAction,
+    BPButtonOrDropdownAction,
     BPButtonOrDropdownSeparator
 } from "../../../shared";
 import {
@@ -299,7 +301,7 @@ export class BpArtifactInfoController {
             const dropdownSeparator = new BPButtonOrDropdownSeparator();
 
             this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
-            this.additionalMenuActions.push(moveAction, deleteAction);
+            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction), deleteAction);
             //we don't want to show impact analysis on collection artifact page
             if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
                 this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
@@ -307,6 +309,27 @@ export class BpArtifactInfoController {
             this.collapsedToolbarActions.push(
                 new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
             );
+        }
+    }
+
+    protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {
+        if (actionsContainer.actions.length) {
+            const nestedActions: IBPButtonOrDropdownAction[] = [];
+            actionsContainer.actions.forEach((action: BPButtonOrDropdownAction) => {
+                if (action.icon) {
+                    nestedActions.push(action);
+                } else {
+                    nestedActions.push(new BPButtonOrDropdownAction(
+                        action.execute,
+                        () => !action.disabled && !actionsContainer.disabled,
+                        actionsContainer.icon,
+                        action.label
+                    ));
+                }
+            });
+            return nestedActions;
+        } else {
+            return [];
         }
     }
 

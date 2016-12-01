@@ -8,6 +8,7 @@ export class BPToolbarMenu implements ng.IComponentOptions {
     public bindings: {[boundProperty: string]: string} = {
         icon: "@",
         actions: "<",
+        disabled: "=?",
         tooltip: "@?"
     };
 }
@@ -15,5 +16,6 @@ export class BPToolbarMenu implements ng.IComponentOptions {
 export class BPToolbarMenuController implements ng.IComponentController {
     public icon: string;
     public actions: IBPButtonOrDropdownAction[];
+    public disabled: boolean;
     public tooltip?: string;
 }

@@ -52,6 +52,7 @@ export {
 
 export {
     IBPAction,
+    IBPDropdownAction,
     IBPButtonOrDropdownAction,
     BPButtonAction,
     BPDropdownItemAction,

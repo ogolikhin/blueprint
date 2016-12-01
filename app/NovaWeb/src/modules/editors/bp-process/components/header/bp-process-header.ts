@@ -157,19 +157,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             if (this.collapsedToolbarActions[i].type === "menu") {
                 const dropdownSeparator = new BPButtonOrDropdownSeparator();
                 const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                buttonDropdown.actions.push(dropdownSeparator);
-                generateUserStoriesAction.actions.forEach((action: BPButtonOrDropdownAction) => {
-                    if (action.icon) {
-                        buttonDropdown.actions.push(action);
-                    } else {
-                        buttonDropdown.actions.push(new BPButtonOrDropdownAction(
-                            action.execute,
-                            () => !action.disabled,
-                            generateUserStoriesAction.icon,
-                            action.label
-                        ));
-                    }
-                });
+                buttonDropdown.actions.push(dropdownSeparator, ...this.getNestedDropdownActions(generateUserStoriesAction));
                 buttonDropdown.actions.push(dropdownSeparator, copyAction);
             }
         }

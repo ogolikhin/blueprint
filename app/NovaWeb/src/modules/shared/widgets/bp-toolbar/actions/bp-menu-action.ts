@@ -41,7 +41,7 @@ export class BPButtonOrDropdownSeparator extends BPButtonOrDropdownAction {
     public separator: boolean = true;
 
     constructor() {
-        super();
+        super(undefined, () => false);
     }
 }
 
@@ -72,7 +72,9 @@ export class BPMenuAction implements IBPMenuAction {
     }
 
     public get disabled(): boolean {
-        return false;
+        let disabled: boolean = true;
+        this._actions.forEach((action) => disabled = disabled && action.disabled);
+        return disabled;
     }
 
     public get tooltip(): string {

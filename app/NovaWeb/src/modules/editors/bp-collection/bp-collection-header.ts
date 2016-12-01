@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
@@ -34,7 +34,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -51,7 +50,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                selectionManager: ISelectionManager,
                 analytics: IAnalyticsProvider) {
         super(
             $q,
@@ -67,7 +65,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            selectionManager,
             analytics
         );
     }
@@ -81,8 +78,18 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
+        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
+        const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
-        this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
+        // expanded toolbar
+        this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
+        // collapsed toolbar
+        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
+            if (this.collapsedToolbarActions[i].type === "menu") {
+                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
+                const dropdownSeparator = new BPButtonOrDropdownSeparator();
+                buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
+            }
+        }
     }
 }

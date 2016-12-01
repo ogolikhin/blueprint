@@ -1,16 +1,16 @@
 <div class='artifact-state'>
     <div class="page-content">
         <div class="page-heading">
-
-            <div class="artifact-heading">
-                <div class="artifact-heading-group1">
-                    <div class="artifact-heading-group2">
-                        <div class="name">Unpublished Changes</div>
+            <div class="responsive-header">
+                <div class="artifact-heading">
+                    <div class="artifact-heading-group1">
+                        <div class="artifact-heading-group2">
+                            <div class="name">Unpublished Changes</div>
+                        </div>
                     </div>
                 </div>
+                <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>
             </div>
-            <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>
-
         </div>
         <div class="page-body-wrapper">
             <div class="page-body">
@@ -24,7 +24,7 @@
                     <tr>
                         <th class="unpublished__checkbox-col">
                             <input type="checkbox"
-                                   ng-checked="$ctrl.unpublishedArtifacts.length === $ctrl.selectedArtifacts.length"
+                                   ng-checked="$ctrl.isGroupToggleChecked()"
                                    ng-click="$ctrl.toggleAll()" />
                         </th>
                         <th class="unpublished__id-col">ID</th>
@@ -32,7 +32,7 @@
                     </tr>
                     </thead>
                     <tbody class="unpublished__body">
-                    <tr ng-repeat="artifact in $ctrl.unpublishedArtifacts track by artifact.id"
+                    <tr ng-repeat="artifact in $ctrl.publishService.unpublishedArtifacts track by artifact.id"
                         ng-class="{'unpublished__row--selected': $ctrl.isSelected(artifact)}">
                         <td><input type="checkbox"
                                    ng-checked="$ctrl.isSelected(artifact)"
@@ -47,8 +47,10 @@
                         </td>
                         <td>{{::artifact.name}}</td>
                     </tr>
-                    <tr class="unpublished__empty" ng-if="!$ctrl.unpublishedArtifacts.length">
-                        <td colspan="3">{{::$ctrl.localization.get('Artifact_Glossary_Empty') }}</td>
+                    <tr class="unpublished__empty" ng-if="!$ctrl.publishService.unpublishedArtifacts.length">
+                        <td colspan="3">{{::$ctrl.localization.get('') }}
+                            No Unpublished Changes
+                        </td>
                     </tr>
                     </tbody>
                 </table>

@@ -12,7 +12,7 @@ export interface ISearchResultSet<T extends ISearchResult> {
 export interface ISearchResult {
     itemId: number;
     name?: string;
-    path?: string;
+    path?: string[];
     itemTypeIcon?: number;
 }
 

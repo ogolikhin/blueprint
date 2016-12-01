@@ -5,6 +5,9 @@
 export class WindowVisibility implements IWindowVisibility {
     private _isHidden: Rx.BehaviorSubject<boolean>;
 
+    private windowsHasFocus: boolean = true;
+    private tabIsHidden: boolean = false;
+
     // Make use of the Page Visibility API https://www.w3.org/TR/page-visibility/
     private documentHiddenProperty: string = "hidden";
 
@@ -22,24 +25,34 @@ export class WindowVisibility implements IWindowVisibility {
             document.addEventListener("msvisibilitychange", this.windowVisibilityHandler);
         } else if ("onfocusin" in document) { // IE 9-
             document["onfocusin"] = document["onfocusout"] = this.windowVisibilityHandler;
-        } else { // everything else
-            window.onpageshow
-                = window.onpagehide
-                = window.onfocus
-                = window.onblur
-                = this.windowVisibilityHandler;
         }
+
+        window.addEventListener("focus", this.windowFocusHandler);
+        window.addEventListener("blur", this.windowBlurHandler);
     };
 
     public dispose() {
         this._isHidden.dispose();
 
-        window.removeEventListener("visibilitychange", this.windowVisibilityHandler);
-        window.removeEventListener("mozvisibilitychange", this.windowVisibilityHandler);
-        window.removeEventListener("webkitvisibilitychange", this.windowVisibilityHandler);
-        window.removeEventListener("msvisibilitychange", this.windowVisibilityHandler);
-        window.removeEventListener("onfocusin", this.windowVisibilityHandler);
-        window.removeEventListener("onfocusout", this.windowVisibilityHandler);
+        document.removeEventListener("visibilitychange", this.windowVisibilityHandler);
+        document.removeEventListener("mozvisibilitychange", this.windowVisibilityHandler);
+        document.removeEventListener("webkitvisibilitychange", this.windowVisibilityHandler);
+        document.removeEventListener("msvisibilitychange", this.windowVisibilityHandler);
+        document.removeEventListener("onfocusin", this.windowVisibilityHandler);
+        document.removeEventListener("onfocusout", this.windowVisibilityHandler);
+
+        window.removeEventListener("focus", this.windowFocusHandler);
+        window.removeEventListener("blur", this.windowBlurHandler);
+    };
+
+    private windowFocusHandler = () => {
+        this.windowsHasFocus = true;
+        this.checkGlobalVisibility();
+    };
+
+    private windowBlurHandler = () => {
+        this.windowsHasFocus = false;
+        this.checkGlobalVisibility();
     };
 
     private windowVisibilityHandler = (evt: Event) => {
@@ -55,13 +68,18 @@ export class WindowVisibility implements IWindowVisibility {
 
         evt = evt || window.event;
         if (evt.type in eventMap) {
-            this._isHidden.onNext(eventMap[evt.type]);
+            this.tabIsHidden = eventMap[evt.type];
         } else {
-            this._isHidden.onNext(document[this.documentHiddenProperty]);
+            this.tabIsHidden = document[this.documentHiddenProperty];
         }
+        this.checkGlobalVisibility();
+    };
+
+    private checkGlobalVisibility = () => {
+        this._isHidden.onNext(this.windowsHasFocus || !this.tabIsHidden);
     };
 
     public get isHidden(): Rx.Observable<boolean> {
-        return this._isHidden.distinctUntilChanged().asObservable();
+        return this._isHidden.asObservable();
     };
 }

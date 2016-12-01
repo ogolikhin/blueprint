@@ -16,12 +16,16 @@ export {
     IDialogData,
     BaseDialogController,
     IBPAction,
+    IBPButtonOrDropdownAction,
     BPButtonAction,
     BPDropdownItemAction,
     BPDropdownAction,
     BPToggleItemAction,
     BPToggleAction,
-    BPButtonGroupAction
+    BPButtonGroupAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
+    BPMenuAction
 } from "./widgets"
 
 export {

@@ -997,6 +997,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move_C
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move', 'en-US', N'Move')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Copy', 'en-US', N'Copy')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Copy_Shapes', 'en-US', N'Copy Shapes')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Menu', 'en-US', N'Additional actions')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowMore', 'en-US', N'Show more')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowLess', 'en-US', N'Show less')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UtilityPanel_Discussions', 'en-US', N'Discussions')

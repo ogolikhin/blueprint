@@ -70,6 +70,7 @@ App_Toolbar_Move_Copy,"Move/Copy Artifact"
 App_Toolbar_Move,"Move"
 App_Toolbar_Copy,"Copy"
 App_Toolbar_Copy_Shapes, "Copy Shapes"
+App_Toolbar_Menu,"Additional actions"
 
 App_Collapsible_ShowMore, "Show more"
 App_Collapsible_ShowLess, "Show less"

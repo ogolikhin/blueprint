@@ -32,7 +32,7 @@
                     </tr>
                     </thead>
                     <tbody class="unpublished__body">
-                    <tr ng-repeat="artifact in $ctrl.unpublishedArtifacts track by artifact.id"
+                    <tr ng-repeat="artifact in $ctrl.publishService.unpublishedArtifacts track by artifact.id"
                         ng-class="{'unpublished__row--selected': $ctrl.isSelected(artifact)}">
                         <td><input type="checkbox"
                                    ng-checked="$ctrl.isSelected(artifact)"
@@ -47,7 +47,7 @@
                         </td>
                         <td>{{::artifact.name}}</td>
                     </tr>
-                    <tr class="unpublished__empty" ng-if="!$ctrl.unpublishedArtifacts.length">
+                    <tr class="unpublished__empty" ng-if="!$ctrl.publishService.unpublishedArtifacts.length">
                         <td colspan="3">{{::$ctrl.localization.get('') }}
                             No Unpublished Changes
                         </td>

@@ -8,6 +8,13 @@ export {
 } from "./bp-button-action";
 
 export {
+    IBPToggleItemAction,
+    IBPToggleAction,
+    BPToggleItemAction,
+    BPToggleAction
+} from "./bp-toggle-action";
+
+export {
     IBPDropdownItemAction,
     IBPDropdownAction,
     BPDropdownItemAction,
@@ -15,11 +22,12 @@ export {
 } from "./bp-dropdown-action";
 
 export {
-    IBPToggleItemAction,
-    IBPToggleAction,
-    BPToggleItemAction,
-    BPToggleAction
-} from "./bp-toggle-action";
+    IBPButtonOrDropdownAction,
+    IBPMenuAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
+    BPMenuAction
+} from "./bp-dots-menu-action";
 
 export {
     IBPButtonGroupAction,

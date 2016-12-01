@@ -597,7 +597,7 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
                 expectedNumberOfArtifactsCopied: 15, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
 
-            VerifyChildrenWereCopied(author, sourceArtifactDetails, copyResult.Artifact);
+            VerifyChildrenWereCopied(author, sourceArtifactDetails, copyResult.Artifact, skipSubArtifactTraces: true);
 
             AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact);
         }
@@ -1222,7 +1222,9 @@ namespace ArtifactStoreTests
         /// <param name="user">User to authenticate with.</param>
         /// <param name="sourceArtifact">The original source artifact.</param>
         /// <param name="copiedArtifact">The new copied artifact.</param>
-        private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact)
+        /// <param name="skipSubArtifactTraces">(optional) Pass true to skip comparison of the SubArtifact trace Relationships.</param>
+        private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
+            bool skipSubArtifactTraces = false)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
@@ -1239,7 +1241,7 @@ namespace ArtifactStoreTests
                 var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifact.Id, copiedSubArtifacts[i].Id);
 
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
-                    skipId: true, expectedParentId: copiedArtifact.Id);
+                    skipId: true, skipTraces: skipSubArtifactTraces, expectedParentId: copiedArtifact.Id);
             }
         }
 
@@ -1304,8 +1306,9 @@ namespace ArtifactStoreTests
         /// <param name="copiedArtifact">The copied artifact.</param>
         /// <param name="parentWasCopiedToChild">(optional) Pass true if the source artifact was copied to one of its children.</param>
         /// <param name="previousParentArtifact">(optional) Should only be used internally by this function to specify the parent from the previous recursive call.</param>
+        /// <param name="skipSubArtifactTraces">(optional) Pass true to skip comparison of the SubArtifact trace Relationships.</param>
         private void VerifyChildrenWereCopied(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
-            bool parentWasCopiedToChild = false, INovaArtifactBase previousParentArtifact = null)
+            bool parentWasCopiedToChild = false, INovaArtifactBase previousParentArtifact = null, bool skipSubArtifactTraces = false)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
@@ -1329,7 +1332,7 @@ namespace ArtifactStoreTests
                 var sourceChild = sourceChildren[i];
                 var copiedChild = copiedChildren[i];
 
-                AssertCopiedSubArtifactsAreEqualToOriginal(user, sourceChild, copiedChild);
+                AssertCopiedSubArtifactsAreEqualToOriginal(user, sourceChild, copiedChild, skipSubArtifactTraces: skipSubArtifactTraces);
 
                 sourceChild.AssertEquals(copiedChild,
                     skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipPublishedProperties: true);

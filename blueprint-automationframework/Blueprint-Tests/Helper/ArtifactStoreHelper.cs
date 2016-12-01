@@ -395,12 +395,13 @@ namespace Helper
         /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
         /// <param name="user">User to authenticate with.</param>
         /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
-        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
+        /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
         ///     should have the same ParentId.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            bool skipId = false, bool skipOrderIndex = false, int? expectedParentId = null)
+            bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false, int? expectedParentId = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -477,12 +478,15 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact?.DocRefValues.Count, actualSubArtifact?.DocRefValues.Count, "The number of Sub-Artifact Document References don't match!");
             Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
 
-            var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
-                expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
-            var actualRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
-                actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
+            if (!skipTraces)
+            {
+                var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
+                    expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
+                var actualRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
+                    actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
 
-            Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
+                Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
+            }
 
             //TODO: Add assertions for Doc References
         }
@@ -497,9 +501,22 @@ namespace Helper
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
 
-            Assert.IsNotNull(expectedProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
-            Assert.IsNotNull(actualProperty.PrimitiveType, "The primitive type for the second custom property was not present!");
-            Assert.AreEqual(expectedProperty.PrimitiveType, actualProperty.PrimitiveType, "PrimitiveType properties don't match!");
+            Assert.AreEqual(expectedProperty.IsMultipleAllowed, actualProperty.IsMultipleAllowed, "The IsMultipleAllowed properties don't match!");
+            Assert.AreEqual(expectedProperty.IsReuseReadOnly, actualProperty.IsReuseReadOnly, "The IsReuseReadOnly properties don't match!");
+            Assert.AreEqual(expectedProperty.IsRichText, actualProperty.IsRichText, "The IsRichText properties don't match!");
+            Assert.AreEqual(expectedProperty.Name, actualProperty.Name, "The Name properties don't match!");
+            Assert.AreEqual(expectedProperty.PrimitiveType, actualProperty.PrimitiveType, "The PrimitiveType properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyType, actualProperty.PropertyType, "The PropertyType properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyTypeId, actualProperty.PropertyTypeId, "The PropertyTypeId properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyTypeVersionId, actualProperty.PropertyTypeVersionId, "The PropertyTypeVersionId properties don't match!");
+
+            if (expectedProperty.PrimitiveType == null)
+            {
+                string expectedPropertyString = expectedProperty?.CustomPropertyValue?.ToString();
+                string actualPropertyString = actualProperty?.CustomPropertyValue?.ToString();
+                Assert.AreEqual(expectedPropertyString, actualPropertyString, "The CustomPropertyValues don't match!");
+                return;
+            }
 
             var primitiveType = (PropertyPrimitiveType)expectedProperty.PrimitiveType;
 
@@ -510,79 +527,104 @@ namespace Helper
                     Assert.AreEqual(expectedProperty.CustomPropertyValue, actualProperty.CustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
                     break;
 
-                //TODO:  Investigate if the DateTimeUtility can be applied to both properties
                 case PropertyPrimitiveType.Date:
-                    var secondCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime((DateTime)actualProperty.CustomPropertyValue);
-                    Assert.AreEqual(expectedProperty.CustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
-                    break;
+                    DateTime firstCustomPropertyValue;
+                    DateTime secondCustomPropertyValue;
 
-                //TODO: Investigate if the JsonConvert could be done for both
-                case PropertyPrimitiveType.Choice:
-                    var validValues1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).ValidValues;
-                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).ValidValues;
-
-                    Assert.AreEqual(validValues1.Count, validValues2.Count, "The custom {0} property counts are not equal.", primitiveType);
-
-                    for (int i = 0; i < validValues1.Count; i++)
+                    if (expectedProperty.CustomPropertyValue is DateTime)
                     {
-                        var choiceValue1 = validValues1[i];
-                        var choiceValue2 = validValues2[i];
-
-                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
-                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.", primitiveType);
+                        firstCustomPropertyValue = (DateTime)expectedProperty.CustomPropertyValue;
+                    }
+                    else
+                    {
+                        firstCustomPropertyValue = DateTime.Parse(Deserialization.CastOrDeserialize<string>(expectedProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
                     }
 
-                    if (!string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue))
+                    if (actualProperty.CustomPropertyValue is DateTime)
                     {
-                        var customValue1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue;
-                        var customValue2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue;
+                        secondCustomPropertyValue = (DateTime)actualProperty.CustomPropertyValue;
+                    }
+                    else
+                    {
+                        secondCustomPropertyValue = DateTime.Parse(Deserialization.CastOrDeserialize<string>(actualProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
+                    }
+
+                    Assert.AreEqual(firstCustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    break;
+
+                case PropertyPrimitiveType.Choice:
+                {
+                    var expectedCustomProperty = Deserialization.CastOrDeserialize<ChoiceValues>(expectedProperty.CustomPropertyValue);
+                    var actualCustomProperty = Deserialization.CastOrDeserialize<ChoiceValues>(actualProperty.CustomPropertyValue);
+
+                    Assert.AreEqual(expectedCustomProperty.ValidValues.Count, actualCustomProperty.ValidValues.Count,
+                        "The custom {0} property counts are not equal.", primitiveType);
+
+                    for (int i = 0; i < expectedCustomProperty.ValidValues.Count; i++)
+                    {
+                        var choiceValue1 = expectedCustomProperty.ValidValues[i];
+                        var choiceValue2 = actualCustomProperty.ValidValues[i];
+
+                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
+                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.",
+                            primitiveType);
+                    }
+
+                    if (!string.IsNullOrEmpty(expectedCustomProperty.CustomValue))
+                    {
+                        var customValue1 = actualCustomProperty.CustomValue;
+                        var customValue2 = actualCustomProperty.CustomValue;
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property CustomValues are not equal.", primitiveType);
                     }
-                    else if (string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue) &&
-                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue))
+                    else if (string.IsNullOrEmpty(expectedCustomProperty.CustomValue) &&
+                             !string.IsNullOrEmpty(actualCustomProperty.CustomValue))
                     {
                         Assert.Fail("The custom {0} property CustomValue was null for the expected property but the CustomValue " +
                                     "for the actual property was not null.", primitiveType);
                     }
 
                     break;
-
+                }
                 case PropertyPrimitiveType.User:
-                    var userGroups1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).UsersGroups;
-                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).UsersGroups;
+                {
+                    var expectedCustomProperty = Deserialization.CastOrDeserialize<UserGroupValues>(expectedProperty.CustomPropertyValue);
+                    var actualCustomProperty = Deserialization.CastOrDeserialize<UserGroupValues>(actualProperty.CustomPropertyValue);
 
-                    Assert.AreEqual(userGroups1.Count, userGroups2.Count, "The custom {0} property counts are not equal.", primitiveType);
+                    Assert.AreEqual(expectedCustomProperty.UsersGroups.Count, actualCustomProperty.UsersGroups.Count,
+                        "The custom {0} property counts are not equal.", primitiveType);
 
-                    for (int i = 0; i < userGroups1.Count; i++)
+                    for (int i = 0; i < expectedCustomProperty.UsersGroups.Count; i++)
                     {
-                        var userGroupValue1 = userGroups1[i];
-                        var userGroupValue2 = userGroups2[i];
+                        var userGroupValue1 = expectedCustomProperty.UsersGroups[i];
+                        var userGroupValue2 = actualCustomProperty.UsersGroups[i];
 
                         Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
-                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName, "The custom {0} Display Names are not equal.", primitiveType);
+                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName,
+                            "The custom {0} Display Names are not equal.", primitiveType);
 
                         if ((userGroupValue1.IsGroup != null) || (userGroupValue2.IsGroup != null))
                         {
-                            Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup, "The custom {0} property IsGroup flags are not equal.", primitiveType);
+                            Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup,
+                                "The custom {0} property IsGroup flags are not equal.", primitiveType);
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label))
+                    if (!string.IsNullOrEmpty(expectedCustomProperty.Label))
                     {
-                        var customValue1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).Label;
-                        var customValue2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label;
+                        var customValue1 = expectedCustomProperty.Label;
+                        var customValue2 = actualCustomProperty.Label;
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property Labels are not equal.", primitiveType);
                     }
-                    else if (string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label) &&
-                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label))
+                    else if (string.IsNullOrEmpty(expectedCustomProperty.Label) &&
+                             !string.IsNullOrEmpty(actualCustomProperty.Label))
                     {
                         Assert.Fail("The custom {0} property Label was null for the expected property but the Label " +
                                     "for the actual property was not null.", primitiveType);
                     }
                     break;
-
+                }
                 default:
                     throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType.ToString()));
             }

@@ -405,7 +405,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
-            Assert.IsNull(results.Items[0].Path, "Path should be null when IncludeArtifactPath is false");
+            Assert.AreEqual(0, results.Items[0].Path.Count, "Path should be empty when IncludeArtifactPath is false");
         }
 
         [TestCase]

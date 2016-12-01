@@ -11,7 +11,6 @@ using Utilities;
 namespace SearchServiceTests
 {
     [TestFixture]
-    [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ZJgWmElf project search returns 500 error
     [Category(Categories.SearchService)]
     public class ProjectSearchTests : TestBase
     {
@@ -49,6 +48,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ZJgWmElf project search returns 500 error
         [TestRail(182423)]
         [Description("Search project, user has admin privilege, check that search result contains one project.")]
         public void SearchProject_UserAdminAccess_ReturnsCorrectProjects()
@@ -90,6 +90,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ZJgWmElf project search returns 500 error
         [TestRail(182450)]
         [Description("Search project, uuser has viewer access to the project, check that search result contains at least one project.")]
         public void SearchProject_UserHasAuthorAccess_ReturnsCorrectProjects()
@@ -113,6 +114,7 @@ namespace SearchServiceTests
         }
 
         [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ZJgWmElf project search returns 500 error
         [TestRail(182451)]
         [Description("Search project, user has viewer access to the project, check that search result contains at least one project.")]
         public void SearchProjectByFullName_UserHasAuthorAccess_ReturnsCorrectProjects()

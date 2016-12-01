@@ -20,6 +20,9 @@ export interface IDialogSettings {
     controller?: any;
     css?: string;
     backdrop?: boolean;
+    controllerAs?: string;
+    bindToController?: boolean;
+    windowClass?: string;
 }
 
 export interface IDialogService {
@@ -42,30 +45,27 @@ export class DialogService implements IDialogService {
             cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
             okButton: this.localization.get("App_Button_Ok", "Ok"),
             template: require("./bp-dialog.html"),
-            controller: BaseDialogController
+            controller: BaseDialogController,
+            controllerAs: "$ctrl",
+            bindToController: true,
+            windowClass: "nova-messaging",
+            backdrop: false
         };
-    }
-
-    private initialize(dialogSettings: IDialogSettings) {
-        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
-        /*fixme: things that are constant here should be set on the default controller*/
-        /*fixme: should not have || properties. should set default and then override if provided*/
-        const dialogSettings = <ng.ui.bootstrap.IModalSettings>{
-            template: this.dialogSettings.template,
-            controller: this.dialogSettings.controller,
-            controllerAs: "$ctrl",
-            bindToController: true,
-            windowClass: this.dialogSettings.css || "nova-messaging",
-            backdrop: this.dialogSettings.backdrop || false,
-            resolve: {
-                dialogSettings: () => this.dialogSettings,
-                dialogData: () => this.dialogData
-            }
-        };
-        return this.$uibModal.open(_.assign({}, dialogSettings, optsettings));
+        const options = _.assign(
+            this.dialogSettings,
+            optsettings,
+            <ng.ui.bootstrap.IModalSettings>{
+                windowClass: this.dialogSettings.css,
+                resolve: {
+                    dialogSettings: () => this.dialogSettings,
+                    dialogData: () => this.dialogData
+                }
+            });
+
+        return this.$uibModal.open(options);
     };
 
     public get type(): DialogTypeEnum {
@@ -73,8 +73,10 @@ export class DialogService implements IDialogService {
     }
 
     public open(dialogSettings?: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any> {
-        this.initialize(dialogSettings || this.dialogSettings);
-        this.dialogData = dialogData || {};
+        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        if (dialogData) {
+            this.dialogData = dialogData;
+        }
         return this.openInternal().result;
     }
 
@@ -85,24 +87,26 @@ export class DialogService implements IDialogService {
             message: this.localization.get(message) || message,
             cancelButton: this.localization.get(cancelButton) || cancelButton || null, //Don't show cancel button if not defined
             css: "modal-alert nova-messaging"
-        };
+        }  as IDialogSettings;
         if (okButton) {
             //We only want to set the okButton if it's specified, otherwise use the initialize default.
-            dialogSettings["okButton"] = this.localization.get(okButton) || okButton;
+            dialogSettings.okButton = this.localization.get(okButton) || okButton;
         }
-        this.initialize(dialogSettings);
+        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
             keyboard: false
         }).result;
     }
 
     public confirm(message: string, header?: string, css?: string) {
-        this.initialize({
+        const dialogSettings = {
             type: DialogTypeEnum.Confirm,
             header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Confirmation"),
             css: css,
             message: this.localization.get(message) || message
-        } as IDialogSettings);
+        } as IDialogSettings;
+        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+
         return this.openInternal().result;
     }
 }

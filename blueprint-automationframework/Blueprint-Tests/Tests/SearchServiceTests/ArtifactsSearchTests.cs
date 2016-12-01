@@ -137,10 +137,8 @@ namespace SearchServiceTests
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, _firstProject.Id);
             ItemSearchResult results = null;
 
-            string separatorString = " > ";
-
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: separatorString); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -319,20 +317,18 @@ namespace SearchServiceTests
             searchCriteria.IncludeArtifactPath = true;
             ItemSearchResult results = null;
 
-            string separatorString = " > ";
-            string expectedPath = string.Concat(_firstProject.Name, separatorString, parentFolder.Name, separatorString,
-                parentArtifact.Name);
+            List<string> expectedPath = new List<string> { _firstProject.Name, parentFolder.Name, parentArtifact.Name };
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria,
-                separatorString: separatorString); }, "SearchItems should throw no errors.");
+                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
+                "SearchItems should throw no errors.");
 
             // Verify:
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
-            StringAssert.AreEqualIgnoringCase(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
+            Assert.AreEqual(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
         }
 
         [TestCase]
@@ -409,7 +405,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
-            Assert.IsNull(results.Items[0].Path, "Path should be null when IncludeArtifactPath is false");
+            Assert.AreEqual(0, results.Items[0].Path.Count, "Path should be empty when IncludeArtifactPath is false");
         }
 
         [TestCase]

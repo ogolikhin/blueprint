@@ -83,14 +83,18 @@ namespace Model.ArtifactModel.Impl
         public int PrimitiveItemTypePredefined { get; set; }
     }
 
+    // Found in:  blueprint/svc/ArtifactStore/Models/RelationshipResultSet.cs  as ItemIdItemNameParentId
     public class TracePathItem
     {
-        public int? ItemId { get; set; }
+        public int ItemId { get; set; }
+        public int VersionProjectId { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends ParentId, even if it's null.
         public int? ParentId { get; set; }
-        public string ItemName { get; set; }
+        public string Name { get; set; }
+        public int ItemTypeId { get; set; }
     }
 
+    // Found in:  blueprint/svc/ArtifactStore/Models/RelationshipResultSet.cs  as RelationshipExtendedInfo
     public class TraceDetails
     {
         public int ArtifactId { get; set; }

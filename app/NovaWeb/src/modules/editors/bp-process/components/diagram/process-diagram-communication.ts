@@ -140,7 +140,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     public action(event: ProcessEvents, eventPayload?: any) {
         switch (event) {
             case ProcessEvents.DeleteShape: {
-                    this.setClickDeleteSubject.notify(true);
+                    this.setClickDeleteSubject.notify(eventPayload);
                 }
                 break;
 

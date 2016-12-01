@@ -532,25 +532,21 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    private deleteShape = () => {
-        let selectedNodes = this.getSelectedNodes();
-        if (selectedNodes.length > 0) {
-            let selectedNode: IDiagramNode = selectedNodes[0];
-            let dialogParameters = selectedNode.getDeleteDialogParameters();
-            this.dialogService.open(<IDialogSettings>{
-                okButton: this.localization.get("App_Button_Ok"),
-                template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
-                header: this.localization.get("App_DialogTitle_Alert"),
-                message: dialogParameters.message
-            }).then(() => {
-                if (selectedNode.getNodeType() === NodeType.UserTask) {
-                    ProcessDeleteHelper.deleteUserTask(selectedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-                } else if (selectedNode.getNodeType() === NodeType.UserDecision || selectedNode.getNodeType() === NodeType.SystemDecision) {
-                    ProcessDeleteHelper.deleteDecision(selectedNode.model.id,
-                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
-                }
-            });
-        }
+    private deleteShape = (clickedNode: IDiagramNode) => {
+        const dialogParameters = clickedNode.getDeleteDialogParameters();
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok"),
+            template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
+            header: this.localization.get("App_DialogTitle_Alert"),
+            message: dialogParameters.message
+        }).then(() => {
+            if (clickedNode.getNodeType() === NodeType.UserTask) {
+                ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+            } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
+                ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
+                    (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+            }
+        });
     };
 
     private hasMaxConditions(decisionId: number): boolean {
@@ -935,7 +931,7 @@ export class ProcessGraph implements IProcessGraph {
         this.viewModel.hasSelection = validSelection;
     }
 
-    private highlightNodeEdges(nodes: Array<IDiagramNode>) {
+    private highlightNodeEdges(nodes: IDiagramNode[]) {
         this.clearHighlightEdges();
         _.each(nodes, (node) => {
             let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());

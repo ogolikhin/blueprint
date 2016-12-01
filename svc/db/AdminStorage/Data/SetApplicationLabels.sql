@@ -49,7 +49,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Left',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Right', 'en-US', N'Utility Panel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_EmptyMessage', 'en-US', N'You have no projects loaded in the Explorer')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonLabel', 'en-US', N'Load project')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonTooltip', 'en-US', N'Loads project in Explorer Window')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonTooltip', 'en-US', N'Load project in Explorer')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open', 'en-US', N'Open Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Name', 'en-US', N'Name')

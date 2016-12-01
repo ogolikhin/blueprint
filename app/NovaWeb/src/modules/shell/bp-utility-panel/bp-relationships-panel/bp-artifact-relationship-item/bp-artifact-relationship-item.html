@@ -51,7 +51,7 @@
                     <div ng-if="!$ctrl.fromOtherProject" class="left-arrow"></div>
                     <ul class="wrappable-breadcrumbs">
                         <li ng-repeat="pathLink in $ctrl.relationshipExtendedInfo.pathToProject track by pathLink.itemId">
-                            <a ng-click="$ctrl.navigateToArtifact(pathLink.itemId)">{{::pathLink.itemName}}</a>
+                            <a ng-click="$ctrl.navigateToArtifact(pathLink.itemId)">{{::pathLink.name}}</a>
                         </li>
                     </ul>
 

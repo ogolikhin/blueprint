@@ -430,45 +430,6 @@ namespace ArtifactStoreTests
 
         #region 400 Bad Request tests
 
-        [TestCase(2, BaseArtifactType.Actor)]
-        [TestRail(166139)]
-        [Description("Create & publish some artiacts.  Discard the published artifacts.  Verify it returns 400 Bad Request with 'nothing to discard' message.")]
-        public void DiscardArtifacts_DiscardPublishedArtifactsWithNoChildren_400BadRequest(int numberOfArtifacts, BaseArtifactType artifactType)
-        {
-            // Setup:
-            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
-
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
-                "We should get a 400 BadRequest when a user trying to discard published artifact(s) which has nothing to discard!");
-
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed,
-                I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", publishedArtifacts[0].Id));
-        }
-
-        [TestCase(2, BaseArtifactType.Actor)]
-        [TestRail(166141)]
-        [Description("Set mixed list of saved and published artifacts.  Discard the artifacts.  Verify it returns 400 Bad Request with 'nothing to discard' message.")]
-        public void DiscardArtifacts_DiscardMixedListOfSavedPublishedArtifacts_400BadReques(int numberOfArtifacts, BaseArtifactType artifactType)
-        {
-            // Setup:
-            List<IArtifactBase> savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
-
-            List<IArtifactBase> publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
-
-            List<IArtifactBase> mixedArtifacts = new List<IArtifactBase>();
-            mixedArtifacts.AddRange(savedArtifacts);
-            mixedArtifacts.AddRange(publishedArtifacts);
-
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user),
-                "We should get a 400 BadRequest when a user trying to discard published artifact(s) which has nothing to discard!");
-
-            // Validation: Exception should contain expected message.
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, 
-                I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", mixedArtifacts[2].Id));
-        }
-
         [TestCase]
         [TestRail(166145)]
         [Description("Send empty list of artifacts and Discard, checks returned result is 400 Bad Request.")]
@@ -557,6 +518,45 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
+
+        [TestCase(2, BaseArtifactType.Actor)]
+        [TestRail(166139)]
+        [Description("Create & publish some artiacts.  Discard the published artifacts.  Verify it returns 409 Conflict with 'nothing to discard' message.")]
+        public void DiscardArtifacts_DiscardPublishedArtifactsWithNoChildren_409Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
+                "We should get a 409 Conflict when a user trying to discard published artifact(s) which has nothing to discard!");
+
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscard,
+                I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", publishedArtifacts[0].Id));
+        }
+
+        [TestCase(2, BaseArtifactType.Actor)]
+        [TestRail(166141)]
+        [Description("Set mixed list of saved and published artifacts.  Discard the artifacts.  Verify it returns 409 Conflict with 'nothing to discard' message.")]
+        public void DiscardArtifacts_DiscardMixedListOfSavedPublishedArtifacts_409Conflict(int numberOfArtifacts, BaseArtifactType artifactType)
+        {
+            // Setup:
+            List<IArtifactBase> savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            List<IArtifactBase> publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts);
+
+            List<IArtifactBase> mixedArtifacts = new List<IArtifactBase>();
+            mixedArtifacts.AddRange(savedArtifacts);
+            mixedArtifacts.AddRange(publishedArtifacts);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(mixedArtifacts, _user),
+                "We should get a 409 Conflict when a user trying to discard published artifact(s) which has nothing to discard!");
+
+            // Validation: Exception should contain expected message.
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscard,
+                I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", mixedArtifacts[2].Id));
+        }
 
         [TestCase(BaseArtifactType.Process, BaseArtifactType.TextualRequirement, BaseArtifactType.Glossary, BaseArtifactType.UseCase)]
         [TestRail(166158)]
@@ -660,6 +660,7 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default _user is used.</param>
         private void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse,
             List<IArtifactBase> artifactsTodiscard, 
             IUser user = null)

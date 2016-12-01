@@ -6,7 +6,7 @@
                          disabled="$ctrl.action.disabled" label="{{$ctrl.action.label}}"
                          tooltip="{{$ctrl.action.tooltip}}"></bp-toolbar-dropdown>
     <bp-toolbar-menu ng-switch-when="menu" actions="$ctrl.action.actions" icon="{{$ctrl.action.icon}}"
-                          tooltip="{{$ctrl.action.tooltip}}"></bp-toolbar-menu>
+                     disabled="$ctrl.action.disabled" tooltip="{{$ctrl.action.tooltip}}"></bp-toolbar-menu>
     <bp-toolbar-toggle ng-switch-when="toggle" actions="$ctrl.action.actions" current-value="$ctrl.action.currentValue"
                        disabled="$ctrl.action.disabled"></bp-toolbar-toggle>
     <bp-toolbar-button-group ng-switch-when="buttongroup" actions="$ctrl.action.actions"></bp-toolbar-button-group>

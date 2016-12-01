@@ -349,8 +349,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 searchResults = this.projectService.searchItemNames(searchCriteria, 0, maxSearchResults + 1, this.canceller.promise)
                     .then(result => result.items.map(r => {
                         r.artifactPath = r.path;
-                        return new ArtifactSearchResultVM(r, this.onSelect, this.isItemSelectable, this.selectableItemTypes);
-                    }, this.project));
+                        return new ArtifactSearchResultVM(r, this.onSelect, this.isItemSelectable, this.selectableItemTypes, this.project);
+                    }));
             } else {
                 const searchCriteria: SearchServiceModels.ISearchCriteria = {
                     query: this.searchText

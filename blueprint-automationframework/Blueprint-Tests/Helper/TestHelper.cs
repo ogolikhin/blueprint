@@ -111,29 +111,6 @@ namespace Helper
         #region Artifact Management
 
         /// <summary>
-        /// Creates an actor artifact and adds it to a task as a persona reference
-        /// </summary>
-        /// <param name="taskName">The name of the task that will contain the persona reference.</param>
-        /// <param name="process">The process containing the task </param>
-        /// <param name="user">The user that will create the actor artifact.</param>
-        /// <param name="project">The project containing the actor artifact.</param>
-        /// <returns>The created persona reference</returns>
-        public ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user, IProject project)
-        {
-            // Create actor for persona reference
-            var actor = CreateAndPublishArtifact(project, user, BaseArtifactType.Actor);
-
-            Storyteller.Artifacts.Add(actor);
-
-            var actorDetails = ArtifactStore.GetArtifactDetails(user, actor.Id);
-
-            // Add persona reference to default user task
-            var task = process.GetProcessShapeByShapeName(taskName);
-
-            return task.AddPersonaReference(actorDetails);
-        }
-
-        /// <summary>
         /// Create an Open API artifact object and populate required attribute values with ArtifactTypeId, ArtifactTypeName, and ProjectId based the target project
         /// </summary>
         /// <param name="address">address for Blueprint application server</param>

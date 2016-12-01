@@ -22,7 +22,7 @@ bp-properties-panel {
     }
     .properties {
         min-width: 100%;
-        border: 0;
+        border: none;
     }
 
     .tab-content {
@@ -32,7 +32,7 @@ bp-properties-panel {
     .artifact-overview {
 
         > .content {
-            border: 0;
+            border: none;
             padding: 0 0 10px;
         }
     }

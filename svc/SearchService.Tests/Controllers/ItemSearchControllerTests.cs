@@ -225,7 +225,7 @@ namespace SearchService.Controllers
             var controller = CreateController(1);
 
             // Act
-            var result = await controller.SearchName(searchCriteria, startOffset, pageSize, "");
+            var result = await controller.SearchName(searchCriteria, startOffset, pageSize);
 
             // Assert
             Assert.IsNotNull(result);
@@ -340,7 +340,7 @@ namespace SearchService.Controllers
                     ProjectId = 1
                 });
             }
-            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
+            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(new ItemNameSearchResultSet { Items = itemNameSearchResult, PageItemCount = itemNameSearchResult.Count });
 
             var configuration = new Mock<ISearchConfiguration>();

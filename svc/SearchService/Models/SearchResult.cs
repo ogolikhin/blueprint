@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace SearchService.Models
 {
@@ -10,6 +11,6 @@ namespace SearchService.Models
         public string Name { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Path { get; set; }
+        public IEnumerable<string> Path { get; set; }
     }
 }

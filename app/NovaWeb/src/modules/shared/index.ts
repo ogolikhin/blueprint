@@ -16,6 +16,7 @@ export {
     IDialogData,
     BaseDialogController,
     IBPAction,
+    IBPDropdownAction,
     IBPButtonOrDropdownAction,
     BPButtonAction,
     BPDropdownItemAction,

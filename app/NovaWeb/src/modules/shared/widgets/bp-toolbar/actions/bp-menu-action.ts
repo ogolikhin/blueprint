@@ -48,6 +48,7 @@ export class BPButtonOrDropdownSeparator extends BPButtonOrDropdownAction {
 export interface IBPMenuAction extends IBPAction {
     icon: string;
     actions: IBPButtonOrDropdownAction[];
+    disabled?: boolean;
     tooltip?: string;
 }
 
@@ -68,6 +69,10 @@ export class BPMenuAction implements IBPMenuAction {
 
     public get actions(): IBPButtonOrDropdownAction[] {
         return this._actions;
+    }
+
+    public get disabled(): boolean {
+        return false;
     }
 
     public get tooltip(): string {

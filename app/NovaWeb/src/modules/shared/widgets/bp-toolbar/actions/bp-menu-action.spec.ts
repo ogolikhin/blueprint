@@ -1,4 +1,4 @@
-import {BPMenuAction, BPButtonOrDropdownAction} from "./bp-dots-menu-action";
+import {BPMenuAction, BPButtonOrDropdownAction} from "./bp-menu-action";
 
 describe("BPButtonOrDropdownAction", () => {
     it("initializes properties and methods successfully", () => {

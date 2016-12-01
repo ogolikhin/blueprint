@@ -63,7 +63,7 @@ export class BPMenuAction implements IBPMenuAction {
     }
 
     public get icon(): string {
-        return "fonticon2-navigation";
+        return "fonticon2-more-menu";
     }
 
     public get actions(): IBPButtonOrDropdownAction[] {

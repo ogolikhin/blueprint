@@ -83,14 +83,14 @@ export class DialogService implements IDialogService {
     public alert(message: string, header?: string, okButton?: string, cancelButton?: string) {
         const dialogSettings = <IDialogSettings>{
             type: DialogTypeEnum.Alert,
-            header:  header || "App_DialogTitle_Alert",
+            header: header || "App_DialogTitle_Alert",
             message: message,
             cancelButton: cancelButton || null, //Don't show cancel button if not defined
             css: "modal-alert nova-messaging"
         }  as IDialogSettings;
         if (okButton) {
             //We only want to set the okButton if it's specified, otherwise use the initialize default.
-            dialogSettings["okButton"] = okButton;
+            dialogSettings.okButton = okButton;
         }
         this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{

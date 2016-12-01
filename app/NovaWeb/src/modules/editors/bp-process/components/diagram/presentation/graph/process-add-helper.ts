@@ -1,8 +1,13 @@
 import {
-    IDiagramNode, IProcessShape, ISystemTaskShape,
-    NodeChange, ProcessShapeType, IProcessLink, IUserTaskShape
+    IDiagramNode,
+    IProcessShape,
+    ISystemTaskShape,
+    NodeChange,
+    ProcessShapeType,
+    IProcessLink,
+    IUserTaskShape,
+    ILayout
 } from "./models/";
-import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
@@ -63,14 +68,14 @@ export class ProcessAddHelper {
     }
 
     public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
-        
+
         layout.setTempShapeId(layout.getTempShapeId() - 1);
 
         // update clone task with current process's information.
         _userTaskShape.parentId = layout.viewModel.id;
         _userTaskShape.projectId = layout.viewModel.projectId;
         _userTaskShape.id = layout.getTempShapeId();
-        
+
         ProcessAddHelper.addShape(_userTaskShape, layout, shapesFactoryService);
 
         return _userTaskShape.id;
@@ -100,10 +105,10 @@ export class ProcessAddHelper {
             layout.getTempShapeId(), -1, -1);
 
         // COPY PROPERTIES
-        systemTaskShape.name = _systemTaskShape.name; 
-        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference); 
-        systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues); 
-            
+        systemTaskShape.name = _systemTaskShape.name;
+        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference);
+        systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues);
+
         ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
         layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 

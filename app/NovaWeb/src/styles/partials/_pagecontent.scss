@@ -4,12 +4,12 @@ $page-body-min-width: 386px;
     padding: 30px 10px;
     text-align: center;
     display: flex;
-    height:100%;
+    height: 100%;
     align-items: center;
     justify-content: center;
 }
 
-.explorer-empty-state-text{
+.explorer-empty-state-text {
     font-size: $font-size-big;
     color: $gray-darker;
 }

@@ -5,7 +5,7 @@ import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
 import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
 import {IDialogService} from "../../shared";
 import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
-import {ISelection, IStatefulArtifactFactory, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IStatefulArtifactFactory, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {IStatefulProcessSubArtifact} from "./process-subartifact";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";

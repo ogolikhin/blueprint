@@ -33,7 +33,6 @@ import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 export class BpArtifactInfo implements ng.IComponentOptions {

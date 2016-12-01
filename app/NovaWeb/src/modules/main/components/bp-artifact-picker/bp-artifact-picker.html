@@ -75,7 +75,8 @@
                             {{::searchResult.id}} <span
                             ng-bind-html="::searchResult.model.name | bpEscapeAndHighlight:$ctrl.searchText"></span>
                         </div>
-                        <div bp-tooltip="{{::$ctrl.getArtifactTextPath(searchResult.model.path)}}" bp-tooltip-truncated="true">
+                        <div bp-tooltip="{{::$ctrl.getArtifactTextPath(searchResult.model.path)}}"
+                             bp-tooltip-truncated="true">
                             Path: {{::$ctrl.getArtifactTextPath(searchResult.model.path)}}
                         </div>
                     </div>

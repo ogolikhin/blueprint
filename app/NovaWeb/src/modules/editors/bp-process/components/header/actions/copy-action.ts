@@ -1,10 +1,6 @@
 import {BPButtonAction} from "../../../../../shared";
-import {IStatefulArtifact} from "../../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../../../main/models/enums";
-import {IMessageService} from "../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {ProcessType} from "../../../models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
 
 export class CopyAction extends BPButtonAction {
@@ -29,7 +25,7 @@ export class CopyAction extends BPButtonAction {
         }
         super(
             (): void => {
-          
+
                 if (process.hasSelection) {
                     toolbarCommunication.copySelection();
                 }
@@ -46,5 +42,5 @@ export class CopyAction extends BPButtonAction {
             localization.get("App_Toolbar_Copy_Shapes")
         );
     }
-    
+
 }

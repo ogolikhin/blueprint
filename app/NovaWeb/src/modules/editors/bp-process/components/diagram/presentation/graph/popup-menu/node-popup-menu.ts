@@ -1,6 +1,4 @@
-﻿import {IDiagramNode} from "../models/";
-import {IDiagramLink, IDiagramNodeElement} from "../models/";
-import {NodeType, ILayout} from "../models/";
+﻿import {IDiagramNode, IDiagramLink, IDiagramNodeElement, NodeType, ILayout} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILocalizationService} from "../../../../../../../core/localization/localizationService";
 import {IClipboardService, IClipboardData, ClipboardDataType} from "../../../../../services/clipboard.svc";
@@ -157,7 +155,7 @@ export class NodePopupMenu {
                         }
                     });
                 }
-                
+
             }
 
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
@@ -234,11 +232,11 @@ export class NodePopupMenu {
     }
 
     private clipboardHasProcessData(): boolean {
-        let hasData: boolean = false; 
+        let hasData: boolean = false;
         if (this.clipboard) {
             let clipboardData: IClipboardData = this.clipboard.getData();
-            if (clipboardData && 
-                clipboardData.data && 
+            if (clipboardData &&
+                clipboardData.data &&
                 clipboardData.type === ClipboardDataType.Process) {
                 hasData = true;
             }

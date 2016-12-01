@@ -1,6 +1,6 @@
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -14,7 +14,6 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 
 export class BpProcessHeader implements ng.IComponentOptions {

@@ -5,7 +5,9 @@
     <ul uib-dropdown-menu class="dropdown-menu dropdown-menu-right">
         <li ng-repeat="action in $ctrl.actions track by $index" ng-if="!action.disabled || action.separator"
             ng-class="{'toolbar-menu__separator': action.separator, 'toolbar-menu__item': !action.separator}">
-            <a ng-if="!action.separator" ng-click="action.execute()"><span ng-if="action.icon" ng-class="action.icon"></span> {{action.label || action.tooltip}}</a>
+            <a ng-if="!action.separator" ng-click="action.execute()"><span ng-if="action.icon"
+                                                                           ng-class="action.icon"></span> {{action.label
+                || action.tooltip}}</a>
         </li>
     </ul>
 </div>

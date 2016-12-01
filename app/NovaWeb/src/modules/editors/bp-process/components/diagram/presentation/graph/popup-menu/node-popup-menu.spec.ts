@@ -87,7 +87,7 @@ describe("Popup Menu", () => {
         clipboard.setData(new ProcessClipboardData(clipboardData));
 
         spyOn(menu, "addItem");
-        
+
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         expect(menu.addItem["calls"].count()).toEqual(3);

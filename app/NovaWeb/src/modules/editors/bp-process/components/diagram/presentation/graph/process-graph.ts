@@ -1,9 +1,26 @@
-﻿import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
-import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
-import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
-import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
-import {SourcesAndDestinations, ProcessShapeType, NodeType, NodeChange} from "./models/";
-import {ISelectionListener} from "./models/";
+﻿import {
+    IProcessGraph,
+    ILayout,
+    INotifyModelChanged,
+    IConditionContext,
+    ICondition,
+    IScopeContext,
+    IStopTraversalCondition,
+    IUserStory,
+    IUserTask,
+    INextIdsProvider,
+    IOverlayHandler,
+    IShapeInformation,
+    IDiagramNode,
+    IDiagramNodeElement,
+    IProcessShape,
+    IProcessLink,
+    SourcesAndDestinations,
+    ProcessShapeType,
+    NodeType,
+    NodeChange,
+    ISelectionListener
+} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -101,7 +118,7 @@ export class ProcessGraph implements IProcessGraph {
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
     }
-    
+
     private isCellSelectable = (cell: MxCell) => {
         if (cell instanceof DiagramNode) {
             return cell.isVertex();
@@ -120,7 +137,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private addSelectionEventHandlers() {
-        // highlight edges for selected shapes 
+        // highlight edges for selected shapes
         this.selectionHelper.addSelectionListener((elements) => {
             this.highlightNodeEdges(elements);
         });
@@ -924,14 +941,14 @@ export class ProcessGraph implements IProcessGraph {
         if (elements && elements.length > 0) {
             for (let i = 0; i < elements.length; i++) {
                 let node = elements[i];
-                 if ((node.getNodeType() === NodeType.UserTask)) {
-                    validSelection = true; 
+                if ((node.getNodeType() === NodeType.UserTask)) {
+                    validSelection = true;
                 } else {
                     validSelection = false;
                     break;
                 }
             }
-        } 
+        }
         this.viewModel.hasSelection = validSelection;
     }
 

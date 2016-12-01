@@ -39,7 +39,7 @@ export class ClipboardService implements IClipboardService {
     }
 
     public isEmpty(): boolean {
-        return !this._data;
+        return !this._data || !this._data.data;
     }    
 
     public clearData(): void {

@@ -6,7 +6,7 @@ import {CommunicationManager} from "../../../services/communication-manager";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import * as TestModels from "../../../models/test-model-factory";
+import * as TestShapes from "../../../models/test-shape-factory";
 import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
 import {SystemDecision} from "../../diagram/presentation/graph/shapes/system-decision";
 import {SystemTask} from "../../diagram/presentation/graph/shapes/system-task";
@@ -133,7 +133,7 @@ describe("CopyAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
-            const invalidShape = createSystemTask(12);
+            const invalidShape = TestShapes.createSystemTask(12, $rootScope);
 
             // act
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [invalidShape]);
@@ -146,8 +146,8 @@ describe("CopyAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
-            const invalidShape1 = createSystemTask(12);
-            const invalidShape2 = createSystemDecision(23);
+            const invalidShape1 = TestShapes.createSystemTask(12, $rootScope);
+            const invalidShape2 = TestShapes.createSystemDecision(23, $rootScope);
 
             // act
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [invalidShape1, invalidShape2]);
@@ -160,8 +160,8 @@ describe("CopyAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
-            const validShape = createUserTask(23);
-            const invalidShape = createSystemTask(12);
+            const validShape = TestShapes.createUserTask(23, $rootScope);
+            const invalidShape = TestShapes.createSystemTask(12, $rootScope);
 
             // act
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [validShape, invalidShape]);
@@ -174,7 +174,7 @@ describe("CopyAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
-            const validShape = createUserTask(23);
+            const validShape = TestShapes.createUserTask(23, $rootScope);
 
             // act
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [validShape]);
@@ -187,8 +187,8 @@ describe("CopyAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
-            const validShape1 = createUserTask(23);
-            const validShape2 = createUserTask(53);
+            const validShape1 = TestShapes.createUserTask(23, $rootScope);
+            const validShape2 = TestShapes.createUserTask(53, $rootScope);
 
             // act
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [validShape1, validShape2]);
@@ -204,7 +204,7 @@ describe("CopyAction", () => {
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
             const spy = spyOn(communicationManager.toolbarCommunicationManager, "copySelection");
-            const validShape = createUserTask(23);
+            const validShape = TestShapes.createUserTask(23, $rootScope);
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [validShape]);
 
             // act
@@ -219,7 +219,7 @@ describe("CopyAction", () => {
             const process = createStatefulProcessArtifact();
             const action = new CopyAction(process, communicationManager, localization);
             const spy = spyOn(communicationManager.toolbarCommunicationManager, "copySelection");
-            const invalidShape = createSystemTask(12);
+            const invalidShape = TestShapes.createSystemTask(12, $rootScope);
             communicationManager.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [invalidShape]);
 
             // act
@@ -234,7 +234,7 @@ describe("CopyAction", () => {
         it("calls dispose on the event observer", () => {
             // arrange
             const process = createStatefulProcessArtifact();
-            const handle = "test";
+            const handle = "handle";
             const registerSpy = spyOn(communicationManager.processDiagramCommunication, "register").and.callFake(() => handle);
             const spy = spyOn(communicationManager.processDiagramCommunication, "unregister");
             const action = new CopyAction(process, communicationManager, localization);
@@ -252,17 +252,5 @@ describe("CopyAction", () => {
         const process = new StatefulProcessArtifact(artifactModel, null);
 
         return process;
-    }
-
-    function createUserTask(id: number): UserTask {
-        return new UserTask(TestModels.createUserTask(id), $rootScope, undefined, undefined);
-    }
-
-    function createSystemTask(id: number): SystemTask {
-        return new SystemTask(TestModels.createSystemTask(id), $rootScope, undefined, undefined, undefined);
-    }
-
-    function createSystemDecision(id: number): SystemDecision {
-        return new SystemDecision(TestModels.createSystemDecision(id), $rootScope, undefined);
     }
 });

@@ -12,11 +12,8 @@ import {
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
 import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-//import {INavigationService, INavigationParams} from "../../../../core/navigation/navigation.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-
-
 
 export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;
@@ -30,7 +27,7 @@ export class MoveCopyAction extends BPDropdownAction {
                 private selectionManager: ISelectionManager,
                 private artifactManager: IArtifactManager,
                 private loadingOverlayService: ILoadingOverlayService) {
-		super();
+        super();
        
         if (!localization) {
             throw new Error("Localization service not provided or is null");
@@ -52,7 +49,7 @@ export class MoveCopyAction extends BPDropdownAction {
                 "fonticon2-move"
             )
         );
-		this.actions.push(
+        this.actions.push(
             new BPDropdownItemAction(
                 this.localization.get("App_Toolbar_Copy"),
                 () => this.executeCopy(),

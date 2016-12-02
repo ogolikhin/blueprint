@@ -84,6 +84,13 @@
     background: $white;
 
     .ag-grid{
+
+        .ag-row .ag-cell:not(.not-selectable) .fonticon-delete-filled, .ag-row:hover .ag-cell:not(.not-selectable) .fonticon-delete-filled {
+            &::before{
+                background: transparent;
+            }
+        }
+
         .disabled, [disabled] {
             cursor: not-allowed;
         }

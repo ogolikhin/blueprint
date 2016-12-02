@@ -44,11 +44,11 @@
 
     <div>
         <div class="actions-panel" ng-class="{'active-panel': $ctrl.selectedTraces[$ctrl.data.artifactId].length > 0}">
-            <!--<div class="pull-left actions-panel-counter">
+            <div class="pull-left actions-panel-counter">
                 {{$ctrl.selectedTraces[$ctrl.data.artifactId].length}}
                 <span ng-if="$ctrl.selectedTraces[$ctrl.data.artifactId].length == 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Singular') }}</span>
                 <span ng-if="$ctrl.selectedTraces[$ctrl.data.artifactId].length > 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Plural') }}</span>
-            </div>-->
+            </div>
 
             <div uib-dropdown>
                 <span uib-dropdown-toggle

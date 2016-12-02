@@ -72,12 +72,6 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             )
         );
 
-        this.userStoryService = userStoryService;
-        this.messageService = messageService;
-        this.localization = localization;
-        this.dialogService = dialogService;
-        this.loadingOverlayService = loadingOverlayService;
-        this.processDiagramManager = processDiagramManager;
         this.selectionChangedHandle = this.processDiagramManager.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
     }
 

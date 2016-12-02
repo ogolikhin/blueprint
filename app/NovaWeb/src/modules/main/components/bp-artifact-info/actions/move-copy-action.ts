@@ -54,13 +54,9 @@ export class MoveCopyAction extends BPDropdownAction {
                 this.localization.get("App_Toolbar_Copy"),
                 () => this.executeCopy(),
                 (): boolean => true,
-                "fonticon2-move"
+                "fonticon2-copy"
             )
         );
-    }
-
-    public get icon(): string {
-        return "fonticon2-move";
     }
 
     public get tooltip(): string {

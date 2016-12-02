@@ -111,7 +111,9 @@ export class ProcessValidator {
                 linkOrderIndexHashMap[linkOrderIndexKey] = link;
             } else {
                 let message = rootScope["config"].labels["ST_Duplicate_Link_OrderIndex"];
-                if (shapesMap[link.sourceId.toString()][0].propertyValues["clientType"].value === ProcessShapeType.SystemDecision) {
+                const sourceShape = shapesMap[link.sourceId.toString()][0];
+                const sourceType = sourceShape.propertyValues["clientType"].value;
+                if (sourceType === ProcessShapeType.SystemDecision) {
                     message = message.replace("{0}", rootScope["config"].labels["ST_Condition_Label"]);
                 } else {
                     message = message.replace("{0}", rootScope["config"].labels["ST_Choice_Label"]);

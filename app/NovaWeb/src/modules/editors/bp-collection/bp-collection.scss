@@ -84,6 +84,23 @@
     background: $white;
 
     .ag-grid{
+
+        .fonticon-delete-filled {
+            color: $gray-light;
+
+            &::before{
+                color: $gray-light;
+                content: "\E88E";
+                font-family: "bp-font";
+            }
+
+            &:hover {
+                &::before{
+                    color: $brand-secondary;
+                }
+            }
+        }
+
         .disabled, [disabled] {
             cursor: not-allowed;
         }

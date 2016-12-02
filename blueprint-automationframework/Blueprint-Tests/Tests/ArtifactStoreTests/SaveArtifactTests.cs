@@ -706,8 +706,8 @@ namespace ArtifactStoreTests
             }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!",
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
-            const string expectedMessage = "The Item name cannot be empty";
-            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+            // Verify
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
         }
 
         #endregion 400 Bad Request

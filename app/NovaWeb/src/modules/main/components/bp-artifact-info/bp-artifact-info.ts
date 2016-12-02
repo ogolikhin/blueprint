@@ -52,6 +52,7 @@ export class BpArtifactInfoController {
         "messageService",
         "dialogService",
         "windowManager",
+        "selectionManager",
         "loadingOverlayService",
         "navigationService",
         "projectManager",
@@ -88,6 +89,7 @@ export class BpArtifactInfoController {
                 protected messageService: IMessageService,
                 protected dialogService: IDialogService,
                 protected windowManager: IWindowManager,
+                protected selectionManager: ISelectionManager,
                 protected loadingOverlayService: ILoadingOverlayService,
                 protected navigationService: INavigationService,
                 protected projectManager: IProjectManager,
@@ -282,7 +284,7 @@ export class BpArtifactInfoController {
                 this.projectManager, this.loadingOverlayService);
             const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
                 this.metadataService, this.mainBreadcrumbService);
-            const moveCopyAction = MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService,
+            const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService,
                         this.selectionManager, this.artifactManager, this.loadingOverlayService);
             const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
                 this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
@@ -301,7 +303,7 @@ export class BpArtifactInfoController {
             const dropdownSeparator = new BPButtonOrDropdownSeparator();
 
             this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
-            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
+            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveCopyAction));
             //we don't want to show impact analysis on collection artifact page
             if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
                 this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);

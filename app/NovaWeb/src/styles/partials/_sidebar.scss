@@ -157,11 +157,10 @@ bp-sidebar-layout {
     text-align: center;
     display: flex;
     height:100%;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-start;
 }
 
 .explorer__empty-state-text {
-    font-size: $font-size-big;
-    color: $gray-darker;
+    font-size: $font-size-normal;
+    color: $gray-light;
 }

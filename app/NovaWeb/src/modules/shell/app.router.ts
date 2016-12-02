@@ -1,8 +1,9 @@
-import * as angular from "angular";
 import {ISession} from "./login/session.svc";
 import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
+import {ClipboardService, IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
+
 
 export class AppRoutes {
 
@@ -44,7 +45,7 @@ export class AppRoutes {
             .state("logout", {
                 controller: LogoutStateController,
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]                    } 
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]                    }
             })
             .state("error", {
                 url: "/error",
@@ -71,7 +72,6 @@ export class MainStateController {
         "session",
         "projectManager",
         "navigationService"
-        
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
@@ -92,7 +92,16 @@ export class MainStateController {
         }
     }
 
+    private isLeavingState(stateName: string, from: string, to: string): boolean {
+        return from.indexOf(stateName) > -1 && to.indexOf(stateName) === -1;
+    }
+
     private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
+        if (this.isLeavingState("main.item", fromState.name, toState.name)) {
+            this.$log.info("Leaving artifact state, clearing selection...");
+            this.selectionManager.clearAll();
+        }
+
         this.updateAppTitle();
     };
 
@@ -108,10 +117,7 @@ export class MainStateController {
                 event.preventDefault();
                 this.$state.go("licenseError");
             }
-        } else if (toState.name === this.mainState) {
-            this.$log.info("SelectionManager.clearAll()");
-            this.selectionManager.clearAll();
-        } 
+        }
     };
 
     private updateAppTitle() {
@@ -132,18 +138,21 @@ public static $inject = [
         "$log",
         "session",
         "projectManager",
-        "navigationService"
+        "navigationService",
+        "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
                 private projectManager: IProjectManager, 
-                private navigation: INavigationService) {
+                private navigation: INavigationService,
+                private clipboardService: IClipboardService) {
 
         this.session.logout().then(() => {
             this.navigation.navigateToMain(true).finally(() => {
                 this.projectManager.removeAll();
+                this.clipboardService.clearData();
             });
         });
-    }    
+    }
 }

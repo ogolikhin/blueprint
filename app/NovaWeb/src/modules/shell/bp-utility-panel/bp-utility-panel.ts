@@ -4,21 +4,14 @@ import {IArtifactManager, ISelection, IStatefulItem, IItemChangeSet, StatefulArt
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ILocalizationService} from "../../core/localization/localizationService";
-
-export enum PanelType {
-    Properties,
-    Relationships,
-    Discussions,
-    Files,
-    History
-}
+import {PanelType, IUtilityPanelController, UtilityPanelService} from "./utility-panel.svc";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPUtilityPanelController;
 }
 
-export class BPUtilityPanelController {
+export class BPUtilityPanelController implements IUtilityPanelController {
     public static $inject: [string] = [
         "localization",
         "artifactManager",
@@ -40,7 +33,7 @@ export class BPUtilityPanelController {
                 private $element: ng.IAugmentedJQuery,
                 private utilityPanelService: UtilityPanelService) {
         this.isAnyPanelVisible = true;
-        this.utilityPanelService.openPanel = this.openPanelExternal;
+        this.utilityPanelService.initialize(this);
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -67,14 +60,14 @@ export class BPUtilityPanelController {
         }
     }
 
-    private openPanelExternal = (panel: PanelType) => {
+    public openPanel(panel: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
 
         if (accordionCtrl) {
             const panelToOpen = accordionCtrl.getPanels()[panel];
             panelToOpen.openPanel();
         }
-    };
+    }
 
     private showPanel(panelType: PanelType) {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
@@ -211,9 +204,4 @@ export class BPUtilityPanelController {
             this.isAnyPanelVisible = accordionCtrl.panels.filter((p) => { return p.isVisible === true; }).length > 0;
         }
     }
-}
-
-export class UtilityPanelService {
-    public openPanel: Function;
-    public openRightSidebar: Function;
 }

@@ -10,7 +10,7 @@ import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {IItemInfoService} from "../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
 import {IArtifactManager} from "../managers/artifact-manager/artifact-manager";
-import {IStatefulArtifact} from "../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../managers/artifact-manager/artifact/artifact";
 import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -381,7 +381,7 @@ describe("Item State Controller tests", () => {
                         deletedByUser: {}
                     });
                     return deferred.promise;
-                });               
+                });
 
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void (0));
@@ -414,7 +414,7 @@ describe("Item State Controller tests", () => {
                         deletedByUser: {}
                     });
                     return deferred.promise;
-                });               
+                });
 
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const messageSpy = spyOn(messageService, "addMessage").and.callFake(message => void (0));

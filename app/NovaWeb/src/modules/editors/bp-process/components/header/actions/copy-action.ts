@@ -1,50 +1,72 @@
 import {BPButtonAction} from "../../../../../shared";
-import {IStatefulArtifact} from "../../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../../../main/models/enums";
-import {IMessageService} from "../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {ProcessType} from "../../../models/enums";
-import {IToolbarCommunication} from "../toolbar-communication";
+import {ICommunicationManager} from "../../../services/communication-manager";
+import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
+import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 
 export class CopyAction extends BPButtonAction {
     private subscribers: Rx.IDisposable[];
-    private loaded: boolean;
+    private canCopy: boolean;
+    private selectionChangedHandle: string;
 
     constructor(
-        process: StatefulProcessArtifact,
-        toolbarCommunication: IToolbarCommunication,
-        localization: ILocalizationService) {
+        private process: StatefulProcessArtifact,
+        private communicationManager: ICommunicationManager,
+        private localization: ILocalizationService
+    ) {
+        super();
 
         if (!process) {
             throw new Error("Process is not provided or is null");
         }
 
-        if (!toolbarCommunication) {
-            throw new Error("Toolbar communication is not provided or is null");
+        if (!communicationManager) {
+            throw new Error("Communication manager is not provided or is null");
         }
 
         if (!localization) {
             throw new Error("Localization service is not provided or is null");
         }
-        super(
-            (): void => {
-          
-                if (process.hasSelection) {
-                    toolbarCommunication.copySelection();
-                }
-            },
-            (): boolean => {
 
-                if (process.hasSelection) {
-                    return true;
-                }
-
-                return false;
-            },
-            "fonticon2-copy-shapes",
-            localization.get("App_Toolbar_Copy")
-        );
+        this.canCopy = false;
+        this.selectionChangedHandle = communicationManager.processDiagramCommunication.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
     }
-    
+
+    public get icon(): string {
+        return "fonticon2-copy-shapes";
+    }
+
+    public get tooltip(): string {
+        return this.localization.get("App_Toolbar_Copy_Shapes");
+    }
+
+    public get disabled(): boolean {
+        return !this.canCopy;
+    }
+
+    public get execute(): () => void {
+        return this.copy;
+    }
+
+    public dispose(): void {
+        if (this.communicationManager) {
+            if (this.communicationManager.processDiagramCommunication) {
+                this.communicationManager.processDiagramCommunication.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
+            }
+        }
+    }
+
+    private copy(): void {
+        if (this.disabled) {
+            return;
+        }
+
+        this.communicationManager.toolbarCommunicationManager.copySelection();
+    }
+
+    private onSelectionChanged = (elements: IDiagramNode[]) => {
+        this.canCopy = elements && elements.length > 0 && _.every(elements, (element: IDiagramNode) => element.getNodeType() === NodeType.UserTask);
+    };
 }

@@ -1,17 +1,5 @@
 $page-body-min-width: 386px;
 
-.explorer-empty-state {
-        font-size: $font-size-big;
-        color: $gray-light;
-        padding: 30px 10px;
-        text-align: center;
-        p {
-            font-size: 1.2rem;
-            color: $gray-darker;
-            margin-bottom: 20px;
-        }
-    }
-
 pagecontent, bp-properties-panel {
     box-sizing: border-box;
     display: flex;
@@ -46,12 +34,6 @@ pagecontent, bp-properties-panel {
             content: '';
             display: table;
         }
-
-        .collection-header {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-    }
     }
 
     .page-body-wrapper {
@@ -67,30 +49,15 @@ pagecontent, bp-properties-panel {
         overflow:hidden;
     }
 
-    bp-artifact-info {
+    .responsive-header {
         display: flex;
-        flex-wrap: wrap;
+        flex-flow: row nowrap;
         justify-content: space-between;
     }
 
     .artifact-state {
         height: 100%;
         width: 100%;
-    }
-
-    //$page-top-toolbar-width: 420px; // this value changes whenever the number of buttons (and their labels) in the toolbar changes
-    .page-top-toolbar {
-        flex-grow: 0;
-        flex-shrink: 0;
-        margin-bottom: 15px;
-
-        .btn-bluelight + .btn-bluelight {
-            margin-left: 5px;
-        }
-
-        .btn-bluelight + .btn-primary {
-            margin-left: 10px;
-        }
     }
 
     .artifact-status {
@@ -130,8 +97,8 @@ pagecontent, bp-properties-panel {
     }
 
     .load-project{
-       width: 100%;
-       padding-bottom: $padding-large-vertical;
+        flex: none;
+        padding-bottom: $padding-large-vertical;
     }
 
     .btn-load-project{
@@ -140,10 +107,7 @@ pagecontent, bp-properties-panel {
 
     .artifact-heading {
         display: flex;
-        //max-width: calc(100% - #{$page-top-toolbar-width});
-        //min-width: $page-top-toolbar-width;
-        overflow: hidden;
-
+        width: 100%;
 
         .icon,
         .artifact-heading-group1 {
@@ -172,27 +136,27 @@ pagecontent, bp-properties-panel {
         }
 
         .artifact-heading-group1 {
-            overflow: hidden;
+            width: 100%;
         }
 
         .artifact-heading-group2 {
-            align-items: center;
+            align-items: baseline;
             display: flex;
+            justify-content: flex-start;
         }
 
         .name {
             color: $gray-dark;
             display: block;
             font-size: $font-size-biggest;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            //white-space: nowrap;
+            white-space: pre-wrap;
+            //word-break: break-all;
+            word-wrap: break-word;
         }
 
         .indicators {
             display: block;
-            flex-grow: 0;
-            flex-shrink: 0;
+            flex: none;
 
             i {
                 color: $gray;
@@ -301,7 +265,6 @@ pagecontent, bp-properties-panel {
 
         &.empty-panel{
             border-left: solid 2px $right-sidebar-border;
-            border-top: solid 1px $right-sidebar-border;
         }
     }
 }

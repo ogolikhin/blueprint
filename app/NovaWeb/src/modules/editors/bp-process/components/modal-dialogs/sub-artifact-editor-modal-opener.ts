@@ -222,6 +222,9 @@ export class SubArtifactEditorModalOpener {
         model.isHistoricalVersion = graph.viewModel.isHistorical;
         model.graph = graph;
         model.originalDecision = decision;
+        model.conditionLabel = node.getNodeType() === NodeType.SystemDecision ?
+            this.localization.get("ST_Condition_Label") :
+            this.localization.get("ST_Choice_Label");
 
         return model;
     }

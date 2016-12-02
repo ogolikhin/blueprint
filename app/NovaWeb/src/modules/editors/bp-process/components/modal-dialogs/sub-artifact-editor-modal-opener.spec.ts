@@ -96,8 +96,8 @@ describe("SubArtifactEditorModalOpener test", () => {
         };
 
         localScope = {
-            graphContainer: container, 
-            graphWrapper: wrapper, 
+            graphContainer: container,
+            graphWrapper: wrapper,
             isSpa: false,
             vm: {
                 "$rootScope": rootScope
@@ -229,8 +229,8 @@ describe("SubArtifactEditorModalOpener test", () => {
             // arrange
             const process = TestModels.createDefaultProcessModel();
             const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
-            const shapeId: number = userTaskShape.id; 
-            
+            const shapeId: number = userTaskShape.id;
+
             graph = createGraph(process);
             modalOpener["graph"] = graph;
 
@@ -253,10 +253,10 @@ describe("SubArtifactEditorModalOpener test", () => {
                 },
                 windowClass: "storyteller-modal"
             };
-            
+
             const settingsSpy = spyOn(modalOpener, "getUserTaskEditorDialogSettings").and.returnValue(settings);
             const openSpy = spyOn($uibModal, "open");
-            
+
             // act
             communicationManager.modalDialogManager.openDialog(shapeId, ModalDialogType.UserTaskDetailsDialogType);
 
@@ -269,8 +269,8 @@ describe("SubArtifactEditorModalOpener test", () => {
             // arrange
             const process = TestModels.createDefaultProcessModel();
             const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
-            const shapeId: number = systemTaskShape.id; 
-            
+            const shapeId: number = systemTaskShape.id;
+
             graph = createGraph(process);
             modalOpener["graph"] = graph;
 
@@ -297,7 +297,7 @@ describe("SubArtifactEditorModalOpener test", () => {
 
             const settingsSpy = spyOn(modalOpener, "getSystemTaskEditorDialogSettings").and.returnValue(settings);
             const openSpy = spyOn($uibModal, "open");
-            
+
             // act
             communicationManager.modalDialogManager.openDialog(shapeId, ModalDialogType.SystemTaskDetailsDialogType);
 
@@ -310,8 +310,8 @@ describe("SubArtifactEditorModalOpener test", () => {
             // arrange
             const process = TestModels.createUserDecisionForAddBranchTestModel();
             const decisionShape = process.shapes[3];
-            const shapeId: number = decisionShape.id; 
-            
+            const shapeId: number = decisionShape.id;
+
             graph = createGraph(process);
             modalOpener["graph"] = graph;
 
@@ -341,7 +341,8 @@ describe("SubArtifactEditorModalOpener test", () => {
                         graph: graph,
                         originalDecision: decision,
                         isReadonly: false,
-                        isHistoricalVersion: false
+                        isHistoricalVersion: false,
+                        conditionLabel: "Choice"
                     }
                 },
                 windowClass: "storyteller-modal"
@@ -349,7 +350,7 @@ describe("SubArtifactEditorModalOpener test", () => {
 
             const settingsSpy = spyOn(modalOpener, "getDecisionEditorDialogSettings").and.returnValue(settings);
             const openSpy = spyOn($uibModal, "open");
-            
+
             // act
             communicationManager.modalDialogManager.openDialog(shapeId, ModalDialogType.UserSystemDecisionDetailsDialogType);
 
@@ -362,8 +363,8 @@ describe("SubArtifactEditorModalOpener test", () => {
             // arrange
             const process = TestModels.createDefaultProcessModel();
             const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
-            const shapeId: number = userTaskShape.id; 
-            
+            const shapeId: number = userTaskShape.id;
+
             graph = createGraph(process);
             modalOpener["graph"] = graph;
 
@@ -408,9 +409,9 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
                 const shapeId: number = userTaskShape.id;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getUserTaskDialogModel"](shapeId, null);
@@ -430,9 +431,9 @@ describe("SubArtifactEditorModalOpener test", () => {
 
                 graph = createGraph(process);
                 graph.viewModel = null;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getUserTaskDialogModel"](shapeId, graph);
@@ -454,7 +455,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserTaskDialogModel"](shapeId, graph);
 
@@ -473,7 +474,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserTaskDialogModel"](shapeId, graph);
 
@@ -494,7 +495,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserTaskDialogModel"](shapeId, graph);
 
@@ -512,7 +513,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserTaskDialogModel"](shapeId, graph);
 
@@ -535,9 +536,9 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createDefaultProcessModel();
                 const systemTaskShape = <ProcessModels.ISystemTaskShape>process.shapes[3];
                 const shapeId: number = systemTaskShape.id;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getSystemTaskDialogModel"](shapeId, null);
@@ -557,9 +558,9 @@ describe("SubArtifactEditorModalOpener test", () => {
 
                 graph = createGraph(process);
                 graph.viewModel = null;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getSystemTaskDialogModel"](shapeId, graph);
@@ -581,7 +582,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getSystemTaskDialogModel"](shapeId, graph);
 
@@ -600,7 +601,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getSystemTaskDialogModel"](shapeId, graph);
 
@@ -621,7 +622,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getSystemTaskDialogModel"](shapeId, graph);
 
@@ -639,7 +640,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getSystemTaskDialogModel"](shapeId, graph);
 
@@ -663,9 +664,9 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createUserDecisionForAddBranchTestModel();
                 const userDecisionShape = process.shapes[3];
                 const shapeId: number = userDecisionShape.id;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getDecisionEditorModel"](shapeId, null);
@@ -685,9 +686,9 @@ describe("SubArtifactEditorModalOpener test", () => {
 
                 graph = createGraph(process);
                 graph.viewModel = null;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getDecisionEditorModel"](shapeId, graph);
@@ -709,7 +710,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getDecisionEditorModel"](shapeId, graph);
 
@@ -728,7 +729,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userDecision);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getDecisionEditorModel"](shapeId, graph);
 
@@ -749,7 +750,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userDecision);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getDecisionEditorModel"](shapeId, graph);
 
@@ -767,7 +768,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userDecision);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getDecisionEditorModel"](shapeId, graph);
 
@@ -789,9 +790,9 @@ describe("SubArtifactEditorModalOpener test", () => {
                 const process = TestModels.createDefaultProcessModel();
                 const userTaskShape = <ProcessModels.IUserTaskShape>process.shapes[2];
                 const shapeId: number = userTaskShape.id;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getUserStoryDialogModel"](shapeId, null);
@@ -811,9 +812,9 @@ describe("SubArtifactEditorModalOpener test", () => {
 
                 graph = createGraph(process);
                 graph.viewModel = null;
-                
+
                 let error: Error;
-            
+
                 // act
                 try {
                     modalOpener["getUserStoryDialogModel"](shapeId, graph);
@@ -835,7 +836,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(systemTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserStoryDialogModel"](shapeId, graph);
 
@@ -854,7 +855,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserStoryDialogModel"](shapeId, graph);
 
@@ -875,7 +876,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserStoryDialogModel"](shapeId, graph);
 
@@ -893,7 +894,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                 graph = createGraph(process);
                 spyOn(graph, "getNodeById").and.returnValue(userTask);
                 modalOpener["graph"] = graph;
-                
+
                 // act
                 const model = modalOpener["getUserStoryDialogModel"](shapeId, graph);
 

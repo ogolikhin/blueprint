@@ -186,12 +186,12 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         this.detailsButton.setTooltip(this.rootScope["config"].labels["ST_Settings_Label"]);
 
         //Delete process shape button
-        const clickAction = () => {
-            this.processDiagramManager.action(ProcessEvents.DeleteShape);
+        const deleteClickAction = () => {
+            this.processDiagramManager.action(ProcessEvents.DeleteShape, this);
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+            this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, deleteClickAction);
     }
 
 

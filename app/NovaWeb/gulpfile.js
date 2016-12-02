@@ -1,5 +1,4 @@
 // Imports
-
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var styleguide = require('sc5-styleguide');
@@ -38,6 +37,7 @@ gulp.task('styleguide:generate', function () {
             server: true,
             port: styleguidePort,
             rootPath: styleguideTmpPath,
+            customColors: "./styleGuideHelper.scss",
             overviewPath: overviewPath
         }))
         .pipe(gulp.dest(styleguideTmpPath));

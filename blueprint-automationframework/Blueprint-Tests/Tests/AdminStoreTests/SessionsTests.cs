@@ -269,13 +269,13 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(146291)]
-        [Description("Run:  DELETE /sessions  but don't pass any Session-Token header.  Verify a 400 Bad Request error is returned.")]
-        public void Delete_MissingTokenHeader_Verify400BadRequest()
+        [Description("Run:  DELETE /sessions  but don't pass any Session-Token header.  Verify a 401 Unauthorized error is returned.")]
+        public void Delete_MissingTokenHeader_401Unauthorized()
         {
-            Assert.Throws<Http400BadRequestException>(() =>
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.DeleteSession(session: null);
-            }, "DeleteSession() should return 400 Bad Request if no Session-Token header was passed!");
+            }, "DeleteSession() should return 401 Unauthorized if no Session-Token header was passed!");
         }
     }
 }

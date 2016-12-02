@@ -1,6 +1,6 @@
 import {IDialogService} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
-import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";

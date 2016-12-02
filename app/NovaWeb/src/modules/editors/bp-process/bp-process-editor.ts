@@ -1,17 +1,19 @@
 ﻿import {ICommunicationManager} from "./";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
 import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
-import {IDialogService} from "../../shared";
-import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
-import {ISelection, IStatefulArtifactFactory, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IDialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {IDiagramNode} from "./components/diagram/presentation/graph/models/process-graph-interfaces";
+import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
+import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {ISelection} from "../../managers/selection-manager/selection-manager";
 import {IStatefulProcessSubArtifact} from "./process-subartifact";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {UtilityPanelService} from "../../shell/bp-utility-panel/bp-utility-panel";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "./services/clipboard.svc";
 
 export class BpProcessEditor implements ng.IComponentOptions {
@@ -60,7 +62,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory = null,
-                private utilityPanelService: UtilityPanelService,
+                private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService = null) {
         super(messageService, artifactManager);
 

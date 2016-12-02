@@ -1,4 +1,4 @@
-﻿<div ng-if="$ctrl.isLoading" class="app-loading">
+<div ng-if="$ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
     <span>Loading...</span>
 </div>
@@ -37,7 +37,7 @@
                      uib-collapse="isSpecificPropertiesCollapsed"
                      ng-if="$ctrl.rowData && $ctrl.rowData.length > 0">
                     <div class="collection__bulk__actions text-right" ng-show="$ctrl.selectedVMs.length">
-                        {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon-delete-filled" ng-click="$ctrl.bulkDelete()"
+                        {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon2-delete" ng-click="$ctrl.bulkDelete()"
                                                    bp-tooltip=" {{::$ctrl.localization.get('Artifact_Collection_Delete_Selected')}}"></i>
                     </div>
                     <bp-tree-view

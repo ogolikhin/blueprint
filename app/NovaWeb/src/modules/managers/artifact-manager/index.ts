@@ -1,6 +1,4 @@
-import * as angular from "angular";
 import {IArtifactManager, ArtifactManager} from "./artifact-manager";
-import {PublishService, IPublishService} from "./publish.svc";
 import {ISelectionManager,  ISelection} from "../selection-manager";
 import {StatefulArtifactFactory} from "./artifact/artifact.factory";
 import {IStatefulItem} from "./item";
@@ -44,7 +42,6 @@ angular.module("bp.managers.artifact", [])
     .service("metadataService", MetaDataService)
     .service("artifactRelationships", ArtifactRelationshipsService)
     .service("statefulArtifactFactory", StatefulArtifactFactory)
-    .service("publishService", PublishService)
     .service("validationService", ValidationService);
 
 
@@ -80,8 +77,6 @@ export {
     ArtifactRelationshipsService,
     IArtifactRelationshipsService,
     StatefulProcessArtifact,
-    PublishService,
-    IPublishService,
     ValidationService,
     IValidationService
 };

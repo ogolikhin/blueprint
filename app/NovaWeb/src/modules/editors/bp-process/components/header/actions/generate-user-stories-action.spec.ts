@@ -167,6 +167,34 @@ describe("GenerateUserStoriesAction", () => {
         });
     });
 
+    it("returns correct icon", () => {
+        // arrange
+        const process = createStatefulProcessArtifact();
+        const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+            localization, dialogService, loadingOverlayService, processDiagramCommunication);
+        const expectedIcon = "fonticon fonticon2-news";
+
+        // act
+        const actualIcon = action.icon;
+
+        // assert
+        expect(actualIcon).toEqual(expectedIcon);
+    });
+
+    it("returns correct tooltip", () => {
+        // arrange
+        const process = createStatefulProcessArtifact();
+        const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+            localization, dialogService, loadingOverlayService, processDiagramCommunication);
+        const expectedTooltip = localization.get("ST_US_Generate_Dropdown_Tooltip");
+
+        // act
+        const actualTooltip = action.tooltip;
+
+        // assert
+        expect(actualTooltip).toEqual(expectedTooltip);
+    });
+
     describe("generate", () => {
         it("is disabled if process is null", () => {
             // arrange
@@ -201,6 +229,21 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             process.artifactState.setState({readonly: true}, false);
+
+            // assert
+            expect(action.disabled).toBe(true);
+        });
+
+        it("is disabled when multiple shapes are selected", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+                localization, dialogService, loadingOverlayService, processDiagramCommunication);
+            const userTask1 = TestShapes.createUserTask(2, $rootScope);
+            const userTask2 = TestShapes.createUserTask(3, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask1, userTask2]);
 
             // assert
             expect(action.disabled).toBe(true);
@@ -250,7 +293,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if no process shape is selected", () => {
+        it("is disabled when no shape is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -264,7 +307,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if selected process shape is start", () => {
+        it("is disabled when a start shape is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -279,7 +322,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if selected process shape is end", () => {
+        it("is disabled when an end shape is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -294,7 +337,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if selected process shape is system task", () => {
+        it("is disabled when a system task is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -309,7 +352,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if selected process shape is user decision", () => {
+        it("is disabled when a user decision is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -324,7 +367,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if selected process shape is system decision", () => {
+        it("is disabled when a system decision is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -339,7 +382,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is disabled if selected user task is new", () => {
+        it("is disabled when a new user task is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -354,7 +397,7 @@ describe("GenerateUserStoriesAction", () => {
             expect(generateFromTask.disabled).toBe(true);
         });
 
-        it("is enabled if selecting a saved user task", () => {
+        it("is enabled when a saved user task is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
@@ -367,6 +410,22 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(generateFromTask.disabled).toBe(false);
+        });
+
+        it("is disabled when multiple shapes are selected", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+                localization, dialogService, loadingOverlayService, processDiagramCommunication);
+            const generateFromTask = action.actions[0];
+            const userTask1 = TestShapes.createUserTask(2, $rootScope);
+            const userTask2 = TestShapes.createUserTask(3, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask1, userTask2]);
+
+            // assert
+            expect(generateFromTask.disabled).toBe(true);
         });
 
         it("is doesn't execute if disabled", () => {
@@ -733,6 +792,22 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(generateAll.disabled).toBe(false);
+        });
+
+        it("is disabled when multiple shapes are selected", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+                localization, dialogService, loadingOverlayService, processDiagramCommunication);
+            const generateAll = action.actions[1];
+            const userTask1 = TestShapes.createUserTask(2, $rootScope);
+            const userTask2 = TestShapes.createUserTask(3, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask1, userTask2]);
+
+            // assert
+            expect(generateAll.disabled).toBe(true);
         });
 
         it("is doesn't execute if disabled", () => {

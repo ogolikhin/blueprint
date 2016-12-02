@@ -342,7 +342,7 @@ namespace StorytellerTests
                 expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to UT Then the {0} will be ST", INACCESSIBLE_ACTOR);
             }
 
-            Assert.AreEqual(expectedPersonaName, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have" + INACCESSIBLE_ACTOR + " persona!");
+            Assert.AreEqual(expectedPersonaName, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have " + INACCESSIBLE_ACTOR + " persona!");
         }
 
         [Explicit(IgnoreReasons.FlakyTest)]  //This test changes parent process version

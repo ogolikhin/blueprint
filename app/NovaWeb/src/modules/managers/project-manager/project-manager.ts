@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import {IDialogService, IDialogSettings} from "../../shared";
-import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
+import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
+import {IStatefulArtifactFactory} from "../artifact-manager/artifact/artifact.factory";
 import {IDispose} from "../models";
 import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
@@ -142,7 +143,7 @@ export class ProjectManager implements IProjectManager {
             return this.$q.all(refreshQueue).finally(() => {
                 this.triggerProjectCollectionRefresh();
             });
-        }); 
+        });
     }
 
     public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<void> {
@@ -200,6 +201,21 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
+    private loadProject(projectId: number, project: IArtifactNode): ng.IPromise<void> {
+        //try it with project
+        return this.projectService.getArtifacts(projectId).then((data: Models.IArtifact[]) => {
+            this.messageService.addInfo("Refresh_Artifact_Deleted");
+            return this.processProjectTree(projectId, data, projectId).catch(() => {
+                this.clearProject(project);
+                return this.$q.reject();
+            });
+        }).catch((err: any) => {
+            this.dialogService.alert("Refresh_Project_NotFound");
+            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
+            return this.$q.reject();
+        });
+    }
+
     private doRefresh(projectId: number, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
 
         const project = this.getProject(projectId);
@@ -232,6 +248,12 @@ export class ProjectManager implements IProjectManager {
                     return this.$q.reject();
                 }
 
+                // if there is no parent for artifact we are trying to load project
+                // in case when artifact is deleted
+                if (!expandToArtifact.parentId) {
+                    return this.loadProject(projectId, project);
+                }
+
                 //try with selected artifact's parent
                 return this.projectService.getProjectTree(projectId, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
                     this.messageService.addInfo("Refresh_Artifact_Deleted");
@@ -242,17 +264,7 @@ export class ProjectManager implements IProjectManager {
                 }).catch((innerError: any) => {
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
-                        return this.projectService.getArtifacts(projectId).then((data: Models.IArtifact[]) => {
-                            this.messageService.addInfo("Refresh_Artifact_Deleted");
-                            return this.processProjectTree(projectId, data, projectId).catch(() => {
-                                this.clearProject(project);
-                                return this.$q.reject();
-                            });
-                        }).catch((err: any) => {
-                            this.dialogService.alert("Refresh_Project_NotFound");
-                            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
-                            return this.$q.reject();
-                        });
+                        return this.loadProject(projectId, project);
                     }
 
                     this.messageService.addError(error["message"]);

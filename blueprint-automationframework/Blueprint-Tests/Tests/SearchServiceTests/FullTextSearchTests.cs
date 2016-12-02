@@ -577,27 +577,28 @@ namespace SearchServiceTests
                 "POST {0} call with the searchCriteria less than minimum length search term should return {1} errorCode but {2} is returned", FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
         }
 
+        #endregion 400 Bad Request Tests
+
+        #region 401 Unauthorized Tests
+
         [TestCase]
         [TestRail(190966)]
-        [Description("Searching with empty 'Session-Token' header in the request. Execute Search - Must return 401 Unautorized")]
-        public void FullTextSearch_SearchWithEmptySessionToken_400BadRequest()
+        [Description("Searching with missing 'Session-Token' header in the request.  Execute Search - Must return 401 Unautorized")]
+        public void FullTextSearch_SearchWithMissingSessionTokenHeader_401Unauthorized()
         {
             // Setup: Create searchable artifact(s) with unique search term
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
 
-            // Execute: Execute FullTextSearch using the user with empty session token
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(user: null, searchCriteria: searchCriteria),
-                "POST {0} call should exit with 400 BadRequestException when using empty session!", FULLTEXTSEARCH_PATH);
+            // Execute: Execute FullTextSearch using the user with missing session token header
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.SearchService.FullTextSearch(user: null, searchCriteria: searchCriteria),
+                "POST {0} call should return 401 Unauthorized if no Session-Token header was passed!", FULLTEXTSEARCH_PATH);
 
             // Validation: Exception should contain expected message.
             const string expectedExceptionMessage = "Token is missing or malformed";
-            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content, "{0} was not found in returned message of Nova FullTextSearch which has no session token.", expectedExceptionMessage);
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of Nova FullTextSearch which has no session token.", expectedExceptionMessage);
         }
-
-        #endregion 400 Bad Request Tests
-
-        #region 401 Unauthorized Tests
 
         [TestCase]
         [TestRail(166163)]

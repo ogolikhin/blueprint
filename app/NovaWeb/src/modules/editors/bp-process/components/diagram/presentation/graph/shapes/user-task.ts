@@ -65,12 +65,12 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
 
         //Delete Shape
-        const clickAction = () => {
-            this.processDiagramManager.action(ProcessEvents.DeleteShape);
+        const deleteClickAction = () => {
+            this.processDiagramManager.action(ProcessEvents.DeleteShape, this);
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, deleteClickAction);
 
 
         //Shape Comments
@@ -95,7 +95,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         //Included Artifacts Button
         this.linkButton = new Button(`LB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("include-neutral.svg"));
-        this.linkButton.isEnabled = !this.isNew;
 
         if (nodeFactorySettings && nodeFactorySettings.isLinkButtonEnabled) {
             this.linkButton.setClickAction(() => this.navigateToProcess());
@@ -105,12 +104,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.linkButton.setActiveImage(this.getImageSource("include-active.svg"));
         this.linkButton.setDisabledImage(this.getImageSource("include-inactive.svg"));
 
-        if (this.linkButton.isEnabled) {
-            if (this.model.associatedArtifact) {
-                this.linkButton.activate();
-            } else {
-                this.linkButton.disable();
-            }
+        if (this.model.associatedArtifact) {
+            this.linkButton.activate();
+        } else {
+            this.linkButton.disable();
         }
 
         //User Story Preview Button

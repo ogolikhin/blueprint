@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {IProcess, ProcessModel} from "../../../../../models/process-models";
+import {IProcess, ProcessModel, ProcessClipboardData, IProcessShape} from "../../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {NodeType} from "../models/";
 import {NodePopupMenu} from "./node-popup-menu";
@@ -45,7 +45,8 @@ describe("Popup Menu", () => {
             "ST_Decision_Modal_Add_Condition_Button_Label": "Add Condition",
             "ST_Popup_Menu_Add_User_Task_Label": "Add User Task",
             "ST_Popup_Menu_Add_System_Decision_Label": "Add System Decision Point",
-            "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point"
+            "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point",
+            "ST_Popup_Menu_Insert_Shapes_Label": "Insert Selected Shapes"
         };
 
         const wrapper = document.createElement("DIV");
@@ -64,7 +65,78 @@ describe("Popup Menu", () => {
               layout, shapesFactory, localization, clipboard, htmlElement, mxgraph, null, null, null, null, null, null);
     }));
 
-    it("should have options to 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {
+    it("should show 'Insert' when clipboard has process shapes to insert", () => {
+
+        popupMenu.insertionPoint = new mxCell("test", null, null);
+        popupMenu.insertionPoint["__proto__"]["edge"] = true;
+
+        let menu = new mxPopupMenu();
+        menu["div"] = document.createElement("div");
+        menu["div"].className = "mxPopupMenu";
+        menu["div"].style.left = "100px";
+        menu["div"].style.top = "100px";
+
+        let clipboardData: IProcessShape[] = [];
+        let userTaskShape = shapesFactory.createModelUserTaskShape(-1, -1, -1, -1, -1);
+        userTaskShape.name = "UT1";
+        clipboardData.push(userTaskShape);
+        let systemTaskShape = shapesFactory.createModelSystemTaskShape(-1, -1, -2, -1, -1);
+        systemTaskShape.name = "ST1";
+        clipboardData.push(systemTaskShape);
+
+        clipboard.setData(new ProcessClipboardData(clipboardData));
+
+        spyOn(menu, "addItem");
+        
+        popupMenu.createPopupMenu(mxgraph, menu, null, null);
+
+        expect(menu.addItem["calls"].count()).toEqual(3);
+        let args = menu.addItem["calls"].argsFor(0);
+        expect(args[0]).toContain("Add User Task");
+        args = menu.addItem["calls"].argsFor(1);
+        expect(args[0]).toContain("Add User Decision Point");
+        args = menu.addItem["calls"].argsFor(2);
+        expect(args[0]).toContain("Insert");
+
+        clipboard.clearData();
+    });
+
+    it("should not show 'Insert' when clipboard has some other kind of data", () => {
+
+        popupMenu.insertionPoint = new mxCell("test", null, null);
+        popupMenu.insertionPoint["__proto__"]["edge"] = true;
+
+        let menu = new mxPopupMenu();
+        menu["div"] = document.createElement("div");
+        menu["div"].className = "mxPopupMenu";
+        menu["div"].style.left = "100px";
+        menu["div"].style.top = "100px";
+
+        let clipboardData: IProcessShape[] = [];
+        let userTaskShape = shapesFactory.createModelUserTaskShape(-1, -1, -1, -1, -1);
+        userTaskShape.name = "UT1";
+        clipboardData.push(userTaskShape);
+        let systemTaskShape = shapesFactory.createModelSystemTaskShape(-1, -1, -2, -1, -1);
+        systemTaskShape.name = "ST1";
+        clipboardData.push(systemTaskShape);
+
+        clipboard.setData(new ProcessClipboardData(clipboardData));
+        clipboard["_data"].type = 999; // not a process data type
+
+        spyOn(menu, "addItem");
+
+        popupMenu.createPopupMenu(mxgraph, menu, null, null);
+
+        expect(menu.addItem["calls"].count()).not.toEqual(3);
+        let args = menu.addItem["calls"].argsFor(0);
+        expect(args[0]).toContain("Add User Task");
+        args = menu.addItem["calls"].argsFor(1);
+        expect(args[0]).toContain("Add User Decision Point");
+
+        clipboard.clearData();
+    });
+
+    it("should show 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {
 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
@@ -88,7 +160,7 @@ describe("Popup Menu", () => {
 
     });
 
-    it("should have the option to 'Add User Task' when edge is connected to a user decision node ", () => {
+    it("should show 'Add User Task' when edge is connected to a user decision node ", () => {
 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
@@ -115,7 +187,7 @@ describe("Popup Menu", () => {
 
     });
 
-    it("should have the option to 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
+    it("should show 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = false;

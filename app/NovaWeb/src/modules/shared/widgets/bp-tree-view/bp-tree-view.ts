@@ -255,6 +255,10 @@ export class BPTreeViewController implements IBPTreeViewController {
             }
         },
         deselectAll: (): void => {
+            const columns = this.options.columnApi.getAllColumns();
+            if (columns.length) {
+                this.options.api.setFocusedCell(-1, columns[0]);
+            }
             this.options.api.deselectAll();
         },
         updateSelectableNodes: (isItemSelectable: (item) => boolean): void => {

@@ -33,11 +33,11 @@ export class DiscardArtifactsAction extends BPButtonAction {
                         }
                     })
                     .catch(error => {
+                        publishService.getUnpublishedArtifacts();
                         messageService.addError(error);
                     })
                     .finally(() => {
                         loadingOverlayService.endLoading(overlayId);
-                        navigationService.reloadCurrentState();
                     });
             },
 

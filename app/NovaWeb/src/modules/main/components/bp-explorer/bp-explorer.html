@@ -1,8 +1,15 @@
-﻿<bp-tree-view api="$ctrl.treeApi"              
+﻿<button class="btn btn-link btn-small explorer__unpublished-changes"
+        ng-click="$ctrl.navigateToUnpublishedChanges()">Unpublished Changes</button>
+<bp-tree-view class="explorer__tree"
+              api="$ctrl.treeApi"
+              ng-show="$ctrl.isProjectTreeVisible()"
               row-data="$ctrl.projects"
               columns="$ctrl.columns"
-              size-columns-to-fit="true"
               on-select="$ctrl.onSelect(vm, isSelected)"
               on-error="$ctrl.onError(reason)"
               on-grid-reset="$ctrl.onGridReset(isExpanding)">
 </bp-tree-view>
+
+<div ng-if="!$ctrl.isProjectTreeVisible()" class="explorer__empty-state">
+    <p class="explorer__empty-state-text">{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
+</div>

@@ -15,14 +15,13 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
     lastSaveInvalid: boolean;
-    
+
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact
     unload();
     save(ignoreInvalidValues?: boolean ): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
-    autosave(): ng.IPromise<void>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
@@ -472,20 +471,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return new Error(message);
     }
 
-    public autosave(): ng.IPromise<void> {
-        return this.save(true).catch(() => {
-            return this.services.dialogService.open(<IDialogSettings>{
-            okButton: this.services.localizationService.get("App_Button_Proceed"),
-            //cancelButton: this.services.localizationService.get("Save"),
-            message: this.services.localizationService.get("App_Save_Auto_Confirm"),
-            header: this.services.localizationService.get("App_DialogTitle_Alert"),
-            css: "modal-alert nova-messaging"
-            }).then(() => {
-                this.discard();
-            });
-        });
-    }
-
     public supportRelationships(): boolean {
         if (this.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
             return false;
@@ -522,7 +507,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         this.services.publishService.publishArtifacts([this.id])
             .then(() => {
-                this.services.messageService.addInfo("Publish_Success_Message");
+                this.displaySuccessPublishMessage();
                 this.artifactState.unlock();
                 this.refresh();
                 deffered.resolve();
@@ -539,6 +524,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
 
         return deffered.promise;
+    }
+
+    protected displaySuccessPublishMessage() {
+        this.services.messageService.addInfo("Publish_Success_Message");
     }
 
     private publishDependents(dependents: Models.IPublishResultSet) {
@@ -681,7 +670,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.subArtifactCollection.validate().catch((error) => {
                     return this.services.$q.reject(error);
                 });
-            } 
+            }
 
             const message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
             return this.services.$q.reject(new Error(message));

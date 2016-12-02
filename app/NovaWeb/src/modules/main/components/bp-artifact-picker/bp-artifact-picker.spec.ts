@@ -177,7 +177,7 @@ describe("BpArtifactPickerController", () => {
             predefinedTypeIds: undefined,
             itemTypeIds: [ ],
             includeArtifactPath: true
-        }, 0, 101, undefined, controller.canceller.promise);
+        }, 0, 101, controller.canceller.promise);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);

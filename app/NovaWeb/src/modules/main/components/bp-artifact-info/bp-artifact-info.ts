@@ -9,7 +9,16 @@ import {
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IDialogService, IBPAction, BPButtonGroupAction} from "../../../shared";
+import {
+    IDialogService,
+    IBPAction,
+    IBPDropdownAction,
+    IBPButtonOrDropdownAction,
+    BPButtonGroupAction,
+    BPMenuAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator
+} from "../../../shared";
 import {
     SaveAction,
     PublishAction,
@@ -48,7 +57,6 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -56,7 +64,6 @@ export class BpArtifactInfoController {
     protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
-    public isLocked: boolean;
     public lockMessage: Message;
     public selfLocked: boolean;
     public isLegacy: boolean;
@@ -68,6 +75,9 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public collapsedToolbarActions: IBPAction[] = [];
+    public additionalMenuActions: IBPButtonOrDropdownAction[] = [];
+    public isToolbarCollapsed: boolean = true;
     public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
@@ -83,7 +93,6 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected selectionManager: ISelectionManager,
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
         this.subscribers = [];
@@ -166,7 +175,6 @@ export class BpArtifactInfoController {
     private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
-        this.isLocked = false;
         this.selfLocked = false;
 
         if (this.lockMessage) {
@@ -175,12 +183,8 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected updateProperties(artifact: IStatefulArtifact): void {
+    private updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
-
-        if (!artifact) {
-            return;
-        }
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
@@ -232,24 +236,26 @@ export class BpArtifactInfoController {
     }
 
     public get canLoadProject(): boolean {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
+        return this.canLoadProjectInternal();
+    }
+
+    private canLoadProjectInternal(): boolean {
+        if (!this.artifact || !this.artifact.projectId) {
             return false;
         }
 
-        const project = this.projectManager.getProject(selectedArtifact.projectId);
+        const project = this.projectManager.getProject(this.artifact.projectId);
 
         return !project;
     }
 
     public loadProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
+        if (!this.canLoadProjectInternal()) {
             return;
         }
 
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
+        const projectId = this.artifact.projectId;
+        const artifactId = this.artifact.id;
 
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 
@@ -266,92 +272,76 @@ export class BpArtifactInfoController {
             });
     }
 
-    public get artifactHeadingMinWidth() {
-        let style = {};
-
-        if (this.$element.length) {
-            let container: HTMLElement = this.$element[0];
-            let toolbar: Element = container.querySelector(".page-top-toolbar");
-            let heading: Element = container.querySelector(".artifact-heading");
-            let iconWidth: number = heading && heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
-            let nameWidth: number = heading && heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
-            let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
-            let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
-            let headingWidth: number = iconWidth + (
-                    typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
-                ) + 20 + 5; // heading's margins + wiggle room
-            if (heading && toolbar) {
-                style = {
-                    "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
-                };
-            }
-        }
-
-        return style;
-    }
-
     protected updateToolbarOptions(artifact: IStatefulArtifact): void {
         this.toolbarActions = [];
+        this.collapsedToolbarActions = [];
         if (artifact) {
-            this.toolbarActions.push(
-                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
-            );
-            this.toolbarActions.push(
-                new BPButtonGroupAction(
-                    new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
-                        this.mainBreadcrumbService),
-                    new DeleteAction(
-                        this.artifact,
-                        this.localization,
-                        this.messageService,
-                        this.artifactManager,
-                        this.projectManager,
-                        this.loadingOverlayService,
-                        this.dialogService,
-                        this.navigationService)
-                ),
-            );
+            const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+            const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+            const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
+                this.projectManager, this.loadingOverlayService);
+            const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
+                this.metadataService, this.mainBreadcrumbService);
+            const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+                this.dialogService);
+            const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+                this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+            const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
 
+            // expanded toolbar
+            this.toolbarActions.push(
+                moveAction,
+                new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
+            );
             //we don't want to show impact analysis on collection artifact page
             if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
+                this.toolbarActions.push(openImpactAnalysisAction);
             }
+            // collapsed toolbar
+            const dropdownSeparator = new BPButtonOrDropdownSeparator();
+
+            this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
+            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
+            //we don't want to show impact analysis on collection artifact page
+            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+                this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
+            }
+            this.collapsedToolbarActions.push(
+                new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
+            );
+        }
+    }
+
+    protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {
+        if (actionsContainer.actions.length) {
+            const nestedActions: IBPButtonOrDropdownAction[] = [];
+            actionsContainer.actions.forEach((action: BPButtonOrDropdownAction) => {
+                if (action.icon) {
+                    nestedActions.push(action);
+                } else {
+                    nestedActions.push(new BPButtonOrDropdownAction(
+                        action.execute,
+                        () => !action.disabled && !actionsContainer.disabled,
+                        actionsContainer.icon,
+                        action.label
+                    ));
+                }
+            });
+            return nestedActions;
+        } else {
+            return [];
         }
     }
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
-            let sidebarWrapper: Element;
-            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            const pageHeading = document.querySelector(".page-heading") as HTMLElement;
+            const pageToolbar = document.querySelector(".page-heading .page-toolbar__container") as HTMLElement;
 
-            let sidebarSize = 0;
-            if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
-                sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
-            }
-
-            let sidebarsWidth: number = 20 * 2; // main content area padding
-            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
-
-            if (sidebarWrapper) {
-                for (let c = 0; c < sidebarWrapper.classList.length; c++) {
-                    if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
-                        sidebarsWidth += sidebarSize;
-                    }
-                }
-            }
-
-            if (this.$element.length) {
-                let container: HTMLElement = this.$element[0];
-                let toolbar: Element = container.querySelector(".page-top-toolbar");
-                let heading: Element = container.querySelector(".artifact-heading");
-                if (heading && toolbar) {
-                    angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
-                        "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
-                }
-            }
+            // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR
+            // if (pageHeading && pageToolbar) {
+            //     this.isToolbarCollapsed = pageToolbar.offsetWidth > pageHeading.offsetWidth / 3;
+            // }
         }
     }
 }

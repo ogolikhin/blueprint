@@ -7,6 +7,17 @@ import {SystemTask, DiagramNode, UserTask} from "./shapes/";
 
 export class ProcessGraphSelectionHelper {
 
+    private _isMultiSelectionSubject: Rx.BehaviorSubject<boolean>;
+
+    private get isMultiSelectionSubject(): Rx.BehaviorSubject<boolean> {
+        if (!this._isMultiSelectionSubject) {
+            this._isMultiSelectionSubject = new Rx.BehaviorSubject<boolean>(false);
+        }
+        return this._isMultiSelectionSubject;
+    }
+    public getIsMultiSelectionObservable(): Rx.Observable<boolean> {  
+        return this.isMultiSelectionSubject.asObservable();
+    }
     private isSingleSelection = true;
     private graph: MxGraph;
     private selectionListeners: Array<ISelectionListener> = [];
@@ -111,7 +122,8 @@ export class ProcessGraphSelectionHelper {
                 this.isProgrammaticSelectionChange = true;
                 this.graph.getSelectionModel().addCells(cells);
             }
-
+            
+            this.isMultiSelectionSubject.onNext(cells.length > 1);
             let elements = this.getSelectedNodes();
             if (elements) {
                 elements = elements.filter(e => e instanceof DiagramNode);

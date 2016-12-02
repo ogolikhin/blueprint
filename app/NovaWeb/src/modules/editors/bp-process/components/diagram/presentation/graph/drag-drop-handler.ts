@@ -1,6 +1,7 @@
 import {ProcessGraph} from "./process-graph";
 import {NodeType, IDiagramNodeElement} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
+import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 
 export interface IDragDropHandler {
     moveCell: MxCell;
@@ -12,7 +13,7 @@ export interface IDragDropHandler {
 };
 
 export class DragDropHandler implements IDragDropHandler {
-
+    private isDragAndDropEnabled: boolean;
     public graph: MxGraph = null;
     private PREVIEW_WIDTH = 60;
     private PREVIEW_HEIGHT = 75;
@@ -25,7 +26,7 @@ export class DragDropHandler implements IDragDropHandler {
     private layout = null;
     private previousFill = null;
 
-    constructor(private processGraph: ProcessGraph) {
+    constructor(private processGraph: ProcessGraph, private processGraphSelectionHelper: ProcessGraphSelectionHelper) {
         this.init();
     }
 
@@ -53,7 +54,7 @@ export class DragDropHandler implements IDragDropHandler {
     public isValidDropSource(dropSource: MxCell) {
         // check if valid drop source - only user tasks can be dropped 
         let isDropSource: boolean = false;
-        if (dropSource && dropSource.isVertex) {
+        if (dropSource && dropSource.isVertex && this.isDragAndDropEnabled) {
             let diagramNodeElement = <IDiagramNodeElement>dropSource;
             if (diagramNodeElement && diagramNodeElement.getNode) {
                 if (diagramNodeElement.getNode().getNodeType() === NodeType.UserTask) {
@@ -147,50 +148,59 @@ export class DragDropHandler implements IDragDropHandler {
 
         this.dragPreview.style.left = (pt.x + offset.x) + "px";
         this.dragPreview.style.top = (pt.y + offset.y) + "px";
+        
+    }
+    private onIsMultiSelectChanged = (isMultiSelected) => {
+        this.isDragAndDropEnabled = !isMultiSelected;
+        if (! this.isDragAndDropEnabled && this.moveCell) {
+            this.reset();
+        }  
     }
 
     private installMouseDragDropListener() {
-        let _this = this;
+
+        this.processGraphSelectionHelper.getIsMultiSelectionObservable().subscribe(this.onIsMultiSelectChanged);
+
         this.graph.addMouseListener({
-            mouseDown: function (sender, me) {
-                _this.cell = me.getCell();
-                if (_this.cell && _this.cell !== _this.moveCell) {
-                    if (_this.isValidDropSource(_this.cell)) {
+            mouseDown: (sender, me) => {
+                this.cell = me.getCell();
+                if (this.cell && this.cell !== this.moveCell) {
+                    if (this.isValidDropSource(this.cell)) {
                         // start drag
-                        _this.moveCell = _this.cell;
+                        this.moveCell = this.cell;
                     }
                 }
-                _this.cell = null;
+                this.cell = null;
             },
-            mouseMove: function (sender, me) {
-                if (_this.moveCell && _this.graph.isMouseDown) {
+            mouseMove: (sender, me) => {
+                if (this.moveCell && this.graph.isMouseDown) {
                     // dragging
-                    if (_this.dragPreview == null) {
-                        _this.createDragPreview();
+                    if (this.dragPreview == null) {
+                        this.createDragPreview();
                     }
-                    _this.showDragPreview(me);
-                    _this.highlightDropTarget(me);
+                    this.showDragPreview(me);
+                    this.highlightDropTarget(me);
                 }
-                _this.cell = null;
+                this.cell = null;
             },
-            mouseUp: function (sender, me) {
-                if (_this.moveCell) {
-                    let node = (<IDiagramNodeElement>_this.moveCell).getNode();
-                    if (_this.currentState && _this.currentState.cell.isEdge()) {
+            mouseUp: (sender, me) => {
+                if (this.moveCell) {
+                    let node = (<IDiagramNodeElement>this.moveCell).getNode();
+                    if (this.currentState && this.currentState.cell.isEdge()) {
                         // drop
-                        let edge = _this.currentState.cell;
+                        let edge = this.currentState.cell;
                         let cellId = Number(node.getId());
                             
                         // reset drag state
-                        _this.reset();
+                        this.reset();
 
-                        _this.layout.handleUserTaskDragDrop(cellId, edge);
+                        this.layout.handleUserTaskDragDrop(cellId, edge);
                         // Set lock/dirty flags
-                        _this.processGraph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
+                        this.processGraph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
                     }
                     else {
                         // reset drag state
-                        _this.reset();
+                        this.reset();
                     }
                 }
             }

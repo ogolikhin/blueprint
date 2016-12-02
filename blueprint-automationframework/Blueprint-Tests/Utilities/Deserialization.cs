@@ -5,12 +5,27 @@ using System.Globalization;
 using System.Linq;
 using RestSharp.Serializers;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
-using Newtonsoft.Json.Serialization;
 
 namespace Utilities
 {
     public static class Deserialization
     {
+        /// <summary>
+        /// Either casts or deserializes the specified object into a new type, depending on whether the object is a JSON object or now.
+        /// </summary>
+        /// <typeparam name="T">The type to convert the object into.</typeparam>
+        /// <param name="valueToConvert">The object to be converted.</param>
+        /// <returns>The converted object.</returns>
+        public static T CastOrDeserialize<T>(object valueToConvert)
+        {
+            if (valueToConvert is Newtonsoft.Json.Linq.JObject)
+            {
+                return JsonConvert.DeserializeObject<T>(valueToConvert.ToString());
+            }
+
+            return (T)valueToConvert;
+        }
+
         /// <summary>
         /// ConcreteConverter converts deserialize object based on the class which contains interface properties 
         /// </summary>

@@ -116,8 +116,8 @@ describe("Drag-drop test", () => {
         // Arrange
         let testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
-
         const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+        (<any>graph.dragDropHandler).isEnabled = true;
 
         // Act
         graph.render(false, null);

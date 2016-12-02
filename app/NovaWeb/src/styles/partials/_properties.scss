@@ -227,8 +227,14 @@ pagecontent, bp-properties-panel {
             }
 
             .ui-select-single {
+                min-height: $property-min-height;
+                min-width: $property-input-width;
+
                 .ui-select-search {
+                    left: 0;
                     min-width: $property-input-width;
+                    position: absolute;
+                    top: 0;
                 }
 
                 &.no-custom {

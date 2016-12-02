@@ -105,6 +105,7 @@ export interface IArtifact extends IItem {
     // for artifact picker use
     artifactPath?: string[];
     idPath?: number[];
+    parentPredefinedType?: ItemTypePredefined;
 }
 export interface IOption {
     id: number;

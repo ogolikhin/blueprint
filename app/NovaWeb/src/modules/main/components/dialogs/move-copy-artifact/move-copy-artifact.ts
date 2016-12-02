@@ -47,9 +47,17 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
             return false;
         }
 
-        if (this.insertMethod === this.InsertMethodSelection && this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
-            return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
+        //if we're moving a folder
+        if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
+            //can only insert into folders
+            if (this.insertMethod === this.InsertMethodSelection) {
+                return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
+            } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
+                //or move as a sibling to somthing with a folder as parent (or no parent(i.e. project))
+                return !item.parentPredefinedType || item.parentPredefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
+            }
         }
+        
 
         return true;
     }

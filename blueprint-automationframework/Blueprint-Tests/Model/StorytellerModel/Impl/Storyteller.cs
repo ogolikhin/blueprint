@@ -166,7 +166,8 @@ namespace Model.StorytellerModel.Impl
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            bool sendAuthorizationAsCookie = false,
+            bool shouldDeleteChildren = true)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
 
@@ -202,8 +203,11 @@ namespace Model.StorytellerModel.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
-            var artifact = Artifacts.Find(a => a.Id == process.Id);
-            artifact.ShouldDeleteChildren = true;
+            if (shouldDeleteChildren)
+            {
+                var artifact = Artifacts.Find(a => a.Id == process.Id);
+                artifact.ShouldDeleteChildren = true;
+            }
 
             return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
         }

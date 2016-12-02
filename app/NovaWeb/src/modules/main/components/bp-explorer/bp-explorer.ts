@@ -212,11 +212,20 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }];
 
+    private resettingSelection: boolean;
+
     public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
-        if (isSelected) {
-            this.selected = vm;
-            this.navigationService.navigateTo({id: vm.model.id});
-        }
+         if (!this.resettingSelection && isSelected) {
+             //Following has to be a const to restore current selection in case of faling navigation
+             const prevSelected = this.selected;
+             this.selected = vm;
+             this.navigationService.navigateTo({id: vm.model.id})
+                .catch((err) => {
+                    this.resettingSelection = true;
+                    this.treeApi.setSelected(prevSelected);
+                });
+         }
+         this.resettingSelection = false;
     };
 
     public onError = (reason: any): void => {

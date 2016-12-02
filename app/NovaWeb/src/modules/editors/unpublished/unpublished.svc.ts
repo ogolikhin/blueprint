@@ -15,6 +15,7 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
 
     private _unpublishedArtifacts: IArtifact[];
     private _subject: Rx.Subject<IArtifact[]>;
+    private getUnpublishedArtifactsPromise: ng.IPromise<Models.IPublishResultSet>;
 
     public static $inject = [
         "$http",
@@ -55,12 +56,21 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
     }
 
     public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet> {
-        return this.$http.get(`/svc/bpartifactstore/artifacts/unpublished`)
+        if (this.getUnpublishedArtifactsPromise) {
+            return this.getUnpublishedArtifactsPromise;
+        }
+
+        this.getUnpublishedArtifactsPromise = this.$http.get(`/svc/bpartifactstore/artifacts/unpublished`)
             .then((result: ng.IHttpPromiseCallbackArg<Models.IPublishResultSet>) => {
                 this.unpublishedArtifacts = result.data.artifacts;
                 return result.data;
             })
-            .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data));
+            .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data))
+            .finally(() => {
+                this.getUnpublishedArtifactsPromise = null;
+            });
+
+        return this.getUnpublishedArtifactsPromise;
     }
 
     public publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {

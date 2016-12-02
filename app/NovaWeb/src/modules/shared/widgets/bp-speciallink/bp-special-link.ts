@@ -11,7 +11,7 @@ export class BpLinksHelper implements IBpLinksHelper {
     private jsRegEx = /^\s*javascript/i;
 
     public hasExternalLink($element: ng.IAugmentedJQuery) {
-        return $element.attr("href") !== "#" && !this.jsRegEx.test($element.attr("href"));
+        return !$element.attr("ui-sref") && $element.attr("href") !== "#" && !this.jsRegEx.test($element.attr("href"));
     }
 
     public hasBlueprintLink($element: ng.IAugmentedJQuery) {

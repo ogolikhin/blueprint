@@ -31,7 +31,8 @@ export class NavigationService implements INavigationService {
     }
 
     public reloadCurrentState() {
-        this.$state.reload();
+        const currentState = this.$state.current.name;
+        this.$state.go(currentState, {}, {reload: currentState});
     }
 
     public reloadParentState() {

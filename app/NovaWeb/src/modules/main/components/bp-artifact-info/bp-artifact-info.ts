@@ -300,8 +300,8 @@ export class BpArtifactInfoController {
             // collapsed toolbar
             const dropdownSeparator = new BPButtonOrDropdownSeparator();
 
-            this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction));
-            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction), deleteAction);
+            this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
+            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
             //we don't want to show impact analysis on collection artifact page
             if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
                 this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);

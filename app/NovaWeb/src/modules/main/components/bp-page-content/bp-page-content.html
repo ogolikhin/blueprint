@@ -1,2 +1,14 @@
 ﻿<bp-breadcrumb links="$ctrl.mainBreadcrumbService.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
 <div class="page-content-wrapper" ui-view></div>
+<div ng-if="$ctrl.isMainState()" class="main-area-empty-state">
+    <div class="main-area-empty-state-header"></div>
+    <p class="main-area-empty-state-text">Better Stories</p>
+    <p class="main-area-empty-state-text">drive</p>
+    <p class="main-area-empty-state-text">Better Products</p>
+    <label class="btn btn-secondary btn-small" ng-click="$ctrl.openProject()">Open a project</label>
+    <p class="main-area-empty-state-text">Useful resources to get started</p>    
+    <a class="main-area-empty-hyperlink" href="https://community.blueprintsys.com/docs/DOC-1588">Get started with Storyteller</a>    
+    <a class="main-area-empty-hyperlink" href="https://community.blueprintsys.com/docs/DOC-1593">Get started with the Process Editor</a>
+    <a class="main-area-empty-hyperlink" href="https://community.blueprintsys.com/groups/ask-our-blueprint-community">Blueprint Community forum</a>
+    <a class="main-area-empty-hyperlink" href="https://community.blueprintsys.com/community/enhancement-requests">Submit Enhancement Request</a>
+</div>     

@@ -1,5 +1,37 @@
 $page-body-min-width: 386px;
 
+.main-area-empty-state {
+    padding: 100px 10px;
+    background: $white;
+    text-align: center;
+    display: block;
+    position: absolute;
+    height:100%;
+    width:100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.main-area-empty-state-text{
+    font-size: $font-size-big;
+    color: $gray-darker;
+}
+
+.main-area-empty-hyperlink{
+    
+}
+
+.main-area-empty-border{
+    font-size: $font-size-big;
+    color: $gray-darker;
+}
+
+.main-area-empty-state-header {
+        background: url('/novaweb/static/images/logo-storyteller-gray.svg') center center no-repeat;
+        background-size: 400px;
+        height: 150px;
+    }
+
 pagecontent, bp-properties-panel {
     box-sizing: border-box;
     display: flex;

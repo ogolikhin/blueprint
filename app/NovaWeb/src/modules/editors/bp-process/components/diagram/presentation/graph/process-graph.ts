@@ -40,9 +40,11 @@ export class ProcessGraph implements IProcessGraph {
     private highlightedEdgeStates: any[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
+    private processCopyPasteHelper: ProcessCopyPasteHelper;
     public globalScope: IScopeContext;
     public dragDropHandler: IDragDropHandler;
 
+     
     public static get MinConditions(): number {
         return 2;
     }
@@ -84,6 +86,9 @@ export class ProcessGraph implements IProcessGraph {
         window.addEventListener("buttonUpdated", this.buttonUpdated, true);
         // non movable
         this.mxgraph.setCellsMovable(false);
+        this.mxgraph.isCellSelectable = ((cell: MxCell) => {
+            return !cell.isEdge();
+        });
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
@@ -99,6 +104,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
+        this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, this.clipboard, this.shapesFactory);
     }
 
     public addSelectionListener(listener: ISelectionListener) {
@@ -124,21 +130,19 @@ export class ProcessGraph implements IProcessGraph {
 
     private initializePopupMenu() {
         // initialize a popup menu for the graph
-        this.popupMenu = new NodePopupMenu(
-            this.layout,
-            this.shapesFactory,
-            this.localization,
-            this.clipboard,
-            this.htmlElement,
-            this.mxgraph,
-            ProcessAddHelper.insertTaskWithUpdate,
-            ProcessAddHelper.insertUserDecision,
-            ProcessAddHelper.insertUserDecisionConditionWithUpdate,
-            ProcessAddHelper.insertSystemDecision,
-            ProcessAddHelper.insertSystemDecisionConditionWithUpdate,
-            ProcessCopyPasteHelper.insertSelectedShapes);
+        this.popupMenu = new NodePopupMenu(this.layout, this.shapesFactory, this.localization, this.clipboard, this.htmlElement, this.mxgraph, 
+            ProcessAddHelper.insertTaskWithUpdate, ProcessAddHelper.insertUserDecision, ProcessAddHelper.insertUserDecisionConditionWithUpdate,
+            ProcessAddHelper.insertSystemDecision, ProcessAddHelper.insertSystemDecisionConditionWithUpdate, this.insertSelectedShapes);
     }
-
+    
+    public copySectedShapes() {
+        this.processCopyPasteHelper.copySectedShapes();
+    }
+    
+    public insertSelectedShapes = ((edge: MxCell) => {
+        this.processCopyPasteHelper.insertSelectedShapes(edge);
+    });
+    
     public render(useAutolayout, selectedNodeId) {
         try {
             // uses layout object to draw a new diagram for process model

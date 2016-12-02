@@ -135,8 +135,9 @@ export class ProcessDiagram {
     };
 
     private copySelection = () => {
-        ProcessCopyPasteHelper.copySectedShapes(this.graph, this.clipboard, this.shapesFactory);
+        this.graph.copySectedShapes();
     }
+    
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     };

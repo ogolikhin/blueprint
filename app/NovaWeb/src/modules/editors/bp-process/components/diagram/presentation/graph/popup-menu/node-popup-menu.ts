@@ -118,7 +118,7 @@ export class NodePopupMenu {
                 if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
                     menu.addItem("Insert Selected Shapes", null, () => {
                         if (this.insertSelectedShapesFn && this.insertionPoint) {
-                            this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
+                            this.insertSelectedShapesFn(this.insertionPoint);
                             this.insertionPoint = null;
                         }
                     });
@@ -152,7 +152,7 @@ export class NodePopupMenu {
                 if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
                     menu.addItem("Insert Selected Shapes", null, () => {
                         if (this.insertSelectedShapesFn && this.insertionPoint) {
-                            this.insertSelectedShapesFn(this.insertionPoint, this.layout, this.clipboard, this.shapesFactoryService);
+                            this.insertSelectedShapesFn(this.insertionPoint);
                             this.insertionPoint = null;
                         }
                     });

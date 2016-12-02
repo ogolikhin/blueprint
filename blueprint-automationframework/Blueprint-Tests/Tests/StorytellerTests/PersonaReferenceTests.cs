@@ -317,11 +317,11 @@ namespace StorytellerTests
             var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
             Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
 
-            // Don't use Helper because this isn't a real artifact, it's just wrapping the artifact ID.
-            var fakeArtifact = ArtifactFactory.CreateArtifact(_project, _authorFullAccess, BaseArtifactType.Actor, artifactId: addedPersonaReference.Id);
+            var actor = Helper.Artifacts.Find(a => a.Id == addedPersonaReference.Id);
+            Assert.IsNotNull(actor, "Cannot find actor artifact!");
 
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, fakeArtifact);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, actor);
 
             // Execute:
             List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(userWithoutPermissions, process);

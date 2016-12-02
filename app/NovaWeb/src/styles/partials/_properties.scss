@@ -161,6 +161,12 @@ pagecontent, bp-properties-panel {
                     flex-shrink: 0;
                     width: 3.5px;
                 }
+                &.btn-secondary {
+                    color: $brand-secondary;
+                    &:hover {
+                        color: $white;
+                    }
+                }
             }
 
             input,

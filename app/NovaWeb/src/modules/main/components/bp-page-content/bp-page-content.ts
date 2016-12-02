@@ -3,7 +3,7 @@ import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {ItemTypePredefined} from "../../../main/models/enums";
+import {ItemTypePredefined} from "../../models/enums";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IProjectManager} from "../../../managers/project-manager";
 

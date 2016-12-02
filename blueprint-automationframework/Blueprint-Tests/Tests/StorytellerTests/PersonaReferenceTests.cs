@@ -254,16 +254,18 @@ namespace StorytellerTests
 
             StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
+            string expectedPersonaName = null;
+
             if (taskName == Process.DefaultUserTaskName)
             {
-                Assert.AreEqual(I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to UT Then the System will be ST", addedPersonaReference.Name),
-                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have persona!");
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to UT Then the System will be ST", addedPersonaReference.Name);
             }
             else
             {
-                Assert.AreEqual(I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to UT Then the {0} will be ST", addedPersonaReference.Name),
-                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have persona!");
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to UT Then the {0} will be ST", addedPersonaReference.Name);
             }
+
+            Assert.AreEqual(expectedPersonaName, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have " + addedPersonaReference.Name + "persona!");
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -281,10 +283,10 @@ namespace StorytellerTests
             var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
             Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
 
-            // Don't use Helper because this isn't a real artifact, it's just wrapping the artifact ID.
-            var fakeArtifact = ArtifactFactory.CreateArtifact(_project, _authorFullAccess, BaseArtifactType.Actor, artifactId: addedPersonaReference.Id);
+            var actor = Helper.Artifacts.Find(a => a.Id == addedPersonaReference.Id);
+            Assert.IsNotNull(actor, "Cannot find actor artifact!");
 
-            fakeArtifact.Delete(_authorFullAccess);
+            actor.Delete(_authorFullAccess);
 
             // Execute:
             List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
@@ -295,7 +297,7 @@ namespace StorytellerTests
             StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
             Assert.AreEqual("Given the System is Precondition When User attempts to UT Then the System will be ST",
-                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default user name!");
+                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -305,6 +307,8 @@ namespace StorytellerTests
         public void PersonaReference_NoPermissionsToArtifact_UserStoryGenerated_VerifyDefaultNameInProperty(string taskName)
         {
             // Setup:
+            const string INACCESSIBLE_ACTOR = "Inaccessible Actor";
+
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _authorFullAccess);
 
             var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
@@ -327,16 +331,18 @@ namespace StorytellerTests
 
             StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
+            string expectedPersonaName = null;
+
             if (taskName == Process.DefaultUserTaskName)
             {
-                Assert.AreEqual("Given the System is Precondition When Inaccessible Actor attempts to UT Then the System will be ST",
-                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have Inaccessible Actor!");
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to UT Then the System will be ST", INACCESSIBLE_ACTOR);
             }
             else
             {
-                Assert.AreEqual("Given the System is Precondition When User attempts to UT Then the Inaccessible Actor will be ST",
-                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have Inaccessible Actor!");
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to UT Then the {0} will be ST", INACCESSIBLE_ACTOR);
             }
+
+            Assert.AreEqual(expectedPersonaName, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have" + INACCESSIBLE_ACTOR + " persona!");
         }
 
         [Explicit(IgnoreReasons.FlakyTest)]  //This test changes parent process version
@@ -366,7 +372,7 @@ namespace StorytellerTests
                 StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
                 Assert.AreEqual("Given the System is Precondition When User attempts to UT Then the System will be ST",
-                        ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default user name!");
+                        ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
             }
             finally
             {

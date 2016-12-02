@@ -97,35 +97,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(description, artifactDetailsAfter.Description);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [TestRail(164531)]
-        [Description("Create & publish an artifact.  Update the artifact property 'Name' with Empty space.  Get the artifact.  " +
-            "Verify the artifact returned has the same properties as the artifact we updated.")]
-        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", string.Empty, _user);
-
-            // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            Assert.IsNullOrEmpty(artifactDetailsAfter.Name, "The Name property should be empty!");
-            Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
-            Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
-
-            // Set the Name & LastSaveInvalid equal to the original so they don't cause the comparison to fail.
-            artifactDetailsAfter.Name = artifactDetails.Name;
-            artifactDetailsAfter.LastSaveInvalid = artifactDetails.LastSaveInvalid;
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
-        }
-
-
         [TestCase]  // It is working as designed for now. There is no check on user's permissions after artifact was locked
         [TestRail(190881)]
         [Description("Create & publish an artifact.  Lock artifact with an author, change permissions to viewer and update the artifact.  Verify 403 Forbidden is returned.")]
@@ -623,6 +594,8 @@ namespace ArtifactStoreTests
 
         #region Negative tests
 
+        #region 400 Bad Request
+
         [TestCase]
         [TestRail(156662)]
         [Description("Try to update an artifact, but send an empty request body.  Verify 400 Bad Request is returned.")]
@@ -711,6 +684,33 @@ namespace ArtifactStoreTests
             const string expectedMessage = "Artifact does not match Id of request.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
+
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(164531)]
+        [Description("Create & publish an artifact.  Update the artifact property 'Name' with Empty space. Verify 400 Bad Request returned.")]
+        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_400BadRequest(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            artifactDetails.Name = string.Empty;
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifactDetails.Id, _user);
+            }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            const string expectedMessage = "The Item name cannot be empty";
+            AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
+        }
+
+        #endregion 400 Bad Request
 
         [TestCase]
         [TestRail(156657)]

@@ -20,6 +20,10 @@ $modal-side-clearance: 8px;
     }
     }
 
+    &.modal.nova-open-project .modal-body .search-form{
+        margin-bottom: 5px;
+    }
+
     .manage-traces {
         > div {
             float: left;
@@ -302,11 +306,17 @@ $modal-side-clearance: 8px;
             }
         }
 
+        .actions-panel-counter{
+            font-size: $font-size-normal;
+            line-height: 30px;
+            padding-left: 8px;
+        }
+
         .actions-panel {
             padding: 5px;
             background: $gray-lightest;
             text-align: right;
-            margin-bottom: 14px;
+            margin-bottom: 3px;
             font-size: 1.8rem;
             visibility: hidden;
 
@@ -321,7 +331,6 @@ $modal-side-clearance: 8px;
                     display: inline-block;
 
                     &:hover {
-                        background: $brand-secondary;
                         color: $white;
                     }
                 }
@@ -341,24 +350,19 @@ $modal-side-clearance: 8px;
             }
 
             .icon {
-                background: $white;
                 padding: 0 3px;
-                border: 1px solid $gray-lighter;
-                border-radius: $border-radius-small;
                 padding-bottom: 2px;
 
                 &::before {
                     font-size: $font-size-big;
                     color: $gray-light;
-                    border: $gray-dark;
                 }
 
                 &:hover {
-                    background: $brand-secondary;
-                    color: $white;
+                    color: $brand-secondary;
 
                     &::before {
-                        color: $white;
+                        color: $brand-secondary;
                     }
         }
             }

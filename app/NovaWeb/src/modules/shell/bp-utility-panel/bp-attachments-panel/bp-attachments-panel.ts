@@ -159,7 +159,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Ok", "OK"),
             header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
-            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Attachment will be deleted. Continue?")
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Please confirm the deletion of this attachment.")
         };
         this.dialogService.open(dialogSettings).then(() => {
             this.item.attachments.remove([attachment]);
@@ -188,7 +188,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         });
 
         if (this.item) {
-            
+
             const refresh = !this.item.attachments.changes() && !this.item.docRefs.changes();
             if (refresh) {
                 this.item.attachments.refresh();

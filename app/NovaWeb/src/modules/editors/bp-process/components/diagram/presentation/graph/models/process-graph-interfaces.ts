@@ -143,7 +143,7 @@ export interface ILayout {
     viewModel: IProcessViewModel;
     getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
     updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);
-    getDefaultBranchLabel(decisionId: number): string;
+    getDefaultBranchLabel(decisionId: number, nodeType: NodeType): string;
     getTempShapeId(): number;
     setTempShapeId(id: number);
 }

@@ -84,7 +84,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
     }
 
     public get disabled(): boolean {
-        return this.canExecute();
+        return !this.canExecute();
     }
 
     public dispose(): void {

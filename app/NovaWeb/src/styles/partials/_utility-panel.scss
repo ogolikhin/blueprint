@@ -107,8 +107,8 @@ bp-utility-panel {
 
         > li > a {
             margin: 0;
-            padding-left: 10px;
-            padding-right: 10px;
+            padding-left: $padding-small-vertical;
+            padding-right: $padding-small-vertical;
         }
     }
     .tab-content {

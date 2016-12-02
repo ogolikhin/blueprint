@@ -26,6 +26,8 @@ export class DragDropHandler implements IDragDropHandler {
     private layout = null;
     private previousFill = null;
 
+    private onSelectionChangedHandler: string;
+
     constructor(private processGraph: ProcessGraph) {
         this.init();
     }
@@ -35,7 +37,10 @@ export class DragDropHandler implements IDragDropHandler {
         this.layout = this.processGraph.layout;
         // Disable drag and drop if process is read-only
         if (!this.processGraph.viewModel.isReadonly) {
-            this.processGraph.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
+
+            this.onSelectionChangedHandler = this.processGraph.viewModel.communicationManager.processDiagramCommunication
+                .register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
+
             this.installMouseDragDropListener();
         }
     }
@@ -207,6 +212,10 @@ export class DragDropHandler implements IDragDropHandler {
     };
 
     public dispose() {
-        this.moveCell = null; 
+        
+        this.processGraph.viewModel.communicationManager.processDiagramCommunication
+            .unregister(ProcessEvents.SelectionChanged, this.onSelectionChangedHandler);
+
+        this.moveCell = null;
     }
 }

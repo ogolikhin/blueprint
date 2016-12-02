@@ -421,8 +421,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Condition_Label', 'en-US', N'Condition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Choice_Label', 'en-US', N'Choice')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Next_Task_Label', 'en-US', N'Next Task')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Add_Condition_Button_Label', 'en-US', N'Add Condition')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Delete_Condition_Button_Label', 'en-US', N'Delete Condition')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Cannot_Include_Parent_Process', 'en-US', N'A task cannot include its parent Process')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Userstory_Has_Been_Deleted', 'en-US', N'User story has been deleted or moved. To preview it, please generate it again.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Given_Label', 'en-US', N'Given')

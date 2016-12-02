@@ -157,18 +157,18 @@ export class NodePopupMenu {
                         }
                     });
                 }
-                
+
             }
 
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
-            menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
+            menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
                 if (this.insertUserDecisionBranchFn && this.insertionPoint) {
                     this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
                 }
             });
         } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
-            menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
+            menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
                 if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
                     this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
                     this.insertionPoint = null;
@@ -234,7 +234,7 @@ export class NodePopupMenu {
     }
 
     private clipboardHasProcessData(): boolean {
-        let hasData: boolean = false; 
+        let hasData: boolean = false;
         if (this.clipboard) {
             if (!this.clipboard.isEmpty() &&
                 this.clipboard.getDataType() === ClipboardDataType.Process) {

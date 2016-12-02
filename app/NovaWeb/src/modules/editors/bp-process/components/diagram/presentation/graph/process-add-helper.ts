@@ -11,6 +11,7 @@ import {
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
+import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -106,7 +107,7 @@ export class ProcessAddHelper {
         }
         shape.projectId = layout.viewModel.projectId;
         shape.id = layout.getTempShapeId();
-            
+
         ProcessAddHelper.addShape(shape, layout, shapesFactoryService);
 
         return shape.id;

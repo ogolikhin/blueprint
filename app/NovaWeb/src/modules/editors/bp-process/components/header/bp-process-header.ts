@@ -139,7 +139,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         const generateUserStoriesAction = new GenerateUserStoriesAction(
             processArtifact,
             this.userStoryService,
-            this.artifactManager.selection,
             this.messageService,
             this.localization,
             this.dialogService,

@@ -313,24 +313,13 @@ export class BpArtifactInfoController {
     }
 
     protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {
+        const nestedActions: IBPButtonOrDropdownAction[] = [];
+
         if (actionsContainer.actions.length) {
-            const nestedActions: IBPButtonOrDropdownAction[] = [];
-            actionsContainer.actions.forEach((action: BPButtonOrDropdownAction) => {
-                if (action.icon) {
-                    nestedActions.push(action);
-                } else {
-                    nestedActions.push(new BPButtonOrDropdownAction(
-                        action.execute,
-                        () => !action.disabled && !actionsContainer.disabled,
-                        actionsContainer.icon,
-                        action.label
-                    ));
-                }
-            });
-            return nestedActions;
-        } else {
-            return [];
+            actionsContainer.actions.forEach((action: BPButtonOrDropdownAction) => nestedActions.push(action));
         }
+
+        return nestedActions;
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

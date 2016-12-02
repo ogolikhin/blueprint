@@ -11,16 +11,17 @@ import {ProcessGraph} from "./process-graph";
 import {ProcessAddHelper} from "./process-add-helper";
 import {DiagramNode, SystemTask, UserTask, UserDecision, SystemDecision} from "./shapes/";
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
+import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/process-models";
 
-enum CopyPasteNodeType {
+enum PreprocessorNodeType {
     UserTask,
     UserDecision,
     SystemTask,
     SystemDecision
 }
 
-class CopyPasteNode {
-    constructor(id: string, prevId: string, nextIds: string[], type: CopyPasteNodeType, x: number, y: number) {
+class PreprocessorNode {
+    constructor(id: string, prevId: string, nextIds: string[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
         this.id = id;
         this.prevId = prevId;
         this.nextIds = nextIds; 
@@ -28,17 +29,19 @@ class CopyPasteNode {
         this.isProcessed = false;
         this.x = x;
         this.y = y;
+        this.subTreeId = subTreeId;
     }
     id: string;
     prevId: string;
     nextIds: string[]; 
-    type: CopyPasteNodeType;
+    type: PreprocessorNodeType;
     x: number;
     y: number;
     isProcessed: boolean;
+    subTreeId: number;
 }
 
-class CopyPasteLink {
+class PreprocessorLink {
     constructor(label: string, orderindex: number) {
         this.label = label;
         this.orderindex = orderindex;
@@ -47,26 +50,28 @@ class CopyPasteLink {
     orderindex: number;
 }
 
-class CopyPasteData {
+class PreprocessorData {
     constructor() {
         this.shapes = [];
         this.links = [];
-        this.copyPasteTree = [];
+        this.preprocessorTree = [];
         this.treeIndex = [];
+        this.numberOfSubTrees = 0;
     }
     shapes: IProcessShape[];
-    links: CopyPasteLink[];
-    copyPasteTree: CopyPasteNode[];
+    links: PreprocessorLink[];
+    preprocessorTree: PreprocessorNode[];
     treeIndex: string[];
     startId: number;
+    numberOfSubTrees: number;
 
-    public addCopyPasteNode(id: string, prevId: string, nextIds: string[], type: CopyPasteNodeType, x: number, y: number) {
-        this.copyPasteTree[id] = new CopyPasteNode(id, prevId, nextIds, type, x, y);
+    public addPreprocessorNode(id: string, prevId: string, nextIds: string[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
+        this.preprocessorTree[id] = new PreprocessorNode(id, prevId, nextIds, type, x, y, subTreeId);
         this.treeIndex.push(id);
     }
 
     public sortTree() {
-        this.treeIndex = _.sortBy(this.treeIndex, (id: string) =>  this.copyPasteTree[id].x * 1000 + this.copyPasteTree[id].y);
+        this.treeIndex = _.sortBy(this.treeIndex, (id: string) =>  this.preprocessorTree[id].x * 1000 + this.preprocessorTree[id].y);
     }
 }
 
@@ -87,26 +92,31 @@ class TaskRef {
         this.decisionId = decisionId;
         this.branches = [];
         this.branches.push(new Branch(taskId, label, orderindex));
+        this.endPointId = "UNDEFINED";
     }
     decisionId: string; 
+    endPointId: string;
     branches: Branch[]; 
 }
 
 export class ProcessCopyPasteHelper {
 
     private layout: ILayout;
+    private readonly treeGlueId = -9999;
+    public static readonly treeStartId = "-99999";
+    public static readonly treeEndId = "-100000";
 
     constructor(private processGraph: IProcessGraph, private clipboard: IClipboardService, private shapesFactoryService: ShapesFactory) {
         this.layout = processGraph.layout;
     }
 
-    public copySectedShapes(): void {
+    public copySelectedShapes(): void {
         
         if (!this.clipboard) {
             throw new Error("Clipboard does not exist");
         }
         
-        let data: CopyPasteData = new CopyPasteData();
+        let data: PreprocessorData = new PreprocessorData();
         let  baseNodes = this.processGraph.getMxGraph().getSelectionCells();
 
         // 1. Find all UDs 
@@ -143,13 +153,14 @@ export class ProcessCopyPasteHelper {
                                                      [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
 
         let prevId = "0";
+        data.numberOfSubTrees = -1;
         _.each(baseNodes, (node) => {
             // skip processed nodes
-            if (!data.copyPasteTree[(<IDiagramNode>node).model.id]) {
+            if (!data.preprocessorTree[(<IDiagramNode>node).model.id]) {
                 if (node instanceof UserTask) {
-                    this.addUserAndSystemTasks(prevId, data, node, taskRefs);
+                    this.addUserAndSystemTasks(prevId, data, node, taskRefs, ++data.numberOfSubTrees);
                 } else if (node instanceof UserDecision) { // user decision
-                    this.addUserDecisionAndTasks(prevId, data, node, taskRefs);
+                    this.addUserDecisionAndTasks(prevId, data, node, taskRefs, ++data.numberOfSubTrees);
                 } else {
                     throw new Error("Unsupported copy/paste type");
                 }
@@ -158,20 +169,60 @@ export class ProcessCopyPasteHelper {
 
         data.sortTree();
 
-        // add branches links
+        // glue subtrees
+        for (let i = 0; i < data.treeIndex.length; i++) { 
+            const preprocessorNode: PreprocessorNode = data.preprocessorTree[data.treeIndex[i]];
+            if (i === 0) {
+                preprocessorNode.prevId = ProcessCopyPasteHelper.treeStartId;
+            } else {
+                if (!data.preprocessorTree[preprocessorNode.prevId]) {
+                    preprocessorNode.prevId = (this.treeGlueId - preprocessorNode.subTreeId + 1).toString();
+                }
+            }
+            
+            if (preprocessorNode.nextIds.length === 1 && !data.preprocessorTree[preprocessorNode.nextIds[0]]) {
+                if (data.numberOfSubTrees === preprocessorNode.subTreeId) {
+                    preprocessorNode.nextIds[0] = ProcessCopyPasteHelper.treeEndId;
+                } else {
+                    preprocessorNode.nextIds[0] = (this.treeGlueId - preprocessorNode.subTreeId).toString();
+                } 
+            }
+        }        
+
+        // find end points for the DP branches and add branches links
         _.forOwn(taskRefs, (node: TaskRef) => {
             if (!!node && node.branches.length > 1) {
                 for (let branch of node.branches) {
-                    let link = new CopyPasteLink(branch.label, branch.orderindex);
+                    // add link
+                    let link = new PreprocessorLink(branch.label, branch.orderindex);
                     data.links[node.decisionId + ";" + branch.taskId] = link;
+                }
+
+                // find end points for the DP branches
+                // 1. build search string
+                let preprocessorNode: PreprocessorNode = data.addPreprocessorNode[node.branches[0].taskId];
+                let searchString: string = "";
+                while (preprocessorNode) {
+                    preprocessorNode = data.addPreprocessorNode[preprocessorNode.nextIds[0]];
+                    searchString +=  "*" + preprocessorNode.nextIds[0] + "*";
+                }
+
+                //2. find match in the search string when traversing through the second branch 
+                preprocessorNode = data.addPreprocessorNode[node.branches[1].taskId];
+                while (preprocessorNode) {
+                    preprocessorNode = data.addPreprocessorNode[preprocessorNode.nextIds[0]];
+                    if (searchString.indexOf("*" + preprocessorNode.nextIds[0] + "*")) {
+                        node.endPointId = preprocessorNode.nextIds[0];
+                        break;
+                    }
                 }
             }
         });        
-        
-        this.clipboard.setData(new ProcessClipboardData(data));
+
+        this.clipboard.setData(new ProcessClipboardData(this.createProcessModel(data, taskRefs)));
     };
 
-    private  addUserDecisionAndTasks(prevId: string, data: CopyPasteData, node: UserDecision, taskRefs: TaskRef[]) {
+    private  addUserDecisionAndTasks(prevId: string, data: PreprocessorData, node: UserDecision, taskRefs: TaskRef[], subTreeId: number) {
         const userDecisionShape = this.createUserDecisionShape(node);
         const userDecisionId: string = userDecisionShape.id.toString();
         data.shapes[userDecisionId] = userDecisionShape;
@@ -180,16 +231,17 @@ export class ProcessCopyPasteHelper {
         _.each(taskRefs[userDecisionId].branches, (branch: Branch) => {
             let userTask = this.processGraph.getNodeById(branch.taskId);
             userTasks.push(branch.taskId);
-            this.addUserAndSystemTasks(userDecisionId, data, <UserTask>userTask, taskRefs);
+            this.addUserAndSystemTasks(userDecisionId, data, <UserTask>userTask, taskRefs, subTreeId);
         });
 
-        data.addCopyPasteNode(userDecisionId, prevId, userTasks, 
-                                            CopyPasteNodeType.UserDecision, 
+        data.addPreprocessorNode(userDecisionId, prevId, userTasks, 
+                                            PreprocessorNodeType.UserDecision, 
                                             userDecisionShape.propertyValues["x"].value,
-                                            userDecisionShape.propertyValues["y"].value);
+                                            userDecisionShape.propertyValues["y"].value,
+                                            subTreeId);
     }
 
-    private  addSystemDecisionAndTasks(prevId: string, data: CopyPasteData, node: SystemDecision, taskRefs: TaskRef[]) {
+    private  addSystemDecisionAndTasks(prevId: string, data: PreprocessorData, node: SystemDecision, taskRefs: TaskRef[], subTreeId: number) {
         const systemDecisionShape = this.createSystemDecisionShape(node);
         const systemDecisionId: string = systemDecisionShape.id.toString();
         data.shapes[systemDecisionId] = systemDecisionShape;
@@ -206,29 +258,31 @@ export class ProcessCopyPasteHelper {
             }
 
             systemTaskIds.push(systemTask.id);
-            const nextId = this.addSystemTask(systemDecisionId, data, systemTask);
+            const nextId = this.addSystemTask(systemDecisionId, data, systemTask, subTreeId);
         });
 
-        data.addCopyPasteNode(systemDecisionId, prevId, systemTaskIds, 
-                                            CopyPasteNodeType.SystemDecision, 
+        data.addPreprocessorNode(systemDecisionId, prevId, systemTaskIds, 
+                                            PreprocessorNodeType.SystemDecision, 
                                             systemDecisionShape.propertyValues["x"].value,
-                                            systemDecisionShape.propertyValues["y"].value);
+                                            systemDecisionShape.propertyValues["y"].value,
+                                            subTreeId);
     }
 
-    addSystemTask(prevId: string, data: CopyPasteData, node: SystemTask): string {
+    private addSystemTask(prevId: string, data: PreprocessorData, node: SystemTask, subTreeId: number): string {
         const systemTaskShape = this.createSystemTask(node);
         const nextId = this.processGraph.viewModel.getNextShapeIds(systemTaskShape.id)[0].toString();
         const systemTaskId = systemTaskShape.id.toString();
-        data.addCopyPasteNode(systemTaskId, prevId, [nextId], 
-                                            CopyPasteNodeType.SystemTask, 
+        data.addPreprocessorNode(systemTaskId, prevId, [nextId], 
+                                            PreprocessorNodeType.SystemTask, 
                                             systemTaskShape.propertyValues["x"].value,
-                                            systemTaskShape.propertyValues["y"].value);
+                                            systemTaskShape.propertyValues["y"].value,
+                                            subTreeId);
         data.shapes[systemTaskId] = systemTaskShape;
 
         return nextId;
     }
 
-    private  addUserAndSystemTasks(prevId: string, data: CopyPasteData, node: UserTask, taskRefs: TaskRef[]) {
+    private  addUserAndSystemTasks(prevId: string, data: PreprocessorData, node: UserTask, taskRefs: TaskRef[], subTreeId: number) {
         const userTaskShape = this.createUserTaskShape(node);
         const systemTasks = node.getNextSystemTasks(this.processGraph);
 
@@ -236,28 +290,29 @@ export class ProcessCopyPasteHelper {
         let systemTaskId: string = systemTasks[0].model.id.toString();
 
         data.shapes[userTaskId] = userTaskShape;
-        data.addCopyPasteNode(userTaskId, prevId, [systemTaskId], 
-                                            CopyPasteNodeType.UserTask, 
+        data.addPreprocessorNode(userTaskId, prevId, [systemTaskId], 
+                                            PreprocessorNodeType.UserTask, 
                                             userTaskShape.propertyValues["x"].value,
-                                            userTaskShape.propertyValues["y"].value);
+                                            userTaskShape.propertyValues["y"].value,
+                                            subTreeId);
 
         if (systemTasks.length === 1) {
-            const nextId = this.addSystemTask(userTaskId, data, <SystemTask>systemTasks[0]);
-            const nextNode = data.copyPasteTree[nextId];
+            const nextId = this.addSystemTask(userTaskId, data, <SystemTask>systemTasks[0], subTreeId);
+            const nextNode = data.preprocessorTree[nextId];
             if (!!nextNode) { // there is next selected user task or user decision 
-                if (nextNode.type === CopyPasteNodeType.UserTask) {
+                if (nextNode.type === PreprocessorNodeType.UserTask) {
                     const nextUserTask = <UserTask>this.layout.getNodeById(nextId);
-                    this.addUserAndSystemTasks(systemTaskId, data, nextUserTask, taskRefs);
-                } else if (nextNode.type === CopyPasteNodeType.UserDecision) {
+                    this.addUserAndSystemTasks(systemTaskId, data, nextUserTask, taskRefs, subTreeId);
+                } else if (nextNode.type === PreprocessorNodeType.UserDecision) {
                     const nextUserDecision = <UserDecision>this.layout.getNodeById(nextId);
-                    this.addUserDecisionAndTasks(systemTaskId, data, nextUserDecision, taskRefs);
+                    this.addUserDecisionAndTasks(systemTaskId, data, nextUserDecision, taskRefs, subTreeId);
                 }
             } else {
                 ;
             }
         } else { // add system decision + system tasks
             const systemDecision = <SystemDecision>node.getNextNodes()[0];
-            this.addSystemDecisionAndTasks(userTaskId, data, systemDecision, taskRefs);
+            this.addSystemDecisionAndTasks(userTaskId, data, systemDecision, taskRefs, subTreeId);
         }
     }
 
@@ -304,6 +359,48 @@ export class ProcessCopyPasteHelper {
         return systemTaskShape; 
     }
 
+    private createProcessModel(data: PreprocessorData, taskRefs: TaskRef[]): IProcess {
+        const procModel: IProcess = new ProcessModel(
+            -1,
+            "CP",
+            "CP",
+            -1,
+            ItemTypePredefined.Process,
+            [],
+            [],
+            null,
+            []
+        );
+        
+        // set process shapes and links.
+        for (let index of data.treeIndex) {
+            procModel.shapes.push(data.shapes[index]);
+
+            const preprocessorNode: PreprocessorNode = data.preprocessorTree[index];
+            _.each(preprocessorNode.nextIds, (id) => {
+                const preprocessorLink: PreprocessorLink = data.links[preprocessorNode.id + ";" + id];
+                if (!!preprocessorLink) {
+                    procModel.links.push(new ProcessLinkModel(-1, _.toNumber(preprocessorNode.id), _.toNumber(id), 
+                                                    preprocessorLink.orderindex, preprocessorLink.label));
+                } else {
+                    procModel.links.push(new ProcessLinkModel(-1, _.toNumber(preprocessorNode.id), _.toNumber(id)));
+                }
+            });
+        }
+
+        // set process decisionBranchDestinationLinks.
+        _.forOwn(taskRefs, (node: TaskRef) => {
+            if (!!node && node.branches.length > 1) {
+                for (let branch of node.branches) {
+                    procModel.decisionBranchDestinationLinks.push(new ProcessLinkModel(-1, _.toNumber(node.decisionId), 
+                                                                                                    _.toNumber(node.endPointId), branch.orderindex));
+                }
+            }
+        });        
+
+        return procModel;
+    }
+
     public insertSelectedShapes(edge: MxCell): void {
         let idMap: number[] = [];
 
@@ -326,11 +423,11 @@ export class ProcessCopyPasteHelper {
             let sourceIds = sourcesAndDestinations.sourceIds;
             let destinationId = sourcesAndDestinations.destinationIds[0];
             
-            const data = <CopyPasteData>processClipboardData.data;
+            const data = <PreprocessorData>processClipboardData.data;
 
             for (let index in data.treeIndex) {
                
-                const copyPasteNode = (<CopyPasteNode>data.copyPasteTree[data.treeIndex[index]]); 
+                const copyPasteNode = (<PreprocessorNode>data.preprocessorTree[data.treeIndex[index]]); 
                 if (copyPasteNode.isProcessed) {
                     continue;
                 } else {
@@ -346,8 +443,8 @@ export class ProcessCopyPasteHelper {
         }
     }
 
-    private addShape(idMap, copyPasteNode: CopyPasteNode, sourceIds, destinationId, node, data: CopyPasteData) {
-        if (copyPasteNode.type === CopyPasteNodeType.UserTask) {
+    private addShape(idMap, copyPasteNode: PreprocessorNode, sourceIds, destinationId, node, data: PreprocessorData) {
+        if (copyPasteNode.type === PreprocessorNodeType.UserTask) {
             const userTaskId = ProcessAddHelper.insertClonedUserTaskInternal(this.layout, this.shapesFactoryService, <any>node);
 
             idMap[copyPasteNode.id] = userTaskId;
@@ -361,7 +458,7 @@ export class ProcessCopyPasteHelper {
                 this.layout.updateLink(id, destinationId, userTaskId);
             }
 
-        } else if (copyPasteNode.type === CopyPasteNodeType.SystemTask) {
+        } else if (copyPasteNode.type === PreprocessorNodeType.SystemTask) {
             const systemTaskId = ProcessAddHelper.insertClonedSystemTaskInternal(this.layout, this.shapesFactoryService, <any>node);
 
             idMap[copyPasteNode.id] = systemTaskId;
@@ -373,18 +470,18 @@ export class ProcessCopyPasteHelper {
             sourceIds = [];
             sourceIds[0] = systemTaskId;
 
-        } else if (copyPasteNode.type === CopyPasteNodeType.UserDecision) {
+        } else if (copyPasteNode.type === PreprocessorNodeType.UserDecision) {
             const userDecisionId = ProcessAddHelper.insertClonedUserDecisionInternal(sourceIds, destinationId, 
                                                                                 this.layout, this.shapesFactoryService, <any>node);
             idMap[copyPasteNode.id] = userDecisionId;
             
-            let link: CopyPasteLink = data.links[copyPasteNode.id + ";" + copyPasteNode.nextIds[0]];
+            let link: PreprocessorLink = data.links[copyPasteNode.id + ";" + copyPasteNode.nextIds[0]];
             ProcessAddHelper.addLinkInfo(userDecisionId, destinationId, this.layout, link.orderindex, link.label);
 
             sourceIds = [];
             sourceIds[0] = userDecisionId;
 
-        } else if (copyPasteNode.type === CopyPasteNodeType.SystemDecision) {
+        } else if (copyPasteNode.type === PreprocessorNodeType.SystemDecision) {
              //const systemDecisionId = ProcessAddHelper.insertClonedSystemDecision(this.layout, this.shapesFactoryService, <any>node);
              //idMap[copyPasteNode.id] = systemDecisionId;
             
@@ -397,8 +494,8 @@ export class ProcessCopyPasteHelper {
 
         for (let nextId of copyPasteNode.nextIds) {
             if (!!data.shapes[nextId]) {
-                data.copyPasteTree[nextId].isProcessed = true;
-                this.addShape(idMap, data.copyPasteTree[nextId], sourceIds, destinationId, data.shapes[nextId], data);
+                data.preprocessorTree[nextId].isProcessed = true;
+                this.addShape(idMap, data.preprocessorTree[nextId], sourceIds, destinationId, data.shapes[nextId], data);
             }
         }
     }

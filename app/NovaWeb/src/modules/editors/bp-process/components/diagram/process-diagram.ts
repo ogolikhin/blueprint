@@ -135,9 +135,9 @@ export class ProcessDiagram {
     };
 
     private copySelection = () => {
-        this.graph.copySectedShapes();
+        this.graph.copySelectedShapes();
     }
-    
+
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     };

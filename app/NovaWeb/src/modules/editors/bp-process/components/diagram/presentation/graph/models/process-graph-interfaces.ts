@@ -123,7 +123,7 @@ export interface IProcessGraph {
     setSystemTasksVisible(value: boolean);
     clearSelection();
     onUserStoriesGenerated(userStories: IUserStory[]): void;
-    copySectedShapes();
+    copySelectedShapes();
     insertSelectedShapes(edge: MxCell);
 }
 

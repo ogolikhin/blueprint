@@ -135,8 +135,8 @@ export class ProcessGraph implements IProcessGraph {
             ProcessAddHelper.insertSystemDecision, ProcessAddHelper.insertSystemDecisionConditionWithUpdate, this.insertSelectedShapes);
     }
     
-    public copySectedShapes() {
-        this.processCopyPasteHelper.copySectedShapes();
+    public copySelectedShapes() {
+        this.processCopyPasteHelper.copySelectedShapes();
     }
     
     public insertSelectedShapes = ((edge: MxCell) => {

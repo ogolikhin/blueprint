@@ -161,7 +161,7 @@ export class DragDropHandler implements IDragDropHandler {
         
     }
     private onSelectionChanged = (elements) => {
-        this._isEnabled = elements && elements.length === 1;        
+        this._isEnabled = !!elements && elements.length === 1;        
     }
 
     private installMouseDragDropListener() {

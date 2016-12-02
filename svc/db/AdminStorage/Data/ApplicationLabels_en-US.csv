@@ -507,3 +507,5 @@ Delete_Artifact_All_Success_Message, "All ({0}) artifacts have been deleted."
 Delete_Artifact_Single_Success_Message, "The artifact has been deleted."
 
 Search_Results_ResultsFound, "{0} Results found"
+
+Unpublished_Empty, "No Unpublished Changes"

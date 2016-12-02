@@ -1,5 +1,3 @@
-import "angular-ui-router";
-import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
 import "../core";
 import {AppComponent} from "./app.component";
@@ -40,12 +38,8 @@ export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService
 export {IServerLogger} from "./log/server-logger.svc";
 export {ILicenseService, LicenseService} from "./license/license.svc";
 
-angular.module("app.shell",
-    [
+angular.module("app.shell", [
         "bp.core",
-        "ui.router",
-        "ui.bootstrap",
-        "ngSanitize",
         "bp.filters"
     ])
     .component("app", new AppComponent())

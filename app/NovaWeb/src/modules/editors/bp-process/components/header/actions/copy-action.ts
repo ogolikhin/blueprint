@@ -2,7 +2,6 @@ import {BPButtonAction} from "../../../../../shared";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ICommunicationManager} from "../../../services/communication-manager";
-import {ProcessType} from "../../../models/enums";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";

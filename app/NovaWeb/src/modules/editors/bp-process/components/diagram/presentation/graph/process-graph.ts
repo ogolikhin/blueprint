@@ -101,7 +101,7 @@ export class ProcessGraph implements IProcessGraph {
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
     }
-    
+
     private isCellSelectable = (cell: MxCell) => {
         if (cell instanceof DiagramNode) {
             return cell.isVertex();
@@ -120,14 +120,10 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private addSelectionEventHandlers() {
-        // highlight edges for selected shapes 
-        this.selectionHelper.addSelectionListener((elements) => {
-            this.highlightNodeEdges(elements);
-        });
+        // highlight edges for selected shapes
+        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.highlightNodeEdges(elements));
         // notify system that shapes have been selected
-        this.selectionHelper.addSelectionListener((elements) => {
-            this.setSelection(elements);
-        });
+        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.onSelectionChanged(elements));
     }
 
     private initializePopupMenu() {
@@ -915,20 +911,9 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    private setSelection(elements: IDiagramNode[]) {
-        let validSelection: boolean = false;
-        if (elements && elements.length > 0) {
-            for (let i = 0; i < elements.length; i++) {
-                let node = elements[i];
-                 if ((node.getNodeType() === NodeType.UserTask)) {
-                    validSelection = true; 
-                } else {
-                    validSelection = false;
-                    break;
-                }
-            }
-        } 
-        this.viewModel.hasSelection = validSelection;
+    private onSelectionChanged(elements: IDiagramNode[]): void {
+        const communication = this.viewModel.communicationManager.processDiagramCommunication;
+        communication.action(ProcessEvents.SelectionChanged, elements);
     }
 
     private highlightNodeEdges(nodes: IDiagramNode[]) {

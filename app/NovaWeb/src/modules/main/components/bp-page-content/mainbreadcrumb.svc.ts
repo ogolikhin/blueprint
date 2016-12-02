@@ -1,7 +1,7 @@
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IArtifactManager, ISelection, IArtifactService} from "../../../managers/artifact-manager";
-import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {Models} from "../../../main/models";
 import {HttpStatusCode} from "../../../core/http/http-status-code";

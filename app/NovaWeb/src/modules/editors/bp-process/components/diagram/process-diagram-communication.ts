@@ -7,7 +7,8 @@ export enum ProcessEvents {
     ArtifactUpdate,
     UserStoriesGenerated,
     PersonaReferenceUpdated,
-    OpenUtilityPanel
+    OpenUtilityPanel,
+    SelectionChanged
 }
 
 export interface IProcessDiagramCommunication {
@@ -30,6 +31,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     private setUserStoriesGeneratedSubject: ICommunicationWrapper;
     private setPersonaReferenceUpdatedSubject: ICommunicationWrapper;
     private setOpenUtilityPanelSubject: ICommunicationWrapper;
+    private setSelectionChangedSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
@@ -40,6 +42,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setUserStoriesGeneratedSubject = new CommunicationWrapper();
         this.setPersonaReferenceUpdatedSubject = new CommunicationWrapper();
         this.setOpenUtilityPanelSubject = new CommunicationWrapper();
+        this.setSelectionChangedSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -90,6 +93,12 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     result = this.setOpenUtilityPanelSubject.subscribe(observer);
                 }
                 break;
+
+            case ProcessEvents.SelectionChanged: {
+                    result = this.setSelectionChangedSubject.subscribe(observer);
+                }
+                break;
+
             default:
                 result = undefined;
                 break;
@@ -132,6 +141,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
 
             case ProcessEvents.OpenUtilityPanel: {
                     this.setOpenUtilityPanelSubject.disposeObserver(observer);
+                }
+                break;
+
+            case ProcessEvents.SelectionChanged: {
+                    this.setSelectionChangedSubject.disposeObserver(observer);
                 }
                 break;
         }
@@ -177,6 +191,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     this.setOpenUtilityPanelSubject.notify({});
                 }
                 break;
+
+            case ProcessEvents.SelectionChanged: {
+                this.setSelectionChangedSubject.notify(eventPayload);
+            }
+            break;
         }
     }
 
@@ -187,5 +206,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setArtifactUpdateSubject.dispose();
         this.setUserStoriesGeneratedSubject.dispose();
         this.setPersonaReferenceUpdatedSubject.dispose();
+        this.setSelectionChangedSubject.dispose();
     }
 }

@@ -1,7 +1,7 @@
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
-import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {
     CreateNewArtifactController,

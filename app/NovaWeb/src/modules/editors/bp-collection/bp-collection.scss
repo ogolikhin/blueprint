@@ -85,19 +85,9 @@
 
     .ag-grid{
 
-        .fonticon-delete-filled {
-            color: $gray-light;
-
+        .ag-row .ag-cell:not(.not-selectable) .fonticon-delete-filled, .ag-row:hover .ag-cell:not(.not-selectable) .fonticon-delete-filled {
             &::before{
-                color: $gray-light;
-                content: "\E88E";
-                font-family: "bp-font";
-            }
-
-            &:hover {
-                &::before{
-                    color: $brand-secondary;
-                }
+                background: transparent;
             }
         }
 

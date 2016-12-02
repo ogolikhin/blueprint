@@ -112,6 +112,11 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             if (copyAction) {
                 copyAction.dispose();
             }
+
+            const generateUserStoriesAction = <GenerateUserStoriesAction>_.find(this.toolbarActions, action => action instanceof GenerateUserStoriesAction);
+            if (generateUserStoriesAction) {
+                generateUserStoriesAction.dispose();
+            }
         }
 
         super.$onDestroy();

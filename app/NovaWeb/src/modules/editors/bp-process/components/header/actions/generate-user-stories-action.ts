@@ -93,6 +93,12 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         return this.canExecute();
     }
 
+    public dispose(): void {
+        if (this.processDiagramManager) {
+            this.processDiagramManager.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
+        }
+    }
+
     private onSelectionChanged = (elements: IDiagramNode[]) => {
         this.selection = elements;
     };

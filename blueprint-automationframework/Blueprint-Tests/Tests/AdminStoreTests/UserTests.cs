@@ -263,14 +263,14 @@ namespace AdminStoreTests
         }
 
         [TestCase]
-        [Description("Run:  GET /users/loginuser   but don't pass any Session-Token header.  Verify it returns 400 Bad Request.")]
+        [Description("Run:  GET /users/loginuser   but don't pass any Session-Token header.  Verify it returns 401 Unauthorized.")]
         [TestRail(146290)]
-        public void GetLogedinUser_MissingTokenHeader_400BadRequest()
+        public void GetLogedinUser_MissingTokenHeader_401Unauthorized()
         {
-            Assert.Throws<Http400BadRequestException>(() =>
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AdminStore.GetLoginUser(null);
-            }, "GetLoginUser() should return 400 Bad Request if the Session-Token header is missing!");
+            }, "GetLoginUser() should return 401 Unauthorized if the Session-Token header is missing!");
         }
 
         #endregion /users/loginuser tests

@@ -20,6 +20,7 @@ angular.module("bp.widgets.toolbar", [])
 
 export {
     IBPAction,
+    IBPDropdownAction,
     IBPButtonOrDropdownAction,
     BPButtonAction,
     BPToggleItemAction,

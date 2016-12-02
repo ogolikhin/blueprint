@@ -104,9 +104,13 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     public $onDestroy() {
         if (this.toolbarActions) {
             const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
-
             if (toggleAction) {
                 toggleAction.dispose();
+            }
+
+            const copyAction = <CopyAction>_.find(this.toolbarActions, action => action instanceof CopyAction);
+            if (copyAction) {
+                copyAction.dispose();
             }
         }
 
@@ -143,7 +147,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.communicationManager.processDiagramCommunication);
         const copyAction = new CopyAction(
             processArtifact,
-            this.communicationManager.toolbarCommunicationManager,
+            this.communicationManager,
             this.localization);
         const toggleProcessTypeAction = new ToggleProcessTypeAction(
             processArtifact,
@@ -157,19 +161,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             if (this.collapsedToolbarActions[i].type === "menu") {
                 const dropdownSeparator = new BPButtonOrDropdownSeparator();
                 const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                buttonDropdown.actions.push(dropdownSeparator);
-                generateUserStoriesAction.actions.forEach((action: BPButtonOrDropdownAction) => {
-                    if (action.icon) {
-                        buttonDropdown.actions.push(action);
-                    } else {
-                        buttonDropdown.actions.push(new BPButtonOrDropdownAction(
-                            action.execute,
-                            () => !action.disabled,
-                            generateUserStoriesAction.icon,
-                            action.label
-                        ));
-                    }
-                });
+                buttonDropdown.actions.push(dropdownSeparator, ...this.getNestedDropdownActions(generateUserStoriesAction));
                 buttonDropdown.actions.push(dropdownSeparator, copyAction);
             }
         }

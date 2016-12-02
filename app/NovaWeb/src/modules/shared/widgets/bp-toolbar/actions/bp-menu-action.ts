@@ -41,13 +41,14 @@ export class BPButtonOrDropdownSeparator extends BPButtonOrDropdownAction {
     public separator: boolean = true;
 
     constructor() {
-        super();
+        super(undefined, () => false);
     }
 }
 
 export interface IBPMenuAction extends IBPAction {
     icon: string;
     actions: IBPButtonOrDropdownAction[];
+    disabled?: boolean;
     tooltip?: string;
 }
 
@@ -68,6 +69,12 @@ export class BPMenuAction implements IBPMenuAction {
 
     public get actions(): IBPButtonOrDropdownAction[] {
         return this._actions;
+    }
+
+    public get disabled(): boolean {
+        let disabled: boolean = true;
+        this._actions.forEach((action) => disabled = disabled && action.disabled);
+        return disabled;
     }
 
     public get tooltip(): string {

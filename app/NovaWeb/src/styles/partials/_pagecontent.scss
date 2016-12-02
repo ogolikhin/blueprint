@@ -1,19 +1,5 @@
 $page-body-min-width: 386px;
 
-.explorer-empty-state {
-    padding: 30px 10px;
-    text-align: center;
-    display: flex;
-    height:100%;
-    align-items: center;
-    justify-content: center;
-}
-
-.explorer-empty-state-text{
-    font-size: $font-size-big;
-    color: $gray-darker;
-}
-
 pagecontent, bp-properties-panel {
     box-sizing: border-box;
     display: flex;
@@ -163,7 +149,7 @@ pagecontent, bp-properties-panel {
             color: $gray-dark;
             display: block;
             font-size: $font-size-biggest;
-            white-space: normal;
+            white-space: pre-wrap;
             //word-break: break-all;
             word-wrap: break-word;
         }

@@ -1,4 +1,4 @@
-import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {IArtifact} from "../../main/models/models";
 

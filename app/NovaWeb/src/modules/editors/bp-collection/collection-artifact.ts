@@ -1,4 +1,4 @@
-import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IArtifact} from "../../main/models/models";
 import {ItemTypePredefined, PropertyTypePredefined} from "../../main/models/enums";
 import {Models} from "../../main/models";

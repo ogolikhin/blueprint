@@ -209,16 +209,15 @@ namespace ArtifactStore.Repositories
             // Arrange
             const int artifactId = 1;
             const int userId = 2;
-            const int revisionId = 999;
-            const bool addDrafts = false;
+            const bool isDeleted = false;
 
-            _cxn.SetupQueryAsync("GetPathIdsNamesToProject", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }
+            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId } }
                 , new List<ItemIdItemNameParentId>());
 
             try
             {
                 // Act
-                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, addDrafts, revisionId);
+                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, isDeleted);
             }
             catch (ResourceNotFoundException e)
             {
@@ -236,25 +235,24 @@ namespace ArtifactStore.Repositories
             const int artifactId = 1;
             const int userId = 2;
             const int versionId = 3;
-            const int revisionId = 999;
-            const bool addDrafts = false;
+            const bool isDeleted = false;
             const string description = "artifact description";
 
-            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(int.MaxValue);
 
             var pathToRoot = new List<ItemIdItemNameParentId>
             {
-                new ItemIdItemNameParentId { ItemId = 1, ParentId = 10, ItemName = "artifact"},
-                new ItemIdItemNameParentId { ItemId = 10, ParentId = 100, ItemName = "folder"},
-                new ItemIdItemNameParentId { ItemId = 100, ParentId = null, ItemName = "project"}
+                new ItemIdItemNameParentId { ItemId = 1, ParentId = 10, Name = "artifact"},
+                new ItemIdItemNameParentId { ItemId = 10, ParentId = 100, Name = "folder"},
+                new ItemIdItemNameParentId { ItemId = 100, ParentId = null, Name = "project"}
             };
-            _cxn.SetupQueryAsync("GetPathIdsNamesToProject", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, pathToRoot);
+            _cxn.SetupQueryAsync("GetArtifactNavigationPath", new Dictionary<string, object> { { "artifactId", artifactId }, { "userId", userId }}, pathToRoot);
 
             var descriptionResult = new List<string> { description };
-            _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, descriptionResult);
+            _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }}, descriptionResult);
             
             // Act
-            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, addDrafts, versionId);
+            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, isDeleted);
 
             //Assert
             Assert.AreEqual(artifactId, actual.ArtifactId);
@@ -262,13 +260,13 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(pathToRoot.Count, actual.PathToProject.Count());
             Assert.AreEqual(pathToRoot[0].ItemId, actual.PathToProject.ToList()[2].ItemId);
             Assert.AreEqual(pathToRoot[0].ParentId, actual.PathToProject.ToList()[2].ParentId);
-            Assert.AreEqual(pathToRoot[0].ItemName, actual.PathToProject.ToList()[2].ItemName);
+            Assert.AreEqual(pathToRoot[0].Name, actual.PathToProject.ToList()[2].Name);
             Assert.AreEqual(pathToRoot[1].ItemId, actual.PathToProject.ToList()[1].ItemId);
             Assert.AreEqual(pathToRoot[1].ParentId, actual.PathToProject.ToList()[1].ParentId);
-            Assert.AreEqual(pathToRoot[1].ItemName, actual.PathToProject.ToList()[1].ItemName);
+            Assert.AreEqual(pathToRoot[1].Name, actual.PathToProject.ToList()[1].Name);
             Assert.AreEqual(pathToRoot[2].ItemId, actual.PathToProject.ToList()[0].ItemId);
             Assert.AreEqual(pathToRoot[2].ParentId, actual.PathToProject.ToList()[0].ParentId);
-            Assert.AreEqual(pathToRoot[2].ItemName, actual.PathToProject.ToList()[0].ItemName);
+            Assert.AreEqual(pathToRoot[2].Name, actual.PathToProject.ToList()[0].Name);
         }
     }
 }

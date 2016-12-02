@@ -17,7 +17,11 @@ export class ProcessCopyPasteHelper {
     private static getSelectedCellsForCopy(processGraph: IProcessGraph): MxCell[] {
         const graphSelectedCells = processGraph.getMxGraph().getSelectionCells();
 
-        const sortedCells = _.sortBy(graphSelectedCells, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        const sortedCells = _.sortBy(graphSelectedCells, 
+            [
+                (node) => { return node.model.propertyValues["x"].value; },
+                (node) => { return node.model.propertyValues["y"].value; }
+            ]);
         
         return sortedCells;
     }
@@ -66,6 +70,7 @@ export class ProcessCopyPasteHelper {
                 userTaskShape.name = node.model.name;
                 userTaskShape.id =  node.model.id;
                 userTaskShape.personaReference = _.cloneDeep(node.model.personaReference); 
+                userTaskShape.associatedArtifact = _.cloneDeep(node.model.associatedArtifact); 
                 userTaskShape.propertyValues = _.cloneDeep(node.model.propertyValues); 
                 model.push(userTaskShape);
                 
@@ -74,6 +79,7 @@ export class ProcessCopyPasteHelper {
                 // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method  
                 systemTaskShape.name = systemTask.model.name; 
                 systemTaskShape.personaReference = _.cloneDeep(systemTask.personaReference); 
+                systemTaskShape.associatedArtifact = _.cloneDeep(systemTask.associatedArtifact); 
                 systemTaskShape.propertyValues = _.cloneDeep(systemTask.model.propertyValues); 
                 
                 model.push(systemTaskShape);

@@ -67,16 +67,16 @@ namespace AdminStoreTests
         }
 
         [TestCase]
-        [Description("Call:  GET /licenses/transactions?days=0  but don't pass any Session-Token header.  Verify 400 Bad Request is returned.")]
+        [Description("Call:  GET /licenses/transactions?days=0  but don't pass any Session-Token header.  Verify 401 Unauthorized is returned.")]
         [TestRail(146083)]
-        public static void GetLicenseTransactions_NoTokenHeader_400BadRequest()
+        public static void GetLicenseTransactions_NoTokenHeader_401Unauthorized()
         {
             using (TestHelper helper = new TestHelper())
             {
-                Assert.Throws<Http400BadRequestException>(() =>
+                Assert.Throws<Http401UnauthorizedException>(() =>
                 {
                     helper.AdminStore.GetLicenseTransactions(numberOfDays: 0);
-                }, "GetLicenseTransactions() should return 400 Bad Request when no token header field was passed.");
+                }, "GetLicenseTransactions() should return 401 Unauthorized when no token header field was passed.");
             }
         }
 

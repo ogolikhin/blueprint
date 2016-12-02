@@ -658,19 +658,19 @@ namespace ArtifactStoreTests
 
         #region Negative tests
 
-        #region 400 Bad Request
+        #region 401 Unauthorized
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182607)]
-        [Description("Create & publish an artifact.  Send no token header in the request.  Verify 400 Bad Request is returned.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoTokenHeader_400BadRequest(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact.  Send no token header in the request.  Verify 401 Unauthorized is returned.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoTokenHeader_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Execute:
-            var ex = Assert.Throws <Http400BadRequestException>(() => Helper.ArtifactStore.GetVersionControlInfo(user: null, itemId: artifact.Id),
-                "'GET {0}' should return 400 Bad Request when no token header is passed!", SVC_PATH);
+            var ex = Assert.Throws <Http401UnauthorizedException>(() => Helper.ArtifactStore.GetVersionControlInfo(user: null, itemId: artifact.Id),
+                "'GET {0}' should return 401 Unauthorized when no token header is passed!", SVC_PATH);
 
             // Verify:
             const string expectedExceptionMessage = "Token is missing or malformed.";
@@ -678,10 +678,6 @@ namespace ArtifactStoreTests
                 "Expected '{0}' error when user tries to get basic information without a token header in the request.",
                 expectedExceptionMessage);
         }
-
-        #endregion 400 Bad Request
-
-        #region 401 Unauthorized
 
         [TestRail(182858)]
         [TestCase(BaseArtifactType.Actor, "")]

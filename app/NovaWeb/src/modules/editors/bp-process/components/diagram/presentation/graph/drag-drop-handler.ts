@@ -38,7 +38,7 @@ export class DragDropHandler implements IDragDropHandler {
         // Disable drag and drop if process is read-only
         if (!this.processGraph.viewModel.isReadonly) {
 
-            this.onSelectionChangedHandler = this.processGraph.viewModel.communicationManager.processDiagramCommunication
+            this.onSelectionChangedHandler = this.processGraph.processDiagramCommunication
                 .register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
 
             this.installMouseDragDropListener();
@@ -200,7 +200,7 @@ export class DragDropHandler implements IDragDropHandler {
 
                         this.layout.handleUserTaskDragDrop(cellId, edge);
                         // Set lock/dirty flags
-                        this.processGraph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
+                        this.processGraph.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
                     }
                     else {
                         // reset drag state
@@ -212,9 +212,8 @@ export class DragDropHandler implements IDragDropHandler {
     };
 
     public dispose() {
-        
-        this.processGraph.viewModel.communicationManager.processDiagramCommunication
-            .unregister(ProcessEvents.SelectionChanged, this.onSelectionChangedHandler);
+
+        this.processGraph.processDiagramCommunication.unregister(ProcessEvents.SelectionChanged, this.onSelectionChangedHandler);
 
         this.moveCell = null;
     }

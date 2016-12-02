@@ -1,6 +1,6 @@
 import {IProcessShape, ItemTypePredefined, IHashMapOfPropertyValues, IArtifactReference} from "./models/process-models";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
 import {Helper} from "../../shared/utils/helper";
 

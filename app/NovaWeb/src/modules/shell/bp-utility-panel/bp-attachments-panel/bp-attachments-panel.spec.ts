@@ -18,7 +18,7 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
 import {IArtifactAttachmentsService} from "../../../managers/artifact-manager/attachments";
-import {StatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {LicenseServiceMock} from "../../license/license.svc.mock";
 import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";

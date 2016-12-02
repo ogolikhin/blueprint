@@ -32,7 +32,7 @@ export class UnpublishedController {
 
     private publishArtifactsButton: PublishArtifactsAction;
     private discardArtifactsButton: DiscardArtifactsAction;
-    private unpublishedArtifactsObserver: Rx.Disposable;
+    private unpublishedArtifactsObserver: Rx.IDisposable;
 
     constructor(private $log: ng.ILogService,
                 public localization: ILocalizationService,
@@ -81,6 +81,7 @@ export class UnpublishedController {
 
     private updateSelectedArtifacts(unpublishedArtifacts: IArtifact[]) {
         this.selectedArtifacts = _.intersectionBy(this.selectedArtifacts, unpublishedArtifacts, "id");
+        this.updateToolbarButtons();
     };
 
     public toggleSelection(artifact: IArtifact) {

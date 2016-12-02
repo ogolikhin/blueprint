@@ -26,5 +26,17 @@ namespace Utilities
         {
             return dateTime.ToString(CultureInfo.InvariantCulture.DateTimeFormat.SortableDateTimePattern, CultureInfo.InvariantCulture);
         }
+
+        /// <summary>
+        /// Converts a datetime to a sortable datetime
+        /// </summary>
+        /// <param name="dateTimeString">A datetime value.</param>
+        /// <returns>A sortable datetime value</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "string")]
+        public static string ConvertDateTimeToSortableDateTime(string dateTimeString)
+        {
+            var dateTime = DateTime.Parse(dateTimeString, CultureInfo.InvariantCulture);
+            return ConvertDateTimeToSortableDateTime(dateTime);
+        }
     }
 }

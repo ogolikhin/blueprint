@@ -17,7 +17,11 @@ export class ProcessCopyPasteHelper {
     private static getSelectedCellsForCopy(processGraph: IProcessGraph): MxCell[] {
         const graphSelectedCells = processGraph.getMxGraph().getSelectionCells();
 
-        const sortedCells = _.sortBy(graphSelectedCells, (node: IDiagramNode) => [node.model.propertyValues["x"].value, node.model.propertyValues["y"].value]);
+        const sortedCells = _.sortBy(graphSelectedCells, 
+            [
+                (node) => { return node.model.propertyValues["x"].value; },
+                (node) => { return node.model.propertyValues["y"].value; }
+            ]);
         
         return sortedCells;
     }

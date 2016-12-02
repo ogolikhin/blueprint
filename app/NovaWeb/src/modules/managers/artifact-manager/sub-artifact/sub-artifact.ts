@@ -1,17 +1,16 @@
-import {Models} from "../../../main/models";
-import {Enums} from "../../../main";
-import {IStatefulArtifactServices} from "../services";
-import {IStatefulArtifact} from "../artifact";
-import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
-import {IArtifactAttachmentsResultSet} from "../attachments";
-import {MetaData} from "../metadata";
-import {IChangeSet} from "../changeset";
+import {ISubArtifact} from "../../../main/models/models";
+import {ReuseSettings} from "../../../main/models/enums";
+import {IStatefulArtifactServices} from "../services/services";
+import {IStatefulArtifact} from "../artifact/artifact";
+import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item/item";
+import {IArtifactAttachmentsResultSet} from "../attachments/attachments.svc";
+import {MetaData} from "../metadata/metadata";
+import {IChangeSet} from "../changeset/changeset";
 
 export interface IIStatefulSubArtifact extends IIStatefulItem {
-
 }
 
-export interface IStatefulSubArtifact extends IStatefulItem, Models.ISubArtifact {
+export interface IStatefulSubArtifact extends IStatefulItem, ISubArtifact {
     getObservable(): Rx.Observable<IStatefulSubArtifact>;
     validate(): ng.IPromise<boolean>;
 }
@@ -20,7 +19,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public isLoaded = false;
     private _subject: Rx.BehaviorSubject<IStatefulSubArtifact>;
 
-    constructor(private parentArtifact: IStatefulArtifact, private subArtifact: Models.ISubArtifact, services: IStatefulArtifactServices) {
+    constructor(private parentArtifact: IStatefulArtifact, private subArtifact: ISubArtifact, services: IStatefulArtifactServices) {
         super(subArtifact, services);
         this.metadata = new MetaData(this);
     }
@@ -49,7 +48,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
     protected load(): ng.IPromise<IStatefulSubArtifact> {
         const deferred = this.services.getDeferred<IStatefulSubArtifact>();
-        this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id, this.getEffectiveVersion()).then((artifact: Models.ISubArtifact) => {
+        this.services.artifactService.getSubArtifact(this.parentArtifact.id, this.id, this.getEffectiveVersion()).then((artifact: ISubArtifact) => {
             this.initialize(artifact);
             deferred.resolve(this);
         }).catch((error) => {
@@ -58,7 +57,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         });
         return deferred.promise;
     }
-    
+
     protected loadWithNotify(): ng.IPromise<IStatefulSubArtifact> {
         this.loadPromise = this.load();
         return this.loadPromise.then(() => {
@@ -79,15 +78,15 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
         return this.subject.filter(it => !!it).asObservable();
     }
 
-    public get readOnlyReuseSettings(): Enums.ReuseSettings {
+    public get readOnlyReuseSettings(): ReuseSettings {
         return this.parentArtifact.readOnlyReuseSettings;
     }
 
-    public isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean {
-        return (this.parentArtifact.readOnlyReuseSettings & Enums.ReuseSettings.Subartifacts) === Enums.ReuseSettings.Subartifacts;
+    public isReuseSettingSRO(reuseSetting: ReuseSettings): boolean {
+        return (this.parentArtifact.readOnlyReuseSettings & ReuseSettings.Subartifacts) === ReuseSettings.Subartifacts;
     }
 
-    public changes(): Models.ISubArtifact {
+    public changes(): ISubArtifact {
         const traces = this.relationships.changes();
         const attachmentValues = this.attachments.changes();
         const docRefValues = this.docRefs.changes();
@@ -96,7 +95,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
         let hasChanges = false;
 
-        const delta = <Models.ISubArtifact>{};
+        const delta = <ISubArtifact>{};
         delta.id = this.id;
 
         this.changesets.get().forEach((it: IChangeSet) => {
@@ -104,10 +103,10 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
                 delta[it.key as string] = it.value;
         });
 
-        if (traces || 
-        attachmentValues || 
-        docRefValues || 
-        (customPropertyChangedValues && customPropertyChangedValues.length > 0) || 
+        if (traces ||
+        attachmentValues ||
+        docRefValues ||
+        (customPropertyChangedValues && customPropertyChangedValues.length > 0) ||
         (specificPropertyChangedValues && specificPropertyChangedValues.length > 0)) {
 
             delta.customPropertyValues = customPropertyChangedValues;
@@ -130,7 +129,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
     public discard() {
         super.discard();
         this.artifactState.dirty = false;
-        
+
         this.customProperties.discard();
         this.specialProperties.discard();
 
@@ -160,7 +159,7 @@ export class StatefulSubArtifact extends StatefulItem implements IStatefulSubArt
 
             if (result) {
                 return this.services.$q.resolve(result);
-            } 
+            }
 
             const  message: string = `The Sub Artifact ${this.prefix + this.id.toString() + ":" + this.name} has validation errors.`;
             return this.services.$q.reject(new Error(message));

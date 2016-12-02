@@ -16,7 +16,7 @@ import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-m
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
-import {StatefulArtifact, IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {StatefulArtifact, IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifact";
 import {Helper} from "../../../shared/utils/helper";
 import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";

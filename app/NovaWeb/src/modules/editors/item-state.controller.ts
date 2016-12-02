@@ -1,7 +1,7 @@
 import {Models} from "../main/models";
 import {IArtifactManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
-import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact";
+import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
 import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
 import {IApplicationError} from "../core/error/applicationError";
 import {HttpStatusCode} from "../core/http/http-status-code";

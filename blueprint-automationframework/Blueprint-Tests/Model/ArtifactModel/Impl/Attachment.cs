@@ -13,6 +13,8 @@ namespace Model.ArtifactModel.Impl
     /// </summary>
     public class Attachments
     {
+        #region Serialized JSON Properties
+
         public int ArtifactId { get; set; }
 
         public int? SubartifactId { get; set; }
@@ -22,6 +24,36 @@ namespace Model.ArtifactModel.Impl
 
         [JsonProperty("documentReferences")]
         public List<DocumentReference> DocumentReferences { get; } = new List<DocumentReference>();
+
+        #endregion Serialized JSON Properties
+
+        /// <summary>
+        /// Asserts that the two Attachments objects are equal.
+        /// </summary>
+        /// <param name="expectedAttachments">The expected Attachments.</param>
+        /// <param name="actualAttachments">The actual Attachments.</param>
+        /// <exception cref="AssertionException">If any properties are different.</exception>
+        public static void AssertAttachmentsAreEqual(Attachments expectedAttachments, Attachments actualAttachments)
+        {
+            ThrowIf.ArgumentNull(expectedAttachments, nameof(expectedAttachments));
+            ThrowIf.ArgumentNull(actualAttachments, nameof(actualAttachments));
+
+            foreach (AttachedFile expectedAttachment in expectedAttachments.AttachedFiles)
+            {
+                var actualAttachment = actualAttachments.AttachedFiles.Find(a => a.AttachmentId.Equals(expectedAttachment.AttachmentId));
+
+                Assert.NotNull(actualAttachment, "Couldn't find actual attachment with AttachmentId: {0}", expectedAttachment.AttachmentId);
+                AttachedFile.AssertAreEqual(expectedAttachment, actualAttachment);
+            }
+
+            foreach (DocumentReference expectedDocumentReference in expectedAttachments.DocumentReferences)
+            {
+                var actualDocumentReference = actualAttachments.DocumentReferences.Find(a => a.ArtifactId.Equals(expectedDocumentReference.ArtifactId));
+
+                Assert.NotNull(actualDocumentReference, "Couldn't find actual DocumentReference with ArtifactId: {0}", expectedDocumentReference.ArtifactId);
+                DocumentReference.AssertAreEqual(expectedDocumentReference, actualDocumentReference);
+            }
+        }
     }
 
     /// <summary>
@@ -29,6 +61,8 @@ namespace Model.ArtifactModel.Impl
     /// </summary>
     public class AttachedFile
     {
+        #region Serialized JSON Properties
+
         public int UserId { get; set; }
 
         public string UserName { get; set; }
@@ -38,6 +72,8 @@ namespace Model.ArtifactModel.Impl
         public int AttachmentId { get; set; }
 
         public DateTime? UploadedDate { get; set; }
+
+        #endregion Serialized JSON Properties
 
         /// <summary>
         /// Asserts that the two AttachedFiles are equal.
@@ -73,6 +109,8 @@ namespace Model.ArtifactModel.Impl
     /// </summary>
     public class DocumentReference
     {
+        #region Serialized JSON Properties
+
         public string ArtifactName { get; set; }
 
         public int ArtifactId { get; set; }
@@ -82,6 +120,8 @@ namespace Model.ArtifactModel.Impl
         public string UserName { get; set; }
 
         public DateTime ReferencedDate { get; set; }
+
+        #endregion Serialized JSON Properties
 
         /// <summary>
         /// Asserts that both DocumentReferences are equal.

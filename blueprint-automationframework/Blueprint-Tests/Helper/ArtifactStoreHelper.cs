@@ -473,21 +473,7 @@ namespace Helper
             var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
             var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
-            foreach (AttachedFile expectedAttachment in expectedAttachments.AttachedFiles)
-            {
-                var actualAttachment = actualAttachments.AttachedFiles.Find(a => a.AttachmentId.Equals(expectedAttachment.AttachmentId));
-
-                Assert.NotNull(actualAttachment, "Couldn't find actual attachment with AttachmentId: {0}", expectedAttachment.AttachmentId);
-                AttachedFile.AssertAreEqual(expectedAttachment, actualAttachment);
-            }
-
-            foreach (DocumentReference expectedDocumentReference in expectedAttachments.DocumentReferences)
-            {
-                var actualDocumentReference = actualAttachments.DocumentReferences.Find(a => a.ArtifactId.Equals(expectedDocumentReference.ArtifactId));
-
-                Assert.NotNull(actualDocumentReference, "Couldn't find actual DocumentReference with ArtifactId: {0}", expectedDocumentReference.ArtifactId);
-                DocumentReference.AssertAreEqual(expectedDocumentReference, actualDocumentReference);
-            }
+            Attachments.AssertAttachmentsAreEqual(expectedAttachments, actualAttachments);
 
             // Get and compare sub-artifact Traces.
             if (!skipTraces)

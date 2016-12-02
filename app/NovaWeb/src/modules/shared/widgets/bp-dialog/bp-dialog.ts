@@ -140,8 +140,8 @@ export class BaseDialogController implements IDialogController {
         this.$instance.dismiss("cancel");
 
         /*manual gargabe clean */
-        this.$instance = undefined;
-        this.dialogSettings = undefined;
+        this.$instance = null;
+        this.dialogSettings = null;
 
     };
 }

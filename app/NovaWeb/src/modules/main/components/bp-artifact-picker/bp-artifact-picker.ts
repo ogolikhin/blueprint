@@ -99,6 +99,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public searchText: string;
     public columns: IColumn[];
     public api: IArtifactPickerAPI;
+    private _previousSelectedVMs: Array<any>;
 
     static $inject = [
         "$q",
@@ -121,6 +122,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private metadataService: IMetaDataService) {
 
         /*todo: refactor much of this 'setup' into the onInit lifecycle hook*/
+        this._previousSelectedVMs = [];
+
         this.api = {
             deselectAll: () => {
                 this.treeApi.deselectAll();
@@ -166,18 +169,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     name: project.model.name,
                     hasChildren: project.model.hasChildren
                 } as AdminStoreModels.IInstanceItem;
-            }
-            else {
+            } else {
                 this.projectService.getProject(projectId, this.canceller.promise)
                     .then(project => this.project = project);
             }
-        }
-        else {
+        } else {
             this.project = undefined;
         }
     }
 
-    private _previousSelectedVMs = [];
     public currentSelectionMode: "single" | "multiple" | "checkbox";
 
 

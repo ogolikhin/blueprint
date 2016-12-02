@@ -55,7 +55,7 @@
                 <!--fixme: recommend removing dblclick as in the web context its not a common thing and prone to bugs-->
                 <!--fixme: use bind once syntax inside ng-repeat and leverage vs-repeat-->
                 <div class="search-result"
-                     ng-repeat="searchResult in $ctrl.searchResults track by $index"
+                     ng-repeat="searchResult in $ctrl.searchResults"
                      ng-class="{selected: searchResult.selected(), selectable: searchResult.isSelectable}"
                      ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
                      ng-dblclick="$ctrl.onDouble(searchResult)">

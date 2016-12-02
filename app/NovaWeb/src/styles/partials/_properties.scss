@@ -1117,6 +1117,9 @@ pagecontent, bp-properties-panel {
             .icon {
                 cursor: pointer;
                 margin-right: 5px;
+                &:hover {
+                    color: $brand-secondary;
+                }
                 &.disabled {
                     opacity: $default-disabled-opacity;
                     cursor: not-allowed;

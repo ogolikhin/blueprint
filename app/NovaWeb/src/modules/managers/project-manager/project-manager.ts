@@ -11,7 +11,7 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
+import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -503,7 +503,7 @@ export class ProjectManager implements IProjectManager {
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
 
         //if parent isn't found, or if its children aren't loaded
-        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && parentArtifactNode.children.length === 0)) {
+        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && (!parentArtifactNode.children || parentArtifactNode.children.length === 0))) {
             //get children from server
             promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId).then((data: Models.IArtifact[]) => {
                 siblings = data;

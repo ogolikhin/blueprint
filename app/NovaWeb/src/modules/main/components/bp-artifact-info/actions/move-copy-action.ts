@@ -9,7 +9,7 @@ import {
     MoveCopyArtifactInsertMethod,
     IMoveCopyArtifactPickerOptions,
     MoveCopyActionType
-} from "../../../../main/components/dialogs/move-artifact/move-artifact";
+} from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ISelectionManager} from "../../../../managers/selection-manager";
@@ -129,7 +129,7 @@ export class MoveCopyAction extends BPDropdownAction {
             (this.actionType === MoveCopyActionType.Copy ? "Copy_Artifacts_Picker_Header" : undefined);
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get(okButtonLabel),
-            template: require("../../../../main/components/dialogs/move-artifact/move-artifact-dialog.html"),
+            template: require("../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact-dialog.html"),
             controller: MoveCopyArtifactPickerDialogController,
             css: "nova-open-project",
             header: this.localization.get(headerLabel)

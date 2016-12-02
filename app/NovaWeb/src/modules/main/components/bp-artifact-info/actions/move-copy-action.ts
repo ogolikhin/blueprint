@@ -30,20 +30,8 @@ export class MoveCopyAction extends BPDropdownAction {
                 private selectionManager: ISelectionManager,
                 private artifactManager: IArtifactManager,
                 private loadingOverlayService: ILoadingOverlayService) {
-
-        super(undefined, undefined, undefined, undefined,
-            new BPDropdownItemAction(
-                localization.get("App_Toolbar_Move"),
-                () => this.executeMove(),
-                (): boolean => true,
-            ),
-            new BPDropdownItemAction(
-                localization.get("App_Toolbar_Copy"),
-                () => this.executeCopy(),
-                (): boolean => true,
-            )
-        );
-        
+		super();
+       
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -55,6 +43,23 @@ export class MoveCopyAction extends BPDropdownAction {
         if (!dialogService) {
             throw new Error("Dialog service not provided or is null");
         }
+
+        this.actions.push(
+            new BPDropdownItemAction(
+                this.localization.get("App_Toolbar_Move"),
+                () => this.executeMove(),
+                (): boolean => true,
+                "fonticon2-move"
+            )
+        );
+		this.actions.push(
+            new BPDropdownItemAction(
+                this.localization.get("App_Toolbar_Copy"),
+                () => this.executeCopy(),
+                (): boolean => true,
+                "fonticon2-move"
+            )
+        );
     }
 
     public get icon(): string {
@@ -145,7 +150,7 @@ export class MoveCopyAction extends BPDropdownAction {
             if (result && result.length === 1) {
                 return this.computeNewOrderIndex(result[0]).catch((err) => this.messageService.addError(err));
             }
-        }); 
+        });
     }
 
     private computeNewOrderIndex(result: MoveCopyArtifactResult): ng.IPromise<void> {

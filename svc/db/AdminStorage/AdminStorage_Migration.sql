@@ -1343,6 +1343,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Co
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_All_Success_Message', 'en-US', N'All ({0}) artifacts have been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Single_Success_Message', 'en-US', N'The artifact has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_ResultsFound', 'en-US', N'{0} Results found')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Unpublished_Empty', 'en-US', N'No Unpublished Changes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

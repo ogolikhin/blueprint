@@ -13,7 +13,7 @@ export interface IDragDropHandler {
 };
 
 export class DragDropHandler implements IDragDropHandler {
-    private isDragAndDropEnabled: boolean;
+    private isEnabled: boolean;
     public graph: MxGraph = null;
     private PREVIEW_WIDTH = 60;
     private PREVIEW_HEIGHT = 75;
@@ -26,7 +26,7 @@ export class DragDropHandler implements IDragDropHandler {
     private layout = null;
     private previousFill = null;
 
-    constructor(private processGraph: ProcessGraph, private processGraphSelectionHelper: ProcessGraphSelectionHelper) {
+    constructor(private processGraph: ProcessGraph) {
         this.init();
     }
 
@@ -35,6 +35,7 @@ export class DragDropHandler implements IDragDropHandler {
         this.layout = this.processGraph.layout;
         // Disable drag and drop if process is read-only
         if (!this.processGraph.viewModel.isReadonly) {
+            this.processGraph.viewModel.communicationManager.processDiagramCommunication.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
             this.installMouseDragDropListener();
         }
     }
@@ -54,7 +55,7 @@ export class DragDropHandler implements IDragDropHandler {
     public isValidDropSource(dropSource: MxCell) {
         // check if valid drop source - only user tasks can be dropped 
         let isDropSource: boolean = false;
-        if (dropSource && dropSource.isVertex && this.isDragAndDropEnabled) {
+        if (dropSource && dropSource.isVertex && this.isEnabled) {
             let diagramNodeElement = <IDiagramNodeElement>dropSource;
             if (diagramNodeElement && diagramNodeElement.getNode) {
                 if (diagramNodeElement.getNode().getNodeType() === NodeType.UserTask) {
@@ -150,16 +151,14 @@ export class DragDropHandler implements IDragDropHandler {
         this.dragPreview.style.top = (pt.y + offset.y) + "px";
         
     }
-    private onIsMultiSelectChanged = (isMultiSelected) => {
-        this.isDragAndDropEnabled = !isMultiSelected;
-        if (! this.isDragAndDropEnabled && this.moveCell) {
+    private onSelectionChanged = (elements) => {
+        this.isEnabled = elements && elements.length === 1;
+        if (!this.isEnabled && this.moveCell) {
             this.reset();
         }  
     }
 
     private installMouseDragDropListener() {
-
-        this.processGraphSelectionHelper.getIsMultiSelectionObservable().subscribe(this.onIsMultiSelectChanged);
 
         this.graph.addMouseListener({
             mouseDown: (sender, me) => {

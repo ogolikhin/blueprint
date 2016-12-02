@@ -6,6 +6,7 @@ import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "angular-ui-tinymce";
 import "ui-select";
+import "angular-vs-repeat";
 import * as agGrid from "ag-grid/main";
 import * as agGridEnterprise from "ag-grid-enterprise/main";
 import "tinymce";
@@ -45,6 +46,7 @@ angular.module("app.main", [
     "ngAnimate",
     "ngMessages",
     "ngSanitize",
+    "vs-repeat",
     "app.shell",
     "app.shared",
     "ui.router",

@@ -30,6 +30,7 @@ App_Header_Welcome,"Welcome"
 Tooltip_App_Header_Help,"Help"
 Tooltip_App_Header_Logout,"Log out"
 Tooltip_Artifact_Header_LegacyArtifact,"Legacy artifact"
+Tooltip_Browse_Actor, "Browse Actor"
 
 App_Sidebar_Left,"Explorer"
 App_Sidebar_Right,"Utility Panel"

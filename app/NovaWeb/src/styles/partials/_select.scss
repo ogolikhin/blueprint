@@ -15,7 +15,7 @@ bp-select, .bp-select {
         float: right;
 
         .dropdown-toggle {
-            color: black;
+            color: $text-color;
             display: block;
             text-decoration: none;
             padding: 3px $padding-smaller;
@@ -25,7 +25,7 @@ bp-select, .bp-select {
             }
 
             span {
-                padding-right: $padding-smaller*2;
+                padding-right: 4px;
                 padding-left: 5px;
                 padding-top: 2px;
                 font-size: $font-size-normal;
@@ -37,15 +37,6 @@ bp-select, .bp-select {
                 right: $padding-smaller;
             }
         }
-
-        &:hover {
-            border-color: $brand-secondary;
-            color: $brand-secondary;
-            a {
-                color: $brand-secondary;
-            }
-        }
-
         .dropdown-menu {
             > li > a:hover {
                 background-color: $brand-secondary;

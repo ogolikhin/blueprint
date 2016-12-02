@@ -1,6 +1,7 @@
 import * as _ from "lodash";
 import {IDialogService, IDialogSettings} from "../../shared";
-import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
+import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
+import {IStatefulArtifactFactory} from "../artifact-manager/artifact/artifact.factory";
 import {IDispose} from "../models";
 import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
@@ -142,7 +143,7 @@ export class ProjectManager implements IProjectManager {
             return this.$q.all(refreshQueue).finally(() => {
                 this.triggerProjectCollectionRefresh();
             });
-        }); 
+        });
     }
 
     public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<void> {

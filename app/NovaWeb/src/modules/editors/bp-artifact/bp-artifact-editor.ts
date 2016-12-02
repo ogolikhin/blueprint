@@ -1,4 +1,4 @@
-import {IWindowManager, IMainWindow} from "../../main";
+import {IWindowManager, IMainWindow} from "../../main/services/window-manager";
 import {
     Models, Enums,
     IArtifactManager,

@@ -106,7 +106,7 @@ export class ProcessAddHelper {
         }
         shape.projectId = layout.viewModel.projectId;
         shape.id = layout.getTempShapeId();
-
+            
         ProcessAddHelper.addShape(shape, layout, shapesFactoryService);
 
         return shape.id;
@@ -142,7 +142,7 @@ export class ProcessAddHelper {
             layout.updateLink(id, destinationId, userDecisionShape.id);
         }
 
-        ProcessAddHelper.addLinkInfo(userDecisionShape.id, destinationId, layout, 0, layout.getDefaultBranchLabel(userDecisionShape.id));
+        ProcessAddHelper.addLinkInfo(userDecisionShape.id, destinationId, layout, 0, layout.getDefaultBranchLabel(userDecisionShape.id, NodeType.UserDecision));
 
         // add tasks before end
         const nextShapeType = layout.viewModel.getShapeTypeById(destinationId);
@@ -164,7 +164,7 @@ export class ProcessAddHelper {
         let userTaskShapeId = ProcessAddHelper.insertUserTaskInternal(layout, shapesFactoryService);
         let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
         let orderIndex = layout.viewModel.getNextOrderIndex(userDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId) : label;
+        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId, NodeType.UserDecision) : label;
 
         // add links
         let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout, orderIndex, currentLabel);
@@ -246,7 +246,7 @@ export class ProcessAddHelper {
         layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
 
         layout.updateLink(sourceId, destinationId, systemDecision.id);
-        ProcessAddHelper.addLinkInfo(systemDecision.id, destinationId, layout, 0, layout.getDefaultBranchLabel(systemDecision.id));
+        ProcessAddHelper.addLinkInfo(systemDecision.id, destinationId, layout, 0, layout.getDefaultBranchLabel(systemDecision.id, NodeType.SystemDecision));
 
         const branchDestination: IProcessShape = layout.getConditionDestination(systemDecision.id);
         ProcessAddHelper.insertSystemDecisionConditionInternal(systemDecision.id, branchDestination.id, layout, shapesFactoryService);
@@ -259,7 +259,7 @@ export class ProcessAddHelper {
         let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
 
         let orderIndex: number = layout.viewModel.getNextOrderIndex(systemDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(systemDecisionId) : label;
+        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(systemDecisionId, NodeType.SystemDecision) : label;
         let condition = ProcessAddHelper.addLinkInfo(systemDecisionId, systemTaskId, layout, orderIndex, currentLabel);
         ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
 

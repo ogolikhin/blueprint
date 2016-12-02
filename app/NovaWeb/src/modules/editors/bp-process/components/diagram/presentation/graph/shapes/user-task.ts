@@ -65,12 +65,12 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
 
         //Delete Shape
-        const clickAction = () => {
-            this.processDiagramManager.action(ProcessEvents.DeleteShape);
+        const deleteClickAction = () => {
+            this.processDiagramManager.action(ProcessEvents.DeleteShape, this);
         };
 
         this.deleteShapeButton = new DeleteShapeButton(nodeId, this.BUTTON_SIZE, this.BUTTON_SIZE,
-            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, clickAction);
+            this.rootScope.config.labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, deleteClickAction);
 
 
         //Shape Comments

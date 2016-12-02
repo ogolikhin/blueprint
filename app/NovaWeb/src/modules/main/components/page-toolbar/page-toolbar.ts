@@ -1,7 +1,7 @@
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
-import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {
     CreateNewArtifactController,
@@ -381,6 +381,10 @@ export class PageToolbarController implements IPageToolbarController {
                 }
 
                 this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
+
+                if (_.find(data.artifacts, {predefinedType: Enums.ItemTypePredefined.Process})) {
+                    this.messageService.addWarning("ST_ProcessType_RegenerateUSS_Warning");
+                 }
             })
             .catch((error) => {
                 this.messageService.addError(error);

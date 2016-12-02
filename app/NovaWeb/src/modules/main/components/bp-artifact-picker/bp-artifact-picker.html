@@ -29,7 +29,7 @@
     </button>
     <div class="search-input">
         <input type="text" class="form-control"
-               placeholder="{{::$ctrl.searchPlaceholder}}" ng-model="$ctrl.searchText"/>
+               placeholder="{{$ctrl.searchPlaceholder}}" ng-model="$ctrl.searchText"/>
         <!-- fixme: Icons cant have a ng-click. wrap it in a button-->
         <i class="fonticon-error" ng-show="$ctrl.clearSearchEnabled()" ng-click="$ctrl.clearSearch()"></i>
     </div>

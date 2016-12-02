@@ -10,7 +10,7 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
+import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -41,7 +41,7 @@ export interface IProjectManager extends IDispose {
     getSelectedProjectId(): number;
     triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
-    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
+    calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -481,7 +481,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
+    public calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
         let promise: ng.IPromise<void>;
         let orderIndex: number;
         let index: number;
@@ -510,14 +510,14 @@ export class ProjectManager implements IProjectManager {
             index = siblings.findIndex((a) => a.id === selectedArtifact.id);
 
             //compute new order index
-            if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
+            if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first
                 orderIndex = selectedArtifact.orderIndex / 2;
-            } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+            } else if (index === siblings.length - 1 && insertMethod === MoveCopyArtifactInsertMethod.Below) { //last
                 orderIndex = selectedArtifact.orderIndex + 10;
             } else {    //in between
-                if (insertMethod === MoveArtifactInsertMethod.Above) {
+                if (insertMethod === MoveCopyArtifactInsertMethod.Above) {
                     orderIndex = (siblings[index - 1].orderIndex + selectedArtifact.orderIndex) / 2;
-                } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                } else if (insertMethod === MoveCopyArtifactInsertMethod.Below) {
                     orderIndex = (siblings[index + 1].orderIndex + selectedArtifact.orderIndex) / 2;
                 } else {
                     //leave undefined

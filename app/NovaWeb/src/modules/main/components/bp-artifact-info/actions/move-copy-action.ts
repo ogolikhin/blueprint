@@ -4,10 +4,11 @@ import {IProjectManager, IArtifactManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
-    MoveArtifactPickerDialogController, 
-    MoveArtifactResult, 
-    MoveArtifactInsertMethod,
-    IMoveArtifactPickerOptions
+    MoveCopyArtifactPickerDialogController, 
+    MoveCopyArtifactResult, 
+    MoveCopyArtifactInsertMethod,
+    IMoveCopyArtifactPickerOptions,
+    MoveCopyActionType
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
 import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
@@ -15,12 +16,10 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ISelectionManager} from "../../../../managers/selection-manager";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 
-enum Action {
-    Move, Copy
-}
+
 
 export class MoveCopyAction extends BPDropdownAction {
-    private action: Action;
+    private actionType: MoveCopyActionType;
 
     constructor(private $q: ng.IQService, 
                 private artifact: IStatefulArtifact,
@@ -70,10 +69,6 @@ export class MoveCopyAction extends BPDropdownAction {
         return !this.canExecute();
     }
 
-    public get execute(): () => void  {
-        return this.checkProjectLoaded;
-    }
-
     private canExecute(): boolean {
         if (!this.artifact) {
             return false;
@@ -98,16 +93,16 @@ export class MoveCopyAction extends BPDropdownAction {
     }
 
     private executeMove() {
-        this.action = Action.Move;
-        this.checkProjectLoaded();
+        this.checkProjectLoaded(MoveCopyActionType.Move);
     }
 
     private executeCopy() {
-        this.action = Action.Copy;
-        this.checkProjectLoaded();
+        this.checkProjectLoaded(MoveCopyActionType.Copy);
     }
 
-    private checkProjectLoaded() {
+    private checkProjectLoaded(actionType: MoveCopyActionType) {
+        this.actionType = actionType;
+        
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
         if (!this.projectManager.getProject(this.artifact.projectId)) {
@@ -125,40 +120,43 @@ export class MoveCopyAction extends BPDropdownAction {
 
     private openMoveDialog(): ng.IPromise<void> {
         //next - open the move to dialog
-        const okButtonLabel = this.action === Action.Move ? "App_Button_Move" : (this.action === Action.Copy ? "App_Button_Copy" : undefined);
-        const headerLabel = this.action === Action.Move ? "Move_Artifacts_Picker_Header" : 
-            (this.action === Action.Copy ? "Copy_Artifacts_Picker_Header" : undefined);
+        const okButtonLabel = this.actionType === MoveCopyActionType.Move ? 
+            "App_Button_Move" : 
+            (this.actionType === MoveCopyActionType.Copy ? "App_Button_Copy" : undefined);
+        const headerLabel = this.actionType === MoveCopyActionType.Move ? "Move_Artifacts_Picker_Header" : 
+            (this.actionType === MoveCopyActionType.Copy ? "Copy_Artifacts_Picker_Header" : undefined);
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get(okButtonLabel),
             template: require("../../../../main/components/dialogs/move-artifact/move-artifact-dialog.html"),
-            controller: MoveArtifactPickerDialogController,
+            controller: MoveCopyArtifactPickerDialogController,
             css: "nova-open-project",
             header: this.localization.get(headerLabel)
         };
 
-        const dialogData: IMoveArtifactPickerOptions = {
+        const dialogData: IMoveCopyArtifactPickerOptions = {
             showSubArtifacts: false,
             selectionMode: "single",
             isOneProjectLevel: true,
-            currentArtifact: this.artifact 
+            currentArtifact: this.artifact,
+            actionType: this.actionType 
         };
 
-        return this.dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
+        return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {
             if (result && result.length === 1) {
                 return this.computeNewOrderIndex(result[0]).catch((err) => this.messageService.addError(err));
             }
         }); 
     }
 
-    private computeNewOrderIndex(result: MoveArtifactResult): ng.IPromise<void> {
+    private computeNewOrderIndex(result: MoveCopyArtifactResult): ng.IPromise<void> {
         //next - compute new order index
         const artifacts: Models.IArtifact[] = result.artifacts;
         if (artifacts && artifacts.length === 1) {
-            let insertMethod: MoveArtifactInsertMethod = result.insertMethod;
+            let insertMethod: MoveCopyArtifactInsertMethod = result.insertMethod;
             return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]).then((orderIndex: number) => {
-                if (this.action === Action.Move) {
+                if (this.actionType === MoveCopyActionType.Move) {
                     return this.prepareArtifactForMove(insertMethod, artifacts[0], orderIndex);
-                } else if (this.action === Action.Copy) {
+                } else if (this.actionType === MoveCopyActionType.Copy) {
                     return this.copyArtifact(insertMethod, artifacts[0], orderIndex);
                 } else {
                     return this.$q.reject("unknown action");  //to prevent mistakes when adding more actions
@@ -167,7 +165,7 @@ export class MoveCopyAction extends BPDropdownAction {
         }
     }
 
-    private prepareArtifactForMove(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+    private prepareArtifactForMove(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
         //lock and presave if needed
         let lockSavePromise: ng.IPromise<any>;
 
@@ -190,10 +188,10 @@ export class MoveCopyAction extends BPDropdownAction {
         });
     }
 
-    private moveArtifact(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
         //finally, move the artifact
         return this.artifact
-        .move(insertMethod === MoveArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+        .move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
         .then(() => {
             //refresh project
             this.projectManager.refresh(this.artifact.projectId).then(() => {
@@ -202,10 +200,10 @@ export class MoveCopyAction extends BPDropdownAction {
         });
     }
 
-    private copyArtifact(insertMethod: MoveArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+    private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
         //finally, move the artifact
         return this.artifact
-        .copy(insertMethod === MoveArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+        .copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
         .then((result: Models.ICopyResultSet) => {
             let selectionId = result && result.artifact ? result.artifact.id : null;
             //refresh project

@@ -7,11 +7,12 @@ export enum PanelType {
 }
 
 export interface IUtilityPanelController {
+    panelEnabled: boolean;
     openPanel(panelType: PanelType);
 }
 
 export interface IUtilityPanelService {
-    isUtilityPanelReadonly: boolean;
+    panelEnabled: boolean;
     isUtilityPanelOpened: boolean;
     openPanel(panelType: PanelType);
     openPanelAsync(panelType: PanelType);
@@ -19,7 +20,6 @@ export interface IUtilityPanelService {
 
 export class UtilityPanelService implements IUtilityPanelService {
 
-    public isUtilityPanelReadonly: boolean;
     public isUtilityPanelOpened: boolean;
     private ctrl: IUtilityPanelController;
 
@@ -40,6 +40,16 @@ export class UtilityPanelService implements IUtilityPanelService {
         this.ctrl.openPanel(panelType);
     }
 
+    public get panelEnabled(): boolean {
+        return this.ctrl ? this.ctrl.panelEnabled : false;
+    }
+
+    public set panelEnabled(value: boolean) {
+        if (this.ctrl &&
+            value !== this.ctrl.panelEnabled) {
+            this.ctrl.panelEnabled = value;
+        }
+    }
     /**
      * Opens Utility Panel by panel type
      * 

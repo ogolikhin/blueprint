@@ -223,18 +223,27 @@ export class ProcessDiagram {
     }
 
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
-        if (elements.length > 0) {
+        if (elements.length === 1) {
+            // single-selection
             const subArtifactId: number = elements[0].model.id;
             const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
-
+            this.utilityPanelService.panelEnabled = true;
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        
+
                         this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
                     });
             }
+        } else if (elements.length > 1) {
+            // multi-selection 
+
+            // disable the utility panel && clear selection manager subartifact collection
+            this.utilityPanelService.panelEnabled = false;
+            this.artifactManager.selection.clearSubArtifact();
+
         } else {
+            this.utilityPanelService.panelEnabled = true;
             this.artifactManager.selection.clearSubArtifact();
         }
     }
@@ -260,6 +269,7 @@ export class ProcessDiagram {
     }
 
     public destroy() {
+        this.utilityPanelService.panelEnabled = true;
         
         // tear down persistent objects and event handlers
         if (this.communicationManager) {
@@ -293,5 +303,6 @@ export class ProcessDiagram {
             this.processViewModel.destroy();
             this.processViewModel = undefined;
         }
+        
     }
 }

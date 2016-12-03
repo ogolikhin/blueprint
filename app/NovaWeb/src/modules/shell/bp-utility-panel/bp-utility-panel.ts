@@ -27,6 +27,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public itemTypeIconId: number;
     public hasCustomIcon: boolean;
     public isAnyPanelVisible: boolean;
+    public panelEnabled: boolean; 
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
@@ -34,6 +35,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
                 private utilityPanelService: UtilityPanelService) {
         this.isAnyPanelVisible = true;
         this.utilityPanelService.initialize(this);
+        this.panelEnabled = true; 
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step

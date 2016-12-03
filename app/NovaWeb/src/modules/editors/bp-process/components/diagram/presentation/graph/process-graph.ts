@@ -32,6 +32,8 @@ export class ProcessGraph implements IProcessGraph {
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     public nodeLabelEditor: NodeLabelEditor;
+    public globalScope: IScopeContext;
+    public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -40,8 +42,7 @@ export class ProcessGraph implements IProcessGraph {
     private highlightedEdgeStates: any[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
-    public globalScope: IScopeContext;
-    public dragDropHandler: IDragDropHandler;
+    private selectionChangedHandler: string = null;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
         return this.viewModel.communicationManager.processDiagramCommunication;
@@ -93,9 +94,8 @@ export class ProcessGraph implements IProcessGraph {
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
         //Selection logic
-        this.selectionHelper = new ProcessGraphSelectionHelper(this.mxgraph);
-        this.addSelectionEventHandlers();
-        this.selectionHelper.initSelection();
+        this.createSelectionListeners();
+       
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
         this.initializePopupMenu();
@@ -113,23 +113,17 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    public addSelectionListener(listener: ISelectionListener) {
-        if (listener != null) {
-            this.selectionHelper.addSelectionListener(listener);
-        }
+    private createSelectionListeners() {
+        this.selectionHelper = new ProcessGraphSelectionHelper(this);
+        this.selectionChangedHandler = this.processDiagramCommunication
+            .register(ProcessEvents.SelectionChanged, this.highlightNodeEdges);
+        this.selectionHelper.initSelection();
     }
-
+ 
     public clearSelection() {
         this.mxgraph.clearSelection();
     }
-
-    private addSelectionEventHandlers() {
-        // highlight edges for selected shapes
-        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.highlightNodeEdges(elements));
-        // notify system that shapes have been selected
-        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.onSelectionChanged(elements));
-    }
-
+ 
     private initializePopupMenu() {
         // initialize a popup menu for the graph
         this.popupMenu = new NodePopupMenu(
@@ -373,6 +367,12 @@ export class ProcessGraph implements IProcessGraph {
             this.htmlElement.removeChild(this.htmlElement.firstChild);
         }
         // Dispose handlers
+        this.processDiagramCommunication.unregister(
+            ProcessEvents.DeleteShape, this.deleteShapeHandler);
+
+        this.processDiagramCommunication.unregister(
+            ProcessEvents.SelectionChanged, this.selectionChangedHandler);
+
         if (this.dragDropHandler != null) {
             this.dragDropHandler.dispose();
         }
@@ -382,7 +382,6 @@ export class ProcessGraph implements IProcessGraph {
         if (this.selectionHelper) {
             this.selectionHelper.destroy();
         }
-        this.viewModel.communicationManager.processDiagramCommunication.unregister(ProcessEvents.DeleteShape, this.deleteShapeHandler);
     }
 
     private addMouseEventListener(graph: MxGraph) {
@@ -915,12 +914,7 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    private onSelectionChanged(elements: IDiagramNode[]): void {
-        const communication = this.viewModel.communicationManager.processDiagramCommunication;
-        communication.action(ProcessEvents.SelectionChanged, elements);
-    }
-
-    private highlightNodeEdges(nodes: IDiagramNode[]) {
+    private highlightNodeEdges = (nodes: IDiagramNode[]) => {
         this.clearHighlightEdges();
         _.each(nodes, (node) => {
             let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());

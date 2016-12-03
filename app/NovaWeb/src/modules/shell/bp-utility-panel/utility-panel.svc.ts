@@ -11,6 +11,7 @@ export interface IUtilityPanelController {
 }
 
 export interface IUtilityPanelService {
+    isUtilityPanelReadonly: boolean;
     isUtilityPanelOpened: boolean;
     openPanel(panelType: PanelType);
     openPanelAsync(panelType: PanelType);
@@ -18,6 +19,7 @@ export interface IUtilityPanelService {
 
 export class UtilityPanelService implements IUtilityPanelService {
 
+    public isUtilityPanelReadonly: boolean;
     public isUtilityPanelOpened: boolean;
     private ctrl: IUtilityPanelController;
 

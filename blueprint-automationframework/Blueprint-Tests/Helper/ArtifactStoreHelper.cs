@@ -394,14 +394,16 @@ namespace Helper
         /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
         /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
         /// <param name="user">User to authenticate with.</param>
+        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
+        ///     should have the same ParentId.</param>
         /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
         /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
         /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
-        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
-        ///     should have the same ParentId.</param>
+        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false, int? expectedParentId = null)
+            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false,
+            Attachments.CompareOptions compareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -473,7 +475,7 @@ namespace Helper
             var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
             var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
-            Attachments.AssertAttachmentsAreEqual(expectedAttachments, actualAttachments);
+            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, compareOptions);
 
             // Get and compare sub-artifact Traces.
             if (!skipTraces)
@@ -995,6 +997,37 @@ namespace Helper
                 inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name, inlineTraceArtifact.Project.Name);
 
             return inlineTraceText;
+        }
+
+        /// <summary>
+        /// Creates and saves a new artifact and attaches the specified file to it.
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="project">The project where the artifact will be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <returns>The new artifact.</returns>
+        public static IArtifact CreateAndSaveArtifactWithAttachment(TestHelper helper,
+            IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            IFileMetadata file = null)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            var artifact = helper.CreateAndSaveArtifact(project, user, artifactType);
+
+            // Create & add attachment to the artifact.
+            DateTime defaultExpireTime = DateTime.Now.AddDays(2);   // Currently Nova set ExpireTime 2 days from today for newly uploaded file.
+
+            var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(user, file.FileName, file.FileType,
+                defaultExpireTime, helper.FileStore);
+
+            AddArtifactAttachmentAndSave(user, artifact, novaAttachmentFile, helper.ArtifactStore);
+
+            return artifact;
         }
 
         /// <summary>

@@ -8,7 +8,9 @@
     justify-content: center;
 
 }
-
+.modal-open .modal.quick-search__modal {
+    background-color: rgba(255, 255, 255, 0.5);
+}
 .modal {
     .modal-dialog {
         &.modal-full-screen {
@@ -20,7 +22,7 @@
             overflow: hidden;
 
             .modal-content {
-                background: $white;
+                background: transparent;
                 height: 100%;
                 width: 100%;
                 border-radius: 0;
@@ -131,6 +133,7 @@
     width: 60%;
     height: 100%;
     margin: auto;
+    background-color: $white;
 }
 
 .quick-search__results--side-border {

@@ -84,13 +84,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
     }
 
     public get disabled(): boolean {
-        return this.canExecute();
+        return !this.canExecute();
     }
 
     public dispose(): void {
-        if (this.processDiagramManager) {
-            this.processDiagramManager.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
-        }
+        this.processDiagramManager.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {

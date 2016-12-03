@@ -14,6 +14,7 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
 import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
+import {ProcessEvents} from "../../process-diagram-communication";
 
 class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
@@ -27,7 +28,7 @@ class ExecutionEnvironmentDetectorMock {
     }
 }
 
-describe("Drag-drop test", () => {
+describe("DragDropHandler test", () => {
     let msgService: IMessageService,
         localScope,
         rootScope,
@@ -63,13 +64,13 @@ describe("Drag-drop test", () => {
     };
 
     beforeEach(inject((_$window_: ng.IWindowService,
-                       $rootScope: ng.IRootScopeService,
-                       messageService: IMessageService,
-                       _communicationManager_: ICommunicationManager,
-                       _dialogService_: DialogService,
-                       _localization_: LocalizationServiceMock,
-                       _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory
+        $rootScope: ng.IRootScopeService,
+        messageService: IMessageService,
+        _communicationManager_: ICommunicationManager,
+        _dialogService_: DialogService,
+        _localization_: LocalizationServiceMock,
+        _statefulArtifactFactory_: IStatefulArtifactFactory,
+        _shapesFactory_: ShapesFactory
     ) => {
         rootScope = $rootScope;
         msgService = messageService;
@@ -112,22 +113,55 @@ describe("Drag-drop test", () => {
         shapesFactoryService = new ShapesFactory(rootScope, statefulArtifactFactory);
     }));
 
-    it("Test isValidDropSource method.", () => {
-        // Arrange
-        let testModel = TestModels.createLargeTestModel();
-        const processModel = setProcessViewModel(testModel);
-        const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
-        (<any>graph.dragDropHandler).isEnabled = true;
+    describe("isValidDropSource", () => {
 
-        // Act
-        graph.render(false, null);
+        it("returns true when drag and drop is enabled and drop source is User Task", () => {
+            // Arrange
+            const testModel = TestModels.createLargeTestModel();
+            const processModel = setProcessViewModel(testModel);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            const userTaskId = "36";
+            spyOn(graph.dragDropHandler, "isEnabled").and.returnValue(true);
 
-        //Assert
-        expect(graph.dragDropHandler.isValidDropSource(graph.getNodeById("36"))).toBeTruthy();
-        expect(graph.dragDropHandler.isValidDropSource(graph.getNodeById("37"))).not.toBeTruthy();
+            // Act
+            graph.render(false, null);
+            const isValid = graph.dragDropHandler.isValidDropSource(graph.getNodeById(userTaskId));
+            //Assert
+            expect(isValid).toBe(true);
+        });
+
+        it("returns false when drag and drop is disabled and drop source is User Task", () => {
+            // Arrange
+            const testModel = TestModels.createLargeTestModel();
+            const processModel = setProcessViewModel(testModel);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            const userTaskId = "36";
+            spyOn(graph.dragDropHandler, "isEnabled").and.returnValue(false);
+
+            // Act
+            graph.render(false, null);
+            const isValid = graph.dragDropHandler.isValidDropSource(graph.getNodeById(userTaskId));
+            //Assert
+            expect(isValid).toBe(false);
+        });
+
+        it("returns false when drag and drop is enabled and drop source is System Task", () => {
+            // Arrange
+            const testModel = TestModels.createLargeTestModel();
+            const processModel = setProcessViewModel(testModel);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            const systemTask = "37";
+            spyOn(graph.dragDropHandler, "isEnabled").and.returnValue(true);
+
+            // Act
+            graph.render(false, null);
+            const isValid = graph.dragDropHandler.isValidDropSource(graph.getNodeById(systemTask));
+            //Assert
+            expect(isValid).toBe(false);
+        });
     });
 
-    it("Test createDragPreview method.", () => {
+    it("createDragPreview - preview is created with predetermined width and height", () => {
         // Arrange
         let testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
@@ -142,7 +176,7 @@ describe("Drag-drop test", () => {
         expect(preview.style.height).toEqual("75px");
     });
 
-    it("Test highlightDropTarget method.", () => {
+    it("highlightDropTarget - returns that getDropEdgeState method was called", () => {
         // Arrange
         let testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
@@ -164,7 +198,7 @@ describe("Drag-drop test", () => {
         expect(getDropEdgeStateSpy).toHaveBeenCalled();
     });
 
-    it("Test reset method.", () => {
+    it("Reset - nulls out the cell that we are dragging.", () => {
         // Arrange
         let testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
@@ -179,4 +213,42 @@ describe("Drag-drop test", () => {
         expect(graph.dragDropHandler.moveCell).toBeNull();
     });
 
+    describe("isEnabled", () => {
+
+        it("returns isEnabled equal to 'false' when multiple shapes are selected through selection event", () => {
+            // Arrange
+            const testModel = TestModels.createLargeTestModel();
+            const processModel = setProcessViewModel(testModel);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            const userTaskId1 = "36";
+            const userTaskId2 = "20";
+
+            // Act
+            graph.render(false, null);
+            const userTaskNode1 = graph.getNodeById(userTaskId1);
+            const userTaskNode2 = graph.getNodeById(userTaskId2);
+            graph.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTaskId1, userTaskId2]);
+
+            const isEnabled = graph.dragDropHandler.isEnabled();
+            //Assert
+            expect(isEnabled).toBe(false);
+        });
+
+        it("returns isEnabled equal to 'true' when one shape is selected through selection event", () => {
+            // Arrange
+            const testModel = TestModels.createLargeTestModel();
+            const processModel = setProcessViewModel(testModel);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            const userTaskId1 = "36";
+
+            // Act
+            graph.render(false, null);
+            const userTaskNode1 = graph.getNodeById(userTaskId1);
+            graph.processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTaskId1]);
+
+            const isEnabled = graph.dragDropHandler.isEnabled();
+            //Assert
+            expect(isEnabled).toBe(true);
+        });
+    });
 });

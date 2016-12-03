@@ -923,6 +923,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Welcome
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Help', 'en-US', N'Help')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Logout', 'en-US', N'Log out')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Artifact_Header_LegacyArtifact', 'en-US', N'Legacy artifact')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Browse_Actor', 'en-US', N'Browse Actor')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Left', 'en-US', N'Explorer')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Right', 'en-US', N'Utility Panel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_EmptyMessage', 'en-US', N'You have no projects loaded in the Explorer')

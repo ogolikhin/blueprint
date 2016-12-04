@@ -1,4 +1,4 @@
-import {Models, Enums} from "../../models";
+import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
     IArtifactState,
@@ -191,19 +191,19 @@ export class BpArtifactInfoController {
         this.artifactTypeIconId = artifact.itemTypeIconId;
         this.hasCustomIcon = _.isFinite(artifact.itemTypeIconId);
 
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+        this.isLegacy = artifact.predefinedType === ItemTypePredefined.Storyboard ||
+            artifact.predefinedType === ItemTypePredefined.GenericDiagram ||
+            artifact.predefinedType === ItemTypePredefined.BusinessProcess ||
+            artifact.predefinedType === ItemTypePredefined.UseCase ||
+            artifact.predefinedType === ItemTypePredefined.UseCaseDiagram ||
+            artifact.predefinedType === ItemTypePredefined.UIMockup ||
+            artifact.predefinedType === ItemTypePredefined.DomainDiagram ||
+            artifact.predefinedType === ItemTypePredefined.Glossary;
 
-        if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
-            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections]);
+        if (artifact.itemTypeId === ItemTypePredefined.Collections && artifact.predefinedType === ItemTypePredefined.CollectionFolder) {
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections]);
         } else {
-            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[artifact.predefinedType]);
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[artifact.predefinedType]);
         }
 
         this.artifactType = artifact.itemTypeName;
@@ -217,11 +217,11 @@ export class BpArtifactInfoController {
         this.isChanged = state.dirty;
 
         switch (state.lockedBy) {
-            case Enums.LockedByEnum.CurrentUser:
+            case LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
 
-            case Enums.LockedByEnum.OtherUser:
+            case LockedByEnum.OtherUser:
                 let msg = state.lockOwner ? "Locked by " + state.lockOwner : "Locked ";
                 if (state.lockDateTime) {
                     msg += " on " + this.localization.current.formatShortDateTime(state.lockDateTime);
@@ -294,7 +294,7 @@ export class BpArtifactInfoController {
                 new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
             );
             //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+            if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
                 this.toolbarActions.push(openImpactAnalysisAction);
             }
             // collapsed toolbar
@@ -303,7 +303,7 @@ export class BpArtifactInfoController {
             this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
             this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
             //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
+            if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
                 this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
             }
             this.collapsedToolbarActions.push(

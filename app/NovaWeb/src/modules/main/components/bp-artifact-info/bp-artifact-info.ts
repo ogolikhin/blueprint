@@ -60,7 +60,7 @@ export class BpArtifactInfoController {
         "analytics"
     ];
 
-    protected subscribers: Rx.IDisposable[];
+    protected subscribers: Rx.IDisposable[] = [];
     protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -95,7 +95,6 @@ export class BpArtifactInfoController {
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
-        this.subscribers = [];
     }
 
     public $onInit() {
@@ -117,9 +116,9 @@ export class BpArtifactInfoController {
                     .distinctUntilChanged(changes => changes.item && changes.item.name)
                     .subscribeOnNext(this.onArtifactPropertyChanged, this)
             );
-        }
 
-        this.updateToolbarOptions(this.artifact);
+            this.createToolbarActions();
+        }
     }
 
     public $onDestroy() {
@@ -272,44 +271,44 @@ export class BpArtifactInfoController {
             });
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        this.toolbarActions = [];
-        this.collapsedToolbarActions = [];
-        if (artifact) {
-            const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
-            const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
-            const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
-                this.projectManager, this.loadingOverlayService);
-            const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
-                this.metadataService, this.mainBreadcrumbService);
-            const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
-                this.dialogService);
-            const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
-                this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
-            const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+    protected createToolbarActions(): void {
+        const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
+            this.projectManager, this.loadingOverlayService);
+        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
+            this.metadataService, this.mainBreadcrumbService);
+        const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+            this.dialogService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
 
-            // expanded toolbar
-            this.toolbarActions.push(
-                moveAction,
-                new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
-            );
-            //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
-                this.toolbarActions.push(openImpactAnalysisAction);
-            }
-            // collapsed toolbar
-            const dropdownSeparator = new BPButtonOrDropdownSeparator();
+        // expanded toolbar
+        this.toolbarActions.push(
+            moveAction,
+            new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
+        );
 
-            this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
-            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
-            //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
-                this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
-            }
-            this.collapsedToolbarActions.push(
-                new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
-            );
+        //we don't want to show impact analysis on collection artifact page
+        if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
+            this.toolbarActions.push(openImpactAnalysisAction);
         }
+
+        // collapsed toolbar
+        const dropdownSeparator = new BPButtonOrDropdownSeparator();
+
+        this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
+        this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
+        
+        //we don't want to show impact analysis on collection artifact page
+        if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
+            this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
+        }
+
+        this.collapsedToolbarActions.push(
+            new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
+        );
     }
 
     protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {

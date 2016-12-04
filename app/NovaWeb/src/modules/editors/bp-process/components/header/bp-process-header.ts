@@ -132,10 +132,10 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        super.updateToolbarOptions(artifact);
+    protected createToolbarActions(): void {
+        super.createToolbarActions();
 
-        const processArtifact = artifact as StatefulProcessArtifact;
+        const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
@@ -160,6 +160,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         // expanded toolbar
         this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
+        
         // collapsed toolbar
         for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
             if (this.collapsedToolbarActions[i].type === "menu") {

@@ -69,10 +69,10 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         );
     }
 
-    protected updateToolbarOptions(artifact: any): void {
-        super.updateToolbarOptions(artifact);
+    protected createToolbarActions(): void {
+        super.createToolbarActions();
 
-        const collectionArtifact = artifact as IStatefulCollectionArtifact;
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
 
         if (!collectionArtifact) {
             return;

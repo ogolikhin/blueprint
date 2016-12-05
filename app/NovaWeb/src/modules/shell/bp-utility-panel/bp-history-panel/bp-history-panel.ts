@@ -15,8 +15,8 @@ interface ISortOptions {
 export class BPHistoryPanel implements ng.IComponentOptions {
     public template: string = require("./bp-history-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPHistoryPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -25,7 +25,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactHistory",
-        "artifactManager",
         "navigationService"
     ];
 
@@ -42,11 +41,9 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
                 private artifactHistory: IArtifactHistory,
-                protected artifactManager: IArtifactManager,
-                private navigationService: INavigationService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
+                private navigationService: INavigationService) {
 
-        super($q, artifactManager.selection, bpAccordionPanel);
+        super($q);
 
         this.sortOptions = [
             {value: false, label: this.localization.get("App_UP_Filter_SortByLatest")},
@@ -54,10 +51,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         ];
 
         this.subscribers = [];
-    }
-
-    public $onInit() {
-        super.$onInit();
     }
 
     public $onDestroy() {

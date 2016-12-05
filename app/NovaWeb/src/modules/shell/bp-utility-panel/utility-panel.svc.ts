@@ -1,3 +1,5 @@
+import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
+
 export enum PanelType {
     Properties,
     Relationships,
@@ -6,7 +8,17 @@ export enum PanelType {
     History
 }
 
-export interface IUtilityPanelController {
+export interface IOnPanelChangesObject extends ng.IOnChangesObject {
+    context: ng.IChangesObject<IUtilityPanelContext>;
+}
+
+export interface IUtilityPanelContext {
+    artifact?: IStatefulArtifact;
+    subArtifact?: IStatefulSubArtifact;
+    panelType: PanelType;
+}
+
+export interface IUtilityPanelController extends ng.IController {
     openPanel(panelType: PanelType);
 }
 

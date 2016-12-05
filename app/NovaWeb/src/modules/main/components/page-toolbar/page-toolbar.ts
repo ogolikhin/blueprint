@@ -258,13 +258,14 @@ export class PageToolbarController implements IPageToolbarController {
     };
 
     public refreshAll = (evt: ng.IAngularEvent) => {
+        if (evt) {
+            evt.preventDefault();
+        }
+
         if (!this.isProjectOpened) {
             return;
         }
 
-        if (evt) {
-            evt.preventDefault();
-        }
         let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
         this.projectManager.refreshAll().finally(() => {
             this.loadingOverlayService.endLoading(refreshAllLoadingId);

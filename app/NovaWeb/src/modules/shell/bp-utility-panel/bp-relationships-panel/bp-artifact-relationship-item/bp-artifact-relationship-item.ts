@@ -80,8 +80,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
                     }
-                    this.traceDescription = relationshipExtendedInfo.description ?
-                        this.limitChars(relationshipExtendedInfo.description) : this.localization.get("Property_Not_Available");
+                    this.traceDescription = this.limitChars(relationshipExtendedInfo.description);
                     this.relationshipExtendedInfo = relationshipExtendedInfo;
                 });
         }

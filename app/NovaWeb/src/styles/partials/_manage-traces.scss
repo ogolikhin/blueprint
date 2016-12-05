@@ -1,5 +1,10 @@
 $modal-side-clearance: 8px;
 
+.manage-traces-wrapper_selected-artifact {
+    position: absolute;
+    top: 55px;
+}
+
 .manage-traces-wrapper {
 
     .disabled {
@@ -21,10 +26,12 @@ $modal-side-clearance: 8px;
     }
 
     &.modal.nova-open-project .modal-body .search-form{
-        margin-bottom: 5px;
+        margin-bottom: 26px;
     }
 
     .manage-traces {
+        position: relative;
+
         > div {
             float: left;
 
@@ -143,7 +150,7 @@ $modal-side-clearance: 8px;
 
         .trace-manager-wrapper {
             width: 100%;
-            height: 240px;
+            height: 244px;
             padding-bottom: 0;
             background-color: $white;
             overflow: auto;

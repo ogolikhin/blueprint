@@ -1,10 +1,9 @@
-import {Enums, Models, Relationships} from "../../../main";
+import {Enums, Relationships} from "../../../main";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {
     IArtifactManager,
     IStatefulItem,
     IStatefulArtifact,
-    StatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactRelationships
 } from "../../../managers/artifact-manager";
@@ -183,7 +182,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             this.item.relationships.canEdit;
     }
 
-    private reuseReadOnlyRelationships(): boolean {        
+    private reuseReadOnlyRelationships(): boolean {
         return this.item.isReuseSettingSRO(Enums.ReuseSettings.Relationships);
     }
 
@@ -276,12 +275,10 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         };
 
         this.dialogService.open(dialogSettings, data).then((result) => {
-
             data.manualTraces = data.manualTraces.map((trace) => {
                 trace.isSelected = false;
                 return trace;
             });
-
             this.manualTraces = data.manualTraces;
             this.item.relationships.updateManual(data.manualTraces);
         });

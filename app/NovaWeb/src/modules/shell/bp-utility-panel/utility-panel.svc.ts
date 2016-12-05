@@ -40,10 +40,10 @@ export class UtilityPanelService implements IUtilityPanelService {
 
     /**
      * Opens Utility Panel by panel type
-     * 
+     *
      * The method can be called outside AngularJS digest cycle,
-     * since $rootScope.$applyAsync is used 
-     * 
+     * since $rootScope.$applyAsync is used
+     *
      * @memberOf UtilityPanelService
      */
     public openPanelAsync(panelType: PanelType) {

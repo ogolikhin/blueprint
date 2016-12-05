@@ -13,7 +13,6 @@ import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
-
 import {
     IArtifactManager,
     ArtifactManager,

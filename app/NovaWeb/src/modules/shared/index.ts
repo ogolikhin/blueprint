@@ -13,7 +13,6 @@ angular.module("app.shared", [
 export {
     IDialogSettings,
     IDialogService,
-    IDialogData,
     BaseDialogController,
     IBPAction,
     IBPDropdownAction,

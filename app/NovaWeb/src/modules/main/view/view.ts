@@ -15,7 +15,7 @@ export class MainView implements ng.IComponentOptions {
 }
 
 export class MainViewController {
-    
+
     static $inject: [string] = [
         "$state",
         "session",

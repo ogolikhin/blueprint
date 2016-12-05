@@ -162,12 +162,9 @@ export class ArtifactService implements IArtifactService {
     }
 
     public moveArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<any> {
-        let url: string;
-        if (orderIndex) {
-            url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}`;
-        } else {
-            url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}`;
-        }
+        const url = orderIndex ? 
+            `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}` :
+            `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}`;
 
         const requestObj: ng.IRequestConfig = {
             url: url,
@@ -185,12 +182,9 @@ export class ArtifactService implements IArtifactService {
     }
 
     public copyArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet> {
-        let url: string;
-        if (orderIndex) {
-            url = `/svc/bpartifactstore/artifacts/${artifactId}/copyTo/${newParentId}?orderIndex=${orderIndex}`;
-        } else {
-            url = `/svc/bpartifactstore/artifacts/${artifactId}/copyTo/${newParentId}`;
-        }
+        const url = orderIndex ? 
+            `/svc/bpartifactstore/artifacts/${artifactId}/copyTo/${newParentId}?orderIndex=${orderIndex}` :
+            `/svc/bpartifactstore/artifacts/${artifactId}/copyTo/${newParentId}`;
 
         const requestObj: ng.IRequestConfig = {
             url: url,

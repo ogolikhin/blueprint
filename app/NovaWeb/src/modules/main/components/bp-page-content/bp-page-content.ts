@@ -6,6 +6,7 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../models/enums";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IProjectManager} from "../../../managers/project-manager";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -22,7 +23,8 @@ export class PageContentCtrl {
         "navigationService",
         "mainbreadcrumbService",
         "$state",
-        "projectManager"
+        "projectManager",
+        "localization"
     ];
 
     constructor(private dialogService: IDialogService,
@@ -30,7 +32,8 @@ export class PageContentCtrl {
                 private navigationService: INavigationService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
                 private $state: ng.ui.IStateService,
-                private projectManager: IProjectManager) {
+                private projectManager: IProjectManager,
+                private localization: ILocalizationService) {
     }
 
     public $onInit() {

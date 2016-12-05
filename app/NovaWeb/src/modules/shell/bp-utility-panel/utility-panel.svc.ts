@@ -7,12 +7,10 @@ export enum PanelType {
 }
 
 export interface IUtilityPanelController {
-    disableUtilityPanel();
     openPanel(panelType: PanelType);
 }
 
 export interface IUtilityPanelService {
-    disableUtilityPanel();
     isUtilityPanelOpened: boolean;
     openPanel(panelType: PanelType);
     openPanelAsync(panelType: PanelType);
@@ -38,12 +36,6 @@ export class UtilityPanelService implements IUtilityPanelService {
     public openPanel(panelType: PanelType) {
         this.isUtilityPanelOpened = true;
         this.ctrl.openPanel(panelType);
-    } 
-
-    public disableUtilityPanel() {
-        if (this.ctrl) {
-            this.ctrl.disableUtilityPanel();
-        }
     } 
  
     /**

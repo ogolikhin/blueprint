@@ -13,6 +13,7 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 
 export class BPUtilityPanelController implements IUtilityPanelController {
     public static $inject: [string] = [
+        "$rootScope",
         "localization",
         "artifactManager",
         "$element",
@@ -29,7 +30,8 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public isAnyPanelVisible: boolean;
    
 
-    constructor(private localization: ILocalizationService,
+    constructor(private $rootScope: ng.IRootScopeService,
+                private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery,
                 private utilityPanelService: UtilityPanelService) {
@@ -52,15 +54,6 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             it.dispose();
             return false;
         });
-    }
-
-    public disableUtilityPanel() {
-        this.isAnyPanelVisible = false;
-        this.hidePanel(PanelType.Discussions);
-        this.hidePanel(PanelType.Files);
-        this.hidePanel(PanelType.History);
-        this.hidePanel(PanelType.Properties);
-        this.hidePanel(PanelType.Relationships);
     }
 
     private hidePanel(panelType: PanelType) {
@@ -123,8 +116,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (item) {
             this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
         }
-
-        if (selection && (selection.artifact || selection.subArtifact)) {
+        
+        if (selection && selection.multiSelect) {
+            this.hidePanels();
+        } else if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);
@@ -132,6 +127,20 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             this.toggleDiscussionsPanel(selection);
         }
         this.setAnyPanelIsVisible();
+    }
+
+    private hidePanels() {
+        
+        this.hidePanel(PanelType.Discussions);
+        this.hidePanel(PanelType.Files);
+        this.hidePanel(PanelType.History);
+        this.hidePanel(PanelType.Properties);
+        this.hidePanel(PanelType.Relationships); 
+            
+        this.$rootScope.$applyAsync(() => {
+            this.setAnyPanelIsVisible();
+        });
+        
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {

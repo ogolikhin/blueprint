@@ -235,14 +235,9 @@ export class ProcessDiagram {
                     });
             }
         } else if (elements.length > 1) {
-            // multi-selection 
-
-            // disable the utility panel  
-            // clear selection manager subartifact collection
+            // multiple subArtifacts selected 
+            this.artifactManager.selection.setSubArtifact(undefined, true);
             
-            this.artifactManager.selection.clearSubArtifact();
-            this.utilityPanelService.disableUtilityPanel();
-
         } else {
             this.artifactManager.selection.clearSubArtifact();
         }

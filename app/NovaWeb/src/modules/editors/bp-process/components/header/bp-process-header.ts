@@ -1,3 +1,5 @@
+import {BPButtonGroupAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {IBPAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-action";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {IWindowManager} from "../../../../main/services";
@@ -128,6 +130,12 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             if (openProcessImpactAnalysisAction) {
                 openProcessImpactAnalysisAction.dispose();
             }
+
+            const processDeleteAction =
+                <ProcessDeleteAction>_.find(this.toolbarActions, action => action instanceof ProcessDeleteAction);
+            if (processDeleteAction) {
+                processDeleteAction.dispose();
+            }
         }
 
         super.$onDestroy();
@@ -143,13 +151,16 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected createCustomToolbarActions(): void {
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
         }
 
+        const processDeleteAction = new ProcessDeleteAction(
+            processArtifact, this.localization, this.messageService, this.artifactManager, this.projectManager, 
+            this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,
             this.localization,
@@ -170,6 +181,10 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             processArtifact,
             this.communicationManager.toolbarCommunicationManager,
             this.localization);
+
+        if (buttonGroup) {
+            buttonGroup.actions.push(processDeleteAction);
+        }
 
         // expanded toolbar
         this.toolbarActions.push(

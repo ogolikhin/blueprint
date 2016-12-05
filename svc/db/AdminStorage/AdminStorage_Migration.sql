@@ -954,6 +954,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Refres
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Delete', 'en-US', N'Delete Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_New', 'en-US', N'New')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Impact_Analysis', 'en-US', N'Open Impact Analysis')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Open_Shape_Impact_Analysis', 'en-US', N'Open Shape Impact Analysis')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Tour', 'en-US', N'Tour')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move_Copy', 'en-US', N'Move/Copy Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move', 'en-US', N'Move Artifact')

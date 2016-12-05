@@ -73,5 +73,11 @@ export class ProcessDeleteAction extends DeleteAction {
 
     private onSelectionChanged = (nodes: IDiagramNode[]): void => {
         this.selectedNodes = nodes;
+
+        if (this.selectedNodes && this.selectedNodes.length === 1) {
+            this._tooltip = this.localization.get("ST_Shapes_Delete_Tooltip");
+        } else {
+            this._tooltip = this.localization.get("App_Toolbar_Delete");
+        }
     };
 }

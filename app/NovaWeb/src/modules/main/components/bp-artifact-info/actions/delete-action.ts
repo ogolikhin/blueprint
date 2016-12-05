@@ -15,7 +15,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 export class DeleteAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
-        private localization: ILocalizationService,
+        protected localization: ILocalizationService,
         private messageService: IMessageService,
         private artifactManager: IArtifactManager,
         private projectManager: IProjectManager,
@@ -36,6 +36,8 @@ export class DeleteAction extends BPButtonAction {
         if (!dialogService) {
             throw new Error("Dialog service not provided or is null");
         }
+
+        this._tooltip = this.localization.get("App_Toolbar_Delete");
     }
 
     public get icon(): string {
@@ -43,7 +45,7 @@ export class DeleteAction extends BPButtonAction {
     }
 
     public get tooltip(): string {
-        return this.localization.get("App_Toolbar_Delete");
+        return this._tooltip;
     }
 
     public get disabled(): boolean {

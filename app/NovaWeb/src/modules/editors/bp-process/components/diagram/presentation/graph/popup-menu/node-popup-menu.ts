@@ -164,30 +164,26 @@ export class NodePopupMenu {
                             this.insertionPoint = null;
                         }
                     });
-                }
-                
+            } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
+                    if (this.insertUserDecisionBranchFn && this.insertionPoint) {
+                        this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
+                        this.insertionPoint = null;
+                    }
+                });
+            } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
+                    if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
+                        this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
+                        this.insertionPoint = null;
+                    }
+                });
             }
-
-        } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
-            menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
-                if (this.insertUserDecisionBranchFn && this.insertionPoint) {
-                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
-                    this.insertionPoint = null;
-                }
-            });
-        } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
-            menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
-                if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
-                    this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
-                    this.insertionPoint = null;
-                }
-            });
         }
 
         // adjust the offsets of the popup menu to position it above
         // the insertion point
-        this.calcMenuOffsets(menu);
-
+        this.calcMenuOffsets(menu);     
     };
 
     private subscribeHidePopupEvents() {

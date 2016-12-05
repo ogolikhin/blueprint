@@ -2,7 +2,8 @@ import {
     IDiagramNode, IProcessShape,
     NodeChange, ProcessShapeType, IProcessLink,
     ILayout, ProcessClipboardData,
-    UserTaskShapeModel, SystemTaskShapeModel
+    UserTaskShapeModel, SystemTaskShapeModel,
+    IProcessGraph, NodeType
 } from "./models/";
 import {IProcessLinkModel, ProcessLinkModel, IUserTaskShape, ISystemTaskShape} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";

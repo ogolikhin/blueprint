@@ -9,8 +9,5 @@ namespace SearchService.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<string> Path { get; set; }
     }
 }

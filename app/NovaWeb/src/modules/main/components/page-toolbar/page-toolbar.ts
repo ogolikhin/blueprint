@@ -450,6 +450,10 @@ export class PageToolbarController implements IPageToolbarController {
         return this.projectManager.projectCollection.getValue().length > 0;
     }
 
+    public get isArtifactSelected(): boolean {
+        return this.isProjectOpened && !!this.artifactManager.selection.getArtifact();
+    }
+
     public get canCreateNew(): boolean {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button

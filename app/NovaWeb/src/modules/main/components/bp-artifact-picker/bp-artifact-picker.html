@@ -45,10 +45,10 @@
         <!--fixme: ng-if is better than ng-show. for statements using || create a controller function to bind to-->
         <div class="search-wrapper" ng-show="$ctrl.isSearching || $ctrl.searchResults">
             <div class="search-message" ng-if="$ctrl.isSearching">
-                {{::$root.config.labels['Label_Searching']}}
+                {{::$ctrl.localization.get('Label_Searching')}}
             </div>
             <div class="search-message" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length === 0">
-                {{::$root.config.labels['Label_No_Results_Found']}}
+                {{::$ctrl.localization.get('Label_No_Results_Found')}}
             </div>
             <div class="search-results" ng-if="!$ctrl.isSearching && $ctrl.searchResults.length !== 0">
                 <!--fixme: click events should only be on buttons not divs and they should use functions not inline html logic-->
@@ -56,11 +56,11 @@
                 <!--fixme: use bind once syntax inside ng-repeat and leverage vs-repeat-->
                 <div class="search-result"
                      ng-repeat="searchResult in $ctrl.searchResults"
-                     ng-class="{selected: searchResult.selected(), selectable: searchResult.isSelectable}"
+                     ng-class="{selected: searchResult.selected(), selectable: searchResult.selectable}"
                      ng-click="$ctrl.currentSelectionMode === 'single' ? searchResult.selected(true) : undefined"
                      ng-dblclick="$ctrl.onDouble(searchResult)">
                     <input class="checkbox" type="checkbox"
-                           ng-class="{'search-hidden-checkbox': !searchResult.isSelectable}"
+                           ng-class="{'search-hidden-checkbox': !searchResult.selectable}"
                            ng-model="searchResult.selected"
                            ng-model-options="{ getterSetter: true }" ng-if="$ctrl.currentSelectionMode !== 'single'">
 
@@ -84,8 +84,8 @@
                     </div>
                 </div>
                 <div class="more-search-results" ng-if="$ctrl.isMoreSearchResults">
-                    <p>{{::$root.config.labels['Label_Search_Results'] | bpFormat:$ctrl.searchResults.length}}</p>
-                    <p>{{::$root.config.labels['Label_Search_Refine']}}</p>
+                    <p>{{::$ctrl.localization.get('Label_Search_Results') | bpFormat:$ctrl.searchResults.length}}</p>
+                    <p>{{::$ctrl.localization.get('Label_Search_Refine')}}</p>
                 </div>
             </div>
         </div>
@@ -94,7 +94,7 @@
             <div class="grid-header">
                 <!--fixme: i should not have ng-click, wrap in button-->
                 <i ng-if="$ctrl.project" class="project-navigation fonticon2-arrow-double-left"
-                   ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}"
+                   ng-class="{'hide-project-navigation': !$ctrl.showProjects}"
                    ng-click="$ctrl.project = undefined"></i>
                 <i ng-if="$ctrl.project" class="project-icon icon-project"></i>
                 <span ng-if="$ctrl.project" class="project-name"
@@ -103,9 +103,9 @@
                 </span>
                 <span ng-if="!$ctrl.project"
                       class="instance-name"
-                      bp-tooltip="{{::$root.config.labels['App_Header_Name']}}"
+                      bp-tooltip="{{::$ctrl.localization.get('App_Header_Name')}}"
                       bp-tooltip-truncated="true">
-                    {{::$root.config.labels['App_Header_Name']}}
+                    {{::$ctrl.localization.get('App_Header_Name')}}
                 </span>
             </div>
             <bp-tree-view grid-class="project-tree"

@@ -55,15 +55,13 @@ export class UnpublishedController {
             this.publishService,
             this.localization,
             this.messageService,
-            this.loadingOverlayService,
-            this.navigationService);
+            this.loadingOverlayService);
         this.discardArtifactsButton = new DiscardArtifactsAction(
             this.publishService,
             this.localization,
             this.messageService,
             this.loadingOverlayService,
-            this.projectManager,
-            this.navigationService);
+            this.projectManager);
 
         this.toolbarActions.push(
             new BPButtonGroupAction(

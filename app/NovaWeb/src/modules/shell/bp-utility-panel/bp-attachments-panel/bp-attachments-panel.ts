@@ -24,8 +24,8 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPAttachmentsPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -33,9 +33,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",
         "localization",
-        "artifactManager",
         "session",
-        "artifactAttachments",
         "settings",
         "dialogService",
         "messageService"
@@ -53,14 +51,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
-                protected artifactManager: IArtifactManager,
                 private session: ISession,
-                private artifactAttachments: IArtifactAttachmentsService,
                 private settingsService: ISettingsService,
                 private dialogService: IDialogService,
-                private messageService: IMessageService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
-        super($q, artifactManager.selection, bpAccordionPanel);
+                private messageService: IMessageService) {
+        super($q);
 
         this.subscribers = [];
     }

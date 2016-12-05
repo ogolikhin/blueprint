@@ -279,9 +279,7 @@ export class BpArtifactInfoController {
             this.metadataService, this.mainBreadcrumbService);
         const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService);
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
-        const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction);
+        const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar
         this.toolbarActions.push(moveAction, buttonGroup);
@@ -290,13 +288,19 @@ export class BpArtifactInfoController {
         this.collapsedToolbarActions.push(buttonGroup);
         this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
 
-        this.createCustomToolbarActions();
+        this.createCustomToolbarActions(buttonGroup);
 
         this.collapsedToolbarActions.push(new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions));
     }
 
-    protected createCustomToolbarActions(): void {
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+
+        if (buttonGroup) {
+            buttonGroup.actions.push(deleteAction);
+        }
 
         this.toolbarActions.push(openImpactAnalysisAction);
         this.additionalMenuActions.push(new BPButtonOrDropdownSeparator(), openImpactAnalysisAction);

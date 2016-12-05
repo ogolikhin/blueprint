@@ -68,7 +68,7 @@
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"
-                   ng-disabled="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>
+                   ng-hide="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>
         </div>
         <div>
             <div uib-dropdown>

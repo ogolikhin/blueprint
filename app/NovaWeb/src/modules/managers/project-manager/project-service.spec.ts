@@ -271,8 +271,8 @@ describe("Project Repository", () => {
             // Arrange
             const searchCriteria: SearchServiceModels.ISearchCriteria = {query: "new"};
             const searchResult: SearchServiceModels.IProjectSearchResultSet = {items: [
-                {itemId: 1, name: "New project 1", path: ["Blueprint"]},
-                {itemId: 2, name: "New project 2", path: ["Blueprint"]}
+                {itemId: 1, name: "New project 1", path: "Blueprint"},
+                {itemId: 2, name: "New project 2", path: "Blueprint"}
             ]};
             $httpBackend.expectPOST("/svc/searchservice/projectsearch/name?resultCount=100&separatorString=+%3E+", searchCriteria)
                 .respond(HttpStatusCode.Success, searchResult);

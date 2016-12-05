@@ -392,9 +392,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         return !!(searchResult.model && _.isFinite(searchResult.model.itemTypeIconId));
     };
 
-    public getArtifactTextPath(path: string[]): string {
+    public getArtifactTextPath(path: string | string[]): string {
         if (!path) {
             return "";
+        }
+        if (typeof path === "string") {
+            return path;
         }
         return path.join(" > ");
     }

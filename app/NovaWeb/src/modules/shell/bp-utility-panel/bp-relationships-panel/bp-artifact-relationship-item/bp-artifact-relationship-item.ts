@@ -46,6 +46,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public toggleItemFlag: Function;
     public deleteItem: Function;
     public itemVersionId: number;
+    public traceDescription: string;
 
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
@@ -79,6 +80,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
                     }
+                    this.traceDescription = this.limitChars(relationshipExtendedInfo.description);
                     this.relationshipExtendedInfo = relationshipExtendedInfo;
                 });
         }
@@ -138,5 +140,9 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         if (this.relationship.hasAccess) {
             this.navigationService.navigateTo({id: id});
         }
+    }
+
+    public canModifyItem() {
+        return this.relationship.hasAccess && !this.isItemReadOnly && !this.relationship.readOnly;
     }
 }

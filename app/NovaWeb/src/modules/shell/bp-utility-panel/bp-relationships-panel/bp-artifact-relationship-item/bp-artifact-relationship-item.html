@@ -55,8 +55,8 @@
                         </li>
                     </ul>
 
-                    <div class="desc">
-                        <span class="bolded-text ">Description:&nbsp;</span>{{$ctrl.limitChars($ctrl.relationshipExtendedInfo.description)}}
+                    <div class="desc" ng-if="$ctrl.traceDescription">
+                        <span class="bolded-text ">{{::$ctrl.localization.get('Label_Description')}}: &nbsp;</span>{{::$ctrl.traceDescription}}
                     </div>
                 </div>
             </div>

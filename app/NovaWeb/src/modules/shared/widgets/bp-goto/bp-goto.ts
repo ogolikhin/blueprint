@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export interface IBPGotoController {
     showSearch();
@@ -19,11 +20,12 @@ export class BPGotoController implements ng.IComponentController, IBPGotoControl
 
     public static $inject = [
         "$element",
-        "navigationService"
+        "navigationService",
+        "localization"
     ];
 
     constructor(private $element: ng.IAugmentedJQuery,
-                private navigationService: INavigationService) {
+                private navigationService: INavigationService, private localization: ILocalizationService) {
     }
 
     private focusInputField() {

@@ -65,7 +65,7 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-        let id = this.loadingOverlayService.beginLoading();
+        const id = this.loadingOverlayService.beginLoading();
         this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             this.loadingOverlayService.endLoading(id);
             if (unpublishedArtifactSet.artifacts.length > 0) {

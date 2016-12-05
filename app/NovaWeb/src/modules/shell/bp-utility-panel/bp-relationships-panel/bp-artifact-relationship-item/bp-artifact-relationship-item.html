@@ -68,14 +68,15 @@
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"
-                   ng-hide="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>
+                   ng-if="!$ctrl.isDisabled()"/>
         </div>
         <div>
             <div uib-dropdown>
                 <span uib-dropdown-toggle>
-                    <i class="icon fonticon-exchange"
-                       ng-class="{disabled: !$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly}"
-                       bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"></i>
+                    <button type="button" class="btn-icon fonticon-exchange"
+                       ng-disabled="$ctrl.isDisabled()"
+                       ng-class="{'btn-icon--disabled': $ctrl.isDisabled()}"
+                       bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"></button>
                 </span>
                 <ul class="dropdown-menu"
                     ng-hide="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly">
@@ -90,14 +91,18 @@
                             {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
                 </ul>
             </div>
-            <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleItemFlag()"
-               ng-class="{'fonticon-flag-empty': $ctrl.relationship.suspect == true, disabled: !$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly}"
-               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
+            <button type="button" class="btn-icon fonticon-flag-1" ng-click="$ctrl.toggleItemFlag()"
+                    ng-disabled="$ctrl.isDisabled()"
+                    ng-class="{'fonticon-flag-empty': $ctrl.relationship.suspect == true,
+                    'btn-icon--disabled': $ctrl.isDisabled()}"
+                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}">
+            </button>
 
-            <i class="icon fonticon-delete-filled"
-               ng-class="{disabled: !$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly}"
+            <button type="button" class="btn-icon fonticon-delete-filled"
+               ng-disabled="$ctrl.isDisabled()"
+               ng-class="{'btn-icon--disabled': $ctrl.isDisabled()}"
                ng-click="$ctrl.deleteItem()"
-               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
+               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></button>
         </div>
 
     </div>

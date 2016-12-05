@@ -5,7 +5,7 @@ namespace SearchService.Models
     public class SearchProjectResult : SearchResult
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public new string Path { get; set; }
+        public string Path { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }

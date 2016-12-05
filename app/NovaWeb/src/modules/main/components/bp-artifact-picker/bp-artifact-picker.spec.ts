@@ -217,6 +217,32 @@ describe("BpArtifactPickerController", () => {
         expect(controller.onDoubleClick).toHaveBeenCalledWith({vm: vm});
     });
 
+    it("getArtifactTextPath, when path is undefined, returns empty string", () => {
+        // Arrange, Act
+        const result = controller.getArtifactTextPath(undefined);
+
+        // Assert
+        expect(result).toBe("");
+    });
+
+    it("getArtifactTextPath, when path is string, returns path", () => {
+        // Arrange, Act
+        const path = "test";
+        const result = controller.getArtifactTextPath(path);
+
+        // Assert
+        expect(result).toBe(path);
+    });
+
+    it("getArtifactTextPath, when path is string[], returns path join", () => {
+        // Arrange, Act
+        const path = ["parent", "child"];
+        const result = controller.getArtifactTextPath(path);
+
+        // Assert
+        expect(result).toBe(path.join(" > "));
+    });
+
     describe("columns", () => {
         it("column properties are correctly defined", () => {
             // Arrange

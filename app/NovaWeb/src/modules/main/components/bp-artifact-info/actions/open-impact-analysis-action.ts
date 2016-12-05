@@ -13,6 +13,8 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
+
+        this._tooltip = this.localization.get("App_Toolbar_Open_Impact_Analysis");
     }
 
     public get icon(): string {
@@ -20,7 +22,7 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
     }
 
     public get tooltip(): string {
-        return this.localization.get("App_Toolbar_Open_Impact_Analysis");
+        return this._tooltip;
     }
 
     public get disabled(): boolean {

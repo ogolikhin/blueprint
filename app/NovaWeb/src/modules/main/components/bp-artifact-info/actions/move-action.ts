@@ -28,11 +28,11 @@ export class MoveAction extends BPDropdownAction {
         }
 
         if (!projectManager) {
-            throw new Error("Project manager not provided or is null");
+            throw new Error("Project manager is not provided or is null");
         }
 
         if (!dialogService) {
-            throw new Error("Dialog service not provided or is null");
+            throw new Error("Dialog service is not provided or is null");
         }
 
         this.actions.push(
@@ -94,9 +94,10 @@ export class MoveAction extends BPDropdownAction {
         }
 
         loadProjectPromise
-        .catch((err) => this.messageService.addError(err))
         .then(() => {
             this.openMoveDialog();
+        }).catch((err) => {
+            this.messageService.addError(err);
         });
     }
 
@@ -111,9 +112,8 @@ export class MoveAction extends BPDropdownAction {
         };
 
         const dialogData: IMoveArtifactPickerOptions = {
-            showSubArtifacts: false,
             selectionMode: "single",
-            isOneProjectLevel: true,
+            showProjects: false,
             currentArtifact: this.artifact
         };
 

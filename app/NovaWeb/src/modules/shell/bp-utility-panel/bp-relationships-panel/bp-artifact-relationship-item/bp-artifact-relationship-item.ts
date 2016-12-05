@@ -87,6 +87,10 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         this.expanded = !this.expanded;
     }
 
+    public isDisabled () {
+        return !this.relationship.hasAccess || this.isItemReadOnly || this.relationship.readOnly;
+    }
+
     public selectTrace() {
         if (!this.relationship.isSelected) {
             if (this.selectedTraces) {

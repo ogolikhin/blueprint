@@ -196,20 +196,6 @@ describe("BpArtifactInfo", () => {
             // assert
             expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toBeGreaterThan(0);
         });
-
-        it("doesn't add Open Impact Analysis action for collection", () => {
-            // arrange
-            const artifact = artifactManager.selection.getArtifact();
-            artifact.predefinedType = ItemTypePredefined.ArtifactCollection;
-            const element = "<bp-artifact-info></bp-artifact-info>";
-            const scope = $rootScope.$new();
-
-            // act
-            const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
-
-            // assert
-            expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toEqual(0);
-        });
     });
 
     describe("once initialized", () => {

@@ -68,9 +68,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         );
     }
 
-    protected createToolbarActions(): void {
-        super.createToolbarActions();
-
+    protected createCustomToolbarActions(): void {
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
 
         if (!collectionArtifact) {
@@ -81,14 +79,16 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
         // expanded toolbar
-        this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
+        this.toolbarActions.push(
+            rapidReviewAction, 
+            addCollectionArtifactAction
+        );
+        
         // collapsed toolbar
-        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
-            if (this.collapsedToolbarActions[i].type === "menu") {
-                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
-            }
-        }
+        this.additionalMenuActions.push(
+            new BPButtonOrDropdownSeparator(), 
+            rapidReviewAction, 
+            addCollectionArtifactAction
+        );
     }
 }

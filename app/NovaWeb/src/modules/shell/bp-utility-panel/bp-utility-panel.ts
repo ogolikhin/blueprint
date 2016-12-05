@@ -54,11 +54,11 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         this._subscribers = [selectionObservable];
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
         if (accordionCtrl) {
-            for (let i = 0; i <  accordionCtrl.getPanels().length; i++) {
-                let panelCtrl = accordionCtrl.getPanels()[i];
+            for (let panelType = 0; panelType <  accordionCtrl.getPanels().length; panelType++) {
+                let panelCtrl = accordionCtrl.getPanels()[panelType];
                 this._subscribers.push(panelCtrl.isActiveObservable
                     .filter(isActive => isActive)
-                    .map((isActive) => { return i as PanelType; })
+                    .map((isActive) => { return panelType; })
                     .subscribeOnNext(this.activatePanel));
             }  
         }
@@ -156,13 +156,13 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         const accordionCtrl: IBpAccordionController = this.getAccordionController();
         if (accordionCtrl) {
             this.activePanelContexts = [];
-            for (let i = 0; i <  accordionCtrl.getPanels().length; i++) {
-                const panelCtrl = accordionCtrl.getPanels()[i];
+            for (let panelType = 0; panelType <  accordionCtrl.getPanels().length; panelType++) {
+                const panelCtrl = accordionCtrl.getPanels()[panelType];
                 if (panelCtrl.isActive) {
                     const context: IUtilityPanelContext = {
                         artifact: selection.artifact,
                         subArtifact: selection.subArtifact,
-                        panelType: i
+                        panelType: panelType
                     };
                     this.activePanelContexts.push(context);
                 }

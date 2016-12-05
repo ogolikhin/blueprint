@@ -115,7 +115,7 @@ export class ArtifactManager implements IArtifactManager {
     public autosave(showConfirm: boolean = true): ng.IPromise<any> {
         const artifact = this.selection.getArtifact();
         if (artifact) {
-            return artifact.save(true).catch(() => {
+            return artifact.save(true).catch((error) => {
                 if (showConfirm) {
                     return this.dialogService.open(<IDialogSettings>{
                     okButton: "App_Button_Proceed",
@@ -126,7 +126,7 @@ export class ArtifactManager implements IArtifactManager {
                         artifact.discard();
                     });
                 } else {
-                    return this.$q.reject();
+                    return this.$q.reject(error);
                 }
             });
             }

@@ -11,6 +11,11 @@ export interface IWindowVisibility {
 
 
 export class WindowVisibility implements IWindowVisibility {
+
+    static $inject: [string] = [
+        "$window",
+        "$document"
+    ];
     private _subject: Rx.BehaviorSubject<VisibilityStatus>;
 
     private windowsHasFocus: boolean = true;
@@ -19,38 +24,40 @@ export class WindowVisibility implements IWindowVisibility {
     // Make use of the Page Visibility API https://www.w3.org/TR/page-visibility/
     private documentHiddenProperty: string = "hidden";
 
-    constructor() {
+    constructor(
+        private $window: ng.IWindowService,
+        private $document: ng.IDocumentService) {
         this._subject = new Rx.BehaviorSubject<VisibilityStatus>(null);
 
         // W3C standards:
-        if (this.documentHiddenProperty in document) {
-            document.addEventListener("visibilitychange", this.windowVisibilityHandler);
-        } else if ((this.documentHiddenProperty = "mozHidden") in document) { // Firefox 10+
-            document.addEventListener("mozvisibilitychange", this.windowVisibilityHandler);
-        } else if ((this.documentHiddenProperty = "webkitHidden") in document) { // Chrome 13+
-            document.addEventListener("webkitvisibilitychange", this.windowVisibilityHandler);
-        } else if ((this.documentHiddenProperty = "msHidden") in document) { // IE 10+
-            document.addEventListener("msvisibilitychange", this.windowVisibilityHandler);
-        } else if ("onfocusin" in document) { // IE 9-
-            document["onfocusin"] = document["onfocusout"] = this.windowVisibilityHandler;
+        if (this.documentHiddenProperty in this.$document) {
+            this.$document.on("visibilitychange", this.windowVisibilityHandler);
+        } else if ((this.documentHiddenProperty = "mozHidden") in this.$document) { // Firefox 10+
+            this.$document.on("mozvisibilitychange", this.windowVisibilityHandler);
+        } else if ((this.documentHiddenProperty = "webkitHidden") in this.$document) { // Chrome 13+
+            this.$document.on("webkitvisibilitychange", this.windowVisibilityHandler);
+        } else if ((this.documentHiddenProperty = "msHidden") in this.$document) { // IE 10+
+            this.$document.on("msvisibilitychange", this.windowVisibilityHandler);
+        } else if ("onfocusin" in this.$document) { // IE 9-
+            this.$document["onfocusin"] = this.$document["onfocusout"] = this.windowVisibilityHandler;
         }
 
-        window.addEventListener("focus", this.windowFocusHandler);
-        window.addEventListener("blur", this.windowBlurHandler);
+        this.$window.addEventListener("focus", this.windowFocusHandler);
+        this.$window.addEventListener("blur", this.windowBlurHandler);
     };
 
     public dispose() { 
         this._subject.dispose();
 
-        document.removeEventListener("visibilitychange", this.windowVisibilityHandler);
-        document.removeEventListener("mozvisibilitychange", this.windowVisibilityHandler);
-        document.removeEventListener("webkitvisibilitychange", this.windowVisibilityHandler);
-        document.removeEventListener("msvisibilitychange", this.windowVisibilityHandler);
-        document.removeEventListener("onfocusin", this.windowVisibilityHandler);
-        document.removeEventListener("onfocusout", this.windowVisibilityHandler);
+        this.$document.off("visibilitychange", this.windowVisibilityHandler);
+        this.$document.off("mozvisibilitychange", this.windowVisibilityHandler);
+        this.$document.off("webkitvisibilitychange", this.windowVisibilityHandler);
+        this.$document.off("msvisibilitychange", this.windowVisibilityHandler);
+        this.$document.off("onfocusin", this.windowVisibilityHandler);
+        this.$document.off("onfocusout", this.windowVisibilityHandler);
 
-        window.removeEventListener("focus", this.windowFocusHandler);
-        window.removeEventListener("blur", this.windowBlurHandler);
+        this.$window.removeEventListener("focus", this.windowFocusHandler);
+        this.$window.removeEventListener("blur", this.windowBlurHandler);
     };
 
     private windowFocusHandler = (evt: Event) => {
@@ -58,9 +65,9 @@ export class WindowVisibility implements IWindowVisibility {
     };
 
     private windowBlurHandler = (evt: Event) => {
-        if (document.activeElement === document.body) {
+        // if (document.activeElement === document.body) {
             this.setStatus(evt, VisibilityStatus.Hidden);
-        }
+        // }
     };
 
     private windowVisibilityHandler = (evt: Event) => {

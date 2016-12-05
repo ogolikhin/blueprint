@@ -174,12 +174,12 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Update custom property in artifact.
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             CustomProperty property = null;
 
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, _user);
+                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, author);
             }
             else
             {
@@ -190,8 +190,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetailsChangeset);
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, (NovaArtifactDetails)artifactDetailsChangeset);
+            artifact.Save();
 
             // Verify:
             NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);

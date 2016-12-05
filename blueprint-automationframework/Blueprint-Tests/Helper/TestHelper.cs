@@ -629,7 +629,7 @@ namespace Helper
         /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
         /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static NovaArtifactDetails CreateArtifactPropertiesChangeSet(NovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null)
+        public static INovaArtifactDetails CreateArtifactPropertiesChangeSet(INovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 
@@ -641,18 +641,12 @@ namespace Helper
 
             if (customProperties != null)
             {
-                foreach (var customProperty in customProperties)
-                {
-                    changesetDetails.CustomPropertyValues.Add(customProperty);
-                }
+                changesetDetails.CustomPropertyValues.AddRange(customProperties);
             }
 
             if (specificProperties != null)
             {
-                foreach (var specificProperty in specificProperties)
-                {
-                    changesetDetails.SpecificPropertyValues.Add(specificProperty);
-                }
+                changesetDetails.SpecificPropertyValues.AddRange(specificProperties);
             }
 
             return changesetDetails;
@@ -665,7 +659,7 @@ namespace Helper
         /// <param name="customProperty">(optional) The custom property to add to the changeset</param>
         /// <param name="specificProperty">(optional) The specific property to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static NovaArtifactDetails CreateArtifactPropertyChangeSet(NovaArtifactBase artifactDetails, CustomProperty customProperty = null, CustomProperty specificProperty = null)
+        public static INovaArtifactDetails CreateArtifactPropertyChangeSet(INovaArtifactBase artifactDetails, CustomProperty customProperty = null, CustomProperty specificProperty = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 

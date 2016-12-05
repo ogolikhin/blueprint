@@ -1,18 +1,26 @@
-﻿export interface IWindowVisibility {
-    isHidden: Rx.Observable<boolean>;
+﻿export enum VisibilityStatus {
+    Visible,
+    Hidden,
+    Focus,
+    Blur
 }
 
+export interface IWindowVisibility {
+    visibilityObservable: Rx.Observable<VisibilityStatus>;
+}
+
+
 export class WindowVisibility implements IWindowVisibility {
-    private _isHidden: Rx.BehaviorSubject<boolean>;
+    private _subject: Rx.BehaviorSubject<VisibilityStatus>;
 
     private windowsHasFocus: boolean = true;
-    private tabIsHidden: boolean = false;
+    //private tabIsHidden: boolean = false;
 
     // Make use of the Page Visibility API https://www.w3.org/TR/page-visibility/
     private documentHiddenProperty: string = "hidden";
 
     constructor() {
-        this._isHidden = new Rx.BehaviorSubject<boolean>(false);
+        this._subject = new Rx.BehaviorSubject<VisibilityStatus>(null);
 
         // W3C standards:
         if (this.documentHiddenProperty in document) {
@@ -31,8 +39,8 @@ export class WindowVisibility implements IWindowVisibility {
         window.addEventListener("blur", this.windowBlurHandler);
     };
 
-    public dispose() {
-        this._isHidden.dispose();
+    public dispose() { 
+        this._subject.dispose();
 
         document.removeEventListener("visibilitychange", this.windowVisibilityHandler);
         document.removeEventListener("mozvisibilitychange", this.windowVisibilityHandler);
@@ -45,14 +53,14 @@ export class WindowVisibility implements IWindowVisibility {
         window.removeEventListener("blur", this.windowBlurHandler);
     };
 
-    private windowFocusHandler = () => {
-        this.windowsHasFocus = true;
-        this.checkGlobalVisibility();
+    private windowFocusHandler = (evt: Event) => {
+        this.setStatus(evt, VisibilityStatus.Visible);
     };
 
-    private windowBlurHandler = () => {
-        this.windowsHasFocus = false;
-        this.checkGlobalVisibility();
+    private windowBlurHandler = (evt: Event) => {
+        if (document.activeElement === document.body) {
+            this.setStatus(evt, VisibilityStatus.Hidden);
+        }
     };
 
     private windowVisibilityHandler = (evt: Event) => {
@@ -65,21 +73,22 @@ export class WindowVisibility implements IWindowVisibility {
             focusout: hidden,
             pagehide: hidden
         };
-
+        let status: boolean;
         evt = evt || window.event;
+        
         if (evt.type in eventMap) {
-            this.tabIsHidden = eventMap[evt.type];
+            status = eventMap[evt.type];
         } else {
-            this.tabIsHidden = document[this.documentHiddenProperty];
+            status = document[this.documentHiddenProperty];
         }
-        this.checkGlobalVisibility();
+        this.setStatus(evt, status ? VisibilityStatus.Hidden : VisibilityStatus.Visible);
     };
 
-    private checkGlobalVisibility = () => {
-        this._isHidden.onNext(this.windowsHasFocus || !this.tabIsHidden);
+    private setStatus = (evt: Event, status: VisibilityStatus) => {
+        this._subject.onNext(status);
     };
 
-    public get isHidden(): Rx.Observable<boolean> {
-        return this._isHidden.asObservable();
+    public get visibilityObservable(): Rx.Observable<VisibilityStatus> {
+        return this._subject.filter(it => it !== null).asObservable();
     };
 }

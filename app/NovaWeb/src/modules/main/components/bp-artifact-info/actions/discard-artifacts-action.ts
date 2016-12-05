@@ -4,7 +4,6 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IArtifact} from "../../../models/models";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
 
 export class DiscardArtifactsAction extends BPButtonAction {
@@ -14,8 +13,7 @@ export class DiscardArtifactsAction extends BPButtonAction {
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 loadingOverlayService: ILoadingOverlayService,
-                projectManager: IProjectManager,
-                navigationService: INavigationService) {
+                projectManager: IProjectManager) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }

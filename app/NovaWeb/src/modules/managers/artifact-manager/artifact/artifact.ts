@@ -444,6 +444,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (error.statusCode === 400) {
             if (error.errorCode === 114) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            } else if (error.errorCode === 130) { // The Item name cannot be empty
+                message = "App_Save_Artifact_Error_409_130"; //todo get localized string
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
             }

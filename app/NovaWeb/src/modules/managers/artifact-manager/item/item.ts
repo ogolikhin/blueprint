@@ -323,7 +323,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
-    
+
     protected initialize(artifact: Models.IArtifact): void {
         this.artifact = artifact;
         if (this.artifact.createdOn) {
@@ -441,7 +441,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                     if (!_.isBoolean(propertyType.isValidated)) {
                         propertyType.isValidated = true;
                     }
-                    
+
                     break;
                 case Enums.PropertyLookupEnum.Special:
                     propertyValue = this.specialProperties.get(propertyType.modelPropertyName as number);
@@ -514,7 +514,9 @@ export abstract class StatefulItem implements IIStatefulItem {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    value = propValue ? propValue.validValues : null;
+                    const allowsCustomValues = !propertyType.isValidated && propertyType.lookup === Enums.PropertyLookupEnum.Custom;
+                    value = propValue && propValue.customValue ? propValue :
+                            propValue ? propValue.validValues : null;
                     if (propertyType.isMultipleAllowed) {
                         if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired,
                                 value, value, propertyType.isValidated)) {
@@ -522,7 +524,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                         }
                     } else {
                         if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired,
-                                value, value, propertyType.isValidated)) {
+                                value, value, propertyType.isValidated, allowsCustomValues)) {
                             isValid = false;
                         }
                     }

@@ -161,6 +161,12 @@ pagecontent, bp-properties-panel {
                     flex-shrink: 0;
                     width: 3.5px;
                 }
+                &.btn-secondary {
+                    color: $brand-secondary;
+                    &:hover {
+                        color: $white;
+                    }
+                }
             }
 
             input,
@@ -596,6 +602,7 @@ pagecontent, bp-properties-panel {
                 color: $gray-dark;
                 font-size: $font-size-normal;
                 font-weight: 400;
+                background: $gray-lightest;
 
                 &.simple,
                 &.multiple {
@@ -1117,6 +1124,9 @@ pagecontent, bp-properties-panel {
             .icon {
                 cursor: pointer;
                 margin-right: 5px;
+                &:hover {
+                    color: $brand-secondary;
+                }
                 &.disabled {
                     opacity: $default-disabled-opacity;
                     cursor: not-allowed;

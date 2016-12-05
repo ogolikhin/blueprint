@@ -1,4 +1,4 @@
-import {TreeModels, AdminStoreModels} from "../../models";
+import {TreeModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
@@ -99,6 +99,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (!artifact) {
             if (this.treeApi) {
+                this.selected = undefined;
                 this.treeApi.deselectAll();
             }
             return;
@@ -172,7 +173,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                     // for historical artifact we do not need to change selection in main area US3489
                     navigateToId = selectedArtifactId;
                 }
-            } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+            } else if (this.$state.current.name !== "main.unpublished" && (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length)) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
                 navigateToId = selectedArtifactId;

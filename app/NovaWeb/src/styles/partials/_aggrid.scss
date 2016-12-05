@@ -237,7 +237,7 @@ $has-children-padding-before-arrow: 3px;
         }
     }
 
-    .ag-cell .ag-group-value .ag-group-value-wrapper i::before {
+    .ag-group-value-wrapper i::before {
         box-sizing: border-box;
         color: $brand-secondary;
         content: '\e80e';

@@ -181,7 +181,7 @@ export class ProjectManager implements IProjectManager {
     public openProjectWithDialog(): void {
         this.dialogService.open(<IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
-            template: require("../../main/components/dialogs/open-project/open-project.template.html"),
+            template: require("../../main/components/dialogs/open-project/open-project.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
         }).then((project: AdminStoreModels.IInstanceItem) => {

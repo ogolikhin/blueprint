@@ -73,6 +73,10 @@ describe("BPArtifactRelationshipItem", () => {
 
             let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
 
+            vm2.canModifyItem = () => { 
+                return true; 
+            };
+
             vm2.showActionsPanel = true;
 
             $rootScope.$digest();

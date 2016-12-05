@@ -60,10 +60,10 @@ export class MessageService implements IMessageService {
     private getMessageTimeout(messageType: MessageType): number {
         /**
          * Note: expect timeout settings to be a JSON formatted string:
-         * {"Warning": 0,"Info": 3000,"Error": 0}
+         * {"Warning": 0,"Info": 5000,"Error": 0}
          */
         let result = 0;
-        let timeout = this.settings.getObject("StorytellerMessageTimeout", {"Warning": 0, "Info": 3000, "Error": 0});  //TODO to change name?
+        let timeout = this.settings.getObject("StorytellerMessageTimeout", {"Warning": 0, "Info": 5000, "Error": 0});  //TODO to change name?
 
         switch (messageType) {
             case MessageType.Error:

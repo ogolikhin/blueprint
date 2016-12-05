@@ -4,7 +4,7 @@ import "rx";
 import * as _ from "lodash";
 import ".";
 import {BpArtifactInfoController} from "./bp-artifact-info";
-import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services/window-manager";
+import {IWindowManager, IMainWindow} from "../../../main/services/window-manager";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
@@ -82,7 +82,8 @@ describe("BpArtifactInfo", () => {
         analytics = <IAnalyticsProvider>{
             trackEvent: () => "",
             trackPage: () => "",
-            setAccount: () => {/* no op */},
+            setAccount: () => {/* no op */
+            },
             pageEvent: undefined,
             enableLocalhostTracking: false
         };
@@ -194,20 +195,6 @@ describe("BpArtifactInfo", () => {
 
             // assert
             expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toBeGreaterThan(0);
-        });
-
-        it("doesn't add Open Impact Analysis action for collection", () => {
-            // arrange
-            const artifact = artifactManager.selection.getArtifact();
-            artifact.predefinedType = ItemTypePredefined.ArtifactCollection;
-            const element = "<bp-artifact-info></bp-artifact-info>";
-            const scope = $rootScope.$new();
-
-            // act
-            const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
-
-            // assert
-            expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toEqual(0);
         });
     });
 

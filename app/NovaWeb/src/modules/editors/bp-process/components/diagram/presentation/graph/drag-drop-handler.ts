@@ -1,19 +1,19 @@
 import {ProcessGraph} from "./process-graph";
 import {NodeType, IDiagramNodeElement} from "./models/";
 import {ProcessEvents} from "../../process-diagram-communication";
-import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 
 export interface IDragDropHandler {
     moveCell: MxCell;
     createDragPreview();
     reset();
-    isValidDropSource(dropSource: MxCell);
+    isValidDropSource(dropSource: MxCell): boolean;
     highlightDropTarget(me);
+    isEnabled(): boolean;
     dispose();
 };
 
 export class DragDropHandler implements IDragDropHandler {
-    private isEnabled: boolean;
+    private _isEnabled: boolean;
     public graph: MxGraph = null;
     private PREVIEW_WIDTH = 60;
     private PREVIEW_HEIGHT = 75;
@@ -45,6 +45,10 @@ export class DragDropHandler implements IDragDropHandler {
         }
     }
 
+    public isEnabled(): boolean {
+        return this._isEnabled;
+    }
+
     public reset() {
         this.clearHighlight();
         this.cell = null;
@@ -57,10 +61,10 @@ export class DragDropHandler implements IDragDropHandler {
         this.dragPreview = null;
     }
 
-    public isValidDropSource(dropSource: MxCell) {
+    public isValidDropSource(dropSource: MxCell): boolean {
         // check if valid drop source - only user tasks can be dropped 
         let isDropSource: boolean = false;
-        if (dropSource && dropSource.isVertex && this.isEnabled) {
+        if (dropSource && dropSource.isVertex && this.isEnabled()) {
             let diagramNodeElement = <IDiagramNodeElement>dropSource;
             if (diagramNodeElement && diagramNodeElement.getNode) {
                 if (diagramNodeElement.getNode().getNodeType() === NodeType.UserTask) {
@@ -157,10 +161,7 @@ export class DragDropHandler implements IDragDropHandler {
         
     }
     private onSelectionChanged = (elements) => {
-        this.isEnabled = elements && elements.length === 1;
-        if (!this.isEnabled && this.moveCell) {
-            this.reset();
-        }  
+        this._isEnabled = !!elements && elements.length === 1;        
     }
 
     private installMouseDragDropListener() {

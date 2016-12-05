@@ -261,6 +261,11 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
+
+        if (!this.isProjectOpened) {
+            return;
+        }
+
         let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
         this.projectManager.refreshAll().finally(() => {
             this.loadingOverlayService.endLoading(refreshAllLoadingId);
@@ -443,6 +448,10 @@ export class PageToolbarController implements IPageToolbarController {
 
     public get isProjectOpened(): boolean {
         return this.projectManager.projectCollection.getValue().length > 0;
+    }
+
+    public get isArtifactSelected(): boolean {
+        return this.isProjectOpened && !!this.artifactManager.selection.getArtifact();
     }
 
     public get canCreateNew(): boolean {

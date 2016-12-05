@@ -1000,24 +1000,31 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates and saves a new artifact and attaches the specified file to it.
+        /// Creates and saves (or publishes) a new artifact and attaches the specified file to it.  The attachment is not published.
         /// </summary>
         /// <param name="helper">A TestHelper instance.</param>
         /// <param name="project">The project where the artifact will be created.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="file">The file to attach.</param>
+        /// <param name="shouldPublishArtifact">(optional) Pass true to publish the artifact before adding the attachment.  Default is no publish.</param>
         /// <returns>The new artifact.</returns>
-        public static IArtifact CreateAndSaveArtifactWithAttachment(TestHelper helper,
+        public static IArtifact CreateArtifactWithAttachment(TestHelper helper,
             IProject project,
             IUser user,
             BaseArtifactType artifactType,
-            IFileMetadata file = null)
+            IFileMetadata file,
+            bool shouldPublishArtifact = false)
         {
             ThrowIf.ArgumentNull(helper, nameof(helper));
             ThrowIf.ArgumentNull(file, nameof(file));
 
             var artifact = helper.CreateAndSaveArtifact(project, user, artifactType);
+
+            if (shouldPublishArtifact)
+            {
+                artifact.Publish();
+            }
 
             // Create & add attachment to the artifact.
             DateTime defaultExpireTime = DateTime.Now.AddDays(2);   // Currently Nova set ExpireTime 2 days from today for newly uploaded file.

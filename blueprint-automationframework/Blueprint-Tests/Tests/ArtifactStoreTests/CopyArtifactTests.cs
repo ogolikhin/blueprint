@@ -160,9 +160,9 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor, false)]
         [TestCase(BaseArtifactType.TextualRequirement, true)]
         [TestRail(191049)]
-        [Description("Create & save an artifact then create & save a folder.  Add an attachment to the artifact (save or publish).  Copy the artifact into the folder.  " +
+        [Description("Create & publish an artifact then create & save a folder.  Add an attachment to the artifact (save or publish).  Copy the artifact into the folder.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SingleSavedOrPublishedArtifactWithAttachment_ToNewSavedFolder_ReturnsNewArtifactWithAttachment(
+        public void CopyArtifact_SinglePublishedArtifactWithAttachment_ToNewSavedFolder_ReturnsNewArtifactWithAttachment(
             BaseArtifactType artifactType, bool shouldPublishAttachment)
         {
             // Setup:
@@ -170,15 +170,15 @@ namespace ArtifactStoreTests
 
             // Create & add attachment to the source artifact:
             var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
-            var sourceArtifact = ArtifactStoreHelper.CreateAndSaveArtifactWithAttachment(Helper, _project, author, artifactType, attachmentFile);
+            var sourceArtifact = ArtifactStoreHelper.CreateArtifactWithAttachment(Helper, _project, author, artifactType, attachmentFile, shouldPublishArtifact: true);
             var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
-            int expectedVersionOfOriginalArtifact = -1;
+            int expectedVersionOfOriginalArtifact = 1;
 
             if (shouldPublishAttachment)
             {
                 sourceArtifact.Publish();
-                expectedVersionOfOriginalArtifact = 1;
+                ++expectedVersionOfOriginalArtifact;
             }
 
             NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
@@ -611,10 +611,17 @@ namespace ArtifactStoreTests
             AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, compareOptions: compareOptions);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // Now you can review this test, but I still need to add new Golden Data...
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
-        [TestCase(BaseArtifactType.BusinessProcess, 2618, "Business Process Diagram", 4)]   // TODO: Add all artifact types to Golden DB with Attachments, DocRefs and Traces.
+        [TestCase(BaseArtifactType.BusinessProcess, 271, "Business Process Diagram", 3)]
+        [TestCase(BaseArtifactType.DomainDiagram, 356, "Domain Diagram", 3)]
+        [TestCase(BaseArtifactType.GenericDiagram, 310, "Generic Diagram", 3)]
+        [TestCase(BaseArtifactType.Glossary, 80, "Glossary", 3)]
+        [TestCase(BaseArtifactType.Process, 89, "Process", 3)]
+        [TestCase(BaseArtifactType.Storyboard, 231, "Storyboard", 3)]
+        [TestCase(BaseArtifactType.UIMockup, 168, "UI Mockup", 3)]
+        [TestCase(BaseArtifactType.UseCase, 351, "MainUseCase", 3)]
+        [TestCase(BaseArtifactType.UseCaseDiagram, 245, "Use Case Diagram", 3)]
         [TestRail(195646)]
         [Description("Create & publish a destination folder.  Copy the pre-created source artifact to the destination artifact.  Verify the source artifact is " +
             "unchanged and the new artifact is identical to the source artifact (including sub-artifact traces, attachments and document references.  " +

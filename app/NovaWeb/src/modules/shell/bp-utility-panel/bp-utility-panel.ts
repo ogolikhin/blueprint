@@ -19,7 +19,6 @@ export class BPUtilityPanel implements ng.IComponentOptions {
 
 export class BPUtilityPanelController implements IUtilityPanelController {
     public static $inject: [string] = [
-        "$rootScope",
         "localization",
         "artifactManager",
         "$element",
@@ -38,8 +37,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public isAnyPanelVisible: boolean;
    
 
-    constructor(private $rootScope: ng.IRootScopeService,
-                private localization: ILocalizationService,
+    constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery,
                 private utilityPanelService: UtilityPanelService) {
@@ -186,17 +184,11 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     }
 
     private hidePanels() {
-        
         this.hidePanel(PanelType.Discussions);
         this.hidePanel(PanelType.Files);
         this.hidePanel(PanelType.History);
         this.hidePanel(PanelType.Properties);
         this.hidePanel(PanelType.Relationships); 
-            
-        this.$rootScope.$applyAsync(() => {
-            this.setAnyPanelIsVisible();
-        });
-        
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {

@@ -91,16 +91,16 @@ export class MoveCopyAction extends BPDropdownAction {
     }
 
     private executeMove() {
-        this.checkProjectLoaded(MoveCopyActionType.Move);
+        this.actionType = MoveCopyActionType.Move;
+        this.loadProjectIfNeeded();
     }
 
     private executeCopy() {
-        this.checkProjectLoaded(MoveCopyActionType.Copy);
+        this.actionType = MoveCopyActionType.Copy;
+        this.loadProjectIfNeeded();
     }
 
-    private checkProjectLoaded(actionType: MoveCopyActionType) {
-        this.actionType = actionType;
-        
+    private loadProjectIfNeeded() {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
         if (!this.projectManager.getProject(this.artifact.projectId)) {
@@ -112,17 +112,22 @@ export class MoveCopyAction extends BPDropdownAction {
         loadProjectPromise
         .catch((err) => this.messageService.addError(err))
         .then(() => {
-            this.openMoveDialog();
+            this.openMoveCopyDialog();
         });
     }
 
-    private openMoveDialog(): ng.IPromise<void> {
+    private openMoveCopyDialog(): ng.IPromise<void> {
         //next - open the move to dialog
-        const okButtonLabel = this.actionType === MoveCopyActionType.Move ? 
-            "App_Button_Move" : 
-            (this.actionType === MoveCopyActionType.Copy ? "App_Button_Copy" : undefined);
-        const headerLabel = this.actionType === MoveCopyActionType.Move ? "Move_Artifacts_Picker_Header" : 
-            (this.actionType === MoveCopyActionType.Copy ? "Copy_Artifacts_Picker_Header" : undefined);
+        let okButtonLabel: string;
+        let headerLabel: string;
+        if (this.actionType === MoveCopyActionType.Move) {
+            okButtonLabel = "App_Button_Move";
+            headerLabel = "Move_Artifacts_Picker_Header";
+        } else if (this.actionType === MoveCopyActionType.Copy) {
+            okButtonLabel = "App_Button_Copy";
+            headerLabel = "Copy_Artifacts_Picker_Header";
+        }
+
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get(okButtonLabel),
             template: require("../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact-dialog.html"),
@@ -141,49 +146,46 @@ export class MoveCopyAction extends BPDropdownAction {
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {
             if (result && result.length === 1) {
-                return this.computeNewOrderIndex(result[0]).catch((err) => this.messageService.addError(err));
+                return this.computeNewOrderIndex(result[0])
+                .then((orderIndex: number) => {
+                    if (this.actionType === MoveCopyActionType.Move) {
+                        return this.prepareArtifactForMove(result[0].artifacts[0]).then(() => {
+                            return this.moveArtifact(result[0].insertMethod, result[0].artifacts[0], orderIndex);
+                        });
+                    } else if (this.actionType === MoveCopyActionType.Copy) {
+                        return this.copyArtifact(result[0].insertMethod, result[0].artifacts[0], orderIndex);
+                    } else {
+                        return this.$q.reject("unknown action");  //to prevent mistakes when adding more actions
+                    }
+                })
+                .catch((err) => this.messageService.addError(err));
             }
         });
     }
 
-    private computeNewOrderIndex(result: MoveCopyArtifactResult): ng.IPromise<void> {
+    private computeNewOrderIndex(result: MoveCopyArtifactResult): ng.IPromise<number> {
         //next - compute new order index
         const artifacts: Models.IArtifact[] = result.artifacts;
         if (artifacts && artifacts.length === 1) {
             let insertMethod: MoveCopyArtifactInsertMethod = result.insertMethod;
-            return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]).then((orderIndex: number) => {
-                if (this.actionType === MoveCopyActionType.Move) {
-                    return this.prepareArtifactForMove(insertMethod, artifacts[0], orderIndex);
-                } else if (this.actionType === MoveCopyActionType.Copy) {
-                    return this.copyArtifact(insertMethod, artifacts[0], orderIndex);
-                } else {
-                    return this.$q.reject("unknown action");  //to prevent mistakes when adding more actions
-                }
-            });
+            return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]);
+        } else {
+            return this.$q.reject("No artifact provided");
         }
     }
 
-    private prepareArtifactForMove(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+    private prepareArtifactForMove(artifact: Models.IArtifact): ng.IPromise<IStatefulArtifact>  {
         //lock and presave if needed
-        let lockSavePromise: ng.IPromise<any>;
-
         if (!this.artifact.artifactState.dirty) {
             //lock
-            lockSavePromise = this.artifact.lock();
-            if (!lockSavePromise) {
-                lockSavePromise = this.$q.resolve();
-            }
-        } else if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            //save
-            lockSavePromise = this.artifact.save();
-        } else {
-            //do nothing
-            lockSavePromise = this.$q.resolve();
+            return this.artifact.lock();
         }
-
-        return lockSavePromise.then(() => {
-            return this.moveArtifact(insertMethod, artifact, orderIndex);
-        });
+        if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            //save
+            return this.artifact.save();
+        } 
+        //do nothing
+        return this.$q.resolve(null);
     }
 
     private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {

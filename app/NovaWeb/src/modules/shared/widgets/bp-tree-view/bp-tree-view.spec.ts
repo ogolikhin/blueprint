@@ -80,6 +80,7 @@ describe("BPTreeViewComponent", () => {
             rowHeight: controller.rowHeight,
             showToolPanel: false,
             headerHeight: controller.headerHeight,
+            //suppressMovableColumns: true,
             getBusinessKeyForNode: controller.getBusinessKeyForNode,
             getNodeChildDetails: controller.getNodeChildDetails,
             onRowGroupOpened: controller.onRowGroupOpened,

@@ -1,4 +1,4 @@
-import {Models, Enums} from "../../models";
+import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
     IArtifactState,
@@ -9,7 +9,16 @@ import {
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IDialogService, IBPAction, BPButtonGroupAction} from "../../../shared";
+import {
+    IDialogService,
+    IBPAction,
+    IBPDropdownAction,
+    IBPButtonOrDropdownAction,
+    BPButtonGroupAction,
+    BPMenuAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator
+} from "../../../shared";
 import {
     SaveAction,
     PublishAction,
@@ -24,7 +33,6 @@ import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -48,15 +56,13 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "selectionManager",        
         "analytics"
     ];
 
-    protected subscribers: Rx.IDisposable[];
+    protected subscribers: Rx.IDisposable[] = [];
     protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
-    public isLocked: boolean;
     public lockMessage: Message;
     public selfLocked: boolean;
     public isLegacy: boolean;
@@ -68,6 +74,9 @@ export class BpArtifactInfoController {
     public artifactTypeDescription: string;
     public hasCustomIcon: boolean;
     public toolbarActions: IBPAction[] = [];
+    public collapsedToolbarActions: IBPAction[] = [];
+    public additionalMenuActions: IBPButtonOrDropdownAction[] = [];
+    public isToolbarCollapsed: boolean = true;
     public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
@@ -83,30 +92,32 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected selectionManager: ISelectionManager,                
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
-        this.subscribers = [];
     }
 
     public $onInit() {
-        this.subscribers.push(this.windowManager.mainWindow
-                                                .subscribeOnNext(this.onWidthResized, this));
+        this.subscribers.push(
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this)
+        );
 
         this.artifact = this.artifactManager.selection.getArtifact();
 
         if (this.artifact) {
-            this.subscribers.push(this.artifact.getObservable()
-                                                .subscribeOnNext(this.onArtifactLoaded));
-            this.subscribers.push(this.artifact.artifactState.onStateChange
-                                                            .debounce(100)
-                                                            .subscribe(this.onArtifactStateChanged));
-            this.subscribers.push(this.artifact.getProperyObservable()
-                                                .distinctUntilChanged(changes => changes.item && changes.item.name)
-                                                .subscribeOnNext(this.onArtifactPropertyChanged));
-        }
+            this.subscribers.push(
+                this.artifact.getObservable()
+                    .subscribeOnNext(this.onArtifactLoaded, this),
+                this.artifact.artifactState.onStateChange
+                    .debounce(100)
+                    .subscribeOnNext(this.onArtifactStateChanged, this),
+                this.artifact.getProperyObservable()
+                    .distinctUntilChanged(changes => changes.item && changes.item.name)
+                    .subscribeOnNext(this.onArtifactPropertyChanged, this)
+            );
 
-        this.updateToolbarOptions(this.artifact);
+            this.createToolbarActions();
+        }
     }
 
     public $onDestroy() {
@@ -116,13 +127,14 @@ export class BpArtifactInfoController {
             subscriber.dispose();
         });
 
-        delete this["subscribers"];
-        delete this["artifact"];
+        this.subscribers = undefined;
+        this.artifact = undefined;
     }
 
-    protected onArtifactLoaded = () => {
+    protected onArtifactLoaded(): void {
         if (this.artifact) {
             this.updateProperties(this.artifact);
+
             if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
                 const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
                 const publishedBy = this.artifact.lastEditedBy.displayName;
@@ -131,7 +143,7 @@ export class BpArtifactInfoController {
         }
     };
 
-    protected onArtifactStateChanged = (state: IArtifactState) => {
+    protected onArtifactStateChanged(state: IArtifactState): void {
         if (state) {
             this.initStateProperties();
             this.updateStateProperties(state);
@@ -140,7 +152,7 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected onArtifactPropertyChanged = (change: IItemChangeSet) => {
+    protected onArtifactPropertyChanged(change: IItemChangeSet): void {
         if (this.artifact) {
             this.artifactName = change.item.name;
         }
@@ -161,7 +173,6 @@ export class BpArtifactInfoController {
     private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
-        this.isLocked = false;
         this.selfLocked = false;
 
         if (this.lockMessage) {
@@ -170,31 +181,27 @@ export class BpArtifactInfoController {
         }
     }
 
-    protected updateProperties(artifact: IStatefulArtifact): void {
+    private updateProperties(artifact: IStatefulArtifact): void {
         this.initProperties();
-
-        if (!artifact) {
-            return;
-        }
 
         this.artifactName = artifact.name;
         this.artifactTypeId = artifact.itemTypeId;
         this.artifactTypeIconId = artifact.itemTypeIconId;
         this.hasCustomIcon = _.isFinite(artifact.itemTypeIconId);
 
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+        this.isLegacy = artifact.predefinedType === ItemTypePredefined.Storyboard ||
+            artifact.predefinedType === ItemTypePredefined.GenericDiagram ||
+            artifact.predefinedType === ItemTypePredefined.BusinessProcess ||
+            artifact.predefinedType === ItemTypePredefined.UseCase ||
+            artifact.predefinedType === ItemTypePredefined.UseCaseDiagram ||
+            artifact.predefinedType === ItemTypePredefined.UIMockup ||
+            artifact.predefinedType === ItemTypePredefined.DomainDiagram ||
+            artifact.predefinedType === ItemTypePredefined.Glossary;
 
-        if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
-            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections]);
+        if (artifact.itemTypeId === ItemTypePredefined.Collections && artifact.predefinedType === ItemTypePredefined.CollectionFolder) {
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections]);
         } else {
-            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[artifact.predefinedType]);
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[artifact.predefinedType]);
         }
 
         this.artifactType = artifact.itemTypeName;
@@ -208,11 +215,11 @@ export class BpArtifactInfoController {
         this.isChanged = state.dirty;
 
         switch (state.lockedBy) {
-            case Enums.LockedByEnum.CurrentUser:
+            case LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
 
-            case Enums.LockedByEnum.OtherUser:
+            case LockedByEnum.OtherUser:
                 let msg = state.lockOwner ? "Locked by " + state.lockOwner : "Locked ";
                 if (state.lockDateTime) {
                     msg += " on " + this.localization.current.formatShortDateTime(state.lockDateTime);
@@ -227,23 +234,26 @@ export class BpArtifactInfoController {
     }
 
     public get canLoadProject(): boolean {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {            
+        return this.canLoadProjectInternal();
+    }
+
+    private canLoadProjectInternal(): boolean {
+        if (!this.artifact || !this.artifact.projectId) {
             return false;
         }
-        const project = this.projectManager.getProject(selectedArtifact.projectId);
+
+        const project = this.projectManager.getProject(this.artifact.projectId);
 
         return !project;
     }
 
     public loadProject(): void {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (!selectedArtifact || !selectedArtifact.projectId) {
-            //this.projectManager.openProjectWithDialog();
+        if (!this.canLoadProjectInternal()) {
             return;
         }
-        const projectId = selectedArtifact.projectId;
-        const artifactId = selectedArtifact.id;
+
+        const projectId = this.artifact.projectId;
+        const artifactId = this.artifact.id;
 
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 
@@ -255,96 +265,66 @@ export class BpArtifactInfoController {
                 this.analytics.trackEvent("open", "project", label, projectId, {
                     openProjects: openProjects
                 });
+
                 this.loadingOverlayService.endLoading(openProjectLoadingId);
             });
     }
 
-    public get artifactHeadingMinWidth() {
-        let style = {};
+    private createToolbarActions(): void {
+        const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
+            this.projectManager, this.loadingOverlayService);
+        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
+            this.metadataService, this.mainBreadcrumbService);
+        const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+            this.dialogService);
+        const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
-        if (this.$element.length) {
-            let container: HTMLElement = this.$element[0];
-            let toolbar: Element = container.querySelector(".page-top-toolbar");
-            let heading: Element = container.querySelector(".artifact-heading");
-            let iconWidth: number = heading && heading.querySelector(".icon") ? heading.querySelector(".icon").scrollWidth : 0;
-            let nameWidth: number = heading && heading.querySelector(".name") ? heading.querySelector(".name").scrollWidth : 0;
-            let typeWidth: number = heading && heading.querySelector(".type-id") ? heading.querySelector(".type-id").scrollWidth : 0;
-            let indicatorsWidth: number = heading && heading.querySelector(".indicators") ? heading.querySelector(".indicators").scrollWidth : 0;
-            let headingWidth: number = iconWidth + (
-                    typeWidth > nameWidth + indicatorsWidth ? typeWidth : nameWidth + indicatorsWidth
-                ) + 20 + 5; // heading's margins + wiggle room
-            if (heading && toolbar) {
-                style = {
-                    "min-width": (headingWidth > toolbar.clientWidth ? toolbar.clientWidth : headingWidth) + "px"
-                };
-            }
-        }
+        // expanded toolbar
+        this.toolbarActions.push(moveAction, buttonGroup);
 
-        return style;
+        // collapsed toolbar
+        this.collapsedToolbarActions.push(buttonGroup);
+        this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
+
+        this.createCustomToolbarActions(buttonGroup);
+
+        this.collapsedToolbarActions.push(new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions));
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        this.toolbarActions = [];
-        if (artifact) {
-            this.toolbarActions.push(
-                new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager, this.dialogService),
-            );
-            this.toolbarActions.push(
-                new BPButtonGroupAction(
-                    new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService),
-                    new DiscardAction(this.artifact, this.localization, this.messageService, this.projectManager, this.loadingOverlayService),
-                    new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService, this.metadataService,
-                        this.mainBreadcrumbService),
-                    new DeleteAction(
-                        this.artifact,
-                        this.localization,
-                        this.messageService,
-                        this.artifactManager,
-                        this.projectManager,
-                        this.loadingOverlayService,
-                        this.dialogService,
-                        this.navigationService)
-                ),
-            );
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
 
-            //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                this.toolbarActions.push(new OpenImpactAnalysisAction(this.artifact, this.localization));
-            }
+        if (buttonGroup) {
+            buttonGroup.actions.push(deleteAction);
         }
+
+        this.toolbarActions.push(openImpactAnalysisAction);
+        this.additionalMenuActions.push(new BPButtonOrDropdownSeparator(), openImpactAnalysisAction);
+    }
+
+    protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {
+        const nestedActions: IBPButtonOrDropdownAction[] = [];
+
+        if (actionsContainer.actions.length) {
+            actionsContainer.actions.forEach((action: BPButtonOrDropdownAction) => nestedActions.push(action));
+        }
+
+        return nestedActions;
     }
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
-            let sidebarWrapper: Element;
-            //const sidebarSize: number = 270; // MUST match $sidebar-size in styles/modules/_variables.scss
+            const pageHeading = document.querySelector(".page-heading") as HTMLElement;
+            const pageToolbar = document.querySelector(".page-heading .page-toolbar__container") as HTMLElement;
 
-            let sidebarSize = 0;
-            if ((<HTMLElement>document.querySelector(".sidebar.left-panel"))) {
-                sidebarSize = (<HTMLElement>document.querySelector(".sidebar.left-panel")).offsetWidth;
-            }
-
-            let sidebarsWidth: number = 20 * 2; // main content area padding
-            sidebarWrapper = document.querySelector(".bp-sidebar-wrapper");
-
-            if (sidebarWrapper) {
-                for (let c = 0; c < sidebarWrapper.classList.length; c++) {
-                    if (sidebarWrapper.classList[c].indexOf("-panel-visible") !== -1) {
-                        sidebarsWidth += sidebarSize;
-                    }
-                }
-            }
-
-            if (this.$element.length) {
-                let container: HTMLElement = this.$element[0];
-                let toolbar: Element = container.querySelector(".page-top-toolbar");
-                let heading: Element = container.querySelector(".artifact-heading");
-                if (heading && toolbar) {
-                    angular.element(heading).css("max-width", (document.body.clientWidth - sidebarsWidth) < 2 * toolbar.clientWidth ?
-                        "100%" : "calc(100% - " + toolbar.clientWidth + "px)");
-                }
-            }
+            // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR
+            // if (pageHeading && pageToolbar) {
+            //     this.isToolbarCollapsed = pageToolbar.offsetWidth > pageHeading.offsetWidth / 3;
+            // }
         }
     }
 }

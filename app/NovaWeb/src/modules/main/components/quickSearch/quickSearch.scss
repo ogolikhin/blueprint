@@ -1,9 +1,6 @@
-@import "./../../../../styles/settings/variables";
+@import "../../../../styles/settings/variables";
 @import "../../../../styles/settings/colors";
-
-$quick-search__results--input-panel-color: #EAEFF4;
-$quick-search__item--color: #FBFBFB;
-$quick-search__item--focus-color: #E8F6FB;
+@import "../../../../styles/settings/typography";
 
 .quick-serach__form {
     display: flex;
@@ -11,7 +8,9 @@ $quick-search__item--focus-color: #E8F6FB;
     justify-content: center;
 
 }
-
+.modal-open .modal.quick-search__modal {
+    background-color: rgba(255, 255, 255, 0.5);
+}
 .modal {
     .modal-dialog {
         &.modal-full-screen {
@@ -23,7 +22,7 @@ $quick-search__item--focus-color: #E8F6FB;
             overflow: hidden;
 
             .modal-content {
-                background: $white;
+                background: transparent;
                 height: 100%;
                 width: 100%;
                 border-radius: 0;
@@ -58,6 +57,7 @@ $quick-search__item--focus-color: #E8F6FB;
 .input-group--short-width {
     max-width: 200px;
 }
+
 .quick-serach__input {
     border: none;
     background: transparent;
@@ -65,15 +65,15 @@ $quick-search__item--focus-color: #E8F6FB;
     border-bottom: solid 1px $gray;
     padding: .2em 1.5em .2em .2em;
     &::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-        color: $gray-dark !important;
+        color: $gray-light !important;
     }
 
     &::-moz-placeholder { /* Firefox 19+ */
-        color: $gray-dark !important;
+        color: $gray-light !important;
     }
 
     &:-ms-input-placeholder {
-        color: $gray-dark !important;
+        color: $gray-light !important;
     }
 
     &:focus {
@@ -92,28 +92,30 @@ $quick-search__item--focus-color: #E8F6FB;
     .error-messages {
         position: absolute;
         right: 0;
-        color: #d95f5e;
+        color: $brand-error;
         font-size: 1rem;
         margin-top: -2px;
     }
     &.has-error {
-        color: #d95f5e;
+        color: $brand-error;
 
         .quick-serach__input {
-            border-bottom-color: #d95f5e;
+            border-bottom-color: $brand-error;
         }
 
         .glyphicon {
-            color: #d95f5e;
+            color: $brand-error;
         }
     }
     .fonticon-gray {
         color: $gray;
     }
 }
+
 .quick-search__icon--fixed {
     color: $gray-dark;
 }
+
 .block {
     display: block;
 }
@@ -131,6 +133,7 @@ $quick-search__item--focus-color: #E8F6FB;
     width: 60%;
     height: 100%;
     margin: auto;
+    background-color: $white;
 }
 
 .quick-search__results--side-border {
@@ -141,9 +144,9 @@ $quick-search__item--focus-color: #E8F6FB;
 
 .quick-search__results--input-panel {
     position: relative;
-    background: $quick-search__results--input-panel-color;
+    background: $blue-lightest;
     padding: 1em 2em;
-    font-size: 16px;
+    font-size: $font-size-bigger;
     border-bottom: 1px solid $gray-lightest;
 
     .close {
@@ -167,11 +170,11 @@ $quick-search__item--focus-color: #E8F6FB;
 .quick-search__results--item {
     padding: 0 15px 10px;
     margin: 1px auto 0;
-    background: $quick-search__item--color;
+    background: lighten($gray-lightest, 7%);
     border-bottom: 1px solid $gray-lightest;
 
     &:focus, &:hover {
-        background: $quick-search__item--focus-color;
+        background: $tree-hover-background;
     }
 }
 
@@ -197,7 +200,7 @@ $quick-search__item--focus-color: #E8F6FB;
 }
 
 .font-larger {
-    font-size: 24px;
+    font-size: $font-size-h3;
 }
 
 .font-blue {
@@ -224,12 +227,12 @@ $quick-search__item--focus-color: #E8F6FB;
 }
 
 .quick-search__results--large-font {
-    font-size: 12px;
+    font-size: $font-size-normal;
 }
 
 .quick-search__results--large-font,
 .quick-search__results--large-font::before {
-    font-size: 20px;
+    font-size: $font-size-large;
 }
 
 .small-gutter > [class*='col-'] {
@@ -255,20 +258,17 @@ $quick-search__item--focus-color: #E8F6FB;
     word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 14px;
+    font-size: $font-size-big;
 }
 
 .quick-search__total-results {
     text-align: right;
-    font-size: 16px;
+    font-size: $font-size-bigger;
     padding-top: 0.5em;
     padding-bottom: 1em;
 }
 
-.quick-search__footer {
-    text-align: center;
-}
 
 .quick-search__pagination {
-    font-size: 16px;
+    font-size: $font-size-bigger;
 }

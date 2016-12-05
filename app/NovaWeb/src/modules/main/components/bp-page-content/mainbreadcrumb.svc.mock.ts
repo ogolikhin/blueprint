@@ -1,6 +1,6 @@
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
 export class MainBreadcrumbServiceMock implements IMainBreadcrumbService {
 

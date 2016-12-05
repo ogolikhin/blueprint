@@ -97,35 +97,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(description, artifactDetailsAfter.Description);
         }
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
-        [TestRail(164531)]
-        [Description("Create & publish an artifact.  Update the artifact property 'Name' with Empty space.  Get the artifact.  " +
-            "Verify the artifact returned has the same properties as the artifact we updated.")]
-        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_CanGetArtifact(BaseArtifactType artifactType)
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
-
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Name", string.Empty, _user);
-
-            // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-
-            Assert.IsNullOrEmpty(artifactDetailsAfter.Name, "The Name property should be empty!");
-            Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
-            Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
-
-            // Set the Name & LastSaveInvalid equal to the original so they don't cause the comparison to fail.
-            artifactDetailsAfter.Name = artifactDetails.Name;
-            artifactDetailsAfter.LastSaveInvalid = artifactDetails.LastSaveInvalid;
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
-        }
-
-
         [TestCase]  // It is working as designed for now. There is no check on user's permissions after artifact was locked
         [TestRail(190881)]
         [Description("Create & publish an artifact.  Lock artifact with an author, change permissions to viewer and update the artifact.  Verify 403 Forbidden is returned.")]
@@ -152,6 +123,53 @@ namespace ArtifactStoreTests
         }
 
         #region Artifact Properties tests
+
+        [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault", 60 * 60 * 24 + 3600 + 60 + 13)]   // Add now + 1 day, 1 hour, 1 min & 13 seconds.
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")] // newValue not used here, so pass empty string.
+        [TestRail(999999)]
+        [Description("Create and publish an artifact (that has custom properties). Change custom property. Verify the published artifact has " +
+                     "expected custom property change.")]
+        public void UpdateArtifact_ChangePropertySaveAndPublish_VerifyPropertyChange<T>( ItemTypePredefined itemType, PropertyPrimitiveType propertyType, 
+            string propertyName, T newValue)
+        {
+            // Setup:
+            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+
+            // Update custom property in artifact.
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            CustomProperty property = null;
+
+            if (propertyType == PropertyPrimitiveType.User)
+            {
+                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, author);
+            }
+            else
+            {
+                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, newValue);
+            }
+
+            var artifactDetailsChangeset = TestHelper.CreateArtifactPropertyChangeSet(artifactDetails, property);
+
+            // Execute:
+            artifact.Lock();
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, (NovaArtifactDetails)artifactDetailsChangeset);
+            artifact.Save();
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
+        }
 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
@@ -623,6 +641,8 @@ namespace ArtifactStoreTests
 
         #region Negative tests
 
+        #region 400 Bad Request
+
         [TestCase]
         [TestRail(156662)]
         [Description("Try to update an artifact, but send an empty request body.  Verify 400 Bad Request is returned.")]
@@ -711,6 +731,33 @@ namespace ArtifactStoreTests
             const string expectedMessage = "Artifact does not match Id of request.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
         }
+
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(164531)]
+        [Description("Create & publish an artifact.  Update the artifact property 'Name' with Empty space. Verify 400 Bad Request returned.")]
+        public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_400BadRequest(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            artifact.Lock();
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            artifactDetails.Name = string.Empty;
+
+            string requestBody = JsonConvert.SerializeObject(artifactDetails);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifactDetails.Id, _user);
+            }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+
+            // Verify
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
+        }
+
+        #endregion 400 Bad Request
 
         [TestCase]
         [TestRail(156657)]

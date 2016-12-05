@@ -1,6 +1,10 @@
+import {BPButtonGroupAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {ProcessDeleteAction} from "./actions/process-delete-action";
+import {IBPAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-action";
+import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -14,7 +18,6 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -24,6 +27,7 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     public breadcrumbLinks: IBreadcrumbLink[];
+    public isToolbarCollapsed: boolean = true;
 
     static $inject: [string] = [
         "$q",
@@ -42,7 +46,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "metadataService",
         "userStoryService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -62,7 +65,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 private userStoryService: IUserStoryService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                selectionManager: ISelectionManager,
                 analytics: IAnalyticsProvider) {
         super(
             $q,
@@ -78,7 +80,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            selectionManager,
             analytics
         );
 
@@ -105,10 +106,34 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onDestroy() {
         if (this.toolbarActions) {
-            const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
-            
+            const toggleAction = 
+                <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
             if (toggleAction) {
                 toggleAction.dispose();
+            }
+
+            const copyAction = 
+                <CopyAction>_.find(this.toolbarActions, action => action instanceof CopyAction);
+            if (copyAction) {
+                copyAction.dispose();
+            }
+
+            const generateUserStoriesAction = 
+                <GenerateUserStoriesAction>_.find(this.toolbarActions, action => action instanceof GenerateUserStoriesAction);
+            if (generateUserStoriesAction) {
+                generateUserStoriesAction.dispose();
+            }
+
+            const openProcessImpactAnalysisAction = 
+                <OpenProcessImpactAnalysisAction>_.find(this.toolbarActions, action => action instanceof OpenProcessImpactAnalysisAction);
+            if (openProcessImpactAnalysisAction) {
+                openProcessImpactAnalysisAction.dispose();
+            }
+
+            const processDeleteAction =
+                <ProcessDeleteAction>_.find(this.toolbarActions, action => action instanceof ProcessDeleteAction);
+            if (processDeleteAction) {
+                processDeleteAction.dispose();
             }
         }
 
@@ -125,36 +150,59 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        super.updateToolbarOptions(artifact);
-
-        const processArtifact = artifact as StatefulProcessArtifact;
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
+        const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
         }
 
+        const processDeleteAction = new ProcessDeleteAction(
+            processArtifact, this.localization, this.messageService, this.artifactManager, this.projectManager, 
+            this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
+        const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
+            processArtifact,
+            this.localization,
+            this.communicationManager.processDiagramCommunication);
+        const generateUserStoriesAction = new GenerateUserStoriesAction(
+            processArtifact,
+            this.userStoryService,
+            this.messageService,
+            this.localization,
+            this.dialogService,
+            this.loadingOverlayService,
+            this.communicationManager.processDiagramCommunication);
+        const copyAction = new CopyAction(
+            processArtifact,
+            this.communicationManager,
+            this.localization);
+        const toggleProcessTypeAction = new ToggleProcessTypeAction(
+            processArtifact,
+            this.communicationManager.toolbarCommunicationManager,
+            this.localization);
+
+        if (buttonGroup) {
+            buttonGroup.actions.push(processDeleteAction);
+        }
+
+        // expanded toolbar
         this.toolbarActions.push(
-            new GenerateUserStoriesAction(
-                processArtifact,
-                this.userStoryService,
-                this.artifactManager.selection,
-                this.messageService,
-                this.localization,
-                this.dialogService,
-                this.loadingOverlayService,
-                this.communicationManager.processDiagramCommunication
-            ),
-            new CopyAction(
-                processArtifact,
-                this.communicationManager.toolbarCommunicationManager,
-                this.localization
-            ),
-            new ToggleProcessTypeAction(
-                processArtifact,
-                this.communicationManager.toolbarCommunicationManager,
-                this.localization
-            )
+            openProcessImpactAnalysisAction, 
+            generateUserStoriesAction, 
+            copyAction, 
+            toggleProcessTypeAction
         );
+        
+        // collapsed toolbar
+        const dropdownSeparator = new BPButtonOrDropdownSeparator();
+        this.additionalMenuActions.push(
+            dropdownSeparator,
+            openProcessImpactAnalysisAction,
+            dropdownSeparator,
+            ...this.getNestedDropdownActions(generateUserStoriesAction),
+            dropdownSeparator,
+            copyAction
+        );
+        this.collapsedToolbarActions.unshift(toggleProcessTypeAction);
     }
 }

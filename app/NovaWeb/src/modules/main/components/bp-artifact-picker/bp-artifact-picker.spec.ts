@@ -130,8 +130,8 @@ describe("BpArtifactPickerController", () => {
         controller.$onDestroy();
 
         // Assert
-        expect(controller.columns).toBeUndefined();
-        expect(controller.onSelect).toBeUndefined();
+        expect(controller.columns).toBeNull();
+        expect(controller.onSelect).toBeNull();
     });
 
     it("clearSearch clears text and results", () => {
@@ -177,7 +177,7 @@ describe("BpArtifactPickerController", () => {
             predefinedTypeIds: undefined,
             itemTypeIds: [ ],
             includeArtifactPath: true
-        }, 0, 101, undefined, controller.canceller.promise);
+        }, 0, 101, controller.canceller.promise);
         $rootScope.$digest(); // Resolves promises
         expect(controller.isSearching).toEqual(false);
         expect(controller.searchResults).toEqual([]);
@@ -215,6 +215,32 @@ describe("BpArtifactPickerController", () => {
 
         // Assert
         expect(controller.onDoubleClick).toHaveBeenCalledWith({vm: vm});
+    });
+
+    it("getArtifactTextPath, when path is undefined, returns empty string", () => {
+        // Arrange, Act
+        const result = controller.getArtifactTextPath(undefined);
+
+        // Assert
+        expect(result).toBe("");
+    });
+
+    it("getArtifactTextPath, when path is string, returns path", () => {
+        // Arrange, Act
+        const path = "test";
+        const result = controller.getArtifactTextPath(path);
+
+        // Assert
+        expect(result).toBe(path);
+    });
+
+    it("getArtifactTextPath, when path is string[], returns path join", () => {
+        // Arrange, Act
+        const path = ["parent", "child"];
+        const result = controller.getArtifactTextPath(path);
+
+        // Assert
+        expect(result).toBe(path.join(" > "));
     });
 
     describe("columns", () => {

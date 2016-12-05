@@ -1,4 +1,4 @@
-import {TreeModels, AdminStoreModels} from "../../models";
+import {TreeModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
@@ -10,6 +10,7 @@ import {IProjectService} from "../../../managers/project-manager/project-service
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -42,6 +43,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "projectService",
         "loadingOverlayService",
         "analytics",
+        "$state",
         "localization"
     ];
 
@@ -54,6 +56,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private projectService: IProjectService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private analytics: IAnalyticsProvider,
+                private $state: ng.ui.IStateService,
                 public localization: ILocalizationService) {
     }
 
@@ -63,7 +66,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.explorerArtifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
+            this.selectionManager.explorerArtifactObservable.subscribeOnNext(this.setSelectedNode, this)
         ];
     }
 
@@ -78,10 +81,31 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
-    private setSelectedNode(artifactId: number) {
-        // If this method is called after onLoadProject, but before onGridReset, the artifact will be
-        // selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
-        // artifact, to work as expected.
+    public navigateToUnpublishedChanges() {
+        if (this.$state.current.name === "main.unpublished") {
+            this.navigationService.reloadCurrentState();
+        } else {
+            this.$state.go("main.unpublished");
+        }
+    }
+
+    /**
+     * If this method is called after onLoadProject, but before onGridReset, the artifact will be
+     * selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
+     * artifact, to work as expected.
+     * If selection becomes null, all nodes get deselected.
+     * @param  artifact - stateful artifact, can be null if nothing is selected
+     */
+    private setSelectedNode(artifact: IStatefulArtifact) {
+        if (!artifact) {
+            if (this.treeApi) {
+                this.selected = undefined;
+                this.treeApi.deselectAll();
+            }
+            return;
+        }
+
+        const artifactId = artifact.id;
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
         } else if (this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId)) {
@@ -117,7 +141,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
-    }           
+    }
+
+    public isProjectTreeVisible(): boolean {
+        return this.projects && this.projects.length > 0;
+    }
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
@@ -139,8 +167,13 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 // if there are some artifact pre selected in the tree before opening project
                 // we need to check if this artifact is not from this.projects[0] (last opened project)
                 (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
-                navigateToId = this.selectionManager.getArtifact().id;                
-            } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+                if (!this.selectionManager.getArtifact().artifactState.historical) {
+                    navigateToId = this.selectionManager.getArtifact().id;
+                } else {
+                    // for historical artifact we do not need to change selection in main area US3489
+                    navigateToId = selectedArtifactId;
+                }
+            } else if (this.$state.current.name !== "main.unpublished" && (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length)) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
                 navigateToId = selectedArtifactId;
@@ -190,11 +223,20 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }];
 
+    private resettingSelection: boolean;
+
     public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
-        if (isSelected) {
-            this.selected = vm;
-            this.navigationService.navigateTo({id: vm.model.id});
-        }
+         if (!this.resettingSelection && isSelected) {
+             //Following has to be a const to restore current selection in case of faling navigation
+             const prevSelected = this.selected;
+             this.selected = vm;
+             this.navigationService.navigateTo({id: vm.model.id})
+                .catch((err) => {
+                    this.resettingSelection = true;
+                    this.treeApi.setSelected(prevSelected);
+                });
+         }
+         this.resettingSelection = false;
     };
 
     public onError = (reason: any): void => {

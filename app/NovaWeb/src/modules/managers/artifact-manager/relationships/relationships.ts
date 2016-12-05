@@ -16,11 +16,6 @@ export interface IArtifactRelationships {
     canEdit: boolean;
 }
 
-export interface IResult {
-    found: boolean;
-    index: number;
-}
-
 export class ArtifactRelationships implements IArtifactRelationships {
     private relationships: IRelationship[];
     private originalRelationships: IRelationship[];
@@ -39,12 +34,16 @@ export class ArtifactRelationships implements IArtifactRelationships {
     }
 
     public get(refresh: boolean = false): ng.IPromise<IRelationship[]> {
+        if (this.loadPromise) {
+            return this.loadPromise;
+        }
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
 
         if (this.isLoaded && !refresh) {
             deferred.resolve(this.relationships);
             this.subject.onNext(this.relationships);
         } else {
+            this.loadPromise = deferred.promise;
             this.statefulItem.getRelationships().then((result: IArtifactRelationshipsResultSet) => {
                 const manual = result.manualTraces || [];
                 const other = result.otherTraces || [];
@@ -55,8 +54,12 @@ export class ArtifactRelationships implements IArtifactRelationships {
                 deferred.resolve(loadedRelationships);
                 this.subject.onNext(this.relationships);
                 this.isLoaded = true;
-            }, (error) => {
+            })
+            .catch(error => {
                 deferred.reject(error);
+            })
+            .finally(() => {
+                this.loadPromise = undefined;
             });
         }
 
@@ -138,7 +141,7 @@ export class ArtifactRelationships implements IArtifactRelationships {
     public remove(relationships: IRelationship[]): IRelationship[] {
         if (relationships) {
             relationships.map((relationship: IRelationship) => {
-                const foundRelationshipIndex = this.inArray(this.relationships, relationship).index;
+                const foundRelationshipIndex = _.findIndex(this.relationships, relationship);
 
                 if (foundRelationshipIndex > -1) {
                     this.relationships.splice(foundRelationshipIndex, 1);
@@ -214,21 +217,5 @@ export class ArtifactRelationships implements IArtifactRelationships {
     public refresh(): ng.IPromise<IRelationship[]> {
         this.isLoaded = false;
         return this.get(true);
-    }
-
-    public inArray(array, item) {
-        let found = false,
-            index = -1;
-        if (array) {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].itemId === item.itemId) {
-                    found = true;
-                    index = i;
-                    break;
-                }
-            }
-        }
-
-        return <IResult>{"found": found, "index": index};
     }
 }

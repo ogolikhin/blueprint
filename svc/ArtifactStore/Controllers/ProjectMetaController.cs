@@ -38,8 +38,7 @@ namespace ArtifactStore.Controllers
         /// Returns artifact, sub-artifact and property types of the project with the specified id.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
         [HttpGet, NoCache]

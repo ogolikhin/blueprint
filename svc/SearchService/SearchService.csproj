@@ -117,6 +117,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\CriteriaValidator.cs" />
     <Compile Include="Helpers\ISearchConfigurationProvider.cs" />
     <Compile Include="Helpers\SearchConfiguration.cs" />
     <Compile Include="Helpers\ISearchConfiguration.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Models\ProjectSearchResultSet.cs" />
     <Compile Include="Models\SearchCriteria.cs" />
     <Compile Include="Models\ItemNameSearchCriteria.cs" />
+    <Compile Include="Models\SearchProjectResult.cs" />
     <Compile Include="Models\SearchResultSet.cs" />
     <Compile Include="Models\SearchResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

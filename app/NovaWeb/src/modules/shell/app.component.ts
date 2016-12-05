@@ -4,8 +4,9 @@ import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILocalizationService} from "../core/localization/localizationService";
+import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
 import {IDialogService} from "../shared";
-import {IPublishService} from "../managers/artifact-manager/publish.svc";
+import {IUnpublishedArtifactsService} from "../editors/unpublished/unpublished.svc";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -29,6 +30,7 @@ export class AppController {
         "settings",
         "$window",
         "localization",
+        "loadingOverlayService",
         "dialogService",
         "publishService"];
 
@@ -38,8 +40,9 @@ export class AppController {
                 private settings: ISettingsService,
                 private $window: ng.IWindowService,
                 private localization: ILocalizationService,
+                private loadingOverlayService: ILoadingOverlayService,
                 private dialogService: IDialogService,
-                private publishService: IPublishService) {
+                private publishService: IUnpublishedArtifactsService) {
 
 
         this.$window.onbeforeunload = (e) => {
@@ -62,8 +65,9 @@ export class AppController {
 
     public logout(evt: ng.IAngularEvent) {
         evt.preventDefault();
-
+        const id = this.loadingOverlayService.beginLoading();
         this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
+            this.loadingOverlayService.endLoading(id);
             if (unpublishedArtifactSet.artifacts.length > 0) {
                 const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
@@ -72,6 +76,8 @@ export class AppController {
             } else {
                 this.navigationService.navigateToLogout();
             }
+        }).catch(() => {
+                this.loadingOverlayService.endLoading(id);
         });
     }
 

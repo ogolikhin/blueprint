@@ -1,13 +1,11 @@
 import {
     IDiagramNode, IProcessShape,
-    NodeChange, ProcessShapeType, IProcessLink
+    NodeChange, ProcessShapeType, IProcessLink,
+    ILayout, ProcessClipboardData,
+    UserTaskShapeModel, SystemTaskShapeModel
 } from "./models/";
-import {ILayout, ProcessClipboardData, UserTaskShapeModel, SystemTaskShapeModel} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel, IUserTaskShape, ISystemTaskShape} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {DiagramLink} from "./shapes/diagram-link";
-import {IProcessGraph, NodeType} from "./models/";
-import {ProcessGraph} from "./process-graph";
 import {ProcessAddHelper} from "./process-add-helper";
 import {DiagramNode, SystemTask, UserTask, UserDecision, SystemDecision} from "./shapes/";
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
@@ -143,7 +141,7 @@ export class ProcessCopyPasteHelper {
                     }
                 }
             });
-
+                    
             // 2. add user decisions to base nodes
             _.forOwn(decisionPointRefs, (node) => {
                 if (!!node && node.branches.length > 1) {
@@ -162,7 +160,7 @@ export class ProcessCopyPasteHelper {
             _.each(baseNodes, (node) => {
                 // skip processed nodes
                 if (!data.preprocessorTree[(<IDiagramNode>node).model.id]) {
-                    if (node instanceof UserTask) {
+            if (node instanceof UserTask) {
                         this.addUserAndSystemTasks(prevId, data, baseNodes, node, decisionPointRefs, ++data.numberOfSubTrees);
                     } else if (node instanceof UserDecision) { // user decision
                         this.addUserDecisionAndTasks(prevId, data, baseNodes, node, decisionPointRefs, ++data.numberOfSubTrees);
@@ -353,19 +351,19 @@ export class ProcessCopyPasteHelper {
 
     private createUserTaskShape(node: UserTask): IUserTaskShape {
         const userTaskShape = this.shapesFactoryService.createModelUserTaskShape(-1, -1,  node.model.id, -1, -1);
-        // COPY UT PROPERTIES - Can add more here if needed. It can be extracted into a method  
-        userTaskShape.name = node.model.name;
-        userTaskShape.id =  node.model.id;
-        userTaskShape.personaReference = _.cloneDeep(node.model.personaReference); 
-        userTaskShape.associatedArtifact = _.cloneDeep(node.model.associatedArtifact);
-        userTaskShape.propertyValues = _.cloneDeep(node.model.propertyValues);
+                // COPY UT PROPERTIES - Can add more here if needed. It can be extracted into a method  
+                userTaskShape.name = node.model.name;
+                userTaskShape.id =  node.model.id;
+                userTaskShape.personaReference = _.cloneDeep(node.model.personaReference); 
+                userTaskShape.associatedArtifact = _.cloneDeep(node.model.associatedArtifact); 
+                userTaskShape.propertyValues = _.cloneDeep(node.model.propertyValues); 
         
         return userTaskShape; 
     } 
-
+                
     private createSystemTask(node: SystemTask ): ISystemTaskShape {
         const systemTaskShape = this.shapesFactoryService.createModelSystemTaskShape(-1, -1,  node.model.id, -1, -1);
-        // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method  
+                // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method  
         systemTaskShape.name = node.model.name; 
         systemTaskShape.personaReference = _.cloneDeep(node.personaReference); 
         systemTaskShape.associatedArtifact = _.cloneDeep(node.associatedArtifact);
@@ -402,7 +400,7 @@ export class ProcessCopyPasteHelper {
                 }
             });
         }
-
+                
         // set process decisionBranchDestinationLinks.
         _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {
             if (!!node && node.branches.length > 1) {
@@ -411,7 +409,7 @@ export class ProcessCopyPasteHelper {
                                                                                                     _.toNumber(node.endPointId), branch.orderindex));
                 }
             }
-        });        
+        });
 
         return procModel;
     }
@@ -460,7 +458,7 @@ export class ProcessCopyPasteHelper {
             _.each(links, (link) => {
                 link.destinationId = connectionStartId;
             });
-           
+
             // 3. update branch destination ids
             const decisionBranchDestinationLinks = _.filter(this.layout.viewModel.decisionBranchDestinationLinks, (link) => { 
                 return  link.destinationId === destinationId && sourceIds.length > 1; 
@@ -476,13 +474,13 @@ export class ProcessCopyPasteHelper {
                     link.destinationId = destinationId;
                 } else {
                     link.destinationId = idMap[link.destinationId.toString()];
-                }
+                    }
                 this.layout.viewModel.links.push(new ProcessLinkModel(this.layout.viewModel.id, 
                                                                                                 link.sourceId, 
                                                                                                 link.destinationId, 
                                                                                                 link.orderindex, 
                                                                                                 link.label));
-            }
+                    }
 
             // 5. update decisionBranchDestinationLink ids and inser decisionBranchDestinationLinks 
             for (let link of data.decisionBranchDestinationLinks) {
@@ -495,9 +493,9 @@ export class ProcessCopyPasteHelper {
                 this.layout.viewModel.decisionBranchDestinationLinks.push(link); 
             }
 
-        }
-        
-        this.layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(_.toNumber(connectionStartId)); 
-    }
+                }
 
+        this.layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(_.toNumber(connectionStartId)); 
+        }
+    
 }

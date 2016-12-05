@@ -279,6 +279,7 @@ export class ShapesFactory {
         propertyValues[this.Height.key] = this.createHeightValue(height);
         propertyValues[this.ClientType.key] = this.createClientTypeValue(ProcessShapeType.UserTask);
         propertyValues[this.Objective.key] = this.createObjectiveValue(objective);
+        propertyValues[this.StoryLinks.key] = this.createStoryLinksValue(null);
 
         return propertyValues;
     }

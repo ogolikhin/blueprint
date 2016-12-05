@@ -6,18 +6,17 @@ import "../../";
 import {ComponentTest} from "../../../util/component.test";
 import {BPPropertiesController} from "./bp-properties-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "./../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {PublishServiceMock} from "./../../../managers/artifact-manager/publish.svc/publish.svc.mock";
+import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {Enums, Models} from "../../../main";
-import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {DialogService} from "../../../shared/widgets/bp-dialog";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
+import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
+import {IStatefulSubArtifact, IIStatefulSubArtifact} from "./../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -26,6 +25,8 @@ import {
     MetaDataService
 } from "../../../managers/artifact-manager";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -36,6 +37,7 @@ describe("Component BPPropertiesPanel", () => {
     let bpAccordionPanelController = {
         isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
+    let onChangesObj: IOnPanelChangesObject;
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -51,7 +53,7 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);
     }));
@@ -59,6 +61,15 @@ describe("Component BPPropertiesPanel", () => {
     beforeEach(inject(() => {
         componentTest = new ComponentTest<BPPropertiesController>(template, "bp-properties-panel");
         ctrl = componentTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
+        onChangesObj = {
+            context: {
+                currentValue: {
+                    panelType: PanelType.Properties
+                },
+                previousValue: undefined,
+                isFirstChange: () => { return true; }
+            }
+        };
     }));
 
     let metaDataServiceGetMethodSpy;
@@ -77,13 +88,13 @@ describe("Component BPPropertiesPanel", () => {
     }));
 
     afterEach(() => {
-        ctrl = null;
+        ctrl = undefined;
+        onChangesObj = undefined;
     });
 
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
-                artifactManager: IArtifactManager,
                 artifactService: ArtifactServiceMock,
                 metadataService: MetaDataService) => {
             //Arrange
@@ -95,8 +106,9 @@ describe("Component BPPropertiesPanel", () => {
             } as Models.IArtifact;
             const observerSpy1 = spyOn(artifactService, "getArtifact").and.callThrough();
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+            onChangesObj.context.currentValue.artifact = artifact;
             // Act
-            artifactManager.selection.setArtifact(artifact);
+            ctrl.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             // Assert
@@ -106,7 +118,6 @@ describe("Component BPPropertiesPanel", () => {
     it("should load data for a selected sub-artifact",
         inject(($rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
-                artifactManager: IArtifactManager,
                 artifactService: ArtifactServiceMock) => {
             //Arrange
             const artifactModel = {
@@ -126,9 +137,11 @@ describe("Component BPPropertiesPanel", () => {
 
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
+            onChangesObj.context.currentValue.artifact = artifact;
+            onChangesObj.context.currentValue.subArtifact = subArtifact;
 
             // Act
-            artifactManager.selection.setSubArtifact(subArtifact);
+            ctrl.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             // Assert
@@ -138,19 +151,28 @@ describe("Component BPPropertiesPanel", () => {
 
     it("not load properties for undefined artifact",
         inject(($rootScope: ng.IRootScopeService,
-                artifactManager: IArtifactManager,
-                metadataService: MetaDataService) => {
+                metadataService: MetaDataService,
+                statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const subArtifact = {
+            const artifactModel = {
+                id: 22,
+                name: "Artifact",
+                prefix: "My",
+                predefinedType: Models.ItemTypePredefined.Process
+            } as Models.IArtifact;
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+            const subArtifact: Models.ISubArtifact = <any>{
                 id: 32,
                 name: "SubArtifact",
                 prefix: "SA",
                 predefinedType: Models.ItemTypePredefined.PROShape
-            } as Models.ISubArtifact;
+            };
+            const statefulSubArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifact);
             const observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();
+            onChangesObj.context.currentValue.subArtifact = statefulSubArtifact;
 
             // Act
-            artifactManager.selection.setArtifact(undefined);
+            ctrl.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             // Assert
@@ -159,8 +181,7 @@ describe("Component BPPropertiesPanel", () => {
 
     it("load properties for artifact",
         inject(($rootScope: ng.IRootScopeService,
-                statefulArtifactFactory: IStatefulArtifactFactory,
-                artifactManager: IArtifactManager) => {
+                statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
             const artifactModel = {
                 id: 22,
@@ -171,9 +192,10 @@ describe("Component BPPropertiesPanel", () => {
             ctrl.customFields = [];
             expect(ctrl.editor.propertyContexts).toBeFalsy();
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             // Act
-            artifactManager.selection.setArtifact(artifact);
+            ctrl.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             // Assert

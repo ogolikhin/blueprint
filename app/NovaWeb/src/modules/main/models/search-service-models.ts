@@ -12,11 +12,15 @@ export interface ISearchResultSet<T extends ISearchResult> {
 export interface ISearchResult {
     itemId: number;
     name?: string;
-    path?: string;
     itemTypeIcon?: number;
 }
 
-export interface IProjectSearchResultSet extends ISearchResultSet<ISearchResult> {
+export interface IProjectSearchResultSet extends ISearchResultSet<IProjectSearchResult> {
+}
+
+export interface IProjectSearchResult extends ISearchResult {
+    path?: string;
+    description?: string;
 }
 
 export interface IItemNameSearchCriteria extends ISearchCriteria {
@@ -31,4 +35,5 @@ export interface IItemNameSearchResultSet extends ISearchResultSet<IItemNameSear
 }
 
 export interface IItemNameSearchResult extends ISearchResult, IArtifact {
+    path?: string[];
 }

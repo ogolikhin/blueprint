@@ -22,6 +22,7 @@ bp-properties-panel {
     }
     .properties {
         min-width: 100%;
+        border: none;
     }
 
     .tab-content {
@@ -31,7 +32,7 @@ bp-properties-panel {
     .artifact-overview {
 
         > .content {
-            border: 0;
+            border: none;
             padding: 0 0 10px;
         }
     }
@@ -100,6 +101,8 @@ bp-properties-panel {
             }
 
             .ui-select-single {
+                min-width: $properties-min-width;
+
                 .ui-select-toggle {
                     max-width: $property-input-width;
                     width: $property-input-width;
@@ -114,7 +117,8 @@ bp-properties-panel {
                 }
 
                 .ui-select-search {
-                    min-width: 100%;
+                    //min-width: 100%;
+                    min-width: initial;
                 }
             }
 

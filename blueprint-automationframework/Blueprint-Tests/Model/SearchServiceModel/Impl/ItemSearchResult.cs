@@ -59,7 +59,11 @@ namespace Model.SearchServiceModel.Impl
 
         public string Name { get; set; }
 
-        public string Path { get; set; }
+        public List<string> Path { get; } = new List<string>();
+        public bool ShouldSerializePath()
+        {
+            return Path.Count > 0;
+        }
     }
 
     public class ProjectSearchResult

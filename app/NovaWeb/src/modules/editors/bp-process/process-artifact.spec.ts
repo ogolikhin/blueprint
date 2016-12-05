@@ -1,26 +1,14 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../../shell";
-import {IArtifactService} from "../../managers/artifact-manager/";
-import {IProcessService, IProcessUpdateResult} from "./services/process.svc";
+import {IProcessUpdateResult} from "./services/process.svc";
 import {ProcessServiceMock} from "./services/process.svc.mock";
-
-import {
-    IStatefulProcessArtifactServices,
-    StatefulArtifactServices,
-    StatefulProcessArtifactServices
-} from "../../managers/artifact-manager/services";
 import {StatefulProcessArtifact} from "./process-artifact";
-import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
-
-
 import {Models} from "../../main/models";
-
 import * as TestModels from "./models/test-model-factory";
 import {IProcess} from "./models/process-models";
 import {ShapeModelMock} from "./components/diagram/presentation/graph/shapes/shape-model.mock";
-
 import {
     ArtifactManager,
     IStatefulArtifactFactory,
@@ -28,16 +16,15 @@ import {
     MetaDataService
 } from "../../managers/artifact-manager";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {LoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {PublishServiceMock} from "../../managers/artifact-manager/publish.svc/publish.svc.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
-import {PropertyDescriptorBuilderMock} from "../../editors/configuration/property-descriptor-builder.mock";
+import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
+import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.svc.mock";
 
 describe("StatefulProcessArtifact", () => {
 
@@ -59,7 +46,7 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
     }));
@@ -215,13 +202,13 @@ describe("StatefulProcessArtifact", () => {
                 id: 1,
                 name: "",
                 projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process, 
+                predefinedType: Models.ItemTypePredefined.Process,
                 version: 1
             } as Models.IArtifact;
-            
+
             const processArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
             processArtifact.artifactState.readonly = false;
-              
+
             spyOn(processArtifact, "lock");
             spyOn(processArtifact, "canBeSaved").and.callFake(() => {
                 return true;
@@ -233,7 +220,7 @@ describe("StatefulProcessArtifact", () => {
             processArtifact.shapes = [newShape];
             processArtifact.subArtifactCollection.add(newShape);
             newShape.attachments.initialize([]);
-           
+
             const newIdValue = 100;
             const keyValuePair: Models.IKeyValuePair = {key: -1, value: newIdValue};
             const updateModel: IProcessUpdateResult = {messages: [], result: processArtifact, tempIdMap: [keyValuePair]};
@@ -245,7 +232,7 @@ describe("StatefulProcessArtifact", () => {
                 return $q.when();
             })();
 
-            
+
             //act
             newShape.attachments.add([{
                 userId: 0,
@@ -266,5 +253,5 @@ describe("StatefulProcessArtifact", () => {
             expect(changes.subArtifacts[0].id).toBe(newIdValue);
         });
     });
-    
+
 });

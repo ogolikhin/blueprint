@@ -1,5 +1,5 @@
-import {IDialogSettings, IDialogData, BaseDialogController} from "../../../shared/";
-import {IArtifactPickerDialogController, ArtifactPickerDialogController} from "./bp-artifact-picker-dialog";
+import {IDialogSettings} from "../../../shared/";
+import {ArtifactPickerDialogController} from "./bp-artifact-picker-dialog";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 
 describe("ArtifactPickerDialogController", () => {
@@ -8,7 +8,7 @@ describe("ArtifactPickerDialogController", () => {
     beforeEach(() => {
         const $instance = {} as ng.ui.bootstrap.IModalServiceInstance;
         const dialogSettings = {} as IDialogSettings;
-        const dialogData = {} as IDialogData;
+        const dialogData = {};
         const localization = {} as ILocalizationService;
         controller = new ArtifactPickerDialogController($instance, dialogSettings, dialogData, localization);
     });

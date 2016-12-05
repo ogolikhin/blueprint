@@ -1,4 +1,4 @@
-import {IWindowManager, IMainWindow} from "../../main";
+import {IWindowManager, IMainWindow} from "../../main/services/window-manager";
 import {
     Models, Enums,
     IArtifactManager,
@@ -75,7 +75,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         this.fields.push(field);
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         if (this.isDestroyed) {
             return;
         }

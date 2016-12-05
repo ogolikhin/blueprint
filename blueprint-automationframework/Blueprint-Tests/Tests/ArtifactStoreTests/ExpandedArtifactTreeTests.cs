@@ -265,15 +265,15 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(164533)]
-        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact without a Session-Token header.  Verify 400 Bad Request is returned with the correct error message.")]
-        public void GetExpandedArtifactTree_MissingTokenHeader_400BadRequest()
+        [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact without a Session-Token header.  Verify 401 Unauthorized is returned with the correct error message.")]
+        public void GetExpandedArtifactTree_MissingTokenHeader_401Unauthorized()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(user: null, project: _project, artifactId: artifact.Id),
-                "'GET {0}' should return 400 Bad Request when no Session-Token header is passed!", REST_PATH);
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(user: null, project: _project, artifactId: artifact.Id),
+                "'GET {0}' should return 401 Unauthorized when no Session-Token header is passed!", REST_PATH);
 
             // Verify:
             MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);

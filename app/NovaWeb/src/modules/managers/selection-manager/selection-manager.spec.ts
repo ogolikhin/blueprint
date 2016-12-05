@@ -1,106 +1,128 @@
-// import "angular";
-// import "angular-mocks";
+import "angular";
+import "angular-mocks";
 // import "rx/dist/rx.lite";
-// import {IArtifact, ISubArtifact} from "./../models/models";
-// import {SelectionManager, SelectionSource} from "./selection-manager";
+import {IStatefulArtifact, IStatefulSubArtifact} from "../artifact-manager";
+import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact.factory.mock";
 
-xdescribe("Selection Manager", () => {
+import {SelectionManager,  ISelection} from "./selection-manager";
 
-//     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-//         $provide.service("selectionManager", SelectionManager);
-//     }));
+describe("Selection Manager", () => {
+    let $scope: ng.IScope;
+    let artifact: IStatefulArtifact;
+    let subArtifact: IStatefulSubArtifact;
 
-    describe("selectedArtifactObservable", () => {
-        it("notify subscriber when artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
-//             //Arrange
-//             const artifact = {id: 1};
-//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact};
-//             let selectedArtifact;
-//             const onArtifactChanged = (item: IArtifact) => {
-//                 selectedArtifact = item;
-//             };
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("selectionManager", SelectionManager);
+        artifact = new StatefulArtifactFactoryMock().createStatefulArtifact({id: 1});
+        subArtifact = new StatefulArtifactFactoryMock().createStatefulSubArtifact(artifact, {id: 100});
 
-//             const subscriber = selectionManager.selectedArtifactObservable.subscribeOnNext(onArtifactChanged);
+    }));
+    beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService) => {
+        $scope = $rootScope.$new();
 
-//             //Act
-//             const artifact2 = {id: 22};
-//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact2};
+    }));
 
-//             //Assert
-//             setTimeout(function() {
-//                 expect(selectedArtifact).toEqual(artifact2);
-//                 subscriber.dispose();
-//             });
+    describe("set selection", () => {
+        it("notify subscriber when artifact changed", inject((selectionManager: SelectionManager) => {
+            //Arrange
+        
+            //Act
+            selectionManager.setArtifact(artifact);
+            
+            //Assert
+            const subscriber = selectionManager.selectionObservable.subscribeOnNext((item: ISelection) => {
+                expect(item).toBeDefined();
+                expect(item.artifact).toBeDefined();
+                expect(artifact.id).toEqual(artifact.id);
+            });
+
+            //$scope.$digest();
+            
         }));
-    });
+    
+        it("notify subscriber when sub-artifact changed", inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
+            //Arrange
+            
+            //Act
+            selectionManager.setSubArtifact(subArtifact);
 
-    describe("selectedSubArtifactObservable", () => {
-        it("notify subscriber when sub-artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
-//             //Arrange
-//             const artifact = {id: 1};
-//             const subArtifact = {id: 11};
-//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact};
-//             let selectedSubArtifact;
-//             const onSubArtifactChanged = (item: ISubArtifact) => {
-//                 selectedSubArtifact = item;
-//             };
+            //Assert
+            selectionManager.subArtifactObservable.subscribeOnNext((subartifact: IStatefulSubArtifact) => {
+                expect(subartifact).toBeDefined();
+                expect(subartifact.id).toEqual(subArtifact.id);
+            });
 
-//             const subscriber = selectionManager.selectedSubArtifactObservable.subscribeOnNext(onSubArtifactChanged);
-
-//             //Act
-//             const subArtifact2 = {id: 22};
-//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2};
-
-//             //Assert
-//             setTimeout(function() {
-//                 expect(selectedSubArtifact).toEqual(subArtifact2);
-//                 subscriber.dispose();
-//             });
-        }));
-    });
-
-    describe("selectedItembservable", () => {
-        it("notify subscriber when sub-artifact changed", (() => {//inject((selectionManager: SelectionManager) => {
-//             //Arrange
-//              const artifact = {id: 1};
-//             // const subArtifact = {id: 11};
-//             // selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact};
-//             let selectedSubArtifact;
-//             const onSubArtifactChanged = (item: ISubArtifact) => {
-//                 selectedSubArtifact = item;
-//             };
-
-//             const subscriber = selectionManager.selectedItemObservable.subscribeOnNext(onSubArtifactChanged);
-
-//             //Act
-//             const subArtifact2 = {id: 22};
-//             selectionManager.selection = {source: SelectionSource.Explorer, artifact: artifact, subArtifact: subArtifact2};
-
-//             //Assert
-//             setTimeout(function() {
-//                 expect(selectedSubArtifact).toEqual(subArtifact2);
-//                 subscriber.dispose();
-//             });
         }));
     });
 
     describe("clearSelection", () => {
-        it("artifact = null, subArtifact = null, source = None", (() => {//inject((selectionManager: SelectionManager) => {
-//             //Act
-//             selectionManager.clearSelection();
+        it("clear All", inject((selectionManager: SelectionManager) => {
+            //Act
+            selectionManager.clearAll();
 
-//             //Assert
-//             expect(selectionManager.selection).toBeDefined();
-//             expect(selectionManager.selection.artifact).toBeNull();
-//             expect(selectionManager.selection.subArtifact).not.toBeDefined();
-//             expect(selectionManager.selection.source).toEqual(SelectionSource.None);
+            //Assert
+            selectionManager.explorerArtifactObservable.subscribeOnNext((artifact: IStatefulArtifact) => {
+                expect(artifact).toBeUndefined();
+            });
+            selectionManager.selectionObservable.subscribeOnNext((selection: ISelection) => {
+                expect(selection).toBeDefined();
+                expect(selection.artifact).toBeUndefined();
+                expect(selection.subArtifact).toBeUndefined();
+            });
+
+        }));
+        
+
+        it("clear subartifact", inject((selectionManager: SelectionManager) => {
+
+            selectionManager.setArtifact(artifact);
+            selectionManager.setSubArtifact(subArtifact);
+     
+            selectionManager.clearSubArtifact();
+            selectionManager.selectionObservable.subscribeOnNext((selection: ISelection) => {
+                expect(selection).toBeDefined();
+                expect(selection.subArtifact).toBeUndefined();
+            });
         }));
     });
 
-    describe("Null Selection", () => {
-        it("Returns null", (() => {//inject((selectionManager: SelectionManager) => {
-//             //Assert
-//             expect(selectionManager.selection).toBeNull();
+    describe("get selection", () => {
+        it("artifact", inject((selectionManager: SelectionManager) => {
+             //Arrange
+              //Act
+            
+
+            selectionManager.setArtifact(artifact);
+             //Act
+            let selected = selectionManager.getArtifact();
+
+            expect(selected).toBeDefined();
+            
+            //Act
+            selectionManager.clearAll();
+            selected = selectionManager.getArtifact();
+            expect(selected).toBeUndefined();
+             
         }));
+        it("sub artifact", inject((selectionManager: SelectionManager) => {
+             //Arrange
+              //Act
+            
+            selectionManager.setArtifact(artifact);
+            selectionManager.setSubArtifact(subArtifact);
+             //Act
+            let selected = selectionManager.getSubArtifact();
+
+            expect(selected).toBeDefined();
+            
+            //Act
+            selectionManager.clearSubArtifact();
+            selected = selectionManager.getSubArtifact();
+            expect(selected).toBeNull();
+             
+        }));
+
     });
+
 });

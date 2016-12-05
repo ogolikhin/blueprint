@@ -89,7 +89,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             sourceId: this.dialogModel.originalDecision.model.id,
             destinationId: null,
             orderindex: null,
-            label: `${this.localization.get("ST_Decision_Modal_New_System_Task_Edge_Label")} ${conditionNumber}`
+            label: `${this.dialogModel.conditionLabel} ${conditionNumber}`
         };
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);
@@ -262,5 +262,13 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             20,
             false
         );
+    }
+
+    public get deleteConditionLabel(): string {
+        return `${this.localization.get("App_Button_Delete")} ${this.dialogModel.conditionLabel}`;
+    }
+
+    public get addConditionLabel(): string {
+        return `${this.localization.get("App_Button_Add")} ${this.dialogModel.conditionLabel}`;
     }
 }

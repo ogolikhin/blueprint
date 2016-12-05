@@ -121,3 +121,46 @@ bp-sidebar-layout {
         }
     }
 }
+
+.explorer {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.explorer__tree {
+    display: block;
+    flex-grow: 1;
+    height: 0;
+}
+
+.explorer__unpublished-changes {
+    background-color: $gray-lightest;
+    text-align: left;
+    border-radius: 0;
+
+    &:focus, &:active:focus, &:hover {
+        color: $link-color;
+        text-decoration: none;
+        outline: none;
+        background: $gray-lightest;
+        outline-offset: initial;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.explorer__empty-state {
+    padding: 30px 10px;
+    text-align: center;
+    display: flex;
+    height:100%;
+    align-items: flex-start;
+}
+
+.explorer__empty-state-text {
+    font-size: $font-size-normal;
+    color: $gray-light;
+}

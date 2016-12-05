@@ -1,11 +1,17 @@
 import {
-    IDiagramNode, IProcessShape, ISystemTaskShape,
-    NodeChange, ProcessShapeType, IProcessLink, IUserTaskShape
+    IDiagramNode,
+    IProcessShape,
+    ISystemTaskShape,
+    NodeChange,
+    ProcessShapeType,
+    IProcessLink,
+    IUserTaskShape,
+    ILayout
 } from "./models/";
-import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
+import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -62,6 +68,20 @@ export class ProcessAddHelper {
         return userTaskShape.id;
     }
 
+    public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
+        layout.setTempShapeId(layout.getTempShapeId() - 1);
+        const userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
+        // COPY PROPERTIES
+        userTaskShape.name = _userTaskShape.name; 
+        userTaskShape.personaReference = _.cloneDeep(_userTaskShape.personaReference); 
+        userTaskShape.propertyValues = _.cloneDeep(_userTaskShape.propertyValues); 
+
+        ProcessAddHelper.addShape(userTaskShape, layout, shapesFactoryService);
+        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
+
+        return userTaskShape.id;
+    }
+
     // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
@@ -74,6 +94,22 @@ export class ProcessAddHelper {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
             layout.getTempShapeId(), -1, -1);
+        ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
+        layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
+
+        return systemTaskShape.id;
+    }
+
+    public static insertClonedSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _systemTaskShape: ISystemTaskShape) {
+        layout.setTempShapeId(layout.getTempShapeId() - 1);
+        const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
+            layout.getTempShapeId(), -1, -1);
+
+        // COPY PROPERTIES
+        systemTaskShape.name = _systemTaskShape.name; 
+        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference); 
+        systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues); 
+            
         ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
         layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 
@@ -110,7 +146,7 @@ export class ProcessAddHelper {
             layout.updateLink(id, destinationId, userDecisionShape.id);
         }
 
-        ProcessAddHelper.addLinkInfo(userDecisionShape.id, destinationId, layout, 0, layout.getDefaultBranchLabel(userDecisionShape.id));
+        ProcessAddHelper.addLinkInfo(userDecisionShape.id, destinationId, layout, 0, layout.getDefaultBranchLabel(userDecisionShape.id, NodeType.UserDecision));
 
         // add tasks before end
         const nextShapeType = layout.viewModel.getShapeTypeById(destinationId);
@@ -132,7 +168,7 @@ export class ProcessAddHelper {
         let userTaskShapeId = ProcessAddHelper.insertUserTaskInternal(layout, shapesFactoryService);
         let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
         let orderIndex = layout.viewModel.getNextOrderIndex(userDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId) : label;
+        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId, NodeType.UserDecision) : label;
 
         // add links
         let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout, orderIndex, currentLabel);
@@ -214,7 +250,7 @@ export class ProcessAddHelper {
         layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
 
         layout.updateLink(sourceId, destinationId, systemDecision.id);
-        ProcessAddHelper.addLinkInfo(systemDecision.id, destinationId, layout, 0, layout.getDefaultBranchLabel(systemDecision.id));
+        ProcessAddHelper.addLinkInfo(systemDecision.id, destinationId, layout, 0, layout.getDefaultBranchLabel(systemDecision.id, NodeType.SystemDecision));
 
         const branchDestination: IProcessShape = layout.getConditionDestination(systemDecision.id);
         ProcessAddHelper.insertSystemDecisionConditionInternal(systemDecision.id, branchDestination.id, layout, shapesFactoryService);
@@ -227,7 +263,7 @@ export class ProcessAddHelper {
         let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
 
         let orderIndex: number = layout.viewModel.getNextOrderIndex(systemDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(systemDecisionId) : label;
+        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(systemDecisionId, NodeType.SystemDecision) : label;
         let condition = ProcessAddHelper.addLinkInfo(systemDecisionId, systemTaskId, layout, orderIndex, currentLabel);
         ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
 
@@ -264,146 +300,4 @@ export class ProcessAddHelper {
         return ProcessAddHelper.insertSystemDecisionConditionInternal(decisionId, conditionDestinationId,
             layout, shapesFactoryService, label);
     };
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static insertClonedSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _systemTaskShape: ISystemTaskShape) {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
-            layout.getTempShapeId(), -1, -1);
-
-        // COPY PROPERTIES
-        systemTaskShape.name = _systemTaskShape.name; 
-        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference); 
-        systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues); 
-            
-        ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
-
-        return systemTaskShape.id;
-    }
-
-    public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        // COPY PROPERTIES
-        userTaskShape.name = _userTaskShape.name; 
-        userTaskShape.personaReference = _.cloneDeep(_userTaskShape.personaReference); 
-        userTaskShape.propertyValues = _.cloneDeep(_userTaskShape.propertyValues); 
-
-        ProcessAddHelper.addShape(userTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
-
-        return userTaskShape.id;
-    }
-
-    public static insertClonedUserDecisionInternal(sourceIds: number[], destinationId: number, layout: ILayout, 
-                                                                       shapesFactoryService: ShapesFactory, _userDecisionShape: IProcessShape): number {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const userDecisionShape = shapesFactoryService.createModelUserDecisionShape(layout.viewModel.id,
-            layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        // COPY PROPERTIES
-        userDecisionShape.name = _userDecisionShape.name; 
-        userDecisionShape.personaReference = _.cloneDeep(_userDecisionShape.personaReference); 
-        userDecisionShape.propertyValues = _.cloneDeep(_userDecisionShape.propertyValues); 
-
-        ProcessAddHelper.addShape(userDecisionShape, layout, shapesFactoryService);
-
-        // update source decision references
-        if (sourceIds.length > 1) {
-            layout.updateBranchDestinationId(destinationId, userDecisionShape.id);
-        }
-
-        // update links
-        for (let id of sourceIds) {
-            layout.updateLink(id, destinationId, userDecisionShape.id);
-        }
-
-        //ProcessAddHelper.addLinkInfo(userDecisionShape.id, destinationId, layout, 0, layout.getDefaultBranchLabel(userDecisionShape.id));
-
-        // // add tasks before end
-        // const nextShapeType = layout.viewModel.getShapeTypeById(destinationId);
-
-        // if (nextShapeType === ProcessShapeType.End || layout.viewModel.hasMultiplePrevShapesById(destinationId)) {
-        //     ProcessAddHelper.insertTaskInternal([userDecisionShape.id], destinationId, layout, shapesFactoryService);
-        // }
-
-        // // add new branch
-        // const branchDestination: IProcessShape = layout.getConditionDestination(userDecisionShape.id);
-        // ProcessAddHelper.insertClonedUserDecisionConditionInternal(userDecisionShape.id, branchDestination.id, layout, shapesFactoryService);
-
-        return userDecisionShape.id;
-    }
-
-    private static insertClonedUserDecisionConditionInternal(userDecisionId: number, branchDestinationId: number,
-                                                       layout: ILayout, shapesFactoryService: ShapesFactory, label?: string): number {
-        // add user task and system task shapes
-        let userTaskShapeId = ProcessAddHelper.insertUserTaskInternal(layout, shapesFactoryService);
-        let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
-        let orderIndex = layout.viewModel.getNextOrderIndex(userDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId) : label;
-
-        // add links
-        let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout, orderIndex, currentLabel);
-        ProcessAddHelper.addLinkInfo(userTaskShapeId, systemTaskId, layout);
-        ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
-
-        const branchDestinationLink: IProcessLink = {
-            sourceId: userDecisionId,
-            destinationId: branchDestinationId,
-            orderindex: condition.orderindex,
-            label: null
-        };
-        ProcessAddHelper.updateBranchDestination(branchDestinationLink, layout);
-
-        return userTaskShapeId;
-    }
-
-    public  static insertClonedSystemDecisionInternal(link: IProcessLink, layout: ILayout, 
-                            shapesFactoryService: ShapesFactory, _systemDecisionShape: IProcessShape): number {
-        const sourceId = link.sourceId;
-        const destinationId = link.destinationId;
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const systemDecision = shapesFactoryService.createSystemDecisionShapeModel(layout.getTempShapeId(),
-            layout.viewModel.id, layout.viewModel.projectId, -1, -1);
-
-        // COPY PROPERTIES
-        systemDecision.name = _systemDecisionShape.name; 
-        systemDecision.personaReference = _.cloneDeep(_systemDecisionShape.personaReference); 
-        systemDecision.propertyValues = _.cloneDeep(_systemDecisionShape.propertyValues); 
-            
-        ProcessAddHelper.addShape(systemDecision, layout, shapesFactoryService);
-        layout.updateProcessChangedState(systemDecision.id, NodeChange.Add, false);
-
-        layout.updateLink(sourceId, destinationId, systemDecision.id);
-        ProcessAddHelper.addLinkInfo(systemDecision.id, destinationId, layout, 0, layout.getDefaultBranchLabel(systemDecision.id));
-
-        const branchDestination: IProcessShape = layout.getConditionDestination(systemDecision.id);
-        ProcessAddHelper.insertSystemDecisionConditionInternal(systemDecision.id, branchDestination.id, layout, shapesFactoryService);
-
-        return systemDecision.id;
-    }
-
-    private static insertClonedSystemDecisionConditionInternal(systemDecisionId: number, branchDestinationId: number, layout: ILayout,
-                                                         shapesFactoryService: ShapesFactory, label?: string): number {
-        let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
-
-        let orderIndex: number = layout.viewModel.getNextOrderIndex(systemDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(systemDecisionId) : label;
-        let condition = ProcessAddHelper.addLinkInfo(systemDecisionId, systemTaskId, layout, orderIndex, currentLabel);
-        ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
-
-        let branchDestinationLink: IProcessLink = {
-            sourceId: systemDecisionId,
-            destinationId: branchDestinationId,
-            orderindex: condition.orderindex,
-            label: null
-        };
-        ProcessAddHelper.updateBranchDestination(branchDestinationLink, layout);
-
-        return systemTaskId;
-    }
-
-
-
 }

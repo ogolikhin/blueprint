@@ -43,9 +43,9 @@ namespace SearchService.Repositories
             var searchCriteria = new SearchCriteria { Query = "test" };
             const int resultCount = 1;
             const string separatorString = "/";
-            SearchResult[] queryResult =
+            SearchProjectResult[] queryResult =
             {
-                new SearchResult()
+                new SearchProjectResult()
             };
             var projectSearchRepository = CreateRepository(userId, searchCriteria, resultCount, separatorString, queryResult);
 
@@ -65,7 +65,7 @@ namespace SearchService.Repositories
             const int resultCount = 1;
             const string separatorString = "/";
             Exception sqlException = SqlExceptionCreator.NewSqlException(ErrorCodes.SqlTimeoutNumber);
-            var projectSearchRepository = CreateRepositoryWithExceptionExpectation<SearchResult>(sqlException);
+            var projectSearchRepository = CreateRepositoryWithExceptionExpectation<SearchProjectResult>(sqlException);
             SqlTimeoutException sqlTimeoutException = null;
 
             // Act
@@ -92,7 +92,7 @@ namespace SearchService.Repositories
             const int resultCount = 1;
             const string separatorString = "/";
             Exception expectedException = SqlExceptionCreator.NewSqlException(-4);
-            var projectSearchRepository = CreateRepositoryWithExceptionExpectation<SearchResult>(expectedException);
+            var projectSearchRepository = CreateRepositoryWithExceptionExpectation<SearchProjectResult>(expectedException);
             SqlException sqlException = null;
 
             // Act
@@ -112,7 +112,7 @@ namespace SearchService.Repositories
 
         #endregion SearchName
 
-        private static SqlProjectSearchRepository CreateRepository(int userId, SearchCriteria searchCriteria, int resultCount, string separatorString, SearchResult[] result)
+        private static SqlProjectSearchRepository CreateRepository(int userId, SearchCriteria searchCriteria, int resultCount, string separatorString, SearchProjectResult[] result)
         {
             var connectionWrapper = new SqlConnectionWrapperMock();
             connectionWrapper.SetupQueryAsync("GetProjectsByName",

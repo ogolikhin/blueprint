@@ -12,17 +12,8 @@ bp-utility-panel {
     .disabled {
         cursor: not-allowed;
         pointer-events: none;
-        opacity: 0.6;
+        color: $gray-lightest;
     }
-
-    /*.btn {
-        background-color: #fff;
-        color: $blue-light;
-        border: solid 1px $gray-lighter;
-        border-radius: 3px;
-        padding: 2px $padding-smallest;
-        min-width: 0;
-    }*/
 
     .bp-accordion-panel-content {
         bp-attachments-panel, bp-history-panel, bp-discussion-panel, bp-relationships-panel {
@@ -57,16 +48,20 @@ bp-utility-panel {
         overflow: auto;
     }
 
-    .empty-state {
-        font-size: $font-size-big;
+    .empty-state, .add-empty {
+        font-size: $font-size-normal;
         color: $gray-light;
-        padding: 30px 10px;
+        padding: 20px 10px;
         text-align: center;
         p {
-            font-size: 1.2rem;
-            color: $gray-darkest;
+            font-size: $font-size-normal;
+            color: $gray-light;
             margin-bottom: 20px;
         }
+    }
+
+    .tab-slider__slide {
+        max-width: 100%;
     }
     .tab-slider__prev--show,
     .tab-slider__next--show,
@@ -103,8 +98,8 @@ bp-utility-panel {
 
         > li > a {
             margin: 0;
-            padding-left: 10px;
-            padding-right: 10px;
+            padding-left: $padding-small-vertical;
+            padding-right: $padding-small-vertical;
         }
     }
     .tab-content {
@@ -223,16 +218,6 @@ bp-utility-panel {
 
         &.expanded .icon:before {
             @include transform-rotate(180);
-        }
-    }
-
-    .add-empty {
-        margin: 30px 0;
-
-        p {
-            font-size: 1.2rem;
-            color: $gray-darkest;
-            margin-bottom: 20px;
         }
     }
 }

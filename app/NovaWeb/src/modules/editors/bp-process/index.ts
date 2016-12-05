@@ -8,20 +8,14 @@ import * as ProcessModels from "./models/process-models";
 import * as ProcessEnums from "./models/enums";
 import {ICommunicationManager, CommunicationManager} from "./services/communication-manager";
 import {ContextualHelpDirective} from "./components/modal-dialogs/contextual-help";
-
 import {ClearTextDirective} from "./components/modal-dialogs/clear-text";
 import {UploadImageDirective} from "./components/modal-dialogs/upload-image";
-
 import {PreviewCenterComponent} from "./components/modal-dialogs/user-story-preview/preview-center";
 import {PreviewWingDirective} from "./components/modal-dialogs/user-story-preview/preview-wing";
 import {ZoomableImageDirective} from "./components/modal-dialogs/user-story-preview/zoomable-image";
-
 import {DecisionEditor} from "./components/modal-dialogs/decision-editor";
-import {UserTaskEditor} from "./components/modal-dialogs/task-editor";
-import {SystemTaskEditor} from "./components/modal-dialogs/task-editor";
-
+import {UserTaskEditor, SystemTaskEditor} from "./components/modal-dialogs/task-editor";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
-import {UtilityPanelService} from "../../shell/bp-utility-panel/bp-utility-panel";
 import {ClipboardService} from "./services/clipboard.svc";
 
 angular.module("bp.editors.process", ["ui.bootstrap"])
@@ -35,7 +29,6 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .directive("zoomableImage", ZoomableImageDirective.directive)
     .service("processService", ProcessService)
     .service("shapesFactory", ShapesFactory)
-    .service("utilityPanelService", UtilityPanelService)
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
     .service("userStoryService", UserStoryService)

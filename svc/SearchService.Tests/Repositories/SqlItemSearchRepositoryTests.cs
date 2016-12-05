@@ -67,7 +67,7 @@ namespace SearchService.Repositories
             // Act
             try
             {
-                await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+                await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
             }
             catch (SqlTimeoutException exception)
             {
@@ -103,7 +103,7 @@ namespace SearchService.Repositories
             // Act
             try
             {
-                await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+                await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
             }
             catch (SqlException exception)
             {
@@ -135,7 +135,7 @@ namespace SearchService.Repositories
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
 
             // Act
-            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
 
             // Assert
             CollectionAssert.AreEqual(queryResult, result.Items.ToList());
@@ -168,12 +168,13 @@ namespace SearchService.Repositories
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, mockSqlArtifactRepository.Object);
 
             // Act
-            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, @"/");
+            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
 
             // Assert
             CollectionAssert.AreEqual(queryResult, result.Items.ToList());
             Assert.AreEqual(queryResult.Length, result.PageItemCount);
-            Assert.AreEqual(result.Items.First().Path, "ArtifactPath");
+            Assert.AreEqual(result.Items.First().Path.Count(), 1);
+            Assert.AreEqual(result.Items.First().Path.First(), "ArtifactPath");
         }
 
         [TestMethod]
@@ -196,7 +197,7 @@ namespace SearchService.Repositories
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
 
             // Act
-            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, "/");
+            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
 
             // Assert
             Assert.AreEqual(0, result.PageItemCount);
@@ -221,7 +222,7 @@ namespace SearchService.Repositories
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, null);
 
             // Act
-            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize, "/");
+            var result = await itemSearchRepository.SearchName(UserId, searchCriteria, StartOffset, PageSize);
 
             // Assert
             CollectionAssert.AreEqual(queryResult, result.Items.ToList());

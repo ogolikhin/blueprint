@@ -13,7 +13,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {PanelType} from "../../../../shell/bp-utility-panel/bp-utility-panel";
+import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "../../services/clipboard.svc";
 import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
 
@@ -43,7 +43,7 @@ export class ProcessDiagram {
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory,
-                private utilityPanelService,
+                private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService) {
         this.processModel = null;
         this.selectionListeners = [];
@@ -152,8 +152,7 @@ export class ProcessDiagram {
     };
 
     private openUtilityPanel = () => {
-        this.utilityPanelService.openRightSidebar();
-        this.utilityPanelService.openPanel(PanelType.Discussions);
+        this.utilityPanelService.openPanelAsync(PanelType.Discussions);
     };
 
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
@@ -240,17 +239,17 @@ export class ProcessDiagram {
         }
 
         // tear down persistent objects and event handlers
-        if (this.graph != null) {
+        if (this.graph) {
             this.graph.destroy();
-            this.graph = null;
+            this.graph = undefined;
         }
 
-        if (this.processViewModel != null) {
+        if (this.processViewModel) {
             this.processViewModel.destroy();
-            this.processViewModel = null;
+            this.processViewModel = undefined;
         }
 
-        this.selectionListeners = null;
+        this.selectionListeners = undefined;
     }
 
     private handleInitProcessGraphFailed(processId: number, err: any) {

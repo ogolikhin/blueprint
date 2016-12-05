@@ -6,7 +6,6 @@ import {SystemTask, DiagramNode, UserTask} from "./shapes/";
 
 
 export class ProcessGraphSelectionHelper {
-
     private isSingleSelection = true;
     private graph: MxGraph;
     private selectionListeners: Array<ISelectionListener> = [];
@@ -111,7 +110,7 @@ export class ProcessGraphSelectionHelper {
                 this.isProgrammaticSelectionChange = true;
                 this.graph.getSelectionModel().addCells(cells);
             }
-
+            
             let elements = this.getSelectedNodes();
             if (elements) {
                 elements = elements.filter(e => e instanceof DiagramNode);

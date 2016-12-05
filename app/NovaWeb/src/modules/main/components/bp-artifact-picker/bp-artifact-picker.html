@@ -94,7 +94,7 @@
             <div class="grid-header">
                 <!--fixme: i should not have ng-click, wrap in button-->
                 <i ng-if="$ctrl.project" class="project-navigation fonticon2-arrow-double-left"
-                   ng-class="{'hide-project-navigation': $ctrl.isOneProjectLevel}"
+                   ng-class="{'hide-project-navigation': !$ctrl.showProjects}"
                    ng-click="$ctrl.project = undefined"></i>
                 <i ng-if="$ctrl.project" class="project-icon icon-project"></i>
                 <span ng-if="$ctrl.project" class="project-name"

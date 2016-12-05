@@ -14,8 +14,8 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  * <bp-artifact-picker api="$ctrl.api"
  *                     selectable-item-types="$ctrl.selectableItemTypes"
  *                     selection-mode="$ctrl.selectionMode"
+ *                     show-projects="$ctrl.showProjects"
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"
- *                     is-one-project-level="$ctrl.isOneProjectLevel"
  *                     is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
  *                     on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
  *                     on-double-click="$ctrl.onDoubleClick(vm)">
@@ -30,8 +30,8 @@ export class BpArtifactPicker implements ng.IComponentOptions {
         // Input
         selectableItemTypes: "<",
         selectionMode: "<",
+        showProjects: "<",
         showSubArtifacts: "<",
-        isOneProjectLevel: "<",
         // Output
         isItemSelectable: "&?",
         onSelectionChanged: "&?",
@@ -51,8 +51,8 @@ export interface IArtifactPickerController {
     api: IArtifactPickerAPI;
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
+    showProjects?: boolean;
     showSubArtifacts?: boolean;
-    isOneProjectLevel?: boolean;
     isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
     onSelectionChanged: (params: {selectedVMs: Models.IViewModel<any>[]}) => any;
     onDoubleClick: (params: {vm: Models.IViewModel<any>}) => any;
@@ -78,8 +78,8 @@ export interface IArtifactPickerController {
 export class BpArtifactPickerController implements ng.IComponentController, IArtifactPickerController {
     public selectableItemTypes: Models.ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
+    public showProjects: boolean;
     public showSubArtifacts: boolean;
-    public isOneProjectLevel: boolean;
     public factory: TreeModels.TreeNodeVMFactory;
     public treeApi: IBPTreeViewControllerApi;
 
@@ -151,8 +151,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.canceller = this.$q.defer<any>();
         this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
+        this.showProjects = angular.isDefined(this.showProjects) ? this.showProjects : true;
         this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
-        this.isOneProjectLevel = angular.isDefined(this.isOneProjectLevel) ? this.isOneProjectLevel : false;
         this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.artifactManager, this.statefulArtifactFactory,
             this.canceller.promise, this.isItemSelectable, this.selectableItemTypes, this.showSubArtifacts);
     };

@@ -56,7 +56,8 @@
                     <bp-item-type-icon ng-if="$ctrl.hasCustomIcon(searchResult)"
                                        item-type-id="searchResult.model.itemTypeId"
                                        item-type-icon-id="searchResult.model.itemTypeIconId"
-                                       >
+                                       predefined-type="searchResult.model.predefinedType"
+                                       fallback="true">
                     </bp-item-type-icon>
 
                     <div class="search-details">

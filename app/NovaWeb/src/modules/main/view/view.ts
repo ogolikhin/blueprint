@@ -6,6 +6,9 @@ import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manag
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
+import {ILocalStorageService} from "../../core/local-storage/local-storage.svc";
+import {IDialogService, IDialogSettings} from "../../shared";
+import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -24,7 +27,9 @@ export class MainViewController {
         "localization",
         "artifactManager",
         "windowVisibility",
-        "utilityPanelService"
+        "utilityPanelService",
+        "localStorageService",
+        "dialogService"
     ];
 
     private _subscribers: Rx.IDisposable[];
@@ -39,7 +44,9 @@ export class MainViewController {
                 private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private windowVisibility: IWindowVisibility,
-                private utilityPanelService: IUtilityPanelService) {
+                private utilityPanelService: IUtilityPanelService,
+                private localStorageService: ILocalStorageService,
+                private dialogService: IDialogService) {
     }
 
     public $onInit() {
@@ -49,7 +56,18 @@ export class MainViewController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
             this.windowVisibility.isHidden.subscribeOnNext(this.onVisibilityChanged, this)
-        ];
+        ]; 
+
+        const productTour = localStorage.getItem("ProductTour");
+        if (!productTour) {            
+            localStorage.setItem("ProductTour", "true");
+            this.dialogService.open(<IDialogSettings>{
+                template: require("../components/dialogs/bp-tour/bp-tour.html"),
+                controller: BPTourController,
+                backdrop: true,
+                css: "nova-tour"
+            });
+        }
     }
 
     public $onDestroy() {

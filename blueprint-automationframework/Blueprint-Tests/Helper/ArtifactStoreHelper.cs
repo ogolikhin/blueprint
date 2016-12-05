@@ -452,9 +452,13 @@ namespace Helper
                 Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
                 "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
 
-                var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+                // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
+                if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                {
+                    var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
 
-                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                }
             }
 
             Assert.AreEqual(expectedSubArtifact.AttachmentValues.Count, actualSubArtifact.AttachmentValues.Count, "The number of attachments is different!");

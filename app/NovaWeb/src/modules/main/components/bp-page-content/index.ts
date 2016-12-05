@@ -1,5 +1,4 @@
-﻿import * as angular from "angular";
-import {PageContent} from "./bp-page-content";
+﻿import {PageContent} from "./bp-page-content";
 import {MainBreadcrumbService} from "./mainbreadcrumb.svc";
 
 angular.module("bp.components.pagecontent", [])

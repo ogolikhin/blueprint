@@ -4,8 +4,8 @@ import {IProjectManager, IArtifactManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
-    MoveArtifactPickerDialogController, 
-    MoveArtifactResult, 
+    MoveArtifactPickerDialogController,
+    MoveArtifactResult,
     MoveArtifactInsertMethod,
     IMoveArtifactPickerOptions
 } from "../../../../main/components/dialogs/move-artifact/move-artifact";
@@ -13,21 +13,16 @@ import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 
 export class MoveAction extends BPDropdownAction {
-    constructor(private $q: ng.IQService, 
-                private artifact: IStatefulArtifact,
-                private localization: ILocalizationService,
-                private messageService: IMessageService,
-                private projectManager: IProjectManager,
-                private dialogService: IDialogService) {
+    constructor(
+        private $q: ng.IQService,
+        private artifact: IStatefulArtifact,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private projectManager: IProjectManager,
+        private dialogService: IDialogService
+    ) {
+        super();
 
-        super(undefined, undefined, undefined, undefined,
-            new BPDropdownItemAction(
-                localization.get("App_Toolbar_Move"),
-                () => this.execute(),
-                (): boolean => true,
-            )
-        );
-        
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -39,9 +34,17 @@ export class MoveAction extends BPDropdownAction {
         if (!dialogService) {
             throw new Error("Dialog service not provided or is null");
         }
+
+        this.actions.push(
+            new BPDropdownItemAction(
+                this.localization.get("App_Toolbar_Move"),
+                () => this.execute(),
+                (): boolean => true,
+                "fonticon2-move"
+            )
+        );
     }
 
-    
     public get icon(): string {
         return "fonticon2-move";
     }
@@ -111,14 +114,14 @@ export class MoveAction extends BPDropdownAction {
             showSubArtifacts: false,
             selectionMode: "single",
             isOneProjectLevel: true,
-            currentArtifact: this.artifact 
+            currentArtifact: this.artifact
         };
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveArtifactResult[]) => {
             if (result && result.length === 1) {
                 return this.computeNewOrderIndex(result[0]).catch((err) => this.messageService.addError(err));
             }
-        }); 
+        });
     }
 
     private computeNewOrderIndex(result: MoveArtifactResult): ng.IPromise<void> {

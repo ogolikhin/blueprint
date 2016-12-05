@@ -52,9 +52,7 @@
                         <td class="unpublished__name-col">{{::artifact.name}}</td>
                     </tr>
                     <tr class="unpublished__empty-row" ng-if="!$ctrl.publishService.unpublishedArtifacts.length">
-                        <td colspan="4" class="unpublished__empty-message">{{::$ctrl.localization.get('') }}
-                            No Unpublished Changes
-                        </td>
+                        <td colspan="4" class="unpublished__empty-message">{{::$ctrl.localization.get('Unpublished_Empty') }}</td>
                     </tr>
                     </tbody>
                 </table>

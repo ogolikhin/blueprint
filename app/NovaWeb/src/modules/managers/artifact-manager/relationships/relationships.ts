@@ -38,12 +38,12 @@ export class ArtifactRelationships implements IArtifactRelationships {
             return this.loadPromise;
         }
         const deferred = this.statefulItem.getServices().getDeferred<IRelationship[]>();
-        this.loadPromise = deferred.promise;
 
         if (this.isLoaded && !refresh) {
             deferred.resolve(this.relationships);
             this.subject.onNext(this.relationships);
         } else {
+            this.loadPromise = deferred.promise;
             this.statefulItem.getRelationships().then((result: IArtifactRelationshipsResultSet) => {
                 const manual = result.manualTraces || [];
                 const other = result.otherTraces || [];

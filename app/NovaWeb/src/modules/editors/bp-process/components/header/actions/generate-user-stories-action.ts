@@ -1,4 +1,5 @@
-import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../../shared";
+import {BPDropdownAction, BPDropdownItemAction} from "../../../../../shared/widgets/bp-toolbar/actions";
+import {IDialogService, IDialogSettings} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IUserStoryService} from "../../../services/user-story.svc";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
@@ -14,29 +15,26 @@ import {ErrorCode} from "../../../../../core/error/error-code";
 import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
+import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
-    private userStoryService: IUserStoryService;
-    private messageService: IMessageService;
-    private localization: ILocalizationService;
-    private dialogService: IDialogService;
-    private loadingOverlayService: ILoadingOverlayService;
-    private processDiagramManager: IProcessDiagramCommunication;
+    private selectionChangedHandle: string;
+    private selection: IDiagramNode[];
 
-    constructor(process: StatefulProcessArtifact,
-                userStoryService: IUserStoryService,
-                selectionManager: ISelectionManager,
-                messageService: IMessageService,
-                localization: ILocalizationService,
-                dialogService: IDialogService,
-                loadingOverlayService: ILoadingOverlayService,
-                processDiagramManager: IProcessDiagramCommunication) {
+    constructor(
+        private process: StatefulProcessArtifact,
+        private userStoryService: IUserStoryService,
+        private messageService: IMessageService,
+        private localization: ILocalizationService,
+        private dialogService: IDialogService,
+        private loadingOverlayService: ILoadingOverlayService,
+        private processDiagramManager: IProcessDiagramCommunication
+    ) {
+        super();
+
         if (!userStoryService) {
             throw new Error("User story service is not provided or is null");
-        }
-
-        if (!selectionManager) {
-            throw new Error("Selection manager is not provided or is null");
         }
 
         if (!messageService) {
@@ -59,86 +57,105 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
             throw new Error("Process diagram manager is not provided or is null");
         }
 
-        super(
-            () => this.canExecute(process),
-            "fonticon fonticon2-news",
-            localization.get("ST_US_Generate_Dropdown_Tooltip"),
-            undefined,
+        this.actions.push(
             new BPDropdownItemAction(
-                localization.get("ST_US_Generate_From_UserTask_Label"),
-                () => this.executeGenerateFromTask(process, selectionManager.getSubArtifact()),
-                () => this.canExecuteGenerateFromTask(process, selectionManager.getSubArtifact()),
+                this.localization.get("ST_US_Generate_From_UserTask_Label"),
+                () => this.executeGenerateFromTask(),
+                () => this.canExecuteGenerateFromTask(),
+                "fonticon fonticon2-news"
             ),
             new BPDropdownItemAction(
-                localization.get("ST_US_Generate_All_Label"),
-                () => this.executeGenerateAll(process),
-                () => this.canExecuteGenerateAll(process)
+                this.localization.get("ST_US_Generate_All_Label"),
+                () => this.executeGenerateAll(),
+                () => this.canExecuteGenerateAll(),
+                "fonticon fonticon2-news"
             )
         );
 
-        this.userStoryService = userStoryService;
-        this.messageService = messageService;
-        this.localization = localization;
-        this.dialogService = dialogService;
-        this.loadingOverlayService = loadingOverlayService;
-        this.processDiagramManager = processDiagramManager;
+        this.selectionChangedHandle = this.processDiagramManager.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
     }
 
-    private canExecuteGenerateFromTask(process: StatefulProcessArtifact,
-                                       subArtifact: IStatefulSubArtifact): boolean {
-        if (!process || !process.artifactState) {
+    public get icon(): string {
+        return "fonticon fonticon2-news";
+    }
+
+    public get tooltip(): string {
+        return this.localization.get("ST_US_Generate_Dropdown_Tooltip");
+    }
+
+    public get disabled(): boolean {
+        return !this.canExecute();
+    }
+
+    public dispose(): void {
+        this.processDiagramManager.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
+    }
+
+    private onSelectionChanged = (elements: IDiagramNode[]) => {
+        this.selection = elements;
+    };
+
+    private canExecuteGenerateFromTask(): boolean {
+        if (!this.process || !this.process.artifactState) {
             return false;
         }
 
-        if (process.artifactState.readonly) {
+        if (this.process.artifactState.readonly) {
             return false;
         }
 
-        if (!subArtifact || subArtifact.predefinedType !== ItemTypePredefined.PROShape) {
+        if (!this.selection || this.selection.length !== 1) {
             return false;
         }
 
-        if (subArtifact.id < 0) {
+        const subArtifact: IDiagramNode = this.selection[0];
+
+        if (!subArtifact.model || subArtifact.model.id < 0) {
             return false;
         }
 
-        const processShape = <StatefulProcessSubArtifact>subArtifact;
-        const processShapeType: ProcessShapeType = processShape.propertyValues["clientType"].value;
-
-        if (processShapeType !== ProcessShapeType.UserTask) {
+        if (subArtifact.getNodeType() !== NodeType.UserTask) {
             return false;
         }
 
         return true;
     }
 
-    private executeGenerateFromTask(process: StatefulProcessArtifact,
-                                    subArtifact: IStatefulSubArtifact): void {
-        if (!this.canExecuteGenerateFromTask(process, subArtifact)) {
+    private executeGenerateFromTask(): void {
+        if (!this.canExecuteGenerateFromTask()) {
             return;
         }
 
-        this.execute(process, subArtifact.id);
+        const subArtifact: IDiagramNode = this.selection[0];
+        this.execute(this.process, subArtifact.model.id);
     }
 
-    private canExecuteGenerateAll(process: StatefulProcessArtifact): boolean {
-        if (!process || !process.artifactState) {
+    private canExecuteGenerateAll(): boolean {
+        if (!this.process || !this.process.artifactState) {
             return false;
         }
 
-        return !process.artifactState.readonly;
+        if (this.process.artifactState.readonly) {
+            return false;
+        }
+
+        if (this.selection && this.selection.length > 1) {
+            return false;
+        }
+
+        return true;
     }
 
-    private executeGenerateAll(process: StatefulProcessArtifact): void {
-        if (!this.canExecuteGenerateAll(process)) {
+    private executeGenerateAll(): void {
+        if (!this.canExecuteGenerateAll()) {
             return;
         }
 
-        this.execute(process);
+        this.execute(this.process);
     }
 
-    private canExecute(process: StatefulProcessArtifact): boolean {
-        return process && process.artifactState && !process.artifactState.readonly;
+    private canExecute(): boolean {
+        return this.canExecuteGenerateFromTask() || this.canExecuteGenerateAll();
     }
 
     private execute(process: StatefulProcessArtifact, userTaskId?: number) {

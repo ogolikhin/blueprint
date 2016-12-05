@@ -1,9 +1,7 @@
-﻿import {IDiagramNode} from "../models/";
-import {IDiagramLink, IDiagramNodeElement} from "../models/";
-import {NodeType, ILayout} from "../models/";
+﻿import {IDiagramNode, IDiagramLink, IDiagramNodeElement, NodeType, ILayout} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILocalizationService} from "../../../../../../../core/localization/localizationService";
-import {IClipboardService, IClipboardData, ClipboardDataType} from "../../../../../services/clipboard.svc";
+import {IClipboardService, ClipboardDataType} from "../../../../../services/clipboard.svc";
 
 export class NodePopupMenu {
 

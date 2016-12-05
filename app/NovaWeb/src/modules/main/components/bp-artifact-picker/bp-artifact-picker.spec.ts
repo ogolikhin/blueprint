@@ -130,8 +130,8 @@ describe("BpArtifactPickerController", () => {
         controller.$onDestroy();
 
         // Assert
-        expect(controller.columns).toBeUndefined();
-        expect(controller.onSelect).toBeUndefined();
+        expect(controller.columns).toBeNull();
+        expect(controller.onSelect).toBeNull();
     });
 
     it("clearSearch clears text and results", () => {

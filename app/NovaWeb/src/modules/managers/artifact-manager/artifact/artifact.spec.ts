@@ -159,7 +159,7 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeUndefined();
             expect(error).toBeDefined();
-            
+
         }));
 
 

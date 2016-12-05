@@ -1,6 +1,12 @@
 import * as _ from "lodash";
 import {Models} from "../../main";
-import {IArtifactManager, ISelection, IStatefulItem, IItemChangeSet, StatefulArtifact} from "../../managers/artifact-manager";
+import {
+    IArtifactManager,
+    ISelection,
+    IStatefulItem,
+    IItemChangeSet,
+    StatefulArtifact
+} from "../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ILocalizationService} from "../../core/localization/localizationService";

@@ -622,6 +622,69 @@ namespace Helper
                     project, novaArtifactDetails);
         }
 
+        /// <summary>
+        /// Create the property changeset for the target artifact
+        /// </summary>
+        /// <param name="artifactDetails">The nova artifact details</param>
+        /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
+        /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
+        /// <returns>The artifact details changeset</returns>
+        public static NovaArtifactDetails CreateArtifactPropertiesChangeSet(NovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+
+            NovaArtifactDetails changesetDetails = new NovaArtifactDetails
+            {
+                Id = artifactDetails.Id,
+                ProjectId = artifactDetails.ProjectId
+            };
+
+            if (customProperties != null)
+            {
+                foreach (var customProperty in customProperties)
+                {
+                    changesetDetails.CustomPropertyValues.Add(customProperty);
+                }
+            }
+
+            if (specificProperties != null)
+            {
+                foreach (var specificProperty in specificProperties)
+                {
+                    changesetDetails.SpecificPropertyValues.Add(specificProperty);
+                }
+            }
+
+            return changesetDetails;
+        }
+
+        /// <summary>
+        /// Create the property changeset for the target artifact
+        /// </summary>
+        /// <param name="artifactDetails">The nova artifact details</param>
+        /// <param name="customProperty">(optional) The custom property to add to the changeset</param>
+        /// <param name="specificProperty">(optional) The specific property to add to the changeset</param>
+        /// <returns>The artifact details changeset</returns>
+        public static NovaArtifactDetails CreateArtifactPropertyChangeSet(NovaArtifactBase artifactDetails, CustomProperty customProperty = null, CustomProperty specificProperty = null)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+
+            List<CustomProperty> customProperties = null;
+            List<CustomProperty> specificProperties = null;
+
+            if (customProperty != null)
+            {
+                customProperties = new List<CustomProperty> {customProperty};
+            }
+
+            if (specificProperty != null)
+            {
+                specificProperties = new List<CustomProperty> {specificProperty};
+            }
+
+            return CreateArtifactPropertiesChangeSet(artifactDetails, customProperties, specificProperties);
+        }
+
         #endregion Artifact Management
 
         #region Project Management

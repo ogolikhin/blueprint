@@ -35,11 +35,11 @@ export class MoveAction extends BPDropdownAction {
         );
         
         if (!projectManager) {
-            throw new Error("App_Error_No_Project_Manager");
+            throw new Error("Project manager is not provided or is null");
         }
 
         if (!dialogService) {
-            throw new Error("App_Error_No_Dialog_Service");
+            throw new Error("Dialog service is not provided or is null");
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿import {IDiagramNode} from "../models/";
 import {IDiagramLink, IDiagramNodeElement} from "../models/";
-import {NodeType, ILayout} from "../models/";
+import {NodeType, ILayout, ProcessClipboardData} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILocalizationService} from "../../../../../../../core/localization/localizationService";
 import {IClipboardService, ClipboardDataType} from "../../../../../services/clipboard.svc";
@@ -115,13 +115,18 @@ export class NodePopupMenu {
                     }
                 });
 
-                if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
-                    menu.addItem("Insert Selected Shapes", null, () => {
-                        if (this.insertSelectedShapesFn && this.insertionPoint) {
-                            this.insertSelectedShapesFn(this.insertionPoint);
-                            this.insertionPoint = null;
-                        }
-                    });
+                if (!!this.clipboard) {
+                    const clipboardData = <ProcessClipboardData>this.clipboard.getData();
+                    if (!!clipboardData 
+                        && clipboardData.type === ClipboardDataType.Process 
+                        && clipboardData.isPastableAfterUserDecision) {
+                        menu.addItem("Insert Selected Shapes", null, () => {
+                            if (this.insertSelectedShapesFn && this.insertionPoint) {
+                                this.insertSelectedShapesFn(this.insertionPoint);
+                                this.insertionPoint = null;
+                            }
+                        });
+                    }
                 }
 
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
@@ -149,7 +154,9 @@ export class NodePopupMenu {
                     }
                 });
                 // Added "paste" menu item here. Does not look good. Needs some work!
-                if (!!this.clipboard && !!this.clipboard.getData() && this.clipboard.getData().type === ClipboardDataType.Process) {
+                if (!!this.clipboard 
+                    && !!this.clipboard.getData() 
+                    && this.clipboard.getData().type === ClipboardDataType.Process) {
                     menu.addItem("Insert Selected Shapes", null, () => {
                         if (this.insertSelectedShapesFn && this.insertionPoint) {
                             this.insertSelectedShapesFn(this.insertionPoint);

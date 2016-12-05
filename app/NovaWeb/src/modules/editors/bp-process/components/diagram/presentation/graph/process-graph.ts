@@ -104,7 +104,8 @@ export class ProcessGraph implements IProcessGraph {
         }
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
-        this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, this.clipboard, this.shapesFactory);
+        this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, 
+                    this.clipboard, this.shapesFactory, this.messageService, this.$log);
     }
 
     public addSelectionListener(listener: ISelectionListener) {
@@ -140,7 +141,10 @@ export class ProcessGraph implements IProcessGraph {
     }
     
     public insertSelectedShapes = ((edge: MxCell) => {
-        this.processCopyPasteHelper.insertSelectedShapes(edge);
+        const sourcesAndDestinations = this.layout.getSourcesAndDestinations(edge);
+        const sourceIds = sourcesAndDestinations.sourceIds;
+        const destinationId = sourcesAndDestinations.destinationIds[0];
+        this.processCopyPasteHelper.insertSelectedShapes(sourceIds, destinationId);
     });
     
     public render(useAutolayout, selectedNodeId) {

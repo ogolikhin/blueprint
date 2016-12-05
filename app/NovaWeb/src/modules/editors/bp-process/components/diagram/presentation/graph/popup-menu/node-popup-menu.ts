@@ -121,7 +121,7 @@ export class NodePopupMenu {
 
                 if (this.clipboardHasProcessData()) {
                     const clipboardData = <ProcessClipboardData>this.clipboard.getData();
-                    if (clipboardData.isPastableAfterUserDecision) {
+                    if (clipboardData.isPastableAfterUserDecision || this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
                         menu.addItem(this.localization.get("ST_Popup_Menu_Insert_Shapes_Label"), null, () => {
                             if (this.insertSelectedShapesFn && this.insertionPoint) {
                                 this.insertSelectedShapesFn(this.insertionPoint);
@@ -130,8 +130,6 @@ export class NodePopupMenu {
                         });
                     }
                 }
-                }
-
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
 
@@ -164,6 +162,8 @@ export class NodePopupMenu {
                             this.insertionPoint = null;
                         }
                     });
+                }
+            }
             } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
                     if (this.insertUserDecisionBranchFn && this.insertionPoint) {
@@ -179,7 +179,6 @@ export class NodePopupMenu {
                     }
                 });
             }
-        }
 
         // adjust the offsets of the popup menu to position it above
         // the insertion point

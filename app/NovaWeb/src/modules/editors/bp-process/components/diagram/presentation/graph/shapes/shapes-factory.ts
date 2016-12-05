@@ -176,7 +176,7 @@ export class ShapesFactory {
     }
 
     public createModelMergeNodeShape(parentId: number, projectId: number, id: number, x: number, y: number) {
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.None);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.None) + 1;
 
         const obj = new ProcessShapeModel(id, this.NEW_MERGE_NODE_NAME + nameCounter, projectId, "", parentId, ItemTypePredefined.None);
         obj.propertyValues = this.createPropertyValuesFormergePointShape(obj.name, "", x, y);
@@ -189,8 +189,8 @@ export class ShapesFactory {
         // replace "Process_DefaultUserTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
-        
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask) + 1;
+
         const tempUserTaskName = this.NEW_USER_TASK_LABEL + " " + nameCounter;
 
         let defaultUserPersonaReference = this.NEW_USER_TASK_PERSONAREFERENCE;
@@ -212,7 +212,7 @@ export class ShapesFactory {
         // replace "Process_DefaultSystemTask_Name" in StringTokens.resx
         // see https://trello.com/c/k6UpxuGi
 
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask) + 1;
         const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + " " + nameCounter;
 
         let defaultSystemPersonaReference = this.NEW_SYSTEM_TASK_PERSONAREFERENCE;
@@ -224,14 +224,14 @@ export class ShapesFactory {
         const shapeModel = new SystemTaskShapeModel(
             id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, defaultSystemPersonaReference
         );
-       
+
         shapeModel.propertyValues = this.createPropertyValuesForSystemTaskShape([], -1, null, "", "", x, y, -1, -1, "", null);
 
         return shapeModel;
     }
 
     public createModelUserDecisionShape(parentId: number, projectId: number, id: number, x: number, y: number): IProcessShape {
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserDecision);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.UserDecision) + 1;
         const obj = new ProcessShapeModel(id, this.NEW_USER_DECISION_LABEL + nameCounter, projectId, "PROS", parentId,
             ItemTypePredefined.PROShape);
 
@@ -241,7 +241,7 @@ export class ShapesFactory {
     }
 
     public createModelSystemDecisionShape(parentId: number, projectId: number, id: number, x: number, y: number): IProcessShape {
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemDecision);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemDecision) + 1;
         const obj = new ProcessShapeModel(id, this.NEW_SYSTEM_DECISION_LABEL + nameCounter, projectId, "PROS", parentId,
             ItemTypePredefined.PROShape);
 
@@ -252,7 +252,7 @@ export class ShapesFactory {
 
 
     public createSystemDecisionShapeModel(id: number, parentId: number, projectId: number, x: number, y: number): IProcessShape {
-        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemDecision);
+        const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemDecision) + 1;
         const model = new ProcessShapeModel(id, this.NEW_SYSTEM_DECISION_LABEL + nameCounter, projectId, "PROS", parentId, ItemTypePredefined.PROShape);
 
         model.propertyValues = this.createPropertyValuesForSystemDecisionShape(this.NEW_SYSTEM_DECISION_LABEL + nameCounter, "", x, y, -1, -1, "");

@@ -62,7 +62,7 @@ export class MainBreadcrumbService implements IMainBreadcrumbService {
                     const breadcrumbLink: IBreadcrumbLink = {
                         id: artifact.id,
                         name: artifact.name,
-                        isEnabled: !isHistorical
+                        isEnabled: !isHistorical && artifact.id !== artifact.projectId
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });

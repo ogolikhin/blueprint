@@ -55,8 +55,8 @@
                         </li>
                     </ul>
 
-                    <div class="desc">
-                        <span class="bolded-text ">Description:&nbsp;</span>{{$ctrl.limitChars($ctrl.relationshipExtendedInfo.description)}}
+                    <div class="desc" ng-if="$ctrl.traceDescription">
+                        <span class="bolded-text ">{{::$ctrl.localization.get('Label_Description')}}: &nbsp;</span>{{::$ctrl.traceDescription}}
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"
-                   ng-disabled="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>
+                   ng-hide="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>
         </div>
         <div>
             <div uib-dropdown>

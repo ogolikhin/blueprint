@@ -3,7 +3,10 @@
 </div>
 <div class="modal-body artifact-picker manage-traces">
     <div>
-        <bp-artifact-picker selection-mode="'checkbox'"
+        <div class="manage-traces-wrapper_selected-artifact">
+            {{::$ctrl.localization.get('App_UP_Relationships_Selected_Artifact') }}
+        </div>
+        <bp-artifact-picker selection-mode="'checkbox'";
                             show-sub-artifacts="true"
                             api="$ctrl.api"
                             on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)">
@@ -44,6 +47,12 @@
 
     <div>
         <div class="actions-panel" ng-class="{'active-panel': $ctrl.selectedTraces[$ctrl.data.artifactId].length > 0}">
+            <div class="pull-left actions-panel-counter">
+                {{$ctrl.selectedTraces[$ctrl.data.artifactId].length}}
+                <span ng-if="$ctrl.selectedTraces[$ctrl.data.artifactId].length == 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Singular') }}</span>
+                <span ng-if="$ctrl.selectedTraces[$ctrl.data.artifactId].length > 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Plural') }}</span>
+            </div>
+
             <div uib-dropdown>
                 <span uib-dropdown-toggle
                       bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}">
@@ -67,7 +76,9 @@
                ng-click="$ctrl.deleteTraces($ctrl.selectedTraces[$ctrl.data.item.id])"
                bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete_Traces') }}"></i>
         </div>
-
+        <div>
+            {{::$ctrl.localization.get('App_UP_Relationships_Current_Traces')}}
+        </div>
         <div id="trace-manager-wrapper" class="trace-manager-wrapper">
             <!-- Item details -->
             <bp-manage-traces-item item="item" delete-trace="$ctrl.deleteTrace(item)"

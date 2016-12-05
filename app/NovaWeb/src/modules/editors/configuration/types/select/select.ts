@@ -52,11 +52,13 @@ export class BpFieldSelectController extends BPFieldBaseController {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
-                expression: function ($viewValue, $modelValue, scope) {
+                expression: ($viewValue, $modelValue, scope) => {
                     const isValid = validationService.selectValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
                         $viewValue,
-                        $modelValue);
+                        $modelValue,
+                        this.allowsCustomValues
+                    );
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
                     return true;

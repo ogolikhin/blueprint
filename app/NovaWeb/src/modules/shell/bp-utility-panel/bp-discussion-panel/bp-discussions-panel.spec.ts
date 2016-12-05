@@ -20,6 +20,7 @@ import {StatefulArtifact, IStatefulArtifact} from "../../../managers/artifact-ma
 import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifact";
 import {Helper} from "../../../shared/utils/helper";
 import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
+import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 
 let setInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
     const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
@@ -36,6 +37,7 @@ describe("Component BPDiscussionPanel", () => {
     let bpAccordionPanelController = {
         isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
+    let onChangesObj: IOnPanelChangesObject;
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -54,10 +56,20 @@ describe("Component BPDiscussionPanel", () => {
         artifactManager.selection = selectionManager;
         directiveTest = new ComponentTest<BPDiscussionPanelController>(template, "bp-discussion-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
+        onChangesObj = {
+            context: {
+                currentValue: {
+                    panelType: PanelType.History
+                },
+                previousValue: undefined,
+                isFirstChange: () => { return true; }
+            }
+        };
     }));
 
     afterEach(() => {
-        vm = null;
+        vm = undefined;
+        onChangesObj = undefined;
     });
 
     it("should be visible by default", () => {
@@ -68,7 +80,7 @@ describe("Component BPDiscussionPanel", () => {
     });
 
     it("should be read-only for newly created sub-artifacts",
-        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
             const artifact = statefulArtifactFactory.createStatefulArtifact({
                 id: 2,
@@ -89,9 +101,11 @@ describe("Component BPDiscussionPanel", () => {
 
             };
             const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
+            onChangesObj.context.currentValue.artifact = artifact;
+            onChangesObj.context.currentValue.subArtifact = subArtifact;
 
             //Act
-            artifactManager.selection.setSubArtifact(subArtifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             //Assert
@@ -101,16 +115,16 @@ describe("Component BPDiscussionPanel", () => {
 
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
             selectionManager: SelectionManagerMock) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             $timeout.flush();
 
@@ -121,7 +135,6 @@ describe("Component BPDiscussionPanel", () => {
 
     it("should load data for a selected subArtifact",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             statefulArtifactFactory: IStatefulArtifactFactory,
             $timeout: ng.ITimeoutService,
             artifactService: ArtifactServiceMock,
@@ -143,10 +156,11 @@ describe("Component BPDiscussionPanel", () => {
 
             };
             const subArtifact = new StatefulSubArtifact(artifact, processShape, services);
+            onChangesObj.context.currentValue.artifact = artifact;
+            onChangesObj.context.currentValue.subArtifact = subArtifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
-            artifactManager.selection.setSubArtifact(subArtifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             $timeout.flush();
 
@@ -157,15 +171,15 @@ describe("Component BPDiscussionPanel", () => {
 
     it("should not load data for a artifact of incorrect type",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService) => {
             //Arrange
             const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
             const artifact = new StatefulArtifact({id: 2, name: "Collection", predefinedType: ItemTypePredefined.Collections, version: 1}, services);
-
+            onChangesObj.context.currentValue.artifact = artifact;
+            
             //Act
-
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             //Assert
@@ -176,15 +190,15 @@ describe("Component BPDiscussionPanel", () => {
 
     it("should load replies for expanded discussion",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             $timeout: ng.ITimeoutService,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = false;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -197,7 +211,6 @@ describe("Component BPDiscussionPanel", () => {
 
     it("should throw exception for expanded discussion",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             $timeout: ng.ITimeoutService,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
@@ -216,9 +229,10 @@ describe("Component BPDiscussionPanel", () => {
                     return deferred.promise;
                 }
             );
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             vm.artifactDiscussionList[0].expanded = false;
@@ -232,15 +246,15 @@ describe("Component BPDiscussionPanel", () => {
 
     it("expanded should be false for collapsed discussion",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             vm.artifactDiscussionList[0].expanded = true;
             vm.expandCollapseDiscussion(vm.artifactDiscussionList[0]);
@@ -252,15 +266,15 @@ describe("Component BPDiscussionPanel", () => {
 
     it("add discussion should return default discussion",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             let newDiscussion: IDiscussion;
             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
@@ -272,7 +286,6 @@ describe("Component BPDiscussionPanel", () => {
 
     it("add discussion throws exception",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
@@ -290,9 +303,10 @@ describe("Component BPDiscussionPanel", () => {
                     return deferred.promise;
                 }
             );
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             let newDiscussion: IDiscussion;
             vm.addArtifactDiscussion("test").then((result: IDiscussion) => { newDiscussion = result; });
@@ -304,15 +318,15 @@ describe("Component BPDiscussionPanel", () => {
 
     it("add discussion reply should return default reply",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             let newReply: IReply;
             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
@@ -325,7 +339,6 @@ describe("Component BPDiscussionPanel", () => {
 
     it("add discussion reply throws exception",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
@@ -343,9 +356,10 @@ describe("Component BPDiscussionPanel", () => {
                     return deferred.promise;
                 }
             );
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             let newReply: IReply;
             vm.addDiscussionReply(vm.artifactDiscussionList[0], "test").then((result: IReply) => { newReply = result; });
@@ -357,15 +371,15 @@ describe("Component BPDiscussionPanel", () => {
 
     it("Clicking new comment shows add comment",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             vm.newCommentClick();
 
@@ -376,17 +390,17 @@ describe("Component BPDiscussionPanel", () => {
 
     it("Clicking cancel comment hides add comment",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             vm.showAddComment = true;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             vm.cancelCommentClick();
 
@@ -396,17 +410,16 @@ describe("Component BPDiscussionPanel", () => {
 
     it("Editing discussion should move it to the first",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
             //Arrange
             const artifact = setInitialArtifact($q, artifactService);
-
             vm.showAddComment = true;
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             const secondDiscussionId = vm.artifactDiscussionList[1].discussionId;
             vm.discussionEdited(vm.artifactDiscussionList[1]);
@@ -417,7 +430,6 @@ describe("Component BPDiscussionPanel", () => {
 
     it("delete comment success, replies reloaded.",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
@@ -478,8 +490,10 @@ describe("Component BPDiscussionPanel", () => {
                 deferred.resolve(artifactReplies);
                 return deferred.promise;
             };
+            onChangesObj.context.currentValue.artifact = artifact;
+
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             vm.deleteReply(discussion, reply);
             $rootScope.$digest();
             //Assert
@@ -488,7 +502,6 @@ describe("Component BPDiscussionPanel", () => {
 
     it("delete comment thread success, discussions reloaded.",
         inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
             artifactService: ArtifactServiceMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService) => {
@@ -526,10 +539,13 @@ describe("Component BPDiscussionPanel", () => {
                 expanded: true,
                 showAddReply: true
             };
+            onChangesObj.context.currentValue.artifact = artifact;
+
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             vm.deleteCommentThread(discussion);
             $rootScope.$digest();
+
             //Assert
             expect(vm.artifactDiscussionList[0].itemId).toBe(1);
             expect(vm.artifactDiscussionList[0].discussionId).toBe(1);

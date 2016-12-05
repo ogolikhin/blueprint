@@ -263,4 +263,12 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             false
         );
     }
+
+    public get deleteConditionLabel(): string {
+        return `${this.localization.get("App_Button_Delete")} ${this.dialogModel.conditionLabel}`;
+    }
+
+    public get addConditionLabel(): string {
+        return `${this.localization.get("App_Button_Add")} ${this.dialogModel.conditionLabel}`;
+    }
 }

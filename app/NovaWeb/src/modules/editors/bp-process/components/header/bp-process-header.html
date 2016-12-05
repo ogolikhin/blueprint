@@ -11,7 +11,9 @@
              bp-tooltip="{{ $ctrl.artifactTypeDescription }}">
             <bp-item-type-icon ng-if="$ctrl.hasCustomIcon"
                                item-type-id="$ctrl.artifactTypeId"
-                               item-type-icon="$ctrl.artifactTypeIcon"></bp-item-type-icon>
+                               item-type-icon="$ctrl.artifactTypeIcon"
+                               predefined-type="$ctrl.predefinedType"
+                               fallback="true"></bp-item-type-icon>
         </div>
         <div class="artifact-heading-group1">
             <div class="artifact-heading-group2">
@@ -20,7 +22,7 @@
                     <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
                     <i class="fonticon-lock self-locked" ng-if="$ctrl.selfLocked" bp-tooltip="Locked"> </i>
                     <!--TODO  please do not remove, I'll remove after testing-->
-                    <i class="dirty-indicator fonticon2-asterisk" bp-tooltip="Dirty" ng-if="$ctrl.isChanged"></i>
+                    <i class="dirty-indicator fonticon2-asterisk" bp-tooltip="{{::$ctrl.localization.get('App_Tooltip_Dirty')}}" ng-if="$ctrl.isChanged"></i>
                     <i class="legacy-indicator fonticon2-legacy" bp-tooltip="Legacy artifact" ng-if="$ctrl.isLegacy"></i>
                 </div>
             </div>

@@ -10,7 +10,6 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../managers/selection-manager";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
@@ -69,10 +68,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         );
     }
 
-    protected updateToolbarOptions(artifact: any): void {
-        super.updateToolbarOptions(artifact);
-
-        const collectionArtifact = artifact as IStatefulCollectionArtifact;
+    protected createCustomToolbarActions(): void {
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
 
         if (!collectionArtifact) {
             return;
@@ -82,14 +79,16 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
         // expanded toolbar
-        this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
+        this.toolbarActions.push(
+            rapidReviewAction, 
+            addCollectionArtifactAction
+        );
+        
         // collapsed toolbar
-        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
-            if (this.collapsedToolbarActions[i].type === "menu") {
-                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
-            }
-        }
+        this.additionalMenuActions.push(
+            new BPButtonOrDropdownSeparator(), 
+            rapidReviewAction, 
+            addCollectionArtifactAction
+        );
     }
 }

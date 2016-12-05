@@ -106,6 +106,7 @@ bp-discussion-panel {
         font-size: $font-size-normal;
         color: $gray-darkest;
         font-style: normal;
+        min-height:14px;
 
         &.inactive {
             color: $gray-light;

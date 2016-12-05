@@ -9,6 +9,7 @@ import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
+import {ItemTypePredefined} from "../../main/models/enums";
 
 export class UnpublishedComponent implements ng.IComponentOptions {
     public template: string = require("./unpublished.html");
@@ -115,5 +116,12 @@ export class UnpublishedController {
 
     public isSelected(artifact: IArtifact): boolean {
         return this.selectedArtifacts.indexOf(artifact) > -1;
+    }
+
+    public isNavigatable(artifact: IArtifact): boolean {
+        return artifact.predefinedType !== ItemTypePredefined.ArtifactBaseline
+            && artifact.predefinedType !== ItemTypePredefined.Baseline
+            && artifact.predefinedType !== ItemTypePredefined.BaselineFolder
+            && artifact.predefinedType !== ItemTypePredefined.ArtifactReviewPackage;
     }
 }

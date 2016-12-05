@@ -221,15 +221,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             if (this.selectableItemTypes) {
                 artifactTypes = artifactTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
             } else {
-            artifactTypes = artifactTypes.filter(a =>
-                a.predefinedType !== Models.ItemTypePredefined.Project
-                && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
-                && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
-                && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
-                && a.predefinedType !== Models.ItemTypePredefined.Baseline
-                && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
-                && a.predefinedType !== Models.ItemTypePredefined.Collections
-                && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
+                artifactTypes = artifactTypes.filter(a =>
+                    a.predefinedType !== Models.ItemTypePredefined.Project
+                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
+                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
+                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
+                    && a.predefinedType !== Models.ItemTypePredefined.Baseline
+                    && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
+                    && a.predefinedType !== Models.ItemTypePredefined.Collections
+                    && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
                 );
             }
             artifactTypes.sort(function (a, b) {
@@ -265,15 +265,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     private resetItemTypes(): void {
         this.itemTypes =
-                [{
+            [{
                 name: this.localization.get("Filter_Artifact_All_Types", "All types"),
                 id: null,
                 prefix: "",
                 predefinedType: null,
-                    iconImageId: null,
-                    usedInThisProject: null,
-                    customPropertyTypeIds: null
-                }];
+                iconImageId: null,
+                usedInThisProject: null,
+                customPropertyTypeIds: null
+            }];
         this.filterItemType = this.itemTypes[0];
     }
 
@@ -283,7 +283,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 this.onSelectionChanged({selectedVMs: this.selectedVMs});
             });
         }
-        }
+    }
 
     public onSelect = (vm: Models.IViewModel<any>, isSelected: boolean = undefined): boolean => {
         if (angular.isDefined(isSelected)) {
@@ -379,7 +379,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         return !!(searchResult.model && _.isFinite(searchResult.model.itemTypeIconId));
     };
 
-    public getArtifactTextPath (path: any): string {
+    public getArtifactTextPath(path: string | string[]): string {
         if (!path) {
             return "";
         }

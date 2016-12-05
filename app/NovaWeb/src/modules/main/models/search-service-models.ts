@@ -15,12 +15,12 @@ export interface ISearchResult {
     itemTypeIcon?: number;
 }
 
+export interface IProjectSearchResultSet extends ISearchResultSet<IProjectSearchResult> {
+}
+
 export interface IProjectSearchResult extends ISearchResult {
     path?: string;
     description?: string;
-}
-
-export interface IProjectSearchResultSet extends ISearchResultSet<IProjectSearchResult> {
 }
 
 export interface IItemNameSearchCriteria extends ISearchCriteria {

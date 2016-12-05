@@ -67,7 +67,7 @@ describe("MoveAction", () => {
 
         // assert
         expect(error).toBeDefined();
-        expect(error).toEqual(new Error("App_Error_No_Project_Manager"));
+        expect(error).toEqual(new Error("Project manager is not provided or is null"));
     }));
 
     it("throws exception when dialog service is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
@@ -85,7 +85,7 @@ describe("MoveAction", () => {
 
         // assert
         expect(error).toBeDefined();
-        expect(error).toEqual(new Error("App_Error_No_Dialog_Service"));
+        expect(error).toEqual(new Error("Dialog service is not provided or is null"));
     }));
 
     it("is disabled when artifact is null", inject((localization: ILocalizationService,

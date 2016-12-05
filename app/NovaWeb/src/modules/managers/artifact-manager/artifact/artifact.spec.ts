@@ -850,10 +850,6 @@ describe("Artifact", () => {
 
         it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
             // arrange
-            let error: ApplicationError;
-            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                error = err;
-            });
             spyOn(artifactService, "moveArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
                 deferred.reject({
@@ -864,7 +860,8 @@ describe("Artifact", () => {
             const newParentId: number = 3;
 
             // act
-            artifact.move(newParentId);
+            let error: ApplicationError;
+            artifact.move(newParentId).catch((err) => { error = err; });
             $rootScope.$digest();
             // assert
             expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            

@@ -106,6 +106,9 @@ export class ProcessGraphSelectionHelper {
             let elements = this.getSelectedNodes();
             if (elements) {
                 elements = elements.filter(e => e instanceof DiagramNode);
+                // highlight edges and notify system that the subartifact 
+                // selection has changed
+                this.processGraph.highlightNodeEdges(elements);
                 this.notifySelectionChanged(elements);
              }
         });

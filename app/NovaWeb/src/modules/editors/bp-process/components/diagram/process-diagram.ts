@@ -63,9 +63,9 @@ export class ProcessDiagram {
 
         this.processModel = <IProcess>process;
         this.processArtifact = <IStatefulProcessArtifact>process;
-
-        this.artifactManager.selection.subArtifactObservable
-            .subscribeOnNext(this.onSubArtifactChanged, this);
+        // #DEBUG
+        //this.artifactManager.selection.subArtifactObservable
+        //    .subscribeOnNext(this.onSubArtifactChanged, this);
 
         this.onLoad(this.processModel);
     }
@@ -227,7 +227,6 @@ export class ProcessDiagram {
             // single-selection
             const subArtifactId: number = elements[0].model.id;
             const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
-            this.utilityPanelService.panelEnabled = true;
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
@@ -238,12 +237,13 @@ export class ProcessDiagram {
         } else if (elements.length > 1) {
             // multi-selection 
 
-            // disable the utility panel && clear selection manager subartifact collection
-            this.utilityPanelService.panelEnabled = false;
+            // disable the utility panel  
+            // clear selection manager subartifact collection
+            
             this.artifactManager.selection.clearSubArtifact();
+            this.utilityPanelService.disableUtilityPanel();
 
         } else {
-            this.utilityPanelService.panelEnabled = true;
             this.artifactManager.selection.clearSubArtifact();
         }
     }
@@ -268,8 +268,7 @@ export class ProcessDiagram {
         }
     }
 
-    public destroy() {
-        this.utilityPanelService.panelEnabled = true;
+    public destroy() { 
         
         // tear down persistent objects and event handlers
         if (this.communicationManager) {

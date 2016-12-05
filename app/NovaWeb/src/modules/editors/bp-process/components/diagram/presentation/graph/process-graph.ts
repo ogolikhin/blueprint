@@ -115,8 +115,6 @@ export class ProcessGraph implements IProcessGraph {
 
     private createSelectionListeners() {
         this.selectionHelper = new ProcessGraphSelectionHelper(this);
-        this.selectionChangedHandler = this.processDiagramCommunication
-            .register(ProcessEvents.SelectionChanged, this.highlightNodeEdges);
         this.selectionHelper.initSelection();
     }
  
@@ -353,35 +351,6 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.LOCKED_HANDLE_FILLCOLOR = "#22AA06";
         mxConstants.CURSOR_BEND_HANDLE = "default";
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
-    }
-
-    public destroy() {
-        if (this.viewModel.isSpa) {
-            window.removeEventListener("resize", this.resizeWrapper, true);
-        }
-        window.removeEventListener("buttonUpdated", this.buttonUpdated);
-        // remove graph
-        this.mxgraph.getModel().clear();
-        this.mxgraph.destroy();
-        while (this.htmlElement.hasChildNodes()) {
-            this.htmlElement.removeChild(this.htmlElement.firstChild);
-        }
-        // Dispose handlers
-        this.processDiagramCommunication.unregister(
-            ProcessEvents.DeleteShape, this.deleteShapeHandler);
-
-        this.processDiagramCommunication.unregister(
-            ProcessEvents.SelectionChanged, this.selectionChangedHandler);
-
-        if (this.dragDropHandler != null) {
-            this.dragDropHandler.dispose();
-        }
-        if (this.nodeLabelEditor != null) {
-            this.nodeLabelEditor.dispose();
-        }
-        if (this.selectionHelper) {
-            this.selectionHelper.destroy();
-        }
     }
 
     private addMouseEventListener(graph: MxGraph) {
@@ -914,7 +883,7 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    private highlightNodeEdges = (nodes: IDiagramNode[]) => {
+    public highlightNodeEdges = (nodes: IDiagramNode[]) => {
         this.clearHighlightEdges();
         _.each(nodes, (node) => {
             let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());
@@ -972,4 +941,31 @@ export class ProcessGraph implements IProcessGraph {
             this.$log.info(arg);
         }
     }
+    
+    public destroy() {
+        if (this.viewModel.isSpa) {
+            window.removeEventListener("resize", this.resizeWrapper, true);
+        }
+        window.removeEventListener("buttonUpdated", this.buttonUpdated);
+        // remove graph
+        this.mxgraph.getModel().clear();
+        this.mxgraph.destroy();
+        while (this.htmlElement.hasChildNodes()) {
+            this.htmlElement.removeChild(this.htmlElement.firstChild);
+        }
+        // Dispose handlers
+        this.processDiagramCommunication.unregister(
+            ProcessEvents.DeleteShape, this.deleteShapeHandler);
+
+        if (this.dragDropHandler != null) {
+            this.dragDropHandler.dispose();
+        }
+        if (this.nodeLabelEditor != null) {
+            this.nodeLabelEditor.dispose();
+        }
+        if (this.selectionHelper) {
+            this.selectionHelper.destroy();
+        }
+    }
+
 }

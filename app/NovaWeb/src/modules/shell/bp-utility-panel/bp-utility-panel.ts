@@ -27,15 +27,14 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public itemTypeIconId: number;
     public hasCustomIcon: boolean;
     public isAnyPanelVisible: boolean;
-    public panelEnabled: boolean; 
+   
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
                 private $element: ng.IAugmentedJQuery,
                 private utilityPanelService: UtilityPanelService) {
         this.isAnyPanelVisible = true;
-        this.utilityPanelService.initialize(this);
-        this.panelEnabled = true; 
+        this.utilityPanelService.initialize(this); 
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -53,6 +52,15 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             it.dispose();
             return false;
         });
+    }
+
+    public disableUtilityPanel() {
+        this.isAnyPanelVisible = false;
+        this.hidePanel(PanelType.Discussions);
+        this.hidePanel(PanelType.Files);
+        this.hidePanel(PanelType.History);
+        this.hidePanel(PanelType.Properties);
+        this.hidePanel(PanelType.Relationships);
     }
 
     private hidePanel(panelType: PanelType) {

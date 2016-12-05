@@ -123,6 +123,7 @@ export interface IProcessGraph {
     clearSelection();
     onUserStoriesGenerated(userStories: IUserStory[]): void;
     processDiagramCommunication: IProcessDiagramCommunication;
+    highlightNodeEdges(nodes: IDiagramNode[]);
     destroy();
 
 }

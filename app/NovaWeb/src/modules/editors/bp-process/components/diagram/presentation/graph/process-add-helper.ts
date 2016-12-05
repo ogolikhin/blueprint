@@ -1,11 +1,17 @@
 import {
-    IDiagramNode, IProcessShape, ISystemTaskShape,
-    NodeChange, ProcessShapeType, IProcessLink, IUserTaskShape, NodeType
+    IDiagramNode,
+    IProcessShape,
+    ISystemTaskShape,
+    NodeChange,
+    ProcessShapeType,
+    IProcessLink,
+    IUserTaskShape,
+    ILayout
 } from "./models/";
-import {ILayout} from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {DiagramLink} from "./shapes/diagram-link";
+import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessAddHelper {
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
@@ -90,7 +96,7 @@ export class ProcessAddHelper {
         _systemTaskShape.propertyValues[shapesFactoryService.AssociatedImageUrl.key].value = null;
         return this.insertClonedShapeInternal(layout, shapesFactoryService, _systemTaskShape);
     }
-    
+
     private static insertClonedShapeInternal(layout: ILayout, shapesFactoryService, shape: IProcessShape): number {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
 
@@ -101,7 +107,7 @@ export class ProcessAddHelper {
         }
         shape.projectId = layout.viewModel.projectId;
         shape.id = layout.getTempShapeId();
-            
+
         ProcessAddHelper.addShape(shape, layout, shapesFactoryService);
 
         return shape.id;

@@ -141,4 +141,8 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
             this.navigationService.navigateTo({id: id});
         }
     }
+
+    public canModifyItem() {
+        return this.relationship.hasAccess && !this.isItemReadOnly && !this.relationship.readOnly;
+    }
 }

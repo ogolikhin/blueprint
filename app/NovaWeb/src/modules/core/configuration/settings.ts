@@ -20,8 +20,7 @@ export interface ISettingsService {
     getNumber(key: string, defaultValue?: number, minValue?: number | string, maxValue?: number | string, strict?: boolean): number;
 
     /**
-     * Returns the value of a setting as a boolean. Booleans must be stored in JSON format
-     * (i.e. either "true" or "false", all lower case).
+     * Returns the value of a setting as a boolean. Booleans may be case-insensitive.
      * @param key The name of the setting
      * @param defaultValue The value to return if the setting does not exist
      * @param strict If true, throws an Error if the value is not a valid boolean, otherwise returns defaultValue

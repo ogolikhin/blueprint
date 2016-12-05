@@ -5,7 +5,6 @@ import {SettingsService, ISettingsService} from "./settings";
 
 describe("Settings", () => {
     let settings: ISettingsService;
-    let rootScope: ng.IRootScopeService;
 
     beforeEach(inject(($rootScope: ng.IRootScopeService) => {
         settings = new SettingsService($rootScope);
@@ -13,14 +12,16 @@ describe("Settings", () => {
             settings: {
                 "string": "stringValue",
                 "number": "5",
+                "negativeNumber": "-5",
                 "invalidNumber": "0x5",
                 "boolean": "false",
+                "booleanFalseMixedCase": "FaLse",
+                "booleanTrueMixedCase": "TrUe",
                 "invalidBoolean": "NaN",
                 "object": "{\"string\": \"s\", \"number\": 5, \"array\": [\"s\", 5], \"boolean\": true}",
                 "invalidObject": "{'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true}"
             }
         };
-        rootScope = $rootScope;
     }));
 
     describe("get", () => {
@@ -28,7 +29,7 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.get("string");
+            const value = settings.get("string");
 
             // Assert
             expect(value).toEqual("stringValue");
@@ -37,17 +38,17 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.get("");
+            const value = settings.get("");
 
             // Assert
             expect(value).toBeUndefined();
         });
         it("returns specified default value if setting doesn't exist", () => {
             // Arrange
-            let defaultValue = "123";
+            const defaultValue = "123";
 
             // Act
-            let value = settings.get("", defaultValue);
+            const value = settings.get("", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
@@ -59,7 +60,7 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.getNumber("number");
+            const value = settings.getNumber("number");
 
             // Assert
             expect(value).toEqual(5);
@@ -68,90 +69,87 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.getNumber("");
+            const value = settings.getNumber("");
 
             // Assert
             expect(value).toBeUndefined();
         });
         it("returns specified default value if setting doesn't exist", () => {
             // Arrange
-            let defaultValue = 123;
+            const defaultValue = 123;
 
             // Act
-            let value = settings.getNumber("", defaultValue);
+            const value = settings.getNumber("", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
         });
         it("returns specified minValue if setting value is lower", () => {
             // Arrange
-            let minValue = 10;
+            const minValue = 10;
 
             // Act
-            let value = settings.getNumber("number", 100, minValue);
+            const value = settings.getNumber("number", 100, minValue);
+
+            // Assert
+            expect(value).toBe(minValue);
+        });
+        it("returns specified minValue if setting value is lower - minValue is 0", () => {
+            // Arrange
+            const minValue = 0;
+
+            // Act
+            const value = settings.getNumber("negativeNumber", 100, minValue);
 
             // Assert
             expect(value).toBe(minValue);
         });
         it("returns specified maxValue if setting value is higher", () => {
             // Arrange
-            let maxValue = 2;
+            const maxValue = 2;
 
             // Act
-            let value = settings.getNumber("number", 1, undefined, maxValue);
+            const value = settings.getNumber("number", 1, undefined, maxValue);
+
+            // Assert
+            expect(value).toBe(maxValue);
+        });
+        it("returns specified maxValue if setting value is higher - maxValue is 0", () => {
+            // Arrange
+            const maxValue = 0;
+
+            // Act
+            const value = settings.getNumber("number", 1, undefined, maxValue);
 
             // Assert
             expect(value).toBe(maxValue);
         });
         it("returns specified default value if setting is not a valid number", () => {
             // Arrange
-            let defaultValue = 123;
+            const defaultValue = 123;
 
             // Act
-            let value = settings.getNumber("invalidNumber", defaultValue);
+            const value = settings.getNumber("invalidNumber", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
         });
         it("returns specified value if between min and max", () => {
             // Arrange
-            let minValue = 4;
-            let maxValue = 6;
+            const minValue = 4;
+            const maxValue = 6;
 
             // Act
-            let value = settings.getNumber("number", 1, minValue, maxValue);
+            const value = settings.getNumber("number", 1, minValue, maxValue);
 
             // Assert
             expect(value).toEqual(5);
-        });
-        it("returns specified value if between min and max, minValue is 0", () => {
-            // Arrange
-            let minValue = 0;
-
-            // Act
-            let value = settings.getNumber("number", 1, minValue);
-
-            // Assert
-            expect(value).toEqual(5);
-        });
-        it("returns specified value if between min and max, maxValue is 0", () => {
-            // Arrange
-            let minValue = -5;
-            let maxValue = 0;
-            rootScope["config"]["settings"]["number"] = "-3";
-
-
-            // Act
-            let value = settings.getNumber("number", 1, minValue, maxValue);
-
-            // Assert
-            expect(value).toEqual(-3);
         });
         it("throws error if strict is specified and setting is not a valid number", () => {
             // Arrange
 
             // Act
-            let action = () => settings.getNumber("invalidNumber", undefined, undefined, undefined, true);
+            const action = () => settings.getNumber("invalidNumber", undefined, undefined, undefined, true);
 
             // Assert
             expect(action).toThrowError("Value '0x5' for key 'invalidNumber' is not a valid number");
@@ -163,7 +161,7 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.getBoolean("boolean");
+            const value = settings.getBoolean("boolean");
 
             // Assert
             expect(value).toEqual(false);
@@ -172,27 +170,27 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.getBoolean("");
+            const value = settings.getBoolean("");
 
             // Assert
             expect(value).toBeUndefined();
         });
         it("returns specified default value if setting doesn't exist", () => {
             // Arrange
-            let defaultValue = false;
+            const defaultValue = false;
 
             // Act
-            let value = settings.getBoolean("", defaultValue);
+            const value = settings.getBoolean("", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
         });
         it("returns specified default value if setting is not a valid boolean", () => {
             // Arrange
-            let defaultValue = false;
+            const defaultValue = false;
 
             // Act
-            let value = settings.getBoolean("invalidBoolean", defaultValue);
+            const value = settings.getBoolean("invalidBoolean", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
@@ -201,27 +199,25 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let action = () => settings.getBoolean("invalidBoolean", undefined, true);
+            const action = () => settings.getBoolean("invalidBoolean", undefined, true);
 
             // Assert
             expect(action).toThrowError("Value 'NaN' for key 'invalidBoolean' is not a valid boolean");
         });
-        it("is case insensitive for false checks", () => {
+        it("is case-insensitive for false checks", () => {
             //Arrange
-            rootScope["config"]["settings"]["boolean"] = "FaLse";
 
             //Act
-            let value = settings.getBoolean("boolean", undefined, true);
+            const value = settings.getBoolean("booleanFalseMixedCase", undefined, true);
 
             //Expect
             expect(value).toBe(false);
         });
-        it("is case insensitive for true checks", () => {
+        it("is case-insensitive for true checks", () => {
             //Arrange
-            rootScope["config"]["settings"]["boolean"] = "TrUe";
 
             //Act
-            let value = settings.getBoolean("boolean", undefined, true);
+            const value = settings.getBoolean("booleanTrueMixedCase", undefined, true);
 
             //Expect
             expect(value).toBe(true);
@@ -233,7 +229,7 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.getObject("object");
+            const value = settings.getObject("object");
 
             // Assert
             expect(value).toEqual({string: "s", number: 5, array: ["s", 5], boolean: true});
@@ -242,27 +238,27 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let value = settings.getObject("");
+            const value = settings.getObject("");
 
             // Assert
             expect(value).toBeUndefined();
         });
         it("returns specified default value if setting doesn't exist", () => {
             // Arrange
-            let defaultValue = {value: 123};
+            const defaultValue = {value: 123};
 
             // Act
-            let value = settings.getObject("", defaultValue);
+            const value = settings.getObject("", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
         });
         it("returns specified default value if setting is not a valid object", () => {
             // Arrange
-            let defaultValue = {value: 123};
+            const defaultValue = {value: 123};
 
             // Act
-            let value = settings.getObject("invalidObject", defaultValue);
+            const value = settings.getObject("invalidObject", defaultValue);
 
             // Assert
             expect(value).toBe(defaultValue);
@@ -271,7 +267,7 @@ describe("Settings", () => {
             // Arrange
 
             // Act
-            let action = () => settings.getObject("invalidObject", undefined, true);
+            const action = () => settings.getObject("invalidObject", undefined, true);
 
             // Assert
             expect(action)

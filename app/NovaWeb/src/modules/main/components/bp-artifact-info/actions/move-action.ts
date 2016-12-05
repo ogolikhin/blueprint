@@ -111,9 +111,8 @@ export class MoveAction extends BPDropdownAction {
         };
 
         const dialogData: IMoveArtifactPickerOptions = {
-            showSubArtifacts: false,
             selectionMode: "single",
-            isOneProjectLevel: true,
+            showProjects: false,
             currentArtifact: this.artifact
         };
 

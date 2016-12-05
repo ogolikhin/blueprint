@@ -132,9 +132,9 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected createToolbarActions(): void {
-        super.createToolbarActions();
-
+    protected createCustomToolbarActions(): void {
+        super.createCustomToolbarActions();
+        
         const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
@@ -162,15 +162,13 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
         
         // collapsed toolbar
-        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
-            if (this.collapsedToolbarActions[i].type === "menu") {
-                const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                buttonDropdown.actions.push(dropdownSeparator, ...this.getNestedDropdownActions(generateUserStoriesAction));
-                buttonDropdown.actions.push(dropdownSeparator, copyAction);
-            }
-        }
-
+        const dropdownSeparator = new BPButtonOrDropdownSeparator();
+        this.additionalMenuActions.push(
+            dropdownSeparator, 
+            ...this.getNestedDropdownActions(generateUserStoriesAction),
+            dropdownSeparator,
+            copyAction
+        );
         this.collapsedToolbarActions.unshift(toggleProcessTypeAction);
     }
 }

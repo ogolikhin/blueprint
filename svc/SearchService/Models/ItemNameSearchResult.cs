@@ -56,5 +56,8 @@ namespace SearchService.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227: Collection properties should be read only", Justification = "For JSON serialization, the property sometimes needs to be null")]
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public List<IArtifact> Children { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<string> Path { get; set; }
     }
 }

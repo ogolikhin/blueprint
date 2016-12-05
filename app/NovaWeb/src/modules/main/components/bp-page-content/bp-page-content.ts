@@ -3,8 +3,10 @@ import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {ItemTypePredefined} from "../../../main/models/enums";
+import {ItemTypePredefined} from "../../models/enums";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
+import {IProjectManager} from "../../../managers/project-manager";
+import {ILocalizationService} from "../../../core/localization/localizationService";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -19,13 +21,19 @@ export class PageContentCtrl {
         "dialogService",
         "artifactManager",
         "navigationService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "$state",
+        "projectManager",
+        "localization"
     ];
 
     constructor(private dialogService: IDialogService,
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
-                private mainBreadcrumbService: IMainBreadcrumbService) {
+                private mainBreadcrumbService: IMainBreadcrumbService,
+                private $state: ng.ui.IStateService,
+                private projectManager: IProjectManager,
+                private localization: ILocalizationService) {
     }
 
     public $onInit() {
@@ -34,6 +42,14 @@ export class PageContentCtrl {
             .subscribe(this.onSelectionChanged);
 
         this._subscribers = [selectionObservable];
+    }
+
+    public isMainState(): boolean {
+        return this.$state.current.name === "main";
+    }
+
+    public openProject(): void {
+        this.projectManager.openProjectWithDialog();
     }
 
     private onSelectionChanged = (selection: ISelection) => {

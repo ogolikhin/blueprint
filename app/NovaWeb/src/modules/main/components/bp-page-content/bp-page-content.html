@@ -1,2 +1,33 @@
 ﻿<bp-breadcrumb links="$ctrl.mainBreadcrumbService.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
 <div class="page-content-wrapper" ui-view></div>
+
+
+<div ng-if="$ctrl.isMainState()" class="empty-main">
+    <div class="empty-main__content">
+        <div class="empty-main__logo"></div>
+
+        <div class="empty-main__heading">
+            {{::$ctrl.localization.get('App_MainArea_DefaultScreen_BetterTop_Label')}}
+            <span class="empty-main__heading--strong">
+            {{::$ctrl.localization.get('App_MainArea_DefaultScreen_Stories_Label')}}
+            </span><br>
+            {{::$ctrl.localization.get('App_MainArea_DefaultScreen_Drive_Label')}}<br>
+            {{::$ctrl.localization.get('App_MainArea_DefaultScreen_BetterBottom_Label')}}
+            <span class="empty-main__heading--strong">
+            {{::$ctrl.localization.get('App_MainArea_DefaultScreen_Products_Label')}}</span>
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-small empty-main__button"
+                ng-click="$ctrl.openProject()">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_OpenProject_ButtonLabel')}}</button>
+
+        <p class="empty-main__resources">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_UsefulResources_Header')}}</p>
+        <a class="empty-main__hyperlink" href="https://community.blueprintsys.com/docs/DOC-1588">
+        {{::$ctrl.localization.get('App_MainArea_DefaultScreen_GetStartedWithStoryteller_Hypelink')}}</a>
+        <a class="empty-main__hyperlink" href="https://community.blueprintsys.com/docs/DOC-1593">
+        {{::$ctrl.localization.get('App_MainArea_DefaultScreen_GetStartedWithProcessEditor_Hypelink')}}</a>
+        <a class="empty-main__hyperlink" href="https://community.blueprintsys.com/groups/ask-our-blueprint-community">
+        {{::$ctrl.localization.get('App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink')}}</a>
+        <a class="empty-main__hyperlink" href="https://community.blueprintsys.com/community/enhancement-requests">
+        {{::$ctrl.localization.get('App_MainArea_DefaultScreen_SubmitEnhancementRequest_Hypelink')}}</a>
+    </div>
+</div>

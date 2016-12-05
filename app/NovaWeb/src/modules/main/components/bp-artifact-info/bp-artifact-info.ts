@@ -33,7 +33,6 @@ import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 
 export class BpArtifactInfo implements ng.IComponentOptions {
@@ -271,7 +270,7 @@ export class BpArtifactInfoController {
             });
     }
 
-    protected createToolbarActions(): void {
+    private createToolbarActions(): void {
         const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
         const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
         const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
@@ -280,35 +279,31 @@ export class BpArtifactInfoController {
             this.metadataService, this.mainBreadcrumbService);
         const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService);
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
-        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+        const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar
-        this.toolbarActions.push(
-            moveAction,
-            new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
-        );
-
-        //we don't want to show impact analysis on collection artifact page
-        if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
-            this.toolbarActions.push(openImpactAnalysisAction);
-        }
+        this.toolbarActions.push(moveAction, buttonGroup);
 
         // collapsed toolbar
-        const dropdownSeparator = new BPButtonOrDropdownSeparator();
-
-        this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
+        this.collapsedToolbarActions.push(buttonGroup);
         this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
-        
-        //we don't want to show impact analysis on collection artifact page
-        if (this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection) {
-            this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
+
+        this.createCustomToolbarActions(buttonGroup);
+
+        this.collapsedToolbarActions.push(new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions));
+    }
+
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+
+        if (buttonGroup) {
+            buttonGroup.actions.push(deleteAction);
         }
 
-        this.collapsedToolbarActions.push(
-            new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
-        );
+        this.toolbarActions.push(openImpactAnalysisAction);
+        this.additionalMenuActions.push(new BPButtonOrDropdownSeparator(), openImpactAnalysisAction);
     }
 
     protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {

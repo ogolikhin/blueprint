@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IDialogService, IDialogSettings} from "../../shared";
 import {IMetaDataService} from "./metadata";
-import {IStatefulArtifactFactory, IStatefulArtifact, IArtifactService} from "./artifact";
+import {IStatefulArtifact, IArtifactService} from "./artifact";
 import {IDispose} from "../models";
 import {Models} from "../../main/models";
 
@@ -15,7 +15,7 @@ export interface IArtifactManager extends IDispose {
     remove(id: number): IStatefulArtifact;
     removeAll(projectId?: number);
     create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
-    autosave(showConfirm?: boolean): ng.IPromise<any>;    
+    autosave(showConfirm?: boolean): ng.IPromise<any>;
 
 }
 
@@ -115,21 +115,21 @@ export class ArtifactManager implements IArtifactManager {
     public autosave(showConfirm: boolean = true): ng.IPromise<any> {
         const artifact = this.selection.getArtifact();
         if (artifact) {
-            return artifact.save(true).catch(() => {
+            return artifact.save(true).catch((error) => {
                 if (showConfirm) {
                     return this.dialogService.open(<IDialogSettings>{
-                    okButton: "App_Button_Proceed",
-                    message: "App_Save_Auto_Confirm",
-                    header: "App_DialogTitle_Alert",
-                    css: "modal-alert nova-messaging"
+                        okButton: "App_Button_Proceed",
+                        message: "App_Save_Auto_Confirm",
+                        header: "App_DialogTitle_Alert",
+                        css: "modal-alert nova-messaging"
                     }).then(() => {
                         artifact.discard();
                     });
                 } else {
-                    return this.$q.reject();
+                    return this.$q.reject(error);
                 }
             });
-            }
+        }
         return this.$q.resolve();
     }
 }

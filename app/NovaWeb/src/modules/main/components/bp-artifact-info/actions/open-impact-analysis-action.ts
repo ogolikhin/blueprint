@@ -4,53 +4,76 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService) {
+    constructor(
+        private artifact: IStatefulArtifact,
+        protected localization: ILocalizationService
+    ) {
+        super();
+
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
 
-        super(
-            () => {
-                let url = `Web/#/ImpactAnalysis/${artifact.id}`;
-                window.open(url);
-            },
-            () => {
-                if (!artifact) {
-                    return false;
-                }
+        this._tooltip = this.localization.get("App_Toolbar_Open_Impact_Analysis");
+    }
 
-                if (!artifact.predefinedType) {
-                    return false;
-                }
+    public get icon(): string {
+        return "fonticon fonticon2-impact-analysis";
+    }
 
-                if (artifact.artifactState.historical) {
-                    return false;
-                }
+    public get tooltip(): string {
+        return this._tooltip;
+    }
 
-                const invalidTypes = [
-                    ItemTypePredefined.Project,
-                    ItemTypePredefined.ArtifactCollection,
-                    ItemTypePredefined.Collections,
-                    ItemTypePredefined.CollectionFolder,
-                    ItemTypePredefined.ArtifactBaseline,
-                    ItemTypePredefined.BaselineFolder,
-                    ItemTypePredefined.Baseline,
-                    ItemTypePredefined.ArtifactReviewPackage
-                ];
+    public get disabled(): boolean {
+        return !this.canOpenImpactAnalysis();
+    }
 
-                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
-                    return false;
-                }
+    public get execute(): () => void {
+        return this.openImpactAnalysis;
+    }
 
-                if (artifact.version <= 0) {
-                    return false;
-                }
+    protected canOpenImpactAnalysis(): boolean {
+        if (!this.artifact) {
+            return false;
+        }
 
-                return true;
-            },
-            "fonticon fonticon2-impact-analysis",
-            localization.get("App_Toolbar_Open_Impact_Analysis")
-        );
+        if (!this.artifact.predefinedType) {
+            return false;
+        }
+
+        if (this.artifact.artifactState.historical) {
+            return false;
+        }
+
+        const invalidTypes = [
+            ItemTypePredefined.Project,
+            ItemTypePredefined.ArtifactCollection,
+            ItemTypePredefined.Collections,
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.Baseline,
+            ItemTypePredefined.ArtifactReviewPackage
+        ];
+
+        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
+            return false;
+        }
+
+        if (this.artifact.version <= 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected openImpactAnalysis(): void {
+        this.openImpactAnalysisInternal(this.artifact.id);
+    }
+
+    protected openImpactAnalysisInternal(id: number): void {
+        let url = `Web/#/ImpactAnalysis/${id}`;
+        window.open(url);
     }
 }

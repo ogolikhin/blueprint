@@ -43,6 +43,7 @@ export interface IBpAccordionPanelController {
     accordionGroup: IBpAccordionController;
 
     isOpen: boolean;
+    isActive: boolean;
     isActiveObservable: Rx.Observable<boolean>;
     isPinned: boolean;
     isVisible: boolean;

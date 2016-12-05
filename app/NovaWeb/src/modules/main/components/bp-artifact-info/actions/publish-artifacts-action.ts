@@ -3,7 +3,6 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IArtifact} from "../../../models/models";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
 
 export class PublishArtifactsAction extends BPButtonAction {
@@ -12,8 +11,7 @@ export class PublishArtifactsAction extends BPButtonAction {
     constructor(publishService: IUnpublishedArtifactsService,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService) {
+                loadingOverlayService: ILoadingOverlayService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }

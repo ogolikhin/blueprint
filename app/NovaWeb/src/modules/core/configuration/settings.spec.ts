@@ -1,9 +1,11 @@
 import "angular";
+import "lodash";
 import "angular-mocks";
 import {SettingsService, ISettingsService} from "./settings";
 
 describe("Settings", () => {
     let settings: ISettingsService;
+    let rootScope: ng.IRootScopeService;
 
     beforeEach(inject(($rootScope: ng.IRootScopeService) => {
         settings = new SettingsService($rootScope);
@@ -18,6 +20,7 @@ describe("Settings", () => {
                 "invalidObject": "{'string': 's', 'number': 5, 'array': ['s', 5], 'boolean': true}"
             }
         };
+        rootScope = $rootScope;
     }));
 
     describe("get", () => {
@@ -110,6 +113,40 @@ describe("Settings", () => {
             // Assert
             expect(value).toBe(defaultValue);
         });
+        it("returns specified value if between min and max", () => {
+            // Arrange
+            let minValue = 4;
+            let maxValue = 6;
+
+            // Act
+            let value = settings.getNumber("number", 1, minValue, maxValue);
+
+            // Assert
+            expect(value).toEqual(5);
+        });
+        it("returns specified value if between min and max, minValue is 0", () => {
+            // Arrange
+            let minValue = 0;
+
+            // Act
+            let value = settings.getNumber("number", 1, minValue);
+
+            // Assert
+            expect(value).toEqual(5);
+        });
+        it("returns specified value if between min and max, maxValue is 0", () => {
+            // Arrange
+            let minValue = -5;
+            let maxValue = 0;
+            rootScope["config"]["settings"]["number"] = "-3";
+
+
+            // Act
+            let value = settings.getNumber("number", 1, minValue, maxValue);
+
+            // Assert
+            expect(value).toEqual(-3);
+        });
         it("throws error if strict is specified and setting is not a valid number", () => {
             // Arrange
 
@@ -168,6 +205,26 @@ describe("Settings", () => {
 
             // Assert
             expect(action).toThrowError("Value 'NaN' for key 'invalidBoolean' is not a valid boolean");
+        });
+        it("is case insensitive for false checks", () => {
+            //Arrange
+            rootScope["config"]["settings"]["boolean"] = "FaLse";
+
+            //Act
+            let value = settings.getBoolean("boolean", undefined, true);
+
+            //Expect
+            expect(value).toBe(false);
+        });
+        it("is case insensitive for true checks", () => {
+            //Arrange
+            rootScope["config"]["settings"]["boolean"] = "TrUe";
+
+            //Act
+            let value = settings.getBoolean("boolean", undefined, true);
+
+            //Expect
+            expect(value).toBe(true);
         });
     });
 

@@ -6,7 +6,6 @@ import {SystemTask, DiagramNode, UserTask} from "./shapes/";
 
 
 export class ProcessGraphSelectionHelper {
-
     private isSingleSelection = true;
     private graph: MxGraph;
     private selectionListeners: Array<ISelectionListener> = [];
@@ -111,7 +110,7 @@ export class ProcessGraphSelectionHelper {
                 this.isProgrammaticSelectionChange = true;
                 this.graph.getSelectionModel().addCells(cells);
             }
-
+            
             let elements = this.getSelectedNodes();
             if (elements) {
                 elements = elements.filter(e => e instanceof DiagramNode);
@@ -133,12 +132,12 @@ export class ProcessGraphSelectionHelper {
     private hasInvisibleSelectedSystemTask(evt): boolean {
         //using variables as alias due to line length restrictions
         const systemTasks = evt.properties.removed.filter(e => e instanceof SystemTask);
-        
+
         if (systemTasks.length > 0) {
             const isInvisible = !systemTasks[0].callout.isVisible();
             return isInvisible;
         }
-        
+
         return false;
     }
 

@@ -2,7 +2,7 @@ import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IDiagram, IShape, IDiagramElement} from "./impl/models";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
@@ -92,7 +92,7 @@ export class BPDiagramController extends BpBaseEditor {
         this.diagram = undefined;
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         super.onArtifactReady();
         if (this.isDestroyed) {
             return;

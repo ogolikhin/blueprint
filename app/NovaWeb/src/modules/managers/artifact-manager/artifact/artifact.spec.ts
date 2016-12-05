@@ -2,15 +2,13 @@ import * as angular from "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, Enums} from "../../../main/models";
-import {IPublishService} from "./../publish.svc/publish.svc";
-import {PublishServiceMock} from "./../publish.svc/publish.svc.mock";
 import {IStatefulArtifact} from "./artifact";
-import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "./../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
+import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
+import {ArtifactServiceMock} from "./artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+import {SelectionManager} from "../../selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {
@@ -23,7 +21,9 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
 import {ApplicationError} from "../../../core/error/applicationError";
-import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {ValidationServiceMock} from "../validation/validation.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -43,7 +43,7 @@ describe("Artifact", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
     }));
@@ -63,7 +63,7 @@ describe("Artifact", () => {
         } as Models.IArtifact;
         artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
         validateSpy = spyOn(artifact, "validate").and.callFake(() => {
-                return $q.resolve();
+            return $q.resolve();
         });
         spyOn(artifact, "canBeSaved").and.callFake(() => {
             return true;
@@ -124,6 +124,43 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
+        it("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
+            // arrange
+
+            // act
+            let returnedArtifact: IStatefulArtifact;
+            artifact.save(true).then((result) => {
+                returnedArtifact = result;
+            });
+            $rootScope.$digest();
+
+            // assert
+            expect(returnedArtifact).toBeDefined();
+            expect(validateSpy).toHaveBeenCalledTimes(0);
+        }));
+
+        it("failed (invalid)", inject(($rootScope: ng.IRootScopeService) => {
+            // arrange
+            validateSpy.and.callFake(() => {
+                return $q.reject(new Error());
+            });
+            // act
+
+            let returnedArtifact: IStatefulArtifact;
+            let error: any;
+            artifact.save().then((result) => {
+                returnedArtifact = result;
+            }).catch((err) => {
+                error = err;
+            });
+            $rootScope.$digest();
+
+            // assert
+            expect(returnedArtifact).toBeUndefined();
+            expect(error).toBeDefined();
+
+        }));
+
 
         xit("error no changes", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
@@ -335,33 +372,11 @@ describe("Artifact", () => {
             // assert
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
-        
-        it("save calls validation when ignore validation flag is false", () => {
-            // arrange
-            spyOn(artifact, "saveArtifact").and.returnValue($q.when());
-            spyOn(artifact, "getCustomArtifactPromiseForSave").and.returnValue($q.when());
 
-            // act
-            artifact.save(false);
-
-            // assert
-            expect(validateSpy).toHaveBeenCalled();
-        });
-
-        it("save does not call validation when ignore validation flag is true", () => {
-            // arrange
-            spyOn(artifact, "saveArtifact").and.returnValue($q.when());
-            spyOn(artifact, "getCustomArtifactPromiseForSave").and.returnValue($q.when());
-
-            // act
-            artifact.save(true);
-            
-            // assert
-            expect(validateSpy).not.toHaveBeenCalled();
-        });
     });
 
-    describe("Autosave", () => {
+    //TODO: move to artifact-mamager.spec
+    xdescribe("Autosave", () => {
 
         it("autosave calls save with flag to ignore validation", () => {
             // arrange
@@ -375,7 +390,7 @@ describe("Artifact", () => {
             artifact.artifactState.setState(newStateValues, false);
 
             // act
-            artifact.autosave();
+            //artifact.autosave();
 
             // assert
             expect(saveSpy).toHaveBeenCalledWith(true);
@@ -426,7 +441,7 @@ describe("Artifact", () => {
             expect(error.message).toEqual("App_Save_Artifact_Error_409");
         }));
 
-        it("publish dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("publish dependents success", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                  messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
@@ -468,7 +483,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("publish dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("publish dependents error", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
@@ -517,7 +532,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("discard dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("discard dependents success", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                  messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {
@@ -559,7 +574,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("discard dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("discard dependents error", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {

@@ -1,10 +1,9 @@
-﻿<div ng-if="$ctrl.isLoading" class="app-loading">
+<div ng-if="$ctrl.isLoading" class="app-loading">
     <span class="glyphicon glyphicon-refresh spin"></span>
     <span>Loading...</span>
 </div>
 
 <div class="artifact-overview" ng-if="!$ctrl.isLoading">
-    <div class="heading">Overview</div>
     <div class="content">
         <form novalidate>
             <div class="properties" ng-class="{'collapsed': $ctrl.isSystemPropertiesCollapsed}"
@@ -38,7 +37,7 @@
                      uib-collapse="isSpecificPropertiesCollapsed"
                      ng-if="$ctrl.rowData && $ctrl.rowData.length > 0">
                     <div class="collection__bulk__actions text-right" ng-show="$ctrl.selectedVMs.length">
-                        {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon-delete-filled" ng-click="$ctrl.bulkDelete()"
+                        {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon2-delete" ng-click="$ctrl.bulkDelete()"
                                                    bp-tooltip=" {{::$ctrl.localization.get('Artifact_Collection_Delete_Selected')}}"></i>
                     </div>
                     <bp-tree-view
@@ -77,6 +76,7 @@
                     <uib-tab ng-repeat="field in $ctrl.richTextFields track by $index"
                              select="$ctrl.activeTab = $index"
                              heading="{{field.data.name}}"
+                             bp-tooltip="{{field.data.name}}" bp-tooltip-truncated="true"
                              class="uib-tab__tab {{field.templateOptions['isInvalid'] || !$ctrl.isRtfFieldValid(field) ? 'invalid' : ''}}">
                         <formly-form model="$ctrl.model" fields="[field]" ng-if="$ctrl.activeTab === $index" class="rich-text-wrapper">
                         </formly-form>

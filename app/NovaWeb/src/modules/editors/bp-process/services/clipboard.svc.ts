@@ -13,6 +13,8 @@ export interface IClipboardData {
 export interface IClipboardService {
     getData(): IClipboardData;
     setData (newVal: IClipboardData): void;
+    getDataType(): ClipboardDataType;
+    isEmpty(): boolean;
     clearData();
 }
 
@@ -20,17 +22,30 @@ export class ClipboardService implements IClipboardService {
     private _data: IClipboardData;
 
     public getData(): IClipboardData {
-        return this._data;
+        const deepClone = _.cloneDeep(this._data);
+        return deepClone;
     }
 
     public setData (newVal: IClipboardData): void {
         this.clearData();
-        this._data = newVal;
+        this._data = _.cloneDeep(newVal);
     }
+
+    public getDataType(): ClipboardDataType {
+        if (this.isEmpty()) {
+            return ClipboardDataType.Unknown;
+        }
+        return this._data.type;
+    }
+
+    public isEmpty(): boolean {
+        return !this._data || !this._data.data;
+    }    
 
     public clearData(): void {
         if (!!this._data) {
             this._data.dispose();
+            this._data = null;
         }
     } 
 }

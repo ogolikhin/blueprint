@@ -103,8 +103,8 @@ export class ProcessViewModel implements IProcessViewModel {
                     <ProcessModels.IArtifactReference>eventPayload.personaReference
                 );
             }
-        }   
-    }      
+        }
+    }
 
     public get isReadonly(): boolean {
         const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;

@@ -1,4 +1,4 @@
-import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {IArtifact, ISubArtifact} from "../../main/models/models";
 import {IDiagram, IDiagramElement} from "./impl/models";
@@ -27,7 +27,7 @@ export class StatefulDiagramArtifact extends StatefulArtifact implements IStatef
         } else {
             artifact.isCompatible = true;
         }
-        
+
         this.initializeSubArtifacts(artifact);
         super.initialize(artifact);
     }

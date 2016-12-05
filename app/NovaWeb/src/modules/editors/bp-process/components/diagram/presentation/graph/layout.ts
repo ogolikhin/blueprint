@@ -590,10 +590,13 @@ export class Layout implements ILayout {
         }
     }
 
-    public getDefaultBranchLabel(decisionId: number): string {
+    public getDefaultBranchLabel(decisionId: number, nodeType: NodeType): string {
         const nextLinks = this.viewModel.getNextShapeIds(decisionId);
         const branchIndex = nextLinks ? nextLinks.length + 1 : 1;
-        return `${this.rootScope.config.labels["ST_Decision_Modal_New_System_Task_Edge_Label"]}${branchIndex}`;
+        const conditionLabel = nodeType === NodeType.SystemDecision ?
+            this.rootScope.config.labels["ST_Condition_Label"] :
+            this.rootScope.config.labels["ST_Choice_Label"];
+        return `${conditionLabel}${branchIndex}`;
     }
 
     public updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number) {

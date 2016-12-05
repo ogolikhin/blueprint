@@ -171,7 +171,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(154648)]
-        [Description("Create a Use Case artifact, add attachment, publish it, add attachment to Precondition (subArtifact) & publish, get attachments for Precondition.  Verify only the Precondition's attachment is returned.")]
+        [Description("Create a Use Case artifact, add attachment, publish it, add attachment to Precondition (subArtifact) & publish, get attachments for Precondition.  " +
+            "Verify only the Precondition's attachment is returned.")]
         public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned()
         {
             // Setup:

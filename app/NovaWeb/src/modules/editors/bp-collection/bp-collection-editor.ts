@@ -77,13 +77,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private unsubscribe(): void {
         if (this.collectionSubscriber) {
             this.collectionSubscriber.dispose();
-            this.collectionSubscriber = null;
+            this.collectionSubscriber = undefined;
         }
     }
 
-    public $onDestroy(): void {
+    protected destroy(): void {
         this.unsubscribe();
-        super.$onDestroy();
+
+        super.destroy();
     }
 
     private subscribeOnCollectionChanges(collectionArtifact: IStatefulCollectionArtifact) {
@@ -97,7 +98,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         }
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         if (this.editor && this.artifact) {
             const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
             // if collection is deleted we do not need to load metadata and collection content
@@ -256,7 +257,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             },
             {
                 headerName: this.localization.get("Label_Options"),
-                isGroup: true,
                 width: 60,
                 colWidth: 60,
                 isCheckboxHidden: true,

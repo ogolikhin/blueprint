@@ -8,7 +8,7 @@ import {
     IVersionInfo,
     ItemTypePredefined
 } from "./models/process-models";
-import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
 import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {IProcessUpdateResult} from "./services/process.svc";
@@ -19,15 +19,16 @@ export interface IStatefulProcessArtifact extends IStatefulArtifact {
 }
 
 export class StatefulProcessArtifact extends StatefulArtifact implements IStatefulProcessArtifact, IProcess {
-
     private loadProcessPromise: ng.IPromise<IStatefulArtifact>;
     private artifactPropertyTypes: {} = null;
+
+    protected hasCustomSave: boolean = true;
+
     public shapes: IProcessShape[];
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
     public propertyValues: IHashMapOfPropertyValues;
     public requestedVersionInfo: IVersionInfo;
-    protected hasCustomSave: boolean = true;
 
     public userTaskPersonaReferenceList: IArtifactReference[];
     public systemTaskPersonaReferenceList: IArtifactReference[];
@@ -70,6 +71,11 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
+    }
+
+    protected displaySuccessPublishMessage() {
+        this.services.messageService.addInfo("Publish_Success_Message");
+        this.services.messageService.addWarning("ST_ProcessType_RegenerateUS_Warning");
     }
 
     // Returns promises for operations that are needed to refresh this process artifact

@@ -12,7 +12,7 @@ import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-mana
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulArtifactServices} from "../../managers/artifact-manager/services";
-import {StatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {ISubArtifact} from "../../main/models/models";
 

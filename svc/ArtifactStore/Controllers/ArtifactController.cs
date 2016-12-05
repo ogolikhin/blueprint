@@ -46,8 +46,7 @@ namespace ArtifactStore.Controllers
         /// Returns child artifacts of the project with the specified id.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -67,8 +66,7 @@ namespace ArtifactStore.Controllers
         /// Returns child artifacts of the artifact with the specified project and artifact ids.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
         /// <response code="404">Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -88,8 +86,7 @@ namespace ArtifactStore.Controllers
         /// Returns a constructed tree node representation of a given artifact's subartifacts.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
@@ -116,8 +113,7 @@ namespace ArtifactStore.Controllers
         /// Returns the tree of artifacts expended to the artifact with the specified project and artifact ids.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
         /// <response code="404">Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -140,8 +136,7 @@ namespace ArtifactStore.Controllers
         /// Returns the artifact navigation path, basic information of the artifact ancestors including the project.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
         /// <response code="404">Not found. A artifact for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>

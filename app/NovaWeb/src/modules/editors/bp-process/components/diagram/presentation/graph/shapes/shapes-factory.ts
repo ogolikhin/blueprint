@@ -190,7 +190,8 @@ export class ShapesFactory {
         // see https://trello.com/c/k6UpxuGi
 
         const nameCounter = this._idGenerator.getId(ProcessShapeType.UserTask);
-        const tempUserTaskName = this.NEW_USER_TASK_LABEL + nameCounter;
+        
+        const tempUserTaskName = this.NEW_USER_TASK_LABEL + " " + nameCounter;
 
         let defaultUserPersonaReference = this.NEW_USER_TASK_PERSONAREFERENCE;
 
@@ -212,7 +213,7 @@ export class ShapesFactory {
         // see https://trello.com/c/k6UpxuGi
 
         const nameCounter = this._idGenerator.getId(ProcessShapeType.SystemTask);
-        const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + nameCounter;
+        const tempSystemTaskName = this.NEW_SYSTEM_TASK_LABEL + " " + nameCounter;
 
         let defaultSystemPersonaReference = this.NEW_SYSTEM_TASK_PERSONAREFERENCE;
 
@@ -223,7 +224,7 @@ export class ShapesFactory {
         const shapeModel = new SystemTaskShapeModel(
             id, tempSystemTaskName, projectId, "PROS", parentId, ItemTypePredefined.PROShape, null, defaultSystemPersonaReference
         );
-
+       
         shapeModel.propertyValues = this.createPropertyValuesForSystemTaskShape([], -1, null, "", "", x, y, -1, -1, "", null);
 
         return shapeModel;
@@ -278,6 +279,7 @@ export class ShapesFactory {
         propertyValues[this.Height.key] = this.createHeightValue(height);
         propertyValues[this.ClientType.key] = this.createClientTypeValue(ProcessShapeType.UserTask);
         propertyValues[this.Objective.key] = this.createObjectiveValue(objective);
+        propertyValues[this.StoryLinks.key] = this.createStoryLinksValue(null);
 
         return propertyValues;
     }

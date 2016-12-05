@@ -1,4 +1,4 @@
-import * as angular from "angular";
+﻿import * as angular from "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "./bp-glossary";
@@ -6,6 +6,7 @@ import "./bp-artifact";
 import "./bp-diagram";
 import "./bp-process";
 import "./bp-collection";
+import "./unpublished";
 import {ArtifactRoutes} from "./editors.router";
 import {
     IPropertyDescriptor,
@@ -20,7 +21,8 @@ angular.module("bp.editors", [
         "bp.editors.details",
         "bp.editors.diagram",
         "bp.editors.process",
-        "bp.editors.collection"
+        "bp.editors.collection",
+        "bp.editors.unpublished"
     ])
     .service("propertyDescriptorBuilder", PropertyDescriptorBuilder)
     .config(ArtifactRoutes);

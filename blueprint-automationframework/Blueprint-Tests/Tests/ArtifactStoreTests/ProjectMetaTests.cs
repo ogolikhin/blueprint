@@ -88,14 +88,14 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145879)]
-        [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId but no token and verifies it returns 400 Bad Request.")]
-        public void GetArtifactTypes_NoToken_BadRequest()
+        [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a valid projectId but no token and verifies it returns 401 Unauthorized.")]
+        public void GetArtifactTypes_NoToken_401Unauthorized()
         {
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetCustomArtifactTypes(_project);
-            }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 400 Bad Request when no token header is provided.");
+            }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 401 Unauthorized when no token header is provided.");
 
             // Verify:
             Assert.AreEqual("{\"message\":\"Token is missing or malformed.\"}", ex.RestResponse.Content);

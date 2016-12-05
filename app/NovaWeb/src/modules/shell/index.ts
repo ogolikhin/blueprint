@@ -1,5 +1,3 @@
-import "angular-ui-router";
-import "angular-ui-bootstrap";
 import "rx/dist/rx.lite.js";
 import "../core";
 import {AppComponent} from "./app.component";
@@ -15,6 +13,7 @@ import {
     IRelationshipDetailsService
 } from "./bp-utility-panel/bp-relationships-panel/bp-artifact-relationship-item/relationship-details.svc";
 import {BPUtilityPanel} from "./bp-utility-panel/bp-utility-panel";
+import {UtilityPanelService} from "./bp-utility-panel/utility-panel.svc";
 import {BPHistoryPanel} from "./bp-utility-panel/bp-history-panel/bp-history-panel";
 import {BPPropertiesPanel} from "./bp-utility-panel/bp-properties-panel/bp-properties-panel";
 import {BPRelationshipsPanel} from "./bp-utility-panel/bp-relationships-panel/bp-relationships-panel";
@@ -39,12 +38,8 @@ export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService
 export {IServerLogger} from "./log/server-logger.svc";
 export {ILicenseService, LicenseService} from "./license/license.svc";
 
-angular.module("app.shell",
-    [
+angular.module("app.shell", [
         "bp.core",
-        "ui.router",
-        "ui.bootstrap",
-        "ngSanitize",
         "bp.filters"
     ])
     .component("app", new AppComponent())
@@ -59,6 +54,7 @@ angular.module("app.shell",
     .service("mentionService", MentionService)
     .service("usersAndGroupsService", UsersAndGroupsService)
     .service("licenseService", LicenseService)
+    .service("utilityPanelService", UtilityPanelService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpPropertiesPanel", new BPPropertiesPanel())

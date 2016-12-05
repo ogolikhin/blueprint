@@ -1,7 +1,5 @@
-import * as angular from "angular";
 import {IArtifactManager, ArtifactManager} from "./artifact-manager";
-import {PublishService, IPublishService} from "./publish.svc";
-import {ISelectionManager,  ISelection} from "../selection-manager";
+import {ISelectionManager, ISelection} from "../selection-manager";
 import {StatefulArtifactFactory} from "./artifact/artifact.factory";
 import {IStatefulItem} from "./item";
 import {
@@ -9,9 +7,9 @@ import {
     IArtifactService,
     IStatefulArtifactFactory,
     StatefulArtifact,
-    StatefulProcessArtifact
+    StatefulProcessArtifact,
+    IStatefulArtifact
 } from "./artifact";
-import {IStatefulArtifact} from "./artifact";
 import {StatefulSubArtifact, ISubArtifactCollection, IStatefulSubArtifact} from "./sub-artifact";
 import {IDocumentRefs, DocumentRefs} from "./docrefs";
 import {IChangeSet, IItemChangeSet, IChangeCollector, ChangeTypeEnum, ChangeSetCollector} from "./changeset";
@@ -21,7 +19,6 @@ import {
     ArtifactRelationshipsService,
     IArtifactRelationshipsService
 } from "./relationships";
-
 import {
     ArtifactAttachmentsService,
     IArtifactAttachment,
@@ -30,7 +27,6 @@ import {
     IArtifactAttachmentsResultSet,
     IArtifactAttachmentsService
 } from "./attachments";
-
 import {IMetaData, MetaDataService, IMetaDataService} from "./metadata";
 import {ValidationService, IValidationService} from "./validation/validation.svc";
 
@@ -44,7 +40,6 @@ angular.module("bp.managers.artifact", [])
     .service("metadataService", MetaDataService)
     .service("artifactRelationships", ArtifactRelationshipsService)
     .service("statefulArtifactFactory", StatefulArtifactFactory)
-    .service("publishService", PublishService)
     .service("validationService", ValidationService);
 
 
@@ -80,8 +75,6 @@ export {
     ArtifactRelationshipsService,
     IArtifactRelationshipsService,
     StatefulProcessArtifact,
-    PublishService,
-    IPublishService,
     ValidationService,
     IValidationService
 };

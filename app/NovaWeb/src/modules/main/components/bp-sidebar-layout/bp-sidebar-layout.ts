@@ -46,15 +46,6 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
         this.isRightToggled = false;
     }
 
-    public $onInit() {
-//fixme: empty blocks should be removed
-    }
-
-    public $onChanged(obj: any) {
-//fixme: empty blocks should be removed
-
-    }
-
     public togglePanel: Function;
 
     public toggleLeft(evt: ng.IAngularEvent) {
@@ -64,8 +55,7 @@ export class BpSidebarLayoutCtrl implements ISidebarController {
 
     public toggleRight(evt: ng.IAngularEvent) {
         evt.preventDefault();
+
         this.togglePanel({id: Enums.ILayoutPanel.Right});
     }
-
-
 }

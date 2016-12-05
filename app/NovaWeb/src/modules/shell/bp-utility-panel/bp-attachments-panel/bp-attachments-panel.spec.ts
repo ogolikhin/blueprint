@@ -18,12 +18,13 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
 import {IArtifactAttachmentsService} from "../../../managers/artifact-manager/attachments";
-import {StatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {LicenseServiceMock} from "../../license/license.svc.mock";
 import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SettingsServiceMock} from "../../../core/configuration/settings.mock";
+import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 
 describe("Component BP Attachments Panel", () => {
 
@@ -33,6 +34,7 @@ describe("Component BP Attachments Panel", () => {
     let bpAccordionPanelController = {
         isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
+    let onChangesObj: IOnPanelChangesObject;
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -55,10 +57,20 @@ describe("Component BP Attachments Panel", () => {
         artifactManager.selection = selectionManager;
         componentTest = new ComponentTest<BPAttachmentsPanelController>(template, "bp-attachments-panel");
         vm = componentTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
+        onChangesObj = {
+            context: {
+                currentValue: {
+                    panelType: PanelType.Files
+                },
+                previousValue: undefined,
+                isFirstChange: () => { return true; }
+            }
+        };
     }));
 
     afterEach( () => {
-        vm = null;
+        vm = undefined;
+        onChangesObj = undefined;
     });
 
     it("should be visible by default", () => {
@@ -68,21 +80,19 @@ describe("Component BP Attachments Panel", () => {
 
     it("should load data and display it for a selected artifact",
         inject(($rootScope: ng.IRootScopeService,
-            selectionManager: SelectionManagerMock,
             $q: ng.IQService,
             artifactAttachments: IArtifactAttachmentsService) => {
 
             //Arrange
             const services = new StatefulArtifactServices($q, null, null, null, null, null, null, artifactAttachments, null, null, null, null, null, null);
             const artifact = new StatefulArtifact({id: 22, name: "Artifact", prefix: "PRO"}, services);
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            selectionManager.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
-            const selectedArtifact = selectionManager.getArtifact();
 
             //Assert
-            expect(selectedArtifact).toBeDefined();
             expect(vm.attachmentsList).toBeDefined();
             expect(vm.attachmentsList.length).toBe(7);
             expect(vm.docRefList.length).toBe(3);
@@ -93,7 +103,6 @@ describe("Component BP Attachments Panel", () => {
 
     it("addDocRef should add new document reference to the list",
         inject(($rootScope: ng.IRootScopeService,
-            selectionManager: SelectionManagerMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
             artifactAttachments: IArtifactAttachmentsService,
@@ -116,9 +125,10 @@ describe("Component BP Attachments Panel", () => {
                 }]);
                 return deferred.promise;
             });
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            selectionManager.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             vm.addDocRef();
             $timeout.flush();
@@ -131,7 +141,6 @@ describe("Component BP Attachments Panel", () => {
 
     it("the list should be empty when service throwing exception",
         inject(($rootScope: ng.IRootScopeService,
-            selectionManager: SelectionManagerMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
             artifactAttachments: IArtifactAttachmentsService) => {
@@ -147,9 +156,10 @@ describe("Component BP Attachments Panel", () => {
                 });
                 return deferred.promise;
             });
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            selectionManager.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             $timeout.flush();
 
@@ -159,7 +169,6 @@ describe("Component BP Attachments Panel", () => {
 
         it("Delete Attachment should remove attachment from list",
         inject(($rootScope: ng.IRootScopeService,
-            selectionManager: SelectionManagerMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
             artifactAttachments: IArtifactAttachmentsService,
@@ -179,9 +188,10 @@ describe("Component BP Attachments Panel", () => {
                 deferred.resolve(true);
                 return deferred.promise;
             });
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            selectionManager.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             const attachmentCount = vm.attachmentsList.length;
             vm.deleteAttachment(vm.attachmentsList[0]);
@@ -193,7 +203,6 @@ describe("Component BP Attachments Panel", () => {
 
         it("Delete DocRef should remove document from list",
         inject(($rootScope: ng.IRootScopeService,
-            selectionManager: SelectionManagerMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
             artifactAttachments: IArtifactAttachmentsService,
@@ -213,9 +222,10 @@ describe("Component BP Attachments Panel", () => {
                 deferred.resolve(true);
                 return deferred.promise;
             });
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            selectionManager.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             const docRefCount = vm.docRefList.length;
             vm.deleteDocRef(vm.docRefList[0]);
@@ -227,7 +237,6 @@ describe("Component BP Attachments Panel", () => {
 
         it("should add new attachment to the list",
         inject(($rootScope: ng.IRootScopeService,
-            selectionManager: SelectionManagerMock,
             $q: ng.IQService,
             $timeout: ng.ITimeoutService,
             artifactAttachments: IArtifactAttachmentsService,
@@ -248,9 +257,10 @@ describe("Component BP Attachments Panel", () => {
                 deferred.resolve([files[0]]);
                 return deferred.promise;
             });
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            selectionManager.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
             vm.onFileSelect(files);
             $timeout.flush();

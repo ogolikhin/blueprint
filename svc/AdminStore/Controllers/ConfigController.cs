@@ -47,8 +47,7 @@ namespace AdminStore.Controllers
         /// where the key is the setting name and the value is a string value.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("settings"), SessionRequired]
@@ -83,8 +82,6 @@ namespace AdminStore.Controllers
         /// and a labels property, containing all application labels.
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Bad Request. The session token is missing or malformed.</response>
-        /// <response code="401">Unauthorized. The session token is invalid.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("config.js"), NoSessionRequired]

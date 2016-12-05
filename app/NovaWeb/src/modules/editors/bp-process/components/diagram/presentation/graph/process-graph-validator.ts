@@ -111,10 +111,17 @@ export class ProcessValidator {
                 linkOrderIndexHashMap[linkOrderIndexKey] = link;
             } else {
                 let message = rootScope["config"].labels["ST_Duplicate_Link_OrderIndex"];
-                message = message.replace("{0}", shapesMap[link.sourceId.toString()][0].name);
-                message = message.replace("{1}", link.sourceId);
-                message = message.replace("{2}", link.label);
-                message = message.replace("{3}", linkOrderIndexHashMap[linkOrderIndexKey].label);
+                const sourceShape = shapesMap[link.sourceId.toString()][0];
+                const sourceType = sourceShape.propertyValues["clientType"].value;
+                if (sourceType === ProcessShapeType.SystemDecision) {
+                    message = message.replace("{0}", rootScope["config"].labels["ST_Condition_Label"]);
+                } else {
+                    message = message.replace("{0}", rootScope["config"].labels["ST_Choice_Label"]);
+                }
+                message = message.replace("{1}", shapesMap[link.sourceId.toString()][0].name);
+                message = message.replace("{2}", link.sourceId);
+                message = message.replace("{3}", link.label);
+                message = message.replace("{4}", linkOrderIndexHashMap[linkOrderIndexKey].label);
                 this.addToValidationErrors(message, validationErrors);
                 return false;
             }

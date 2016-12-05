@@ -2,7 +2,7 @@
 import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../util/component.test";
-import {BPUtilityPanelController, PanelType} from "./bp-utility-panel";
+import {BPUtilityPanelController} from "./bp-utility-panel";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactHistoryMock} from "./bp-history-panel/artifact-history.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";

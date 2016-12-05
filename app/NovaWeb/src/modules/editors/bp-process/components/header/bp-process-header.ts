@@ -1,6 +1,8 @@
+import {IBPAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-action";
+import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -8,13 +10,12 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
 import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
+import {GenerateUserStoriesAction, ToggleProcessTypeAction, CopyAction} from "./actions";
 import {StatefulProcessArtifact} from "../../process-artifact";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -24,6 +25,7 @@ export class BpProcessHeader implements ng.IComponentOptions {
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
     public breadcrumbLinks: IBreadcrumbLink[];
+    public isToolbarCollapsed: boolean = true;
 
     static $inject: [string] = [
         "$q",
@@ -42,7 +44,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "metadataService",
         "userStoryService",
         "mainbreadcrumbService",
-        "selectionManager",
         "analytics"
     ];
 
@@ -62,7 +63,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 private userStoryService: IUserStoryService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                selectionManager: ISelectionManager,
                 analytics: IAnalyticsProvider) {
         super(
             $q,
@@ -78,7 +78,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            selectionManager,
             analytics
         );
 
@@ -105,10 +104,28 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onDestroy() {
         if (this.toolbarActions) {
-            const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
-            
+            const toggleAction = 
+                <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
             if (toggleAction) {
                 toggleAction.dispose();
+            }
+
+            const copyAction = 
+                <CopyAction>_.find(this.toolbarActions, action => action instanceof CopyAction);
+            if (copyAction) {
+                copyAction.dispose();
+            }
+
+            const generateUserStoriesAction = 
+                <GenerateUserStoriesAction>_.find(this.toolbarActions, action => action instanceof GenerateUserStoriesAction);
+            if (generateUserStoriesAction) {
+                generateUserStoriesAction.dispose();
+            }
+
+            const openProcessImpactAnalysisAction = 
+                <OpenProcessImpactAnalysisAction>_.find(this.toolbarActions, action => action instanceof OpenProcessImpactAnalysisAction);
+            if (openProcessImpactAnalysisAction) {
+                openProcessImpactAnalysisAction.dispose();
             }
         }
 
@@ -125,43 +142,52 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        super.updateToolbarOptions(artifact);
-
-        const processArtifact = artifact as StatefulProcessArtifact;
+    protected createCustomToolbarActions(): void {
+        const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
         }
 
+        const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
+            processArtifact,
+            this.localization,
+            this.communicationManager.processDiagramCommunication);
+        const generateUserStoriesAction = new GenerateUserStoriesAction(
+            processArtifact,
+            this.userStoryService,
+            this.messageService,
+            this.localization,
+            this.dialogService,
+            this.loadingOverlayService,
+            this.communicationManager.processDiagramCommunication);
+        const copyAction = new CopyAction(
+            processArtifact,
+            this.communicationManager,
+            this.localization);
+        const toggleProcessTypeAction = new ToggleProcessTypeAction(
+            processArtifact,
+            this.communicationManager.toolbarCommunicationManager,
+            this.localization);
+
+        // expanded toolbar
         this.toolbarActions.push(
-            new GenerateUserStoriesAction(
-                processArtifact,
-                this.userStoryService,
-                this.artifactManager.selection,
-                this.messageService,
-                this.localization,
-                this.dialogService,
-                this.loadingOverlayService,
-                this.communicationManager.processDiagramCommunication
-            ),
-            new ToggleProcessTypeAction(
-                processArtifact,
-                this.communicationManager.toolbarCommunicationManager,
-                this.localization
-            )
+            openProcessImpactAnalysisAction, 
+            generateUserStoriesAction, 
+            copyAction, 
+            toggleProcessTypeAction
         );
-    }
-
-    // Temporary shortcut to communicate "Copy" button click
-    // We have a US to implement it properly
-    private fireCustomEvent(element, eventName: string) {
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent(eventName, true, true, null);
-        element.dispatchEvent(evt);
-    }
-
-    public copy() {
-        this.fireCustomEvent(window, "PROCESS_COPY_EVENT");
+        
+        // collapsed toolbar
+        const dropdownSeparator = new BPButtonOrDropdownSeparator();
+        this.additionalMenuActions.push(
+            dropdownSeparator,
+            openProcessImpactAnalysisAction,
+            dropdownSeparator,
+            ...this.getNestedDropdownActions(generateUserStoriesAction),
+            dropdownSeparator,
+            copyAction
+        );
+        this.collapsedToolbarActions.unshift(toggleProcessTypeAction);
     }
 }

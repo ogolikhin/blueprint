@@ -43,6 +43,7 @@ export interface IBpAccordionPanelController {
     accordionGroup: IBpAccordionController;
 
     isOpen: boolean;
+    isActive: boolean;
     isActiveObservable: Rx.Observable<boolean>;
     isPinned: boolean;
     isVisible: boolean;
@@ -114,12 +115,12 @@ export class BpAccordionCtrl implements IBpAccordionController {
         } else {
             this.recalculateLayout();
         }
-    }
+    };
 
     public showPanel = (panel: IBpAccordionPanelController) => {
         panel.isVisible = true;
         this.recalculateLayout();
-    }
+    };
 
     private openNextAvailablePanel(currentPanel: IBpAccordionPanelController): void {
         let curLoc = this.panels.indexOf(currentPanel);
@@ -149,7 +150,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             .filter((p: IBpAccordionPanelController) => p.isPinned);
         this.openPanels.push(panel);
         this.recalculateLayout();
-    }
+    };
 
     public cleanUpOpenPanels = () => {
         const numPinnedPanels = this.openPanels.filter((p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;

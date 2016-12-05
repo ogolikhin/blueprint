@@ -1,4 +1,4 @@
-import {IDialogSettings, BaseDialogController, IDialogData} from "../../../../shared";
+import {IDialogSettings, BaseDialogController} from "../../../../shared";
 import {Models} from "../../../../main/models";
 
 export interface IConfirmPublishController {
@@ -6,7 +6,7 @@ export interface IConfirmPublishController {
     hasError: boolean;
 }
 
-export interface IConfirmPublishDialogData extends IDialogData {
+export interface IConfirmPublishDialogData {
     artifactList: Models.IArtifact[];
     projectList: Models.IItem[];
     selectedProject?: number;

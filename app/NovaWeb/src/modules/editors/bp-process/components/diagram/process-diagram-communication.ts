@@ -6,7 +6,9 @@ export enum ProcessEvents {
     NavigateToAssociatedArtifact,
     ArtifactUpdate,
     UserStoriesGenerated,
-    PersonaReferenceUpdated
+    PersonaReferenceUpdated,
+    OpenUtilityPanel,
+    SelectionChanged
 }
 
 export interface IProcessDiagramCommunication {
@@ -28,6 +30,8 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     private setArtifactUpdateSubject: ICommunicationWrapper;
     private setUserStoriesGeneratedSubject: ICommunicationWrapper;
     private setPersonaReferenceUpdatedSubject: ICommunicationWrapper;
+    private setOpenUtilityPanelSubject: ICommunicationWrapper;
+    private setSelectionChangedSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
@@ -37,6 +41,8 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setArtifactUpdateSubject = new CommunicationWrapper();
         this.setUserStoriesGeneratedSubject = new CommunicationWrapper();
         this.setPersonaReferenceUpdatedSubject = new CommunicationWrapper();
+        this.setOpenUtilityPanelSubject = new CommunicationWrapper();
+        this.setSelectionChangedSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -72,14 +78,27 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     result = this.setArtifactUpdateSubject.subscribe(observer);
                 }
                 break;
+
             case ProcessEvents.UserStoriesGenerated: {
                     result = this.setUserStoriesGeneratedSubject.subscribe(observer);
                 }
                 break;
+
             case ProcessEvents.PersonaReferenceUpdated: {
                     result = this.setPersonaReferenceUpdatedSubject.subscribe(observer);
                 }
                 break;
+
+            case ProcessEvents.OpenUtilityPanel: {
+                    result = this.setOpenUtilityPanelSubject.subscribe(observer);
+                }
+                break;
+
+            case ProcessEvents.SelectionChanged: {
+                    result = this.setSelectionChangedSubject.subscribe(observer);
+                }
+                break;
+
             default:
                 result = undefined;
                 break;
@@ -109,13 +128,24 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                    this.setArtifactUpdateSubject.disposeObserver(observer);
                 }
                 break;
-            
+
             case ProcessEvents.UserStoriesGenerated: {
                     this.setUserStoriesGeneratedSubject.disposeObserver(observer);
                 }
                 break;
+
             case ProcessEvents.PersonaReferenceUpdated: {
                     this.setPersonaReferenceUpdatedSubject.disposeObserver(observer);
+                }
+                break;
+
+            case ProcessEvents.OpenUtilityPanel: {
+                    this.setOpenUtilityPanelSubject.disposeObserver(observer);
+                }
+                break;
+
+            case ProcessEvents.SelectionChanged: {
+                    this.setSelectionChangedSubject.disposeObserver(observer);
                 }
                 break;
         }
@@ -124,7 +154,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     public action(event: ProcessEvents, eventPayload?: any) {
         switch (event) {
             case ProcessEvents.DeleteShape: {
-                    this.setClickDeleteSubject.notify(true);
+                    this.setClickDeleteSubject.notify(eventPayload);
                 }
                 break;
 
@@ -151,10 +181,21 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     this.setUserStoriesGeneratedSubject.notify(eventPayload);
                 }
                 break;
+
             case ProcessEvents.PersonaReferenceUpdated: {
                     this.setPersonaReferenceUpdatedSubject.notify(eventPayload);
                 }
                 break;
+
+            case ProcessEvents.OpenUtilityPanel: {
+                    this.setOpenUtilityPanelSubject.notify({});
+                }
+                break;
+
+            case ProcessEvents.SelectionChanged: {
+                this.setSelectionChangedSubject.notify(eventPayload);
+            }
+            break;
         }
     }
 
@@ -165,5 +206,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setArtifactUpdateSubject.dispose();
         this.setUserStoriesGeneratedSubject.dispose();
         this.setPersonaReferenceUpdatedSubject.dispose();
+        this.setSelectionChangedSubject.dispose();
     }
 }

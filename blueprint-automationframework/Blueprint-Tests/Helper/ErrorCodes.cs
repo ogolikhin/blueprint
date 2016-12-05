@@ -87,6 +87,12 @@ namespace Helper
         public const int UnexpectedConcurrencyError = 127;
         public const int ExceedsLimit = 128;
 
+        public const int CannotDiscard = 129;
+
+        public const int NameCannotBeEmpty = 130;
+
+        //--------------------------------
+
         public const int Ok = 200;
 
         public const int NotFound = 404;

@@ -1,5 +1,5 @@
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
-import {StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
 import {ISubArtifact} from "../../main/models/models";
 import {IDiagramElement, IShape} from "./impl/models";

@@ -2,7 +2,7 @@ import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph, ISelectionListener, IUserStory} from "./presentation/graph/models/";
-import {IArtifactManager} from "./../../../bp-base-editor";
+import {IArtifactManager} from "./../../../../managers/artifact-manager";
 import {IStatefulProcessSubArtifact} from "./../../process-subartifact";
 import {IStatefulProcessArtifact} from "../../process-artifact";
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";

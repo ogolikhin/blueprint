@@ -18,7 +18,6 @@ App_Button_Move,"Move"
 App_Button_ConfirmCloseProject,"Close Project"
 App_Button_Proceed,"Proceed"
 
-
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
 App_LoadingMsg,"Loading ..."

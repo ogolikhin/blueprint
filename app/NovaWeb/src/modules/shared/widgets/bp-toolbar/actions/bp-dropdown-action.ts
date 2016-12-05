@@ -1,15 +1,23 @@
 import {IBPAction} from "./bp-action";
 
 export interface IBPDropdownItemAction {
+    icon: string;
     label: string;
     execute: () => void;
     disabled?: boolean;
 }
 
 export class BPDropdownItemAction implements IBPDropdownItemAction {
-    constructor(private _label: string,
-                private _execute: () => void,
-                private _canExecute: () => boolean) {
+    constructor(
+        private _label: string,
+        private _execute: () => void,
+        private _canExecute: () => boolean,
+        private _icon?: string
+    ) {
+    }
+
+    public get icon(): string {
+        return this._icon;
     }
 
     public get label(): string {
@@ -41,7 +49,7 @@ export class BPDropdownAction implements IBPDropdownAction {
                 private _tooltip?: string,
                 private _label?: string,
                 ...actions: IBPDropdownItemAction[]) {
-        this._actions = actions;
+        this._actions = actions || [];
     }
 
     public get type(): string {

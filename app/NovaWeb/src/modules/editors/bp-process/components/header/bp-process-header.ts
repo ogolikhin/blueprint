@@ -1,3 +1,5 @@
+import {IBPAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-action";
+import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IDialogService, BPMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
@@ -103,14 +105,28 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onDestroy() {
         if (this.toolbarActions) {
-            const toggleAction = <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
+            const toggleAction = 
+                <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
             if (toggleAction) {
                 toggleAction.dispose();
             }
 
-            const copyAction = <CopyAction>_.find(this.toolbarActions, action => action instanceof CopyAction);
+            const copyAction = 
+                <CopyAction>_.find(this.toolbarActions, action => action instanceof CopyAction);
             if (copyAction) {
                 copyAction.dispose();
+            }
+
+            const generateUserStoriesAction = 
+                <GenerateUserStoriesAction>_.find(this.toolbarActions, action => action instanceof GenerateUserStoriesAction);
+            if (generateUserStoriesAction) {
+                generateUserStoriesAction.dispose();
+            }
+
+            const openProcessImpactAnalysisAction = 
+                <OpenProcessImpactAnalysisAction>_.find(this.toolbarActions, action => action instanceof OpenProcessImpactAnalysisAction);
+            if (openProcessImpactAnalysisAction) {
+                openProcessImpactAnalysisAction.dispose();
             }
         }
 
@@ -127,19 +143,20 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        super.updateToolbarOptions(artifact);
-
-        const processArtifact = artifact as StatefulProcessArtifact;
+    protected createCustomToolbarActions(): void {
+        const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
         }
 
+        const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
+            processArtifact,
+            this.localization,
+            this.communicationManager.processDiagramCommunication);
         const generateUserStoriesAction = new GenerateUserStoriesAction(
             processArtifact,
             this.userStoryService,
-            this.artifactManager.selection,
             this.messageService,
             this.localization,
             this.dialogService,
@@ -155,17 +172,23 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.localization);
 
         // expanded toolbar
-        this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
+        this.toolbarActions.push(
+            openProcessImpactAnalysisAction, 
+            generateUserStoriesAction, 
+            copyAction, 
+            toggleProcessTypeAction
+        );
+        
         // collapsed toolbar
-        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
-            if (this.collapsedToolbarActions[i].type === "menu") {
-                const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                buttonDropdown.actions.push(dropdownSeparator, ...this.getNestedDropdownActions(generateUserStoriesAction));
-                buttonDropdown.actions.push(dropdownSeparator, copyAction);
-            }
-        }
-
+        const dropdownSeparator = new BPButtonOrDropdownSeparator();
+        this.additionalMenuActions.push(
+            dropdownSeparator,
+            openProcessImpactAnalysisAction,
+            dropdownSeparator,
+            ...this.getNestedDropdownActions(generateUserStoriesAction),
+            dropdownSeparator,
+            copyAction
+        );
         this.collapsedToolbarActions.unshift(toggleProcessTypeAction);
     }
 }

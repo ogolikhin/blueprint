@@ -8,7 +8,7 @@ import {NodeType} from "../../diagram/presentation/graph/models/process-graph-co
 
 export class CopyAction extends BPButtonAction {
     private subscribers: Rx.IDisposable[];
-    private canCopy: boolean;
+    private hasValidSelection: boolean;
     private selectionChangedHandle: string;
 
     constructor(
@@ -30,7 +30,7 @@ export class CopyAction extends BPButtonAction {
             throw new Error("Localization service is not provided or is null");
         }
 
-        this.canCopy = false;
+        this.hasValidSelection = false;
         this.selectionChangedHandle = communicationManager.processDiagramCommunication.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
     }
 
@@ -43,7 +43,7 @@ export class CopyAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.canCopy;
+        return this.process.artifactState.historical || !this.hasValidSelection;
     }
 
     public get execute(): () => void {
@@ -51,11 +51,7 @@ export class CopyAction extends BPButtonAction {
     }
 
     public dispose(): void {
-        if (this.communicationManager) {
-            if (this.communicationManager.processDiagramCommunication) {
-                this.communicationManager.processDiagramCommunication.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
-            }
-        }
+        this.communicationManager.processDiagramCommunication.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
     }
 
     private copy(): void {
@@ -67,6 +63,6 @@ export class CopyAction extends BPButtonAction {
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {
-        this.canCopy = elements && elements.length > 0 && _.every(elements, (element: IDiagramNode) => element.getNodeType() === NodeType.UserTask);
+        this.hasValidSelection = elements && elements.length > 0 && _.every(elements, (element: IDiagramNode) => element.getNodeType() === NodeType.UserTask);
     };
 }

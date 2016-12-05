@@ -5,6 +5,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {SourcesAndDestinations, IUserStory, IArtifactReference} from "../../../../../models/process-models";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -123,6 +124,8 @@ export interface IProcessGraph {
     setSystemTasksVisible(value: boolean);
     clearSelection();
     onUserStoriesGenerated(userStories: IUserStory[]): void;
+
+    processDiagramCommunication: IProcessDiagramCommunication;
 }
 
 export interface ILayout {
@@ -143,7 +146,7 @@ export interface ILayout {
     viewModel: IProcessViewModel;
     getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
     updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);
-    getDefaultBranchLabel(decisionId: number): string;
+    getDefaultBranchLabel(decisionId: number, nodeType: NodeType): string;
     getTempShapeId(): number;
     setTempShapeId(id: number);
 }

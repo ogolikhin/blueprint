@@ -20,7 +20,7 @@ import {IDialogSettings, IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager";
-import {ProcessEvents} from "../../process-diagram-communication";
+import {ProcessEvents, IProcessDiagramCommunication} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localizationService";
@@ -43,6 +43,10 @@ export class ProcessGraph implements IProcessGraph {
     public globalScope: IScopeContext;
     public dragDropHandler: IDragDropHandler;
 
+    public get processDiagramCommunication(): IProcessDiagramCommunication {
+        return this.viewModel.communicationManager.processDiagramCommunication;
+    }
+    
     public static get MinConditions(): number {
         return 2;
     }

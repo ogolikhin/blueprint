@@ -83,14 +83,10 @@ export class NavigationService implements INavigationService {
         params.redirect = params.redirect || false;
         params.enableTracking = params.enableTracking || false;
 
-        //id: number, redirect: boolean = false, enableTracking: boolean = false
-        const deferred: ng.IDeferred<any> = this.$q.defer();
         const currentState = this.getNavigationState();
-        const validationError: Error = this.validateArtifactNavigation(params, currentState);
 
-        if (!!validationError) {
-            deferred.reject(validationError);
-            return deferred.promise;
+        if (this.isTheSameRoute(params, currentState)) {
+            return this.$q.resolve();
         }
 
         const stateOptions: ng.ui.IStateOptions = {
@@ -205,13 +201,10 @@ export class NavigationService implements INavigationService {
         return this.$state.go(state, parameters, options);
     }
 
-    private validateArtifactNavigation(params: INavigationParams, state: INavigationState): Error {
-        if (params.id === state.id && params.version === state.version &&
-            (!state.path || state.path.length === 0)) {
-            return new Error(`Unable to navigate to artifact, navigating from the same artifact.`);
-        }
-
-        return undefined;
+    private isTheSameRoute(params: INavigationParams, state: INavigationState): boolean {
+        return params.id === state.id && 
+               params.version === state.version &&
+               (!state.path || state.path.length === 0);
     }
 
     private validateBackNavigation(path: INavigationPathItem[], pathIndex: number): Error {

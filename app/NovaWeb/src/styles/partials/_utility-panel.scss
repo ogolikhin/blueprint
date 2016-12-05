@@ -57,14 +57,14 @@ bp-utility-panel {
         overflow: auto;
     }
 
-    .empty-state {
-        font-size: $font-size-big;
+    .empty-state, .add-empty {
+        font-size: $font-size-normal;
         color: $gray-light;
-        padding: 30px 10px;
+        padding: 20px 10px;
         text-align: center;
         p {
-            font-size: 1.2rem;
-            color: $gray-darkest;
+            font-size: $font-size-normal;
+            color: $gray-light;
             margin-bottom: 20px;
         }
     }
@@ -107,8 +107,8 @@ bp-utility-panel {
 
         > li > a {
             margin: 0;
-            padding-left: 10px;
-            padding-right: 10px;
+            padding-left: $padding-small-vertical;
+            padding-right: $padding-small-vertical;
         }
     }
     .tab-content {
@@ -227,16 +227,6 @@ bp-utility-panel {
 
         &.expanded .icon:before {
             @include transform-rotate(180);
-        }
-    }
-
-    .add-empty {
-        margin: 30px 0;
-
-        p {
-            font-size: 1.2rem;
-            color: $gray-darkest;
-            margin-bottom: 20px;
         }
     }
 }

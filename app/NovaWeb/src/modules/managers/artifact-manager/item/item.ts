@@ -115,7 +115,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public set name(value: string) {
-        this.set("name", value);
+        this.set("name", value || "");
     }
 
     public get description(): string {

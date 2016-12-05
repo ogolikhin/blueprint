@@ -25,6 +25,7 @@
                            button-label="{{$ctrl.getPersonaLabel()}}">
                 </bp-select>
                 <button class="btn btn-primary btn-small btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()"
+                        bp-tooltip="{{::$ctrl.localization.get('Tooltip_Browse_Actor')}}"
                         ng-disabled="$ctrl.isReadonly">
                     <span class="fonticon2-more-menu"></span>
                 </button>

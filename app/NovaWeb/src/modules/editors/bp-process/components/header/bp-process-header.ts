@@ -111,6 +111,11 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             if (copyAction) {
                 copyAction.dispose();
             }
+
+            const generateUserStoriesAction = <GenerateUserStoriesAction>_.find(this.toolbarActions, action => action instanceof GenerateUserStoriesAction);
+            if (generateUserStoriesAction) {
+                generateUserStoriesAction.dispose();
+            }
         }
 
         super.$onDestroy();
@@ -126,10 +131,10 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        super.updateToolbarOptions(artifact);
+    protected createToolbarActions(): void {
+        super.createToolbarActions();
 
-        const processArtifact = artifact as StatefulProcessArtifact;
+        const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
@@ -138,7 +143,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         const generateUserStoriesAction = new GenerateUserStoriesAction(
             processArtifact,
             this.userStoryService,
-            this.artifactManager.selection,
             this.messageService,
             this.localization,
             this.dialogService,
@@ -155,6 +159,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         // expanded toolbar
         this.toolbarActions.push(generateUserStoriesAction, copyAction, toggleProcessTypeAction);
+        
         // collapsed toolbar
         for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
             if (this.collapsedToolbarActions[i].type === "menu") {

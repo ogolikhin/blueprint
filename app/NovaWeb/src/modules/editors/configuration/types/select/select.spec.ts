@@ -10,7 +10,7 @@ import {createFormlyModule} from "../../formly-config.mock";
 import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 describe("Formly Select", () => {
-    let fieldsDefinition = [
+    const fieldsDefinition = [
         {
             type: "bpFieldSelect",
             key: "select",
@@ -46,14 +46,14 @@ describe("Formly Select", () => {
         }
     ];
 
-    let moduleName = createFormlyModule("formlyModuleSelect", [
+    const moduleName = createFormlyModule("formlyModuleSelect", [
         "ngSanitize",
         "ui.select",
         "formly",
         "formlyBootstrap"
     ], fieldsDefinition);
 
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {        
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("validationService", ValidationService);
     }));
 
@@ -63,7 +63,7 @@ describe("Formly Select", () => {
         angular.element("body").empty();
     });
 
-    let template = `<formly-dir model="model"></formly-dir>`;
+    const template = `<formly-dir model="model"></formly-dir>`;
     let compile, scope, rootScope, element, node, isolateScope, vm;
 
     beforeEach(
@@ -80,9 +80,9 @@ describe("Formly Select", () => {
     it("should be initialized properly", function () {
         compileAndSetupStuff({model: {select: ""}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect");
-        let fieldScope = angular.element(fieldNode[0]).isolateScope();
-        let fieldSearch = fieldNode[0].querySelector(".ui-select-search");
+        const fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect");
+        const fieldScope = angular.element(fieldNode[0]).isolateScope();
+        const fieldSearch = fieldNode[0].querySelector(".ui-select-search");
         angular.element(fieldSearch).triggerHandler("click");
 
         expect(fieldNode.length).toBe(2);
@@ -93,9 +93,9 @@ describe("Formly Select", () => {
     it("should fail if empty", function () {
         compileAndSetupStuff({model: {select: undefined}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];
-        let fieldScope = angular.element(fieldNode).isolateScope();
-        let fieldChosen = fieldNode.querySelector(".ui-select-match-item-chosen");
+        const fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];
+        const fieldScope = angular.element(fieldNode).isolateScope();
+        const fieldChosen = fieldNode.querySelector(".ui-select-match-item-chosen");
 
         expect((<any>fieldScope).fc.$valid).toBeFalsy();
         expect((<any>fieldScope).fc.$invalid).toBeTruthy();
@@ -107,9 +107,9 @@ describe("Formly Select", () => {
     it("should succeed with value", function () {
         compileAndSetupStuff({model: {select: 1}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];
-        let fieldScope = angular.element(fieldNode).isolateScope();
-        let fieldChosen = fieldNode.querySelector(".ui-select-match-item-chosen");
+        const fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];
+        const fieldScope = angular.element(fieldNode).isolateScope();
+        const fieldChosen = fieldNode.querySelector(".ui-select-match-item-chosen");
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
@@ -118,12 +118,12 @@ describe("Formly Select", () => {
         expect(fieldChosen.innerHTML).toContain("Option 1");
     });
 
-    xit("should succeed with custom value", function () {
+    it("should succeed with custom value", function () {
         compileAndSetupStuff({model: {select: {customValue: "Custom value"}}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];
-        let fieldScope = angular.element(fieldNode).isolateScope();
-        let fieldChosen = fieldNode.querySelector(".ui-select-match-item-chosen");
+        const fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[0];
+        const fieldScope = angular.element(fieldNode).isolateScope();
+        const fieldChosen = fieldNode.querySelector(".ui-select-match-item-chosen");
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
@@ -135,8 +135,8 @@ describe("Formly Select", () => {
     it("should succeed if empty, as not required", function () {
         compileAndSetupStuff({model: {selectNotVal: null}});
 
-        let fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[1];
-        let fieldScope = angular.element(fieldNode).isolateScope();
+        const fieldNode = node.querySelectorAll(".formly-field-bpFieldSelect")[1];
+        const fieldScope = angular.element(fieldNode).isolateScope();
 
         expect((<any>fieldScope).fc.$valid).toBeTruthy();
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();

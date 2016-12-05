@@ -257,7 +257,6 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             },
             {
                 headerName: this.localization.get("Label_Options"),
-                isGroup: true,
                 width: 60,
                 colWidth: 60,
                 isCheckboxHidden: true,

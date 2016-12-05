@@ -112,7 +112,8 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
 }
 
 class SelectValidationMock extends BaseValidation implements ISelectValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any,
+                       isValidated: boolean = true, itAllowsCustomValues: boolean = false) {
         return true;
     }
 }

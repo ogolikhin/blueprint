@@ -45,5 +45,11 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
 
     private onSelectionChanged = (nodes: IDiagramNode[]): void => {
         this.selectedNodes = nodes;
+
+        if (this.selectedNodes && this.selectedNodes.length === 1) {
+            this._tooltip = this.localization.get("App_Toolbar_Open_Shape_Impact_Analysis");
+        } else {
+            this._tooltip = this.localization.get("App_Toolbar_Open_Impact_Analysis");
+        }
     };
 }

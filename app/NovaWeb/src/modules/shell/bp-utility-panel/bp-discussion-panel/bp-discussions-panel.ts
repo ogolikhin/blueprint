@@ -15,19 +15,18 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPDiscussionPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
 export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
+        "$q",
         "localization",
         "artifactDiscussions",
-        "artifactManager",
         "messageService",
-        "dialogService",
-        "$q"
+        "dialogService"
     ];
 
     private artifactId: number;
@@ -42,18 +41,15 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     public artifactEverPublished: boolean = false;
     public showAddComment: boolean = false;
     public emailDiscussionsEnabled: boolean = false;
-    private isVisible: boolean;
     private subscribers: Rx.IDisposable[];
 
-    constructor(private localization: ILocalizationService,
+    constructor($q: ng.IQService,
+                private localization: ILocalizationService,
                 private artifactDiscussions: IArtifactDiscussions,
-                protected artifactManager: IArtifactManager,
                 private messageService: IMessageService,
-                private dialogService: IDialogService,
-                $q: ng.IQService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
+                private dialogService: IDialogService) {
 
-        super($q, artifactManager.selection, bpAccordionPanel);
+        super($q);
 
         this.subscribers = [];
 
@@ -61,10 +57,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
         //    { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
         //];
-    }
-
-    public $onInit() {
-        super.$onInit();
     }
 
     public $onDestroy() {
@@ -97,19 +89,13 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         return super.onSelectionChanged(artifact, subArtifact, timeout);
     }
 
-    protected onVisibilityChanged(isVisible: boolean): void {
-        this.isVisible = isVisible;
-    }
-
     private onSelectedItemModified = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>) => {
-        if (this.isVisible) {
-            if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
-                this.artifactId = artifact.id;
-                this.subArtifact = subArtifact;
-                //We always should artifact version
-                this.artifactEverPublished = artifact.version > 0;
-                return this.setDiscussions(timeout);
-            }
+        if (Helper.canUtilityPanelUseSelectedArtifact(artifact)) {
+            this.artifactId = artifact.id;
+            this.subArtifact = subArtifact;
+            //We always should artifact version
+            this.artifactEverPublished = artifact.version > 0;
+            return this.setDiscussions(timeout);
         }
     }
 

@@ -23,8 +23,8 @@ interface IOptions {
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPRelationshipsPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -36,8 +36,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public static $inject: [string] = [
         "$q",
         "localization",
-        "artifactManager",
-        "artifactRelationships",
         "dialogService"
     ];
 
@@ -59,22 +57,15 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
-                protected artifactManager: IArtifactManager,
-                private artifactRelationships: IArtifactRelationships,
-                private dialogService: IDialogService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
+                private dialogService: IDialogService) {
 
-        super($q, artifactManager.selection, bpAccordionPanel);
+        super($q);
 
         this.options = [
             {value: "1", label: "Add new"}
         ];
 
         this.subscribers = [];
-    }
-
-    public $onInit() {
-        super.$onInit();
     }
 
     public $onDestroy() {

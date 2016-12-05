@@ -13,28 +13,28 @@
         <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Properties']}}"
                             accordion-panel-class="utility-panel-properties">
 
-            <bp-properties-panel></bp-properties-panel>
+            <bp-properties-panel context="$ctrl.getUtilityPanelContext('Properties')"></bp-properties-panel>
         </bp-accordion-panel>
         <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Relationships']}}"
                             accordion-panel-class="utility-panel-relationships">
 
-            <bp-relationships-panel></bp-relationships-panel>
+            <bp-relationships-panel context="$ctrl.getUtilityPanelContext('Relationships')"></bp-relationships-panel>
         </bp-accordion-panel>
         <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Discussions']}}"
                             accordion-panel-class="utility-panel-discussions">
 
-            <bp-discussion-panel></bp-discussion-panel>
+            <bp-discussion-panel context="$ctrl.getUtilityPanelContext('Discussions')"></bp-discussion-panel>
         </bp-accordion-panel>
         <bp-accordion-panel accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_Attachments']}}"
                             accordion-panel-class="utility-panel-attachments">
 
-            <bp-attachments-panel></bp-attachments-panel>
+            <bp-attachments-panel context="$ctrl.getUtilityPanelContext('Files')"></bp-attachments-panel>
         </bp-accordion-panel>
         <bp-accordion-panel
             accordion-panel-heading="{{::$root.config.labels['App_UtilityPanel_History']}}"
             accordion-panel-class="utility-panel-history">
 
-            <bp-history-panel></bp-history-panel>
+            <bp-history-panel context="$ctrl.getUtilityPanelContext('History')"></bp-history-panel>
         </bp-accordion-panel>
     </bp-accordion>
 </div>

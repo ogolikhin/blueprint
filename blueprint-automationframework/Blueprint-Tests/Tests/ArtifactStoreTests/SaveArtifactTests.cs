@@ -125,6 +125,53 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault", 60 * 60 * 24 + 3600 + 60 + 13)]   // Add now + 1 day, 1 hour, 1 min & 13 seconds.
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")] // newValue not used here, so pass empty string.
+        [TestRail(999999)]
+        [Description("Create and publish an artifact (that has custom properties). Change custom property. Verify the published artifact has " +
+                     "expected custom property change.")]
+        public void UpdateArtifact_ChangePropertySaveAndPublish_VerifyPropertyChange<T>( ItemTypePredefined itemType, PropertyPrimitiveType propertyType, 
+            string propertyName, T newValue)
+        {
+            // Setup:
+            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+
+            // Update custom property in artifact.
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            CustomProperty property = null;
+
+            if (propertyType == PropertyPrimitiveType.User)
+            {
+                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, author);
+            }
+            else
+            {
+                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, newValue);
+            }
+
+            var artifactDetailsChangeset = TestHelper.CreateArtifactPropertyChangeSet(artifactDetails, property);
+
+            // Execute:
+            artifact.Lock();
+            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, (NovaArtifactDetails)artifactDetailsChangeset);
+            artifact.Save();
+
+            // Verify:
+            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
+        }
+
+        [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestCase(ItemTypePredefined.PrimitiveFolder, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestCase(ItemTypePredefined.Actor, "Std-Text-Required-RT-Multi-HasDefault")]

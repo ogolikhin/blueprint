@@ -1,4 +1,4 @@
-import {Models, Enums} from "../../models";
+import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
     IArtifactState,
@@ -60,7 +60,7 @@ export class BpArtifactInfoController {
         "analytics"
     ];
 
-    protected subscribers: Rx.IDisposable[];
+    protected subscribers: Rx.IDisposable[] = [];
     protected artifact: IStatefulArtifact;
     public isReadonly: boolean;
     public isChanged: boolean;
@@ -95,7 +95,6 @@ export class BpArtifactInfoController {
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
-        this.subscribers = [];
     }
 
     public $onInit() {
@@ -117,9 +116,9 @@ export class BpArtifactInfoController {
                     .distinctUntilChanged(changes => changes.item && changes.item.name)
                     .subscribeOnNext(this.onArtifactPropertyChanged, this)
             );
-        }
 
-        this.updateToolbarOptions(this.artifact);
+            this.createToolbarActions();
+        }
     }
 
     public $onDestroy() {
@@ -191,19 +190,19 @@ export class BpArtifactInfoController {
         this.artifactTypeIconId = artifact.itemTypeIconId;
         this.hasCustomIcon = _.isFinite(artifact.itemTypeIconId);
 
-        this.isLegacy = artifact.predefinedType === Enums.ItemTypePredefined.Storyboard ||
-            artifact.predefinedType === Enums.ItemTypePredefined.GenericDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.BusinessProcess ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCase ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UseCaseDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.UIMockup ||
-            artifact.predefinedType === Enums.ItemTypePredefined.DomainDiagram ||
-            artifact.predefinedType === Enums.ItemTypePredefined.Glossary;
+        this.isLegacy = artifact.predefinedType === ItemTypePredefined.Storyboard ||
+            artifact.predefinedType === ItemTypePredefined.GenericDiagram ||
+            artifact.predefinedType === ItemTypePredefined.BusinessProcess ||
+            artifact.predefinedType === ItemTypePredefined.UseCase ||
+            artifact.predefinedType === ItemTypePredefined.UseCaseDiagram ||
+            artifact.predefinedType === ItemTypePredefined.UIMockup ||
+            artifact.predefinedType === ItemTypePredefined.DomainDiagram ||
+            artifact.predefinedType === ItemTypePredefined.Glossary;
 
-        if (artifact.itemTypeId === Models.ItemTypePredefined.Collections && artifact.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
-            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[Models.ItemTypePredefined.Collections]);
+        if (artifact.itemTypeId === ItemTypePredefined.Collections && artifact.predefinedType === ItemTypePredefined.CollectionFolder) {
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections]);
         } else {
-            this.artifactClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[artifact.predefinedType]);
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[artifact.predefinedType]);
         }
 
         this.artifactType = artifact.itemTypeName;
@@ -217,11 +216,11 @@ export class BpArtifactInfoController {
         this.isChanged = state.dirty;
 
         switch (state.lockedBy) {
-            case Enums.LockedByEnum.CurrentUser:
+            case LockedByEnum.CurrentUser:
                 this.selfLocked = true;
                 break;
 
-            case Enums.LockedByEnum.OtherUser:
+            case LockedByEnum.OtherUser:
                 let msg = state.lockOwner ? "Locked by " + state.lockOwner : "Locked ";
                 if (state.lockDateTime) {
                     msg += " on " + this.localization.current.formatShortDateTime(state.lockDateTime);
@@ -272,44 +271,36 @@ export class BpArtifactInfoController {
             });
     }
 
-    protected updateToolbarOptions(artifact: IStatefulArtifact): void {
-        this.toolbarActions = [];
-        this.collapsedToolbarActions = [];
-        if (artifact) {
-            const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
-            const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
-            const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
-                this.projectManager, this.loadingOverlayService);
-            const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
-                this.metadataService, this.mainBreadcrumbService);
-            const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
-                this.dialogService);
-            const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
-                this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
-            const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+    private createToolbarActions(): void {
+        const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
+            this.projectManager, this.loadingOverlayService);
+        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
+            this.metadataService, this.mainBreadcrumbService);
+        const moveAction = new MoveAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+            this.dialogService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction);
 
-            // expanded toolbar
-            this.toolbarActions.push(
-                moveAction,
-                new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction)
-            );
-            //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                this.toolbarActions.push(openImpactAnalysisAction);
-            }
-            // collapsed toolbar
-            const dropdownSeparator = new BPButtonOrDropdownSeparator();
+        // expanded toolbar
+        this.toolbarActions.push(moveAction, buttonGroup);
 
-            this.collapsedToolbarActions.push(new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction, deleteAction));
-            this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
-            //we don't want to show impact analysis on collection artifact page
-            if (this.artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection) {
-                this.additionalMenuActions.push(dropdownSeparator, openImpactAnalysisAction);
-            }
-            this.collapsedToolbarActions.push(
-                new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions)
-            );
-        }
+        // collapsed toolbar
+        this.collapsedToolbarActions.push(buttonGroup);
+        this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
+
+        this.createCustomToolbarActions();
+
+        this.collapsedToolbarActions.push(new BPMenuAction(this.localization.get("App_Toolbar_Menu"), ...this.additionalMenuActions));
+    }
+
+    protected createCustomToolbarActions(): void {
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+
+        this.toolbarActions.push(openImpactAnalysisAction);
+        this.additionalMenuActions.push(new BPButtonOrDropdownSeparator(), openImpactAnalysisAction);
     }
 
     protected getNestedDropdownActions(actionsContainer: IBPDropdownAction): IBPButtonOrDropdownAction[] {

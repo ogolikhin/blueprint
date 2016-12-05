@@ -45,10 +45,27 @@ describe("select validation tests - ", () => {
                 expect(result).toBe(false);
             });
 
+            it("returns true when required and CUSTOM values are valid", () => {
+                const value = {"customValue": "test"};
+                // act
+                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, false, true);
+
+                // assert
+                expect(result).toBe(true);
+            });
+            it("returns false when required and CUSTOM values are null", () => {
+                const value = null;
+                // act
+                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, false, true);
+
+                // assert
+                expect(result).toBe(false);
+            });
+
         });
 
     });
-    
+
     describe("multiSelectValidation", () => {
 
         describe("hasValueIfRequired -", () => {

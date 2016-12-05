@@ -1,10 +1,16 @@
 import * as _ from "lodash";
 import {Models} from "../../main";
-import {IArtifactManager, ISelection, IStatefulItem, IItemChangeSet, StatefulArtifact} from "../../managers/artifact-manager";
+import {
+    IArtifactManager,
+    ISelection,
+    IStatefulItem,
+    IItemChangeSet,
+    StatefulArtifact
+} from "../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {PanelType, IUtilityPanelController, UtilityPanelService} from "./utility-panel.svc";
+import {PanelType, IUtilityPanelContext, IUtilityPanelController, UtilityPanelService} from "./utility-panel.svc";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -21,6 +27,8 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
     private _subscribers: Rx.IDisposable[];
     private propertySubscriber: Rx.IDisposable;
+    private selection: ISelection;
+    private activePanelContexts: IUtilityPanelContext[];
     public itemDisplayName: string;
     public itemClass: string;
     public itemTypeId: number;
@@ -34,15 +42,26 @@ export class BPUtilityPanelController implements IUtilityPanelController {
                 private utilityPanelService: UtilityPanelService) {
         this.isAnyPanelVisible = true;
         this.utilityPanelService.initialize(this);
+        this.activePanelContexts = [];
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
-    public $onInit() {
+    public $postLink() {
         const selectionObservable = this.artifactManager.selection.selectionObservable
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
         this._subscribers = [selectionObservable];
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        if (accordionCtrl) {
+            for (let i = 0; i <  accordionCtrl.getPanels().length; i++) {
+                let panelCtrl = accordionCtrl.getPanels()[i];
+                this._subscribers.push(panelCtrl.isActiveObservable
+                    .filter(isActive => isActive)
+                    .map((isActive) => { return i as PanelType; })
+                    .subscribeOnNext(this.activatePanel));
+            }  
+        }
     }
 
     public $onDestroy() {
@@ -50,6 +69,13 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
             it.dispose();
             return false;
+        });
+    }
+
+    public getUtilityPanelContext(panelType: PanelType|string): IUtilityPanelContext {
+        const effectivePanelType: PanelType = _.isString(panelType) ? PanelType[panelType] : panelType;
+        return _.find(this.activePanelContexts, (context) => {
+            return context.panelType === effectivePanelType;
         });
     }
 
@@ -106,6 +132,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
     private onSelectionChanged = (selection: ISelection) => {
         this.clearItem();
+        this.selection = selection;
         const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
         if (this.propertySubscriber) {
             this.propertySubscriber.dispose();
@@ -122,6 +149,35 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             this.toggleDiscussionsPanel(selection);
         }
         this.setAnyPanelIsVisible();
+        this.updateActivePanelContexts(selection);
+    }
+
+    private updateActivePanelContexts(selection: ISelection) {
+        const accordionCtrl: IBpAccordionController = this.getAccordionController();
+        if (accordionCtrl) {
+            this.activePanelContexts = [];
+            for (let i = 0; i <  accordionCtrl.getPanels().length; i++) {
+                const panelCtrl = accordionCtrl.getPanels()[i];
+                if (panelCtrl.isActive) {
+                    const context: IUtilityPanelContext = {
+                        artifact: selection.artifact,
+                        subArtifact: selection.subArtifact,
+                        panelType: i
+                    };
+                    this.activePanelContexts.push(context);
+                }
+            }
+        }
+    }
+
+    private activatePanel = (panelType: PanelType) => {
+        this.activePanelContexts = this.activePanelContexts || [];
+        const context: IUtilityPanelContext = {
+            artifact: this.selection.artifact,
+            subArtifact: this.selection.subArtifact,
+            panelType: panelType
+        };
+        this.activePanelContexts.push(context);
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {
@@ -129,10 +185,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project)) {
-                this.hidePanel(PanelType.Discussions);
-            } else {
-                this.showPanel(PanelType.Discussions);
-            }
+            this.hidePanel(PanelType.Discussions);
+        } else {
+            this.showPanel(PanelType.Discussions);
+        }
     }
 
     private toggleHistoryPanel(selection: ISelection) {

@@ -261,6 +261,11 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
+
+        if (!this.isProjectOpened) {
+            return;
+        }
+
         let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
         this.projectManager.refreshAll().finally(() => {
             this.loadingOverlayService.endLoading(refreshAllLoadingId);

@@ -4,7 +4,7 @@ import "rx";
 import * as _ from "lodash";
 import ".";
 import {BpArtifactInfoController} from "./bp-artifact-info";
-import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services/window-manager";
+import {IWindowManager, IMainWindow} from "../../../main/services/window-manager";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
@@ -82,7 +82,8 @@ describe("BpArtifactInfo", () => {
         analytics = <IAnalyticsProvider>{
             trackEvent: () => "",
             trackPage: () => "",
-            setAccount: () => {/* no op */},
+            setAccount: () => {/* no op */
+            },
             pageEvent: undefined,
             enableLocalhostTracking: false
         };

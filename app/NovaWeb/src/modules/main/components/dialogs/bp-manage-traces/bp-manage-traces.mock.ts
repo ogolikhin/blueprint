@@ -1,4 +1,4 @@
-import {IDialogSettings, IDialogData} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class DataMock {
     public static $inject = ["$q"];
@@ -7,7 +7,7 @@ export class DataMock {
     }
 
 
-    public dialogData: IDialogData = {
+    public dialogData = {
         manualTraces: [],
         artifactId: 1,
         isItemReadOnly: false

@@ -4,8 +4,11 @@ export interface ISelectValidation extends IBaseValidation {
 }
 
 export class SelectValidation extends BaseValidation implements ISelectValidation {
-    public hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any, isValidated: boolean = true) {
-        if (!isValidated) {
+    public hasValueIfRequired(isRequired: boolean,
+                              newValue: any, oldValue: any,
+                              isValidated: boolean = true,
+                              itAllowsCustomValues: boolean = false) {
+        if (!isValidated && !itAllowsCustomValues) {
             return true;
         }
 

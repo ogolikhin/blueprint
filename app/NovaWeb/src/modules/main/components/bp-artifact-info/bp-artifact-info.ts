@@ -51,7 +51,6 @@ export class BpArtifactInfoController {
         "messageService",
         "dialogService",
         "windowManager",
-        "selectionManager",
         "loadingOverlayService",
         "navigationService",
         "projectManager",
@@ -88,7 +87,6 @@ export class BpArtifactInfoController {
                 protected messageService: IMessageService,
                 protected dialogService: IDialogService,
                 protected windowManager: IWindowManager,
-                protected selectionManager: ISelectionManager,
                 protected loadingOverlayService: ILoadingOverlayService,
                 protected navigationService: INavigationService,
                 protected projectManager: IProjectManager,
@@ -279,16 +277,16 @@ export class BpArtifactInfoController {
             this.projectManager, this.loadingOverlayService);
         const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
             this.metadataService, this.mainBreadcrumbService);
-        const moveCopyAction = new moveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
-            this.dialogService, this.selectionManager, this.artifactManager, this.loadingOverlayService);
+        const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+            this.dialogService, this.navigationService, this.loadingOverlayService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar
-        this.toolbarActions.push(moveAction, buttonGroup);
+        this.toolbarActions.push(moveCopyAction, buttonGroup);
 
         // collapsed toolbar
         this.collapsedToolbarActions.push(buttonGroup);
-        this.additionalMenuActions.push(...this.getNestedDropdownActions(moveAction));
+        this.additionalMenuActions.push(...this.getNestedDropdownActions(moveCopyAction));
 
         this.createCustomToolbarActions(buttonGroup);
 

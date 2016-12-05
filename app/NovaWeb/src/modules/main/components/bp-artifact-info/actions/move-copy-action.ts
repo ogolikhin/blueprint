@@ -1,6 +1,6 @@
 import {BPButtonAction, IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager, IArtifactManager} from "../../../../managers";
+import {IProjectManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
@@ -12,8 +12,8 @@ import {
 } from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {Models, Enums, AdminStoreModels} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ISelectionManager} from "../../../../managers/selection-manager";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;
@@ -24,8 +24,7 @@ export class MoveCopyAction extends BPDropdownAction {
                 private messageService: IMessageService,
                 private projectManager: IProjectManager,
                 private dialogService: IDialogService,
-                private selectionManager: ISelectionManager,
-                private artifactManager: IArtifactManager,
+                private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService) {
         super();
        
@@ -139,7 +138,6 @@ export class MoveCopyAction extends BPDropdownAction {
         const dialogData: IMoveCopyArtifactPickerOptions = {
             showSubArtifacts: false,
             selectionMode: "single",
-            isOneProjectLevel: true,
             currentArtifact: this.artifact,
             actionType: this.actionType 
         };
@@ -211,7 +209,7 @@ export class MoveCopyAction extends BPDropdownAction {
             this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 if (selectionId) {
-                    this.selectionManager.setExplorerArtifact(this.artifactManager.get(selectionId));
+                    this.navigationService.navigateTo({id: selectionId});
                 }
             }).finally(() => {
                 this.loadingOverlayService.endLoading(refreshLoadingOverlayId);

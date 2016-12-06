@@ -443,69 +443,88 @@ export class ProcessCopyPasteHelper {
         if (this.layout.viewModel.isWithinShapeLimit(data.shapes.length)) {
             
             // 1. create idMap and update shape ids and projectId and insert shapes
-            for (let shape of data.shapes) {
-                const newId = this.layout.getTempShapeId() - 1;
-                this.layout.setTempShapeId(newId);
-                idMap[shape.id.toString()] = newId;
-                shape.id = newId;
-                shape.propertyValues["x"].value = -1;
-                shape.propertyValues["y"].value = -1;
-                shape.projectId = this.layout.viewModel.projectId;
-                shape.parentId = this.layout.viewModel.id;
-                this.layout.viewModel.addShape(shape);
-            }
+            this.pasteAndUpdateShapes(data, idMap);
 
-            // 2. connect trees
-            // update links (start)
-            connectionStartId = data.shapes[0].id;
-            let links = _.filter(this.layout.viewModel.links, (link) => { 
-                return destinationId === link.destinationId && 
-                         _.filter(sourceIds, (sourceId) => { return sourceId === link.sourceId; }).length  > 0; 
-            });
-            _.each(links, (link) => {
-                link.destinationId = connectionStartId;
-            });
+            // 2. connect the original graph to link to the start of pasted model
+            this.connectToPastedShapesStart(connectionStartId, data, destinationId, sourceIds);
 
-            // 3. update branch destination ids
-            const decisionBranchDestinationLinks = _.filter(this.layout.viewModel.decisionBranchDestinationLinks, (link) => { 
-                return  link.destinationId === destinationId && sourceIds.length > 1; 
-            });
-            _.each(decisionBranchDestinationLinks, (link) => {
-                link.destinationId = connectionStartId;
-            });
+            // 3. update original branch destination ids
+            this.updateOriginalDecisionBranchDestinationLinks(destinationId, connectionStartId, sourceIds);
 
-            // 4. update link ids and insert links
-            for (let link of data.links) {
-                link.sourceId = idMap[link.sourceId.toString()];
-                if (link.destinationId.toString() === this.treeEndId) {
-                    link.destinationId = destinationId;
-                } else {
-                    link.destinationId = idMap[link.destinationId.toString()];
-                    }
-                this.layout.viewModel.links.push(new ProcessLinkModel(this.layout.viewModel.id, 
-                                                                                                link.sourceId, 
-                                                                                                link.destinationId, 
-                                                                                                link.orderindex, 
-                                                                                                link.label));
-                    }
+            // 4. insert links with new shapes id
+            this.pasteAndUpdateLinks(data, idMap, destinationId);
 
-            // 5. update decisionBranchDestinationLink ids and inser decisionBranchDestinationLinks 
-            for (let link of data.decisionBranchDestinationLinks) {
-                link.sourceId = idMap[link.sourceId.toString()]; 
-                if (link.destinationId.toString() === this.treeEndId) {
-                    link.destinationId = destinationId;
-                } else {
-                    link.destinationId = idMap[link.destinationId.toString()];
-                }
-                if (!this.layout.viewModel.decisionBranchDestinationLinks) {
-                    this.layout.viewModel.decisionBranchDestinationLinks = [];
-                }
-                this.layout.viewModel.decisionBranchDestinationLinks.push(link); 
-            }
+            // 5. insert new branch destination ids
+            this.pasteAndIpdateDecisionBranchDestinationLinks(data, idMap, destinationId);
 
         }
 
         this.layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(_.toNumber(connectionStartId)); 
+    }    
+
+    private pasteAndUpdateShapes(data: IProcess, idMap: any): void {
+    for (let shape of data.shapes) {
+            const newId = this.layout.getTempShapeId() - 1;
+            this.layout.setTempShapeId(newId);
+            idMap[shape.id.toString()] = newId;
+            shape.id = newId;
+            shape.propertyValues["x"].value = -1;
+            shape.propertyValues["y"].value = -1;
+            shape.projectId = this.layout.viewModel.projectId;
+            shape.parentId = this.layout.viewModel.id;
+            this.layout.viewModel.addShape(shape);
+        }
     }
-    
+
+    private connectToPastedShapesStart(connectionStartId: number, data: IProcess, destinationId: number, sourceIds: number[]) {
+        connectionStartId = data.shapes[0].id;
+        let links = _.filter(this.layout.viewModel.links, (link) => { 
+            return destinationId === link.destinationId && 
+                        _.filter(sourceIds, (sourceId) => { return sourceId === link.sourceId; }).length  > 0; 
+        });
+        _.each(links, (link) => {
+            link.destinationId = connectionStartId;
+        });
+    }
+
+    private updateOriginalDecisionBranchDestinationLinks(destinationId: number, connectionStartId: number, sourceIds: number[]) {            
+        const decisionBranchDestinationLinks = _.filter(this.layout.viewModel.decisionBranchDestinationLinks, (link) => { 
+            return  link.destinationId === destinationId && sourceIds.length > 1; 
+        });
+
+        _.each(decisionBranchDestinationLinks, (link) => {
+            link.destinationId = connectionStartId;
+        });
+    }
+
+    private pasteAndUpdateLinks(data: IProcess, idMap: any, destinationId: number) {            
+        for (let link of data.links) {
+            link.sourceId = idMap[link.sourceId.toString()];
+            if (link.destinationId.toString() === this.treeEndId) {
+                link.destinationId = destinationId;
+            } else {
+                link.destinationId = idMap[link.destinationId.toString()];
+            }
+            this.layout.viewModel.links.push(new ProcessLinkModel(this.layout.viewModel.id, 
+                                                                                            link.sourceId, 
+                                                                                            link.destinationId, 
+                                                                                            link.orderindex, 
+                                                                                            link.label));
+        }
+    }
+
+    private pasteAndIpdateDecisionBranchDestinationLinks(data: IProcess, idMap: any, destinationId: number) {
+        for (let link of data.decisionBranchDestinationLinks) {
+            link.sourceId = idMap[link.sourceId.toString()]; 
+            if (link.destinationId.toString() === this.treeEndId) {
+                link.destinationId = destinationId;
+            } else {
+                link.destinationId = idMap[link.destinationId.toString()];
+            }
+            if (!this.layout.viewModel.decisionBranchDestinationLinks) {
+                this.layout.viewModel.decisionBranchDestinationLinks = [];
+            }
+            this.layout.viewModel.decisionBranchDestinationLinks.push(link); 
+        }
+    }
 }

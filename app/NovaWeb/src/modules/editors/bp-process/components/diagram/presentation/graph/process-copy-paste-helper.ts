@@ -3,8 +3,11 @@ import {ShapesFactory} from "./shapes/shapes-factory";
 import {ProcessAddHelper} from "./process-add-helper";
 import {UserTask} from "./shapes/";
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
+import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
 
 export class ProcessCopyPasteHelper {
+    private static clipboard: IClipboardService;    
+    private static shapesFactoryService: ShapesFactory;
 
     private static getSelectedCellsForCopy(processGraph: IProcessGraph): MxCell[] {
         const graphSelectedCells = processGraph.getMxGraph().getSelectionCells();
@@ -18,12 +21,18 @@ export class ProcessCopyPasteHelper {
         return sortedCells;
     }
 
-    public static copySectedShapes(processGraph: IProcessGraph, clipboard: IClipboardService, shapesFactoryService: ShapesFactory): void {
+    public static copySectedShapes(
+        processGraph: IProcessGraph, 
+        clipboard: IClipboardService, 
+        shapesFactoryService: ShapesFactory,
+        fileUploadService: IFileUploadService): void {
 
         if (!clipboard) {
             throw new Error("Clipboard does not exist");
         }
 
+        this.clipboard = clipboard;
+        this.shapesFactoryService = shapesFactoryService;        
         let model: IProcessShape[] = [];
         const nodes = this.getSelectedCellsForCopy(processGraph);
 
@@ -55,9 +64,10 @@ export class ProcessCopyPasteHelper {
         // Copy from (clone) logic goes here. Implemented simple logic for cloning UserTask + first SystemTask
         // For the UserTasks only a plain collection is sufficient. For the decisions we will need a tree.
         //
+        const systemShapeImageIds: number[] = [];
         _.each(nodes, (node) => {
             if (node instanceof UserTask) {
-                const userTaskShape = shapesFactoryService.createModelUserTaskShape(-1, -1,  -1, -1, -1);
+                const userTaskShape = shapesFactoryService.createModelUserTaskShape(-1, -1,  node.model.id, -1, -1);
                 // COPY UT PROPERTIES - Can add more here if needed. It can be extracted into a method
                 userTaskShape.name = node.model.name;
                 userTaskShape.id =  node.model.id;
@@ -67,18 +77,38 @@ export class ProcessCopyPasteHelper {
                 model.push(userTaskShape);
 
                 const systemTask = node.getNextSystemTasks(processGraph)[0];
-                const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(-1, -1,  -1, -1, -1);
+                const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(-1, -1, systemTask.model.id, -1, -1);
                 // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method
                 systemTaskShape.name = systemTask.model.name;
                 systemTaskShape.personaReference = _.cloneDeep(systemTask.personaReference);
                 systemTaskShape.associatedArtifact = _.cloneDeep(systemTask.associatedArtifact); 
                 systemTaskShape.propertyValues = _.cloneDeep(systemTask.model.propertyValues);
 
+                if (!!systemTask.associatedImageUrl && _.isNumber(systemTask.imageId)) {                    
+                    systemShapeImageIds.push(systemTask.model.id);
+                }
+
                 model.push(systemTaskShape);
             }
-        });
+        });        
 
-        clipboard.setData(new ProcessClipboardData(model));
+        if (systemShapeImageIds.length > 0) {
+            const expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 1);
+            fileUploadService.copyArtifactImagesToFilestore(systemShapeImageIds, expirationDate).then((result) => {
+                _.forEach(model, (shape: IProcessShape) => {
+                    const resultShape = result.filter(a => a.originalId === shape.id);
+                    if (resultShape.length > 0) {
+                        shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = resultShape[0].newImageUrl;
+                        shape.propertyValues[this.shapesFactoryService.ImageId.key].value = resultShape[0].newImageId;
+                    }
+                });
+                this.clipboard.setData(new ProcessClipboardData(model));
+            });
+        }
+        else {
+            this.clipboard.setData(new ProcessClipboardData(model));
+        }
     };
 
     public static insertSelectedShapes(edge: MxCell, layout: ILayout, clipboard: IClipboardService, shapesFactoryService: ShapesFactory): void {

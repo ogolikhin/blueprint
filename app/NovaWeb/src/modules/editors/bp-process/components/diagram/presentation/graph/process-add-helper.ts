@@ -92,8 +92,6 @@ export class ProcessAddHelper {
     }
 
     public static insertClonedSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _systemTaskShape: ISystemTaskShape) {
-        _systemTaskShape.propertyValues[shapesFactoryService.ImageId.key].value = null;
-        _systemTaskShape.propertyValues[shapesFactoryService.AssociatedImageUrl.key].value = null;
         return this.insertClonedShapeInternal(layout, shapesFactoryService, _systemTaskShape);
     }
 

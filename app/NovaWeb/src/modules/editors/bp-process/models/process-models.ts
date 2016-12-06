@@ -291,15 +291,19 @@ export class EdgeGeo {
     state: MxCellState;
 }
 
-export class ProcessClipboardData implements IClipboardData {
-    public type: ClipboardDataType = ClipboardDataType.Process;
+export class ProcessClipboardData implements IClipboardData { 
+    
     public isPastableAfterUserDecision: boolean;
 
-    constructor(private processData: any) {
+    public getType(): ClipboardDataType {
+         return ClipboardDataType.Process; 
+    }
+
+    constructor(private processData: IProcess) {
         this.isPastableAfterUserDecision = true;
     }
 
-    public get data() {
+    public getData(): IProcess {
         return this.processData;
     }
 

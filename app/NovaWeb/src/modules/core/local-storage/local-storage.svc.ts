@@ -18,10 +18,9 @@ export class LocalStorageService implements ILocalStorageService {
     constructor(private $log: ng.ILogService) {
     }
 
-    public read(path: string): any {
-        // if not in local storage, the string "undefined" is returned (why???)
+    public read(path: string): any {      
         const text: string = localStorage.getItem(path);
-        if (text === null || typeof text === "undefined" || text === "undefined") {
+        if (_.isNil(text)) {
             this.$log.debug("LocalStorageService::read(" + path + ") - path not found, returned null");
             return null;
         }

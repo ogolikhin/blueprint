@@ -34,6 +34,7 @@ export class DialogService implements IDialogService {
     private defaultSettings: IDialogSettings;
 
     public static $inject = ["localization", "$uibModal"];
+
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
         this.defaultSettings = {
             type: DialogTypeEnum.Base,
@@ -54,7 +55,7 @@ export class DialogService implements IDialogService {
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
-        const options = _.assign(
+        const options = _.assign({},
             this.dialogSettings,
             optsettings,
             <ng.ui.bootstrap.IModalSettings>{
@@ -73,7 +74,7 @@ export class DialogService implements IDialogService {
     }
 
     public open(dialogSettings?: IDialogSettings, dialogData?): ng.IPromise<any> {
-        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
         if (dialogData) {
             this.dialogData = dialogData;
         }
@@ -83,16 +84,16 @@ export class DialogService implements IDialogService {
     public alert(message: string, header?: string, okButton?: string, cancelButton?: string) {
         const dialogSettings = <IDialogSettings>{
             type: DialogTypeEnum.Alert,
-            header: header || "App_DialogTitle_Alert",
+            header: this.localization.get(header || "App_DialogTitle_Alert"),
             message: message,
-            cancelButton: cancelButton || null, //Don't show cancel button if not defined
+            cancelButton: this.localization.get(cancelButton || null), //Don't show cancel button if not defined
             css: "modal-alert nova-messaging"
         }  as IDialogSettings;
         if (okButton) {
             //We only want to set the okButton if it's specified, otherwise use the initialize default.
-            dialogSettings.okButton = okButton;
+            dialogSettings.okButton = this.localization.get(okButton);
         }
-        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
             keyboard: false
         }).result;
@@ -101,11 +102,11 @@ export class DialogService implements IDialogService {
     public confirm(message: string, header?: string, css?: string) {
         const dialogSettings = {
             type: DialogTypeEnum.Confirm,
-            header: header || "App_DialogTitle_Confirmation",
+            header: this.localization.get(header || "App_DialogTitle_Confirmation"),
             css: css,
             message: message
         } as IDialogSettings;
-        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
 
         return this.openInternal().result;
     }

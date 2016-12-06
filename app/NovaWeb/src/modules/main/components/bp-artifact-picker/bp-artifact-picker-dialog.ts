@@ -14,6 +14,7 @@ export interface IArtifactPickerOptions {
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showProjects?: boolean;
+    showArtifacts?: boolean;
     showSubArtifacts?: boolean;
 }
 

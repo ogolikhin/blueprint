@@ -44,7 +44,7 @@ export class MoveCopyAction extends BPDropdownAction {
             new BPDropdownItemAction(
                 this.localization.get("App_Toolbar_Move"),
                 () => this.executeMove(),
-                () => this.canExecute(),
+                (): boolean => this.canExecuteMove(),
                 "fonticon2-move"
             )
         );
@@ -52,7 +52,7 @@ export class MoveCopyAction extends BPDropdownAction {
             new BPDropdownItemAction(
                 this.localization.get("App_Toolbar_Copy"),
                 () => this.executeCopy(),
-                () => this.canExecute(),
+                (): boolean => this.canExecuteCopy(),
                 "fonticon2-copy"
             )
         );
@@ -64,6 +64,14 @@ export class MoveCopyAction extends BPDropdownAction {
 
     public get disabled(): boolean {
         return !this.canExecute();
+    }
+
+    private canExecuteMove(): boolean {
+        return this.canExecute() && !this.artifact.artifactState.readonly;
+    }
+
+    private canExecuteCopy(): boolean {
+        return this.canExecute();
     }
 
     private canExecute(): boolean {
@@ -79,10 +87,6 @@ export class MoveCopyAction extends BPDropdownAction {
         ];
 
         if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
-            return false;
-        }
-
-        if (this.artifact.artifactState.readonly) {
             return false;
         }
 

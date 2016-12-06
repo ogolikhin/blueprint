@@ -5,7 +5,7 @@ using Model.ArtifactModel.Impl;
 
 namespace Model.SearchServiceModel.Impl
 {
-    // see lueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
     public class SearchResult
     {
         public int ItemId { get; set; }
@@ -13,6 +13,8 @@ namespace Model.SearchServiceModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
     }
+
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
     public class ItemNameSearchResult : SearchResult
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -63,6 +65,7 @@ namespace Model.SearchServiceModel.Impl
         }
     }
 
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
     public class ProjectSearchResult : SearchResult
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -72,6 +75,7 @@ namespace Model.SearchServiceModel.Impl
         public string Description { get; set; }
     }
 
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
     public class ItemNameSearchResultSet
     {
         public int PageItemCount { get; set; }
@@ -79,6 +83,7 @@ namespace Model.SearchServiceModel.Impl
         public List<ItemNameSearchResult> Items { get; } = new List<ItemNameSearchResult>();
     }
 
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
     public class ProjectSearchResultSet
     {
         public List<ProjectSearchResult> Items { get; } = new List<ProjectSearchResult>();

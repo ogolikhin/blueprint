@@ -61,7 +61,7 @@ namespace Model.SearchServiceModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Returns a list of projects that have names that match the searchText.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]  // separatorString is server-side param.
-        List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
+        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
             List < HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Model.SearchServiceModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Returns the list of artifacts that match the searchCriteria.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]  // separatorString is server-side param.
-        ItemSearchResult SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
+        ItemNameSearchResultSet SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
             int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

@@ -329,7 +329,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     }
                 }
             }).catch(reason => {
-//                this.messageService.addError(reason || "Artifact_NotFound");
+                this.messageService.addError(reason || "Artifact_NotFound");
             }).finally(() => {
                 if (this.options.api) {
                     this.options.api.hideOverlay();
@@ -416,7 +416,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 }
                 this.loadExpanded(vm).then(() => this.resetGridAsync(true)).catch(reason => {
                     if (reason) {
-//                        this.messageService.addError(reason || "Artifact_NotFound");
+                        this.messageService.addError(reason || "Artifact_NotFound");
                     }
                 });
             }

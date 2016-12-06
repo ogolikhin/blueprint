@@ -414,7 +414,6 @@ HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been
 HttpError_Collection_NotFound, "The Collection has been deleted."
 HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
 
-Project_NoProjectsAvailable,"Either no projects are available or you do not have the required permissions to access them."
 Error_Page_Message1,"An error ocurred while loading the page."
 Error_Page_Message2,"Please try again."
 Error_Page_Message3,"If the problem persists, contact your Blueprint administrator."

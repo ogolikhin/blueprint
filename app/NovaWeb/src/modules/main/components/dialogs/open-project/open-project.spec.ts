@@ -3,14 +3,11 @@ import "angular-mocks";
 import {OpenProjectController} from "./open-project";
 import {IDialogSettings} from "../../../../shared";
 import {AdminStoreModels, TreeModels} from "../../../models";
-import {IProjectService} from "../../../../managers/project-manager/project-service";
-import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 describe("OpenProjectController", () => {
     let localization: ILocalizationService;
-    let projectService: IProjectService;
     let $sce: ng.ISCEService;
     let controller: OpenProjectController;
     let $scope: ng.IScope;
@@ -20,100 +17,10 @@ describe("OpenProjectController", () => {
         localization = jasmine.createSpyObj("localization", ["get"]) as ILocalizationService;
         (localization.get as jasmine.Spy).and.callFake(name => name === "App_Header_Name" ? "Blueprint" : undefined);
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
-        projectService = {} as IProjectService;
-        const artifactManager = {} as IArtifactManager;
-        const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         const dialogSettings = {} as IDialogSettings;
         $sce = _$sce_;
-        controller = new OpenProjectController($scope, localization, $uibModalInstance,
-            projectService, artifactManager, statefulArtifactFactory, dialogSettings, $sce);
+        controller = new OpenProjectController($scope, localization, $uibModalInstance, dialogSettings, $sce);
     }));
-
-    it("constructor sets root node", () => {
-        // Arrange
-
-        // Act
-
-        // Assert
-        expect(controller.rowData).toEqual([controller.factory.createInstanceItemNodeVM({
-            id: 0,
-            type: AdminStoreModels.InstanceItemType.Folder,
-            name: "",
-            hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true)]);
-    });
-
-    describe("columns", () => {
-        it("column properties are correctly defined", () => {
-            // Arrange
-
-            // Act
-
-            // Assert
-            expect(controller.columns).toEqual([jasmine.objectContaining({
-                headerName: "Blueprint",
-                isGroup: true
-            })]);
-            expect(angular.isFunction(controller.columns[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.columns[0].cellRenderer)).toEqual(true);
-        });
-
-        it("getCellClass returns correct result", () => {
-            // Arrange
-            const vm = {getCellClass: () => ["test"]} as TreeModels.ITreeNodeVM<any>;
-
-            // Act
-            const css = controller.columns[0].cellClass(vm);
-
-            // Assert
-            expect(css).toEqual(["test"]);
-        });
-
-        it("cellRenderer returns correct result", () => {
-            // Arrange
-            const vm = {
-                getLabel() {
-                    return "name";
-                }
-            } as TreeModels.ITreeNodeVM<any>;
-            const cell = {} as HTMLElement;
-
-            const params: IColumnRendererParams = {
-                data: vm,
-                $scope: $scope,
-                eGridCell: cell
-            };
-
-            // Act
-            const result = controller.columns[0].cellRenderer(params);
-
-            // Assert
-            expect(result).toEqual(`<i></i><span>name</span>`);
-        });
-
-        it("cellRenderer, when project, calls ok on enter", () => {
-            // Arrange
-            const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-            const vm = controller.factory.createInstanceItemNodeVM(model);
-            const cell = document.createElement("div");
-            const params: IColumnRendererParams = {
-                data: vm,
-                $scope: $scope,
-                eGridCell: cell
-            };
-
-            controller.columns[0].cellRenderer(params);
-            spyOn(controller, "ok");
-
-            // Act
-            const event = new Event("keydown") as any;
-            event.keyCode = 13;
-            cell.dispatchEvent(event);
-
-            // Assert
-            expect(controller.ok).toHaveBeenCalled();
-        });
-    });
 
     it("onSelect, when selected project, sets selection", inject(($browser) => {
         // Arrange
@@ -125,10 +32,10 @@ describe("OpenProjectController", () => {
             type: AdminStoreModels.InstanceItemType.Project,
             hasChildren: true
         } as AdminStoreModels.IInstanceItem;
-        const vm = controller.factory.createInstanceItemNodeVM(model);
+        const vm = new TreeModels.InstanceItemNodeVM(undefined, model);
 
         // Act
-        controller.onSelect(vm, true);
+        controller.onSelectionChanged([vm]);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
@@ -141,10 +48,10 @@ describe("OpenProjectController", () => {
     it("onSelect, when selected folder, sets selection", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Folder} as AdminStoreModels.IInstanceItem;
-        const vm = controller.factory.createInstanceItemNodeVM(model);
+        const vm = new TreeModels.InstanceItemNodeVM(undefined, model);
 
         // Act
-        controller.onSelect(vm, true);
+        controller.onSelectionChanged([vm]);
 
         // Assert
         $browser.defer.flush(); // wait for $applyAsync()
@@ -157,7 +64,7 @@ describe("OpenProjectController", () => {
     it("onDoubleClick, when project, sets selection and calls ok", inject(($browser) => {
         // Arrange
         const model = {id: 3, type: AdminStoreModels.InstanceItemType.Project} as AdminStoreModels.IInstanceItem;
-        const vm = controller.factory.createInstanceItemNodeVM(model);
+        const vm = new TreeModels.InstanceItemNodeVM(undefined, model);
         spyOn(controller, "ok");
 
         // Act
@@ -168,15 +75,4 @@ describe("OpenProjectController", () => {
         expect(controller.selectedItem).toEqual(vm);
         expect(controller.ok).toHaveBeenCalled();
     }));
-
-    it("onError sets error message", () => {
-        // Arrange
-        (localization.get as jasmine.Spy).and.callFake(name => name === "Project_NoProjectsAvailable" ? "error" : undefined);
-
-        // Act
-        controller.onError("reason");
-
-        // Assert
-        expect(controller.errorMessage).toEqual("error");
-    });
 });

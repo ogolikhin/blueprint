@@ -6,7 +6,6 @@ import {AdminStoreModels, TreeModels} from "../../../models";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export interface IOpenProjectController {
-    errorMessage: string;
     isProjectSelected: boolean;
     selectedItem?: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
     selectedDescription: string;
@@ -14,7 +13,6 @@ export interface IOpenProjectController {
     // BpArtifactPicker bindings
     onSelectionChanged(selectedVMs: TreeModels.InstanceItemNodeVM[] | ProjectSearchResultVM[] ): void;
     onDoubleClick: (vm: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM) => any;
-    onError: (reason: any) => any;
 }
 
 export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
@@ -36,10 +34,6 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     public get returnValue(): AdminStoreModels.IInstanceItem | IProjectSearchResult {
         return this.isProjectSelected ? this.selectedItem.model : undefined;
     };
-
-    public get errorMessage(): string {
-        return this._errorMessage;
-    }
 
     public get isProjectSelected(): boolean {
         return (this.selectedItem instanceof TreeModels.InstanceItemNodeVM && this.selectedItem.model.type === AdminStoreModels.InstanceItemType.Project) ||
@@ -89,10 +83,5 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             this.setSelectedItem(vm);
             this.ok();
         });
-    }
-
-    public onError = (reason: any): void => {
-        //close dialog on authentication error
-        this._errorMessage = this.localization.get("Project_NoProjectsAvailable");
     }
 }

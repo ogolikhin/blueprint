@@ -75,15 +75,4 @@ describe("OpenProjectController", () => {
         expect(controller.selectedItem).toEqual(vm);
         expect(controller.ok).toHaveBeenCalled();
     }));
-
-    it("onError sets error message", () => {
-        // Arrange
-        (localization.get as jasmine.Spy).and.callFake(name => name === "Project_NoProjectsAvailable" ? "error" : undefined);
-
-        // Act
-        controller.onError("reason");
-
-        // Assert
-        expect(controller.errorMessage).toEqual("error");
-    });
 });

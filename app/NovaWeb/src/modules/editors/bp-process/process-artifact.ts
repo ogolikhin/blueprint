@@ -1,13 +1,7 @@
 import {Models} from "../../main/models";
 import {Message, MessageType} from "../../core/messages/message";
-import {
-    IProcess,
-    IProcessShape,
-    IProcessLink,
-    IHashMapOfPropertyValues,
-    IVersionInfo,
-    ItemTypePredefined
-} from "./models/process-models";
+import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
+import {IHashMapOfPropertyValues, IVersionInfo, ItemTypePredefined} from "./models/process-models";
 import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
 import {StatefulProcessSubArtifact} from "./process-subartifact";

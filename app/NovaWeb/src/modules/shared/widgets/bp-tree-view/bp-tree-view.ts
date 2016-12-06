@@ -415,9 +415,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     row.classList.add("ag-row-loading");
                 }
                 this.loadExpanded(vm).then(() => this.resetGridAsync(true)).catch(reason => {
-                    if (reason) {
-                        this.messageService.addError(reason || "Artifact_NotFound");
-                    }
+                    this.messageService.addError(reason || "Artifact_NotFound");
                 });
             }
         }

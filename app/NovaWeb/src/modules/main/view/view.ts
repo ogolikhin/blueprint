@@ -62,16 +62,18 @@ export class MainViewController {
     }
 
     private openTourFirstTime(): void {
-        const productTourKey = "ProductTour";
-        const productTour = localStorage.getItem(productTourKey);
-        if (!productTour) {
-            localStorage.setItem(productTourKey, "true");
-            this.dialogService.open(<IDialogSettings>{
-                template: require("../components/dialogs/bp-tour/bp-tour.html"),
-                controller: BPTourController,
-                backdrop: true,
-                css: "nova-tour"
-            });
+        if (this.currentUser) {
+            const productTourKey = "ProductTour";
+            const productTour = this.localStorageService.read(productTourKey);
+            if (!productTour) {
+                this.localStorageService.write(productTourKey, "true");
+                this.dialogService.open(<IDialogSettings>{
+                    template: require("../components/dialogs/bp-tour/bp-tour.html"),
+                    controller: BPTourController,
+                    backdrop: true,
+                    css: "nova-tour"
+                });
+            }
         }
     }
 

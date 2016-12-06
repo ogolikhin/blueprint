@@ -57,9 +57,12 @@ namespace Model.SearchServiceModel
         /// <param name="user">The user performing the search.</param>
         /// <param name="searchText">Text to search</param>
         /// <param name="resultCount">(optional)The number of search results to return.</param>
+        /// <param name="separatorString">(optional) String to use as separator in artifact pass. Default is '\'</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Returns a list of projects that have names that match the searchText.</returns>
-        List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]  // separatorString is server-side param.
+        List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
+            List < HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns the list of artifacts(subartifacts?) that match the searchCriteria.

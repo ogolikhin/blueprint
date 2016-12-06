@@ -89,9 +89,18 @@ namespace Model.SearchServiceModel.Impl
         }
 
         /// <seealso cref="ISearchService.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
-        public List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
+            List < HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+
+            string url = RestPaths.Svc.SearchService.PROJECTSEARCH;
+
+            if (separatorString != null)
+            {
+                // we use concat instead of query param to make call identical to call from fron-end		
+                url = string.Concat(url, "?separatorString=", HttpUtility.UrlEncode(separatorString));
+            }
 
             var jsonObject = new Dictionary<string, string> {{ "query", searchText }};
             
@@ -111,7 +120,7 @@ namespace Model.SearchServiceModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             var projectSearchResult = restApi.SendRequestAndDeserializeObject<ProjectSearchResult, Dictionary<string, string>>(
-                RestPaths.Svc.SearchService.PROJECTSEARCH,
+                url,
                 RestRequestMethod.POST,
                 jsonObject: jsonObject,
                 queryParameters: queryParams,

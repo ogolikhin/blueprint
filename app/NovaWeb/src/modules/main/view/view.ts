@@ -58,9 +58,14 @@ export class MainViewController {
             this.windowVisibility.isHidden.subscribeOnNext(this.onVisibilityChanged, this)
         ]; 
 
-        const productTour = localStorage.getItem("ProductTour");
-        if (!productTour) {            
-            localStorage.setItem("ProductTour", "true");
+        this.openTourFirstTime();
+    }
+
+    private openTourFirstTime(): void {
+        const productTourKey = "ProductTour";
+        const productTour = localStorage.getItem(productTourKey);
+        if (!productTour) {
+            localStorage.setItem(productTourKey, "true");
             this.dialogService.open(<IDialogSettings>{
                 template: require("../components/dialogs/bp-tour/bp-tour.html"),
                 controller: BPTourController,

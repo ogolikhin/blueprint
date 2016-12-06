@@ -17,10 +17,10 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-help">
                     <li>
-                        <a href="#" class="dropdown-menu-help-link" bp-tooltip="{{::$root.config.labels['Tooltip_App_Header_Help']}}" ng-click="app.navigateToHelpUrl($event)">Help</a>
+                        <a href="#" class="dropdown-menu-help-link" ng-click="app.navigateToHelpUrl($event)">Help</a>
                     </li>
                     <li>
-                        <a href="#" class="dropdown-menu-help-link">Tour</a>
+                        <a href="#" class="dropdown-menu-help-link" ng-click="app.openTour($event)">Tour</a>
                     </li>
                 </ul>    
             </div>                      

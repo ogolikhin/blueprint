@@ -35,6 +35,10 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
     }
 
     protected openImpactAnalysis(): void {
+        if (!this.canOpenImpactAnalysis()) {
+            return;
+        }
+        
         if (!this.selectedNodes || !this.selectedNodes.length) {
             super.openImpactAnalysis();
         } else {

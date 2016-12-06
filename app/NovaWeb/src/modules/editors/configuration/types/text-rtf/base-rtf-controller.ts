@@ -67,7 +67,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         "InsertUnorderedList",
         "InsertOrderedList",
         "Outdent",
-        "Indent"
+        "Indent",
+        "FontName"
     ];
     protected fontSizes: string[] = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
 

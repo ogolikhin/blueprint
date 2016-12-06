@@ -11,7 +11,7 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
+import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -35,14 +35,14 @@ export interface IProjectManager extends IDispose {
     openProjectWithDialog(): void;
     remove(projectId: number): void;
     removeAll(): void;
-    refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
+    refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
     refreshAll(): ng.IPromise<void>;
     getProject(id: number): Models.IViewModel<IStatefulArtifact>;
     getSelectedProjectId(): number;
     triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
-    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
+    calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -146,9 +146,9 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<void> {
+    public refresh(projectId: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
         return this.artifactManager.autosave().then(() => {
-            return this.refreshProject(this.getProject(projectId), forceOpen);
+            return this.refreshProject(this.getProject(projectId), selectionId, forceOpen);
         });
     }
 
@@ -156,12 +156,18 @@ export class ProjectManager implements IProjectManager {
         return this.refresh(this.getSelectedProjectId());
     }
 
-    private refreshProject(projectNode: IArtifactNode, forceOpen?: boolean): ng.IPromise<void> {
+    private refreshProject(projectNode: IArtifactNode, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
         if (!projectNode) {
             return this.$q.reject();
         }
+        let selectedArtifact = {} as IStatefulArtifact;
+        if (selectionId) {
+            selectedArtifact.id = selectionId;
+            selectedArtifact.projectId = projectNode.model.id;
+        } else {
+            selectedArtifact = this.artifactManager.selection.getArtifact();
+        }
 
-        let selectedArtifact = this.artifactManager.selection.getArtifact();
         return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
     }
 
@@ -487,7 +493,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
+    public calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
         let promise: ng.IPromise<void>;
         let orderIndex: number;
         let index: number;
@@ -497,7 +503,7 @@ export class ProjectManager implements IProjectManager {
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
 
         //if parent isn't found, or if its children aren't loaded
-        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && parentArtifactNode.children.length === 0)) {
+        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && (!parentArtifactNode.children || parentArtifactNode.children.length === 0))) {
             //get children from server
             promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId).then((data: Models.IArtifact[]) => {
                 siblings = data;
@@ -516,14 +522,14 @@ export class ProjectManager implements IProjectManager {
             index = siblings.findIndex((a) => a.id === selectedArtifact.id);
 
             //compute new order index
-            if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
+            if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first
                 orderIndex = selectedArtifact.orderIndex / 2;
-            } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+            } else if (index === siblings.length - 1 && insertMethod === MoveCopyArtifactInsertMethod.Below) { //last
                 orderIndex = selectedArtifact.orderIndex + 10;
             } else {    //in between
-                if (insertMethod === MoveArtifactInsertMethod.Above) {
+                if (insertMethod === MoveCopyArtifactInsertMethod.Above) {
                     orderIndex = (siblings[index - 1].orderIndex + selectedArtifact.orderIndex) / 2;
-                } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                } else if (insertMethod === MoveCopyArtifactInsertMethod.Below) {
                     orderIndex = (siblings[index + 1].orderIndex + selectedArtifact.orderIndex) / 2;
                 } else {
                     //leave undefined

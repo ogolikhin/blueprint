@@ -23,5 +23,5 @@ export {
 } from "./open-impact-analysis-action";
 
 export {
-    MoveAction
-} from "./move-action";
+    MoveCopyAction
+} from "./move-copy-action";

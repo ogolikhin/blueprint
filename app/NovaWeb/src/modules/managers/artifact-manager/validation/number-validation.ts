@@ -55,7 +55,9 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
                        decimalPlaces: number,
                        isValidated: boolean): boolean {
         const value = oldValue || newValue;
-        return !value || angular.isNumber(this.localization.current.toNumber(value, isValidated ? decimalPlaces : null));
+        const isNumber = angular.isNumber(this.localization.current.toNumber(value, isValidated ? decimalPlaces : null));
+        
+        return isNumber ? isValidated : !value;
     }
 
     public isMax(newValue: number,

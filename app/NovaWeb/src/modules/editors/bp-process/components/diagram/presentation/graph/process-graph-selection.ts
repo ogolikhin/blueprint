@@ -27,7 +27,6 @@ export class ProcessGraphSelectionHelper {
                 }
             }
         }
-
         return null;
     }
 
@@ -70,12 +69,10 @@ export class ProcessGraphSelectionHelper {
 
             return null;
         }
-
         return cell;
     }
 
     public initSelection() {
-       // this.graph.getSelectionModel().setSingleSelection(this.isSingleSelection);
         new mxRubberband(this.mxGraph);
         let baseIsEventIgnored = this.mxGraph.isEventIgnored;
         this.mxGraph.isEventIgnored = (evtName, me, sender) => {
@@ -107,7 +104,7 @@ export class ProcessGraphSelectionHelper {
             if (elements) {
                 elements = elements.filter(e => e instanceof DiagramNode);
                 // highlight edges and notify system that the subartifact 
-                // selection has changed
+                // selection has changed. Note: elements array can be empty.
                 this.processGraph.highlightNodeEdges(elements);
                 this.notifySelectionChanged(elements);
              }
@@ -123,7 +120,6 @@ export class ProcessGraphSelectionHelper {
         if (this.hasInvisibleSelectedSystemTask(evt)) {
             return true;
         }
-
         return evt.properties.removed.filter(e => e instanceof DiagramNode).length !== evt.properties.removed.length;
     }
 

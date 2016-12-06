@@ -223,24 +223,29 @@ export class ProcessDiagram {
     }
 
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
-        if (elements.length === 1) {
-            // single-selection
-            const subArtifactId: number = elements[0].model.id;
-            const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
-            if (subArtifact) {
-                subArtifact.loadProperties()
-                    .then((loadedSubArtifact: IStatefulSubArtifact) => {
+        // Note: need to trigger an angular $digest so that bindings will
+        // work in other components
+        this.$rootScope.$applyAsync(() => {
+            if (elements.length === 1) {
+                // single-selection
+                const subArtifactId: number = elements[0].model.id;
+                const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
+                if (subArtifact) {
+                    subArtifact.loadProperties()
+                        .then((loadedSubArtifact: IStatefulSubArtifact) => {
 
-                        this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                    });
+                            this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
+                        });
+                }
+            } else if (elements.length > 1) {
+                // multiple selection
+                this.artifactManager.selection.setSubArtifact(undefined, true);
+ 
+            } else {
+                // empty selection
+                this.artifactManager.selection.clearSubArtifact();
             }
-        } else if (elements.length > 1) {
-            // multiple subArtifacts selected 
-            this.artifactManager.selection.setSubArtifact(undefined, true);
-            
-        } else {
-            this.artifactManager.selection.clearSubArtifact();
-        }
+        });
     }
     
     private handleInitProcessGraphFailed(processId: number, err: any) {

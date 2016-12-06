@@ -75,7 +75,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     protected displaySuccessPublishMessage() {
         this.services.messageService.addInfo("Publish_Success_Message");
-        this.services.messageService.addWarning("ST_ProcessType_RegenerateUS_Warning");
+        this.services.messageService.addInfo("ST_ProcessType_RegenerateUS_Message");
     }
 
     // Returns promises for operations that are needed to refresh this process artifact

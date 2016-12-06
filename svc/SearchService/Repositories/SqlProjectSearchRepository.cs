@@ -47,7 +47,7 @@ namespace SearchService.Repositories
 
             try
             {
-                var items = await ConnectionWrapper.QueryAsync<SearchProjectResult>("GetProjectsByName",
+                var items = await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName",
                 param,
                 commandType: CommandType.StoredProcedure,
                 commandTimeout: _searchConfigurationProvider.SearchTimeout);

@@ -393,7 +393,7 @@ namespace ArtifactStoreTests
         //TODO: Refactor artifact & subartifact properties tests to use changesets as in the example below
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Text-Required-RT-Multi-HasDefault")]
         [TestRail(191159)]
         [Description("Create & publish an artifact.  Update a text property in a subartifact, save and publish.  " +
                      "Verify the sub artifact returned the text property updated.")]
@@ -432,11 +432,11 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 5)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -5)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -3)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 0)]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 5)]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -5)]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -3)]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 0)]
         [TestRail(191160)]
         [Description("Create & publish an artifact.  Update a number property in a subartifact, save and publish.  " +
                      "Verify the sub artifact returned the number property updated.")]
@@ -475,7 +475,7 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Date-Required-Validated-Min-Max-HasDefault")]
         [TestRail(191161)]
         [Description("Create & publish an artifact.  Update a date property in a subartifact, save and publish.  " +
                      "Verify the sub artifact returned the date property updated.")]
@@ -513,11 +513,11 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", "Green")]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", "Yellow")]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", "Purple")]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", "Orange")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", "Blue")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", "Green")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", "Yellow")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", "Purple")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", "Orange")]
         [TestRail(191162)]
         [Description("Create & publish an artifact.  Update a choice property in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the choice property updated.")]
@@ -556,8 +556,8 @@ namespace ArtifactStoreTests
         }
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green","Blue" } )]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow", "Orange", "Purple" })]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green","Blue" } )]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow", "Orange", "Purple" })]
         [TestRail(195423)]
         [Description("Create & publish an artifact. Update a choice property with multiple selection in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the choice property updated.")]
@@ -599,7 +599,7 @@ namespace ArtifactStoreTests
 
         [Category(Categories.CustomData)]
         [TestRail(191163)]
-        [TestCase(ItemTypePredefined.Process, "Action 1", "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-User-Required-HasDefault-User")]
         [Description("Create & publish an artifact.  Update a user property in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the user property updated.")]
         public void UpdateSubArtifact_ChangeUserPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 

@@ -12,6 +12,7 @@ export interface IArtifactService {
     create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
     getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]>;
     moveArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<any>;
+    copyArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
 }
 
 export class ArtifactService implements IArtifactService {
@@ -161,12 +162,9 @@ export class ArtifactService implements IArtifactService {
     }
 
     public moveArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<any> {
-        let url: string;
-        if (orderIndex) {
-            url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}`;
-        } else {
-            url = `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}`;
-        }
+        const url = orderIndex ? 
+            `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}?orderIndex=${orderIndex}` :
+            `/svc/bpartifactstore/artifacts/${artifactId}/moveTo/${newParentId}`;
 
         const requestObj: ng.IRequestConfig = {
             url: url,
@@ -175,6 +173,26 @@ export class ArtifactService implements IArtifactService {
 
         return this.$http(requestObj).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact[]>) => {
+                return result.data;
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                return this.$q.reject(result.data);
+            }
+        );
+    }
+
+    public copyArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet> {
+        const url = orderIndex ? 
+            `/svc/bpartifactstore/artifacts/${artifactId}/copyTo/${newParentId}?orderIndex=${orderIndex}` :
+            `/svc/bpartifactstore/artifacts/${artifactId}/copyTo/${newParentId}`;
+
+        const requestObj: ng.IRequestConfig = {
+            url: url,
+            method: "POST"
+        };
+
+        return this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<Models.ICopyResultSet>) => {
                 return result.data;
             },
             (result: ng.IHttpPromiseCallbackArg<any>) => {

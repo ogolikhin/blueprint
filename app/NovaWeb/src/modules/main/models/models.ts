@@ -71,6 +71,11 @@ export interface IPublishResultSet {
     projects?: IItem[];
 }
 
+export interface ICopyResultSet {
+    artifact?: IArtifact;
+    copiedArtifactsCount?: number;
+}
+
 export interface IArtifact extends IItem {
     projectId?: number;
     orderIndex?: number;

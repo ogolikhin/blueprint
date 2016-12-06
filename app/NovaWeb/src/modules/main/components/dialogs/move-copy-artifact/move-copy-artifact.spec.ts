@@ -1,19 +1,25 @@
 import {IDialogSettings} from "../../../../shared/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {MoveArtifactPickerDialogController, IMoveArtifactPickerOptions, MoveArtifactInsertMethod} from "./move-artifact";
+import {
+    MoveCopyArtifactPickerDialogController, 
+    IMoveCopyArtifactPickerOptions, 
+    MoveCopyArtifactInsertMethod,
+    MoveCopyActionType
+} from "./move-copy-artifact";
 import {Models, Enums} from "../../../../main/models";
 
 describe("MoveArtifactPickerDialogController", () => {
-    let controller: MoveArtifactPickerDialogController;
+    let controller: MoveCopyArtifactPickerDialogController;
 
     beforeEach(() => {
         const $instance = {} as ng.ui.bootstrap.IModalServiceInstance;
         const dialogSettings = {} as IDialogSettings;
         const dialogData = {
-            currentArtifact: <Models.IArtifact>{id: 1, name: "test", predefinedType: Enums.ItemTypePredefined.PrimitiveFolder}
-        } as IMoveArtifactPickerOptions;
+            currentArtifact: <Models.IArtifact>{id: 1, name: "test", predefinedType: Enums.ItemTypePredefined.PrimitiveFolder},
+            actionType: MoveCopyActionType.Move
+        } as IMoveCopyArtifactPickerOptions;
         const localization = {} as ILocalizationService;
-        controller = new MoveArtifactPickerDialogController($instance, dialogSettings, dialogData, localization);
+        controller = new MoveCopyArtifactPickerDialogController($instance, dialogSettings, dialogData, localization);
     });
 
     it("isItemSelectable same item id", () => {
@@ -41,7 +47,7 @@ describe("MoveArtifactPickerDialogController", () => {
     it("isItemSelectable folder inside", () => {
         // Arrange
         const item = <Models.IArtifact>{id: 5, name: "test", predefinedType: Enums.ItemTypePredefined.PrimitiveFolder};
-        controller.insertMethod = MoveArtifactInsertMethod.Inside;
+        controller.insertMethod = MoveCopyArtifactInsertMethod.Inside;
 
         // Act
         let result: boolean = controller.isItemSelectable(item);
@@ -55,7 +61,7 @@ describe("MoveArtifactPickerDialogController", () => {
         const model = {id: 3, name: "test"};
         const vm = {model: model};
         controller.selectedVMs = [vm];
-        controller.insertMethod = MoveArtifactInsertMethod.Above;
+        controller.insertMethod = MoveCopyArtifactInsertMethod.Above;
 
         // Act
         let result: boolean = controller.okDisabled;

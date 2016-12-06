@@ -4,9 +4,9 @@ export enum ClipboardDataType {
     Unknown
 }
 
-export interface IClipboardData {
-    type: ClipboardDataType;
-    data: any;
+export interface IClipboardData { 
+    getType(): ClipboardDataType;
+    getData: any;
     dispose();
 }
 
@@ -35,11 +35,11 @@ export class ClipboardService implements IClipboardService {
         if (this.isEmpty()) {
             return ClipboardDataType.Unknown;
         }
-        return this._data.type;
+        return this._data.getType();
     }
 
     public isEmpty(): boolean {
-        return !this._data || !this._data.data;
+        return !this._data || !this._data.getData();
     }    
 
     public clearData(): void {

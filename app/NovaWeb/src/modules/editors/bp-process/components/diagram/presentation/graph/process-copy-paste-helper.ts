@@ -466,11 +466,11 @@ export class ProcessCopyPasteHelper {
             throw new Error("Clipboard is empty."); 
         }
 
-        if (processClipboardData.type !== ClipboardDataType.Process) {
+        if (processClipboardData.getType() !== ClipboardDataType.Process) {
             throw new Error("Clipboard data has wrong type."); 
         }
 
-        const data = <IProcess>processClipboardData.data;
+        const data = <IProcess>processClipboardData.getData();
         let connectionStartId = null;
         if (this.layout.viewModel.isWithinShapeLimit(data.shapes.length)) {
             
@@ -478,6 +478,7 @@ export class ProcessCopyPasteHelper {
             this.pasteAndUpdateShapes(data, idMap);
 
             // 2. connect the original graph to link to the start of pasted model
+            connectionStartId = data.shapes[0].id;
             this.connectToPastedShapesStart(connectionStartId, data, destinationId, sourceIds);
 
             // 3. update original branch destination ids
@@ -509,7 +510,6 @@ export class ProcessCopyPasteHelper {
     }
 
     private connectToPastedShapesStart(connectionStartId: number, data: IProcess, destinationId: number, sourceIds: number[]) {
-        connectionStartId = data.shapes[0].id;
         let links = _.filter(this.layout.viewModel.links, (link) => { 
             return destinationId === link.destinationId && 
                         _.filter(sourceIds, (sourceId) => { return sourceId === link.sourceId; }).length  > 0; 

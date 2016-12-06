@@ -43,8 +43,6 @@ export class ProcessGraph implements IProcessGraph {
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
     private processCopyPasteHelper: ProcessCopyPasteHelper;
-    public globalScope: IScopeContext;
-    public dragDropHandler: IDragDropHandler;
     private selectionChangedHandler: string = null;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {

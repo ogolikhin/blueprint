@@ -110,23 +110,6 @@ describe("MoveAction", () => {
         expect(moveAction.disabled).toBe(true);
     }));
 
-    it("is disabled when artifact is read-only",
-        inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
-            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
-            // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-            artifact.artifactState.readonly = true;
-
-            // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
-                dialogService, navigationService, loadingOverlayService);
-
-            // assert
-            expect(moveAction.disabled).toBe(true);
-        }));
-
     it("is disabled when artifact is Project",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,

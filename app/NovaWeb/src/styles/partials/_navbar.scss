@@ -77,12 +77,24 @@
         right: -13px;
     }
 
-    .dropdown-menu-help-link {
+    .dropdown-menu-help-btn {
         color: $white;
+        width: 100%;
+        background: transparent;
+        border: 0;
+
+        &:hover {
+            background: $white;
+            color: $black;
+        }
     }
 
     .dropdown-menu-caret {
         color: $white;
         margin-left: 5px;
+    }
+
+    .dropdown-menu-item {
+        line-height: 27px;
     }
 }

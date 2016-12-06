@@ -563,10 +563,6 @@ pagecontent, bp-properties-panel {
                         .ui-select-choices-row-inner:hover .ui-select-choice-item {
                             background: $brand-secondary;
                             color: $white;
-
-                            &::before {
-                                content: '\2713';
-                            }
                         }
                     }
 

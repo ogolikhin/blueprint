@@ -211,6 +211,9 @@ export class ProcessCopyPasteHelper {
                     while (!!preprocessorNode) {
                         if (searchString.indexOf("*" + preprocessorNode.nextIds[0] + "*") > -1) {
                             node.endPointId = preprocessorNode.nextIds[0];
+                            if (preprocessorNode.type === PreprocessorNodeType.UserTask) {
+                                node.endPointId = preprocessorNode.id;
+                            }
                             break;
                         }
                         preprocessorNode = data.preprocessorTree[preprocessorNode.nextIds[0]];
@@ -405,12 +408,13 @@ export class ProcessCopyPasteHelper {
         // set process decisionBranchDestinationLinks.
         _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {
             if (!!node && node.branches.length > 1) {
-                for (let branch of node.branches) {
+                for (let i = 1; i < node.branches.length; i++) {
+                    let branch = node.branches[i];
                     procModel.decisionBranchDestinationLinks.push(new ProcessLinkModel(-1, _.toNumber(node.decisionId), 
                                                                                                     _.toNumber(node.endPointId), branch.orderindex));
                 }
             }
-        });
+        });        
 
         return procModel;
     }

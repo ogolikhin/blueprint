@@ -10,7 +10,7 @@ import {
     IMoveCopyArtifactPickerOptions,
     MoveCopyActionType
 } from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {Models, Enums, AdminStoreModels} from "../../../../main/models";
+import {Models, Enums} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
@@ -107,7 +107,7 @@ export class MoveCopyAction extends BPDropdownAction {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
         if (!this.projectManager.getProject(this.artifact.projectId)) {
-            loadProjectPromise = this.projectManager.load(this.artifact.projectId);
+            loadProjectPromise = this.projectManager.add(this.artifact.projectId);
         } else {
             loadProjectPromise = this.$q.resolve();
         }
@@ -140,6 +140,7 @@ export class MoveCopyAction extends BPDropdownAction {
         };
 
         const dialogData: IMoveCopyArtifactPickerOptions = {
+            showProjects: false,
             showSubArtifacts: false,
             selectionMode: "single",
             currentArtifact: this.artifact,

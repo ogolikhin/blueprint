@@ -135,7 +135,7 @@ describe("OpenProcessImpactAnalysisAction", () => {
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
 
             // assert
-            expect(action.tooltip).toEqual(localization.get("App_Toolbar_Open_Shape_Impact_Analysis"));
+            expect(action.tooltip).toEqual(localization.get("App_Toolbar_Open_Impact_Analysis"));
         });
 
         it("sets disabled to true when multiple shapes are selected", () => {
@@ -146,6 +146,18 @@ describe("OpenProcessImpactAnalysisAction", () => {
 
             // act
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask, userTask2]);
+
+            // assert
+            expect(action.disabled).toEqual(true);
+        });
+
+        it("sets disabled to true when new shape is selected", () => {
+            // arrange
+            const action = new OpenProcessImpactAnalysisAction(statefulProcess, localization, processDiagramCommunication);
+            const userTask = TestShapes.createUserTask(-1, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
 
             // assert
             expect(action.disabled).toEqual(true);

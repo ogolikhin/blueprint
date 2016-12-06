@@ -226,27 +226,31 @@ export class ProcessDiagram {
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
         // Note: need to trigger an angular $digest so that bindings will
         // work in other components
-        this.$rootScope.$apply(() => {
-            if (elements.length === 1) {
-                // single-selection
-                const subArtifactId: number = elements[0].model.id;
-                const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
-                if (subArtifact) {
-                    subArtifact.loadProperties()
-                        .then((loadedSubArtifact: IStatefulSubArtifact) => {
-
+        
+        if (elements.length === 1) {
+            // single-selection
+            const subArtifactId: number = elements[0].model.id;
+            const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
+            if (subArtifact) {
+                subArtifact.loadProperties()
+                    .then((loadedSubArtifact: IStatefulSubArtifact) => {
+                        this.$rootScope.$applyAsync(() => {
                             this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
                         });
-                }
-            } else if (elements.length > 1) {
-                // multiple selection
-                this.artifactManager.selection.setSubArtifact(undefined, true);
- 
-            } else {
-                // empty selection
-                this.artifactManager.selection.clearSubArtifact();
+                    });
             }
-        });
+        } else if (elements.length > 1) {
+            // multiple selection
+            this.$rootScope.$applyAsync(() => {
+                this.artifactManager.selection.setSubArtifact(undefined, true);
+            });
+ 
+        } else {
+            // empty selection
+            this.$rootScope.$applyAsync(() => {
+                this.artifactManager.selection.clearSubArtifact();
+            });
+        }
     }
     
     private handleInitProcessGraphFailed(processId: number, err: any) {

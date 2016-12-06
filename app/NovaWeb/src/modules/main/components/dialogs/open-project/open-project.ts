@@ -1,74 +1,57 @@
-import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
-import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
+import {ProjectSearchResultVM} from "./../../bp-artifact-picker/search-result-vm";
+import {Helper} from "./../../../../shared/utils/helper";
+import {IDialogController, IDialogSettings, BaseDialogController} from "./../../../../shared/widgets/bp-dialog/bp-dialog";
 import {AdminStoreModels, TreeModels} from "../../../models";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IProjectService} from "../../../../managers/project-manager/project-service";
-import {IArtifactManager, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 
-export interface IOpenProjectController {
+type OpenProjectVM = TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
+
+export interface IOpenProjectController extends IDialogController {
     isProjectSelected: boolean;
-    selectedItem?: TreeModels.InstanceItemNodeVM;
+    selectedName?: string;
     selectedDescription: string;
 
-    // BpTreeView bindings
-    rowData: TreeModels.InstanceItemNodeVM[];
-    columns: IColumn[];
-    onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => any;
-    onDoubleClick: (vm: TreeModels.ITreeNodeVM<any>) => any;
+    // BpArtifactPicker bindings
+    onSelectionChanged(selectedVMs: OpenProjectVM[] ): void;
+    onDoubleClick: (vm: OpenProjectVM) => any;
 }
 
 export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
     public hasCloseButton: boolean = true;
-    private _selectedItem: TreeModels.InstanceItemNodeVM;
-    private _errorMessage: string;
+    private _returnValue: number;
+    private _selectedName: string;
+    private _selectedDescription: string;
 
-    public factory: TreeModels.TreeNodeVMFactory;
-
-    static $inject = ["$scope", "localization", "$uibModalInstance", "projectService", "artifactManager", "statefulArtifactFactory", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "$uibModalInstance", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
-                private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
-                private projectService: IProjectService,
-                private artifactManager: IArtifactManager,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
         super($uibModalInstance, dialogSettings);
-        this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
-        this.rowData = [this.factory.createInstanceItemNodeVM({
-            id: 0,
-            type: AdminStoreModels.InstanceItemType.Folder,
-            name: "",
-            hasChildren: true
-        } as AdminStoreModels.IInstanceItem, true)];
     };
 
     //Dialog return value
-    public get returnValue(): AdminStoreModels.IInstanceItem {
-        return this.isProjectSelected ? this.selectedItem.model : undefined;
+    public get returnValue(): number {
+        return this._returnValue;
     };
 
     public get isProjectSelected(): boolean {
-        return this.selectedItem && this.selectedItem.model.type === AdminStoreModels.InstanceItemType.Project;
+        return Boolean(this.returnValue);
     }
 
-    public get selectedItem(): TreeModels.InstanceItemNodeVM {
-        return this._selectedItem;
+    public get selectedName(): string {
+        return this._selectedName;
     }
-
-    private _selectedDescription: string;
 
     public get selectedDescription() {
         return this._selectedDescription;
     }
 
-    private setSelectedItem(item: TreeModels.InstanceItemNodeVM) {
-        this._selectedItem = item;
+    private setSelectedItem(vm: OpenProjectVM) {
+        this._selectedName = vm ? vm.model.name : undefined;
 
-        const description = this.selectedItem.model.description;
+        let description = vm ? vm.model.description : undefined;
         if (description) {
-            //TODO Why do we need this? Project descriptions are plain text and Instance Folders can't have descriptions.
             const virtualDiv = window.document.createElement("DIV");
             virtualDiv.innerHTML = description;
 
@@ -76,57 +59,31 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             for (let a = 0; a < aTags.length; a++) {
                 aTags[a].setAttribute("target", "_blank");
             }
-            this._selectedDescription = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
-            this.selectedItem.model.description = this.selectedDescription.toString();
+            description = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
+        }
+        this._selectedDescription = description;
+
+        if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+            this._returnValue = vm.model.id;
+        } else if (vm instanceof ProjectSearchResultVM) {
+            this._returnValue = vm.model.itemId;
         } else {
-            this._selectedDescription = undefined;
+            this._returnValue = undefined;
         }
     }
 
-    private onEnterKeyPressed = (e: KeyboardEvent) => {
-        const key = e.which || e.keyCode;
-        if (key === 13) {
-            //user pressed Enter key on project
+    // BpArtifactPicker bindings
+
+    public onSelectionChanged(selectedVMs: OpenProjectVM[]): void {
+        this.$scope.$applyAsync(() => {
+            this.setSelectedItem(selectedVMs.length ? selectedVMs[0] : undefined);
+        });
+    }
+
+    public onDoubleClick = (vm: OpenProjectVM): void => {
+        this.$scope.$applyAsync(() => {
+            this.setSelectedItem(vm);
             this.ok();
-        }
-    };
-
-    // BpTreeView bindings
-
-    public rowData: TreeModels.InstanceItemNodeVM[];
-    public columns: IColumn[] = [{
-        headerName: this.localization.get("App_Header_Name"),
-        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
-        isGroup: true,
-        cellRenderer: (params: IColumnRendererParams) => {
-            const vm = params.data as TreeModels.ITreeNodeVM<any>;
-            if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-                //TODO this listener is never removed
-                // Need to use a cellRenderer "Component" with a destroy method, not a function.
-                // See https://www.ag-grid.com/javascript-grid-cell-rendering/
-                // Also need to upgrade ag-grid as destroy wasn't being called until 6.3.0
-                // See https://www.ag-grid.com/change-log/changeLogIndex.php
-                params.eGridCell.addEventListener("keydown", this.onEnterKeyPressed);
-            }
-            const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<i></i><span>${label}</span>`;
-        }
-    }];
-
-    public onSelect = (vm: TreeModels.InstanceItemNodeVM, isSelected: boolean): void => {
-        if (isSelected) {
-            this.$scope.$applyAsync((s) => {
-                this.setSelectedItem(vm);
-            });
-        }
-    }
-
-    public onDoubleClick = (vm: TreeModels.InstanceItemNodeVM): void => {
-        if (vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-            this.$scope.$applyAsync((s) => {
-                this.setSelectedItem(vm);
-                this.ok();
-            });
-        }
+        });
     }
 }

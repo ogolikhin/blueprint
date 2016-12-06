@@ -55,6 +55,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected currentSubArtifact: IStatefulSubArtifact;
 
     protected isDirty: boolean;
+    protected isLinkPopupOpen: boolean;
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
@@ -67,7 +68,11 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         "InsertUnorderedList",
         "InsertOrderedList",
         "Outdent",
-        "Indent"
+        "Indent",
+        "FontName"
+    ];
+    protected linkEvents: string[] = [
+        "mceLink"
     ];
     protected fontSizes: string[] = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
 
@@ -96,6 +101,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         }
 
         this.isDirty = false;
+        this.isLinkPopupOpen = false;
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -162,6 +168,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         }
         newContent = newContent || "";
         this.isDirty = true;
+        this.isLinkPopupOpen = false;
 
         this.handleValidation(newContent);
 
@@ -173,6 +180,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected prepRTF = (hasTables: boolean = false) => {
         this.isDirty = false;
+        this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
         this.handleLinks(this.editorBody.querySelectorAll("a"));

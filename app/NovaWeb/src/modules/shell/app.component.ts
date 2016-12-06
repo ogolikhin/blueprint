@@ -72,13 +72,13 @@ export class AppController {
             if (unpublishedArtifactSet.artifacts.length > 0) {
                 const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
-                this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
-                    .then((success) => this.navigationService.navigateToLogout());
+                return this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
+                    .then((success) => { return this.navigationService.navigateToLogout(); });
             } else {
-                this.navigationService.navigateToLogout();
+                return this.navigationService.navigateToLogout();
             }
         }).finally(() => {
-                this.loadingOverlayService.endLoading(id);
+            this.loadingOverlayService.endLoading(id);
         });
     }
 

@@ -81,10 +81,12 @@ class Branch {
         this.taskId = taskId;
         this.label = label;
         this.orderindex = orderindex;
+        this.endPointId = "UNDEFINED";
     }
     taskId: string;
     label: string;
     orderindex: number;
+    endPointId: string;
 }
 
 // This is used for the user and system decisions with branches
@@ -93,10 +95,8 @@ class DecisionPointRef {
         this.decisionId = decisionId;
         this.branches = [];
         this.branches.push(new Branch(taskId, label, orderindex));
-        this.endPointId = "UNDEFINED";
     }
     decisionId: string; 
-    endPointId: string;
     branches: Branch[]; 
 }
 
@@ -202,21 +202,23 @@ export class ProcessCopyPasteHelper {
                     let preprocessorNode: PreprocessorNode = data.preprocessorTree[node.branches[0].taskId];
                     let searchString: string = "";
                     while (!!preprocessorNode) {
-                        searchString +=  "*" + preprocessorNode.nextIds[0] + "*";
+                        searchString += "*" + preprocessorNode.id + "*" + preprocessorNode.nextIds[0] + "*";
                         preprocessorNode = data.preprocessorTree[preprocessorNode.nextIds[0]];
                     }
 
-                    //2. find match in the search string when traversing through the second branch 
-                    preprocessorNode = data.preprocessorTree[node.branches[1].taskId];
-                    while (!!preprocessorNode) {
-                        if (searchString.indexOf("*" + preprocessorNode.nextIds[0] + "*") > -1) {
-                            node.endPointId = preprocessorNode.nextIds[0];
-                            if (preprocessorNode.type === PreprocessorNodeType.UserTask) {
-                                node.endPointId = preprocessorNode.id;
+                    //2. find match in the search string when traversing through the second branch
+                    for (let i = 1; i < node.branches.length; i++) { 
+                        preprocessorNode = data.preprocessorTree[node.branches[i].taskId];
+                        while (!!preprocessorNode) {
+                            if (searchString.indexOf("*" + preprocessorNode.nextIds[0] + "*") > -1) {
+                                node.branches[i].endPointId = preprocessorNode.nextIds[0];
+                                if (preprocessorNode.type === PreprocessorNodeType.UserTask) {
+                                    node.branches[i].endPointId = preprocessorNode.id;
+                                }
+                                break;
                             }
-                            break;
+                            preprocessorNode = data.preprocessorTree[preprocessorNode.nextIds[0]];
                         }
-                        preprocessorNode = data.preprocessorTree[preprocessorNode.nextIds[0]];
                     }
                 }
             });        
@@ -411,7 +413,7 @@ export class ProcessCopyPasteHelper {
                 for (let i = 1; i < node.branches.length; i++) {
                     let branch = node.branches[i];
                     procModel.decisionBranchDestinationLinks.push(new ProcessLinkModel(-1, _.toNumber(node.decisionId), 
-                                                                                                    _.toNumber(node.endPointId), branch.orderindex));
+                                                                                                    _.toNumber(branch.endPointId), branch.orderindex));
                 }
             }
         });        
@@ -495,12 +497,15 @@ export class ProcessCopyPasteHelper {
                 } else {
                     link.destinationId = idMap[link.destinationId.toString()];
                 }
+                if (!this.layout.viewModel.decisionBranchDestinationLinks) {
+                    this.layout.viewModel.decisionBranchDestinationLinks = [];
+                }
                 this.layout.viewModel.decisionBranchDestinationLinks.push(link); 
             }
 
-                }
+        }
 
         this.layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(_.toNumber(connectionStartId)); 
-        }
+    }
     
 }

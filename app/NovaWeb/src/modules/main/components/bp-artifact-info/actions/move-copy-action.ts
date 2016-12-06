@@ -4,8 +4,8 @@ import {IProjectManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
-    MoveCopyArtifactPickerDialogController, 
-    MoveCopyArtifactResult, 
+    MoveCopyArtifactPickerDialogController,
+    MoveCopyArtifactResult,
     MoveCopyArtifactInsertMethod,
     IMoveCopyArtifactPickerOptions,
     MoveCopyActionType
@@ -18,7 +18,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;
 
-    constructor(private $q: ng.IQService, 
+    constructor(private $q: ng.IQService,
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
@@ -27,7 +27,7 @@ export class MoveCopyAction extends BPDropdownAction {
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService) {
         super();
-       
+
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -44,7 +44,7 @@ export class MoveCopyAction extends BPDropdownAction {
             new BPDropdownItemAction(
                 this.localization.get("App_Toolbar_Move"),
                 () => this.executeMove(),
-                (): boolean => true,
+                () => this.canExecute(),
                 "fonticon2-move"
             )
         );
@@ -52,7 +52,7 @@ export class MoveCopyAction extends BPDropdownAction {
             new BPDropdownItemAction(
                 this.localization.get("App_Toolbar_Copy"),
                 () => this.executeCopy(),
-                (): boolean => true,
+                () => this.canExecute(),
                 "fonticon2-copy"
             )
         );
@@ -83,6 +83,10 @@ export class MoveCopyAction extends BPDropdownAction {
         }
 
         if (this.artifact.artifactState.readonly) {
+            return false;
+        }
+
+        if ((this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit) {
             return false;
         }
 
@@ -139,7 +143,7 @@ export class MoveCopyAction extends BPDropdownAction {
             showSubArtifacts: false,
             selectionMode: "single",
             currentArtifact: this.artifact,
-            actionType: this.actionType 
+            actionType: this.actionType
         };
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {
@@ -181,7 +185,7 @@ export class MoveCopyAction extends BPDropdownAction {
         if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
             //save
             return this.artifact.save();
-        } 
+        }
         //do nothing
         return this.$q.resolve(null);
     }

@@ -1,5 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "../../../";
 import {MoveCopyAction} from "./move-copy-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -38,7 +39,7 @@ describe("MoveAction", () => {
     }));
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, projectManager: ProjectManagerMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock,
             dialogService: DialogServiceMock, navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
@@ -58,7 +59,7 @@ describe("MoveAction", () => {
     }));
 
     it("throws exception when project manager is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, localization: ILocalizationService, 
+            messageService: IMessageService, localization: ILocalizationService,
             dialogService: DialogServiceMock, navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
@@ -77,7 +78,7 @@ describe("MoveAction", () => {
     }));
 
     it("throws exception when dialog service is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, projectManager: ProjectManagerMock, localization: ILocalizationService, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, localization: ILocalizationService,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
@@ -96,13 +97,13 @@ describe("MoveAction", () => {
     }));
 
     it("is disabled when artifact is null", inject((localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
         // arrange
         const artifact: IStatefulArtifact = null;
 
         // act
-        const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager, 
+        const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
             dialogService, navigationService, loadingOverlayService);
 
         // assert
@@ -112,14 +113,14 @@ describe("MoveAction", () => {
     it("is disabled when artifact is read-only",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
             artifact.artifactState.readonly = true;
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager, 
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -129,7 +130,7 @@ describe("MoveAction", () => {
     it("is disabled when artifact is Project",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -139,7 +140,7 @@ describe("MoveAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager, 
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -149,7 +150,7 @@ describe("MoveAction", () => {
     it("is disabled when artifact is Collections",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -159,7 +160,7 @@ describe("MoveAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager, 
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -169,7 +170,7 @@ describe("MoveAction", () => {
     it("is enabled when artifact is valid",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -183,7 +184,7 @@ describe("MoveAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager, 
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -193,7 +194,7 @@ describe("MoveAction", () => {
     it("calls artifact.move when executed",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -205,7 +206,7 @@ describe("MoveAction", () => {
                     permissions: RolePermissions.Edit
                 });
             const moveSpy = spyOn(artifact, "move").and.callFake(() => $q.reject(null));
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, 
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService,
                 projectManager, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveCopyArtifactResult[] = [
@@ -234,7 +235,7 @@ describe("MoveAction", () => {
         it("refresh after move",
             inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock, 
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -247,7 +248,7 @@ describe("MoveAction", () => {
                 });
             artifact.artifactState.dirty = true;
             spyOn(artifact, "move").and.callFake(() => $q.resolve());
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, 
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService,
                 projectManager, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveCopyArtifactResult[] = [

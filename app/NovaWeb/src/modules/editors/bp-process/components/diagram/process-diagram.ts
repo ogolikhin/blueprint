@@ -225,7 +225,7 @@ export class ProcessDiagram {
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
         // Note: need to trigger an angular $digest so that bindings will
         // work in other components
-        this.$rootScope.$applyAsync(() => {
+        this.$rootScope.$apply(() => {
             if (elements.length === 1) {
                 // single-selection
                 const subArtifactId: number = elements[0].model.id;

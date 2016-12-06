@@ -65,4 +65,24 @@
             }
         }
     }
+
+    .navbar-help {
+        display: inline-block;
+    }
+
+    .dropdown-menu-help {
+        background: $navbar-color;
+        min-width: 70px;
+        margin-top: 0;
+        right: -13px;
+    }
+
+    .dropdown-menu-help-link {
+        color: $white;
+    }
+
+    .dropdown-menu-caret {
+        color: $white;
+        margin-left: 5px;
+    }
 }

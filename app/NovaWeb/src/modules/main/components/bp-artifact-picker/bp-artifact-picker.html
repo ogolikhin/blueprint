@@ -1,5 +1,5 @@
 <form class="search-form" ng-submit="$ctrl.search()">
-    <div uib-dropdown>
+    <div uib-dropdown ng-if="$ctrl.project">
         <!--fixme: button disabled should use ng-diabled not a class and should use a controller function for logic when complex statements using && or || -->
         <button type="button" uib-dropdown-toggle class="btn btn-action btn-dropdown-toggle dropdown-toggle" data-toggle="dropdown"
             ng-class="{disabled: $ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0}"
@@ -23,7 +23,7 @@
     </div>
 
     <!--fixme: should use a controller function for logic when complex statements using && or || -->
-    <button type="submit" class="btn btn-action btn-small btn-search btn-promoted-action"
+    <button type="submit" class="btn btn-action btn-small btn-promoted-action" ng-class="{'btn-search': $ctrl.project}"
             ng-disabled="$ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0">
         <i class="fonticon2-search"></i>
     </button>

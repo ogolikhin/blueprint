@@ -47,7 +47,8 @@
                                 fallback="::true" class="bp-artifact-list__icon"></bp-item-type-icon>
                         </td>
                         <td class="unpublished__id-col">
-                            <a ui-sref="main.item({id: artifact.id, version: undefined})">{{::artifact.prefix + artifact.id}}</a>
+                            <a ng-if="$ctrl.isNavigatable(artifact)" ui-sref="main.item({id: artifact.id, version: undefined})">{{::artifact.prefix + artifact.id}}</a>
+                            <span ng-if="!$ctrl.isNavigatable(artifact)">{{::artifact.prefix + artifact.id}}</span>
                         </td>
                         <td class="unpublished__name-col">{{::artifact.name}}</td>
                     </tr>

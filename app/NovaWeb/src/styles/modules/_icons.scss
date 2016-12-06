@@ -248,8 +248,13 @@ $icon-review: '\e865';
 .icon-collections:before {
     content: $icon-collections;
 }
-
-.icon-review:before {
+.icon-artifact-baseline:before {
+    content: $icon-baseline;
+}
+.icon-baseline-folder:before {
+    content: $icon-baseline;
+}
+.icon-artifact-review-package:before {
     content: $icon-review;
 }
 

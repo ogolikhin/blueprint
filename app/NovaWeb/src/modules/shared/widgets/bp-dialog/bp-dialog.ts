@@ -34,6 +34,7 @@ export class DialogService implements IDialogService {
     private defaultSettings: IDialogSettings;
 
     public static $inject = ["localization", "$uibModal"];
+
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
         this.defaultSettings = {
             type: DialogTypeEnum.Base,
@@ -54,7 +55,7 @@ export class DialogService implements IDialogService {
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
-        const options = _.assign(
+        const options = _.assign({},
             this.dialogSettings,
             optsettings,
             <ng.ui.bootstrap.IModalSettings>{
@@ -73,7 +74,7 @@ export class DialogService implements IDialogService {
     }
 
     public open(dialogSettings?: IDialogSettings, dialogData?): ng.IPromise<any> {
-        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
         if (dialogData) {
             this.dialogData = dialogData;
         }
@@ -92,7 +93,7 @@ export class DialogService implements IDialogService {
             //We only want to set the okButton if it's specified, otherwise use the initialize default.
             dialogSettings.okButton = okButton;
         }
-        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
             keyboard: false
         }).result;
@@ -105,7 +106,7 @@ export class DialogService implements IDialogService {
             css: css,
             message: message
         } as IDialogSettings;
-        this.dialogSettings = _.assign(this.defaultSettings, dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
 
         return this.openInternal().result;
     }

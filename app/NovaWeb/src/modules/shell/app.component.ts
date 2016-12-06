@@ -64,20 +64,21 @@ export class AppController {
     }
 
     public logout(evt: ng.IAngularEvent) {
-        evt.preventDefault();
         const id = this.loadingOverlayService.beginLoading();
+        if (evt) {
+            evt.preventDefault();
+        }
         this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
-            this.loadingOverlayService.endLoading(id);
             if (unpublishedArtifactSet.artifacts.length > 0) {
                 const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
-                this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
-                    .then((success) => this.navigationService.navigateToLogout());
+                return this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
+                    .then((success) => { return this.navigationService.navigateToLogout(); });
             } else {
-                this.navigationService.navigateToLogout();
+                return this.navigationService.navigateToLogout();
             }
-        }).catch(() => {
-                this.loadingOverlayService.endLoading(id);
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(id);
         });
     }
 

@@ -196,7 +196,13 @@ pagecontent, bp-properties-panel {
 
             bp-item-type-icon {
                 display: block;
+                height: 32px;
                 margin-top: 5px;
+                width: 32px;
+
+                img {
+                    background-color: $blue-lightest;
+                }
             }
         }
 
@@ -319,7 +325,10 @@ pagecontent, bp-properties-panel {
             position: absolute;
 
             img {
+                background-color: $blue-lightest;
                 height: 12px;
+                left: 2px;
+                top: 11px;
                 width: 12px;
             }
         }

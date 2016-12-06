@@ -98,7 +98,7 @@ describe("BPArtifactRelationshipItem", () => {
                 });
 
             vm.relationship = <IRelationship>{
-                "artifactId": 1
+                "itemId": 1
             };
 
             vm.expanded = false;

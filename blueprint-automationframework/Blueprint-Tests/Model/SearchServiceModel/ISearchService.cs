@@ -62,7 +62,7 @@ namespace Model.SearchServiceModel
         /// <returns>Returns a list of projects that have names that match the searchText.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]  // separatorString is server-side param.
         List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
-            List < HttpStatusCode> expectedStatusCodes = null);
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns the list of artifacts(subartifacts?) that match the searchCriteria.

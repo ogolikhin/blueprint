@@ -30,11 +30,23 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
         if (!super.canOpenImpactAnalysis()) {
             return false;
         }
+        
+        if (!this.selectedNodes || !this.selectedNodes.length) {
+            return true;
+        }
 
-        return !this.selectedNodes || this.selectedNodes.length <= 1;
+        if (this.selectedNodes.length > 1) {
+            return false;
+        }
+
+        return this.selectedNodes[0].model.id > 0;
     }
 
     protected openImpactAnalysis(): void {
+        if (!this.canOpenImpactAnalysis()) {
+            return;
+        }
+        
         if (!this.selectedNodes || !this.selectedNodes.length) {
             super.openImpactAnalysis();
         } else {
@@ -45,11 +57,5 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
 
     private onSelectionChanged = (nodes: IDiagramNode[]): void => {
         this.selectedNodes = nodes;
-
-        if (this.selectedNodes && this.selectedNodes.length === 1) {
-            this._tooltip = this.localization.get("App_Toolbar_Open_Shape_Impact_Analysis");
-        } else {
-            this._tooltip = this.localization.get("App_Toolbar_Open_Impact_Analysis");
-        }
     };
 }

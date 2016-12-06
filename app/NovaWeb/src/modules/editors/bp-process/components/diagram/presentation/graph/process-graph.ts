@@ -502,19 +502,20 @@ export class ProcessGraph implements IProcessGraph {
 
     private deleteShape = (clickedNode: IDiagramNode) => {
         const dialogParameters = clickedNode.getDeleteDialogParameters();
-        this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
-            header: this.localization.get("App_DialogTitle_Alert"),
-            message: dialogParameters.message
-        }).then(() => {
-            if (clickedNode.getNodeType() === NodeType.UserTask) {
-                ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
-                ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
-                    (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
-            }
-        });
+
+        this.dialogService.alert(
+            dialogParameters.message, 
+            this.localization.get("App_DialogTitle_Alert"),
+            this.localization.get("App_Button_Ok"),
+            this.localization.get("App_Button_Cancel"))
+            .then(() => {
+                if (clickedNode.getNodeType() === NodeType.UserTask) {
+                    ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
+                    ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                }
+            });
     };
 
     private hasMaxConditions(decisionId: number): boolean {

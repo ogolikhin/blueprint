@@ -73,7 +73,7 @@ namespace Model.SearchServiceModel
         /// by the pageSize argument.</param>
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Returns the list of artifacts that match the searchCriteria.</returns>
+        /// <returns>Returns the ItemNameSearchResultSet that match the searchCriteria.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames")]  // separatorString is server-side param.
         ItemNameSearchResultSet SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
             int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);

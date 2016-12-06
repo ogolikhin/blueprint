@@ -80,7 +80,7 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
     }
 
     protected populateTaskChanges() {
-        if (this.dialogModel.originalItem && this.dialogModel) {
+        if (this.dialogModel && this.dialogModel.originalItem) {
             this.dialogModel.originalItem.action = this.dialogModel.action;
             this.dialogModel.originalItem.objective = this.dialogModel.objective;
             this.dialogModel.originalItem.associatedArtifact = this.dialogModel.associatedArtifact;
@@ -101,5 +101,9 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         };
 
         return defaultUserPersonaReference;
+    }
+
+    public getModel(): Models.IArtifact {
+        return <Models.IArtifact>this.dialogModel.originalItem.model;
     }
 }

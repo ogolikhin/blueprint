@@ -139,7 +139,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         return selectableArtifactTypes;
     }
 
-    public openIncludePicker() {
+    public openIncludePicker(subArtifact: Models.IArtifact) {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
             template: require("../../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
@@ -150,13 +150,19 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
         const dialogOption: IArtifactPickerOptions = {
             selectableItemTypes: this.getIncludedArtifactTypes(),
-            showSubArtifacts: false
+            showSubArtifacts: false,
+            isItemSelectable: (item: Models.IArtifact | Models.ISubArtifactNode) => {                
+                        return item.id !== subArtifact.parentId && 
+                                item.id !== subArtifact.id && 
+                                item.id > 0 &&
+                                !(<any>item).lockedByUser;
+                    }
         };
 
         this.openArtifactPicker(dialogSettings, dialogOption, this.postIncludePickerAction);
     }
 
-    public openActorPicker() {
+    public openActorPicker(subArtifact: Models.IArtifact) {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
             template: require("../../../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
@@ -166,7 +172,13 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         };
 
         const dialogOption: IArtifactPickerOptions = {
-            selectableItemTypes: [Models.ItemTypePredefined.Actor]
+            selectableItemTypes: [Models.ItemTypePredefined.Actor],
+            isItemSelectable: (item: Models.IArtifact | Models.ISubArtifactNode) => {                
+                        return item.id !== subArtifact.parentId && 
+                                item.id !== subArtifact.id && 
+                                item.id > 0 &&
+                                !(<any>item).lockedByUser;
+                    }
         };
 
         this.openArtifactPicker(dialogSettings, dialogOption, this.postActorPickerAction);

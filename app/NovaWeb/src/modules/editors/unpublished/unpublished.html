@@ -9,7 +9,7 @@
                         </div>
                     </div>
                 </div>
-                <bp-toolbar-2 actions="$ctrl.toolbarActions"></bp-toolbar-2>
+                <bp-toolbar-2 actions="::$ctrl.toolbarActions"></bp-toolbar-2>
             </div>
         </div>
         <div class="page-body-wrapper">
@@ -33,7 +33,7 @@
                     </tr>
                     </thead>
                     <tbody class="unpublished__body">
-                    <tr ng-repeat="artifact in $ctrl.publishService.unpublishedArtifacts track by artifact.id"
+                    <tr ng-repeat="artifact in $ctrl.unpublishedArtifacts track by artifact.id"
                         class="unpublished__row"
                         ng-class="{'unpublished__row--selected': $ctrl.isSelected(artifact)}">
                         <td class="unpublished__checkbox-col"><input type="checkbox"
@@ -52,7 +52,7 @@
                         </td>
                         <td class="unpublished__name-col">{{::artifact.name}}</td>
                     </tr>
-                    <tr class="unpublished__empty-row" ng-if="!$ctrl.publishService.unpublishedArtifacts.length">
+                    <tr class="unpublished__empty-row" ng-if="!$ctrl.unpublishedArtifacts.length">
                         <td colspan="4" class="unpublished__empty-message">{{::$ctrl.localization.get('Unpublished_Empty') }}</td>
                     </tr>
                     </tbody>

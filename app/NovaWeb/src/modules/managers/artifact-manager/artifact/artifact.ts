@@ -598,6 +598,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.getServices().$q.all(promisesToExecute)
             .then(() => {
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
                 deferred.resolve(this);
             })
             .catch((error) => {
@@ -605,6 +606,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
                 //Project manager is listening to this, and will refresh the project.
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
 
                 this.error.onNext(error);
             });

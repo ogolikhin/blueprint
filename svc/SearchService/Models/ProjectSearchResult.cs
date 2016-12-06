@@ -2,7 +2,7 @@
 
 namespace SearchService.Models
 {
-    public class SearchProjectResult : SearchResult
+    public class ProjectSearchResult : SearchResult
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Path { get; set; }

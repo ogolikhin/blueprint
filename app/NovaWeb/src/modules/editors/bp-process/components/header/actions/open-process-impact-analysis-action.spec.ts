@@ -150,6 +150,18 @@ describe("OpenProcessImpactAnalysisAction", () => {
             // assert
             expect(action.disabled).toEqual(true);
         });
+
+        it("sets disabled to true when new shape is selected", () => {
+            // arrange
+            const action = new OpenProcessImpactAnalysisAction(statefulProcess, localization, processDiagramCommunication);
+            const userTask = TestShapes.createUserTask(-1, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
+
+            // assert
+            expect(action.disabled).toEqual(true);
+        });
     });
 
     describe("execute", () => {

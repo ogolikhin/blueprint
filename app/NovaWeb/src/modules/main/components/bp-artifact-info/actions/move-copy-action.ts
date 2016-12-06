@@ -89,12 +89,12 @@ export class MoveCopyAction extends BPDropdownAction {
         return true;
     }
 
-    private executeMove() {
+    public executeMove() {
         this.actionType = MoveCopyActionType.Move;
         this.loadProjectIfNeeded();
     }
 
-    private executeCopy() {
+    public executeCopy() {
         this.actionType = MoveCopyActionType.Copy;
         this.loadProjectIfNeeded();
     }

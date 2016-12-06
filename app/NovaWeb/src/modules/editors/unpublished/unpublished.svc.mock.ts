@@ -1,5 +1,5 @@
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
-import {IArtifact, IPublishResultSet} from "../../main/models/models";
+import {IPublishResultSet} from "../../main/models/models";
 
 export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsService {
     public static $inject = ["$q"];
@@ -7,11 +7,11 @@ export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsSer
     constructor(private $q: ng.IQService) {
     }
 
-    public get unpublishedArtifactsObservable(): Rx.Observable<IArtifact[]> {
+    public get unpublishedArtifactsObservable(): Rx.Observable<IPublishResultSet> {
         return undefined;
     }
 
-    public get processedArtifactsObservable(): Rx.Observable<IArtifact[]> {
+    public get processedArtifactsObservable(): Rx.Observable<IPublishResultSet> {
         return undefined;
     }
 

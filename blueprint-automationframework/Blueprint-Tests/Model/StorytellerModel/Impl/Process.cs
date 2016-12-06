@@ -25,9 +25,9 @@ namespace Model.StorytellerModel.Impl
 
         public const string DefaultPreconditionName = "Precondition";
 
-        public const string DefaultUserTaskName = "UT";
+        public const string DefaultUserTaskName = "Action 1";
 
-        public const string DefaultSystemTaskName = "ST";
+        public const string DefaultSystemTaskName = "Response 1";
 
         public const string EndName = "End";
 

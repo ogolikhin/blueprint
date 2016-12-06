@@ -8,6 +8,7 @@ import "./localization";
 import "./messages";
 import "./navigation";
 import "./services";
+import "./local-storage";
 
 
 angular.module("bp.core", [
@@ -21,7 +22,8 @@ angular.module("bp.core", [
     "bp.core.localization",
     "bp.core.messages",
     "bp.core.navigation",
-    "bp.core.services"
+    "bp.core.services",
+    "bp.core.localStorage"
 ]);
 
 export {

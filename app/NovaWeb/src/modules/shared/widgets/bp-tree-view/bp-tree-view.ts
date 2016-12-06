@@ -305,7 +305,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 this.options.api.showLoadingOverlay();
             }
 
-            return this.$q.all(this.rowData.filter(vm => this.isLazyLoaded(vm)).map(vm => this.loadExpanded(vm))).then(() => {
+            return this.$q.all(this.rowData.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm))).then(() => {
                 if (this.options.api) {
                     this.options.api.setRowData(this.rootNodeVisible ? this.rowData : _.flatten(this.rowData.map(r => r.children)));
 
@@ -359,15 +359,14 @@ export class BPTreeViewController implements IBPTreeViewController {
         return undefined;
     }
 
-    private isLazyLoaded(vm: ITreeNode): boolean {
-        return vm.expanded && !_.isArray(vm.children) && _.isFunction(vm.loadChildrenAsync);
-    }
-
     private loadExpanded(vm: ITreeNode): ng.IPromise<any> {
-        return vm.loadChildrenAsync().then(children => {
-            vm.children = children;
-            return this.$q.all(children.filter(this.isLazyLoaded).map(this.loadExpanded));
-        });
+        if (!_.isArray(vm.children) && _.isFunction(vm.loadChildrenAsync)) {
+            return vm.loadChildrenAsync().then(children => {
+                vm.children = children;
+                return this.$q.all(vm.children.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm)));
+            });
+        }
+        return this.$q.all(vm.children.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm)));
     }
 
     public updateScrollbars() {
@@ -410,12 +409,17 @@ export class BPTreeViewController implements IBPTreeViewController {
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
             vm.expanded = node.expanded;
-            if (this.isLazyLoaded(vm)) {
+            if (node.expanded) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                this.loadExpanded(vm).then(() => this.resetGridAsync(true)).catch(reason => {
-                    this.messageService.addError(reason || "Artifact_NotFound");
+                this.loadExpanded(vm)
+                    .then(() => this.resetGridAsync(true))
+                    .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
+                    .finally(() => {
+                        if (row) {
+                            row.classList.remove("ag-row-loading");
+                        }
                 });
             }
         }

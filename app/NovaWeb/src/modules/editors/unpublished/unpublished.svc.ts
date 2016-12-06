@@ -1,8 +1,8 @@
-import {IArtifact, IPublishResultSet} from "../../main/models/models";
+import {IPublishResultSet} from "../../main/models/models";
 
 export interface IUnpublishedArtifactsService {
-    unpublishedArtifactsObservable: Rx.Observable<IArtifact[]>;
-    processedArtifactsObservable: Rx.Observable<IArtifact[]>;
+    unpublishedArtifactsObservable: Rx.Observable<IPublishResultSet>;
+    processedArtifactsObservable: Rx.Observable<IPublishResultSet>;
     publishAll(): ng.IPromise<IPublishResultSet>;
     discardAll(): ng.IPromise<IPublishResultSet>;
     getUnpublishedArtifacts(): ng.IPromise<IPublishResultSet>;
@@ -12,8 +12,8 @@ export interface IUnpublishedArtifactsService {
 
 export class UnpublishedArtifactsService implements IUnpublishedArtifactsService {
 
-    private _unpublishedSubject: Rx.Subject<IArtifact[]>;
-    private _processedSubject: Rx.Subject<IArtifact[]>;
+    private _unpublishedSubject: Rx.Subject<IPublishResultSet>;
+    private _processedSubject: Rx.Subject<IPublishResultSet>;
     private getUnpublishedArtifactsPromise: ng.IPromise<IPublishResultSet>;
 
     public static $inject = [
@@ -24,30 +24,30 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
     constructor(private $http: ng.IHttpService,
                 private $q: ng.IQService) {
 
-        this._unpublishedSubject = new Rx.Subject<IArtifact[]>();
-        this._processedSubject = new Rx.Subject<IArtifact[]>();
+        this._unpublishedSubject = new Rx.Subject<IPublishResultSet>();
+        this._processedSubject = new Rx.Subject<IPublishResultSet>();
     }
 
-    public get unpublishedArtifactsObservable(): Rx.Observable<IArtifact[]> {
+    public get unpublishedArtifactsObservable(): Rx.Observable<IPublishResultSet> {
         return this._unpublishedSubject.asObservable();
     }
 
-    public get processedArtifactsObservable(): Rx.Observable<IArtifact[]> {
+    public get processedArtifactsObservable(): Rx.Observable<IPublishResultSet> {
         return this._processedSubject.asObservable();
     }
 
-    private notifyUnpublishedArtifacts(value: IArtifact[]) {
+    private notifyUnpublishedArtifacts(value: IPublishResultSet) {
         this._unpublishedSubject.onNext(value);
     }
 
-    private notifyProcessedArtifacts(value: IArtifact[]) {
+    private notifyProcessedArtifacts(value: IPublishResultSet) {
         this._processedSubject.onNext(value);
     }
 
     public publishAll(): ng.IPromise<IPublishResultSet> {
         return this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=true`, "")
             .then((result: ng.IHttpPromiseCallbackArg<IPublishResultSet>) => {
-                this.notifyProcessedArtifacts(result.data.artifacts);
+                this.notifyProcessedArtifacts(result.data);
                 return result.data;
             })
             .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data));
@@ -60,7 +60,7 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
 
         this.getUnpublishedArtifactsPromise = this.$http.get(`/svc/bpartifactstore/artifacts/unpublished`)
             .then((result: ng.IHttpPromiseCallbackArg<IPublishResultSet>) => {
-                this.notifyUnpublishedArtifacts(result.data.artifacts);
+                this.notifyUnpublishedArtifacts(result.data);
                 return result.data;
             })
             .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data))
@@ -74,7 +74,7 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
     public publishArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
         return this.$http.post(`/svc/bpartifactstore/artifacts/publish?all=false`, artifactIds)
             .then((result: ng.IHttpPromiseCallbackArg<IPublishResultSet>) => {
-                this.notifyProcessedArtifacts(result.data.artifacts);
+                this.notifyProcessedArtifacts(result.data);
                 return result.data;
             })
             .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data));
@@ -83,7 +83,7 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
     public discardAll(): ng.IPromise<IPublishResultSet> {
         return this.$http.post(`/svc/bpartifactstore/artifacts/discard?all=true`, "")
             .then((result: ng.IHttpPromiseCallbackArg<IPublishResultSet>) => {
-                this.notifyProcessedArtifacts(result.data.artifacts);
+                this.notifyProcessedArtifacts(result.data);
                 return result.data;
             })
             .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data));
@@ -92,7 +92,7 @@ export class UnpublishedArtifactsService implements IUnpublishedArtifactsService
     public discardArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
         return this.$http.post(`/svc/bpartifactstore/artifacts/discard?all=false`, artifactIds)
             .then((result: ng.IHttpPromiseCallbackArg<IPublishResultSet>) => {
-                this.notifyProcessedArtifacts(result.data.artifacts);
+                this.notifyProcessedArtifacts(result.data);
                 return result.data;
             })
             .catch((result: ng.IHttpPromiseCallbackArg<any>) => this.$q.reject(result.data));

@@ -135,7 +135,7 @@ describe("OpenProcessImpactAnalysisAction", () => {
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
 
             // assert
-            expect(action.tooltip).toEqual(localization.get("App_Toolbar_Open_Shape_Impact_Analysis"));
+            expect(action.tooltip).toEqual(localization.get("App_Toolbar_Open_Impact_Analysis"));
         });
 
         it("sets disabled to true when multiple shapes are selected", () => {

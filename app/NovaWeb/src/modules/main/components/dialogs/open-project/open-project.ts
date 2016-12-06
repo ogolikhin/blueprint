@@ -1,29 +1,29 @@
-import {IProjectSearchResult} from "./../../../models/search-service-models";
 import {ProjectSearchResultVM} from "./../../bp-artifact-picker/search-result-vm";
-import {Helper, IDialogSettings, BaseDialogController} from "../../../../shared";
-import {IColumn, IColumnRendererParams} from "../../../../shared/widgets/bp-tree-view/";
+import {Helper} from "./../../../../shared/utils/helper";
+import {IDialogController, IDialogSettings, BaseDialogController} from "./../../../../shared/widgets/bp-dialog/bp-dialog";
 import {AdminStoreModels, TreeModels} from "../../../models";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
 
-export interface IOpenProjectController {
+type OpenProjectVM = TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
+
+export interface IOpenProjectController extends IDialogController {
     isProjectSelected: boolean;
-    selectedItem?: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
+    selectedName?: string;
     selectedDescription: string;
 
     // BpArtifactPicker bindings
-    onSelectionChanged(selectedVMs: TreeModels.InstanceItemNodeVM[] | ProjectSearchResultVM[] ): void;
-    onDoubleClick: (vm: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM) => any;
+    onSelectionChanged(selectedVMs: OpenProjectVM[] ): void;
+    onDoubleClick: (vm: OpenProjectVM) => any;
 }
 
 export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
     public hasCloseButton: boolean = true;
-    private _selectedItem: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
-    private _errorMessage: string;
+    private _returnValue: number;
+    private _selectedName: string;
+    private _selectedDescription: string;
 
-    static $inject = ["$scope", "localization", "$uibModalInstance", "dialogSettings", "$sce"];
+    static $inject = ["$scope", "$uibModalInstance", "dialogSettings", "$sce"];
 
     constructor(private $scope: ng.IScope,
-                private localization: ILocalizationService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
                 private $sce: ng.ISCEService) {
@@ -31,31 +31,27 @@ export class OpenProjectController extends BaseDialogController implements IOpen
     };
 
     //Dialog return value
-    public get returnValue(): AdminStoreModels.IInstanceItem | IProjectSearchResult {
-        return this.isProjectSelected ? this.selectedItem.model : undefined;
+    public get returnValue(): number {
+        return this._returnValue;
     };
 
     public get isProjectSelected(): boolean {
-        return (this.selectedItem instanceof TreeModels.InstanceItemNodeVM && this.selectedItem.model.type === AdminStoreModels.InstanceItemType.Project) ||
-            this.selectedItem instanceof ProjectSearchResultVM;
+        return Boolean(this.returnValue);
     }
 
-    public get selectedItem(): TreeModels.InstanceItemNodeVM | ProjectSearchResultVM {
-        return this._selectedItem;
+    public get selectedName(): string {
+        return this._selectedName;
     }
-
-    private _selectedDescription: string;
 
     public get selectedDescription() {
         return this._selectedDescription;
     }
 
-    private setSelectedItem(item: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM) {
-        this._selectedItem = item;
+    private setSelectedItem(vm: OpenProjectVM) {
+        this._selectedName = vm ? vm.model.name : undefined;
 
-        const description = this.selectedItem ? this.selectedItem.model.description : undefined;
+        let description = vm ? vm.model.description : undefined;
         if (description) {
-            //TODO Why do we need this? Project descriptions are plain text and Instance Folders can't have descriptions.
             const virtualDiv = window.document.createElement("DIV");
             virtualDiv.innerHTML = description;
 
@@ -63,22 +59,28 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             for (let a = 0; a < aTags.length; a++) {
                 aTags[a].setAttribute("target", "_blank");
             }
-            this._selectedDescription = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
-            this.selectedItem.model.description = this.selectedDescription.toString();
+            description = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
+        }
+        this._selectedDescription = description;
+
+        if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
+            this._returnValue = vm.model.id;
+        } else if (vm instanceof ProjectSearchResultVM) {
+            this._returnValue = vm.model.itemId;
         } else {
-            this._selectedDescription = undefined;
+            this._returnValue = undefined;
         }
     }
 
     // BpArtifactPicker bindings
 
-    public onSelectionChanged(selectedVMs: TreeModels.InstanceItemNodeVM[] | ProjectSearchResultVM[]): void {
+    public onSelectionChanged(selectedVMs: OpenProjectVM[]): void {
         this.$scope.$applyAsync(() => {
             this.setSelectedItem(selectedVMs.length ? selectedVMs[0] : undefined);
         });
     }
 
-    public onDoubleClick = (vm: TreeModels.InstanceItemNodeVM | ProjectSearchResultVM): void => {
+    public onDoubleClick = (vm: OpenProjectVM): void => {
         this.$scope.$applyAsync(() => {
             this.setSelectedItem(vm);
             this.ok();

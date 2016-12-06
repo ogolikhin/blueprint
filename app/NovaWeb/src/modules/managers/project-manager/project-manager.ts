@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import {IDialogService, IDialogSettings} from "../../shared";
 import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
 import {IStatefulArtifactFactory} from "../artifact-manager/artifact/artifact.factory";
@@ -29,8 +28,7 @@ export interface IProjectManager extends IDispose {
 
     // eventManager
     initialize(): void;
-    load(projectId: number): ng.IPromise<void>;
-    add(project: AdminStoreModels.IInstanceItem): void;
+    add(projectId: number): ng.IPromise<void>;
     openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
     openProjectWithDialog(): void;
     remove(projectId: number): void;
@@ -184,17 +182,17 @@ export class ProjectManager implements IProjectManager {
             template: require("../../main/components/dialogs/open-project/open-project.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((project: AdminStoreModels.IInstanceItem) => {
-            if (project) {
+        }).then((projectId: number) => {
+            if (projectId) {
                 const openProjectLoadingId = this.loadingOverlayService.beginLoading();
                 let openProjects = _.map(this.projectCollection.getValue(), "model.id");
 
                 try {
-                    this.add(project)
+                    this.add(projectId)
                         .finally(() => {
                             //(eventCollection, action, label?, value?, custom?, jQEvent?
-                            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
-                            this.analytics.trackEvent("open", "project", label, project.id, {
+                            const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                            this.analytics.trackEvent("open", "project", label, projectId, {
                                 openProjects: openProjects
                             });
                             this.loadingOverlayService.endLoading(openProjectLoadingId);
@@ -376,46 +374,40 @@ export class ProjectManager implements IProjectManager {
         return resultArtifact;
     }
 
-    public load(projectId: number): ng.IPromise<void> {
-        return this.itemInfoService.get(projectId).then((project: IItemInfoResult) => {
-            return this.add(<AdminStoreModels.IInstanceItem>{
-                id: project.id,
-                name: project.name,
-                parentFolderId: undefined,
-                type: AdminStoreModels.InstanceItemType.Project,
-                hasChildren: true,
-                permissions: project.permissions
-            });
-        });
-    }
-
-    public add(project: AdminStoreModels.IInstanceItem): ng.IPromise<void> {
-        if (!project) {
-            throw new Error("Project_NotFound"); // need to throw an error as mainView may not be active yet
-        }
-
-        let projectNode: IArtifactNode = this.getProject(project.id);
+    public add(projectId: number): ng.IPromise<void> {
+        let projectNode: IArtifactNode = this.getProject(projectId);
         if (!projectNode) {
-            return this.metadataService.get(project.id).then(() => {
-                _.assign(project, {
-                    projectId: project.id,
-                    itemTypeId: Enums.ItemTypePredefined.Project,
-                    prefix: "PR",
-                    itemTypeName: "Project",
-                    predefinedType: Enums.ItemTypePredefined.Project,
-                    hasChildren: true
-                });
+            return this.itemInfoService.get(projectId).then((projectInfo: IItemInfoResult) => {
+                const project = {
+                    id: projectInfo.id,
+                    name: projectInfo.name,
+                    parentFolderId: undefined,
+                    type: AdminStoreModels.InstanceItemType.Project,
+                    hasChildren: true,
+                    permissions: projectInfo.permissions
+                } as AdminStoreModels.IInstanceItem;
 
-                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
-                this.artifactManager.add(statefulArtifact);
-                projectNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
-                this.projectCollection.getValue().unshift(projectNode);
-                this.projectCollection.onNext(this.projectCollection.getValue());
-            }).catch((err: any) => {
-                if (err) {
-                    this.messageService.addError(err);
-                }
-                return this.$q.reject(err);
+                return this.metadataService.get(projectId).then(() => {
+                    _.assign(project, {
+                        projectId: projectId,
+                        itemTypeId: Enums.ItemTypePredefined.Project,
+                        prefix: "PR",
+                        itemTypeName: "Project",
+                        predefinedType: Enums.ItemTypePredefined.Project,
+                        hasChildren: true
+                    });
+
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
+                    this.artifactManager.add(statefulArtifact);
+                    projectNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+                    this.projectCollection.getValue().unshift(projectNode);
+                    this.projectCollection.onNext(this.projectCollection.getValue());
+                }).catch((err: any) => {
+                    if (err) {
+                        this.messageService.addError(err);
+                    }
+                    return this.$q.reject(err);
+                });
             });
         }
 

@@ -434,11 +434,11 @@ export class ProcessCopyPasteHelper {
             throw new Error("Clipboard is empty."); 
         }
 
-        if (processClipboardData.type !== ClipboardDataType.Process) {
+        if (processClipboardData.getType() !== ClipboardDataType.Process) {
             throw new Error("Clipboard data has wrong type."); 
         }
 
-        const data = <IProcess>processClipboardData.data;
+        const data = <IProcess>processClipboardData.getData();
         let connectionStartId = null;
         if (this.layout.viewModel.isWithinShapeLimit(data.shapes.length)) {
             

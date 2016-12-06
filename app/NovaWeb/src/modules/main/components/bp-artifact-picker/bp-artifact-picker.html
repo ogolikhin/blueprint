@@ -2,7 +2,7 @@
     <div uib-dropdown ng-if="$ctrl.project">
         <!--fixme: button disabled should use ng-diabled not a class and should use a controller function for logic when complex statements using && or || -->
         <button type="button" uib-dropdown-toggle class="btn btn-action btn-dropdown-toggle dropdown-toggle" data-toggle="dropdown"
-             ng-class="{disabled: $ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0}"
+            ng-class="{disabled: $ctrl.isSearching || !$ctrl.searchText || $ctrl.searchText.trim().length === 0}"
                 aria-haspopup="true" aria-expanded="false">
             <span class="caret btn-dropdown-toggle__caret"></span>
         </button>

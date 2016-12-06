@@ -37,7 +37,7 @@ describe("Formly Number", () => {
             },
             data: {
                 isValidated: false
-            } 
+            }
         }
     ];
 
@@ -144,7 +144,7 @@ describe("Formly Number", () => {
         expect((<any>fieldScope).fc.$invalid).toBeFalsy();
     });
 
-    xit("should succeed even if greater than max and decimal count is wrong, as validation is not required", function () {
+    it("should succeed even if greater than max and decimal count is wrong, as validation is not required", function () {
         compileAndSetupStuff({model: {numberNotVal: 1000.1234}});
 
         let fieldNode = node.querySelectorAll(".formly-field-bpFieldNumber")[1];

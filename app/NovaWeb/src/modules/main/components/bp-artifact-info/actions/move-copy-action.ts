@@ -90,10 +90,6 @@ export class MoveCopyAction extends BPDropdownAction {
             return false;
         }
 
-        if ((this.artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit) {
-            return false;
-        }
-
         return true;
     }
 

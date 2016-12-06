@@ -96,11 +96,34 @@ class DecisionPointRef {
         this.branches = [];
         this.branches.push(new Branch(taskId, label, orderindex));
     }
-    decisionId: string; 
+    decisionId: string;
     branches: Branch[]; 
 }
 
 export class ProcessCopyPasteHelper {
+
+    private processCopyHelper: ProcessCopyHelper;
+    private processPasteHelper: ProcessPasteHelper;
+
+    constructor(processGraph: IProcessGraph, 
+                     clipboard: IClipboardService, 
+                     shapesFactoryService: ShapesFactory,
+                     messageService: IMessageService,
+                     $log: ng.ILogService) {
+        this.processCopyHelper = new ProcessCopyHelper(processGraph, clipboard, shapesFactoryService, messageService, $log);
+        this.processPasteHelper = new ProcessPasteHelper(processGraph.layout, clipboard); 
+    }
+
+    public copySelectedShapes() {
+        this.processCopyHelper.copySelectedShapes();
+    }
+
+    public insertSelectedShapes(sourceIds: number[], destinationId: number): void {
+        this.processPasteHelper.insertSelectedShapes(sourceIds, destinationId);
+    }
+}
+
+class ProcessCopyHelper {
 
     private layout: ILayout;
     private readonly treeStartId = "-99999";
@@ -451,6 +474,16 @@ export class ProcessCopyPasteHelper {
         });        
 
         return procModel;
+    }
+}
+
+class ProcessPasteHelper {
+
+    private readonly treeStartId = "-99999";
+    private readonly treeEndId = "-100000";
+
+    constructor(private layout: ILayout, 
+                private clipboard: IClipboardService) {
     }
 
     public insertSelectedShapes(sourceIds: number[], destinationId: number): void {

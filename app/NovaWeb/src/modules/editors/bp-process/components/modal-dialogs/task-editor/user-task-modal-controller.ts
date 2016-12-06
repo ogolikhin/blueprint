@@ -103,7 +103,7 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         return defaultUserPersonaReference;
     }
 
-    public getModel(): Models.IArtifact {
-        return <Models.IArtifact>this.dialogModel.originalItem.model;
+    protected getModel(): Models.IArtifact {
+        return this.dialogModel.originalItem.model as Models.IArtifact;
     }
 }

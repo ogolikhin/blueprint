@@ -97,7 +97,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         return defaultSystemPersonaReference;
     }
 
-    public getModel(): Models.IArtifact {
-        return <Models.IArtifact>this.dialogModel.originalItem.model;
+    protected getModel(): Models.IArtifact {
+        return this.dialogModel.originalItem.model as Models.IArtifact;
     }
 }

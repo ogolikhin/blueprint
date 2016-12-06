@@ -16,12 +16,12 @@ export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult
     }
 }
 
-export class ProjectSearchResultVM extends SearchResultVM<SearchServiceModels.ISearchResult> {
+export class ProjectSearchResultVM extends SearchResultVM<SearchServiceModels.IProjectSearchResult> {
     public readonly id = "";
     public readonly iconClass = "icon-project";
 
     constructor(
-        model: SearchServiceModels.ISearchResult,
+        model: SearchServiceModels.IProjectSearchResult,
         onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean) {
         super(model, onSelect);
     }

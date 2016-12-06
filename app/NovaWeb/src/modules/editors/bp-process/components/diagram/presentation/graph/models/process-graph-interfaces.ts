@@ -119,15 +119,15 @@ export interface IProcessGraph {
     updateAfterRender();
     redraw(action: any);
     updateSizeChanges(width?: number, height?: number);
-    addSelectionListener(listener: ISelectionListener);
-    destroy();
     setSystemTasksVisible(value: boolean);
     clearSelection();
     onUserStoriesGenerated(userStories: IUserStory[]): void;
     copySelectedShapes();
     insertSelectedShapes(edge: MxCell);
-
     processDiagramCommunication: IProcessDiagramCommunication;
+    highlightNodeEdges(nodes: IDiagramNode[]);
+    destroy();
+
 }
 
 export interface ILayout {

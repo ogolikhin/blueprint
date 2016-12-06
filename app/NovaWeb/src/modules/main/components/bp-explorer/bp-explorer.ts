@@ -24,7 +24,6 @@ export interface IProjectExplorerController {
     projects: TreeModels.StatefulArtifactNodeVM[];
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
-    onError: (reason: any) => any;
     onGridReset: (isExpanding: boolean) => void;
 }
 
@@ -238,10 +237,4 @@ export class ProjectExplorerController implements IProjectExplorerController {
          }
          this.resettingSelection = false;
     };
-
-    public onError = (reason: any): void => {
-        if (reason) {
-            this.messageService.addError(reason["message"] || "Artifact_NotFound");
-        }
-    }
 }

@@ -9,6 +9,7 @@ import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
+import {ItemTypePredefined} from "../../main/models/enums";
 
 export class UnpublishedComponent implements ng.IComponentOptions {
     public template: string = require("./unpublished.html");
@@ -26,13 +27,15 @@ export class UnpublishedController {
         "projectManager"
     ];
 
-    public toolbarActions: IBPAction[] = [];
+    public toolbarActions: IBPAction[];
     public selectedArtifacts: IArtifact[];
+    public unpublishedArtifacts: IArtifact[];
     public isLoading: boolean;
 
     private publishArtifactsButton: PublishArtifactsAction;
     private discardArtifactsButton: DiscardArtifactsAction;
     private unpublishedArtifactsObserver: Rx.IDisposable;
+    private processedArtifactsObserver: Rx.IDisposable;
 
     constructor(private $log: ng.ILogService,
                 public localization: ILocalizationService,
@@ -41,21 +44,29 @@ export class UnpublishedController {
                 private loadingOverlayService: ILoadingOverlayService,
                 private navigationService: INavigationService,
                 private projectManager: IProjectManager) {
-
-        this.isLoading = true;
+        this.toolbarActions = [];
         this.selectedArtifacts = [];
-        this.unpublishedArtifactsObserver = this.publishService.unpublishedArtifactsObservable.subscribeOnNext(this.updateSelectedArtifacts, this);
-        this.publishService.getUnpublishedArtifacts().finally(() => {
-            this.isLoading = false;
-        });
+        this.unpublishedArtifacts = [];
     }
 
     public $onInit() {
+        this.isLoading = true;
+
+        this.unpublishedArtifactsObserver = this.publishService.unpublishedArtifactsObservable
+            .subscribeOnNext(this.onUnpublishedArtifactsChanged, this);
+        this.processedArtifactsObserver = this.publishService.processedArtifactsObservable
+            .subscribeOnNext(this.onArtifactsPublishedOrDiscarded, this);
+
+        this.publishService.getUnpublishedArtifacts().finally(() => {
+            this.isLoading = false;
+        });
+
         this.publishArtifactsButton = new PublishArtifactsAction(
             this.publishService,
             this.localization,
             this.messageService,
             this.loadingOverlayService);
+
         this.discardArtifactsButton = new DiscardArtifactsAction(
             this.publishService,
             this.localization,
@@ -75,12 +86,24 @@ export class UnpublishedController {
         this.publishArtifactsButton = undefined;
         this.discardArtifactsButton = undefined;
         this.unpublishedArtifactsObserver.dispose();
+        this.processedArtifactsObserver.dispose();
     }
 
-    private updateSelectedArtifacts(unpublishedArtifacts: IArtifact[]) {
-        this.selectedArtifacts = _.intersectionBy(this.selectedArtifacts, unpublishedArtifacts, "id");
+    private onUnpublishedArtifactsChanged(unpublishedArtifacts: IArtifact[]) {
+        this.unpublishedArtifacts = unpublishedArtifacts;
+        this.updateSelectedArtifacts();
         this.updateToolbarButtons();
     };
+
+    private onArtifactsPublishedOrDiscarded(processedArtifacts: IArtifact[]) {
+        this.unpublishedArtifacts = _.differenceBy(this.unpublishedArtifacts, processedArtifacts, "id");
+        this.updateSelectedArtifacts();
+        this.updateToolbarButtons();
+    }
+
+    private updateSelectedArtifacts() {
+        this.selectedArtifacts = _.intersectionBy(this.selectedArtifacts, this.unpublishedArtifacts, "id");
+    }
 
     public toggleSelection(artifact: IArtifact) {
         const selectedId = this.selectedArtifacts.indexOf(artifact);
@@ -95,17 +118,18 @@ export class UnpublishedController {
     }
 
     public toggleAll() {
-        if (this.selectedArtifacts.length === this.publishService.unpublishedArtifacts.length) {
+        if (this.selectedArtifacts.length === this.unpublishedArtifacts.length) {
             this.selectedArtifacts = [];
         } else {
-            this.selectedArtifacts = this.publishService.unpublishedArtifacts.slice(0);
+            this.selectedArtifacts = this.unpublishedArtifacts.slice(0);
         }
 
         this.updateToolbarButtons();
     }
 
     public isGroupToggleChecked(): boolean {
-        return this.publishService.unpublishedArtifacts.length > 0 && this.publishService.unpublishedArtifacts.length === this.selectedArtifacts.length;
+        return this.unpublishedArtifacts.length > 0
+            && this.unpublishedArtifacts.length === this.selectedArtifacts.length;
     }
 
     private updateToolbarButtons() {
@@ -115,5 +139,12 @@ export class UnpublishedController {
 
     public isSelected(artifact: IArtifact): boolean {
         return this.selectedArtifacts.indexOf(artifact) > -1;
+    }
+
+    public isNavigatable(artifact: IArtifact): boolean {
+        return artifact.predefinedType !== ItemTypePredefined.ArtifactBaseline
+            && artifact.predefinedType !== ItemTypePredefined.Baseline
+            && artifact.predefinedType !== ItemTypePredefined.BaselineFolder
+            && artifact.predefinedType !== ItemTypePredefined.ArtifactReviewPackage;
     }
 }

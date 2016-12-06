@@ -5,38 +5,45 @@ import {IDialogSettings} from "../../../../shared/";
 import {Enums} from "../../../../main/models";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
-export enum MoveArtifactInsertMethod {
+export enum MoveCopyArtifactInsertMethod {
     Inside,
     Above,
     Below
 }
 
-export interface IMoveArtifactPickerOptions extends IArtifactPickerOptions {
+export enum MoveCopyActionType {
+    Move, Copy
+}
+
+export interface IMoveCopyArtifactPickerOptions extends IArtifactPickerOptions {
     currentArtifact?: Models.IArtifact;
+    actionType: MoveCopyActionType;
 }
 
-export class MoveArtifactResult {
+export class MoveCopyArtifactResult {
     artifacts: Models.IArtifact[];
-    insertMethod: MoveArtifactInsertMethod;
+    insertMethod: MoveCopyArtifactInsertMethod;
 }
 
-export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogController {
-    public insertMethod: MoveArtifactInsertMethod = MoveArtifactInsertMethod.Inside;
+export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialogController {
+    public insertMethod: MoveCopyArtifactInsertMethod = MoveCopyArtifactInsertMethod.Inside;
     private _currentArtifact: Models.IArtifact;
+    private _actionType: MoveCopyActionType;
     public api: IArtifactPickerAPI;
 
     constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                public dialogData: IMoveArtifactPickerOptions,
+                public dialogData: IMoveCopyArtifactPickerOptions,
                 public localization: ILocalizationService) {
         super($instance, dialogSettings, dialogData, localization);
         
         dialogData.isItemSelectable = (item) => this.isItemSelectable(item);
         this._currentArtifact = dialogData.currentArtifact;
+        this._actionType = dialogData.actionType;
     }
 
     public isItemSelectable(item: Models.IArtifact) {
-        if (MoveArtifactPickerDialogController.checkAncestors(item, this._currentArtifact.id)) {
+        if (this._actionType === MoveCopyActionType.Move && MoveCopyArtifactPickerDialogController.checkAncestors(item, this._currentArtifact.id)) {
             return false;
         }
 
@@ -69,14 +76,14 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
         return found;
     }
 
-    public get InsertMethodSelection(): MoveArtifactInsertMethod{
-        return MoveArtifactInsertMethod.Inside;
+    public get InsertMethodSelection(): MoveCopyArtifactInsertMethod{
+        return MoveCopyArtifactInsertMethod.Inside;
     }
-    public get InsertMethodAbove(): MoveArtifactInsertMethod{
-        return MoveArtifactInsertMethod.Above;
+    public get InsertMethodAbove(): MoveCopyArtifactInsertMethod{
+        return MoveCopyArtifactInsertMethod.Above;
     }
-    public get InsertMethodBelow(): MoveArtifactInsertMethod{
-        return MoveArtifactInsertMethod.Below;
+    public get InsertMethodBelow(): MoveCopyArtifactInsertMethod{
+        return MoveCopyArtifactInsertMethod.Below;
     }
 
     public onInsertMethodChange() {
@@ -88,7 +95,7 @@ export class MoveArtifactPickerDialogController extends  ArtifactPickerDialogCon
     }
 
     public get returnValue(): any[] {
-        return [<MoveArtifactResult>{
+        return [<MoveCopyArtifactResult>{
             artifacts: this.selectedVMs.map(vm => vm.model),
             insertMethod: this.insertMethod
         }];

@@ -2,6 +2,11 @@ import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IProcessGraph, ISelectionListener, IUserStory} from "./presentation/graph/models/";
+import {IArtifactManager} from "./../../../../managers/artifact-manager";
+import {IStatefulProcessSubArtifact} from "./../../process-subartifact";
+import {IStatefulProcessArtifact} from "../../process-artifact";
+import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {IDiagramNode} from "./presentation/graph/models/process-graph-interfaces";
 import {SystemTask} from "./presentation/graph/shapes";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {ICommunicationManager} from "../../../bp-process";
@@ -19,8 +24,10 @@ import {IClipboardService} from "../../services/clipboard.svc";
 import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
 
 export class ProcessDiagram {
-    public processModel: IProcess;
+    
+    public processModel: IProcess = null;
     public processViewModel: IProcessViewModel = null;
+    private processArtifact: IStatefulProcessArtifact = null;
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement;
     private toggleProcessTypeHandler: string;
@@ -29,9 +36,8 @@ export class ProcessDiagram {
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
     private openUtilityPanelHandler: string;
-
-    private selectionListeners: ISelectionListener[];
-
+    private selectionChangedHandler: string;
+ 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $scope: ng.IScope,
                 private $timeout: ng.ITimeoutService,
@@ -46,9 +52,11 @@ export class ProcessDiagram {
                 private shapesFactory: ShapesFactory,
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService,
+                private artifactManager: IArtifactManager,
                 private fileUploadService: IFileUploadService) {
+
         this.processModel = null;
-        this.selectionListeners = [];
+       
     }
 
     public createDiagram(process: any, htmlElement: HTMLElement) {
@@ -56,6 +64,10 @@ export class ProcessDiagram {
         this.htmlElement = htmlElement;
 
         this.processModel = <IProcess>process;
+        this.processArtifact = <IStatefulProcessArtifact>process;
+        // #DEBUG
+        //this.artifactManager.selection.subArtifactObservable
+        //    .subscribeOnNext(this.onSubArtifactChanged, this);
 
         this.onLoad(this.processModel);
     }
@@ -82,8 +94,7 @@ export class ProcessDiagram {
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
-
-        //if (processViewModel.isReadonly) this.disableProcessToolbar();
+   
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 
@@ -104,6 +115,8 @@ export class ProcessDiagram {
                 .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
           
         }
 
@@ -119,6 +132,8 @@ export class ProcessDiagram {
             .register(ProcessEvents.OpenUtilityPanel, this.openUtilityPanel);
         this.userStoriesGeneratedHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.UserStoriesGenerated, this.userStoriesGenerated);
+        this.selectionChangedHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.SelectionChanged, this.onDiagramSelectionChanged);
 
         return this.processViewModel;
     }
@@ -183,8 +198,7 @@ export class ProcessDiagram {
                 this.statefulArtifactFactory,
                 this.clipboard
             );
-
-            this.registerSelectionListeners();
+             
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }
@@ -196,21 +210,7 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-
-    private registerSelectionListeners() {
-        for (let listener of this.selectionListeners) {
-            this.graph.addSelectionListener(listener);
-        }
-    }
-
-    public addSelectionListener(listener: ISelectionListener) {
-        this.selectionListeners.push(listener);
-    }
-
-    public clearSelection() {
-        this.graph.clearSelection();
-    }
-
+   
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();
@@ -218,41 +218,38 @@ export class ProcessDiagram {
         }
     }
 
-    public destroy() {
-        if (this.communicationManager) {
-            if (this.communicationManager.toolbarCommunicationManager) {
-                this.communicationManager.toolbarCommunicationManager
-                    .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
-                this.communicationManager.toolbarCommunicationManager
-                    .removeCopySelectionObserver(this.copySelectionHandler);
-            }
-
-            if (this.communicationManager.processDiagramCommunication) {
-                this.communicationManager.processDiagramCommunication
-                    .removeModelUpdateObserver(this.modelUpdateHandler);
-                this.communicationManager.processDiagramCommunication
-                    .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
-                this.communicationManager.processDiagramCommunication
-                    .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
-                this.communicationManager.processDiagramCommunication
-                    .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
-            }
+    private onSubArtifactChanged(subArtifact: IStatefulSubArtifact) {
+        if (!subArtifact && this.graph)  {
+            this.graph.clearSelection();
         }
-
-        // tear down persistent objects and event handlers
-        if (this.graph) {
-            this.graph.destroy();
-            this.graph = undefined;
-        }
-
-        if (this.processViewModel) {
-            this.processViewModel.destroy();
-            this.processViewModel = undefined;
-        }
-
-        this.selectionListeners = undefined;
     }
 
+    private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
+        // Note: need to trigger an angular $digest so that bindings will
+        // work in other components
+        this.$rootScope.$apply(() => {
+            if (elements.length === 1) {
+                // single-selection
+                const subArtifactId: number = elements[0].model.id;
+                const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
+                if (subArtifact) {
+                    subArtifact.loadProperties()
+                        .then((loadedSubArtifact: IStatefulSubArtifact) => {
+
+                            this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
+                        });
+                }
+            } else if (elements.length > 1) {
+                // multiple selection
+                this.artifactManager.selection.setSubArtifact(undefined, true);
+ 
+            } else {
+                // empty selection
+                this.artifactManager.selection.clearSubArtifact();
+            }
+        });
+    }
+    
     private handleInitProcessGraphFailed(processId: number, err: any) {
         this.messageService.addMessage(new Message(
             MessageType.Error, "There was an error initializing the process graph."));
@@ -271,5 +268,42 @@ export class ProcessDiagram {
         if (!!this.graph) {
             this.graph.updateSizeChanges(width, height);
         }
+    }
+
+    public destroy() { 
+        
+        // tear down persistent objects and event handlers
+        if (this.communicationManager) {
+            if (this.communicationManager.toolbarCommunicationManager) {
+                this.communicationManager.toolbarCommunicationManager
+                    .removeToggleProcessTypeObserver(this.toggleProcessTypeHandler);
+                this.communicationManager.toolbarCommunicationManager
+                    .removeCopySelectionObserver(this.copySelectionHandler);
+            }
+
+            if (this.communicationManager.processDiagramCommunication) {
+                this.communicationManager.processDiagramCommunication
+                    .removeModelUpdateObserver(this.modelUpdateHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifactHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
+                this.processViewModel.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
+            }
+        }
+
+        if (this.graph) {
+            this.graph.destroy();
+            this.graph = undefined;
+        }
+
+        if (this.processViewModel) {
+            this.processViewModel.destroy();
+            this.processViewModel = undefined;
+        }
+        
     }
 }

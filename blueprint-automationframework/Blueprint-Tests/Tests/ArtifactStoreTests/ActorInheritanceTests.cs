@@ -15,7 +15,7 @@ namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
-    public class ActorPropertiesTests : TestBase
+    public class ActorInheritanceTests : TestBase
     {
         private IUser _user = null;
 

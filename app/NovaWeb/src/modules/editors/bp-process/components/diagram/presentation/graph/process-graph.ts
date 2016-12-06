@@ -32,6 +32,8 @@ export class ProcessGraph implements IProcessGraph {
     public startNode: IDiagramNode;
     public endNode: IDiagramNode;
     public nodeLabelEditor: NodeLabelEditor;
+    public globalScope: IScopeContext;
+    public dragDropHandler: IDragDropHandler;
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -40,8 +42,7 @@ export class ProcessGraph implements IProcessGraph {
     private highlightedEdgeStates: any[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
-    public globalScope: IScopeContext;
-    public dragDropHandler: IDragDropHandler;
+    private selectionChangedHandler: string = null;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
         return this.viewModel.communicationManager.processDiagramCommunication;
@@ -93,9 +94,8 @@ export class ProcessGraph implements IProcessGraph {
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);
         //Selection logic
-        this.selectionHelper = new ProcessGraphSelectionHelper(this.mxgraph);
-        this.addSelectionEventHandlers();
-        this.selectionHelper.initSelection();
+        this.createSelectionListeners();
+       
         this.applyDefaultStyles();
         this.applyReadOnlyStyles();
         this.initializePopupMenu();
@@ -113,23 +113,15 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    public addSelectionListener(listener: ISelectionListener) {
-        if (listener != null) {
-            this.selectionHelper.addSelectionListener(listener);
-        }
+    private createSelectionListeners() {
+        this.selectionHelper = new ProcessGraphSelectionHelper(this);
+        this.selectionHelper.initSelection();
     }
-
+ 
     public clearSelection() {
         this.mxgraph.clearSelection();
     }
-
-    private addSelectionEventHandlers() {
-        // highlight edges for selected shapes
-        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.highlightNodeEdges(elements));
-        // notify system that shapes have been selected
-        this.selectionHelper.addSelectionListener((elements: IDiagramNode[]) => this.onSelectionChanged(elements));
-    }
-
+ 
     private initializePopupMenu() {
         // initialize a popup menu for the graph
         this.popupMenu = new NodePopupMenu(
@@ -361,30 +353,6 @@ export class ProcessGraph implements IProcessGraph {
         mxConstants.CURSOR_TERMINAL_HANDLE = "default";
     }
 
-    public destroy() {
-        if (this.viewModel.isSpa) {
-            window.removeEventListener("resize", this.resizeWrapper, true);
-        }
-        window.removeEventListener("buttonUpdated", this.buttonUpdated);
-        // remove graph
-        this.mxgraph.getModel().clear();
-        this.mxgraph.destroy();
-        while (this.htmlElement.hasChildNodes()) {
-            this.htmlElement.removeChild(this.htmlElement.firstChild);
-        }
-        // Dispose handlers
-        if (this.dragDropHandler != null) {
-            this.dragDropHandler.dispose();
-        }
-        if (this.nodeLabelEditor != null) {
-            this.nodeLabelEditor.dispose();
-        }
-        if (this.selectionHelper) {
-            this.selectionHelper.destroy();
-        }
-        this.viewModel.communicationManager.processDiagramCommunication.unregister(ProcessEvents.DeleteShape, this.deleteShapeHandler);
-    }
-
     private addMouseEventListener(graph: MxGraph) {
         graph.addMouseListener(
             {
@@ -534,19 +502,20 @@ export class ProcessGraph implements IProcessGraph {
 
     private deleteShape = (clickedNode: IDiagramNode) => {
         const dialogParameters = clickedNode.getDeleteDialogParameters();
-        this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
-            header: this.localization.get("App_DialogTitle_Alert"),
-            message: dialogParameters.message
-        }).then(() => {
-            if (clickedNode.getNodeType() === NodeType.UserTask) {
-                ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
-                ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
-                    (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
-            }
-        });
+
+        this.dialogService.alert(
+            dialogParameters.message, 
+            this.localization.get("App_DialogTitle_Alert"),
+            this.localization.get("App_Button_Ok"),
+            this.localization.get("App_Button_Cancel"))
+            .then(() => {
+                if (clickedNode.getNodeType() === NodeType.UserTask) {
+                    ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
+                    ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                }
+            });
     };
 
     private hasMaxConditions(decisionId: number): boolean {
@@ -915,12 +884,7 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    private onSelectionChanged(elements: IDiagramNode[]): void {
-        const communication = this.viewModel.communicationManager.processDiagramCommunication;
-        communication.action(ProcessEvents.SelectionChanged, elements);
-    }
-
-    private highlightNodeEdges(nodes: IDiagramNode[]) {
+    public highlightNodeEdges = (nodes: IDiagramNode[]) => {
         this.clearHighlightEdges();
         _.each(nodes, (node) => {
             let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());
@@ -978,4 +942,31 @@ export class ProcessGraph implements IProcessGraph {
             this.$log.info(arg);
         }
     }
+    
+    public destroy() {
+        if (this.viewModel.isSpa) {
+            window.removeEventListener("resize", this.resizeWrapper, true);
+        }
+        window.removeEventListener("buttonUpdated", this.buttonUpdated);
+        // remove graph
+        this.mxgraph.getModel().clear();
+        this.mxgraph.destroy();
+        while (this.htmlElement.hasChildNodes()) {
+            this.htmlElement.removeChild(this.htmlElement.firstChild);
+        }
+        // Dispose handlers
+        this.processDiagramCommunication.unregister(
+            ProcessEvents.DeleteShape, this.deleteShapeHandler);
+
+        if (this.dragDropHandler != null) {
+            this.dragDropHandler.dispose();
+        }
+        if (this.nodeLabelEditor != null) {
+            this.nodeLabelEditor.dispose();
+        }
+        if (this.selectionHelper) {
+            this.selectionHelper.destroy();
+        }
+    }
+
 }

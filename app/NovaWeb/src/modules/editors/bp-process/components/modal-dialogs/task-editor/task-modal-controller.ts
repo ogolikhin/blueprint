@@ -23,6 +23,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     protected abstract setPersonaReference(value: IArtifactReference);
     protected abstract getDefaultPersonaReference(): IArtifactReference;
     protected abstract populateTaskChanges();
+    protected abstract getModel(): Models.IArtifact;
 
     public static $inject = [
         "$scope",
@@ -147,10 +148,17 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             css: "nova-open-project",
             header: this.localization.get("ST_Select_Include_Artifact_Label")
         };
+        
+        const subArtifact = this.getModel();
 
         const dialogOption: IArtifactPickerOptions = {
             selectableItemTypes: this.getIncludedArtifactTypes(),
-            showSubArtifacts: false
+            isItemSelectable: (item: Models.IArtifact) => {
+                        return item.id !== subArtifact.parentId && 
+                                item.id !== subArtifact.id && 
+                                item.id > 0 &&
+                                !item.lockedByUser;
+                    }
         };
 
         this.openArtifactPicker(dialogSettings, dialogOption, this.postIncludePickerAction);
@@ -166,7 +174,11 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         };
 
         const dialogOption: IArtifactPickerOptions = {
-            selectableItemTypes: [Models.ItemTypePredefined.Actor]
+            selectableItemTypes: [Models.ItemTypePredefined.Actor],
+            isItemSelectable: (item: Models.IArtifact) => {                
+                        return item.id > 0 &&
+                                !item.lockedByUser;
+                    }
         };
 
         this.openArtifactPicker(dialogSettings, dialogOption, this.postActorPickerAction);

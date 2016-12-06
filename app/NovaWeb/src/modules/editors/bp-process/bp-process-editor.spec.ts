@@ -36,6 +36,7 @@ describe("BpProcessEditor", () => {
         windowManager = <IWindowManager>{
             mainWindow: mainWindowSubject.asObservable()
         };
+
         artifactManager = <IArtifactManager>{
             selection: {
                 subArtifactObservable: subArtifactSubject.asObservable(),
@@ -48,7 +49,6 @@ describe("BpProcessEditor", () => {
                 clearSubArtifact: () => { /* no op */ }
             }
         };
-
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", DialogServiceMock);
@@ -82,18 +82,6 @@ describe("BpProcessEditor", () => {
             expect(mainWindowSpy).toHaveBeenCalledTimes(1);
         });
 
-        it("registers subArtifact selection listener", () => {
-            // arrange
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const subArtifactObservableSpy = spyOn(artifactManager.selection.subArtifactObservable, "subscribeOnNext").and.callThrough();
-
-            // act
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-
-            // assert
-            expect(subArtifactObservableSpy).toHaveBeenCalledTimes(1);
-        });
     });
 
     describe("on process loaded/reloaded", () => {
@@ -111,141 +99,7 @@ describe("BpProcessEditor", () => {
             expect(spy).toHaveBeenCalledTimes(1);
         });
     });
-
-    describe("on selection manager sub-artifact selection change", () => {
-        it("clears process diagram selection when sub-artifact is not selected", () => {
-            // arrange
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-            const clearSpy = spyOn(controller["processDiagram"], "clearSelection");
-
-            // act
-            subArtifactSubject.onNext(undefined);
-
-            // assert
-            expect(clearSpy).toHaveBeenCalledTimes(1);
-        });
-
-        it("doesn't clear process diagram selection when sub-artifact is selected", () => {
-            // arrange
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-            const clearSpy = spyOn(controller["processDiagram"], "clearSelection");
-
-            // act
-            subArtifactSubject.onNext(<IStatefulSubArtifact>{});
-
-            // assert
-            expect(clearSpy).not.toHaveBeenCalled();
-        });
-    });
-
-    describe("on diagram selection change", () => {
-        it("sets sub-artifact selection when a shape is selected in the diagram", () => {
-            // arrange
-            const shape = <IDiagramNode>{model: {id: 345}};
-            const selectedShapes = [shape];
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-            const subArtifact = {id: 345, loadProperties: () => {
-                return $q.resolve(subArtifact);
-            }};
-
-            spyOn(controller.artifact.subArtifactCollection, "get").and.returnValue(subArtifact);
-            const spy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
-
-            // act
-            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
-            $rootScope.$digest(); // resolve a promise
-
-            // assert
-            expect(spy).toHaveBeenCalledWith(subArtifact);
-        });
-
-        it("clears sub-artifact selection when no shapes are selected in the diagram", () => {
-            // arrange
-            const selectedShapes = [];
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-
-            const spy = spyOn(artifactManager.selection, "clearSubArtifact").and.callThrough();
-
-            // act
-            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
-
-            // assert
-            expect(spy).toHaveBeenCalled();
-        });
-
-        it("doesn't change sub-artifact selection if sub-artifact is no corresponding sub-artifact exists", () => {
-            // arrange
-            const shape = <IDiagramNode>{model: {id: 345}};
-            const selectedShapes = [shape];
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-
-            spyOn(controller.artifact.subArtifactCollection, "get").and.returnValue(undefined);
-            const spy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
-
-            // act
-            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
-            controller.$onDestroy();
-            $rootScope.$digest(); // resolve a promise
-
-            // assert
-            expect(spy).not.toHaveBeenCalled();
-        });
-
-        it("doesn't change sub-artifact selection if editor is already destroyed", () => {
-            // arrange
-            const shape = <IDiagramNode>{model: {id: 345}};
-            const selectedShapes = [shape];
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-            const listener = controller["processDiagram"]["selectionListeners"][0];
-            controller.$onDestroy();
-
-            const setSpy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
-            const clearSpy = spyOn(artifactManager.selection, "clearSubArtifact").and.callThrough();
-
-            // act
-            listener(selectedShapes);
-
-            // assert
-            expect(setSpy).not.toHaveBeenCalled();
-            expect(clearSpy).not.toHaveBeenCalled();
-        });
-
-        it("doesn't change sub-artifact selection if editor is destroyed while properties are loaded", () => {
-            // arrange
-            const shape = <IDiagramNode>{model: {id: 345}};
-            const selectedShapes = [shape];
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-            const subArtifact = {id: 345, loadProperties: () => {
-                return $q.resolve(subArtifact);
-            }};
-
-            spyOn(controller.artifact.subArtifactCollection, "get").and.returnValue(subArtifact);
-            const spy = spyOn(artifactManager.selection, "setSubArtifact").and.callThrough();
-
-            // act
-            controller["processDiagram"]["selectionListeners"][0](selectedShapes);
-            controller.$onDestroy();
-            $rootScope.$digest(); // resolve a promise
-
-            // assert
-            expect(spy).not.toHaveBeenCalled();
-        });
-    });
-
+    
     describe("on resize", () => {
         it("resizes process diagram due to sidebar toggle", () => {
             // arrange
@@ -287,20 +141,7 @@ describe("BpProcessEditor", () => {
     });
 
     describe("on destroy", () => {
-        it("destroys sub-artifact editor modal opener", () => {
-                        // arrange
-            const element = "<bp-process-editor></bp-process-editor>";
-            const scope = $rootScope.$new();
-            const controller = $compile(element)(scope).controller("bpProcessEditor") as BpProcessEditorController;
-            const spy = spyOn(controller["subArtifactEditorModalOpener"], "destroy");
-
-            // act
-            controller.$onDestroy();
-
-            // assert
-            expect(spy).toHaveBeenCalledTimes(1);
-        });
-
+       
         it("destroys process diagram", () => {
                         // arrange
             const element = "<bp-process-editor></bp-process-editor>";

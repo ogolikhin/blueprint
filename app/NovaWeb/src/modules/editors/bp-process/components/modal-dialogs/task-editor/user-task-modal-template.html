@@ -57,12 +57,12 @@
 
                     <div class="nova-form-group">
 
-                        <div ng-show="!$ctrl.isIncludeResultsVisible">
+                        <div ng-if="!$ctrl.isIncludeResultsVisible">
                             <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
                                 <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
-                        <div ng-show="$ctrl.isIncludeResultsVisible">
+                        <div ng-if="$ctrl.isIncludeResultsVisible">
                             <div class="label-divider">
                                 <label class="process-dividing-label"><i class="fonticon2-link"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}:</label>
                             </div>

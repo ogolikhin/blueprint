@@ -1,4 +1,4 @@
-import {TreeModels, AdminStoreModels} from "../../models";
+import {TreeModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
@@ -24,7 +24,6 @@ export interface IProjectExplorerController {
     projects: TreeModels.StatefulArtifactNodeVM[];
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
-    onError: (reason: any) => any;
     onGridReset: (isExpanding: boolean) => void;
 }
 
@@ -99,6 +98,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (!artifact) {
             if (this.treeApi) {
+                this.selected = undefined;
                 this.treeApi.deselectAll();
             }
             return;
@@ -172,7 +172,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                     // for historical artifact we do not need to change selection in main area US3489
                     navigateToId = selectedArtifactId;
                 }
-            } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+            } else if (this.$state.current.name !== "main.unpublished" && (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length)) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
                 navigateToId = selectedArtifactId;
@@ -222,16 +222,19 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }];
 
-    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
-        if (isSelected) {
-            this.selected = vm;
-            this.navigationService.navigateTo({id: vm.model.id});
-        }
-    };
+    private resettingSelection: boolean;
 
-    public onError = (reason: any): void => {
-        if (reason) {
-            this.messageService.addError(reason["message"] || "Artifact_NotFound");
-        }
-    }
+    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
+         if (!this.resettingSelection && isSelected) {
+             //Following has to be a const to restore current selection in case of faling navigation
+             const prevSelected = this.selected;
+             this.selected = vm;
+             this.navigationService.navigateTo({id: vm.model.id})
+                .catch((err) => {
+                    this.resettingSelection = true;
+                    this.treeApi.setSelected(prevSelected);
+                });
+         }
+         this.resettingSelection = false;
+    };
 }

@@ -1,15 +1,7 @@
-import {
-    IDiagramNode, IProcessShape,
-    NodeChange, ProcessShapeType, IProcessLink
-} from "./models/";
-import {ILayout, ProcessClipboardData, UserTaskShapeModel} from "./models/";
-import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";
+import {IDiagramNode, IProcessShape, ILayout, ProcessClipboardData, UserTaskShapeModel, IProcessGraph} from "./models/";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {DiagramLink} from "./shapes/diagram-link";
-import {IProcessGraph, NodeType} from "./models/";
-import {ProcessGraph} from "./process-graph";
 import {ProcessAddHelper} from "./process-add-helper";
-import {SystemTask, DiagramNode, UserTask} from "./shapes/";
+import {UserTask} from "./shapes/";
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
 
 export class ProcessCopyPasteHelper {
@@ -22,7 +14,7 @@ export class ProcessCopyPasteHelper {
                 (node) => { return node.model.propertyValues["x"].value; },
                 (node) => { return node.model.propertyValues["y"].value; }
             ]);
-        
+
         return sortedCells;
     }
 
@@ -31,8 +23,8 @@ export class ProcessCopyPasteHelper {
         if (!clipboard) {
             throw new Error("Clipboard does not exist");
         }
-        
-        let model: IProcessShape[] = [];        
+
+        let model: IProcessShape[] = [];
         const nodes = this.getSelectedCellsForCopy(processGraph);
 
 
@@ -46,13 +38,13 @@ export class ProcessCopyPasteHelper {
 
         //         if (shape.propertyValues["clientType"]["value"] === NodeType.UserDecision) {
         //             userTaskRefs[node.id.toString()] = {node:node, userDecisionId:shape.id.toString()};
-                    
+
         //             const userDecisionRef = userDecisionRefs[shape.id.toString()];
         //             if (userDecisionRef) {
         //                 userDecisionRef.numberOfBranches++;
         //             } else {
         //                 userDecisionRefs[shape.id.toString()] = {node:shape, numberOfBranches:1};
-        //             } 
+        //             }
         //         } else {
         //             userTaskRefs[node.id.toString()] = {node:node, userDecisionId:null};
         //         }
@@ -61,27 +53,27 @@ export class ProcessCopyPasteHelper {
 
         //
         // Copy from (clone) logic goes here. Implemented simple logic for cloning UserTask + first SystemTask
-        // For the UserTasks only a plain collection is sufficient. For the decisions we will need a tree. 
+        // For the UserTasks only a plain collection is sufficient. For the decisions we will need a tree.
         //
         _.each(nodes, (node) => {
             if (node instanceof UserTask) {
                 const userTaskShape = shapesFactoryService.createModelUserTaskShape(-1, -1,  -1, -1, -1);
-                // COPY UT PROPERTIES - Can add more here if needed. It can be extracted into a method  
+                // COPY UT PROPERTIES - Can add more here if needed. It can be extracted into a method
                 userTaskShape.name = node.model.name;
                 userTaskShape.id =  node.model.id;
-                userTaskShape.personaReference = _.cloneDeep(node.model.personaReference); 
+                userTaskShape.personaReference = _.cloneDeep(node.model.personaReference);
                 userTaskShape.associatedArtifact = _.cloneDeep(node.model.associatedArtifact); 
-                userTaskShape.propertyValues = _.cloneDeep(node.model.propertyValues); 
+                userTaskShape.propertyValues = _.cloneDeep(node.model.propertyValues);
                 model.push(userTaskShape);
-                
+
                 const systemTask = node.getNextSystemTasks(processGraph)[0];
                 const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(-1, -1,  -1, -1, -1);
-                // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method  
-                systemTaskShape.name = systemTask.model.name; 
-                systemTaskShape.personaReference = _.cloneDeep(systemTask.personaReference); 
+                // COPY ST PROPERTIES - Can add more here if needed. It can be extracted into a method
+                systemTaskShape.name = systemTask.model.name;
+                systemTaskShape.personaReference = _.cloneDeep(systemTask.personaReference);
                 systemTaskShape.associatedArtifact = _.cloneDeep(systemTask.associatedArtifact); 
-                systemTaskShape.propertyValues = _.cloneDeep(systemTask.model.propertyValues); 
-                
+                systemTaskShape.propertyValues = _.cloneDeep(systemTask.model.propertyValues);
+
                 model.push(systemTaskShape);
             }
         });
@@ -94,15 +86,15 @@ export class ProcessCopyPasteHelper {
         if (!clipboard) {
             throw new Error("Clipboard does not exist");
         }
-        
+
         const processClipboardData = <ProcessClipboardData>clipboard.getData();
 
         if (!processClipboardData) {
-            throw new Error("Clipboard is empty."); 
+            throw new Error("Clipboard is empty.");
         }
 
         if (processClipboardData.type !== ClipboardDataType.Process) {
-            throw new Error("Clipboard data has wrong type."); 
+            throw new Error("Clipboard data has wrong type.");
         }
 
         if (layout.viewModel.isWithinShapeLimit(processClipboardData.data.length)) {
@@ -114,8 +106,8 @@ export class ProcessCopyPasteHelper {
 
             //
             // Paste to (clone) logic goes here. Implemented simple logic for cloning User/System Tasks
-            // Clone Tasks one by one into the process model from the clipboard collection. 
-            // This part of code will be more complicated when we'll clone decisions (tree).   
+            // Clone Tasks one by one into the process model from the clipboard collection.
+            // This part of code will be more complicated when we'll clone decisions (tree).
             //
             _.each(processClipboardData.data, (node) => {
                 if (node instanceof UserTaskShapeModel) {
@@ -124,7 +116,7 @@ export class ProcessCopyPasteHelper {
                     if (sourceIds.length > 1) {
                         layout.updateBranchDestinationId(destinationId, userTaskShapeId);
                     }
-                    
+
                     // update links
                     for (let id of sourceIds) {
                         layout.updateLink(id, destinationId, userTaskShapeId);
@@ -144,5 +136,5 @@ export class ProcessCopyPasteHelper {
             layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(focusUserTaskId);
         }
     };
-    
+
 }

@@ -5,8 +5,9 @@
     <bp-artifact-picker is-item-selectable="$ctrl.dialogData.isItemSelectable(item)"
                         selectable-item-types="$ctrl.dialogData.selectableItemTypes"
                         selection-mode="$ctrl.dialogData.selectionMode"
+                        show-projects="$ctrl.dialogData.showProjects"
+                        show-artifacts="$ctrl.dialogData.showArtifacts"
                         show-sub-artifacts="$ctrl.dialogData.showSubArtifacts"
-                        is-one-project-level="$ctrl.dialogData.isOneProjectLevel"
                         on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
                         on-double-click="$ctrl.onDoubleClick(vm)">
     </bp-artifact-picker>

@@ -7,8 +7,8 @@ export interface IIdGenerator {
 export class IdGenerator implements IIdGenerator {
     private tempId: number = 0;
 
-    constructor(private userTaskNewNodeCounter: number = 0,
-                private systemTaskNewNodeCounter: number = 0,
+    constructor(private userTaskNewNodeCounter: number = 1,
+                private systemTaskNewNodeCounter: number = 1,
                 private userDecisionNewNodeCounter: number = 0,
                 private systemDecisionNewNodeCounter: number = 0,
                 private userPersonaNewNodeCounter: number = -1,
@@ -44,10 +44,10 @@ export class IdGenerator implements IIdGenerator {
 
     public reset() {
         this.systemDecisionNewNodeCounter = 0;
-        this.systemTaskNewNodeCounter = 0;
+        this.systemTaskNewNodeCounter = 1;
         this.systemPersonaNewNodeCounter = 0;
         this.userDecisionNewNodeCounter = 0;
-        this.userTaskNewNodeCounter = 0;
+        this.userTaskNewNodeCounter = 1;
         this.userPersonaNewNodeCounter = 0;
     }
 }

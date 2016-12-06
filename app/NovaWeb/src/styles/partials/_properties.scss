@@ -161,6 +161,12 @@ pagecontent, bp-properties-panel {
                     flex-shrink: 0;
                     width: 3.5px;
                 }
+                &.btn-secondary {
+                    color: $brand-secondary;
+                    &:hover {
+                        color: $white;
+                    }
+                }
             }
 
             input,
@@ -227,8 +233,14 @@ pagecontent, bp-properties-panel {
             }
 
             .ui-select-single {
+                min-height: $property-min-height;
+                min-width: $property-input-width;
+
                 .ui-select-search {
+                    left: 0;
                     min-width: $property-input-width;
+                    position: absolute;
+                    top: 0;
                 }
 
                 &.no-custom {
@@ -551,10 +563,6 @@ pagecontent, bp-properties-panel {
                         .ui-select-choices-row-inner:hover .ui-select-choice-item {
                             background: $brand-secondary;
                             color: $white;
-
-                            &::before {
-                                content: '\2713';
-                            }
                         }
                     }
 
@@ -590,6 +598,7 @@ pagecontent, bp-properties-panel {
                 color: $gray-dark;
                 font-size: $font-size-normal;
                 font-weight: 400;
+                background: $gray-lightest;
 
                 &.simple,
                 &.multiple {
@@ -1111,6 +1120,9 @@ pagecontent, bp-properties-panel {
             .icon {
                 cursor: pointer;
                 margin-right: 5px;
+                &:hover {
+                    color: $brand-secondary;
+                }
                 &.disabled {
                     opacity: $default-disabled-opacity;
                     cursor: not-allowed;

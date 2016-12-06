@@ -36,6 +36,9 @@ module.exports = function (config) {
                 presets: ['es2015']
             }
         },
+        mime: {
+            'text/x-typescript': ['ts','tsx']
+        },
         preprocessors: preprocessors,
         webpackMiddleware: {
             stats: {

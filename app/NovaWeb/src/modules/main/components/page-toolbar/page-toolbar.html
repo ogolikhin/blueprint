@@ -19,7 +19,7 @@
                          <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
                      </ul>
                  </li> -->
-                <li><a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.closeProject($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
+                <li><a href="#" ng-class="{disabled: !$ctrl.isArtifactSelected}" ng-click="$ctrl.closeProject($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
                 </li>
                 <li><a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.closeAllProjects($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a>
                 </li>
@@ -51,7 +51,7 @@
             </a>
         </li>
         <li>
-            <a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.refreshAll($event)">
+            <a href="#" ng-click="$ctrl.refreshAll($event)">
                 <div class="icon-container">
                     <i class="fonticon fonticon2-refresh-line"></i>
                 </div>

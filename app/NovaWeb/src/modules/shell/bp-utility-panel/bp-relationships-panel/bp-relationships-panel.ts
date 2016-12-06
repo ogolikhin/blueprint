@@ -1,10 +1,9 @@
-import {Enums, Models, Relationships} from "../../../main";
+import {Enums, Relationships} from "../../../main";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {
     IArtifactManager,
     IStatefulItem,
     IStatefulArtifact,
-    StatefulSubArtifact,
     IStatefulSubArtifact,
     IArtifactRelationships
 } from "../../../managers/artifact-manager";
@@ -23,8 +22,8 @@ interface IOptions {
 export class BPRelationshipsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-relationships-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPRelationshipsPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -36,8 +35,6 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
     public static $inject: [string] = [
         "$q",
         "localization",
-        "artifactManager",
-        "artifactRelationships",
         "dialogService"
     ];
 
@@ -59,22 +56,15 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
-                protected artifactManager: IArtifactManager,
-                private artifactRelationships: IArtifactRelationships,
-                private dialogService: IDialogService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
+                private dialogService: IDialogService) {
 
-        super($q, artifactManager.selection, bpAccordionPanel);
+        super($q);
 
         this.options = [
             {value: "1", label: "Add new"}
         ];
 
         this.subscribers = [];
-    }
-
-    public $onInit() {
-        super.$onInit();
     }
 
     public $onDestroy() {
@@ -183,7 +173,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             this.item.relationships.canEdit;
     }
 
-    private reuseReadOnlyRelationships(): boolean {        
+    private reuseReadOnlyRelationships(): boolean {
         return this.item.isReuseSettingSRO(Enums.ReuseSettings.Relationships);
     }
 
@@ -276,12 +266,10 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         };
 
         this.dialogService.open(dialogSettings, data).then((result) => {
-
             data.manualTraces = data.manualTraces.map((trace) => {
                 trace.isSelected = false;
                 return trace;
             });
-
             this.manualTraces = data.manualTraces;
             this.item.relationships.updateManual(data.manualTraces);
         });

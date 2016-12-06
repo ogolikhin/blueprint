@@ -90,7 +90,7 @@
     &:focus,
     &:active,
     &.active,
-    &:hover:focus{
+    &:hover:focus {
         background-color: transparent;
         border-color: $brand-secondary;
         color: $brand-secondary;

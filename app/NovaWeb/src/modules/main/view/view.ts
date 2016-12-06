@@ -1,4 +1,4 @@
-﻿import {IWindowVisibility} from "../../core/services/window-visibility";
+﻿import {IWindowVisibility, VisibilityStatus} from "../../core/services/window-visibility";
 import {IUser, ISession} from "../../shell";
 import {Models, Enums} from "../models";
 import {IProjectManager} from "../../managers/project-manager";
@@ -18,9 +18,11 @@ export class MainView implements ng.IComponentOptions {
 }
 
 export class MainViewController {
-    
+
     static $inject: [string] = [
         "$state",
+        "$interval",
+        "$document",
         "session",
         "projectManager",
         "messageService",
@@ -36,8 +38,11 @@ export class MainViewController {
 
     public isLeftToggled: boolean;
     public isActive: boolean;
+    private originalTitle: string;
 
     constructor(private $state: ng.ui.IState,
+                private $interval: ng.IIntervalService,
+                private $document: ng.IDocumentService,
                 private session: ISession,
                 private projectManager: IProjectManager,
                 private messageService: IMessageService,
@@ -47,6 +52,7 @@ export class MainViewController {
                 private utilityPanelService: IUtilityPanelService,
                 private localStorageService: ILocalStorageService,
                 private dialogService: IDialogService) {
+        this.originalTitle = this.$document[0].title;
     }
 
     public $onInit() {
@@ -55,7 +61,8 @@ export class MainViewController {
         this._subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
-            this.windowVisibility.isHidden.subscribeOnNext(this.onVisibilityChanged, this)
+            this.windowVisibility.visibilityObservable.distinctUntilChanged()
+                .subscribeOnNext(this.onVisibilityChanged, this)           
         ]; 
 
         this.openTourFirstTime();
@@ -77,6 +84,8 @@ export class MainViewController {
         }
     }
 
+
+
     public $onDestroy() {
         //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
@@ -87,16 +96,9 @@ export class MainViewController {
         this.projectManager.dispose();
         this.artifactManager.dispose();
     }
-
-    private onVisibilityChanged = (isHidden: boolean) => {
-        if (isHidden) {
-            this.artifactManager.autosave(false).catch(() => {
-                alert("Autosave has failed!");
-            });
-        }
-
-        document.body.classList.remove(isHidden ? "is-visible" : "is-hidden");
-        document.body.classList.add(isHidden ? "is-hidden" : "is-visible");
+    private onVisibilityChanged = (status: VisibilityStatus) => {
+        this.$document[0].body.classList.remove(status === VisibilityStatus.Visible ? "is-hidden" : "is-visible");
+        this.$document[0].body.classList.add(status === VisibilityStatus.Visible ? "is-visible" : "is-hidden");
     };
 
     private onProjectCollectionChanged = (projects: Models.IViewModel<IStatefulArtifact>[]) => {
@@ -107,9 +109,9 @@ export class MainViewController {
 
     public toggle = (id?: Enums.ILayoutPanel, state?: boolean) => {
         if (Enums.ILayoutPanel.Left === id) {
-            this.isLeftToggled = angular.isDefined(state) ? state : !this.isLeftToggled;
+            this.isLeftToggled = _.isUndefined(state) ? !this.isLeftToggled : state;
         } else if (Enums.ILayoutPanel.Right === id) {
-            this.isRightToggled = angular.isDefined(state) ? state : !this.isRightToggled;
+            this.isRightToggled = _.isUndefined(state) ? !this.isRightToggled : state;
         }
     };
 
@@ -124,4 +126,5 @@ export class MainViewController {
     public get currentUser(): IUser {
         return this.session.currentUser;
     }
+
 }

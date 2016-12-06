@@ -13,8 +13,9 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 
 export class DeleteAction extends BPButtonAction {
-    constructor(private artifact: IStatefulArtifact,
-        private localization: ILocalizationService,
+    constructor(
+        private artifact: IStatefulArtifact,
+        protected localization: ILocalizationService,
         private messageService: IMessageService,
         private artifactManager: IArtifactManager,
         private projectManager: IProjectManager,
@@ -35,6 +36,8 @@ export class DeleteAction extends BPButtonAction {
         if (!dialogService) {
             throw new Error("Dialog service not provided or is null");
         }
+
+        this._tooltip = this.localization.get("App_Toolbar_Delete");
     }
 
     public get icon(): string {
@@ -42,18 +45,18 @@ export class DeleteAction extends BPButtonAction {
     }
 
     public get tooltip(): string {
-        return this.localization.get("App_Toolbar_Delete");
+        return this._tooltip;
     }
 
     public get disabled(): boolean {
-        return !this.canExecute();
+        return !this.canDelete();
     }
 
     public get execute() {
-        return this.deleteArtifact;
+        return this.delete;
     }
 
-    private canExecute() {
+    protected canDelete() {
         if (!this.artifact) {
             return false;
         }
@@ -78,7 +81,7 @@ export class DeleteAction extends BPButtonAction {
         return true;
     }
 
-    private deleteArtifact() {
+    protected delete() {
         const overlayId: number = this.loadingOverlayService.beginLoading();
 
         this.projectManager.getDescendantsToBeDeleted(this.artifact).then((descendants: Models.IArtifactWithProject[]) => {
@@ -114,11 +117,10 @@ export class DeleteAction extends BPButtonAction {
         });
     };
 
-
     private complete(deletedArtifacts: Models.IArtifact[]) {
         const parentArtifact = this.artifactManager.get(this.artifact.parentId);
         if (parentArtifact) {
-            this.projectManager.refresh(parentArtifact.projectId, true).then(() => {
+            this.projectManager.refresh(parentArtifact.projectId, null, true).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 this.navigationService.navigateTo({id: parentArtifact.id});
 
@@ -133,7 +135,5 @@ export class DeleteAction extends BPButtonAction {
             deletedArtifacts.length);
         message.timeout = 6000;
         this.messageService.addMessage(message);
-
     }
-
 }

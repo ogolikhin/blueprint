@@ -1,13 +1,7 @@
 import {Models} from "../../main/models";
 import {Message, MessageType} from "../../core/messages/message";
-import {
-    IProcess,
-    IProcessShape,
-    IProcessLink,
-    IHashMapOfPropertyValues,
-    IVersionInfo,
-    ItemTypePredefined
-} from "./models/process-models";
+import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
+import {IHashMapOfPropertyValues, IVersionInfo, ItemTypePredefined} from "./models/process-models";
 import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
 import {StatefulProcessSubArtifact} from "./process-subartifact";
@@ -75,7 +69,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
 
     protected displaySuccessPublishMessage() {
         this.services.messageService.addInfo("Publish_Success_Message");
-        this.services.messageService.addWarning("ST_ProcessType_RegenerateUS_Warning");
+        this.services.messageService.addInfo("ST_ProcessType_RegenerateUS_Message");
     }
 
     // Returns promises for operations that are needed to refresh this process artifact

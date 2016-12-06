@@ -109,10 +109,13 @@ describe("Formly Text RTF", () => {
             return tinymceBody;
         },
         getContent: () => {
-            return tinymceBody;
+            return tinymceBody.innerHTML;
         },
         on: (eventName: string, callBack: Function) => {
             callBack.call(null);
+        },
+        destroy: (automatic?: boolean) => {
+            return;
         }
     };
 

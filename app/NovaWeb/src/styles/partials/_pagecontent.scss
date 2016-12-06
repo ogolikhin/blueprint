@@ -1,5 +1,70 @@
 $page-body-min-width: 386px;
 
+.empty-main {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: $white;
+    display: flex;
+    align-items: center;
+    overflow: auto;
+}
+
+.empty-main__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+.empty-main__logo {
+    background: url('/novaweb/static/images/logo-storyteller-gray.svg') center center no-repeat;
+    width: 400px;
+    height: 150px;
+    min-height: 150px;
+}
+
+.empty-main__heading {
+    display: inline-block;
+    font-size: 2.3em;
+    color: $brand-secondary;
+    padding-bottom: 50px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid $gray-lighter;
+    text-align: center;
+}
+
+.empty-main__heading--strong {
+    font-weight: bold;
+}
+
+.empty-main__button {
+    color: $white;
+    background-color: $brand-secondary;
+    padding: 8px 20px;
+
+    &:hover {
+        color: $brand-secondary;
+        background-color: $white;
+    }
+}
+
+.empty-main__resources {
+    margin-top: 50px;
+    margin-bottom: 5px;
+    font-size: $font-size-big;
+}
+
+.empty-main__hyperlink {
+    font-weight: normal;
+    font-size: $font-size-normal;
+    text-decoration: underline;
+}
+
+
 pagecontent, bp-properties-panel {
     box-sizing: border-box;
     display: flex;
@@ -131,7 +196,13 @@ pagecontent, bp-properties-panel {
 
             bp-item-type-icon {
                 display: block;
+                height: 32px;
                 margin-top: 5px;
+                width: 32px;
+
+                img {
+                    background-color: $blue-lightest;
+                }
             }
         }
 
@@ -187,7 +258,7 @@ pagecontent, bp-properties-panel {
 
         .type-id {
             color: $gray;
-            font-size: $font-size-smallest;
+            font-size: $font-size-smaller;
             white-space: nowrap;
         }
     }
@@ -254,7 +325,10 @@ pagecontent, bp-properties-panel {
             position: absolute;
 
             img {
+                background-color: $blue-lightest;
                 height: 12px;
+                left: 2px;
+                top: 11px;
                 width: 12px;
             }
         }

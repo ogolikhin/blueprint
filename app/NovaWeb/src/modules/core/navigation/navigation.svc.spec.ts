@@ -1,4 +1,5 @@
 import "angular";
+import "lodash";
 import "angular-mocks";
 import "angular-ui-router";
 import {INavigationService, NavigationService} from "./navigation.svc";
@@ -204,7 +205,7 @@ describe("NavigationService", () => {
 
                 // act
                 navigationService.navigateTo({id: targetArtifactId})
-                    .catch((error: any) => {
+                    .then((error: any) => {
                         // assert
                         expect(stateGoSpy).not.toHaveBeenCalledWith();
                         done();

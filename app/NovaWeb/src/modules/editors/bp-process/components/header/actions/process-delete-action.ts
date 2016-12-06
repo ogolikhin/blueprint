@@ -64,6 +64,10 @@ export class ProcessDeleteAction extends DeleteAction {
     }
 
     protected delete(): void {
+        if (!this.canDelete()) {
+            return;
+        }
+        
         if (!this.selectedNodes || !this.selectedNodes.length) {
             super.delete();
         } else {

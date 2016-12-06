@@ -27,6 +27,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
+    copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
 }
@@ -639,6 +640,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.services.$q.reject(error);
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(moveOverlayId);
+        });
+    }
+
+     public copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet> {
+        let copyOverlayId = this.services.loadingOverlayService.beginLoading();
+
+        return this.services.artifactService.copyArtifact(this.id, newParentId, orderIndex)
+        .catch((error: IApplicationError) => {
+            return this.services.$q.reject(error);
+        }).finally(() => {
+            this.services.loadingOverlayService.endLoading(copyOverlayId);
         });
     }
 

@@ -48,8 +48,8 @@ export class UtilityPanelService implements IUtilityPanelService {
     public openPanel(panelType: PanelType) {
         this.isUtilityPanelOpened = true;
         this.ctrl.openPanel(panelType);
-    }
-
+    } 
+ 
     /**
      * Opens Utility Panel by panel type
      *

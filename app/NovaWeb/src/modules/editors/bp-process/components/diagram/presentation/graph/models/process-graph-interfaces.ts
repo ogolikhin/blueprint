@@ -119,13 +119,13 @@ export interface IProcessGraph {
     updateAfterRender();
     redraw(action: any);
     updateSizeChanges(width?: number, height?: number);
-    addSelectionListener(listener: ISelectionListener);
-    destroy();
     setSystemTasksVisible(value: boolean);
     clearSelection();
     onUserStoriesGenerated(userStories: IUserStory[]): void;
-
     processDiagramCommunication: IProcessDiagramCommunication;
+    highlightNodeEdges(nodes: IDiagramNode[]);
+    destroy();
+
 }
 
 export interface ILayout {

@@ -76,17 +76,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         this.subscribers.push(
             this.windowManager.mainWindow
                 .subscribeOnNext(this.onWidthResized, this),
-            this.artifactManager.selection.subArtifactObservable
-                .subscribeOnNext(this.onSubArtifactChanged, this)
         );
     }
-
-    private onSubArtifactChanged(subArtifact: IStatefulSubArtifact) {
-        if (!subArtifact && this.processDiagram) {
-            this.processDiagram.clearSelection();
-        }
-    }
-
+    
     protected onArtifactReady() {
         // when this method is called the process artifact should
         // be loaded and assigned to the base class' artifact
@@ -118,16 +110,11 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.statefulArtifactFactory,
             this.shapesFactory,
             this.utilityPanelService,
-            this.clipboard
+            this.clipboard,
+            this.artifactManager
         );
 
         let htmlElement = this.getHtmlElement();
-
-        this.processDiagram.addSelectionListener(
-            (elements: IDiagramNode[]) => {
-                this.onDiagramSelectionChanged(elements);
-            }
-        );
 
         this.processDiagram.createDiagram(this.artifact, htmlElement);
 
@@ -170,30 +157,6 @@ export class BpProcessEditorController extends BpBaseEditor {
             } else {
                 this.processDiagram.resize(0, 0);
             }
-        }
-    }
-
-    private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
-        if (this.isDestroyed) {
-            return;
-        }
-
-        if (elements.length > 0) {
-            const subArtifactId: number = elements[0].model.id;
-            const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(subArtifactId);
-
-            if (subArtifact) {
-                subArtifact.loadProperties()
-                    .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        if (this.isDestroyed) {
-                            return;
-                        }
-
-                        this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                    });
-            }
-        } else {
-            this.artifactManager.selection.clearSubArtifact();
         }
     }
 }

@@ -168,7 +168,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
 
                     editor.on("Change", (e) => {
                         if ($scope.options["data"].isFresh) {
-                            this.prepRTF(true);
+                            this.prepRTF();
                         } else if (this.isDirty || this.hasChangedFormat()) {
                             this.triggerChange();
                         }

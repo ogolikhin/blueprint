@@ -140,6 +140,7 @@ export class MoveCopyAction extends BPDropdownAction {
         };
 
         const dialogData: IMoveCopyArtifactPickerOptions = {
+            showProjects: false,
             showSubArtifacts: false,
             selectionMode: "single",
             currentArtifact: this.artifact,

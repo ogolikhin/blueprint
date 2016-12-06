@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "lodash";
 import "rx/dist/rx.lite";
 import * as agGrid from "ag-grid/main";
 import {BPTreeViewComponent, BPTreeViewController, ITreeNode, IColumn} from "./bp-tree-view";
@@ -401,7 +402,7 @@ describe("BPTreeViewController", () => {
                 expanded: true,
                 selectable: true,
                 loadChildrenAsync() {
-                    return $q.reject({message: "error"});
+                    return $q.reject("error");
                 }
             } as ITreeNode];
 
@@ -578,7 +579,7 @@ describe("BPTreeViewController", () => {
             // Arrange
             messageService.addError = jasmine.createSpy("addError");
             const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
-            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject({message: "error"}));
+            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("error"));
             vm.group = true;
             vm.expanded = true;
             const node = {data: vm, expanded: true} as agGrid.RowNode;

@@ -88,7 +88,7 @@ export class ProcessGraphSelectionHelper {
             let cells = this.mxGraph.getSelectionCells();
             if (evt.properties.removed && evt.properties.removed.length > 0) {
                 if (this.hasUnSelectableElement(evt)) {
-                   // this.graph.clearSelection();
+                   this.mxGraph.clearSelection();
                 }
             }
 

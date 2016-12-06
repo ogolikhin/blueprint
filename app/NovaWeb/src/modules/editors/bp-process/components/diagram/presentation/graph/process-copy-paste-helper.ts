@@ -164,7 +164,7 @@ export class ProcessCopyPasteHelper {
         }
     };
 
-    private findUserDecisions(baseNodes: any, decisionPointRefs: DecisionPointRef[]):void {
+    private findUserDecisions(baseNodes: any, decisionPointRefs: DecisionPointRef[]) {
         _.each(baseNodes, (node) => {
             if (node instanceof UserTask) {
                 const previousShapeIds: number[] = this.processGraph.viewModel.getPrevShapeIds(node.model.id);
@@ -184,7 +184,7 @@ export class ProcessCopyPasteHelper {
         });
     }    
 
-    private addUserDecisionsToBasenodes(baseNodes: any, decisionPointRefs: DecisionPointRef[]):void {
+    private addUserDecisionsToBasenodes(baseNodes: any, decisionPointRefs: DecisionPointRef[]) {
         _.forOwn(decisionPointRefs, (node) => {
             if (!!node && node.branches.length > 1) {
                 // sort branches by orderindex 
@@ -195,7 +195,7 @@ export class ProcessCopyPasteHelper {
     }
 
     private addTasksAndDecisionsToClipboardData(prevId: string, data: PreprocessorData, baseNodes, 
-                                                decisionPointRefs: DecisionPointRef[]){        
+                                                decisionPointRefs: DecisionPointRef[]) {        
         _.each(baseNodes, (node) => {
             // skip processed nodes
             if (!data.preprocessorTree[(<IDiagramNode>node).model.id]) {
@@ -212,7 +212,7 @@ export class ProcessCopyPasteHelper {
         data.sortTree();
     }
 
-    private connectAllSubtrees(data: PreprocessorData, connectionNodeId: string):void {
+    private connectAllSubtrees(data: PreprocessorData, connectionNodeId: string) {
         for (let i = data.treeIndex.length - 1; i >= 0; i--) {
             const preprocessorNode: PreprocessorNode = data.preprocessorTree[data.treeIndex[i]];
             if (i === data.treeIndex.length - 1) {
@@ -227,7 +227,7 @@ export class ProcessCopyPasteHelper {
         }       
     }
 
-    private addBranchLinks(data: PreprocessorData, decisionPointRefs: DecisionPointRef[]): void {
+    private addBranchLinks(data: PreprocessorData, decisionPointRefs: DecisionPointRef[]) {
         _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {
             if (!!node && node.branches.length > 1) {
                 for (let branch of node.branches) {

@@ -79,14 +79,6 @@ describe("OpenProcessImpactAnalysisAction", () => {
             expect(action.disabled).toEqual(true);
         });
 
-        it("sets disabled to true if no stateful process is provided", () => {
-            // act
-            const action = new OpenProcessImpactAnalysisAction(null, localization, processDiagramCommunication);
-
-            // assert
-            expect(action.disabled).toEqual(true);
-        });
-
         it("registers selection change listener", () => {
             // arrange
             const spy = spyOn(processDiagramCommunication, "register").and.callThrough();

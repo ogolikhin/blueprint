@@ -35,6 +35,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public itemTypeIconId: number;
     public hasCustomIcon: boolean;
     public isAnyPanelVisible: boolean;
+   
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
@@ -140,8 +141,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (item) {
             this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
         }
-
-        if (selection && (selection.artifact || selection.subArtifact)) {
+        
+        if (selection && selection.multiSelect) {
+            this.hidePanels();
+        } else if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);
@@ -178,6 +181,15 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             panelType: panelType
         };
         this.activePanelContexts.push(context);
+    }
+
+    private hidePanels() {
+        this.hidePanel(PanelType.Discussions);
+        this.hidePanel(PanelType.Files);
+        this.hidePanel(PanelType.History);
+        this.hidePanel(PanelType.Properties);
+        this.hidePanel(PanelType.Relationships); 
+        this.isAnyPanelVisible = false;
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {

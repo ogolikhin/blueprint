@@ -1,6 +1,5 @@
-import {Models} from "../../main/models";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
-import {IArtifact} from "../../main/models/models";
+import {IArtifact, IPublishResultSet} from "../../main/models/models";
 
 export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsService {
     public static $inject = ["$q"];
@@ -8,33 +7,37 @@ export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsSer
     constructor(private $q: ng.IQService) {
     }
 
-    public get unpublishedArtifacts(): IArtifact[] {
-        return undefined;
-    }
-
     public get unpublishedArtifactsObservable(): Rx.Observable<IArtifact[]> {
         return undefined;
     }
 
-    public publishAll(): ng.IPromise<Models.IPublishResultSet> {
+    public get processedArtifactsObservable(): Rx.Observable<IArtifact[]> {
+        return undefined;
+    }
+
+    public publishAll(): ng.IPromise<IPublishResultSet> {
         const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
-    public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet> {
+
+    public getUnpublishedArtifacts(): ng.IPromise<IPublishResultSet> {
         return this.$q.when({artifacts: [], projects: []});
     }
-    public publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
+
+    public publishArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
         const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
-    public discardArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
+
+    public discardArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
         const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;
     }
-    public discardAll(): ng.IPromise<Models.IPublishResultSet> {
+
+    public discardAll(): ng.IPromise<IPublishResultSet> {
         const deferred = this.$q.defer<any>();
         deferred.resolve();
         return deferred.promise;

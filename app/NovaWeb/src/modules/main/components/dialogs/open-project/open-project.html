@@ -2,10 +2,7 @@
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <div ng-if="$ctrl.errorMessage">
-        {{$ctrl.errorMessage}}
-    </div>
-    <div ng-if="!$ctrl.errorMessage" class="project-wrapper">
+    <div class="project-wrapper">
         <div class="project-tree-container">
             <bp-tree-view grid-class="project-tree"
                           row-height="20"
@@ -14,8 +11,7 @@
                           columns="$ctrl.columns"
                           header-height="20"
                           on-select="$ctrl.onSelect(vm, isSelected, selectedVMs)"
-                          on-double-click="$ctrl.onDoubleClick(vm)"
-                          on-error="$ctrl.onError(reason)">
+                          on-double-click="$ctrl.onDoubleClick(vm)">
             </bp-tree-view>
         </div>
         <div class="project-data">

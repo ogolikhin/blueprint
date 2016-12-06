@@ -1,4 +1,5 @@
-import * as angular from "angular";
+require("./glossary.scss");
+
 import {BpGlossary} from "./bp-glossary";
 import {GlossaryService} from "./glossary.svc";
 

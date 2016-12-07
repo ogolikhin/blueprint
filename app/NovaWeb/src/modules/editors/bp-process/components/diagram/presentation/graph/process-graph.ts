@@ -136,6 +136,13 @@ export class ProcessGraph implements IProcessGraph {
         this.processCopyPasteHelper.copySelectedShapes();
     }
 
+    public getSelectedShapes(): IProcessShape[] {
+        const models = _.map(this.getMxGraph().getSelectionCells(), (diagramNode: IDiagramNode) => {
+            return diagramNode.model;
+        });
+        return models;
+    }
+
     public insertSelectedShapes = ((edge: MxCell) => {
         const sourcesAndDestinations = this.layout.getSourcesAndDestinations(edge);
         const sourceIds = sourcesAndDestinations.sourceIds;

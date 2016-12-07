@@ -124,6 +124,7 @@ export interface IProcessGraph {
     onUserStoriesGenerated(userStories: IUserStory[]): void;
     copySelectedShapes();
     insertSelectedShapes(edge: MxCell);
+    getSelectedShapes(): IProcessShape[];
     processDiagramCommunication: IProcessDiagramCommunication;
     highlightNodeEdges(nodes: IDiagramNode[]);
     destroy();

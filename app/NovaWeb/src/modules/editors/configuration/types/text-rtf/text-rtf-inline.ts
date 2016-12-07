@@ -169,7 +169,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     editor.on("Change", (e) => {
                         if ($scope.options["data"].isFresh) {
                             this.prepRTF();
-                        } else if (this.isDirty || this.hasChangedFormat()) {
+                        } else if (this.isDirty || this.hasChangedFormat() || this.isLinkPopupOpen) {
                             this.triggerChange();
                         }
                     });
@@ -177,6 +177,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     editor.on("ExecCommand", (e) => {
                         if (e && _.indexOf(this.execCommandEvents, e.command) !== -1) {
                             this.triggerChange();
+                        } else if (e && _.indexOf(this.linkEvents, e.command) !== -1) {
+                            this.isLinkPopupOpen = true;
                         }
                     });
 

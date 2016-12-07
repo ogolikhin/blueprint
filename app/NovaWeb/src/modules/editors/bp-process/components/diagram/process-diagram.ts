@@ -152,8 +152,9 @@ export class ProcessDiagram {
     };
 
     private copySelection = () => {
-        ProcessCopyPasteHelper.copySectedShapes(this.graph, this.clipboard, this.shapesFactory, this.fileUploadService);
+        this.graph.copySelectedShapes();
     }
+
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     };
@@ -197,6 +198,7 @@ export class ProcessDiagram {
                 this.$log,
                 this.statefulArtifactFactory,
                 this.clipboard
+
             );
              
         } catch (err) {
@@ -216,6 +218,12 @@ export class ProcessDiagram {
             this.graph.destroy();
             this.graph = null;
         }
+        // clear any subartifact that may still be selected 
+        // by selection manager and/or utility panel
+
+        if (this.artifactManager && this.artifactManager.selection) {
+            this.artifactManager.selection.clearSubArtifact();
+        }
     }
 
     private onSubArtifactChanged(subArtifact: IStatefulSubArtifact) {
@@ -227,27 +235,31 @@ export class ProcessDiagram {
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
         // Note: need to trigger an angular $digest so that bindings will
         // work in other components
-        this.$rootScope.$apply(() => {
-            if (elements.length === 1) {
-                // single-selection
-                const subArtifactId: number = elements[0].model.id;
-                const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
-                if (subArtifact) {
-                    subArtifact.loadProperties()
-                        .then((loadedSubArtifact: IStatefulSubArtifact) => {
-
+        
+        if (elements.length === 1) {
+            // single-selection
+            const subArtifactId: number = elements[0].model.id;
+            const subArtifact = <IStatefulProcessSubArtifact>this.processArtifact.subArtifactCollection.get(subArtifactId);
+            if (subArtifact) {
+                subArtifact.loadProperties()
+                    .then((loadedSubArtifact: IStatefulSubArtifact) => {
+                        this.$rootScope.$applyAsync(() => {
                             this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
                         });
-                }
-            } else if (elements.length > 1) {
-                // multiple selection
-                this.artifactManager.selection.setSubArtifact(undefined, true);
- 
-            } else {
-                // empty selection
-                this.artifactManager.selection.clearSubArtifact();
+                    });
             }
-        });
+        } else if (elements.length > 1) {
+            // multiple selection
+            this.$rootScope.$applyAsync(() => {
+                this.artifactManager.selection.setSubArtifact(undefined, true);
+            });
+ 
+        } else {
+            // empty selection
+            this.$rootScope.$applyAsync(() => {
+                this.artifactManager.selection.clearSubArtifact();
+            });
+        }
     }
     
     private handleInitProcessGraphFailed(processId: number, err: any) {

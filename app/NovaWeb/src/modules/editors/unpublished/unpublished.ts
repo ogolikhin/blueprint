@@ -2,7 +2,7 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {IArtifact} from "../../main/models/models";
+import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
@@ -14,6 +14,10 @@ import {ItemTypePredefined} from "../../main/models/enums";
 export class UnpublishedComponent implements ng.IComponentOptions {
     public template: string = require("./unpublished.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = UnpublishedController;
+}
+
+interface IArtifactWithProject extends IArtifact {
+    projectName: string;
 }
 
 export class UnpublishedController {
@@ -28,8 +32,8 @@ export class UnpublishedController {
     ];
 
     public toolbarActions: IBPAction[];
-    public selectedArtifacts: IArtifact[];
-    public unpublishedArtifacts: IArtifact[];
+    public selectedArtifacts: IArtifactWithProject[];
+    public unpublishedArtifacts: IArtifactWithProject[];
     public isLoading: boolean;
 
     private publishArtifactsButton: PublishArtifactsAction;
@@ -89,14 +93,17 @@ export class UnpublishedController {
         this.processedArtifactsObserver.dispose();
     }
 
-    private onUnpublishedArtifactsChanged(unpublishedArtifacts: IArtifact[]) {
-        this.unpublishedArtifacts = unpublishedArtifacts;
+    private onUnpublishedArtifactsChanged(unpublishedArtifacts: IPublishResultSet) {
+        this.unpublishedArtifacts = _.map(unpublishedArtifacts.artifacts, artifact => {
+            const project = _.find(unpublishedArtifacts.projects, project => project.id === artifact.projectId);
+            return _.extend({}, artifact, unpublishedArtifacts.projects, {projectName: project.name});
+        });
         this.updateSelectedArtifacts();
         this.updateToolbarButtons();
     };
 
-    private onArtifactsPublishedOrDiscarded(processedArtifacts: IArtifact[]) {
-        this.unpublishedArtifacts = _.differenceBy(this.unpublishedArtifacts, processedArtifacts, "id");
+    private onArtifactsPublishedOrDiscarded(processedResult: IPublishResultSet) {
+        _.pullAllBy(this.unpublishedArtifacts, processedResult.artifacts, "id");
         this.updateSelectedArtifacts();
         this.updateToolbarButtons();
     }
@@ -105,7 +112,7 @@ export class UnpublishedController {
         this.selectedArtifacts = _.intersectionBy(this.selectedArtifacts, this.unpublishedArtifacts, "id");
     }
 
-    public toggleSelection(artifact: IArtifact) {
+    public toggleSelection(artifact: IArtifactWithProject) {
         const selectedId = this.selectedArtifacts.indexOf(artifact);
 
         if (selectedId > -1) {
@@ -137,11 +144,11 @@ export class UnpublishedController {
         this.discardArtifactsButton.updateList(this.selectedArtifacts);
     }
 
-    public isSelected(artifact: IArtifact): boolean {
+    public isSelected(artifact: IArtifactWithProject): boolean {
         return this.selectedArtifacts.indexOf(artifact) > -1;
     }
 
-    public isNavigatable(artifact: IArtifact): boolean {
+    public isNavigatable(artifact: IArtifactWithProject): boolean {
         return artifact.predefinedType !== ItemTypePredefined.ArtifactBaseline
             && artifact.predefinedType !== ItemTypePredefined.Baseline
             && artifact.predefinedType !== ItemTypePredefined.BaselineFolder

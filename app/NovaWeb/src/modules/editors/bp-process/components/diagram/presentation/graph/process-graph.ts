@@ -42,6 +42,7 @@ export class ProcessGraph implements IProcessGraph {
     private highlightedEdgeStates: any[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
+    private processCopyPasteHelper: ProcessCopyPasteHelper;
     private selectionChangedHandler: string = null;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
@@ -104,6 +105,8 @@ export class ProcessGraph implements IProcessGraph {
         }
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
+        this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, 
+                    this.clipboard, this.shapesFactory, this.messageService, this.$log);
     }
 
     private isCellSelectable = (cell: MxCell) => {
@@ -117,28 +120,36 @@ export class ProcessGraph implements IProcessGraph {
         this.selectionHelper = new ProcessGraphSelectionHelper(this);
         this.selectionHelper.initSelection();
     }
- 
+
     public clearSelection() {
         this.mxgraph.clearSelection();
     }
- 
+
     private initializePopupMenu() {
         // initialize a popup menu for the graph
-        this.popupMenu = new NodePopupMenu(
-            this.layout,
-            this.shapesFactory,
-            this.localization,
-            this.clipboard,
-            this.htmlElement,
-            this.mxgraph,
-            ProcessAddHelper.insertTaskWithUpdate,
-            ProcessAddHelper.insertUserDecision,
-            ProcessAddHelper.insertUserDecisionConditionWithUpdate,
-            ProcessAddHelper.insertSystemDecision,
-            ProcessAddHelper.insertSystemDecisionConditionWithUpdate,
-            ProcessCopyPasteHelper.insertSelectedShapes);
+        this.popupMenu = new NodePopupMenu(this.layout, this.shapesFactory, this.localization, this.clipboard, this.htmlElement, this.mxgraph, 
+            ProcessAddHelper.insertTaskWithUpdate, ProcessAddHelper.insertUserDecision, ProcessAddHelper.insertUserDecisionConditionWithUpdate,
+            ProcessAddHelper.insertSystemDecision, ProcessAddHelper.insertSystemDecisionConditionWithUpdate, this.insertSelectedShapes);
+    }
+    
+    public copySelectedShapes() {
+        this.processCopyPasteHelper.copySelectedShapes();
     }
 
+    public getSelectedShapes(): IProcessShape[] {
+        const models = _.map(this.getMxGraph().getSelectionCells(), (diagramNode: IDiagramNode) => {
+            return diagramNode.model;
+        });
+        return models;
+    }
+
+    public insertSelectedShapes = ((edge: MxCell) => {
+        const sourcesAndDestinations = this.layout.getSourcesAndDestinations(edge);
+        const sourceIds = sourcesAndDestinations.sourceIds;
+        const destinationId = sourcesAndDestinations.destinationIds[0];
+        this.processCopyPasteHelper.insertSelectedShapes(sourceIds, destinationId);
+    });
+    
     public render(useAutolayout, selectedNodeId) {
         try {
             // uses layout object to draw a new diagram for process model
@@ -502,19 +513,20 @@ export class ProcessGraph implements IProcessGraph {
 
     private deleteShape = (clickedNode: IDiagramNode) => {
         const dialogParameters = clickedNode.getDeleteDialogParameters();
-        this.dialogService.open(<IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok"),
-            template: require("../../../../../../shared/widgets/bp-dialog/bp-dialog.html"),
-            header: this.localization.get("App_DialogTitle_Alert"),
-            message: dialogParameters.message
-        }).then(() => {
-            if (clickedNode.getNodeType() === NodeType.UserTask) {
-                ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-            } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
-                ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
-                    (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
-            }
-        });
+
+        this.dialogService.alert(
+            dialogParameters.message, 
+            this.localization.get("App_DialogTitle_Alert"),
+            this.localization.get("App_Button_Ok"),
+            this.localization.get("App_Button_Cancel"))
+            .then(() => {
+                if (clickedNode.getNodeType() === NodeType.UserTask) {
+                    ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
+                    ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
+                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                }
+            });
     };
 
     private hasMaxConditions(decisionId: number): boolean {
@@ -945,7 +957,7 @@ export class ProcessGraph implements IProcessGraph {
     public destroy() {
         if (this.viewModel.isSpa) {
             window.removeEventListener("resize", this.resizeWrapper, true);
-        }
+    }
         window.removeEventListener("buttonUpdated", this.buttonUpdated);
         // remove graph
         this.mxgraph.getModel().clear();

@@ -131,7 +131,6 @@
 .quick-search__results--content--center {
     border: none;
     width: 60%;
-    height: 100%;
     margin: auto;
     background-color: $white;
 }
@@ -145,7 +144,7 @@
 .quick-search__results--input-panel {
     position: relative;
     background: $blue-lightest;
-    padding: 1em 2em;
+    padding: 1em 2.5em;
     font-size: $font-size-bigger;
     border-bottom: 1px solid $gray-lightest;
 
@@ -153,6 +152,9 @@
         position: absolute;
         top: 0;
         right: .2em;
+        font-size: 30px;
+        font-weight: 800;
+        color: #333;
     }
 }
 
@@ -172,7 +174,7 @@
     margin: 1px auto 0;
     background: lighten($gray-lightest, 7%);
     border-bottom: 1px solid $gray-lightest;
-
+    font-size: $font-size-normal;
     &:focus, &:hover {
         background: $tree-hover-background;
     }
@@ -225,16 +227,13 @@
     margin-top: 24px;
     margin-left: -24px;
 }
-
-.quick-search__results--large-font {
-    font-size: $font-size-normal;
-}
-
 .quick-search__results--large-font,
 .quick-search__results--large-font::before {
     font-size: $font-size-large;
 }
-
+.quick-search__results--large-font.icon {
+    margin-top: 10px;
+}
 .small-gutter > [class*='col-'] {
     padding-right: 7px;
     padding-left: 7px;
@@ -263,7 +262,7 @@
 
 .quick-search__total-results {
     text-align: right;
-    font-size: $font-size-bigger;
+    font-size: $font-size-big;
     padding-top: 0.5em;
     padding-bottom: 1em;
 }

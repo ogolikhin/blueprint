@@ -1,6 +1,5 @@
 import {IProjectManager} from "./project-manager";
 import {IViewModel, IArtifact, IArtifactWithProject} from "../../main/models/models";
-import {IInstanceItem} from "../../main/models/admin-store-models";
 import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 
@@ -20,12 +19,8 @@ export class ProjectManagerMock implements IProjectManager {
         return;
     }
 
-    public load(projectId: number): ng.IPromise<void> {
+    public add(projectId: number): ng.IPromise<void> {
         return this.$q.resolve();
-    }
-
-    public add(project: IInstanceItem) {
-        return;
     }
 
     public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {

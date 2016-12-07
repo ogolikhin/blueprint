@@ -34,6 +34,11 @@ namespace Model.ArtifactModel.Impl
             public string Value { get; set; }
         }
 
+        public class CustomValue
+        {
+            public string Value { get; set; }
+        }
+
         public int? VersionId { get; set; }
         public PropertyPrimitiveType? PrimitiveType { get; set; }
         public int? InstancePropertyTypeId { get; set; }

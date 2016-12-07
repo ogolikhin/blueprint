@@ -48,13 +48,13 @@ export class DialogService implements IDialogService {
             backdrop: false
         };
 
-        this.dialogSettings.cancelButton = this.localization.get(this.dialogSettings.cancelButton) || undefined;
-        this.dialogSettings.okButton = this.localization.get(this.dialogSettings.okButton) || undefined;
-        this.dialogSettings.header = this.localization.get(this.dialogSettings.header) || undefined;
-        this.dialogSettings.message = this.localization.get(this.dialogSettings.message) || undefined;
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
+        this.dialogSettings.cancelButton = this.localization.get(this.dialogSettings.cancelButton) || null;
+        this.dialogSettings.okButton = this.localization.get(this.dialogSettings.okButton) || null;
+        this.dialogSettings.header = this.localization.get(this.dialogSettings.header) || null;
+        this.dialogSettings.message = this.localization.get(this.dialogSettings.message) || null;
         const options = _.assign({},
             this.dialogSettings,
             optsettings,

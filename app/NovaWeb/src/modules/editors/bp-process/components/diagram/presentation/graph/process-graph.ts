@@ -919,13 +919,13 @@ export class ProcessGraph implements IProcessGraph {
         const userTasks = <IUserTask[]>nodes.filter((node: IDiagramNode) => node.getNodeType() === NodeType.UserTask);
 
         if (userTasks.length > 1) {
-            const commonUserDecisions: IDecision[] = this.getCommonUserDecisions(userTasks, this.mxgraph.getModel());
+            const commonUserDecisions = this.processCopyPasteHelper.getCommonUserDecisions(userTasks);
             nodesToHighlight.push(...commonUserDecisions);
         }
 
         for (const selectedNode of nodes) {
-            const relatedNodes: IDiagramNode[] = this.getCopyGroupNodes(selectedNode);
-            nodesToHighlight.push(...relatedNodes);
+            const familyNodes = this.processCopyPasteHelper.getCopyFamilyNodes(selectedNode);
+            nodesToHighlight.push(...familyNodes);
         }
 
         for (const node of nodesToHighlight) {
@@ -933,51 +933,11 @@ export class ProcessGraph implements IProcessGraph {
         }
     };
 
-    private getCommonUserDecisions(userTasks: IUserTask[], graphModel: MxGraphModel): IDecision[] {
-        const commonUserDecisions: IDecision[] = [];
-        const userDecisionsById: {[id: number]: IDecision} = {};
-
-        for (const userTask of userTasks) {
-            // assumes user task only has one incoming connection
-            const sourceNode: IDiagramNode = userTask.getSources(graphModel)[0];
-
-            if (sourceNode.getNodeType() !== NodeType.UserDecision) {
-                continue;
-            }
-
-            const userDecision: IDecision = <IDecision>sourceNode;
-
-            if (userDecisionsById[userDecision.model.id]) {
-                commonUserDecisions.push(userDecision);
-            } else {
-                userDecisionsById[userDecision.model.id] = userDecision;
-            }
-        }
-
-        return commonUserDecisions;
-    }
-
-    private getCopyGroupNodes(node: IDiagramNode): IDiagramNode[] {
-        const copyGroupNodes: IDiagramNode[] = [];
-
-        const scopeContext = this.getScope(node.model.id);
-        const copyGroupIds: number[] = Object.keys(scopeContext.visitedIds)
-            .map(a => Number(a))
-            .filter(id => id !== node.model.id);
-
-        for (const id of copyGroupIds) {
-            copyGroupNodes.push(this.getNodeById(id.toString()));
-        }
-
-        return copyGroupNodes;
-    }
-
     private highlightNode(node: IDiagramNode): void {
         // todo: implement highlight logic
         let state: any = this.mxgraph.getView().getState(node);
         if (state.shape) {
             state.shape.stroke = "#FF0000";
-            state.shape.strokeWidth = 5;
             state.shape.reconfigure();
             this.highlightedCopyNodes.push(node);
         }

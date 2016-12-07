@@ -195,6 +195,7 @@ export class ProcessDiagram {
                 this.$log,
                 this.statefulArtifactFactory,
                 this.clipboard
+
             );
              
         } catch (err) {
@@ -214,6 +215,8 @@ export class ProcessDiagram {
             this.graph.destroy();
             this.graph = null;
         }
+        // clear the selection manager of subartifacts
+        this.artifactManager.selection.clearSubArtifact();
     }
 
     private onSubArtifactChanged(subArtifact: IStatefulSubArtifact) {

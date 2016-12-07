@@ -60,9 +60,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.initButtons(model.id.toString(), nodeFactorySettings);
 
         this.initChildElements();
-
-        // user tasks can be copied 
-        this.canCopy = true; 
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
@@ -460,6 +457,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             }
         }
         return dialogParams;
+    }
+
+    public get canCopy(): boolean {
+        return true; 
     }
 
     public canDelete(): boolean {

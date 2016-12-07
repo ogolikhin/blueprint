@@ -10,8 +10,7 @@ import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
 
-    private _canCopy: boolean = false;
-
+    
     direction: Direction;
     model: T;
     protected dialogManager: IModalDialogCommunication;
@@ -296,9 +295,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public get canCopy() {
-        return this._canCopy;
+        return false;
     }
-    public set canCopy(value: boolean) {
-        this._canCopy = value;
-    }
+    
 }

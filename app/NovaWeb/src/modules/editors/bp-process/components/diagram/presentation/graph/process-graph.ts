@@ -1,5 +1,5 @@
-﻿import {IDecision} from "./models/process-graph-interfaces";
-/* tslint:disable:max-file-line-count */
+﻿/* tslint:disable:max-file-line-count */
+import {IDecision} from "./models/process-graph-interfaces";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";

@@ -12,6 +12,12 @@ bp-toolbar-2 {
         height: 28px;
     }
 
+    .btn {
+        &[disabled] {
+            cursor: default;
+        }
+    }
+
     .dropdown {
         a {
             cursor: pointer;

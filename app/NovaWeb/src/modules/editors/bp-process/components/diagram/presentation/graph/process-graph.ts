@@ -974,12 +974,22 @@ export class ProcessGraph implements IProcessGraph {
 
     private highlightNode(node: IDiagramNode): void {
         // todo: implement highlight logic
-        this.highlightedCopyNodes.push(node);
+        let state: any = this.mxgraph.getView().getState(node);
+        if (state.shape) {
+            state.shape.stroke = "#32CD32";
+            state.shape.reconfigure();
+            this.highlightedCopyNodes.push(node);
+        }
     }
 
     private clearCopyGroupHighlight(): void {
         for (let node of this.highlightedCopyNodes) {
             // todo: implement clearing highlight
+            let state: any = this.mxgraph.getView().getState(node);
+            if (state.shape) {
+                state.shape.stroke = mxConstants.DEFAULT_VALID_COLOR;
+                state.shape.reconfigure();
+            }
         }
         this.highlightedCopyNodes = [];
     }

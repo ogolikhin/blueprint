@@ -32,6 +32,7 @@ interface ISelectItem {
 export class BpFieldSelectController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "validationService"];
 
+    private isValidated: boolean;
     private allowsCustomValues: boolean;
 
     constructor(private $scope: AngularFormly.ITemplateScope,
@@ -39,7 +40,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
                      private validationService: IValidationService) {
         super();
 
-        this.allowsCustomValues = !$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
+        this.isValidated = $scope.options["data"].isValidated;
+        this.allowsCustomValues = !this.isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -57,6 +59,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
                         $viewValue,
                         $modelValue,
+                        this.isValidated,
                         this.allowsCustomValues
                     );
 

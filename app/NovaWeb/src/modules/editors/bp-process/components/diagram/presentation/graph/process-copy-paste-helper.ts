@@ -198,9 +198,15 @@ export class ProcessCopyPasteHelper {
 
             if (!!associatedImageUrl && _.isNumber(imageId)) {
                 systemShapeImageIds.push(processShape.id);
+                this.clearSystemTaskImageUrlsAndIds(processShape);
             }
         });
         return systemShapeImageIds;
+    }
+    
+    private clearSystemTaskImageUrlsAndIds(systemTask: IProcessShape) {
+        systemTask.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
+        systemTask.propertyValues[this.shapesFactoryService.ImageId.key].value = null;
     }
 
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {

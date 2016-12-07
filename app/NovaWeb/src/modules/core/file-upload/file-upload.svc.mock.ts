@@ -29,7 +29,7 @@ export class FileUploadService implements IFileUploadService {
         return deferred.promise;
     }
     public copyArtifactImagesToFilestore(artifactIds: number[],
-                                         expirationDate?: Date): ng.IPromise<ICopyImageResult[]>{
+                                         expirationDate?: Date): ng.IPromise<ICopyImageResult[]> {
         return this.$q.when(null);
     }
 }

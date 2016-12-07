@@ -10,6 +10,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
@@ -98,6 +99,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
                     this.normalizeHtml(args.node);
+                    Helper.removeAttributeFromNode(args.node, "id");
                 },
                 init_instance_callback: (editor) => {
                     this.mceEditor = editor;
@@ -159,15 +161,24 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                     }
 
                     editor.on("KeyUp", (e) => {
-                        const currentContent = editor.getContent();
-                        if (currentContent !== this.contentBuffer) {
-                            this.triggerChange(currentContent);
+                        if (this.isDirty || this.contentBuffer !== editor.getContent()) {
+                            this.triggerChange();
                         }
                     });
 
                     editor.on("Change", (e) => {
                         if ($scope.options["data"].isFresh) {
                             this.prepRTF();
+                        } else if (this.isDirty || this.hasChangedFormat() || this.isLinkPopupOpen) {
+                            this.triggerChange();
+                        }
+                    });
+
+                    editor.on("ExecCommand", (e) => {
+                        if (e && _.indexOf(this.execCommandEvents, e.command) !== -1) {
+                            this.triggerChange();
+                        } else if (e && _.indexOf(this.linkEvents, e.command) !== -1) {
+                            this.isLinkPopupOpen = true;
                         }
                     });
 

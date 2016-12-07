@@ -4,8 +4,9 @@ import "angular-sanitize";
 import "./index";
 import {ComponentTest} from "../util/component.test";
 import {AppController} from "./app.component";
-import {INavigationService} from "./../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "./../core/navigation/navigation.svc.mock";
+import {INavigationService} from "../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
+import {UnpublishedArtifactsServiceMock} from "../editors/unpublished/unpublished.svc.mock";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
@@ -22,6 +23,8 @@ describe("Component AppComponent", () => {
         }));
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
+        $provide.service("dialogService", () => ({}));
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
     }));
 
     let componentTest: ComponentTest<AppController>;
@@ -129,5 +132,4 @@ class SessionSvcMock {
     public ensureAuthenticated() {
         return this.$q.when([]);
     }
-
 }

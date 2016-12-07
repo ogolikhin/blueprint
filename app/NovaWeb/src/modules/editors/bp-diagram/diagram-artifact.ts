@@ -1,6 +1,6 @@
-import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
-import {IArtifact} from "../../main/models/models";
+import {IArtifact, ISubArtifact} from "../../main/models/models";
 import {IDiagram, IDiagramElement} from "./impl/models";
 import {ItemTypePredefined} from "./../../main/models/enums";
 import {IItem} from "./../../main/models/models";
@@ -27,7 +27,7 @@ export class StatefulDiagramArtifact extends StatefulArtifact implements IStatef
         } else {
             artifact.isCompatible = true;
         }
-        
+
         this.initializeSubArtifacts(artifact);
         super.initialize(artifact);
     }
@@ -37,17 +37,21 @@ export class StatefulDiagramArtifact extends StatefulArtifact implements IStatef
         if (artifact.shapes) {
             artifact.shapes.forEach((shape) => {
                 this.initPrefixAndType(artifact.diagramType, shape, shape);
-                statefulSubartifacts.push(new StatefulSubArtifact(this, shape, this.services));
+                statefulSubartifacts.push(this.createSubArtifact(shape));
             });
         }
         if (artifact.connections) {
             artifact.connections.forEach((connection) => {
                 this.initPrefixAndType(artifact.diagramType, connection, connection);
-                statefulSubartifacts.push(new StatefulSubArtifact(this, connection, this.services));
+                statefulSubartifacts.push(this.createSubArtifact(connection));
             });
         }
 
         this.subArtifactCollection.initialise(statefulSubartifacts);
+    }
+
+    protected createSubArtifact(subArtifactModel: ISubArtifact) {
+        return new StatefulSubArtifact(this, subArtifactModel, this.services);
     }
 
     private initPrefixAndType(diagramType: string, item: IItem, element: IDiagramElement) {

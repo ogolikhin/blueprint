@@ -1,5 +1,6 @@
 ﻿import "angular-ui-tinymce";
 import {IMentionService, MentionService} from "./mention.svc";
+import {Helper} from "../../../../shared/utils/helper";
 
 export class BPCommentEdit implements ng.IComponentOptions {
     public template: string = require("./bp-comment-edit.html");
@@ -47,6 +48,24 @@ export class BPCommentEditController {
         // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
         font_formats: "Open Sans='Open Sans';Arial=Arial;Cambria=Cambria;Calibri=Calibri;Courier New='Courier New';" +
         "Times New Roman='Times New Roman';Trebuchet MS='Trebuchet MS';Verdana=Verdana;",
+        // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
+        paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
+        paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
+        // https://www.tinymce.com/docs/plugins/paste/#paste_retain_style_properties
+        paste_retain_style_properties: "background background-color color " +
+        "font font-family font-size font-style font-weight line-height " +
+        "margin margin-bottom margin-left margin-right margin-top " +
+        "padding padding-bottom padding-left padding-right padding-top " +
+        "border-collapse border-color border-style border-width " +
+        "text-align text-decoration vertical-align " +
+        "height width",
+        paste_word_valid_elements: "-strong/b,-em/i,-u,-span,-p,-ol,-ul,-li,-h1,-h2,-h3,-h4,-h5,-h6," +
+        "-p/div[align],-a[href|name],sub,sup,strike,br,del,table[align|width],tr," +
+        "td[colspan|rowspan|width|align|valign],th[colspan|rowspan|width],thead,tfoot,tbody",
+        paste_filter_drop: false,
+        paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
+            Helper.removeAttributeFromNode(args.node, "id");
+        },
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             this.commentEditor = editor;

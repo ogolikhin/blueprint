@@ -10,7 +10,8 @@ export class SelectionManagerMock implements ISelectionManager {
     constructor() {
         const selection = <ISelection>{
             artifact: undefined,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined 
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -21,20 +22,14 @@ export class SelectionManagerMock implements ISelectionManager {
     }
 
     public get artifactObservable() {
-        return this.selectionSubject
-            .filter(s => s != null)
-            .map(s => s.artifact)
-            .distinctUntilChanged(this.distinctById).asObservable();
+        return undefined;
     }
 
     public get explorerArtifactObservable() {
-        return this.explorerArtifactSelectionSubject
-            .filter(s => s != null)
-            .distinctUntilChanged(this.distinctById)
-            .map((s) => s.id)
-            .asObservable();
+        return undefined;
     }
 
+    //ToDo: should be mocked individually in unit tests
     public get subArtifactObservable() {
         return this.selectionSubject
             .filter(s => s != null)
@@ -46,11 +41,7 @@ export class SelectionManagerMock implements ISelectionManager {
      * Observable that always corresponds to the currently selected artifact's observable.
      */
     public get currentlySelectedArtifactObservable() {
-        return this.selectionSubject
-            .filter(selection => !!(selection && selection.artifact))
-            .flatMap(selection => selection.artifact.getObservable())
-            //.distinctUntilChanged(this.distinctById) -Don't re-enable without testing refreshing a deleted artifact; we need every artifact event.
-            .asObservable();
+        return undefined;
     }
 
     public get selectionObservable() {
@@ -61,16 +52,19 @@ export class SelectionManagerMock implements ISelectionManager {
         return this.selectionSubject.getValue().artifact;
     }
 
+    //ToDo: should be mocked individually in unit tests
     public setArtifact(artifact: IStatefulArtifact) {
 
         const selection = <ISelection>{
             artifact: artifact,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined
         };
 
         this.setSelectionSubject(selection);
     }
 
+    //ToDo: should be mocked individually in unit tests
     public getSubArtifact(): IStatefulSubArtifact {
         const val = this.selectionSubject.getValue();
         if (val && val.subArtifact) {
@@ -80,11 +74,13 @@ export class SelectionManagerMock implements ISelectionManager {
         return null;
     }
 
+    //ToDo: should be mocked individually in unit tests
     public setSubArtifact(subArtifact: IStatefulSubArtifact) {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: subArtifact
+            subArtifact: subArtifact,
+            multiSelect: undefined 
         };
 
         this.setSelectionSubject(selection);
@@ -95,26 +91,15 @@ export class SelectionManagerMock implements ISelectionManager {
     }
 
     public setExplorerArtifact(artifact: IStatefulArtifact) {
-        this.explorerArtifactSelectionSubject.onNext(artifact);
+        return undefined;
     }
 
     public clearAll() {
-        const emptyselection = <ISelection>{
-            artifact: undefined,
-            subArtifact: undefined
-        };
-        this.setExplorerArtifact(undefined);
-        this.setSelectionSubject(emptyselection);
+        return undefined;
     }
 
     public clearSubArtifact() {
-        const val = this.selectionSubject.getValue();
-        const selection = <ISelection>{
-            artifact: val.artifact,
-            subArtifact: undefined
-        };
-
-        this.setSelectionSubject(selection);
+        return undefined;
     }
 
     private distinctById(item: IItem) {

@@ -459,30 +459,13 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
         public List<SubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS, artifactId);
-            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-
-            var subartifacts = restApi.SendRequestAndDeserializeObject<List<SubArtifact>>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
-
-            return subartifacts;
+            return GetSubartifacts(Address, user, artifactId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetSubartifact(IUser, int, int, List{HttpStatusCode})"/>
         public NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
-            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-
-            var novaSubArtifact = restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return novaSubArtifact;
+            return GetSubartifact(Address, user, artifactId, subArtifactId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetUnpublishedChanges(IUser, List{HttpStatusCode})"/>
@@ -1024,6 +1007,52 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             return relationships;
+        }
+
+        /// <summary>
+        /// Gets list of subartifacts for the artifact with the specified ID.
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts)
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of subartifacts.</returns>
+        public static List<SubArtifact> GetSubartifacts(string address, IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS, artifactId);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var subartifacts = restApi.SendRequestAndDeserializeObject<List<SubArtifact>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
+
+            return subartifacts;
+        }
+
+        /// <summary>
+        /// Gets subartifact.
+        /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/subartifacts/{subArtifactId})
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of artifact.</param>
+        /// <param name="subArtifactId">Id of the subArtifact</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The requested subArtifact</returns>
+        public static NovaSubArtifact GetSubartifact(string address, IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifactId, subArtifactId);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            var novaSubArtifact = restApi.SendRequestAndDeserializeObject<NovaSubArtifact>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return novaSubArtifact;
         }
 
         /// <summary>

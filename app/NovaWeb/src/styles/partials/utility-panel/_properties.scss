@@ -22,6 +22,7 @@ bp-properties-panel {
     }
     .properties {
         min-width: 100%;
+        border: none;
     }
 
     .tab-content {
@@ -33,10 +34,6 @@ bp-properties-panel {
         > .content {
             border: none;
             padding: 0 0 10px;
-        }
-
-        .nav-tabs {
-            margin-left: $property-left-margin;
         }
     }
 
@@ -104,6 +101,8 @@ bp-properties-panel {
             }
 
             .ui-select-single {
+                min-width: $properties-min-width;
+
                 .ui-select-toggle {
                     max-width: $property-input-width;
                     width: $property-input-width;
@@ -118,7 +117,8 @@ bp-properties-panel {
                 }
 
                 .ui-select-search {
-                    min-width: 100%;
+                    //min-width: 100%;
+                    min-width: initial;
                 }
             }
 
@@ -161,7 +161,7 @@ bp-properties-panel {
         .formly-field-bpFieldTextRTF {
             .mce-toolbar-grp {
                 min-width: 244px;
-                top: -25px;
+                top: -26px;
 
                 .mce-btn button {
                     line-height: 15px;

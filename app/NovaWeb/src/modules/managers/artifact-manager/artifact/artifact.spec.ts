@@ -1,17 +1,14 @@
 import * as angular from "angular";
 import "angular-mocks";
-import "../../../shell";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, Enums} from "../../../main/models";
-import {IPublishService} from "./../publish.svc/publish.svc";
-import {PublishServiceMock} from "./../publish.svc/publish.svc.mock";
 import {IStatefulArtifact} from "./artifact";
-import {ArtifactRelationshipsMock} from "./../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "./../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "./../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
+import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
+import {ArtifactServiceMock} from "./artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {SelectionManager} from "./../../../managers/selection-manager/selection-manager";
+import {SelectionManager} from "../../selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {
@@ -24,11 +21,14 @@ import {HttpStatusCode} from "../../../core/http/http-status-code";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
 import {ApplicationError} from "../../../core/error/applicationError";
-import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {ValidationServiceMock} from "../validation/validation.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
     let $q: ng.IQService;
+    let validateSpy: jasmine.Spy;
     beforeEach(angular.mock.module("app.shell"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -43,7 +43,7 @@ describe("Artifact", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
     }));
@@ -62,8 +62,11 @@ describe("Artifact", () => {
             version: 0
         } as Models.IArtifact;
         artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
-        spyOn(artifact, "validate").and.callFake(() => {
-                return $q.resolve();
+        validateSpy = spyOn(artifact, "validate").and.callFake(() => {
+            return $q.resolve();
+        });
+        spyOn(artifact, "canBeSaved").and.callFake(() => {
+            return true;
         });
 
     }));
@@ -121,6 +124,43 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
+        it("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
+            // arrange
+
+            // act
+            let returnedArtifact: IStatefulArtifact;
+            artifact.save(true).then((result) => {
+                returnedArtifact = result;
+            });
+            $rootScope.$digest();
+
+            // assert
+            expect(returnedArtifact).toBeDefined();
+            //expect(validateSpy).toHaveBeenCalledTimes(0);
+        }));
+
+        it("failed (invalid)", inject(($rootScope: ng.IRootScopeService) => {
+            // arrange
+            validateSpy.and.callFake(() => {
+                return $q.reject(new Error());
+            });
+            // act
+
+            let returnedArtifact: IStatefulArtifact;
+            let error: any;
+            artifact.save().then((result) => {
+                returnedArtifact = result;
+            }).catch((err) => {
+                error = err;
+            });
+            $rootScope.$digest();
+
+            // assert
+            expect(returnedArtifact).toBeUndefined();
+            expect(error).toBeDefined();
+
+        }));
+
 
         xit("error no changes", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
@@ -335,6 +375,29 @@ describe("Artifact", () => {
 
     });
 
+    //TODO: move to artifact-mamager.spec
+    xdescribe("Autosave", () => {
+
+        it("autosave calls save with flag to ignore validation", () => {
+            // arrange
+            const saveSpy = spyOn(artifact, "save").and.returnValue($q.when());
+            const newStateValues = {
+                lockDateTime: new Date(),
+                lockedBy: Enums.LockedByEnum.CurrentUser,
+                lockOwner: "Default Instance Admin",
+                dirty: true
+            };
+            artifact.artifactState.setState(newStateValues, false);
+
+            // act
+            //artifact.autosave();
+
+            // assert
+            expect(saveSpy).toHaveBeenCalledWith(true);
+            expect(validateSpy).not.toHaveBeenCalled();
+        });
+
+    });
 
     describe("Publish", () => {
         it("success", inject(($rootScope: ng.IRootScopeService, messageService: IMessageService) => {
@@ -378,7 +441,7 @@ describe("Artifact", () => {
             expect(error.message).toEqual("App_Save_Artifact_Error_409");
         }));
 
-        it("publish dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("publish dependents success", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                  messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
@@ -420,7 +483,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("publish dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("publish dependents error", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "publishArtifacts").and.callFake((artifactIds: number[]) => {
@@ -469,7 +532,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("discard dependents success", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("discard dependents success", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                  messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {
@@ -511,7 +574,7 @@ describe("Artifact", () => {
             expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
         }));
 
-        it("discard dependents error", inject((publishService: IPublishService, $rootScope: ng.IRootScopeService,
+        it("discard dependents error", inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                messageService: IMessageService, $q: ng.IQService) => {
             // arrange
             spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {
@@ -673,15 +736,14 @@ describe("Artifact", () => {
         }));
     });
 
-
-     describe("Delete", () => {
-       it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
-             // arrange
-          // act
-             let error: ApplicationError;
-             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                 error = err;
-             });
+    describe("Delete", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+            // arrange
+            // act
+                let error: ApplicationError;
+                artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                    error = err;
+                });
 
             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
                 const deferred = $q.defer<any>();
@@ -690,76 +752,121 @@ describe("Artifact", () => {
                 }]);
                 return deferred.promise;
             });
+            spyOn(artifact, "discard").and.callThrough();
             let result;
-           artifact.delete().then((it) => {
-               result = it;
-           });
-           $rootScope.$digest();
-          // assert
-           expect(result).toBeDefined();
-           expect(result).toEqual(jasmine.any(Array));
-           expect(error).toBeUndefined();
-           expect(artifact.artifactState.deleted).toBeTruthy();
-         }));
+            artifact.delete().then((it) => {
+                result = it;
+            });
+            $rootScope.$digest();
+            // assert
+            expect(result).toBeDefined();
+            expect(result).toEqual(jasmine.any(Array));
+            expect(error).toBeUndefined();
+            expect(artifact.discard).toHaveBeenCalled();
+            expect(artifact.artifactState.deleted).toBeTruthy();
+        }));
 
-         it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
-             // arrange
-             let error: ApplicationError;
-             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                 error = err;
-             });
-             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
-                 const deferred = $q.defer<any>();
-                 deferred.reject({
-                     statusCode: HttpStatusCode.Conflict
-                 });
-                 return deferred.promise;
-             });
+        it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict
+                });
+                return deferred.promise;
+            });
 
-             // act
+            // act
 
-             artifact.delete();
-             $rootScope.$digest();
+            artifact.delete();
+            $rootScope.$digest();
 
-             // assert
-             expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
-             expect(artifact.artifactState.deleted).toBeFalsy();
-         }));
+            // assert
+            expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
+            expect(artifact.artifactState.deleted).toBeFalsy();
+        }));
 
-         it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
-             // arrange
-             let error: ApplicationError;
-             artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
-                 error = err;
-             });
-             spyOn(artifactService, "deleteArtifact").and.callFake(() => {
-                 const deferred = $q.defer<any>();
-                 deferred.reject({
-                     statusCode: HttpStatusCode.Conflict,
-                     errorContent : {
-                         id: 222,
-                         name: "TEST",
-                         prefix: "PREFIX"
-                     }
-                 });
-                 return deferred.promise;
-             });
-             const errormessage = "The artifact PREFIX222 is already locked by another user.";
-             // act
+        it("failed, test error message", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            spyOn(artifactService, "deleteArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict,
+                    errorContent : {
+                        id: 222,
+                        name: "TEST",
+                        prefix: "PREFIX"
+                    }
+                });
+                return deferred.promise;
+            });
+            const errormessage = "The artifact PREFIX222 is already locked by another user.";
+            // act
 
-             artifact.delete();
-             $rootScope.$digest();
+            artifact.delete();
+            $rootScope.$digest();
 
              // assert
              expect(error.statusCode).toEqual( HttpStatusCode.Conflict);
              expect(error.message).toEqual(errormessage);
              expect(artifact.artifactState.deleted).toBeFalsy();
          }));
+    });
+    describe("move", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            const newParentId: number = 3;
+            const newOrderIndex: number = 15;
+            const expectedResult = [{
+                    id: 1, name: "TEST", parentId: newParentId, orderIndex: newOrderIndex
+                }];
+            spyOn(artifactService, "moveArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.resolve(expectedResult);
+                return deferred.promise;
+            });
+            // act
+            let result;
+            artifact.move(newParentId, newOrderIndex).then((it) => {
+                result = it;
+            });
+            $rootScope.$digest();
+            // assert
+            expect(result).toEqual(expectedResult);
+            expect(error).toBeUndefined();
+        }));
 
+        it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            spyOn(artifactService, "moveArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict
+                });
+                return deferred.promise;
+            });
+            const newParentId: number = 3;
 
-
-     });
-
+            // act
+            let error: ApplicationError;
+            artifact.move(newParentId).catch((err) => { error = err; });
+            $rootScope.$digest();
+            // assert
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
+        }));
+    });
 
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {

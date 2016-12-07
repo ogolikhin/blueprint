@@ -1,11 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace ServiceLibrary.Helpers
 {
-    public class SerializationHelper
+    public static class SerializationHelper
     {
         public static T Deserialize<T>(string xml)
         {
@@ -47,6 +49,47 @@ namespace ServiceLibrary.Helpers
             }
 
             return result.ToString();
+        }
+
+        // Copied from Blueprint
+        public static T FromXml<T>(string xml) where T : class
+        {
+            if (string.IsNullOrEmpty(xml))
+            {
+                return null;
+            }
+
+            try
+            {
+                using (var reader = XmlReader.Create(new StringReader(xml)))
+                {
+                    var serializer = new XmlSerializer(typeof(T));
+                    var obj = serializer.Deserialize(reader);
+                    return obj as T;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        // Copied from Blueprint
+        public static string ToXml(object obj)
+        {
+            var ns = new XmlSerializerNamespaces();
+            ns.Add(string.Empty, string.Empty);
+
+            var serializer = new XmlSerializer(obj.GetType());
+            var builder = new StringBuilder();
+            var settings = new XmlWriterSettings { OmitXmlDeclaration = true, Indent = false };
+
+            using (var writer = XmlWriter.Create(builder, settings))
+            {
+                serializer.Serialize(writer, obj, ns);
+            }
+
+            return builder.ToString();
         }
     }
 }

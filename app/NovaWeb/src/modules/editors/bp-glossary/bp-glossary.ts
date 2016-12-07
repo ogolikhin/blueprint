@@ -35,13 +35,14 @@ export class BpGlossaryController extends BpBaseEditor {
         this.terms = [];
     }
 
-    public $onDestroy() {
-        super.$onDestroy();
-        delete this.terms;
-        delete this.selectedTerm;
+    protected destroy(): void {
+        this.terms = undefined;
+        this.selectedTerm = undefined;
+
+        super.destroy();
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         super.onArtifactReady();
         this.terms = this.artifact.subArtifactCollection.list();
     }

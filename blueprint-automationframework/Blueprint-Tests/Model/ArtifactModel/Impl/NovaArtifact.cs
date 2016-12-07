@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
-using static Model.ArtifactModel.Impl.NovaArtifactDetails;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -18,10 +17,10 @@ namespace Model.ArtifactModel.Impl
         public Identification LockedByUser { get; set; }
         public DateTime? LockedDateTime { get; set; }
         public override string Name { get; set; }
-        public double OrderIndex { get; set; }
+        public double? OrderIndex { get; set; }
         public override int? ParentId { get; set; }
-        public int Permissions { get; set; }
-        public int PredefinedType { get; set; }
+        public RolePermissions? Permissions { get; set; }
+        public int? PredefinedType { get; set; }
         public string Prefix { get; set; }
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
@@ -40,6 +39,52 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Constructors
+
+        /// <summary>
+        /// Asserts that this NovaArtifact object is equal to the specified NovaArtifact.
+        /// </summary>
+        /// <param name="artifact">The artifact to compare against.</param>
+        /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
+        /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public void AssertEquals(INovaArtifact artifact, bool skipIdAndVersion = true, bool skipParentId = false,
+            bool skipOrderIndex = false, bool skipPublishedProperties = false)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            Assert.AreEqual(HasChildren, artifact.HasChildren, "Artifact HasChildren properties don't match!");
+            Assert.AreEqual(ItemTypeId, artifact.ItemTypeId, "Artifact ItemTypeId properties don't match!");
+            Assert.AreEqual(Name, artifact.Name, "Artifact Name properties don't match!");
+            Assert.AreEqual(Permissions, artifact.Permissions, "Artifact Permission properties don't match!");
+            Assert.AreEqual(PredefinedType, artifact.PredefinedType, "Artifact PredefinedType properties don't match!");
+            Assert.AreEqual(Prefix, artifact.Prefix, "Artifact Prefix properties don't match!");
+            Assert.AreEqual(ProjectId, artifact.ProjectId, "Artifact ProjectId properties don't match!");
+            Assert.AreEqual(Children?.Count, artifact.Children?.Count, "Artifact Children.Count properties don't match!");
+
+            if (!skipIdAndVersion)
+            {
+                Assert.AreEqual(Id, artifact.Id, "Artifact ID properties don't match!");
+                Assert.AreEqual(Version, artifact.Version, "Artifact Versions don't match!");
+            }
+
+            if (!skipParentId)
+            {
+                Assert.AreEqual(ParentId, artifact.ParentId, "Artifact ParentId properties don't match!");
+            }
+
+            if (!skipOrderIndex)
+            {
+                Assert.AreEqual(OrderIndex, artifact.OrderIndex, "Artifact OrderIndex properties don't match!");
+            }
+
+            if (!skipPublishedProperties)
+            {
+                Assert.AreEqual(LockedByUser, artifact.LockedByUser, "Artifact LockedByUser properties don't match!");
+                Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "Artifact LockedDateTime properties don't match!");
+            }
+        }
 
         /// <summary>
         /// Asserts that this NovaArtifact object is equal to the specified OpenApiArtifact.
@@ -96,7 +141,7 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "The LockedDateTime parameters don't match!");
             Assert.AreEqual(OrderIndex, artifact.OrderIndex, "The OrderIndex parameters don't match!");
             Assert.NotNull(artifact.Permissions, "Artifact Permissions shouldn't be null!");
-            Assert.AreEqual(Permissions, (int)artifact.Permissions.Value, "The Permissions parameters don't match!");
+            Assert.AreEqual(Permissions, artifact.Permissions, "The Permissions parameters don't match!");
             Identification.AssertEquals(LockedByUser, artifact.LockedByUser);
         }
     }

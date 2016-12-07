@@ -19,9 +19,8 @@ import {IValidationService} from "../../../managers/artifact-manager/validation/
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPPropertiesController;
-    public controllerAs = "$ctrl";
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -29,8 +28,6 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
 
     public static $inject: [string] = [
         "$q",
-        "selectionManager",
-        "messageService",
         "localization",
         "propertyDescriptorBuilder",
         "validationService"
@@ -57,13 +54,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     protected subArtifactSubscriber: Rx.IDisposable;
 
     constructor($q: ng.IQService,
-                protected selectionManager: ISelectionManager,
-                public messageService: IMessageService,
                 public localization: ILocalizationService,
                 protected propertyDescriptorBuilder: IPropertyDescriptorBuilder,
-                protected validationService: IValidationService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
-        super($q, selectionManager, bpAccordionPanel);
+                protected validationService: IValidationService) {
+        super($q);
         this.editor = new PropertyEditor(this.localization);
         this.activeTab = 0;
         this.validationService = validationService;
@@ -233,6 +227,10 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
         }
 
     }
+
+    public setActive = (index: number): void => {
+        this.activeTab = index;
+    };
 
     public onValueChange($value: any, $field: AngularFormly.IFieldConfigurationObject, $scope: AngularFormly.ITemplateScope) {
         const context = $field.data as IPropertyDescriptor;

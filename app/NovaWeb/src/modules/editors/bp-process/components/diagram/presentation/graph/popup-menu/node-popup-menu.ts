@@ -1,8 +1,13 @@
-﻿import {IDiagramNode} from "../models/";
-import {IDiagramLink, IDiagramNodeElement} from "../models/";
-import {NodeType, ILayout} from "../models/";
+﻿import {IDiagramNode,
+        IDiagramLink,
+        IDiagramNodeElement,
+        NodeType,
+        ILayout,
+        ProcessClipboardData
+} from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILocalizationService} from "../../../../../../../core/localization/localizationService";
+import {IClipboardService, ClipboardDataType} from "../../../../../services/clipboard.svc";
 
 export class NodePopupMenu {
 
@@ -13,13 +18,15 @@ export class NodePopupMenu {
     constructor(private layout: ILayout,
                 private shapesFactoryService: ShapesFactory,
                 private localization: ILocalizationService,
+                private clipboard: IClipboardService,
                 private htmlElement: HTMLElement,
                 private mxgraph: MxGraph,
                 private insertTaskFn,
                 private insertUserDecisionFn,
                 private insertUserDecisionBranchFn,
                 private insertSystemDecisionFn,
-                private insertSystemDecisionBranchFn) {
+                private insertSystemDecisionBranchFn,
+                private insertSelectedShapesFn) {
 
         this.init();
     }
@@ -111,6 +118,18 @@ export class NodePopupMenu {
                         this.insertionPoint = null;
                     }
                 });
+
+                if (this.clipboardHasProcessData()) {
+                    const clipboardData = <ProcessClipboardData>this.clipboard.getData();
+                    if (clipboardData.isPastableAfterUserDecision || this.isDestNodeOfType(this.insertionPoint, NodeType.UserDecision)) {
+                        menu.addItem(this.localization.get("ST_Popup_Menu_Insert_Shapes_Label"), null, () => {
+                            if (this.insertSelectedShapesFn && this.insertionPoint) {
+                                this.insertSelectedShapesFn(this.insertionPoint);
+                                this.insertionPoint = null;
+                            }
+                        });
+                    }
+                }
             } else if (this.canAddSystemDecision(this.insertionPoint)) {
                 menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
 
@@ -135,28 +154,35 @@ export class NodePopupMenu {
                         this.insertionPoint = null;
                     }
                 });
+                // Added "paste" menu item here. Does not look good. Needs some work!
+                if (this.clipboardHasProcessData()) {
+                    menu.addItem(this.localization.get("ST_Popup_Menu_Insert_Shapes_Label"), null, () => {
+                        if (this.insertSelectedShapesFn && this.insertionPoint) {
+                            this.insertSelectedShapesFn(this.insertionPoint);
+                            this.insertionPoint = null;
+                        }
+                    });
+                }
             }
-
-        } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
-            menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
-                if (this.insertUserDecisionBranchFn && this.insertionPoint) {
-                    this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
-                    this.insertionPoint = null;
-                }
-            });
-        } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
-            menu.addItem(this.localization.get("ST_Decision_Modal_Add_Condition_Button_Label"), null, () => {
-                if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
-                    this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
-                    this.insertionPoint = null;
-                }
-            });
-        }
+            } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.UserDecision) {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_User_Decision_Label"), null, () => {
+                    if (this.insertUserDecisionBranchFn && this.insertionPoint) {
+                        this.insertUserDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
+                        this.insertionPoint = null;
+                    }
+                });
+            } else if ((<IDiagramNode>this.insertionPoint).getNodeType && (<IDiagramNode>this.insertionPoint).getNodeType() === NodeType.SystemDecision) {
+                menu.addItem(this.localization.get("ST_Popup_Menu_Add_System_Decision_Label"), null, () => {
+                    if (this.insertSystemDecisionBranchFn && this.insertionPoint) {
+                        this.insertSystemDecisionBranchFn((<IDiagramNode>this.insertionPoint).model.id, this.layout, this.shapesFactoryService);
+                        this.insertionPoint = null;
+                    }
+                });
+            }
 
         // adjust the offsets of the popup menu to position it above
         // the insertion point
-        this.calcMenuOffsets(menu);
-
+        this.calcMenuOffsets(menu);     
     };
 
     private subscribeHidePopupEvents() {
@@ -188,6 +214,7 @@ export class NodePopupMenu {
         this.menu = null;
     };
 
+
     private calcMenuOffsets(menu) {
         /*
          * adjust the x,y offset of the popup menu so that the menu appears
@@ -204,7 +231,20 @@ export class NodePopupMenu {
             menu.div.style.top = (y - 55) + "px";
         } else if (menu.itemCount === 2) {
             menu.div.style.top = (y - 90) + "px";
+        } else if (menu.itemCount === 3) {
+            menu.div.style.top = (y - 125) + "px";
         }
+    }
+
+    private clipboardHasProcessData(): boolean {
+        let hasData: boolean = false;
+        if (this.clipboard) {
+            if (!this.clipboard.isEmpty() &&
+                this.clipboard.getDataType() === ClipboardDataType.Process) {
+                hasData = true;
+            }
+        }
+        return hasData;
     }
 
     private canAddSystemDecision(edge: MxCell): boolean {

@@ -30,14 +30,14 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
-    public activeTab: number;
     public systemFields: AngularFormly.IFieldConfigurationObject[];
     public noteFields: AngularFormly.IFieldConfigurationObject[];
 
-    public $onDestroy() {
-        delete this.systemFields;
-        delete this.noteFields;
-        super.$onDestroy();
+    protected destroy(): void {
+        this.systemFields = undefined;
+        this.noteFields = undefined;
+
+        super.destroy();
     }
 
     public get isLoaded(): boolean {

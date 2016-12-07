@@ -3,10 +3,20 @@ import * as angular from "angular";
 import "angular-mocks";
 
 describe("Directive BP-Tooltip", () => {
-    let tooltipTrigger = `<div><div bp-tooltip="Tooltip's content">Tooltip trigger</div></div>`;
-    let tooltipTriggerNotTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true">Tooltip trigger</div></div>`;
-    let tooltipTriggerTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"
-                                        style="text-overflow: ellipsis; width: 5px;">Tooltip trigger</div></div>`;
+    const tooltipTrigger = `<div><div bp-tooltip="Tooltip's content">Tooltip trigger</div></div>`;
+
+    const tooltipTriggerNotTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true">Tooltip trigger</div></div>`;
+
+    const tooltipTriggerTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"
+                                     style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div></div>`;
+
+    const tooltipTriggerTruncatedNested = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true">
+                                           <div style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div>
+                                           </div></div>`;
+
+    const tooltipTriggerTruncatedNested2x = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"><div>
+                                             <div style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div>
+                                             </div></div></div>`;
 
     beforeEach(angular.mock.module("app.shared"));
 
@@ -77,6 +87,50 @@ describe("Directive BP-Tooltip", () => {
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).toContain("show");
                 expect(tooltip.textContent).toContain("Tooltip's content");
+            }
+        )
+    );
+
+    it("shows the tooltip on mouseover on the trigger if text is truncated in first (and only) child",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                let scope = $rootScope.$new();
+                let element = $compile(tooltipTriggerTruncatedNested)(scope);
+                angular.element("body").append(element);
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                let trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+
+                // Assert
+                expect(tooltip).toBeDefined();
+                expect(tooltip.classList).toContain("show");
+                expect(tooltip.textContent).toContain("Tooltip's content");
+            }
+        )
+    );
+
+    it("does not show the tooltip on mouseover on the trigger if text is truncated in grandchild",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                let scope = $rootScope.$new();
+                let element = $compile(tooltipTriggerTruncatedNested2x)(scope);
+                angular.element("body").append(element);
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                let trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+
+                // Assert
+                expect(tooltip).toBeNull();
             }
         )
     );

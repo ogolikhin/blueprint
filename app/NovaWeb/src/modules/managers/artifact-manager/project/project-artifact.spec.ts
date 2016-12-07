@@ -3,7 +3,6 @@ import "angular-mocks";
 import "../../../shell";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, Enums} from "../../../main/models";
-import {PublishServiceMock} from "../publish.svc/publish.svc.mock";
 import {IStatefulArtifact} from "../artifact";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
 import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
@@ -20,6 +19,7 @@ import {
 } from "../../../managers/artifact-manager";
 import {ValidationService} from "../validation/validation.svc";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 
 
 describe("Project", () => {
@@ -40,7 +40,7 @@ describe("Project", () => {
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("publishService", PublishServiceMock);
+        $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationService);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
     }));

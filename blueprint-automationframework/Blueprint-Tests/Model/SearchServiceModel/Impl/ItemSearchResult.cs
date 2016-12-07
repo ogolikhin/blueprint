@@ -5,14 +5,17 @@ using Model.ArtifactModel.Impl;
 
 namespace Model.SearchServiceModel.Impl
 {
-    public class ItemSearchResult
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
+    public class SearchResult
     {
-        public int PageItemCount { get; set; }
-
-        public List<SearchItem> Items {get;} = new List<SearchItem>();
+        public int ItemId { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
     }
 
-    public class SearchItem
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
+    public class ItemNameSearchResult : SearchResult
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public int? Id { get; set; }
@@ -49,21 +52,40 @@ namespace Model.SearchServiceModel.Impl
 
         public DateTime? LockedDateTime { get; set; }
 
-        public List<SearchItem> Children { get; } = new List<SearchItem>();
+        public List<ItemNameSearchResult> Children { get; } = new List<ItemNameSearchResult>();
         public bool ShouldSerializeChildren()
         {
             return Children.Count > 0;
         }
 
-        public int ItemId { get; set; }
-
-        public string Name { get; set; }
-
-        public string Path { get; set; }
+        public List<string> Path { get; } = new List<string>();
+        public bool ShouldSerializePath()
+        {
+            return Path.Count > 0;
+        }
     }
 
-    public class ProjectSearchResult
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
+    public class ProjectSearchResult : SearchResult
     {
-        public List<SearchItem> Items { get; } = new List<SearchItem>();
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Path { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; set; }
+    }
+
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
+    public class ItemNameSearchResultSet
+    {
+        public int PageItemCount { get; set; }
+
+        public List<ItemNameSearchResult> Items { get; } = new List<ItemNameSearchResult>();
+    }
+
+    // see blueprint/svc/SearchService/Models/ProjectSearchResultSet.cs and blueprint/svc/SearchService/Models/ItemNameSearchResult.cs 
+    public class ProjectSearchResultSet
+    {
+        public List<ProjectSearchResult> Items { get; } = new List<ProjectSearchResult>();
     }
 }

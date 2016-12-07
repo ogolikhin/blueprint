@@ -18,6 +18,7 @@ using Utilities.Facades;
 
 namespace Helper
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
     public static class ArtifactStoreHelper
     {
         #region Custom Asserts
@@ -244,12 +245,14 @@ namespace Helper
         /// <param name="artifact2">The second INovaArtifactDetails to compare against.</param>
         /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
         /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
-        /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
+        /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
-            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false, bool skipPublishedProperties = false)
+            bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,
+            bool skipPublishedProperties = false, bool skipPermissions = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -257,17 +260,17 @@ namespace Helper
             if (!skipIdAndVersion)
             {
                 Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
+                Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version parameters don't match!");
             }
 
             if (!skipParentId)
             {
-                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
+                Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId parameters don't match!");
             }
 
             if (!skipOrderIndex)
             {
-                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
+                Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex parameters don't match!");
             }
 
             if (!skipCreatedBy)
@@ -275,21 +278,26 @@ namespace Helper
                 Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
             }
 
+            if (!skipPermissions)
+            {
+                Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions parameters don't match!");
+            }
+
             if (!skipPublishedProperties)
             {
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime  parameters don't match!");
+                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn parameters don't match!");
+                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn parameters don't match!");
+                Assert.AreEqual(artifact1.LockedDateTime, artifact2.LockedDateTime, "The LockedDateTime parameters don't match!");
                 Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
 
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-            Assert.AreEqual(artifact1.Permissions, artifact2.Permissions, "The Permissions  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
+            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
+            Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
+            Assert.AreEqual(artifact1.LastSaveInvalid, artifact2.LastSaveInvalid, "The LastSaveInvalid parameters don't match!");
 
             Assert.AreEqual(artifact1.CustomPropertyValues.Count, artifact2.CustomPropertyValues.Count, "The number of Custom Properties is different!");
             Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
@@ -380,18 +388,133 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that both NovaSubArtifact objects are equal.
+        /// </summary>
+        /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
+        /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
+        /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
+        /// <param name="user">User to authenticate with.</param>
+        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
+        ///     should have the same ParentId.</param>
+        /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
+        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
+        /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
+        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
+            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false,
+            Attachments.CompareOptions compareOptions = null)
+        {
+            ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
+            ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
+
+            if (!skipId)
+            {
+                Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
+            }
+
+            expectedParentId = expectedParentId ?? expectedSubArtifact.ParentId;
+            Assert.AreEqual(expectedParentId, actualSubArtifact.ParentId, "The ParentId parameters don't match!");
+
+            if (!skipOrderIndex)
+            {
+                Assert.AreEqual(expectedSubArtifact.OrderIndex, actualSubArtifact.OrderIndex, "The OrderIndex parameters don't match!");
+            }
+
+            Assert.AreEqual(expectedSubArtifact.Name, actualSubArtifact.Name, "The Name parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeId, actualSubArtifact.ItemTypeId, "The ItemTypeId parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeName, actualSubArtifact.ItemTypeName, "The ItemTypeName parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeVersionId, actualSubArtifact.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.ItemTypeIconId, actualSubArtifact.ItemTypeIconId, "The ItemTypeIconId parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.Prefix, actualSubArtifact.Prefix, "The Prefix parameters don't match!");
+            Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
+
+            Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
+            
+            // Compare each property in CustomPropertiess.
+            foreach (CustomProperty expectedProperty in expectedSubArtifact.CustomPropertyValues)
+            {
+                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+
+                var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+            }
+
+            Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
+            
+            // Compare each property in SpecificPropertyValues.
+            foreach (CustomProperty expectedProperty in expectedSubArtifact.SpecificPropertyValues)
+            {
+                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
+
+                // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
+                if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                {
+                    var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                }
+            }
+
+            // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
+            Assert.AreEqual(0, expectedSubArtifact?.AttachmentValues.Count, "AttachmentValues should always be empty!");
+            Assert.AreEqual(0, expectedSubArtifact?.DocRefValues.Count, "DocRefValues should always be empty!");
+            Assert.AreEqual(0, expectedSubArtifact?.Traces.Count, "Traces should always be empty!");
+            Assert.AreEqual(expectedSubArtifact?.AttachmentValues.Count, actualSubArtifact?.AttachmentValues.Count, "The number of Sub-Artifact Attachments don't match!");
+            Assert.AreEqual(expectedSubArtifact?.DocRefValues.Count, actualSubArtifact?.DocRefValues.Count, "The number of Sub-Artifact Document References don't match!");
+            Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
+
+            // Get and compare sub-artifact Attachments & DocumentReferences.
+            var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
+            var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
+
+            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, compareOptions);
+
+            // Get and compare sub-artifact Traces.
+            if (!skipTraces)
+            {
+                var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
+                    expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
+                var actualRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
+                    actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
+
+                Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
+            }
+        }
+
+        /// <summary>
         /// Compares Two Custom Properties for Equality
         /// </summary>
-        /// <param name="expectedProperty">The first custom property to compare.</param>
-        /// <param name="actualProperty">The second custom property to compare.</param>
+        /// <param name="expectedProperty">The expected custom property.</param>
+        /// <param name="actualProperty">The actual custom property to be compared with the expected custom property.</param>
         public static void AssertCustomPropertiesAreEqual(CustomProperty expectedProperty, CustomProperty actualProperty)
         {
-            ThrowIf.ArgumentNull(expectedProperty,nameof(expectedProperty));
+            ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
 
-            Assert.IsNotNull(expectedProperty.PrimitiveType, "The primitive type for the first custom property was not present!");
-            Assert.IsNotNull(actualProperty.PrimitiveType, "The primitive type for the second custom property was not present!");
-            Assert.AreEqual(expectedProperty.PrimitiveType, actualProperty.PrimitiveType, "PrimitiveType properties don't match!");
+            Assert.AreEqual(expectedProperty.IsMultipleAllowed, actualProperty.IsMultipleAllowed, "The IsMultipleAllowed properties don't match!");
+            Assert.AreEqual(expectedProperty.IsReuseReadOnly, actualProperty.IsReuseReadOnly, "The IsReuseReadOnly properties don't match!");
+            Assert.AreEqual(expectedProperty.IsRichText, actualProperty.IsRichText, "The IsRichText properties don't match!");
+            Assert.AreEqual(expectedProperty.Name, actualProperty.Name, "The Name properties don't match!");
+            Assert.AreEqual(expectedProperty.PrimitiveType, actualProperty.PrimitiveType, "The PrimitiveType properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyType, actualProperty.PropertyType, "The PropertyType properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyTypeId, actualProperty.PropertyTypeId, "The PropertyTypeId properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyTypeVersionId, actualProperty.PropertyTypeVersionId, "The PropertyTypeVersionId properties don't match!");
+
+            if (expectedProperty.PrimitiveType == null)
+            {
+                string expectedPropertyString = expectedProperty?.CustomPropertyValue?.ToString();
+                string actualPropertyString = actualProperty?.CustomPropertyValue?.ToString();
+                Assert.AreEqual(expectedPropertyString, actualPropertyString, "The CustomPropertyValues don't match!");
+                return;
+            }
 
             var primitiveType = (PropertyPrimitiveType)expectedProperty.PrimitiveType;
 
@@ -402,82 +525,130 @@ namespace Helper
                     Assert.AreEqual(expectedProperty.CustomPropertyValue, actualProperty.CustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
                     break;
 
-                //TODO:  Investigate if the DateTimeUtility can be applied to both properties
                 case PropertyPrimitiveType.Date:
-                    var secondCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime((DateTime)actualProperty.CustomPropertyValue);
-                    Assert.AreEqual(expectedProperty.CustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
-                    break;
+                    DateTime firstCustomPropertyValue;
+                    DateTime secondCustomPropertyValue;
 
-                //TODO: Investigate if the JsonConvert could be done for both
-                case PropertyPrimitiveType.Choice:
-                    var validValues1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).ValidValues;
-                    var validValues2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).ValidValues;
-
-                    Assert.AreEqual(validValues1.Count, validValues2.Count, "The custom {0} property counts are not equal.", primitiveType);
-
-                    for (int i = 0; i < validValues1.Count; i++)
+                    if (expectedProperty.CustomPropertyValue is DateTime)
                     {
-                        var choiceValue1 = validValues1[i];
-                        var choiceValue2 = validValues2[i];
-
-                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
-                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.", primitiveType);
+                        firstCustomPropertyValue = (DateTime)expectedProperty.CustomPropertyValue;
+                    }
+                    else
+                    {
+                        firstCustomPropertyValue = DateTime.Parse(Deserialization.CastOrDeserialize<string>(expectedProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
                     }
 
-                    if (!string.IsNullOrEmpty(((ChoiceValues) expectedProperty.CustomPropertyValue).CustomValue))
+                    if (actualProperty.CustomPropertyValue is DateTime)
                     {
-                        var customValue1 = ((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue;
-                        var customValue2 = JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue;
+                        secondCustomPropertyValue = (DateTime)actualProperty.CustomPropertyValue;
+                    }
+                    else
+                    {
+                        secondCustomPropertyValue = DateTime.Parse(Deserialization.CastOrDeserialize<string>(actualProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
+                    }
+
+                    Assert.AreEqual(firstCustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
+                    break;
+
+                case PropertyPrimitiveType.Choice:
+                {
+                    var expectedCustomProperty = Deserialization.CastOrDeserialize<ChoiceValues>(expectedProperty.CustomPropertyValue);
+                    var actualCustomProperty = Deserialization.CastOrDeserialize<ChoiceValues>(actualProperty.CustomPropertyValue);
+
+                    Assert.AreEqual(expectedCustomProperty.ValidValues.Count, actualCustomProperty.ValidValues.Count,
+                        "The custom {0} property counts are not equal.", primitiveType);
+
+                    for (int i = 0; i < expectedCustomProperty.ValidValues.Count; i++)
+                    {
+                        var choiceValue1 = expectedCustomProperty.ValidValues[i];
+                        var choiceValue2 = actualCustomProperty.ValidValues[i];
+
+                        Assert.AreEqual(choiceValue1.Id, choiceValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
+                        Assert.AreEqual(choiceValue1.Value, choiceValue2.Value, "The custom {0} property choice values are not equal.",
+                            primitiveType);
+                    }
+
+                    if (!string.IsNullOrEmpty(expectedCustomProperty.CustomValue))
+                    {
+                        var customValue1 = actualCustomProperty.CustomValue;
+                        var customValue2 = actualCustomProperty.CustomValue;
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property CustomValues are not equal.", primitiveType);
                     }
-                    else if(string.IsNullOrEmpty(((ChoiceValues)expectedProperty.CustomPropertyValue).CustomValue) &&
-                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<ChoiceValues>(actualProperty.CustomPropertyValue.ToString()).CustomValue))
+                    else if (string.IsNullOrEmpty(expectedCustomProperty.CustomValue) &&
+                             !string.IsNullOrEmpty(actualCustomProperty.CustomValue))
                     {
                         Assert.Fail("The custom {0} property CustomValue was null for the expected property but the CustomValue " +
                                     "for the actual property was not null.", primitiveType);
                     }
-                    
+
                     break;
-
+                }
                 case PropertyPrimitiveType.User:
-                    var userGroups1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).UsersGroups;
-                    var userGroups2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).UsersGroups;
+                {
+                    var expectedCustomProperty = Deserialization.CastOrDeserialize<UserGroupValues>(expectedProperty.CustomPropertyValue);
+                    var actualCustomProperty = Deserialization.CastOrDeserialize<UserGroupValues>(actualProperty.CustomPropertyValue);
 
-                    Assert.AreEqual(userGroups1.Count, userGroups2.Count, "The custom {0} property counts are not equal.", primitiveType);
+                    Assert.AreEqual(expectedCustomProperty.UsersGroups.Count, actualCustomProperty.UsersGroups.Count,
+                        "The custom {0} property counts are not equal.", primitiveType);
 
-                    for (int i = 0; i < userGroups1.Count; i++)
+                    for (int i = 0; i < expectedCustomProperty.UsersGroups.Count; i++)
                     {
-                        var userGroupValue1 = userGroups1[i];
-                        var userGroupValue2 = userGroups2[i];
+                        var userGroupValue1 = expectedCustomProperty.UsersGroups[i];
+                        var userGroupValue2 = actualCustomProperty.UsersGroups[i];
 
                         Assert.AreEqual(userGroupValue1.Id, userGroupValue2.Id, "The custom {0} property Ids are not equal.", primitiveType);
-                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName, "The custom {0} Display Names are not equal.", primitiveType);
+                        Assert.AreEqual(userGroupValue1.DisplayName, userGroupValue2.DisplayName,
+                            "The custom {0} Display Names are not equal.", primitiveType);
 
                         if ((userGroupValue1.IsGroup != null) || (userGroupValue2.IsGroup != null))
                         {
-                            Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup, "The custom {0} property IsGroup flags are not equal.", primitiveType);
+                            Assert.AreEqual(userGroupValue1.IsGroup, userGroupValue2.IsGroup,
+                                "The custom {0} property IsGroup flags are not equal.", primitiveType);
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label))
+                    if (!string.IsNullOrEmpty(expectedCustomProperty.Label))
                     {
-                        var customValue1 = ((UserGroupValues)expectedProperty.CustomPropertyValue).Label;
-                        var customValue2 = JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label;
+                        var customValue1 = expectedCustomProperty.Label;
+                        var customValue2 = actualCustomProperty.Label;
 
                         Assert.AreEqual(customValue1, customValue2, "The custom {0} property Labels are not equal.", primitiveType);
                     }
-                    else if (string.IsNullOrEmpty(((UserGroupValues)expectedProperty.CustomPropertyValue).Label) &&
-                        !string.IsNullOrEmpty(JsonConvert.DeserializeObject<UserGroupValues>(actualProperty.CustomPropertyValue.ToString()).Label))
+                    else if (string.IsNullOrEmpty(expectedCustomProperty.Label) &&
+                             !string.IsNullOrEmpty(actualCustomProperty.Label))
                     {
                         Assert.Fail("The custom {0} property Label was null for the expected property but the Label " +
                                     "for the actual property was not null.", primitiveType);
                     }
                     break;
-
+                }
                 default:
                     throw new ArgumentOutOfRangeException(I18NHelper.FormatInvariant("The primitive type: {0} was not expected", primitiveType.ToString()));
             }
+        }
+
+        /// <summary>
+        /// Compares Two Attachments for Equality
+        /// </summary>
+        /// <param name="expectedAttachment">The expected attachment.</param>
+        /// <param name="actualAttachment">The actual attachment to be compared with the expected attachment.</param>
+        public static void AssertAttachmentsAreEqual(AttachmentValue expectedAttachment, AttachmentValue actualAttachment)
+        {
+            ThrowIf.ArgumentNull(expectedAttachment, nameof(expectedAttachment));
+            ThrowIf.ArgumentNull(actualAttachment, nameof(actualAttachment));
+
+            Assert.AreEqual(expectedAttachment.AttachmentId, actualAttachment.AttachmentId, "The AttachmentId values do not match!");
+            Assert.AreEqual(expectedAttachment.Guid, actualAttachment.Guid, "The attachment GUID values do not match!");
+
+            // TODO: Investigate the impact of this change type assertion
+            // Assert.AreEqual(expectedAttachment.ChangeType, actualAttachment.ChangeType);
+
+            Assert.AreEqual(expectedAttachment.FileName, actualAttachment.FileName, "The attachment FileName values do not match!");
+            Assert.AreEqual(expectedAttachment.FileType, actualAttachment.FileType, "The attachment FileType values do not match!");
+            Assert.AreEqual(expectedAttachment.UploadedDate, actualAttachment.UploadedDate, "The attachment UploadedDate values do not match!");
+            Assert.AreEqual(expectedAttachment.UserId, actualAttachment.UserId, "The attachment UserId values do not match!");
+            Assert.AreEqual(expectedAttachment.UserName, actualAttachment.UserName, "The attachment UserName values do not match!");
         }
 
         #endregion Custom Asserts
@@ -534,18 +705,46 @@ namespace Helper
 
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
-                    var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(newValue));
 
-                    var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> { newPropertyValue };
+                    string[] values = ((System.Collections.IEnumerable)newValue)
+                      .Cast<object>()
+                      .Select(x => x.ToString())
+                      .ToArray();
 
-                    // Change custom property choice value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = newChoicePropertyValue };
+                    var validValues = new List<NovaPropertyType.ValidValue>();
+                    var customValue = string.Empty;
+
+                    foreach (string value in values)
+                    {
+                        var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(value));
+
+                        // Change custom property choice value
+                        if (newPropertyValue != null)
+                        {
+                            validValues.Add(newPropertyValue);
+                        }
+                        else
+                        {
+                            // Add as custom value if not found in valid values
+                            customValue = newValue.ToString();
+                        }
+                    }
+
+                    if (validValues.Count > 0)
+                    {
+                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                    }
+
+                    if (!string.IsNullOrEmpty(customValue))
+                    {
+                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                    }
                     break;
                 case PropertyPrimitiveType.Date:
                     property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
                     // Change custom property date value
-                    property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now.AddSeconds(newValue.ToInt32Invariant()));
+                    property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Number:
                     property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
@@ -826,6 +1025,44 @@ namespace Helper
                 inlineTraceArtifact.Address, inlineTraceArtifact.Id, inlineTraceArtifactDetails.Prefix, inlineTraceArtifactDetails.Name, inlineTraceArtifact.Project.Name);
 
             return inlineTraceText;
+        }
+
+        /// <summary>
+        /// Creates and saves (or publishes) a new artifact and attaches the specified file to it.  The attachment is not published.
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="project">The project where the artifact will be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="shouldPublishArtifact">(optional) Pass true to publish the artifact before adding the attachment.  Default is no publish.</param>
+        /// <returns>The new artifact.</returns>
+        public static IArtifact CreateArtifactWithAttachment(TestHelper helper,
+            IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            IFileMetadata file,
+            bool shouldPublishArtifact = false)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            var artifact = helper.CreateAndSaveArtifact(project, user, artifactType);
+
+            if (shouldPublishArtifact)
+            {
+                artifact.Publish();
+            }
+
+            // Create & add attachment to the artifact.
+            DateTime defaultExpireTime = DateTime.Now.AddDays(2);   // Currently Nova set ExpireTime 2 days from today for newly uploaded file.
+
+            var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(user, file.FileName, file.FileType,
+                defaultExpireTime, helper.FileStore);
+
+            AddArtifactAttachmentAndSave(user, artifact, novaAttachmentFile, helper.ArtifactStore);
+
+            return artifact;
         }
 
         /// <summary>

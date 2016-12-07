@@ -5,6 +5,7 @@ import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {SourcesAndDestinations, IUserStory, IArtifactReference} from "../../../../../models/process-models";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
+import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -28,7 +29,7 @@ export interface IOverlayHandler {
 }
 
 export interface ISelectionListener {
-    (elements: Array<IDiagramNode>): void;
+    (elements: IDiagramNode[]): void;
 }
 
 export interface INotifyModelChanged {
@@ -118,11 +119,16 @@ export interface IProcessGraph {
     updateAfterRender();
     redraw(action: any);
     updateSizeChanges(width?: number, height?: number);
-    addSelectionListener(listener: ISelectionListener);
-    destroy();
     setSystemTasksVisible(value: boolean);
     clearSelection();
     onUserStoriesGenerated(userStories: IUserStory[]): void;
+    copySelectedShapes();
+    insertSelectedShapes(edge: MxCell);
+    getSelectedShapes(): IProcessShape[];
+    processDiagramCommunication: IProcessDiagramCommunication;
+    highlightNodeEdges(nodes: IDiagramNode[]);
+    destroy();
+
 }
 
 export interface ILayout {
@@ -143,7 +149,7 @@ export interface ILayout {
     viewModel: IProcessViewModel;
     getSourcesAndDestinations(edge: MxCell): SourcesAndDestinations;
     updateLink(sourceId: number, oldDestinationId: number, newDestinationId: number);
-    getDefaultBranchLabel(decisionId: number): string;
+    getDefaultBranchLabel(decisionId: number, nodeType: NodeType): string;
     getTempShapeId(): number;
     setTempShapeId(id: number);
 }

@@ -30,19 +30,29 @@ export class BpBaseEditor {
     }
 
     public $onDestroy() {
-        delete this.artifact;
-        this.subscribers.forEach(subscriber => {
-            subscriber.dispose();
-        });
-        delete this.subscribers;
         this.isDestroyed = true;
+        this.destroy();
+    }
+
+    protected destroy(): void {
+        this.artifact = undefined;
+
+        if (this.subscribers) {
+            this.subscribers.forEach(
+                (subscriber: Rx.IDisposable) => {
+                    subscriber.dispose();
+                }
+            );
+        }
+        
+        this.subscribers = undefined;
     }
 
     protected onArtifactChanged = () => {
         this.onArtifactReady();
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         this.isLoading = false;
     }
 }

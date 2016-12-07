@@ -32,8 +32,8 @@ namespace ServiceLibrary.Attributes
         protected const string BlueprintSessionToken = "Session-Token";
         protected const string BlueprintSessionCookie = "BLUEPRINT_SESSION_TOKEN";
         protected const string AccessControl = "AccessControl";
-        protected const string BadRequestMessage = "Token is missing or malformed.";
-        protected const string UnauthorizedMessage = "Token is invalid.";
+        protected const string TokenMissingMalformedMessage = "Token is missing or malformed.";
+        protected const string TokenInvalidMessage = "Token is invalid.";
         protected const string InternalServerErrorMessage = "An error occurred.";
         protected const string BlueprintSessionTokenIgnore = "e51d8f58-0c62-46ad-a6fc-7e7994670f34";
 
@@ -66,8 +66,8 @@ namespace ServiceLibrary.Attributes
                 {
                     if (!_ignoreBadToken)
                     {
-                        actionContext.Response = request.CreateErrorResponse(HttpStatusCode.BadRequest,
-                            BadRequestMessage);
+                        actionContext.Response = request.CreateErrorResponse(HttpStatusCode.Unauthorized,
+                            TokenMissingMalformedMessage);
                     }
                 }
                 catch (HttpRequestException)
@@ -75,7 +75,7 @@ namespace ServiceLibrary.Attributes
                     if (!_ignoreBadToken)
                     {
                         actionContext.Response = request.CreateErrorResponse(HttpStatusCode.Unauthorized,
-                            UnauthorizedMessage);
+                            TokenInvalidMessage);
                     }
                 }
                 catch

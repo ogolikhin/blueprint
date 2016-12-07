@@ -340,23 +340,19 @@ namespace ArtifactStoreTests
 
         #endregion 200 OK tests
 
-        #region 400 Bad Request Tests
+        #region 401 Unauthorized Tests
 
         [TestCase]
         [TestRail(183631)]
-        [Description("Get an artifact navigation path without a Session-Token header. Execute GetArtifactNagivationPath - Must return 400 Bad Request.")]
-        public void ArtifactNavigationPath_MissingTokenHeader_400BadRequest()
+        [Description("Get an artifact navigation path without a Session-Token header. Execute GetArtifactNagivationPath - Must return 401 Unauthorized.")]
+        public void ArtifactNavigationPath_MissingTokenHeader_401Unauthorized()
         {
             // Setup: Create a user without session
             // Execute and Validation: Execute GetNavigationPath without a Session-Token header
-            Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.GetNavigationPath(user: null, itemId: _project.Id),
-                "Calling GET {0} without a Session-Token header should return 400 BadRequest!",
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetNavigationPath(user: null, itemId: _project.Id),
+                "Calling GET {0} without a Session-Token header should return 401 Unauthorized!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
         }
-
-        #endregion 400 Bad Request Tests
-
-        #region 401 Unauthorized Tests
 
         [TestCase]
         [TestRail(183632)]

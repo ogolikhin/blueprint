@@ -699,23 +699,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
-        [TestRail(165972)]
-        [Description("Create, save, publish Actor artifact, checks returned result is 400 Bad Request for artifact that is already published")]
-        public void PublishArtifact_SinglePublishedArtifact_BadRequest(BaseArtifactType artifactType)
-        {
-            // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
-                "'POST {0}' should return 400 Bad Request if an artifact already published!", PUBLISH_PATH);
-
-            // Verify:
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish.", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, expectedExceptionMessage);
-        }
-
         #endregion 400 Bad Request tests
 
         #region 401 Unauthorized tests
@@ -788,6 +771,23 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found tests
 
         #region 409 Conflict tests
+
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(165972)]
+        [Description("Create, save, publish Actor artifact.  Verify 409 Conflict is returned for artifact that is already published.")]
+        public void PublishArtifact_SinglePublishedArtifact_409Conflict(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
+                "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish.", artifact.Id);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublish, expectedExceptionMessage);
+        }
 
         [TestCase(BaseArtifactType.Process, 1)]
         [TestCase(BaseArtifactType.Process, 2)]

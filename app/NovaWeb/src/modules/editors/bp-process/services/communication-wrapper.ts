@@ -1,3 +1,5 @@
+import * as Rx from "rx";
+
 export interface ICommunicationWrapper {
     subscribe(observer: any): string;
     notify(param: any);

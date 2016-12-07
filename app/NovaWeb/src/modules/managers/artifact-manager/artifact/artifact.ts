@@ -13,18 +13,21 @@ import {IApplicationError, ApplicationError} from "../../../core/error/applicati
 import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
+    //extra properties
+    lastSaveInvalid: boolean;
+
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact
     unload();
     save(ignoreInvalidValues?: boolean ): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
-    autosave(): ng.IPromise<void>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
+    copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
 }
@@ -44,7 +47,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.metadata = new MetaData(this);
         this.state = new ArtifactState(this);
     }
-
+    public get lastSaveInvalid(): boolean {
+        return this.artifact.lastSaveInvalid;
+    }
     public dispose() {
         super.dispose();
         if (this.state) {
@@ -389,14 +394,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
 
-        let validatePromise = this.services.$q.defer<any>();
+        let promise = this.services.$q.defer<any>();
+        if (!this.canBeSaved()) {
+            return this.services.$q.resolve(this);
+        }
         if (ignoreInvalidValues) {
-            validatePromise.resolve();
+            promise.resolve();
         } else {
-            validatePromise.promise = this.validate();
+            promise.promise = this.validate();
         }
 
-        return validatePromise.promise.then(() => {
+        return promise.promise.then(() => {
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
             const changes = this.changes();
@@ -429,9 +437,15 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     protected handleSaveError(error: any): Error {
         let message: string;
 
+        if (error.handled) {
+            return null;
+        }
+
         if (error.statusCode === 400) {
             if (error.errorCode === 114) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            } else if (error.errorCode === 130) { // The Item name cannot be empty
+                message = "App_Save_Artifact_Error_409_130"; //todo get localized string
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
             }
@@ -458,22 +472,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         const compoundId: string = this.prefix + this.id.toString();
         message = message.replace("{0}", compoundId);
         return new Error(message);
-    }
-
-    public autosave(): ng.IPromise<void> {
-        if (this.canBeSaved() ) {
-            return this.save(true).catch(() => {
-                return this.services.dialogService.open(<IDialogSettings>{
-                okButton: this.services.localizationService.get("App_Button_Proceed"),
-                //cancelButton: this.services.localizationService.get("Save"),
-                message: this.services.localizationService.get("App_Save_Auto_Confirm"),
-                header: this.services.localizationService.get("App_DialogTitle_Alert")
-                }).then(() => {
-                    this.discard();
-                });
-            });
-        }
-        return this.services.$q.resolve();
     }
 
     public supportRelationships(): boolean {
@@ -512,7 +510,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         this.services.publishService.publishArtifacts([this.id])
             .then(() => {
-                this.services.messageService.addInfo("Publish_Success_Message");
+                this.displaySuccessPublishMessage();
                 this.artifactState.unlock();
                 this.refresh();
                 deffered.resolve();
@@ -529,6 +527,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
 
         return deffered.promise;
+    }
+
+    protected displaySuccessPublishMessage() {
+        this.services.messageService.addInfo("Publish_Success_Message");
     }
 
     private publishDependents(dependents: Models.IPublishResultSet) {
@@ -596,6 +598,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.getServices().$q.all(promisesToExecute)
             .then(() => {
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
                 deferred.resolve(this);
             })
             .catch((error) => {
@@ -603,6 +606,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
                 //Project manager is listening to this, and will refresh the project.
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
 
                 this.error.onNext(error);
             });
@@ -612,7 +616,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public delete(): ng.IPromise<Models.IArtifact[]> {
         let deferred = this.services.getDeferred<Models.IArtifact[]>();
-
+        this.discard();
         this.services.artifactService.deleteArtifact(this.id).then((it: Models.IArtifact[]) => {
             this.artifactState.deleted = true;
             deferred.resolve(it);
@@ -635,10 +639,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
         return this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex)
         .catch((error: IApplicationError) => {
-            this.error.onNext(error);
             return this.services.$q.reject(error);
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(moveOverlayId);
+        });
+    }
+
+     public copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet> {
+        let copyOverlayId = this.services.loadingOverlayService.beginLoading();
+
+        return this.services.artifactService.copyArtifact(this.id, newParentId, orderIndex)
+        .catch((error: IApplicationError) => {
+            return this.services.$q.reject(error);
+        }).finally(() => {
+            this.services.loadingOverlayService.endLoading(copyOverlayId);
         });
     }
 
@@ -672,7 +686,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.subArtifactCollection.validate().catch((error) => {
                     return this.services.$q.reject(error);
                 });
-            } 
+            }
 
             const message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;
             return this.services.$q.reject(new Error(message));

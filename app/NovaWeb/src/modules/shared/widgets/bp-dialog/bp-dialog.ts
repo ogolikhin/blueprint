@@ -6,9 +6,6 @@ export enum DialogTypeEnum {
     Confirm
 }
 
-export interface IDialogData {
-}
-
 export interface IDialogSettings {
     type?: DialogTypeEnum;
     header?: string;
@@ -19,87 +16,98 @@ export interface IDialogSettings {
     controller?: any;
     css?: string;
     backdrop?: boolean;
+    controllerAs?: string;
+    bindToController?: boolean;
+    windowClass?: string;
 }
 
 export interface IDialogService {
-    open(dialogSettings: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any>;
+    open(dialogSettings: IDialogSettings, dialogData?): ng.IPromise<any>;
     alert(message: string, header?: string, okButton?: string, cancelButton?: string): ng.IPromise<any>;
     confirm(message: string, header?: string, css?: string): ng.IPromise<any>;
     dialogSettings: IDialogSettings;
 }
 
 export class DialogService implements IDialogService {
+    public dialogSettings: IDialogSettings = {};
+    public dialogData: any;
+    private defaultSettings: IDialogSettings;
 
     public static $inject = ["localization", "$uibModal"];
 
     constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService) {
-    }
+        this.defaultSettings = {
+            type: DialogTypeEnum.Base,
+            cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
+            okButton: this.localization.get("App_Button_Ok", "Ok"),
+            template: require("./bp-dialog.html"),
+            controller: BaseDialogController,
+            controllerAs: "$ctrl",
+            bindToController: true,
+            windowClass: "nova-messaging",
+            backdrop: false
+        };
 
-    public dialogSettings: IDialogSettings = {};
-    public dialogData: any;
-
-    private defaultSettings: IDialogSettings = {
-        type: DialogTypeEnum.Base,
-        cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
-        okButton: this.localization.get("App_Button_Ok", "Ok"),
-        template: require("./bp-dialog.html"),
-        controller: BaseDialogController
-    };
-
-    private initialize(dialogSettings: IDialogSettings) {
-        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
     }
 
     private openInternal = (optsettings?: ng.ui.bootstrap.IModalSettings) => {
-        const dialogSettings = <ng.ui.bootstrap.IModalSettings>{
-            template: this.dialogSettings.template,
-            controller: this.dialogSettings.controller,
-            controllerAs: "$ctrl",
-            windowClass: this.dialogSettings.css || "nova-messaging",
-            backdrop: this.dialogSettings.backdrop || false,
-            resolve: {
-                dialogSettings: () => this.dialogSettings,
-                dialogData: () => this.dialogData
-            }
-        };
-        return this.$uibModal.open(_.assign({}, dialogSettings, optsettings));
+        this.dialogSettings.cancelButton = this.localization.get(this.dialogSettings.cancelButton) || null;
+        this.dialogSettings.okButton = this.localization.get(this.dialogSettings.okButton) || null;
+        this.dialogSettings.header = this.localization.get(this.dialogSettings.header) || null;
+        this.dialogSettings.message = this.localization.get(this.dialogSettings.message) || null;
+        const options = _.assign({},
+            this.dialogSettings,
+            optsettings,
+            <ng.ui.bootstrap.IModalSettings>{
+                windowClass: this.dialogSettings.css,
+                resolve: {
+                    dialogSettings: () => this.dialogSettings,
+                    dialogData: () => this.dialogData
+                }
+            });
+
+        return this.$uibModal.open(options);
     };
 
     public get type(): DialogTypeEnum {
         return this.dialogSettings.type;
     }
 
-    public open(dialogSettings?: IDialogSettings, dialogData?: IDialogData): ng.IPromise<any> {
-        this.initialize(dialogSettings || this.dialogSettings);
-        this.dialogData = dialogData || {};
+    public open(dialogSettings?: IDialogSettings, dialogData?): ng.IPromise<any> {
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
+        if (dialogData) {
+            this.dialogData = dialogData;
+        }
         return this.openInternal().result;
     }
 
     public alert(message: string, header?: string, okButton?: string, cancelButton?: string) {
-        const dialogSettings = {
+        const dialogSettings = <IDialogSettings>{
             type: DialogTypeEnum.Alert,
-            header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Alert"),
-            message: this.localization.get(message) || message,
-            cancelButton: this.localization.get(cancelButton) || cancelButton || null, //Don't show cancel button if not defined
+            header: this.localization.get(header || "App_DialogTitle_Alert"),
+            message: message,
+            cancelButton: this.localization.get(cancelButton || null), //Don't show cancel button if not defined
             css: "modal-alert nova-messaging"
-        };
+        }  as IDialogSettings;
         if (okButton) {
             //We only want to set the okButton if it's specified, otherwise use the initialize default.
-            dialogSettings["okButton"] = this.localization.get(okButton) || okButton;
+            dialogSettings.okButton = this.localization.get(okButton);
         }
-        this.initialize(dialogSettings);
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
         return this.openInternal(<ng.ui.bootstrap.IModalSettings>{
             keyboard: false
         }).result;
     }
 
     public confirm(message: string, header?: string, css?: string) {
-        this.initialize({
+        const dialogSettings = {
             type: DialogTypeEnum.Confirm,
-            header: this.localization.get(header) || header || this.localization.get("App_DialogTitle_Confirmation"),
+            header: this.localization.get(header || "App_DialogTitle_Confirmation"),
             css: css,
-            message: this.localization.get(message) || message
-        } as IDialogSettings);
+            message: message
+        } as IDialogSettings;
+        this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
+
         return this.openInternal().result;
     }
 }
@@ -110,9 +118,10 @@ export interface IDialogController {
     cancel: Function;
 }
 
+/*fixme: one class per file*/
 export class BaseDialogController implements IDialogController {
 
-    public hasCloseButton: boolean;
+    public hasCloseButton: boolean = false;
 
     public get returnValue(): any {
         return undefined;
@@ -130,9 +139,15 @@ export class BaseDialogController implements IDialogController {
 
     public cancel() {
         this.$instance.dismiss("cancel");
+
+        /*manual gargabe clean */
+        this.$instance = null;
+        this.dialogSettings = null;
+
     };
 }
 
+/*fixme: one class per file*/
 export class DialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
 

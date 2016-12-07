@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -105,10 +106,11 @@ namespace SearchService.Repositories
             }
             catch (SqlException sqlException)
             {
-                //Sql timeout error
-                if (sqlException.Number == -2)
+                switch (sqlException.Number)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -157,10 +159,11 @@ namespace SearchService.Repositories
             }
             catch (SqlException sqlException)
             {
-                //Sql timeout error
-                if (sqlException.Number == -2)
+                switch (sqlException.Number)
                 {
-                    throw new SqlTimeoutException("Server did not respond with a response in the alloted time. Please try again later.", ErrorCodes.Timeout);
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
                 }
                 throw;
             }
@@ -172,15 +175,13 @@ namespace SearchService.Repositories
         /// <param name="userId"></param>
         /// <param name="searchCriteria">SearchCriteria object</param>
         /// <param name="startOffset">Search start offset</param>
-        /// <param name="pageSize">Page Size</param>
-        /// <param name="separatorString"></param>
+        /// <param name="pageSize">Page Size</param>        
         /// <returns></returns>
         public async Task<ItemNameSearchResultSet> SearchName(
             int userId, 
             ItemNameSearchCriteria searchCriteria, 
             int startOffset, 
-            int pageSize,
-            string separatorString)
+            int pageSize)
         {
             var param = new DynamicParameters();
             param.Add("@userId", userId);
@@ -195,7 +196,26 @@ namespace SearchService.Repositories
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
-            var items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes", param, commandType: CommandType.StoredProcedure)).ToList();
+            List<ItemNameSearchResult> items = null;
+
+            try
+            {
+                items = (await ConnectionWrapper.QueryAsync<ItemNameSearchResult>("SearchItemNameByItemTypes",
+                    param,
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: _searchConfigurationProvider.SearchTimeout)).ToList();
+            }
+            catch (SqlException sqlException)
+            {
+                switch (sqlException.Number)
+                {
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+                throw;
+            }
+            
 
             var itemIdsPermissions =
                 // Always getting permissions for the Head version of an artifact.
@@ -229,7 +249,7 @@ namespace SearchService.Repositories
                 result.item.Permissions = result.permission.Value;
                 if (searchCriteria.IncludeArtifactPath)
                 {
-                    result.item.Path = string.Join(separatorString, result.lpath.Value);
+                    result.item.Path = result.lpath.Value;
                 }
             }
 
@@ -245,7 +265,7 @@ namespace SearchService.Repositories
             //doubling the quote to "" fixes it. 
             //Likewise, ' needs to be doubled to '' before passing to FTI (completely separate to TSQL escaping)
             return string.IsNullOrWhiteSpace(input) ? string.Empty :
-                string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\""));
+                string.Format(CultureInfo.InvariantCulture, "\"{0}\"", input.Replace("'", "''").Replace("\"", "\"\"").Replace(@"\", @"\\").Replace(Environment.NewLine, string.Empty));
         }
     }
 }

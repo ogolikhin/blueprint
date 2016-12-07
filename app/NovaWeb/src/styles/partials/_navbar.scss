@@ -36,7 +36,7 @@
             float: right !important; //override media query
             font-size: $font-size-normal;
             line-height: $navbar-height;
-            margin: 0 0 0 15px;
+            margin: 0 15px;
             white-space: nowrap;
 
             span {
@@ -60,10 +60,41 @@
                 vertical-align: middle;
             }
 
-            .fonticon-help {
-                margin-left: 8px;
-                margin-right: 10px;
+            .fonticon2-help:before {
+                font-size: 1.8rem;
             }
         }
+    }
+
+    .navbar-help {
+        display: inline-block;
+    }
+
+    .dropdown-menu-help {
+        background: $navbar-color;
+        min-width: 70px;
+        margin-top: 0;
+        right: -13px;
+    }
+
+    .dropdown-menu-help-btn {
+        color: $white;
+        width: 100%;
+        background: transparent;
+        border: 0;
+
+        &:hover {
+            background: $white;
+            color: $black;
+        }
+    }
+
+    .dropdown-menu-caret {
+        color: $white;
+        margin-left: 5px;
+    }
+
+    .dropdown-menu-item {
+        line-height: 27px;
     }
 }

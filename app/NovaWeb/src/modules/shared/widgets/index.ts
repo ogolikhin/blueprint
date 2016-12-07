@@ -44,22 +44,22 @@ export {
 } from "./bp-file-upload-status/bp-file-upload-status";
 
 export {
-    ITabSliderControllerApi
-} from "./tabSlider";
-
-export {
     IDialogSettings,
-    IDialogData,
     IDialogService,
     BaseDialogController
 } from "./bp-dialog";
 
 export {
     IBPAction,
+    IBPDropdownAction,
+    IBPButtonOrDropdownAction,
     BPButtonAction,
     BPDropdownItemAction,
     BPDropdownAction,
     BPToggleItemAction,
     BPToggleAction,
-    BPButtonGroupAction
+    BPButtonGroupAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
+    BPMenuAction
 } from "./bp-toolbar";

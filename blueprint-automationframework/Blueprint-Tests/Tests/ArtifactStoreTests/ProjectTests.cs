@@ -103,14 +103,14 @@ namespace ArtifactStoreTests
         
         [TestCase]
         [TestRail(125502)]
-        [Description("Executes Get project children call with no Session-Token header.  Verifies 400 Bad Request is returned.")]
-        public void GetProjectChildrenByProjectId_MissingTokenHeader_400BadRequest()
+        [Description("Executes Get project children call with no Session-Token header.  Verifies 401 Unauthorized is returned.")]
+        public void GetProjectChildrenByProjectId_MissingTokenHeader_401Unauthorized()
         {
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, user: null);
-            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_ARTIFACT);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", REST_PATH_ARTIFACT);
         }
 
         #endregion GetProjectChildrenByProjectId tests
@@ -218,17 +218,17 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(134073)]
-        [Description("Executes Get published artifact children call and returns 'Bad Request' if successful")]
-        public void GetArtifactChildrenByProjectAndArtifactId_MissingTokenHeader_400BadRequest()
+        [Description("Executes Get published artifact children call but don't send a Session-Token header.  Verify it returns '401 Unauthorized'.")]
+        public void GetArtifactChildrenByProjectAndArtifactId_MissingTokenHeader_401Unauthorized()
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
 
             // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, user: null);
-            }, "The 'GET {0}' endpoint should return 400 Bad Request if no Session-Token header was passed!", REST_PATH_CHILDREN);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", REST_PATH_CHILDREN);
         }
 
         [TestCase]

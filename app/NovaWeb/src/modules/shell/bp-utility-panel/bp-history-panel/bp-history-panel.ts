@@ -15,8 +15,8 @@ interface ISortOptions {
 export class BPHistoryPanel implements ng.IComponentOptions {
     public template: string = require("./bp-history-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPHistoryPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -25,7 +25,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         "$q",
         "localization",
         "artifactHistory",
-        "artifactManager",
         "navigationService"
     ];
 
@@ -42,11 +41,9 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
                 private artifactHistory: IArtifactHistory,
-                protected artifactManager: IArtifactManager,
-                private navigationService: INavigationService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
+                private navigationService: INavigationService) {
 
-        super($q, artifactManager.selection, bpAccordionPanel);
+        super($q);
 
         this.sortOptions = [
             {value: false, label: this.localization.get("App_UP_Filter_SortByLatest")},
@@ -54,10 +51,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         ];
 
         this.subscribers = [];
-    }
-
-    public $onInit() {
-        super.$onInit();
     }
 
     public $onDestroy() {
@@ -86,18 +79,11 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         this.clearHistoryList();
         this.updateSelectedVersion();
 
-        if (subArtifact) {
-            this.subscribers.push(
-                subArtifact.getObservable()
-                    //Note: Don't use .distinctUntilChanged(artifact.version), because we also care about draft/unpublished.
-                    .subscribe((subArtif) => {
-                        this.onSelectionChangedHelper(null, subArtif, timeout);
-                    }));
-        } else if (artifact) {
+        if (artifact) {
             this.subscribers.push(
                 artifact.getObservable()
                     .subscribe((artif) => {
-                        this.onSelectionChangedHelper(artif, null, timeout);
+                        this.onSelectionChangedHelper(artif, timeout);
                     }));
         }
 
@@ -110,13 +96,10 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
 
     private updateSelectedVersion() {
         const state = this.navigationService.getNavigationState();
-        this.selectedVersionId = state ? state.version : undefined; 
+        this.selectedVersionId = state ? state.version : undefined;
     }
 
-    private onSelectionChangedHelper = (artifact: IStatefulArtifact, subArtifact: IStatefulSubArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {
-        if (artifact == null) {
-            return super.onSelectionChanged(artifact, subArtifact, timeout);
-        }
+    private onSelectionChangedHelper = (artifact: IStatefulArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {
         this.artifactId = artifact.id;
         return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
             .then((list: IArtifactHistoryVersion[]) => {

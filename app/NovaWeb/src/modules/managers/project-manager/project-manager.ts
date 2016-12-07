@@ -1,6 +1,6 @@
-import * as _ from "lodash";
-import {IDialogService} from "../../shared";
-import {IStatefulArtifactFactory, IStatefulArtifact} from "../artifact-manager/artifact";
+import {IDialogService, IDialogSettings} from "../../shared";
+import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
+import {IStatefulArtifactFactory} from "../artifact-manager/artifact/artifact.factory";
 import {IDispose} from "../models";
 import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
@@ -10,8 +10,11 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
+import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
+import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
+import {ILocalizationService} from "../../core/localization/localizationService";
+import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];
@@ -24,19 +27,20 @@ export interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>;
 
     // eventManager
-    initialize();
-    load(projectId: number): ng.IPromise<void>;
-    add(project: AdminStoreModels.IInstanceItem);
+    initialize(): void;
+    add(projectId: number): ng.IPromise<void>;
+    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
+    openProjectWithDialog(): void;
     remove(projectId: number): void;
     removeAll(): void;
-    refresh(id: number, forceOpen?: boolean): ng.IPromise<void>;
+    refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
     refreshCurrent(): ng.IPromise<void>;
     refreshAll(): ng.IPromise<void>;
     getProject(id: number): Models.IViewModel<IStatefulArtifact>;
     getSelectedProjectId(): number;
-    triggerProjectCollectionRefresh();
+    triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
-    calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
+    calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -53,7 +57,9 @@ export class ProjectManager implements IProjectManager {
         "statefulArtifactFactory",
         "loadingOverlayService",
         "mainbreadcrumbService",
-        "itemInfoService"
+        "itemInfoService",
+        "localization",
+        "analytics"
     ];
 
     constructor(private $q: ng.IQService,
@@ -65,7 +71,9 @@ export class ProjectManager implements IProjectManager {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
-                private itemInfoService: IItemInfoService) {
+                private itemInfoService: IItemInfoService,
+                private localization: ILocalizationService,
+                private analytics: IAnalyticsProvider) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.subscribers = [];
     }
@@ -125,54 +133,108 @@ export class ProjectManager implements IProjectManager {
 
     public refreshAll(): ng.IPromise<any> {
         let refreshQueue = [];
+        return this.artifactManager.autosave().then(() => {
+            this.projectCollection.getValue().forEach((project) => {
+                refreshQueue.push(this.refreshProject(project));
+            });
 
-        this.projectCollection.getValue().forEach((project) => {
-            refreshQueue.push(this.refreshProject(project));
-        });
-
-        return this.$q.all(refreshQueue).finally(() => {
-            this.triggerProjectCollectionRefresh();
+            return this.$q.all(refreshQueue).finally(() => {
+                this.triggerProjectCollectionRefresh();
+            });
         });
     }
 
-    public refresh(projectId: number, forceOpen?: boolean): ng.IPromise<void> {
-        return this.refreshProject(this.getProject(projectId), forceOpen);
+    public refresh(projectId: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
+        return this.artifactManager.autosave().then(() => {
+            return this.refreshProject(this.getProject(projectId), selectionId, forceOpen);
+        });
     }
 
     public refreshCurrent(): ng.IPromise<void> {
         return this.refresh(this.getSelectedProjectId());
     }
 
-    private refreshProject(projectNode: IArtifactNode, forceOpen?: boolean): ng.IPromise<void> {
+    private refreshProject(projectNode: IArtifactNode, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
         if (!projectNode) {
             return this.$q.reject();
         }
-
-        let selectedArtifact = this.artifactManager.selection.getArtifact();
-
-        if (selectedArtifact) {
-            return selectedArtifact.autosave().then(() => {
-                return this.doRefresh(projectNode, selectedArtifact, forceOpen);
-            });
+        let selectedArtifact = {} as IStatefulArtifact;
+        if (selectionId) {
+            selectedArtifact.id = selectionId;
+            selectedArtifact.projectId = projectNode.model.id;
         } else {
-            return this.doRefresh(projectNode, selectedArtifact, forceOpen);
+            selectedArtifact = this.artifactManager.selection.getArtifact();
         }
 
-
+        return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
     }
 
-    private doRefresh(project: IArtifactNode, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
+    public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
+        const artifactToExpand = {} as IStatefulArtifact;
+        artifactToExpand.id = artifactIdToExpand;
+        artifactToExpand.projectId = projectId;
+        return this.doRefresh(projectId, artifactToExpand, false);
+    }
+
+    public openProjectWithDialog(): void {
+        this.dialogService.open(<IDialogSettings>{
+            okButton: this.localization.get("App_Button_Open"),
+            template: require("../../main/components/dialogs/open-project/open-project.html"),
+            controller: OpenProjectController,
+            css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
+        }).then((projectId: number) => {
+            if (projectId) {
+                const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+                let openProjects = _.map(this.projectCollection.getValue(), "model.id");
+
+                try {
+                    this.add(projectId)
+                        .finally(() => {
+                            //(eventCollection, action, label?, value?, custom?, jQEvent?
+                            const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+                            this.analytics.trackEvent("open", "project", label, projectId, {
+                                openProjects: openProjects
+                            });
+                            this.loadingOverlayService.endLoading(openProjectLoadingId);
+                        });
+                } catch (err) {
+                    this.loadingOverlayService.endLoading(openProjectLoadingId);
+                    throw err;
+                }
+            }
+        });
+    }
+
+    private loadProject(projectId: number, project: IArtifactNode): ng.IPromise<void> {
+        //try it with project
+        return this.projectService.getArtifacts(projectId).then((data: Models.IArtifact[]) => {
+            this.messageService.addInfo("Refresh_Artifact_Deleted");
+            return this.processProjectTree(projectId, data, projectId).catch(() => {
+                this.clearProject(project);
+                return this.$q.reject();
+            });
+        }).catch((err: any) => {
+            this.dialogService.alert("Refresh_Project_NotFound");
+            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
+            return this.$q.reject();
+        });
+    }
+
+    private doRefresh(projectId: number, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
+
+        const project = this.getProject(projectId);
+
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
 
         //if the artifact provided is not in the current project - just expand project node
-        if (!expandToArtifact || expandToArtifact.projectId !== project.model.id) {
-            expandToArtifact = this.getArtifact(project.model.id);
+        if (!expandToArtifact || expandToArtifact.projectId !== projectId) {
+            expandToArtifact = this.getArtifact(projectId);
         }
 
         //try with selected artifact
         const loadChildren = forceOpen || (selectedArtifactNode ? selectedArtifactNode.expanded : false);
-        return this.projectService.getProjectTree(project.model.id, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {
-            return this.processProjectTree(project, data).catch(() => {
+        return this.projectService.getProjectTree(projectId, expandToArtifact.id, loadChildren).then((data: Models.IArtifact[]) => {
+            return this.processProjectTree(projectId, data, expandToArtifact.id).catch(() => {
                 this.clearProject(project);
                 return this.$q.reject();
             });
@@ -186,31 +248,27 @@ export class ProjectManager implements IProjectManager {
                 //if we're selecting project
                 if (expandToArtifact.id === expandToArtifact.projectId) {
                     this.dialogService.alert("Refresh_Project_NotFound");
-                    this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
+                    this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(projectId)), 1);
                     return this.$q.reject();
                 }
 
+                // if there is no parent for artifact we are trying to load project
+                // in case when artifact is deleted
+                if (!expandToArtifact.parentId) {
+                    return this.loadProject(projectId, project);
+                }
+
                 //try with selected artifact's parent
-                return this.projectService.getProjectTree(project.model.id, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
+                return this.projectService.getProjectTree(projectId, expandToArtifact.parentId, true).then((data: Models.IArtifact[]) => {
                     this.messageService.addInfo("Refresh_Artifact_Deleted");
-                    return this.processProjectTree(project, data).catch(() => {
+                    return this.processProjectTree(projectId, data, expandToArtifact.parentId).catch(() => {
                         this.clearProject(project);
                         return this.$q.reject();
                     });
                 }).catch((innerError: any) => {
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
-                        return this.projectService.getArtifacts(project.model.id).then((data: Models.IArtifact[]) => {
-                            this.messageService.addInfo("Refresh_Artifact_Deleted");
-                            return this.processProjectTree(project, data).catch(() => {
-                                this.clearProject(project);
-                                return this.$q.reject();
-                            });
-                        }).catch((err: any) => {
-                            this.dialogService.alert("Refresh_Project_NotFound");
-                            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
-                            return this.$q.reject();
-                        });
+                        return this.loadProject(projectId, project);
                     }
 
                     this.messageService.addError(error["message"]);
@@ -225,20 +283,24 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    private processProjectTree(project: Models.IViewModel<IStatefulArtifact>, data: Models.IArtifact[]): ng.IPromise<void> {
-        const oldProjectId: number = project.model.id;
-        let oldProject = this.getProject(oldProjectId);
-        this.artifactManager.removeAll(oldProjectId);
+    private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number): ng.IPromise<void> {
 
-        return this.metadataService.get(oldProjectId).then(() => {
+        const oldProject = this.getProject(projectId);
+        // if old project is opened
+        if (oldProject) {
+            this.artifactManager.removeAll(projectId);
+        }
+
+
+        return this.metadataService.get(projectId).then(() => {
 
             //reload project info
-            return this.projectService.getProject(oldProjectId);
+            return this.projectService.getProject(projectId);
         }).then((result: AdminStoreModels.IInstanceItem) => {
 
             //add some additional info
             _.assign(result, {
-                projectId: oldProjectId,
+                projectId: projectId,
                 itemTypeId: Enums.ItemTypePredefined.Project,
                 prefix: "PR",
                 itemTypeName: "Project",
@@ -259,21 +321,33 @@ export class ProjectManager implements IProjectManager {
             });
 
             //open any children that have children
-            this.openChildNodes(newProjectNode.children, data);
+            const expandedStatefulArtifact =  this.openChildNodes(newProjectNode.children, data, artifactToSelectId);
 
-            //update project collection
-            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
-            oldProject.unloadChildren();
+            if (oldProject) {
+                //update project collection
+                this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
+                oldProject.unloadChildren();
+            } else {
+                this.projectCollection.getValue().unshift(newProjectNode);
+                this.projectCollection.onNext(this.projectCollection.getValue());
+                if (expandedStatefulArtifact) {
+                    this.artifactManager.selection.setExplorerArtifact(expandedStatefulArtifact);
+                }
+            }
+
         });
     }
 
     private clearProject(project: IArtifactNode) {
-        project.children = undefined;
-        project.expanded = false;
-        //this.projectCollection.onNext(this.projectCollection.getValue());
+        if (project) {
+            project.children = undefined;
+            project.expanded = false;
+        }
     }
 
-    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]) {
+    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[], resultStatefulArtifactId: number): IStatefulArtifact {
+
+        let resultArtifact: IStatefulArtifact;
         //go through each node
         _.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(it => it.id === node.model.id);
@@ -282,56 +356,58 @@ export class ProjectManager implements IProjectManager {
                 node.children = childData[0].children.map((it: Models.IArtifact) => {
                     const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
                     this.artifactManager.add(statefulArtifact);
+                    if (it.id === resultStatefulArtifactId) {
+                        resultArtifact = statefulArtifact;
+                    }
                     return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
                 });
                 node.expanded = true;
 
+                const openChildeResult = this.openChildNodes(node.children, childData[0].children, resultStatefulArtifactId);
+                if (!resultArtifact) {
+                    resultArtifact = openChildeResult;
+                }
                 //process its children
-                this.openChildNodes(node.children, childData[0].children);
             }
         });
+
+        return resultArtifact;
     }
 
-    public load(projectId: number): ng.IPromise<void> {
-        return this.itemInfoService.get(projectId).then((project: IItemInfoResult) => {
-            return this.add(<AdminStoreModels.IInstanceItem>{
-                id: project.id,
-                name: project.name,
-                parentFolderId: undefined,
-                type: AdminStoreModels.InstanceItemType.Project,
-                hasChildren: true,
-                permissions: project.permissions
-            });
-        });
-    }
-
-    public add(project: AdminStoreModels.IInstanceItem): ng.IPromise<void> {
-        if (!project) {
-            throw new Error("Project_NotFound"); // need to throw an error as mainView may not be active yet
-        }
-
-        let projectNode: IArtifactNode = this.getProject(project.id);
+    public add(projectId: number): ng.IPromise<void> {
+        let projectNode: IArtifactNode = this.getProject(projectId);
         if (!projectNode) {
-            return this.metadataService.get(project.id).then(() => {
-                _.assign(project, {
-                    projectId: project.id,
-                    itemTypeId: Enums.ItemTypePredefined.Project,
-                    prefix: "PR",
-                    itemTypeName: "Project",
-                    predefinedType: Enums.ItemTypePredefined.Project,
-                    hasChildren: true
-                });
+            return this.itemInfoService.get(projectId).then((projectInfo: IItemInfoResult) => {
+                const project = {
+                    id: projectInfo.id,
+                    name: projectInfo.name,
+                    parentFolderId: undefined,
+                    type: AdminStoreModels.InstanceItemType.Project,
+                    hasChildren: true,
+                    permissions: projectInfo.permissions
+                } as AdminStoreModels.IInstanceItem;
 
-                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
-                this.artifactManager.add(statefulArtifact);
-                projectNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
-                this.projectCollection.getValue().unshift(projectNode);
-                this.projectCollection.onNext(this.projectCollection.getValue());
-            }).catch((err: any) => {
-                if (err) {
-                    this.messageService.addError(err);
-                }
-                return this.$q.reject(err);
+                return this.metadataService.get(projectId).then(() => {
+                    _.assign(project, {
+                        projectId: projectId,
+                        itemTypeId: Enums.ItemTypePredefined.Project,
+                        prefix: "PR",
+                        itemTypeName: "Project",
+                        predefinedType: Enums.ItemTypePredefined.Project,
+                        hasChildren: true
+                    });
+
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
+                    this.artifactManager.add(statefulArtifact);
+                    projectNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+                    this.projectCollection.getValue().unshift(projectNode);
+                    this.projectCollection.onNext(this.projectCollection.getValue());
+                }).catch((err: any) => {
+                    if (err) {
+                        this.messageService.addError(err);
+                    }
+                    return this.$q.reject(err);
+                });
             });
         }
 
@@ -409,7 +485,7 @@ export class ProjectManager implements IProjectManager {
         });
     }
 
-    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
+    public calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number> {
         let promise: ng.IPromise<void>;
         let orderIndex: number;
         let index: number;
@@ -419,7 +495,7 @@ export class ProjectManager implements IProjectManager {
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
 
         //if parent isn't found, or if its children aren't loaded
-        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && parentArtifactNode.children.length === 0)) {
+        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && (!parentArtifactNode.children || parentArtifactNode.children.length === 0))) {
             //get children from server
             promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId).then((data: Models.IArtifact[]) => {
                 siblings = data;
@@ -438,14 +514,14 @@ export class ProjectManager implements IProjectManager {
             index = siblings.findIndex((a) => a.id === selectedArtifact.id);
 
             //compute new order index
-            if (index === 0 && insertMethod === MoveArtifactInsertMethod.Above) { //first
+            if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first
                 orderIndex = selectedArtifact.orderIndex / 2;
-            } else if (index === siblings.length - 1 && insertMethod === MoveArtifactInsertMethod.Below) { //last
+            } else if (index === siblings.length - 1 && insertMethod === MoveCopyArtifactInsertMethod.Below) { //last
                 orderIndex = selectedArtifact.orderIndex + 10;
             } else {    //in between
-                if (insertMethod === MoveArtifactInsertMethod.Above) {
+                if (insertMethod === MoveCopyArtifactInsertMethod.Above) {
                     orderIndex = (siblings[index - 1].orderIndex + selectedArtifact.orderIndex) / 2;
-                } else if (insertMethod === MoveArtifactInsertMethod.Below) {
+                } else if (insertMethod === MoveCopyArtifactInsertMethod.Below) {
                     orderIndex = (siblings[index + 1].orderIndex + selectedArtifact.orderIndex) / 2;
                 } else {
                     //leave undefined

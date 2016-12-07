@@ -1,26 +1,26 @@
 <div class="filter-bar"
      ng-if="$ctrl.attachmentsList.length || $ctrl.docRefList.length">
 
-    <div class="bp-select" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
+    <div class="bp-select" ng-class="{'disabled': !$ctrl.canUpdateAttachments() && !$ctrl.canUpdateDocRefs()}">
         <div uib-dropdown>
             <a href="#" uib-dropdown-toggle><span>{{::$ctrl.localization.get('App_UP_Attachments_Add_New')}}</span><b
                 class="caret"></b></a>
             <ul uib-dropdown-menu class="dropdown-menu">
-                <li>
+                <li ng-class="{disabled: !$ctrl.canUpdateAttachments()}">
                     <label>
                         <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1"
                                class="file-input">
                         {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
-                <li ng-click="$ctrl.addDocRef()">
+                <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canUpdateDocRefs()}">
                     <a href>{{::$ctrl.localization.get('App_UP_Attachments_Ref_Doc') }}</a>
                 </li>
             </ul>
         </div>
     </div>
 
-    <uib-tabset active="$ctrl.categoryFilter">
+    <uib-tabset active="$ctrl.categoryFilter" class="nav-tabs-as-filters">
         <uib-tab heading="{{::$ctrl.localization.get('App_UP_Attachments_All') }}"></uib-tab>
         <uib-tab heading="{{::$ctrl.localization.get('App_UP_Attachments_Attachments') }}"></uib-tab>
         <uib-tab heading="{{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}"></uib-tab>
@@ -43,7 +43,7 @@
                 ng-class="{'new-attachment': attachment.guid}"
                 attachment-info="attachment"
                 delete-item="$ctrl.deleteAttachment(attachment)"
-                can-change-attachments="!$ctrl.item.artifactState.readonly">
+                can-change-attachments="$ctrl.canUpdateAttachments()">
             </bp-attachment-item>
         </div>
     </div>
@@ -63,7 +63,7 @@
                 class="utility-panel-artifact-item"
                 doc-ref-info="document"
                 delete-item="$ctrl.deleteDocRef(document)"
-                can-change-attachments="!$ctrl.item.artifactState.readonly">
+                can-change-attachments="$ctrl.canUpdateDocRefs()">
             </bp-document-item>
         </div>
     </div>
@@ -84,7 +84,7 @@
 
     <div class="add-empty" ng-if="$ctrl.item">
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Attachment_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
+        <label class="btn btn-secondary btn-small" ng-class="{'disabled': !$ctrl.canUpdateAttachments()}">
             <input bp-file-upload="$ctrl.onFileSelect(files, callback)" type="file" multiple="1" class="file-input">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Attachment') }}
         </label>
@@ -92,8 +92,8 @@
         <hr/>
 
         <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <label class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': $ctrl.item.artifactState.readonly}">
+        <button class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canUpdateDocRefs()}">
             {{::$ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
-        </label>
+        </button>
     </div>
 </div>

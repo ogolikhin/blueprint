@@ -31,13 +31,13 @@
               ng-class="{disabled: to.disabled || to.isReadOnly}" bp-tooltip="Delete"></span>
     </div>
     <div ng-show="model[options.key].actorName.length > 0" class="bp-input-group-addon">
-        <button class="btn btn-primary btn-small" ng-disabled="to.disabled || to.isReadOnly"
+        <button class="btn btn-secondary btn-small" ng-disabled="to.disabled || to.isReadOnly"
                 ng-click="selectBaseActor()" ng-class="{disabled: to.disabled || to.isReadOnly}">
             Change
         </button>
     </div>
     <div ng-hide="model[options.key].actorName.length > 0" class="bp-input-group-addon select-wrapper">
-        <button class="btn btn-primary btn-small" ng-disabled="to.disabled || to.isReadOnly"
+        <button class="btn btn-secondary btn-small" ng-disabled="to.disabled || to.isReadOnly"
                 ng-click="selectBaseActor()">
             Select
         </button>

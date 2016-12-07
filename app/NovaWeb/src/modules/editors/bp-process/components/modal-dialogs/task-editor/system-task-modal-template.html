@@ -24,8 +24,10 @@
                            ng-class="{'disabled': $ctrl.isReadonly}"
                            button-label="{{$ctrl.getPersonaLabel()}}">
                 </bp-select>
-                <button class="btn btn-icon btn-icon__add" type="button" ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
-                    +
+                <button class="btn btn-primary btn-small btn-icon__add" type="button"
+                        bp-tooltip="{{::$ctrl.localization.get('Tooltip_Browse_Actor')}}"
+                        ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
+                    <span class="fonticon2-more-menu"></span>
                 </button>
             </div>
         </div>
@@ -49,21 +51,21 @@
 
                     <div class="nova-form-group">
 
-                        <div ng-show="!$ctrl.isIncludeResultsVisible">
+                        <div ng-if="!$ctrl.isIncludeResultsVisible">
                 <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
                                 <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                             </button>
                         </div>
-                        <div ng-show="$ctrl.isIncludeResultsVisible">
+                        <div ng-if="$ctrl.isIncludeResultsVisible">
                             <div class="label-divider">
-                                <label class="process-dividing-label"><i class="fonticon2-link"></i>Include:</label>
+                                <label class="process-dividing-label"><i class="fonticon2-link"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}:</label>
                             </div>
                             <div class="storyteller-include_container">
                                 <div class="storyteller-include">
                                     {{$ctrl.includeArtifactName}}
                                      <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()"  ng-class="{'fonticon2__action--disabled':$ctrl.isReadonly}"></i>
                                 </div>
-                                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openArtifactPicker()" ng-disabled="$ctrl.isReadonly">
+                                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
                                         <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
                                 </button>
                             </div>

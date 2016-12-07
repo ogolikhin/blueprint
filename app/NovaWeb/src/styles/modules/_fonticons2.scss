@@ -65,7 +65,7 @@ $fonticon2-error: '\e817'; /* '' */
 $fonticon2-export: '\e818'; /* '' */
 $fonticon2-flag-emptied: '\e81a'; /* '' */
 $fonticon2-flag: '\e819'; /* '' */
-$fonticon2-help: '\e81c'; /* '' */
+$fonticon2-help: '\e84e'; /* '' */
 $fonticon2-history: '\e81d'; /* '' */
 $fonticon2-impact-analysis: '\e81e'; /* '' */
 $fonticon2-information-more: '\e820';  /* '' */
@@ -124,6 +124,10 @@ $fonticon2-project: '\e903'; /* '' */
 $fonticon2-artifact-deleted: '\e919';  /* '' */
 $fonticon2-move: '\e84b'; /* '' */
 $fonticon2-copy: '\e84a'; /* '' */
+$fonticon2-copy-shapes: '\e84d'; /* '' */
+$fonticon2-add: '\e84c'; /* '' */
+$fonticon2-actor-add: '\e84f'; /* '' */
+$fonticon2-more-menu: '\e850'; /* '' */
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -492,6 +496,20 @@ $fonticon2-copy: '\e84a'; /* '' */
 }
 .fonticon2-copy:before {
     content: $fonticon2-copy;
+}
+.fonticon2-copy-shapes:before {
+    content: $fonticon2-copy-shapes;
+}
+.fonticon2-add:before {
+    content: $fonticon2-add;
+}
+
+.fonticon2-actor-add:before {
+    content: $fonticon2-actor-add;
+}
+
+.fonticon2-more-menu:before {
+    content: $fonticon2-more-menu;
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;

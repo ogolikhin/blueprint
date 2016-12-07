@@ -1,5 +1,8 @@
-@import "../../../styles/modules/variables";
+@import "../../../styles/settings/variables";
 @import "../../../styles/modules/mixins";
+@import "../../../styles/settings/colors";
+@import "../../../styles/settings/typography";
+
 
 .empty-collection{
     margin: $padding-root;
@@ -81,6 +84,13 @@
     background: $white;
 
     .ag-grid{
+
+        .ag-row .ag-cell:not(.not-selectable) .fonticon-delete-filled, .ag-row:hover .ag-cell:not(.not-selectable) .fonticon-delete-filled {
+            &::before{
+                background: transparent;
+            }
+        }
+
         .disabled, [disabled] {
             cursor: not-allowed;
         }
@@ -122,6 +132,8 @@
 
             .ag-header-cell-text{
                 color: $white;
+                font-weight: bold;
+                padding-top: 2px;
             }
         }
 

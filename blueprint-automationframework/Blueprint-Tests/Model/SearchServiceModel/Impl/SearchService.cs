@@ -89,9 +89,18 @@ namespace Model.SearchServiceModel.Impl
         }
 
         /// <seealso cref="ISearchService.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
-        public List<SearchItem> SearchProjects(IUser user, string searchText, int? resultCount = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
+            List < HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+
+            string url = RestPaths.Svc.SearchService.PROJECTSEARCH;
+
+            if (separatorString != null)
+            {
+                // we use concat instead of query param to make call identical to call from fron-end		
+                url = string.Concat(url, "?separatorString=", HttpUtility.UrlEncode(separatorString));
+            }
 
             var jsonObject = new Dictionary<string, string> {{ "query", searchText }};
             
@@ -110,8 +119,8 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var projectSearchResult = restApi.SendRequestAndDeserializeObject<ProjectSearchResult, Dictionary<string, string>>(
-                RestPaths.Svc.SearchService.PROJECTSEARCH,
+            var projectSearchResult = restApi.SendRequestAndDeserializeObject<ProjectSearchResultSet, Dictionary<string, string>>(
+                url,
                 RestRequestMethod.POST,
                 jsonObject: jsonObject,
                 queryParameters: queryParams,
@@ -122,8 +131,8 @@ namespace Model.SearchServiceModel.Impl
         }
 
         /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, string, List{HttpStatusCode})"/>
-        public ItemSearchResult SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
-            int? pageSize = null, string separatorString = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public ItemNameSearchResultSet SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
+            int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
@@ -145,13 +154,7 @@ namespace Model.SearchServiceModel.Impl
 
             string url = RestPaths.Svc.SearchService.ITEMNAMESEARCH;
 
-            if (separatorString != null)
-            {
-                // we use concat instead of query param to make call identical to call from fron-end
-                url = string.Concat(url, "?separatorString=", HttpUtility.UrlEncode(separatorString));
-            }
-
-            var itemSearchResult = restApi.SendRequestAndDeserializeObject<ItemSearchResult, ItemNameSearchCriteria>(
+            var itemSearchResult = restApi.SendRequestAndDeserializeObject<ItemNameSearchResultSet, ItemNameSearchCriteria>(
                 url,
                 RestRequestMethod.POST,
                 searchCriteria,

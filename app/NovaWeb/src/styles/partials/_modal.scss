@@ -1,11 +1,22 @@
 $modal-side-clearance: 8px;
 
+.modal-open .modal {
+    background-color:rgba(0, 0, 0, 0.5);
+}
+.modal-open .modal.nova-login {
+    background-color: transparent;
+}
 .modal {
     margin: 0;
 
     .modal-content {
         @include rounded-corners($border-radius-amount $border-radius-amount $border-radius-amount $border-radius-amount);
         border: 0;
+    }
+
+    .modal-focus-stealer {
+        position: absolute;
+        top: -5000px;
     }
 
     .modal-header {
@@ -25,6 +36,10 @@ $modal-side-clearance: 8px;
 
         .modal-close {
             color: $blue-lightest;
+            background-color: transparent;
+            border: none;
+            padding: 5px;
+            margin: 0;
             cursor: pointer;
             float: right !important;
             text-decoration: none;
@@ -67,6 +82,8 @@ $modal-side-clearance: 8px;
 }
 
 .modal.modal-alert {
+    z-index: 18000 !important;
+
     .modal-header {
         background-color: $brand-warning;
 
@@ -152,7 +169,7 @@ $modal-open-project-height: 450px;
                 border: 1px solid $gray-lighter;
                 padding: 2px 2px 2px 12px;
                 margin-top: 0;
-                margin-bottom: -15px;
+                margin-bottom: -23px;
                 position: relative;
                 color: $gray-light;
             }
@@ -243,16 +260,6 @@ $modal-open-project-height: 450px;
             height: 100%;
         }
 
-        .project-tree-container {
-            box-sizing: border-box;
-            display: block;
-            float: left;
-            height: calc(100% - 50px);
-            margin: 0 15px 0 0;
-            min-height: $project-picker-tree-height;
-            width: calc(100% - #{$project-picker-data-width + 15px});
-        }
-
         .artifact-picker-container {
             box-sizing: border-box;
             display: block;
@@ -333,38 +340,6 @@ $modal-open-project-height: 450px;
             min-height: $project-picker-tree-height;
         }
 
-        .project-data {
-            display: block;
-            float: left;
-            font-size: 13px;
-            width: $project-picker-data-width;
-
-            .project-name {
-                @include text-ellipsis-flex-width(999px);
-                background: $gray-lightest;
-                border-radius: $border-radius-amount;
-                height: 36px;
-                line-height: 36px;
-                margin-bottom: 15px;
-                margin-top: 10px;
-                padding: 0 15px;
-                white-space: nowrap;
-            }
-
-            .project-description-wrapper {
-                background: $gray-lightest;
-                border-radius: $border-radius-amount;
-                margin-top: 10px;
-                max-height: 142px;
-                min-height: 36px;
-                overflow: auto;
-
-                .project-description {
-                    padding: 8px 15px;
-        }
-            }
-    }
-
         &::before {
             content: ' ';
             display: table;
@@ -374,7 +349,7 @@ $modal-open-project-height: 450px;
             clear: both;
             content: ' ';
             display: table;
-    }
+        }
     }
 }
 
@@ -531,7 +506,7 @@ $modal-open-project-height: 450px;
 
         div {
             display: table-cell;
-            font-size: $font-size-normal;
+            font-size: $font-size-smaller;
             padding: 8px 0;
             text-align: center;
             vertical-align: middle;

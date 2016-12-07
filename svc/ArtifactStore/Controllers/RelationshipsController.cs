@@ -103,18 +103,18 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
         [ActionName("GetRelationshipDetails")]
-        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, bool addDrafts = true, int? versionId = null)
+        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            if (artifactId < 1 || (versionId.HasValue && versionId.Value < 1))
+            if (artifactId < 1)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
-            var artifactInfo = isDeleted && versionId != null ?
+            var artifactInfo = isDeleted ?
                 (await _artifactVersionsRepository.GetDeletedItemInfo(artifactId)) :
-                (await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts));
+                (await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId));
             if (artifactInfo == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
@@ -124,11 +124,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-
-            // We do not need drafts for historical artifacts 
-            var effectiveAddDraft = !versionId.HasValue && addDrafts;
-
-            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, effectiveAddDraft, versionId);
+            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, isDeleted);
         }
 
         private static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)

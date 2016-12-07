@@ -8,7 +8,9 @@
     global variables
 \*------------------------------------*/
 @import "settings/_colors";
+@import "settings/_typography";
 @import "settings/_variables";
+
 /*------------------------------------*\
     #TOOLS
     sass mixins and functions
@@ -40,10 +42,8 @@
 \*------------------------------------*/
 @import 'modules/normalize';
 @import 'modules/hamburgers/hamburgers';
-@import 'modules/variables';
 @import 'modules/mixins';
 @import 'modules/animations';
-@import 'modules/typography';
 @import 'modules/fonticons';
 @import 'modules/fonticons2';
 @import 'modules/icons';
@@ -71,7 +71,6 @@
 @import 'partials/tinymce';
 @import 'partials/error-messages';
 @import 'partials/diagram';
-@import 'partials/glossary';
 @import 'partials/browser-specific';
 @import 'partials/mobile-only';
 @import 'partials/tour-modal';

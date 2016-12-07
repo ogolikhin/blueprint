@@ -17,7 +17,7 @@
                 <div class="col-sm-7" style="display: inline-block">
                     <div class="nova-form-group nova-floating-label">
                         <input type="text" ng-class="condition.label ? 'nova-form-control input-is-dirty' : 'nova-form-control'" id="storyteller-new-condition-edge-{{$index}}" ng-model="condition.label" maxlength="{{::$ctrl.CONDITION_MAX_LENGTH }}" ng-disabled="$ctrl.isReadonly">
-                        <label for="storyteller-new-condition-edge-{{$index}}" class="nova-label"><i class="fonticon-decision-diamond"></i>{{::$root.config.labels['ST_Decision_Modal_Decision_Condition_Label']}}</label>
+                        <label for="storyteller-new-condition-edge-{{$index}}" class="nova-label"><i class="fonticon-decision-diamond"></i>{{dialogModel.conditionLabel}}:</label>
                     </div>
                 </div>
                 <div class="col-sm-4">
@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="col-sm-1 delete-condition" ng-if="$ctrl.isDeleteConditionVisible(condition)">
-                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{::$root.config.labels['ST_Decision_Modal_Delete_Condition_Button_Label']}}" ng-disabled="!$ctrl.canDeleteCondition(condition)">
+                    <span ng-click="$ctrl.deleteCondition(condition)" bp-tooltip="{{$ctrl.deleteConditionLabel}}" ng-disabled="!$ctrl.canDeleteCondition(condition)">
                         <span class="fonticon2-delete" ng-class="{'fonticon2__action--disabled':isReadonly}"></span>
                     </span>
                 </div>
@@ -48,7 +48,7 @@
             <div id="decision-modal-list-bottom"></div>
         </div>
         <div>
-            <button class="btn btn-primary btn-small" type="button" ng-click="$ctrl.addCondition()" ng-disabled="!$ctrl.canAddCondition">{{::$root.config.labels['ST_Decision_Modal_Add_Condition_Button_Label']}}</button>
+            <button class="btn btn-primary btn-small" type="button" ng-click="$ctrl.addCondition()" ng-disabled="!$ctrl.canAddCondition">{{$ctrl.addConditionLabel}}</button>
         </div>
     </div>
 </div>

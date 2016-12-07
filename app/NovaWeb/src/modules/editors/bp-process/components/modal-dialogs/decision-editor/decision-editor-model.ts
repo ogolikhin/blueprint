@@ -14,4 +14,5 @@ export class DecisionEditorModel implements IModalDialogModel {
     public originalDecision: IDecision;
     public isReadonly: boolean;
     public isHistoricalVersion: boolean;
+    public conditionLabel: string;
 }

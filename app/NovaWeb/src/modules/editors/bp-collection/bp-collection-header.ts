@@ -1,6 +1,8 @@
+import {BPButtonGroupAction} from "./../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {DeleteAction} from "./../../main/components/bp-artifact-info/actions/delete-action";
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService} from "../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
@@ -10,6 +12,7 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -31,7 +34,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "navigationService",
         "projectManager",
         "metadataService",
-        "mainbreadcrumbService"
+        "mainbreadcrumbService",
+        "analytics"
     ];
 
     constructor($q: ng.IQService,
@@ -46,7 +50,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 navigationService: INavigationService,
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
-                mainBreadcrumbService: IMainBreadcrumbService) {
+                mainBreadcrumbService: IMainBreadcrumbService,
+                analytics: IAnalyticsProvider) {
         super(
             $q,
             $scope,
@@ -60,21 +65,38 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             navigationService,
             projectManager,
             metadataService,
-            mainBreadcrumbService
+            mainBreadcrumbService,
+            analytics
         );
     }
 
-    protected updateToolbarOptions(artifact: any): void {
-        super.updateToolbarOptions(artifact);
-
-        const collectionArtifact = artifact as IStatefulCollectionArtifact;
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
 
         if (!collectionArtifact) {
             return;
         }
 
-        this.toolbarActions.push(new RapidReviewAction(collectionArtifact, this.localization, this.dialogService));
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
+        const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
-        this.toolbarActions.push(new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService));
+        if (buttonGroup) {
+            buttonGroup.actions.push(deleteAction);
+        }
+
+        // expanded toolbar
+        this.toolbarActions.push(
+            rapidReviewAction,
+            addCollectionArtifactAction
+        );
+
+        // collapsed toolbar
+        this.additionalMenuActions.push(
+            new BPButtonOrDropdownSeparator(),
+            rapidReviewAction,
+            addCollectionArtifactAction
+        );
     }
 }

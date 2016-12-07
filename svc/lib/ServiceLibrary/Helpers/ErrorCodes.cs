@@ -31,5 +31,7 @@
 
         //Timeout
         public const int Timeout = 7000;
+        public const int SqlTimeoutNumber = -2;
+        public const int SqlErrorInFtsSyntax = 7630;
     }
 }

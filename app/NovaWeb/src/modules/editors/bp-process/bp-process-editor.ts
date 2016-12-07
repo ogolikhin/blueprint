@@ -1,16 +1,20 @@
 ﻿import {ICommunicationManager} from "./";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import {IWindowManager, IMainWindow, ResizeCause} from "../../main";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
 import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
-import {IDialogService} from "../../shared";
-import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
-import {ISelection, IStatefulArtifactFactory, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IDialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {IDiagramNode} from "./components/diagram/presentation/graph/models/process-graph-interfaces";
+import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
+import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {ISelection} from "../../managers/selection-manager/selection-manager";
 import {IStatefulProcessSubArtifact} from "./process-subartifact";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
+import {IClipboardService} from "./services/clipboard.svc";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -18,10 +22,8 @@ export class BpProcessEditor implements ng.IComponentOptions {
 }
 
 export class BpProcessEditorController extends BpBaseEditor {
-    private disposing: boolean = false;
-
-    public processDiagram: ProcessDiagram;
-    public subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
+    private processDiagram: ProcessDiagram;
+    private subArtifactEditorModalOpener: SubArtifactEditorModalOpener;
 
     public static $inject: [string] = [
         "messageService",
@@ -39,7 +41,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         "dialogService",
         "navigationService",
         "statefulArtifactFactory",
-        "shapesFactory"
+        "shapesFactory",
+        "utilityPanelService",
+        "clipboardService"
     ];
 
     constructor(messageService: IMessageService,
@@ -57,7 +61,9 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private shapesFactory: ShapesFactory = null) {
+                private shapesFactory: ShapesFactory = null,
+                private utilityPanelService: IUtilityPanelService,
+                private clipboard: IClipboardService = null) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -66,30 +72,14 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public $onInit() {
         super.$onInit();
-        this.subscribers.push(this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this));
+
         this.subscribers.push(
-            //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.selectionObservable
-                .filter(this.clearSelectionFilter)
-                .subscribeOnNext(this.clearSelection, this)
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this),
         );
     }
-
-    private clearSelectionFilter = (selection: ISelection) => {
-        return this.artifact
-            && selection != null
-            && selection.artifact
-            && selection.artifact.id === this.artifact.id
-            && !selection.subArtifact;
-    }
-
-    private clearSelection(value: ISelection) {
-        if (this.processDiagram) {
-            this.processDiagram.clearSelection();
-        }
-    }
-
-    public onArtifactReady() {
+    
+    protected onArtifactReady() {
         // when this method is called the process artifact should
         // be loaded and assigned to the base class' artifact
         // property (this.artifact)
@@ -118,30 +108,20 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.localization,
             this.navigationService,
             this.statefulArtifactFactory,
-            this.shapesFactory
+            this.shapesFactory,
+            this.utilityPanelService,
+            this.clipboard,
+            this.artifactManager
         );
 
         let htmlElement = this.getHtmlElement();
-
-        this.processDiagram.addSelectionListener((element) => {
-            this.onSelectionChanged(element);
-        });
 
         this.processDiagram.createDiagram(this.artifact, htmlElement);
 
         super.onArtifactReady();
     }
 
-    public $onDestroy() {
-        this.disposing = true;
-        this.destroy();
-
-        super.$onDestroy();
-
-        this.disposing = false;
-    }
-
-    private destroy() {
+    protected destroy(): void {
         if (this.subArtifactEditorModalOpener) {
             this.subArtifactEditorModalOpener.destroy();
         }
@@ -149,6 +129,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         if (this.processDiagram) {
             this.processDiagram.destroy();
         }
+
+        super.destroy();
     }
 
     private getHtmlElement(): HTMLElement {
@@ -168,35 +150,13 @@ export class BpProcessEditorController extends BpBaseEditor {
         return htmlElement;
     }
 
-    public onWidthResized(mainWindow: IMainWindow) {
+    private onWidthResized(mainWindow: IMainWindow) {
         if (this.processDiagram && this.processDiagram.resize) {
-            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle && !!this.processDiagram) {
+            if (mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
                 this.processDiagram.resize(mainWindow.contentWidth, mainWindow.contentHeight);
             } else {
                 this.processDiagram.resize(0, 0);
             }
-        }
-    }
-
-    private onSelectionChanged = (elements: IDiagramNode[]) => {
-        if (this.disposing || this.isDestroyed) {		
-            return;		
-        }
-
-        if (elements.length > 0) {
-            const subArtifact = <IStatefulProcessSubArtifact>this.artifact.subArtifactCollection.get(elements[0].model.id);
-            if (subArtifact) {
-                subArtifact.loadProperties()
-                    .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        if (this.disposing || this.isDestroyed) {
-                            return;
-                        }
-
-                        this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                });
-            }
-        } else {
-            this.artifactManager.selection.clearSubArtifact();
         }
     }
 }

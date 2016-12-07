@@ -2,7 +2,7 @@ import "angular-sanitize";
 import {IStencilService} from "./impl/stencil.svc";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IDiagram, IShape, IDiagramElement} from "./impl/models";
 import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
@@ -78,21 +78,21 @@ export class BPDiagramController extends BpBaseEditor {
             && !selection.subArtifact;
     }
 
-    public $onDestroy() {
-        // this.diagramView.clearSelection();
+    protected destroy(): void {
         this.destroyDiagramView();
-        super.$onDestroy();
+        super.destroy();
     }
 
     private destroyDiagramView() {
         if (this.diagramView) {
             this.diagramView.destroy();
         }
-        delete this.diagramView;
-        delete this.diagram;
+
+        this.diagramView = undefined;
+        this.diagram = undefined;
     }
 
-    public onArtifactReady() {
+    protected onArtifactReady() {
         super.onArtifactReady();
         if (this.isDestroyed) {
             return;
@@ -151,11 +151,12 @@ export class BPDiagramController extends BpBaseEditor {
                         }
                     });
                 } else {
-                this.selectedElementId = element.id;
+                    this.selectedElementId = element.id;
                     const subArtifact = this.artifact.subArtifactCollection.get(element.id);
                     this.artifactManager.selection.setSubArtifact(subArtifact);
                 }
             } else {
+                this.selectedElementId = undefined;
                 this.artifactManager.selection.setArtifact(this.artifact);
             }
         });

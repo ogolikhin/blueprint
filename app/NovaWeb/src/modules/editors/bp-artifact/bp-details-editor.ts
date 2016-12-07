@@ -27,7 +27,6 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
                 validationService: IValidationService) {
         super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
-        this.activeTab = 0;
         this.validationService = validationService;
     }
 
@@ -40,16 +39,16 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public isRichTextPropertyAvailable: boolean;
     public isSpecificPropertyAvailable: boolean;
     public specificPropertiesHeading: string;
-    public activeTab: number;
 
     private validationService: IValidationService;
 
-    public $onDestroy() {
-        delete this.systemFields;
-        delete this.customFields;
-        delete this.specificFields;
-        delete this.richTextFields;
-        super.$onDestroy();
+    protected destroy(): void {
+        this.systemFields = undefined;
+        this.customFields = undefined;
+        this.specificFields = undefined;
+        this.richTextFields = undefined;
+
+        super.destroy();
     }
 
     public clearFields() {

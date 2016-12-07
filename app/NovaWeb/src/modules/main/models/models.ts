@@ -71,6 +71,11 @@ export interface IPublishResultSet {
     projects?: IItem[];
 }
 
+export interface ICopyResultSet {
+    artifact?: IArtifact;
+    copiedArtifactsCount?: number;
+}
+
 export interface IArtifact extends IItem {
     projectId?: number;
     orderIndex?: number;
@@ -93,13 +98,14 @@ export interface IArtifact extends IItem {
 
     itemTypeIconId?: number;
     itemTypeName?: string;
-
+    lastSaveInvalid?: boolean;
     //for client use
     children?: IArtifact[];
     loaded?: boolean;
     // for artifact picker use
     artifactPath?: string[];
     idPath?: number[];
+    parentPredefinedType?: ItemTypePredefined;
 }
 export interface IOption {
     id: number;

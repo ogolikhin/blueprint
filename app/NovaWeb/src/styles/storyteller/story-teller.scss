@@ -8,7 +8,6 @@
 @import "partials/tabs";
 @import "partials/button";
 @import "partials/dialog";*/
-
 .toolbar-clearfix {
     background-color: #f4f6fa;
 }
@@ -302,17 +301,11 @@
 }
 
 .page-heading {
-    .process-header {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-
-        .process-breadcrumbs {
-            padding: 0px;
-            font-size: 12px;
-            border: none;
-            height: auto;
-        }
+    .process-breadcrumbs {
+        border: 0;
+        font-size: 12px;
+        height: auto;
+        padding: 0;
     }
 }
 
@@ -1021,13 +1014,13 @@ body.mce-content-body a, body.mce-content-body a:hover {
     }
     .btn-icon__add {
         position: absolute;
-        bottom: 2px;
+        bottom: 5px;
+        padding: 3px 5px;
         right: 0;
-        &:before {
-            font-size: 2.0rem;
-        }
-        &:hover {
-            color: $brand-secondary;
+        & [class*="fonticon2"]:before {
+            font-size: 1.6rem;
+            position: relative;
+            top: 1px;
         }
     }
 
@@ -1052,7 +1045,7 @@ bp-select.persona-reference__dropdown .dropdown{
     .dropdown-toggle {
         .caret {
             top: 40%;
-            right: 22px;
+            right: 36px;
             border-top: 6px dashed;
             border-right: 6px solid transparent;
             border-left: 6px solid transparent;
@@ -1066,13 +1059,13 @@ bp-select.persona-reference__dropdown .dropdown{
     }
 }
 
-.bp-select__selected-label {		
-    font-size: $font-size-big;          		
-    @include text-ellipsis-flex-width(95%);		
-    display: inline-block;		
-}		
-		
-.bp-select__item-label{		
-    @include text-ellipsis-flex-width(100%);		
-    display: inline-block;		
+.bp-select__selected-label {
+    font-size: $font-size-big;
+    @include text-ellipsis-flex-width(95%);
+    display: inline-block;
+}
+
+.bp-select__item-label {
+    @include text-ellipsis-flex-width(100%);
+    display: inline-block;
 }

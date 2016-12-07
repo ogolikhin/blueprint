@@ -3,23 +3,26 @@ using SearchService.Models;
 using ServiceLibrary.Repositories;
 using System.Data;
 using Dapper;
+using SearchService.Helpers;
+using System.Data.SqlClient;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 
 namespace SearchService.Repositories
 {
     public class SqlProjectSearchRepository : IProjectSearchRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
+        private readonly ISearchConfigurationProvider _searchConfigurationProvider;
 
-        //private ISearchConfigurationProvider _searchConfigurationProvider;
-
-        public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString))
+        public SqlProjectSearchRepository() : this(new SqlConnectionWrapper(WebApiConfig.BlueprintConnectionString), new SearchConfiguration())
         {
         }
 
-        internal SqlProjectSearchRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlProjectSearchRepository(ISqlConnectionWrapper connectionWrapper, ISearchConfiguration configuration)
         {
             ConnectionWrapper = connectionWrapper;
-            //_searchConfigurationProvider = new SearchConfigurationProvider(configuration);
+            _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
         }
 
         /// <summary>
@@ -42,11 +45,26 @@ namespace SearchService.Repositories
             param.Add("@resultCount", resultCount);
             param.Add("@separatorString", separatorString);
 
-            var items = await ConnectionWrapper.QueryAsync<SearchResult>("GetProjectsByName", param, commandType: CommandType.StoredProcedure);
-            return new ProjectSearchResultSet
+            try
             {
-                Items = items,
-            };
+                var items = await ConnectionWrapper.QueryAsync<ProjectSearchResult>("GetProjectsByName",
+                param,
+                commandType: CommandType.StoredProcedure,
+                commandTimeout: _searchConfigurationProvider.SearchTimeout);
+                return new ProjectSearchResultSet
+                {
+                    Items = items
+                };
+            }
+            catch (SqlException sqlException)
+            {
+                //Sql timeout error
+                if (sqlException.Number == ErrorCodes.SqlTimeoutNumber)
+                {
+                    throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+                throw;
+            }
         }
     }
 }

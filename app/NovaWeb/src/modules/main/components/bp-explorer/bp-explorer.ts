@@ -6,6 +6,11 @@ import {ISelectionManager} from "../../../managers/selection-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
+import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -19,7 +24,6 @@ export interface IProjectExplorerController {
     projects: TreeModels.StatefulArtifactNodeVM[];
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
-    onError: (reason: any) => any;
     onGridReset: (isExpanding: boolean) => void;
 }
 
@@ -34,7 +38,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "artifactManager",
         "navigationService",
         "selectionManager",
-        "messageService"
+        "messageService",
+        "projectService",
+        "loadingOverlayService",
+        "analytics",
+        "$state",
+        "localization"
     ];
 
     constructor(private $q: ng.IQService,
@@ -42,7 +51,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private projectService: IProjectService,
+                private loadingOverlayService: ILoadingOverlayService,
+                private analytics: IAnalyticsProvider,
+                private $state: ng.ui.IStateService,
+                public localization: ILocalizationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
@@ -51,7 +65,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.subscribers = [
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.explorerArtifactObservable.filter(artifact => !!artifact).subscribeOnNext(this.setSelectedNode, this)
+            this.selectionManager.explorerArtifactObservable.subscribeOnNext(this.setSelectedNode, this)
         ];
     }
 
@@ -66,10 +80,31 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
-    private setSelectedNode(artifactId: number) {
-        // If this method is called after onLoadProject, but before onGridReset, the artifact will be
-        // selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
-        // artifact, to work as expected.
+    public navigateToUnpublishedChanges() {
+        if (this.$state.current.name === "main.unpublished") {
+            this.navigationService.reloadCurrentState();
+        } else {
+            this.$state.go("main.unpublished");
+        }
+    }
+
+    /**
+     * If this method is called after onLoadProject, but before onGridReset, the artifact will be
+     * selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
+     * artifact, to work as expected.
+     * If selection becomes null, all nodes get deselected.
+     * @param  artifact - stateful artifact, can be null if nothing is selected
+     */
+    private setSelectedNode(artifact: IStatefulArtifact) {
+        if (!artifact) {
+            if (this.treeApi) {
+                this.selected = undefined;
+                this.treeApi.deselectAll();
+            }
+            return;
+        }
+
+        const artifactId = artifact.id;
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
         } else if (this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId)) {
@@ -107,6 +142,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
         this.projects = projects.slice(0); // create a copy
     }
 
+    public isProjectTreeVisible(): boolean {
+        return this.projects && this.projects.length > 0;
+    }
+
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
 
@@ -120,7 +159,20 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (this.pendingSelectedArtifactId) {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
-            } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+            // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
+            } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
+                this.selectionManager.getArtifact() &&
+                // selectedArtifactId = undefined only if there is no projects open.
+                // if there are some artifact pre selected in the tree before opening project
+                // we need to check if this artifact is not from this.projects[0] (last opened project)
+                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
+                if (!this.selectionManager.getArtifact().artifactState.historical) {
+                    navigateToId = this.selectionManager.getArtifact().id;
+                } else {
+                    // for historical artifact we do not need to change selection in main area US3489
+                    navigateToId = selectedArtifactId;
+                }
+            } else if (this.$state.current.name !== "main.unpublished" && (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length)) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
                 navigateToId = selectedArtifactId;
@@ -161,24 +213,28 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public columns: IColumn[] = [{
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,
-        innerRenderer: (params: IColumnRendererParams) => {
+        cellRenderer: (params: IColumnRendererParams) => {
             const vm = params.data as TreeModels.ITreeNodeVM<any>;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<span class="ag-group-value-wrapper">${icon}<span>${label}</span></span>`;
+            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
+                   `${icon}<span>${label}</span></a>`;
         }
     }];
 
-    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
-        if (isSelected) {
-            this.selected = vm;
-            this.navigationService.navigateTo({id: vm.model.id});
-        }
-    };
+    private resettingSelection: boolean;
 
-    public onError = (reason: any): void => {
-        if (reason) {
-            this.messageService.addError(reason["message"] || "Artifact_NotFound");
-        }
-    }
+    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
+         if (!this.resettingSelection && isSelected) {
+             //Following has to be a const to restore current selection in case of faling navigation
+             const prevSelected = this.selected;
+             this.selected = vm;
+             this.navigationService.navigateTo({id: vm.model.id})
+                .catch((err) => {
+                    this.resettingSelection = true;
+                    this.treeApi.setSelected(prevSelected);
+                });
+         }
+         this.resettingSelection = false;
+    };
 }

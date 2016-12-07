@@ -13,16 +13,19 @@ angular.module("app.shared", [
 export {
     IDialogSettings,
     IDialogService,
-    IDialogData,
-    ITabSliderControllerApi,
     BaseDialogController,
     IBPAction,
+    IBPDropdownAction,
+    IBPButtonOrDropdownAction,
     BPButtonAction,
     BPDropdownItemAction,
     BPDropdownAction,
     BPToggleItemAction,
     BPToggleAction,
-    BPButtonGroupAction
+    BPButtonGroupAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
+    BPMenuAction
 } from "./widgets"
 
 export {

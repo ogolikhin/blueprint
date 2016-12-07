@@ -43,6 +43,7 @@ export interface IBpAccordionPanelController {
     accordionGroup: IBpAccordionController;
 
     isOpen: boolean;
+    isActive: boolean;
     isActiveObservable: Rx.Observable<boolean>;
     isPinned: boolean;
     isVisible: boolean;
@@ -114,12 +115,12 @@ export class BpAccordionCtrl implements IBpAccordionController {
         } else {
             this.recalculateLayout();
         }
-    }
+    };
 
     public showPanel = (panel: IBpAccordionPanelController) => {
         panel.isVisible = true;
         this.recalculateLayout();
-    }
+    };
 
     private openNextAvailablePanel(currentPanel: IBpAccordionPanelController): void {
         let curLoc = this.panels.indexOf(currentPanel);
@@ -149,7 +150,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
             .filter((p: IBpAccordionPanelController) => p.isPinned);
         this.openPanels.push(panel);
         this.recalculateLayout();
-    }
+    };
 
     public cleanUpOpenPanels = () => {
         const numPinnedPanels = this.openPanels.filter((p: IBpAccordionPanelController) => p.isPinned && p.isVisible).length;
@@ -200,8 +201,9 @@ export class BpAccordionCtrl implements IBpAccordionController {
     public $postLink = () => {
         this.$timeout(() => {
             // open the first panel on load
-            if (this.panels && this.panels.length) {
-                this.panels[0].openPanel();
+            const panelToOpen = _.find(this.panels, (panel) => panel.isVisible);
+            if (panelToOpen) {
+                panelToOpen.openPanel();
             }
 
             // we need to redistribute the height after all the panels have been added

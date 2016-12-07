@@ -161,6 +161,12 @@ pagecontent, bp-properties-panel {
                     flex-shrink: 0;
                     width: 3.5px;
                 }
+                &.btn-secondary {
+                    color: $brand-secondary;
+                    &:hover {
+                        color: $white;
+                    }
+                }
             }
 
             input,
@@ -227,8 +233,14 @@ pagecontent, bp-properties-panel {
             }
 
             .ui-select-single {
+                min-height: $property-min-height;
+                min-width: $property-input-width;
+
                 .ui-select-search {
+                    left: 0;
                     min-width: $property-input-width;
+                    position: absolute;
+                    top: 0;
                 }
 
                 &.no-custom {
@@ -325,7 +337,7 @@ pagecontent, bp-properties-panel {
                         height: $property-choice-height;
 
                         .ui-select-choices-row-inner {
-                            color: $gray-darker;
+                            color: $gray-darkest;
                             cursor: pointer;
                             text-decoration: none;
 
@@ -486,7 +498,7 @@ pagecontent, bp-properties-panel {
                 }
 
                 .ui-select-match-item-chosen {
-                    color: $gray-darker;
+                    color: $gray-darkest;
                     font-size: 1.2rem;
                     line-height: 18px;
                     overflow: hidden;
@@ -524,7 +536,7 @@ pagecontent, bp-properties-panel {
                         height: $property-choice-height;
 
                         .ui-select-choices-row-inner {
-                            color: $gray-darker;
+                            color: $gray-darkest;
                             cursor: pointer;
                             text-decoration: none;
 
@@ -551,10 +563,6 @@ pagecontent, bp-properties-panel {
                         .ui-select-choices-row-inner:hover .ui-select-choice-item {
                             background: $brand-secondary;
                             color: $white;
-
-                            &::before {
-                                content: '\2713';
-                            }
                         }
                     }
 
@@ -590,6 +598,7 @@ pagecontent, bp-properties-panel {
                 color: $gray-dark;
                 font-size: $font-size-normal;
                 font-weight: 400;
+                background: $gray-lightest;
 
                 &.simple,
                 &.multiple {
@@ -901,11 +910,11 @@ pagecontent, bp-properties-panel {
 
             .mce-toolbar-grp {
                 border-color: $gray-lighter;
-                border-width: 1px 1px 0 !important;
+                border-width: 1px !important;
                 min-width: 350px;
                 padding: 0;
                 position: absolute;
-                top: -28px;
+                top: -29px;
 
                 .mce-flow-layout-item {
                     margin: 0;
@@ -918,7 +927,7 @@ pagecontent, bp-properties-panel {
             }
 
             .mce-edit-area {
-                border-color: $gray-lighter;
+                border-color: transparent;
                 border-width: 1px !important;
             }
 
@@ -1111,6 +1120,9 @@ pagecontent, bp-properties-panel {
             .icon {
                 cursor: pointer;
                 margin-right: 5px;
+                &:hover {
+                    color: $brand-secondary;
+                }
                 &.disabled {
                     opacity: $default-disabled-opacity;
                     cursor: not-allowed;
@@ -1309,7 +1321,7 @@ pagecontent, bp-properties-panel {
 .tab-pane {
     border: solid 1px $gray-lighter;
     border-radius: $border-radius-amount;
-    padding: 18px 20px;
+    padding: 18px 15px;
 
     .rich-text-wrapper {
         min-height: $richtext-min-height;
@@ -1356,20 +1368,43 @@ bp-properties-panel {
     }
 
     .tab-pane {
-        padding: 8px 15px;
+        padding: 8px 10px 12px;
     }
 }
 
 pagecontent {
     .empty-collection {
-            background: $gray-lighter;
-            color: $gray-dark;
-            font-size: $font-size-big;
-            font-weight: 600;
-            line-height: 1em;
-            min-height: 36px;
-            padding: 11px 14px;
-            }
+        padding: 0 0 11px 0;
+    }
+
+    .empty-collection__table {
+        border-left: 1px solid $gray-lighter;
+        border-right: 1px solid $gray-lighter;
+        border-bottom: 1px solid $gray-lighter;
+        width: 100%;
+    }
+
+    .empty-collection__table-th {
+        background: $gray-dark;
+        color: $white;
+        font-size: $font-size-normal;
+        padding: 8px 25px;
+
+        &:first-child {
+            width: 9%;
+        }
+
+        &:last-child {
+            text-align: right;
+            padding-right: 9px;
+        }
+    }
+
+    .empty-collection__table-td {
+        padding: 8px 25px;
+        font-size: $font-size-normal;
+        color: $gray-light;
+    }
 }
 
 .uib-datepicker-popup {

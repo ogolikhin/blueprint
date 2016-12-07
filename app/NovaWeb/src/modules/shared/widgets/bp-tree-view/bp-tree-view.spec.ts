@@ -1,12 +1,15 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "lodash";
 import "rx/dist/rx.lite";
 import * as agGrid from "ag-grid/main";
 import {BPTreeViewComponent, BPTreeViewController, ITreeNode, IColumn} from "./bp-tree-view";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {WindowManager} from "../../../main/services/window-manager";
+import {IWindowManager, WindowManager} from "../../../main/services/window-manager";
 import {WindowResize} from "../../../core/services/window-resize";
+import {IMessageService, MessageService} from "./../../../core/messages/message.svc";
+import {MessageServiceMock} from "./../../../core/messages/message.mock";
 
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
@@ -17,6 +20,7 @@ describe("BPTreeViewComponent", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
@@ -80,6 +84,7 @@ describe("BPTreeViewComponent", () => {
             rowHeight: controller.rowHeight,
             showToolPanel: false,
             headerHeight: controller.headerHeight,
+            suppressMovableColumns: true,
             getBusinessKeyForNode: controller.getBusinessKeyForNode,
             getNodeChildDetails: controller.getNodeChildDetails,
             onRowGroupOpened: controller.onRowGroupOpened,
@@ -99,11 +104,16 @@ describe("BPTreeViewController", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
-    beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $timeout, windowManager) => {
+    beforeEach(inject(($q: ng.IQService,
+                       $rootScope: ng.IRootScopeService,
+                       $timeout: ng.ITimeoutService,
+                       windowManager: IWindowManager,
+                       messageService: IMessageService) => {
         const element = angular.element(`<bp-tree-view />`);
-        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope), $timeout, windowManager);
+        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope), $timeout, windowManager, messageService);
         controller.options = {
             api: jasmine.createSpyObj("api", [
                 "setColumnDefs",
@@ -183,16 +193,25 @@ describe("BPTreeViewController", () => {
             // Arrange
             const comparator = {} as ITreeNode;
             const selected = true;
-            const clearSelection = false;
+            const clearSelection = true;
             const rows = [{data: comparator} as agGrid.RowNode, {data: {} as ITreeNode} as agGrid.RowNode];
             rows.forEach(row => row.setSelected = jasmine.createSpy("setSelected"));
-            (controller.options.api.forEachNode as jasmine.Spy).and.callFake((callback: (node: agGrid.RowNode) => void) => rows.forEach(callback));
+            (controller.options.api.getModel as jasmine.Spy).and.returnValue({
+                getRow: i => rows[i],
+                getRowCount: () => rows.length
+            });
+            const columns = [{}];
+            controller.options.columnApi.getAllColumns = jasmine.createSpy("getAllColumns").and.returnValue(columns);
+            controller.options.api.deselectAll = jasmine.createSpy("deselectAll");
+            controller.options.api.setFocusedCell = jasmine.createSpy("setFocusedCell");
 
             // Act
             controller.api.setSelected(comparator, selected, clearSelection);
 
             // Assert
-            expect(rows[0].setSelected).toHaveBeenCalledWith(true, false);
+            expect(controller.options.api.deselectAll).toHaveBeenCalled();
+            expect(controller.options.api.setFocusedCell).toHaveBeenCalledWith(0, columns[0]);
+            expect(rows[0].setSelected).toHaveBeenCalledWith(true);
             expect(rows[1].setSelected).not.toHaveBeenCalled();
         });
 
@@ -210,12 +229,16 @@ describe("BPTreeViewController", () => {
 
         it("deselectAll calls ag-grid deselectAll", () => {
             // Arrange
+            const columns = [{}];
+            controller.options.columnApi.getAllColumns = jasmine.createSpy("getAllColumns").and.returnValue(columns);
             controller.options.api.deselectAll = jasmine.createSpy("deselectAll");
+            controller.options.api.setFocusedCell = jasmine.createSpy("setFocusedCell");
 
             // Act
             controller.api.deselectAll();
 
             // Assert
+            expect(controller.options.api.setFocusedCell).toHaveBeenCalledWith(-1, columns[0]);
             expect(controller.options.api.deselectAll).toHaveBeenCalled();
         });
 
@@ -247,7 +270,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("single");
             expect(controller.options.rowDeselection).toEqual(false);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toBeUndefined();
+            expect((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["checkbox"]).toBeUndefined();
         });
 
         it("When selection mode is multiple, sets rowSelection, rowDeselection and checkbox correctly", () => {
@@ -262,7 +285,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("multiple");
             expect(controller.options.rowDeselection).toEqual(true);
-            expect(controller.options.columnDefs[0].cellRendererParams["checkbox"]).toBeUndefined();
+            expect((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["checkbox"]).toBeUndefined();
         });
 
         it("When selection mode is checkbox, sets rowSelection, rowDeselection and checkbox correctly", () => {
@@ -277,7 +300,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(controller.options.rowSelection).toEqual("multiple");
             expect(controller.options.rowDeselection).toEqual(true);
-            expect(angular.isFunction(controller.options.columnDefs[0].cellRendererParams["checkbox"])).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["checkbox"])).toEqual(true);
         });
 
         it("When columns change, sets column defs correctly", () => {
@@ -288,7 +311,7 @@ describe("BPTreeViewController", () => {
                 field: "field",
                 isGroup: true,
                 cellClass: () => [],
-                innerRenderer: () => ""
+                cellRenderer: () => "test"
             }] as IColumn[];
 
             // Act
@@ -303,16 +326,16 @@ describe("BPTreeViewController", () => {
                     padding: 20
                 })
             })]);
-            expect(angular.isFunction(controller.options.columnDefs[0].cellClass)).toEqual(true);
-            expect(angular.isFunction(controller.options.columnDefs[0].cellRendererParams.innerRenderer)).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellClass)).toEqual(true);
+            expect(angular.isFunction((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["innerRenderer"])).toEqual(true);
+            expect((controller.options.columnDefs[0] as agGrid.ColDef).cellRendererParams["innerRenderer"]())
+                .toEqual(`<span class="ag-group-value-wrapper">test</span>`);
         });
 
         it("When root node is visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             controller.rowData = [{} as ITreeNode];
 
@@ -334,9 +357,7 @@ describe("BPTreeViewController", () => {
         it("When root node loads asynchronously, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             const children = [{key: "child"}] as ITreeNode[];
             controller.rowData = [{
@@ -366,15 +387,14 @@ describe("BPTreeViewController", () => {
             $rootScope.$digest(); // Resolves promises
         }));
 
-        it("When root node asynchronous load fails, calls onError correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("When root node asynchronous load fails, calls addError correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService,
+                                                                                                         $q: ng.IQService,
+                                                                                                         messageService: IMessageService) => {
             // Arrange
-            controller.onError = jasmine.createSpy("onError");
+            messageService.addError = jasmine.createSpy("addError");
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
-            const reason = "reason";
             controller.rowData = [{
                 key: "root",
                 group: true,
@@ -382,7 +402,7 @@ describe("BPTreeViewController", () => {
                 expanded: true,
                 selectable: true,
                 loadChildrenAsync() {
-                    return $q.reject(reason);
+                    return $q.reject("error");
                 }
             } as ITreeNode];
 
@@ -392,7 +412,7 @@ describe("BPTreeViewController", () => {
                 // Assert
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
-                expect(controller.onError).toHaveBeenCalledWith({reason: reason});
+                expect(messageService.addError).toHaveBeenCalledWith("error");
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
@@ -403,9 +423,7 @@ describe("BPTreeViewController", () => {
         it("When root node not visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 1;
-                }
+                getRowCount: () => 1
             });
             controller.rowData = [{
                 key: "",
@@ -436,9 +454,7 @@ describe("BPTreeViewController", () => {
         it("When root node is undefined, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return 0;
-                }
+                getRowCount: () => 0
             });
 
             // Act
@@ -466,9 +482,7 @@ describe("BPTreeViewController", () => {
             (controller.options.api.getSelectedRows as jasmine.Spy).and.returnValue(rows);
             (controller.options.api.forEachNode as jasmine.Spy).and.callFake(callback => nodes.forEach(callback));
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
-                getRowCount() {
-                    return rows.length;
-                }
+                getRowCount: () => rows.length
             });
 
             // Act
@@ -559,11 +573,13 @@ describe("BPTreeViewController", () => {
             expect(controller.resetGridAsync).toHaveBeenCalledWith(true);
         }));
 
-        it("onRowGroupOpened, when asynchronous load fails, calls onError correctly", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("onRowGroupOpened, when asynchronous load fails, calls addError correctly", inject(($rootScope: ng.IRootScopeService,
+                                                                                               $q: ng.IQService,
+                                                                                               messageService: IMessageService) => {
             // Arrange
-            controller.onError = jasmine.createSpy("onError");
+            messageService.addError = jasmine.createSpy("addError");
             const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
-            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("reason"));
+            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("error"));
             vm.group = true;
             vm.expanded = true;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
@@ -574,7 +590,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(vm.loadChildrenAsync).toHaveBeenCalled();
             $rootScope.$digest(); // Resolves promises
-            expect(controller.onError).toHaveBeenCalledWith({reason: "reason"});
+            expect(messageService.addError).toHaveBeenCalledWith("error");
         }));
 
         it("onRowGroupOpened, when not group, does not set expanded", () => {

@@ -1,4 +1,4 @@
-import {Models, SearchServiceModels} from "../../models";
+import {Models, SearchServiceModels, AdminStoreModels} from "../../models";
 
 export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult> implements Models.IViewModel<T> {
     public abstract readonly id: string;
@@ -7,20 +7,21 @@ export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult
     constructor(
         public model: T,
         private onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean,
-        public readonly isSelectable: boolean = true) {
+        public readonly selectable: boolean = true,
+        public project?: AdminStoreModels.IInstanceItem) {
     }
 
     public selected(value?: boolean): boolean {
-        return this.isSelectable && this.onSelect(this, value);
+        return this.selectable && this.onSelect(this, value);
     }
 }
 
-export class ProjectSearchResultVM extends SearchResultVM<SearchServiceModels.ISearchResult> {
+export class ProjectSearchResultVM extends SearchResultVM<SearchServiceModels.IProjectSearchResult> {
     public readonly id = "";
     public readonly iconClass = "icon-project";
 
     constructor(
-        model: SearchServiceModels.ISearchResult,
+        model: SearchServiceModels.IProjectSearchResult,
         onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean) {
         super(model, onSelect);
     }
@@ -34,9 +35,10 @@ export class ArtifactSearchResultVM extends SearchResultVM<SearchServiceModels.I
         model: SearchServiceModels.IItemNameSearchResult,
         onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean,
         isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
-        selectableItemTypes?: Models.ItemTypePredefined[]) {
+        selectableItemTypes?: Models.ItemTypePredefined[],
+        project?: AdminStoreModels.IInstanceItem) {
         super(model, onSelect, (!isItemSelectable || isItemSelectable({item: model})) &&
-            (!selectableItemTypes || selectableItemTypes.indexOf(model.predefinedType) !== -1));
+            (!selectableItemTypes || selectableItemTypes.indexOf(model.predefinedType) !== -1), project);
         this.id = `${this.model.prefix}${this.model.id}`;
         this.iconClass = `icon-${_.kebabCase(Models.ItemTypePredefined[this.model.predefinedType])}`;
     }

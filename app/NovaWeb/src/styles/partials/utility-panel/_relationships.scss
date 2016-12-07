@@ -21,11 +21,48 @@ bp-relationships-panel {
         padding: 5px;
         background-color: $gray-lightest;
 
-        i {
+        .dropdown {
+            .btn-icon--disabled:hover{
+                cursor: not-allowed;
+                color: $gray-lightest;
+            }
+        }
+
+        .btn-icon {
+            min-width: 5px;
+            border: none;
+            color:$gray-light;
+            background: transparent;
             display: inline-block;
+            padding: 0 5px;
 
             &::before {
                 font-size: $font-size-normal;
+            }
+
+            &:hover {
+                text-decoration: none;
+                color: $brand-secondary;
+            }
+
+            &:active {
+                background: transparent;
+                box-shadow: none;
+            }
+
+            &:focus {
+                outline:0;
+            }
+        }
+
+        .btn-icon--disabled {
+            cursor: not-allowed;
+            color: $gray-lightest;
+
+            &:hover{
+                cursor: not-allowed;
+                color: $gray-lightest;
+                background: transparent;
             }
         }
 
@@ -36,11 +73,15 @@ bp-relationships-panel {
         > div:last-child {
             float: right;
             padding-top: 5px;
-            i {
-                margin-left: 10px;
-
+            padding-bottom: 3px;
+            button {
                 &.fonticon-delete-filled {
-                    margin-left: 6px;
+                    padding-left: 3px;
+                    padding-right: 0;
+
+                    &::before {
+                        margin-left: 0;
+                    }
                 }
             }
         }
@@ -202,7 +243,6 @@ bp-relationships-panel {
                 }
 
                 & a {
-                    text-decoration: none;
                     cursor: pointer;
                 }
 

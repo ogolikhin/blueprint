@@ -29,6 +29,7 @@ export interface IStatefulItem extends Models.IArtifact {
     getEffectiveVersion(): number;
     getProperyObservable(): Rx.Observable<IItemChangeSet>;
     validateItem(propertyDescriptors: IPropertyDescriptor[]): boolean;
+    isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean;
 }
 
 export interface IIStatefulItem extends IStatefulItem {
@@ -114,7 +115,7 @@ export abstract class StatefulItem implements IIStatefulItem {
     }
 
     public set name(value: string) {
-        this.set("name", value);
+        this.set("name", value || "");
     }
 
     public get description(): string {
@@ -191,6 +192,10 @@ export abstract class StatefulItem implements IIStatefulItem {
 
     public get readOnlyReuseSettings(): Enums.ReuseSettings {
         return this.artifact.readOnlyReuseSettings;
+    }
+
+    public isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean {
+        return (this.artifact.readOnlyReuseSettings & reuseSetting) === reuseSetting;
     }
 
     public getServices(): IStatefulArtifactServices {
@@ -318,8 +323,22 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
+
     protected initialize(artifact: Models.IArtifact): void {
         this.artifact = artifact;
+        if (this.artifact.createdOn) {
+            this.artifact.createdOn = this.services.localizationService.current.toDate(this.artifact.createdOn);
+        }
+        if (this.artifact.lastEditedOn) {
+            this.artifact.lastEditedOn = this.services.localizationService.current.toDate(this.artifact.lastEditedOn);
+        }
+        if (this.artifact.lastSavedOn) {
+            this.artifact.lastSavedOn = this.services.localizationService.current.toDate(this.artifact.lastSavedOn);
+        }
+        if (this.artifact.lockedDateTime) {
+            this.artifact.lockedDateTime = this.services.localizationService.current.toDate(this.artifact.lockedDateTime);
+        }
+
         this.customProperties.initialize(artifact.customPropertyValues);
         this.specialProperties.initialize(artifact.specificPropertyValues);
     }
@@ -422,7 +441,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                     if (!_.isBoolean(propertyType.isValidated)) {
                         propertyType.isValidated = true;
                     }
-                    
+
                     break;
                 case Enums.PropertyLookupEnum.Special:
                     propertyValue = this.specialProperties.get(propertyType.modelPropertyName as number);
@@ -495,7 +514,9 @@ export abstract class StatefulItem implements IIStatefulItem {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    value = propValue ? propValue.validValues : null;
+                    const allowsCustomValues = !propertyType.isValidated && propertyType.lookup === Enums.PropertyLookupEnum.Custom;
+                    value = propValue && propValue.customValue ? propValue :
+                            propValue ? propValue.validValues : null;
                     if (propertyType.isMultipleAllowed) {
                         if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired,
                                 value, value, propertyType.isValidated)) {
@@ -503,7 +524,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                         }
                     } else {
                         if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired,
-                                value, value, propertyType.isValidated)) {
+                                value, value, propertyType.isValidated, allowsCustomValues)) {
                             isValid = false;
                         }
                     }

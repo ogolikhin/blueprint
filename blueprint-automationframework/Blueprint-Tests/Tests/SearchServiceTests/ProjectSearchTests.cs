@@ -53,7 +53,7 @@ namespace SearchServiceTests
         public void SearchProject_UserAdminAccess_ReturnsCorrectProjects()
         {
             // Setup:
-            List<SearchItem> projects = null;
+            List<ProjectSearchResult> projects = null;
             string searchString = "es";//project name is 'test' - search using 'es' substring
 
             // Execute:
@@ -74,7 +74,7 @@ namespace SearchServiceTests
         public void SearchProject_UserHasNoProjectAccess_ReturnsEmptyList()
         {
             // Setup:
-            List<SearchItem> projects = null;
+            List<ProjectSearchResult> projects = null;
             Helper.AdminStore.AddSession(_userAuthorLicense);
             string searchString = "es";//project name is 'test' - search using 'es' substring
 
@@ -94,7 +94,7 @@ namespace SearchServiceTests
         public void SearchProject_UserHasAuthorAccess_ReturnsCorrectProjects()
         {
             // Setup:
-            List<SearchItem> projects = null;
+            List<ProjectSearchResult> projects = null;
             _group.AssignRoleToProjectOrArtifact(_project, _viewerRole);
             Helper.AdminStore.AddSession(_userAuthorLicense);
             string searchString = "es";//project name is 'test' - search using 'es' substring
@@ -117,7 +117,7 @@ namespace SearchServiceTests
         public void SearchProjectByFullName_UserHasAuthorAccess_ReturnsCorrectProjects()
         {
             // Setup:
-            List<SearchItem> projects = null;
+            List<ProjectSearchResult> projects = null;
             _group.AssignRoleToProjectOrArtifact(_project, _viewerRole);
             Helper.AdminStore.AddSession(_userAuthorLicense);
 
@@ -134,13 +134,12 @@ namespace SearchServiceTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/Hq3GimE1 project search returns 0 instead of valid ProjectId
         [TestRail(185205)]
         [Description("Search project by full name, user has admin privilege, check that found project has expected id.")]
         public void SearchProjectByFullName_UserAdminAccess_ReturnsCorrectProjectId()
         {
             // Setup:
-            List<SearchItem> projects = null;
+            List<ProjectSearchResult> projects = null;
             
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -152,7 +151,7 @@ namespace SearchServiceTests
             Assert.IsTrue(projects.Count >= 1, "Search result should have at least 1 project, but it doesn't.");
             Assert.AreEqual(_project.Name, projects[0].Name, "Project should have expected name, but it doesn't");
             Assert.AreEqual(projectPath, projects[0].Path, "Path of the returned project should be 'Blueprint'");
-            Assert.AreEqual(_project.Id, projects[0].ProjectId, "Project should have expected id, but it doesn't");
+            Assert.AreEqual(_project.Id, projects[0].ItemId, "Project should have expected id, but it doesn't");
         }
     }
 }

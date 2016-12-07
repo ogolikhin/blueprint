@@ -68,7 +68,7 @@ namespace SearchServiceTests
             }
 
             var searchCriteria = new ItemNameSearchCriteria(partialName, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -92,7 +92,7 @@ namespace SearchServiceTests
             Assert.AreNotEqual(artifact.Name, artifact2.Name, "Random artifacts should have different names.");
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -116,7 +116,7 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             string nonExistingArtifactName = RandomGenerator.RandomLowerCase(50);
             var searchCriteria = new ItemNameSearchCriteria(nonExistingArtifactName, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -135,12 +135,10 @@ namespace SearchServiceTests
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_firstProject, _authorUser, BaseArtifactType.Process);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, _firstProject.Id);
-            ItemSearchResult results = null;
-
-            string separatorString = " > ";
+            ItemNameSearchResultSet results = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria, separatorString: separatorString); },
+            Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_authorUser, searchCriteria); },
                 "SearchItems should throw no errors.");
 
             // Verify:
@@ -161,7 +159,7 @@ namespace SearchServiceTests
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -184,7 +182,7 @@ namespace SearchServiceTests
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_adminUser, searchCriteria); },
@@ -210,7 +208,7 @@ namespace SearchServiceTests
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -247,11 +245,11 @@ namespace SearchServiceTests
             var nameSearchCriteria       = new ItemNameSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
             var itemTypeIdSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds, (int)ItemTypePredefined.Actor);  // Search by name and TypeId across all projects.
 
-            ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
+            ItemNameSearchResultSet nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
                 "Search by name across all projects should return all artifacts with the artifactName name.");
 
-            ItemSearchResult nameAndTypeIdSearchResult = null;
+            ItemNameSearchResultSet nameAndTypeIdSearchResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -290,7 +288,7 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -317,22 +315,20 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
-            string separatorString = " > ";
-            string expectedPath = string.Concat(_firstProject.Name, separatorString, parentFolder.Name, separatorString,
-                parentArtifact.Name);
+            List<string> expectedPath = new List<string> { _firstProject.Name, parentFolder.Name, parentArtifact.Name };
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria,
-                separatorString: separatorString); }, "SearchItems should throw no errors.");
+                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
+                "SearchItems should throw no errors.");
 
             // Verify:
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
-            StringAssert.AreEqualIgnoringCase(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
+            Assert.AreEqual(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
         }
 
         [TestCase]
@@ -350,7 +346,7 @@ namespace SearchServiceTests
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -375,7 +371,7 @@ namespace SearchServiceTests
             
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds);
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
             int pageSize = 3;
             
             // Execute:
@@ -398,7 +394,7 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = false;
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -409,7 +405,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
-            Assert.IsNull(results.Items[0].Path, "Path should be null when IncludeArtifactPath is false");
+            Assert.AreEqual(0, results.Items[0].Path.Count, "Path should be empty when IncludeArtifactPath is false");
         }
 
         [TestCase]
@@ -439,11 +435,11 @@ namespace SearchServiceTests
 
             var nameSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds); // Search by name across all projects.
 
-            ItemSearchResult nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
+            ItemNameSearchResultSet nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
                 "Search by name across all projects should return all artifacts with the artifactName name.");
 
-            ItemSearchResult nameAndTypeIdSearchResult = null;
+            ItemNameSearchResultSet nameAndTypeIdSearchResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -480,7 +476,7 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             // Execute:
             Assert.DoesNotThrow(() => { results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria); },
@@ -505,7 +501,7 @@ namespace SearchServiceTests
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
-            ItemSearchResult results = null;
+            ItemNameSearchResultSet results = null;
 
             artifact.Lock(_adminUser);
 
@@ -522,11 +518,11 @@ namespace SearchServiceTests
         }
 
         /// <summary>
-        /// Returns true if SearchItem contains information about Artifact and false otherwise
+        /// Returns true if ItemNameSearchResult contains information about Artifact and false otherwise
         /// </summary>
         /// <param name="artifact">artifact to compare</param>
         /// <param name="searchItem">searchItem to compare</param>
-        private static bool DoesSearchItemCorrespondToArtifact(IArtifact artifact, SearchItem searchItem)
+        private static bool DoesSearchItemCorrespondToArtifact(IArtifact artifact, ItemNameSearchResult searchItem)
         {
             return ((searchItem.Id == artifact.Id) &&
             (searchItem.Name == artifact.Name) &&

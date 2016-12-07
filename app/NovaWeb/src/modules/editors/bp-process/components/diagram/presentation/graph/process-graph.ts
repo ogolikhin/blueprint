@@ -976,7 +976,8 @@ export class ProcessGraph implements IProcessGraph {
         // todo: implement highlight logic
         let state: any = this.mxgraph.getView().getState(node);
         if (state.shape) {
-            state.shape.stroke = "#32CD32";
+            state.shape.stroke = "#FF0000";
+            state.shape.strokeWidth = 5;
             state.shape.reconfigure();
             this.highlightedCopyNodes.push(node);
         }

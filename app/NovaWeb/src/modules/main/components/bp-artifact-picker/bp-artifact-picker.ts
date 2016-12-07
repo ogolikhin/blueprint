@@ -172,12 +172,12 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
             }
         };
-        this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
-        this.showProjects = angular.isDefined(this.showProjects) ? this.showProjects : true;
-        this.showArtifacts = angular.isDefined(this.showArtifacts) ? this.showArtifacts : true;
-        this.showCollections = angular.isDefined(this.showCollections) ? this.showCollections : false;
-        this.showSubArtifacts = angular.isDefined(this.showSubArtifacts) ? this.showSubArtifacts : false;
-        this.isItemSelectable = angular.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
+        this.selectionMode = _.isString(this.selectionMode) ? this.selectionMode : "single";
+        this.showProjects = _.isBoolean(this.showProjects) ? this.showProjects : true;
+        this.showArtifacts = _.isBoolean(this.showArtifacts) ? this.showArtifacts : true;
+        this.showCollections = _.isBoolean(this.showCollections) ? this.showCollections : false;
+        this.showSubArtifacts = _.isBoolean(this.showSubArtifacts) ? this.showSubArtifacts : false;
+        this.isItemSelectable = _.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
 
         // BpTreeView bindings
         this.columns = [{
@@ -295,7 +295,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     // BpTreeView bindings
 
     public onSelect = (vm: Models.IViewModel<any>, isSelected: boolean = undefined): boolean => {
-        if (angular.isDefined(isSelected)) {
+        if (_.isBoolean(isSelected)) {
             if ((this.showArtifacts || this.showCollections) && vm instanceof TreeModels.InstanceItemNodeVM &&
                 vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 // Selecting a project from the instance tree

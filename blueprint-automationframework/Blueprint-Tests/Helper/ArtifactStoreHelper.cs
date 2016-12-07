@@ -695,6 +695,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(newValue, nameof(newValue));
 
             CustomProperty property = null;
 

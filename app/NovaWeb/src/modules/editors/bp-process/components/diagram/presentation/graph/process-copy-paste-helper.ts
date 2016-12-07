@@ -1,3 +1,4 @@
+import {ICopyImageResult} from "./../../../../../../core/file-upload/models/models";
 import {
     IDiagramNode, IProcessShape,
     NodeChange, ProcessShapeType, IProcessLink,
@@ -59,6 +60,7 @@ class PreprocessorData {
         this.preprocessorTree = {};
         this.treeIndex = [];
         this.numberOfSubTrees = 0;
+        this.systemShapeImageIds = [];
     }
     shapes: Models.IHashMap<IProcessShape>;
     links: Models.IHashMap<PreprocessorLink>;
@@ -66,6 +68,7 @@ class PreprocessorData {
     treeIndex: string[];
     startId: number;
     numberOfSubTrees: number;
+    systemShapeImageIds: number[];
 
     public addPreprocessorNode(id: string, prevId: string, nextIds: string[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
         this.preprocessorTree[id] = new PreprocessorNode(id, prevId, nextIds, type, x, y, subTreeId);
@@ -113,7 +116,8 @@ export class ProcessCopyPasteHelper {
                      private shapesFactoryService: ShapesFactory,
                      private messageService: IMessageService,
                      private $log: ng.ILogService,
-                     private fileUploadService: IFileUploadService) {
+                     private fileUploadService: IFileUploadService,
+                     private $q: ng.IQService) {
         this.layout = processGraph.layout;
     }
 
@@ -155,58 +159,39 @@ export class ProcessCopyPasteHelper {
             const processClipboardData = new ProcessClipboardData(this.createProcessModel(data, decisionPointRefs));
 
             // 8. add logic to determine is pastable
-            processClipboardData.isPastableAfterUserDecision = this.isPastableAfterUserDecision(data);                        
+            processClipboardData.isPastableAfterUserDecision = this.isPastableAfterUserDecision(data);    
 
-            // 9. get all system tasks with saved images 
-            const systemShapeImageIds: number[] = this.getSystemTaskIdsWithSavedImages(data);
-
-            // 10. set clipboard data          
-
-            if (systemShapeImageIds.length > 0) {
-                const expirationDate = new Date();
-                expirationDate.setDate(expirationDate.getDate() + 1);
-                this.fileUploadService.copyArtifactImagesToFilestore(systemShapeImageIds, expirationDate).then((result) => {
-                    _.forEach(processClipboardData.getData().shapes, (shape: IProcessShape) => {
-                        const resultShape = result.filter(a => a.originalId === shape.id);
-                        if (resultShape.length > 0) {
-                            shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = resultShape[0].newImageUrl;
-                            shape.propertyValues[this.shapesFactoryService.ImageId.key].value = resultShape[0].newImageId;
-                        }
-                    });
-                }).finally(() => {                    
-                    this.clipboard.setData(processClipboardData);
+            // 9. set clipboard data          
+            this.copySystemTaskSavedImages(data.systemShapeImageIds, processClipboardData).then(
+                (resultClipboardData) => {
+                    this.clipboard.setData(resultClipboardData);
                 });
-            }
-            else {
-                this.clipboard.setData(processClipboardData);
-            }
 
         } catch (error) {
             this.messageService.addError(error);
             this.$log.error(error);
         }
     };
-
-    private getSystemTaskIdsWithSavedImages(data: PreprocessorData): number[] {
-        const systemShapeImageIds: number[] = [];
-        _.each(data.shapes, (processShape: IProcessShape) => {
-            if (_.toNumber(processShape.propertyValues[this.shapesFactoryService.ClientType.key].value) !== ProcessShapeType.SystemTask) {
-                return;
-            }
-            const associatedImageUrl = processShape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value;
-            const imageId = processShape.propertyValues[this.shapesFactoryService.ImageId.key].value;
-
-            if (!!associatedImageUrl && _.isNumber(imageId)) {
-                systemShapeImageIds.push(processShape.id);
-                this.clearSystemTaskImageUrlsAndIds(processShape);
-            }
-        });
-        return systemShapeImageIds;
-    }
-    
-    private clearSystemTaskImageUrlsAndIds(systemTask: IProcessShape) {
-        systemTask.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
-        systemTask.propertyValues[this.shapesFactoryService.ImageId.key].value = null;
+    private copySystemTaskSavedImages(systemTaskIds: number[], clipboardData: ProcessClipboardData): ng.IPromise<ProcessClipboardData> {
+        if (systemTaskIds.length > 0) {
+            const expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 1);
+            return this.fileUploadService.copyArtifactImagesToFilestore(systemTaskIds, expirationDate).then((result: ICopyImageResult[]) => {
+                _.forEach(clipboardData.getData().shapes, (shape: IProcessShape) => {
+                    const resultShape = result.filter(a => a.originalId === shape.id);
+                    if (resultShape.length > 0) {
+                        shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = resultShape[0].newImageUrl;
+                        shape.propertyValues[this.shapesFactoryService.ImageId.key].value = resultShape[0].newImageId;
+                    }
+                });
+                return this.$q.when(clipboardData);
+            }).catch((error) => {                
+                return this.$q.when(clipboardData);
+            });
+        }
+        else {
+            return this.$q.when(clipboardData);
+        }
     }
 
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
@@ -380,6 +365,8 @@ export class ProcessCopyPasteHelper {
                                             systemTaskShape.propertyValues["y"].value,
                                             subTreeId);
         data.shapes[systemTaskId] = systemTaskShape;
+        this.addToSystemTasksWithSavedImages(systemTaskShape, data.systemShapeImageIds);
+        this.clearSystemTaskImageUrlsAndIds(systemTaskShape);
 
         return nextId;
     }
@@ -617,6 +604,29 @@ export class ProcessCopyPasteHelper {
                 this.layout.viewModel.decisionBranchDestinationLinks = [];
             }
             this.layout.viewModel.decisionBranchDestinationLinks.push(link); 
+        }
+    }   
+    
+    private isSystemTaskImageSaved(shape: IProcessShape): boolean {        
+        if (_.toNumber(shape.propertyValues[this.shapesFactoryService.ClientType.key].value) !== ProcessShapeType.SystemTask) {
+            return false;
+        }
+        const associatedImageUrl = shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value;
+        const imageId = shape.propertyValues[this.shapesFactoryService.ImageId.key].value;
+
+        return !!associatedImageUrl && _.isNumber(imageId);
+    }
+
+    private addToSystemTasksWithSavedImages(shape: IProcessShape, systemShapeImageIds: number[]) {
+        if (this.isSystemTaskImageSaved(shape)) {
+            systemShapeImageIds.push(shape.id);
+        }
+    }
+    
+    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {        
+        if (this.isSystemTaskImageSaved(shape)) {
+            shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
+            shape.propertyValues[this.shapesFactoryService.ImageId.key].value = null;
         }
     }
 }

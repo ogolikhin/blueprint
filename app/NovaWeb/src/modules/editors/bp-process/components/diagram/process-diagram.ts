@@ -150,8 +150,9 @@ export class ProcessDiagram {
     };
 
     private copySelection = () => {
-        ProcessCopyPasteHelper.copySectedShapes(this.graph, this.clipboard, this.shapesFactory);
+        this.graph.copySelectedShapes();
     }
+
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     };
@@ -195,6 +196,7 @@ export class ProcessDiagram {
                 this.$log,
                 this.statefulArtifactFactory,
                 this.clipboard
+
             );
              
         } catch (err) {
@@ -213,6 +215,12 @@ export class ProcessDiagram {
         if (this.graph != null) {
             this.graph.destroy();
             this.graph = null;
+        }
+        // clear any subartifact that may still be selected 
+        // by selection manager and/or utility panel
+
+        if (this.artifactManager && this.artifactManager.selection) {
+            this.artifactManager.selection.clearSubArtifact();
         }
     }
 

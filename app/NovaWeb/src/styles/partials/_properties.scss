@@ -1,3 +1,5 @@
+@import "../settings/colors";
+
 $properties-min-width: $page-body-min-width - 40px - 30px - 2px;
 $property-min-height: 28px;
 $property-multiple-height: 98px;
@@ -358,8 +360,7 @@ pagecontent, bp-properties-panel {
                             }
 
                             &:hover .ui-select-choice-item {
-                                background: $brand-secondary;
-                                color: $white;
+                                background: $selection-hover-background-color;
 
                                 &::before {
                                     content: '\2713';
@@ -386,8 +387,8 @@ pagecontent, bp-properties-panel {
                     .ui-select-choices-row.active {
                         .ui-select-choices-row-inner {
                             .ui-select-choice-item {
-                                background: $brand-secondary;
-                                color: $white;
+                                background: $selection-selected-background-color;
+                                color: $selection-selected-color;
 
                                 &::before {
                                     content: '\2713';
@@ -558,12 +559,13 @@ pagecontent, bp-properties-panel {
                         }
                     }
 
-                    &:not(.disable-highlight) {
-                        .ui-select-choices-row.active .ui-select-choice-item,
-                        .ui-select-choices-row-inner:hover .ui-select-choice-item {
-                            background: $brand-secondary;
-                            color: $white;
-                        }
+                    &:not(.disable-highlight) .ui-select-choices-row-inner:hover .ui-select-choice-item {
+                        background: $selection-hover-background-color;
+                    }
+
+                    &:not(.disable-highlight) .ui-select-choices-row.active .ui-select-choice-item {
+                        background: $selection-selected-background-color;
+                        color: $selection-selected-color;
                     }
 
                     .ui-select-choices-row.disabled {

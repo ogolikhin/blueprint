@@ -1,4 +1,6 @@
-﻿import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
+﻿import {IDecision} from "./models/process-graph-interfaces";
+/* tslint:disable:max-file-line-count */
+import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
@@ -40,6 +42,7 @@ export class ProcessGraph implements IProcessGraph {
     private executionEnvironmentDetector: any;
     private transitionTimeOut: number = 400;
     private highlightedEdgeStates: any[] = [];
+    private highlightedCopyNodes: IDiagramNode[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
     private processCopyPasteHelper: ProcessCopyPasteHelper;
@@ -898,6 +901,99 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
+    public highlightCopyGroups = (nodes: IDiagramNode[]) => {
+        if (!nodes) {
+            throw new Error("nodes are not defined");
+        }
+
+        const copyNodes: IDiagramNode[] = nodes.filter((node: IDiagramNode) => node.canCopy);
+
+        if (copyNodes.length === 0) {
+            return;
+        }
+
+        this.clearCopyGroupHighlight();
+
+        const nodesToHighlight: IDiagramNode[] = [];
+
+        const userTasks = <IUserTask[]>nodes.filter((node: IDiagramNode) => node.getNodeType() === NodeType.UserTask);
+
+        if (userTasks.length > 1) {
+            const commonUserDecisions: IDecision[] = this.getCommonUserDecisions(userTasks, this.mxgraph.getModel());
+            nodesToHighlight.push(...commonUserDecisions);
+        }
+
+        for (const selectedNode of nodes) {
+            const relatedNodes: IDiagramNode[] = this.getCopyGroupNodes(selectedNode);
+            nodesToHighlight.push(...relatedNodes);
+        }
+
+        for (const node of nodesToHighlight) {
+            this.highlightNode(node);
+        }
+    };
+
+    private getCommonUserDecisions(userTasks: IUserTask[], graphModel: MxGraphModel): IDecision[] {
+        const commonUserDecisions: IDecision[] = [];
+        const userDecisionsById: {[id: number]: IDecision} = {};
+
+        for (const userTask of userTasks) {
+            // assumes user task only has one incoming connection
+            const sourceNode: IDiagramNode = userTask.getSources(graphModel)[0];
+
+            if (sourceNode.getNodeType() !== NodeType.UserDecision) {
+                continue;
+            }
+
+            const userDecision: IDecision = <IDecision>sourceNode;
+
+            if (userDecisionsById[userDecision.model.id]) {
+                commonUserDecisions.push(userDecision);
+            } else {
+                userDecisionsById[userDecision.model.id] = userDecision;
+            }
+        }
+
+        return commonUserDecisions;
+    }
+
+    private getCopyGroupNodes(node: IDiagramNode): IDiagramNode[] {
+        const copyGroupNodes: IDiagramNode[] = [];
+
+        const scopeContext = this.getScope(node.model.id);
+        const copyGroupIds: number[] = Object.keys(scopeContext.visitedIds)
+            .map(a => Number(a))
+            .filter(id => id !== node.model.id);
+
+        for (const id of copyGroupIds) {
+            copyGroupNodes.push(this.getNodeById(id.toString()));
+        }
+
+        return copyGroupNodes;
+    }
+
+    private highlightNode(node: IDiagramNode): void {
+        // todo: implement highlight logic
+        let state: any = this.mxgraph.getView().getState(node);
+        if (state.shape) {
+            state.shape.stroke = "#32CD32";
+            state.shape.reconfigure();
+            this.highlightedCopyNodes.push(node);
+        }
+    }
+
+    private clearCopyGroupHighlight(): void {
+        for (let node of this.highlightedCopyNodes) {
+            // todo: implement clearing highlight
+            let state: any = this.mxgraph.getView().getState(node);
+            if (state.shape) {
+                state.shape.stroke = mxConstants.DEFAULT_VALID_COLOR;
+                state.shape.reconfigure();
+            }
+        }
+        this.highlightedCopyNodes = [];
+    }
+
     public highlightNodeEdges = (nodes: IDiagramNode[]) => {
         this.clearHighlightEdges();
         _.each(nodes, (node) => {
@@ -907,7 +1003,7 @@ export class ProcessGraph implements IProcessGraph {
             }
             this.mxgraph.orderCells(false, highLightEdges);
         });
-    }
+    };
 
     private getHighlightScope(diagramNode: IDiagramNode, graphModel: MxGraphModel): MxCell[] {
         let connectableElement = diagramNode.getConnectableElement();

@@ -126,9 +126,9 @@ export interface IProcessGraph {
     insertSelectedShapes(edge: MxCell);
     getSelectedShapes(): IProcessShape[];
     processDiagramCommunication: IProcessDiagramCommunication;
-    highlightNodeEdges(nodes: IDiagramNode[]);
+    highlightNodeEdges(nodes: IDiagramNode[]): void;
+    highlightCopyGroups(nodes: IDiagramNode[]): void;
     destroy();
-
 }
 
 export interface ILayout {
@@ -184,6 +184,7 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     column: number;
     newShapeColor: string;
     canCopy: boolean;
+
     getId(): string;
     setId(value: string);
     getNodeType(): NodeType;

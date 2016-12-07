@@ -103,11 +103,12 @@ export class ProcessGraphSelectionHelper {
             let elements = this.getSelectedNodes();
             if (elements) {
                 elements = elements.filter(e => e instanceof DiagramNode);
-                // highlight edges and notify system that the subartifact 
+                // highlight edges and copy groups, and notify system that the subartifact 
                 // selection has changed. Note: elements array can be empty.
                 this.processGraph.highlightNodeEdges(elements);
+                this.processGraph.highlightCopyGroups(elements);
                 this.notifySelectionChanged(elements);
-             }
+            }
         });
     }
 

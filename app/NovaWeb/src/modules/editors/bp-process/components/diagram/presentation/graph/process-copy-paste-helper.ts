@@ -176,7 +176,7 @@ export class ProcessCopyPasteHelper {
         if (systemTaskIds.length > 0) {
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 1);
-            return this.fileUploadService.copyArtifactImagesToFilestore(systemTaskIds, expirationDate).then((result) => {
+            return this.fileUploadService.copyArtifactImagesToFilestore(systemTaskIds, expirationDate).then((result: ICopyImageResult[]) => {
                 _.forEach(clipboardData.getData().shapes, (shape: IProcessShape) => {
                     const resultShape = result.filter(a => a.originalId === shape.id);
                     if (resultShape.length > 0) {

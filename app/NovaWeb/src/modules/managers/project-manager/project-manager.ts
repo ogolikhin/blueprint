@@ -15,6 +15,7 @@ import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
+import {IApplicationError} from "./../../core/error/applicationError";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];
@@ -238,7 +239,7 @@ export class ProjectManager implements IProjectManager {
                 this.clearProject(project);
                 return this.$q.reject();
             });
-        }).catch((error: any) => {
+        }).catch((error: IApplicationError) => {
             if (!error) {
                 this.clearProject(project);
                 return this.$q.reject();
@@ -271,13 +272,13 @@ export class ProjectManager implements IProjectManager {
                         return this.loadProject(projectId, project);
                     }
 
-                    this.messageService.addError(error["message"]);
+                    this.messageService.addError(error.message);
                     this.clearProject(project);
                     return this.$q.reject();
                 });
             }
 
-            this.messageService.addError(error["message"]);
+            this.messageService.addError(error.message);
             this.clearProject(project);
             return this.$q.reject();
         });

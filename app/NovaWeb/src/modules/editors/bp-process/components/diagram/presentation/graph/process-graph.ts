@@ -1,4 +1,5 @@
-﻿/* tslint:disable:max-file-line-count */
+﻿import {IDecision} from "./models/process-graph-interfaces";
+/* tslint:disable:max-file-line-count */
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
@@ -912,11 +913,15 @@ export class ProcessGraph implements IProcessGraph {
         }
 
         this.clearCopyGroupHighlight();
-        
+
         const nodesToHighlight: IDiagramNode[] = [];
 
-        const commonAncestors: IDiagramNode[] = this.getCopyAncestors(nodes);
-        nodesToHighlight.push(...commonAncestors);
+        const userTasks = <IUserTask[]>nodes.filter((node: IDiagramNode) => node.getNodeType() === NodeType.UserTask);
+
+        if (userTasks.length > 1) {
+            const commonUserDecisions: IDecision[] = this.getCommonUserDecisions(userTasks, this.mxgraph.getModel());
+            nodesToHighlight.push(...commonUserDecisions);
+        }
 
         for (const selectedNode of nodes) {
             const relatedNodes: IDiagramNode[] = this.getCopyGroup(selectedNode);
@@ -928,9 +933,28 @@ export class ProcessGraph implements IProcessGraph {
         }
     };
 
-    private getCopyAncestors(nodes: IDiagramNode[]): IDiagramNode[] {
-        // todo: implement finding common ancestors
-        return [];
+    private getCommonUserDecisions(userTasks: IUserTask[], graphModel: MxGraphModel): IDecision[] {
+        const commonUserDecisions: IDecision[] = [];
+        const userDecisionsById: {[id: number]: IDecision} = {};
+
+        for (const userTask of userTasks) {
+            // assumes user task only has one incoming connection
+            const sourceNode: IDiagramNode = userTask.getSources(graphModel)[0];
+
+            if (sourceNode.getNodeType() !== NodeType.UserDecision) {
+                continue;
+            }
+
+            const userDecision: IDecision = <IDecision>sourceNode;
+
+            if (userDecisionsById[userDecision.model.id]) {
+                commonUserDecisions.push(userDecision);
+            } else {
+                userDecisionsById[userDecision.model.id] = userDecision;
+            }
+        }
+
+        return commonUserDecisions;
     }
 
     private getCopyGroup(node: IDiagramNode): IDiagramNode[] {

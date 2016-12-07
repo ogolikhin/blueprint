@@ -406,11 +406,11 @@ namespace ArtifactStoreTests
 
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, _user);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, _user);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, newValue);
             }
 
             // Execute:

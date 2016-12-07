@@ -662,7 +662,7 @@ namespace Helper
             List<IProject> allProjects = null;
             allProjects = ProjectFactory.GetAllProjects(user);
 
-            const string customDataProjectName = "Custom Data";
+            const string customDataProjectName = TestHelper.GoldenDataProject.CustomData;
 
             Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
                 "No project was found named '{0}'!", customDataProjectName);
@@ -687,7 +687,7 @@ namespace Helper
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
         /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateCustomProperty<T>(NovaArtifactDetails artifactDetails,
+        public static CustomProperty UpdateArtifactCustomProperty<T>(NovaArtifactDetails artifactDetails,
             IProject project,
             PropertyPrimitiveType propertyType,
             string propertyName,
@@ -697,12 +697,68 @@ namespace Helper
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(newValue, nameof(newValue));
 
+            var customProperties = artifactDetails.CustomPropertyValues;
+
+            return UpdateCustomProperty(customProperties, project, propertyType, propertyName, newValue);
+        }
+
+        /// <summary>
+        /// Updates the specified custom property of the subartifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <typeparam name="T">The new value type.</typeparam>
+        /// <param name="subArtifactDetails">The subartifact details containing the custom property to update.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="propertyType">The type of property to be updated.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="newValue">The new value to assign to the custom property.
+        ///     For Choice & Text property types, pass a string.
+        ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
+        ///     For User property types, pass an IUser.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateSubArtifactCustomProperty<T>(NovaItem subArtifactDetails,
+            IProject project,
+            PropertyPrimitiveType propertyType,
+            string propertyName,
+            T newValue)
+        {
+            ThrowIf.ArgumentNull(subArtifactDetails, nameof(subArtifactDetails));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var customProperties = subArtifactDetails.CustomPropertyValues;
+
+            return UpdateCustomProperty(customProperties, project, propertyType, propertyName, newValue);
+        }
+
+        /// <summary>
+        /// Updates the specified custom property with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <typeparam name="T">The new value type.</typeparam>
+        /// <param name="customProperties">The list of custom properties to update.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="propertyType">The type of property to be updated.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="newValue">The new value to assign to the custom property.
+        ///     For Choice & Text property types, pass a string.
+        ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
+        ///     For User property types, pass an IUser.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomProperty<T>(List<CustomProperty> customProperties,
+            IProject project,
+            PropertyPrimitiveType propertyType,
+            string propertyName,
+            T newValue)
+        {
+            ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
             CustomProperty property = null;
 
             switch (propertyType)
             {
                 case PropertyPrimitiveType.Choice:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
@@ -751,25 +807,25 @@ namespace Helper
                     }
                     break;
                 case PropertyPrimitiveType.Date:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     // Change custom property date value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Number:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     // Change custom property number value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Text:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     IUser user = (IUser)newValue;
 
@@ -1264,6 +1320,31 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(itemType, nameof(itemType));
 
+            return GetArtifactTypeName(itemType, "(Standard Pack)");
+        }
+
+        /// <summary>
+        /// Gets the Custom Artifact Type that matches the given ItemTypePredefined
+        /// </summary>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>A string indicating the name of the Custom artifact name for the predefined item type.</returns>
+        public static string GetCustomArtifactTypeName(ItemTypePredefined itemType)
+        {
+            ThrowIf.ArgumentNull(itemType, nameof(itemType));
+
+            return GetArtifactTypeName(itemType, "(Custom Test)");
+        }
+
+        /// <summary>
+        /// Gets the Artifact Type that matches the given ItemTypePredefined with artifact type suffix
+        /// </summary>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="artifactTypeSuffix">The suffix to add the the artifcat type name</param>
+        /// <returns>A string indicating the artifact type name for the predefined item type.</returns>
+        private static string GetArtifactTypeName(ItemTypePredefined itemType, string artifactTypeSuffix)
+        {
+            ThrowIf.ArgumentNull(itemType, nameof(itemType));
+
             string artifactTypeNameBase;
 
             switch (itemType)
@@ -1325,7 +1406,7 @@ namespace Helper
                     break;
             }
 
-            return I18NHelper.FormatInvariant("{0}(Standard Pack)", artifactTypeNameBase);
+            return I18NHelper.FormatInvariant("{0}{1}", artifactTypeNameBase, artifactTypeSuffix);
         }
 
         public class ChoiceValues

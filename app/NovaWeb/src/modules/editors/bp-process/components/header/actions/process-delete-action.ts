@@ -17,7 +17,7 @@ export class ProcessDeleteAction extends DeleteAction {
     private selectedNodes: IDiagramNode[];
     
     constructor(
-        process: IStatefulProcessArtifact,
+        private process: IStatefulProcessArtifact,
         localization: ILocalizationService,
         messageService: IMessageService,
         artifactManager: IArtifactManager,
@@ -41,8 +41,12 @@ export class ProcessDeleteAction extends DeleteAction {
     }
 
     protected canDelete(): boolean {
+        if (!super.canDelete()) {
+            return false;
+        }
+
         if (!this.selectedNodes || !this.selectedNodes.length) {
-            return super.canDelete();
+            return true;
         }
 
         if (this.selectedNodes.length > 1) {

@@ -56,7 +56,7 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
                     const artifactId = attachmentResultSet.artifactId;
                     const attachmentId = attachmentResultSet.attachments[0].attachmentId;
                     let url = `/svc/bpartifactstore/artifacts/${artifactId}/attachments/${attachmentId}`;
-                    if (_.isFinite(this.docRefInfo.versionId)) {
+                    if (this.isHistoricalVersion(this.docRefInfo)) {
                         url += `?versionId=${this.docRefInfo.versionId}`;
                     }
                     this.$window.open(url, "_blank");
@@ -64,6 +64,12 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
                     this.messageService.addError(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
                 }
             });
+    }
+
+    private isHistoricalVersion(docRefInfo: IArtifactDocRef): boolean {
+        return _.isFinite(this.docRefInfo.versionId) 
+            && _.isFinite(this.docRefInfo.versionsCount)
+            && this.docRefInfo.versionId !== this.docRefInfo.versionsCount;
     }
 
     public navigateToDocumentReference(artifactId: number) {

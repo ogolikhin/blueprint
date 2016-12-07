@@ -69,14 +69,7 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     public $onInit() {
-        const artifactStateSubscriber = this.artifactManager.selection.currentlySelectedArtifactObservable
-            .map(selectedArtifact => {
-                if (!selectedArtifact) {
-                    this._currentArtifact = null;
-                }
-                return selectedArtifact;
-            })
-            .filter(selectedArtifact => !!selectedArtifact)
+        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
             .subscribe(this.setCurrentArtifact);
 
         this._subscribers = [artifactStateSubscriber];
@@ -116,6 +109,7 @@ export class PageToolbarController implements IPageToolbarController {
             return this.$q.resolve();
 
         }).finally(() => {
+            const artifact = this.artifactManager.selection.getArtifact();
             this.loadingOverlayService.endLoading(id);
         });
     };
@@ -452,6 +446,7 @@ export class PageToolbarController implements IPageToolbarController {
 
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact = artifact;
+
     };
 
     public get isProjectOpened(): boolean {
@@ -465,7 +460,9 @@ export class PageToolbarController implements IPageToolbarController {
     public get canCreateNew(): boolean {
         const currArtifact = this._currentArtifact;
         // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        return currArtifact && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
+        // We check isArtifactSelected because we don't clear _currentArtifact when unselecting artifacts (a consequence of how we designed the observable)
+        return this.isArtifactSelected && currArtifact
+            && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
             (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     }
 

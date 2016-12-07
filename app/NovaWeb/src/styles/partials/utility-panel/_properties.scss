@@ -150,7 +150,7 @@ bp-properties-panel {
                 &.richtext {
                     min-width: 100%;
                     max-width: 100%;
-                    padding: 0 7px;
+                    padding: 0 $property-padding-default;
                 }
             }
 

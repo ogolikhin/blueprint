@@ -50,7 +50,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-
+     
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactoryService: ShapesFactory) {
         super(model);
@@ -60,6 +60,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.initButtons(model.id.toString(), nodeFactorySettings);
 
         this.initChildElements();
+
+        // user tasks can be copied 
+        this.canCopy = true; 
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {

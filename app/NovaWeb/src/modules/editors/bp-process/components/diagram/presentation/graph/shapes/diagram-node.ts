@@ -9,10 +9,13 @@ import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-
 import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
+
+    private _canCopy: boolean = false;
+
     direction: Direction;
     model: T;
     protected dialogManager: IModalDialogCommunication;
-
+ 
     public get newShapeColor(): string {
         return "#F7F1CF";
     }
@@ -290,5 +293,12 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public canGenerateUserStory(): boolean {
         return false;
+    }
+
+    public get canCopy() {
+        return this._canCopy;
+    }
+    public set canCopy(value: boolean) {
+        this._canCopy = value;
     }
 }

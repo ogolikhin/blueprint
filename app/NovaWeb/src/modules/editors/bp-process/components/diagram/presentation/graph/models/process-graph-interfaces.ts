@@ -183,7 +183,7 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     row: number;
     column: number;
     newShapeColor: string;
-
+    canCopy: boolean;
     getId(): string;
     setId(value: string);
     getNodeType(): NodeType;

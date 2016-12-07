@@ -7,7 +7,7 @@ import {Models} from "../../../../main/models";
 export class BPFieldText implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldText";
     public extends: string = "input";
-    public template: string = require("./text.template.html");
+    public template: string = require("./text.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {

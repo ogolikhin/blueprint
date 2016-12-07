@@ -7,7 +7,7 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
     static $inject: [string] = ["$scope"];
 
     public name: string = "bpFieldDatepicker";
-    public template: string = require("./date-picker.template.html");
+    public template: string = require("./date-picker.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public defaultOptions: AngularFormly.IFieldConfigurationObject;
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {

@@ -7,12 +7,11 @@ import {IValidationService} from "../../../../managers/artifact-manager/validati
 export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelectMulti";
     public extends: string = "select";
-    public template: string = require("./select-multi.template.html");
+    public template: string = require("./select-multi.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
-            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             const uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
@@ -58,10 +57,10 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
                         $viewValue,
                         $modelValue);
-                        
+
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
-                    return true;                        
-                        
+                    return true;
+
                 }
             }
         };

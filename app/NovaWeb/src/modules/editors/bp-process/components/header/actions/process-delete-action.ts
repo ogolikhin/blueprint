@@ -9,8 +9,10 @@ import {IArtifactManager} from "./../../../../../managers/artifact-manager/artif
 import {IMessageService} from "./../../../../../core/messages/message.svc";
 import {ILocalizationService} from "./../../../../../core/localization/localizationService";
 import {IStatefulProcessArtifact} from "./../../../process-artifact";
+import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
 import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {RolePermissions} from "./../../../../../main/models/enums";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
@@ -45,26 +47,32 @@ export class ProcessDeleteAction extends DeleteAction {
             return false;
         }
 
+        //Is artifact and has Delete permissions 
         if (!this.selectedNodes || !this.selectedNodes.length) {
-            return true;
+            return this.hasDesiredPermissions(RolePermissions.Delete);
         }
 
         if (this.selectedNodes.length > 1) {
             return false;
         }
 
+        const selectedNode: IDiagramNode = this.selectedNodes[0];
+
         const validNodeTypes: NodeType[] = [
             NodeType.UserTask,
             NodeType.UserDecision,
             NodeType.SystemDecision
         ];
-        const selectedNode: IDiagramNode = this.selectedNodes[0];
         
         if (validNodeTypes.indexOf(selectedNode.getNodeType()) < 0) {
             return false;
         }
 
         return true;
+    }
+
+    protected hasPermissions(): boolean {
+        return this.hasDesiredPermissions(RolePermissions.Edit);
     }
 
     protected delete(): void {

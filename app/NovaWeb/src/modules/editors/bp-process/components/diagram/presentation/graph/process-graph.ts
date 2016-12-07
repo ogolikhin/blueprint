@@ -1,4 +1,5 @@
-﻿import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
+﻿/* tslint:disable:max-file-line-count */
+import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
@@ -40,6 +41,7 @@ export class ProcessGraph implements IProcessGraph {
     private executionEnvironmentDetector: any;
     private transitionTimeOut: number = 400;
     private highlightedEdgeStates: any[] = [];
+    private highlightedCopyNodes: IDiagramNode[] = [];
     private deleteShapeHandler: string;
     private popupMenu: NodePopupMenu = null;
     private processCopyPasteHelper: ProcessCopyPasteHelper;
@@ -898,6 +900,55 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
+    public highlightCopyGroups = (nodes: IDiagramNode[]) => {
+        if (!nodes) {
+            throw new Error("nodes are not defined");
+        }
+
+        const copyNodes: IDiagramNode[] = nodes.filter((node: IDiagramNode) => node.canCopy);
+
+        if (copyNodes.length === 0) {
+            return;
+        }
+
+        this.clearCopyGroupHighlight();
+        
+        const nodesToHighlight: IDiagramNode[] = [];
+
+        const commonAncestors: IDiagramNode[] = this.getCopyAncestors(nodes);
+        nodesToHighlight.push(...commonAncestors);
+
+        for (const selectedNode of nodes) {
+            const relatedNodes: IDiagramNode[] = this.getCopyGroup(selectedNode);
+            nodesToHighlight.push(...relatedNodes);
+        }
+
+        for (const node of nodesToHighlight) {
+            this.highlightNode(node);
+        }
+    };
+
+    private getCopyAncestors(nodes: IDiagramNode[]): IDiagramNode[] {
+        // todo: implement finding common ancestors
+        return [];
+    }
+
+    private getCopyGroup(node: IDiagramNode): IDiagramNode[] {
+        // todo: implement finding copy group using delete/drag & drop logic
+        return [];
+    }
+
+    private highlightNode(node: IDiagramNode): void {
+        // todo: implement highlight logic
+    }
+
+    private clearCopyGroupHighlight(): void {
+        for (let node of this.highlightedCopyNodes) {
+            // todo: implement clearing highlight
+        }
+        this.highlightedCopyNodes = [];
+    }
+
     public highlightNodeEdges = (nodes: IDiagramNode[]) => {
         this.clearHighlightEdges();
         _.each(nodes, (node) => {
@@ -907,7 +958,7 @@ export class ProcessGraph implements IProcessGraph {
             }
             this.mxgraph.orderCells(false, highLightEdges);
         });
-    }
+    };
 
     private getHighlightScope(diagramNode: IDiagramNode, graphModel: MxGraphModel): MxCell[] {
         let connectableElement = diagramNode.getConnectableElement();

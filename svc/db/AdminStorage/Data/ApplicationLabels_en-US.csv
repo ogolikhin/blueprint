@@ -221,7 +221,7 @@ Refresh_Artifact_Deleted,"The artifact you were viewing has been deleted. The ar
 
 Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
-Publish_All_Success_Message,"Changes have been published for all artifacts {(0)}."
+Publish_All_Success_Message,"Changes have been published for all artifacts ({0})."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
 
 Close_Project_UnpublishedArtifacts,"You have {0} saved but unpublished change(s).<br/><br/>Considering publishing or discarding before continuing."
@@ -238,7 +238,7 @@ Publish_Failure_LockedByOtherUser_Message, "The artifact cannot be published bec
 Discard_All_No_Unpublished_Changes,"There are no artifacts that can be discarded."
 Discard_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions:"
 Discard_All_Many_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions.<br/><br/>Because you are discarding a large number of changes, this operation may take longer than usual."
-Discard_All_Success_Message,"Changes have been discarded for all artifacts {(0)}."
+Discard_All_Success_Message,"Changes have been discarded for all artifacts ({0})."
 
 Discard_Single_Dialog_Message,"This artifact will be restored to its last published version. If it has never been published, it will be deleted."
 Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:"

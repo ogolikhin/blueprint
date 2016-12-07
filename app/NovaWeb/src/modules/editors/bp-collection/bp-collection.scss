@@ -174,7 +174,7 @@
             &.ag-row-selected .ag-cell:not(.not-selectable).ag-cell-value{
                 background: transparent;
 
-                span > span {
+                .ag-group-value > .ag-group-value-wrapper {
                     color: $gray-darkest;
                 }
 

@@ -97,8 +97,8 @@ namespace ArtifactStore.Repositories
         }
         private Relationship NewRelationship(LinkInfo link, TraceDirection traceDirection)
         {
-            int artifactId = 0;
-            int itemId = 0;
+            int artifactId;
+            int itemId;
             if (traceDirection == TraceDirection.From)
             {
                 artifactId = link.SourceArtifactId;
@@ -154,10 +154,10 @@ namespace ArtifactStore.Repositories
 
             if (revisionId <= 0)
             {
-                throw new ResourceNotFoundException(string.Format("Version index (Id:{0}) is not found.", versionId), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
             }
 
-            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
+            var itemId = subArtifactId ?? artifactId;
 
             var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId)).ToList();
             var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();

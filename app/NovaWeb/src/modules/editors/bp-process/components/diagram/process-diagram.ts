@@ -215,8 +215,12 @@ export class ProcessDiagram {
             this.graph.destroy();
             this.graph = null;
         }
-        // clear the selection manager of subartifacts
-        this.artifactManager.selection.clearSubArtifact();
+        // clear any subartifact that may still be selected 
+        // by selection manager and/or utility panel
+
+        if (this.artifactManager && this.artifactManager.selection) {
+            this.artifactManager.selection.clearSubArtifact();
+        }
     }
 
     private onSubArtifactChanged(subArtifact: IStatefulSubArtifact) {

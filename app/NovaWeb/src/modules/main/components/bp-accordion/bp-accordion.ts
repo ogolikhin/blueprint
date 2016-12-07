@@ -199,16 +199,14 @@ export class BpAccordionCtrl implements IBpAccordionController {
     };
 
     public $postLink = () => {
-        this.$timeout(() => {
-            // open the first panel on load
-            const panelToOpen = _.find(this.panels, (panel) => panel.isVisible);
-            if (panelToOpen) {
-                panelToOpen.openPanel();
-            }
+        // open the first panel on load
+        const panelToOpen = _.find(this.panels, (panel) => panel.isVisible);
+        if (panelToOpen) {
+            panelToOpen.openPanel();
+        }
 
-            // we need to redistribute the height after all the panels have been added
-            this.recalculateLayout();
-        }, 0);
+        // we need to redistribute the height after all the panels have been added
+        this.recalculateLayout();
     };
 }
 

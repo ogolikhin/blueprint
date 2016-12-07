@@ -58,7 +58,8 @@ describe("Component BPUtilityPanel", () => {
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
+            const artifactModel = {id: 22, name: "Artifact", predefinedType: ItemTypePredefined.CollectionFolder, prefix: "My"};
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
 
             //Act
             artifactManager.selection.setArtifact(artifact);

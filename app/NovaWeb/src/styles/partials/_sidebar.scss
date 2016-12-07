@@ -135,15 +135,18 @@ bp-sidebar-layout {
 }
 
 .explorer__unpublished-changes {
-    background-color: $gray-lightest;
+    background-color: $blue-lightest;
     text-align: left;
     border-radius: 0;
+    height: 33px;
+    line-height: 33px;
+    padding: 0 10px;
 
     &:focus, &:active:focus, &:hover {
         color: $link-color;
         text-decoration: none;
         outline: none;
-        background: $gray-lightest;
+        background: $blue-lightest;
         outline-offset: initial;
 
         &:hover {

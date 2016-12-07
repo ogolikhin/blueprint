@@ -18,6 +18,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IFileUploadService} from "../../../../core/file-upload/fileUploadService";
 import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "../../services/clipboard.svc";
 import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
@@ -51,7 +52,8 @@ export class ProcessDiagram {
                 private shapesFactory: ShapesFactory,
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService,
-                private artifactManager: IArtifactManager) {
+                private artifactManager: IArtifactManager,
+                private fileUploadService: IFileUploadService) {
 
         this.processModel = null;
        
@@ -195,8 +197,8 @@ export class ProcessDiagram {
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
-                this.clipboard
-
+                this.clipboard,
+                this.fileUploadService
             );
              
         } catch (err) {

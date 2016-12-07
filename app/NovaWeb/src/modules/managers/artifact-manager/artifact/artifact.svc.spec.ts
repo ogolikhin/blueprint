@@ -228,4 +228,100 @@ describe("Artifact Repository", () => {
         }));
     });
 
+    describe("Move Artifact", () => {
+
+        it("successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+
+            $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/100/moveTo/50")
+                .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(99, 1));
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.moveArtifact(100, 50).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data).toEqual(jasmine.any(Array));
+            expect(data.length).toEqual(1);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/100/moveTo/50")
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact[];
+            artifactService.moveArtifact(100, 50).then((responce) => {
+                data = responce;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
+    describe("Copy Artifact", () => {
+
+        it("successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+
+            $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/100/copyTo/50")
+                .respond(HttpStatusCode.Success, <Models.ICopyResultSet>{artifact: {id: 101}, copiedArtifactsCount: 1});
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact;
+            let totalCopied: number;
+            artifactService.copyArtifact(100, 50).then((responce) => {
+                data = responce.artifact;
+                totalCopied = responce.copiedArtifactsCount;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeUndefined();
+            expect(data.id).toEqual(101);
+            expect(totalCopied).toEqual(1);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+
+        it("unsuccessful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
+            // Arrange
+            $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/100/copyTo/50")
+                .respond(HttpStatusCode.NotFound, {
+                    statusCode: HttpStatusCode.NotFound
+                });
+
+            // Act
+            let error: any;
+            let data: Models.IArtifact;
+            artifactService.copyArtifact(100, 50).then((responce) => {
+                data = responce.artifact;
+            }, (err) => error = err);
+            $httpBackend.flush();
+
+            // Assert
+            expect(error).toBeDefined();
+            expect(error.statusCode).toEqual(HttpStatusCode.NotFound);
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
+        }));
+    });
+
 });

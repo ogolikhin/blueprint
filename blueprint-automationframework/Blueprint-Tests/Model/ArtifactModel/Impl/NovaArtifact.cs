@@ -41,48 +41,54 @@ namespace Model.ArtifactModel.Impl
         #endregion Constructors
 
         /// <summary>
-        /// Asserts that this NovaArtifact object is equal to the specified NovaArtifact.
+        /// Asserts that the properties of the two NovaArtifact objects are equal.
         /// </summary>
-        /// <param name="artifact">The artifact to compare against.</param>
+        /// <param name="expectedArtifact">The expected artifact to compare.</param>
+        /// <param name="actualArtifact">The actual artifact to compare.</param>
         /// <param name="skipIdAndVersion">(optional) Pass true to skip comparison of the Id and Version properties.</param>
         /// <param name="skipParentId">(optional) Pass true to skip comparison of the ParentId properties.</param>
         /// <param name="skipOrderIndex">(optional) Pass true to skip comparoson of the OrderIndex properties.</param>
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public void AssertEquals(INovaArtifact artifact, bool skipIdAndVersion = true, bool skipParentId = false,
-            bool skipOrderIndex = false, bool skipPublishedProperties = false)
+        public static void AssertAreEqual(INovaArtifact expectedArtifact,
+            INovaArtifact actualArtifact,
+            bool skipIdAndVersion = true,
+            bool skipParentId = false,
+            bool skipOrderIndex = false,
+            bool skipPublishedProperties = false)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
+            ThrowIf.ArgumentNull(actualArtifact, nameof(actualArtifact));
 
-            Assert.AreEqual(HasChildren, artifact.HasChildren, "Artifact HasChildren properties don't match!");
-            Assert.AreEqual(ItemTypeId, artifact.ItemTypeId, "Artifact ItemTypeId properties don't match!");
-            Assert.AreEqual(Name, artifact.Name, "Artifact Name properties don't match!");
-            Assert.AreEqual(Permissions, artifact.Permissions, "Artifact Permission properties don't match!");
-            Assert.AreEqual(PredefinedType, artifact.PredefinedType, "Artifact PredefinedType properties don't match!");
-            Assert.AreEqual(Prefix, artifact.Prefix, "Artifact Prefix properties don't match!");
-            Assert.AreEqual(ProjectId, artifact.ProjectId, "Artifact ProjectId properties don't match!");
-            Assert.AreEqual(Children?.Count, artifact.Children?.Count, "Artifact Children.Count properties don't match!");
+            Assert.AreEqual(expectedArtifact.HasChildren, actualArtifact.HasChildren, "Artifact HasChildren properties don't match!");
+            Assert.AreEqual(expectedArtifact.ItemTypeId, actualArtifact.ItemTypeId, "Artifact ItemTypeId properties don't match!");
+            Assert.AreEqual(expectedArtifact.Name, actualArtifact.Name, "Artifact Name properties don't match!");
+            Assert.AreEqual(expectedArtifact.Permissions, actualArtifact.Permissions, "Artifact Permission properties don't match!");
+            Assert.AreEqual(expectedArtifact.PredefinedType, actualArtifact.PredefinedType, "Artifact PredefinedType properties don't match!");
+            Assert.AreEqual(expectedArtifact.Prefix, actualArtifact.Prefix, "Artifact Prefix properties don't match!");
+            Assert.AreEqual(expectedArtifact.ProjectId, actualArtifact.ProjectId, "Artifact ProjectId properties don't match!");
+            Assert.AreEqual(expectedArtifact.Children?.Count, actualArtifact.Children?.Count, "Artifact Children.Count properties don't match!");
 
             if (!skipIdAndVersion)
             {
-                Assert.AreEqual(Id, artifact.Id, "Artifact ID properties don't match!");
-                Assert.AreEqual(Version, artifact.Version, "Artifact Versions don't match!");
+                Assert.AreEqual(expectedArtifact.Id, actualArtifact.Id, "Artifact ID properties don't match!");
+                Assert.AreEqual(expectedArtifact.Version, actualArtifact.Version, "Artifact Versions don't match!");
             }
 
             if (!skipParentId)
             {
-                Assert.AreEqual(ParentId, artifact.ParentId, "Artifact ParentId properties don't match!");
+                Assert.AreEqual(expectedArtifact.ParentId, actualArtifact.ParentId, "Artifact ParentId properties don't match!");
             }
 
             if (!skipOrderIndex)
             {
-                Assert.AreEqual(OrderIndex, artifact.OrderIndex, "Artifact OrderIndex properties don't match!");
+                Assert.AreEqual(expectedArtifact.OrderIndex, actualArtifact.OrderIndex, "Artifact OrderIndex properties don't match!");
             }
 
             if (!skipPublishedProperties)
             {
-                Assert.AreEqual(LockedByUser, artifact.LockedByUser, "Artifact LockedByUser properties don't match!");
-                Assert.AreEqual(LockedDateTime, artifact.LockedDateTime, "Artifact LockedDateTime properties don't match!");
+                Assert.AreEqual(expectedArtifact.LockedByUser, actualArtifact.LockedByUser, "Artifact LockedByUser properties don't match!");
+                Assert.AreEqual(expectedArtifact.LockedDateTime, actualArtifact.LockedDateTime, "Artifact LockedDateTime properties don't match!");
             }
         }
 

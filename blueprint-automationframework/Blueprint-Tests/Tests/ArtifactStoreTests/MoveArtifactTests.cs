@@ -405,6 +405,38 @@ namespace ArtifactStoreTests
             Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
         }
 
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(195994)]
+        [Description("Create & publish an artifact and 2 folders.  Copy the artifact into the first folder, then move the copied artifact into the second folder.  " +
+            "Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_CopiedArtifact_ToNewFolder_ReturnsArtifactDetails(BaseArtifactType artifactType)
+        {
+            // Setup:
+            IArtifact folder1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            IArtifact folder2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var copyResult = Helper.ArtifactStore.CopyArtifact(artifact, folder1, _user);
+            var copiedArtifact = Helper.WrapNovaArtifact(copyResult.Artifact, _project, _user);
+
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            copiedArtifact.Lock();
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(copiedArtifact, folder2, _user);
+            }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
+
+            // Verify:
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, copiedArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, movedArtifactDetails, skipParentId: true);
+
+            Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as folder2 Id!");
+        }
+
         #endregion 200 OK tests
 
         #region 400 Bad Request

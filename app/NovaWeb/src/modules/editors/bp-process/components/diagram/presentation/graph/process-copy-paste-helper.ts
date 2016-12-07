@@ -158,18 +158,7 @@ export class ProcessCopyPasteHelper {
             processClipboardData.isPastableAfterUserDecision = this.isPastableAfterUserDecision(data);                        
 
             // 9. get all system tasks with saved images 
-            const systemShapeImageIds: number[] = [];
-            _.each(data.shapes, (processShape: IProcessShape) => {
-                if (_.toNumber(processShape.propertyValues[this.shapesFactoryService.ClientType.key].value) !== ProcessShapeType.SystemTask) {
-                    return;
-                }
-                const associatedImageUrl = processShape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value;
-                const imageId = processShape.propertyValues[this.shapesFactoryService.ImageId.key].value;
-
-                if (!!associatedImageUrl && _.isNumber(imageId)) {
-                    systemShapeImageIds.push(processShape.id);
-                }
-            }); 
+            const systemShapeImageIds: number[] = this.getSystemTaskIdsWithSavedImages(data);
 
             // 10. set clipboard data          
 
@@ -184,6 +173,7 @@ export class ProcessCopyPasteHelper {
                             shape.propertyValues[this.shapesFactoryService.ImageId.key].value = resultShape[0].newImageId;
                         }
                     });
+                }).finally(() => {                    
                     this.clipboard.setData(processClipboardData);
                 });
             }
@@ -196,6 +186,22 @@ export class ProcessCopyPasteHelper {
             this.$log.error(error);
         }
     };
+
+    private getSystemTaskIdsWithSavedImages(data: PreprocessorData): number[] {
+        const systemShapeImageIds: number[] = [];
+        _.each(data.shapes, (processShape: IProcessShape) => {
+            if (_.toNumber(processShape.propertyValues[this.shapesFactoryService.ClientType.key].value) !== ProcessShapeType.SystemTask) {
+                return;
+            }
+            const associatedImageUrl = processShape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value;
+            const imageId = processShape.propertyValues[this.shapesFactoryService.ImageId.key].value;
+
+            if (!!associatedImageUrl && _.isNumber(imageId)) {
+                systemShapeImageIds.push(processShape.id);
+            }
+        });
+        return systemShapeImageIds;
+    }
 
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.each(baseNodes, (node) => {

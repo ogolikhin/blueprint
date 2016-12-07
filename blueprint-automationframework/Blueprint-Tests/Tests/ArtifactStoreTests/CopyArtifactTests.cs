@@ -676,7 +676,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             List<IStorytellerUserStory> userStories;
-            var sourceArtifact = CreateProcessAndGenerateUserStories(_user, out userStories);
+            var sourceArtifact = CreateComplexProcessAndGenerateUserStories(_user, out userStories);
             var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
@@ -720,7 +720,7 @@ namespace ArtifactStoreTests
             IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             List<IStorytellerUserStory> sourceUserStories;
-            var sourceArtifact = CreateProcessAndGenerateUserStories(author, out sourceUserStories);
+            var sourceArtifact = CreateComplexProcessAndGenerateUserStories(author, out sourceUserStories);
             var targetFolder = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
             var sourceChildrenBefore = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, sourceArtifact.Id, author);
@@ -1232,52 +1232,6 @@ namespace ArtifactStoreTests
 
         #region Private functions
 
-        private IArtifact CreateProcessAndGenerateUserStories(IUser user, out List<IStorytellerUserStory> userStories)
-        {
-            /*  Create and publish a Process diagram that looks like this:
-                [S]--[P]--+--<UD1>--+--[UT]---+--[ST]---+--[UT4]--<SD1>--+--[ST5]--+--[E]
-                               |                        |           |              |
-                               +-------[UT2]--+--[ST3]--+           +----+--[ST7]--+
-            */
-            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
-                Helper.Storyteller, _project, user);
-
-            StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, user);
-
-            // Generate User Stories.
-            userStories = Helper.Storyteller.GenerateUserStories(user, sourceProcess);
-            Assert.NotNull(userStories, "No User Stories were generated!");
-            Assert.AreEqual(3, userStories.Count, "There should be 3 User Stories generated!");
-
-            var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
-            return sourceArtifact;
-        }
-
-        /// <summary>
-        /// Adds & saves a Manual trace between the artifact and the first sub-artifact of the artifactWithSubArtifacts.
-        /// </summary>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="sourceArtifact">The source artifact to which the Trace will be added.</param>
-        /// <param name="artifactWithSubArtifacts">The artifact whose first sub-artifact will be the target of the added Trace.</param>
-        /// <param name="artifactStore">The ArtifactStore to make REST calls to.</param>
-        public static List<OpenApiTrace> AddTraceBetweenFirstSubArtifactOfSourceAndTargetArtifact(IUser user,
-            IArtifactBase sourceArtifact,
-            IArtifactBase artifactWithSubArtifacts,
-            IArtifactStore artifactStore)
-        {
-            // TODO: This function doesn't appear to work yet.  Fix it.
-            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
-            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
-            ThrowIf.ArgumentNull(artifactWithSubArtifacts, nameof(artifactWithSubArtifacts));
-
-            var subArtifacts = artifactStore.GetSubartifacts(user, artifactWithSubArtifacts.Id);
-
-            Assert.That((subArtifacts != null) && subArtifacts.Any(), "Artifact ID {0} has no Sub-Artifacts!", artifactWithSubArtifacts.Id);
-
-            return OpenApiArtifact.AddTrace(artifactStore.Address, sourceArtifact, artifactWithSubArtifacts,
-                TraceDirection.To, user, subArtifactId: subArtifacts[0].Id);
-        }
-
         /// <summary>
         /// Asserts that the properties of the copied artifact are the same as the original artifact (except Id and Version)
         /// and that the the expected number of files were copied.
@@ -1406,6 +1360,33 @@ namespace ArtifactStoreTests
             }
 
             return copyResult;
+        }
+
+        /// <summary>
+        /// Creates a complex Process diagram and generates User Stories.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="userStories">[out] The generated User Stories will be returned in this list.</param>
+        /// <returns>The new Process artifact.</returns>
+        private IArtifact CreateComplexProcessAndGenerateUserStories(IUser user, out List<IStorytellerUserStory> userStories)
+        {
+            /*  Create and publish a Process diagram that looks like this:
+                [S]--[P]--+--<UD1>--+--[UT]---+--[ST]---+--[UT4]--<SD1>--+--[ST5]--+--[E]
+                               |                        |           |              |
+                               +-------[UT2]--+--[ST3]--+           +----+--[ST7]--+
+            */
+            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
+                Helper.Storyteller, _project, user);
+
+            StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, user);
+
+            // Generate User Stories.
+            userStories = Helper.Storyteller.GenerateUserStories(user, sourceProcess);
+            Assert.NotNull(userStories, "No User Stories were generated!");
+            Assert.AreEqual(3, userStories.Count, "There should be 3 User Stories generated!");
+
+            var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
+            return sourceArtifact;
         }
 
         /// <summary>

@@ -931,29 +931,29 @@ namespace Helper
             // Find the End shape.
             var endShape = process.GetProcessShapeByShapeName(Process.EndName);
 
-            // Add Additional user task along with associated system task.
+            // Add additional user & system task before the End Shape (UT4 & ST5).
             var addedUserTask = process.AddUserAndSystemTask(process.GetIncomingLinkForShape(endShape));
 
-            // Find the outgoing link for the last user task.
+            // Find the incoming link for the last user task.
             var incomingLinkForLastUserTask = process.GetIncomingLinkForShape(addedUserTask);
 
-            // Find the link between first system decision to the second branch.
+            // Find the link between user decision to the second branch.
             var secondBranchLinkFromUserDecision = process.Links.Find(
                 l => l.Orderindex.Equals(incomingLinkForLastUserTask.Orderindex + 1)
                 );
 
-            // Find system task on the second branch of the first system decision.
+            // Find user & system tasks on the second branch of the user decision.
             var secondLevelUserTask = process.GetProcessShapeById(secondBranchLinkFromUserDecision.DestinationId);
             var secondLevelSystemTask = process.GetNextShape(secondLevelUserTask);
 
             // Update first merging point so that first loop ends before the added user task.
             process.GetOutgoingLinkForShape(secondLevelSystemTask).DestinationId = addedUserTask.Id;
 
-            // Find the second system task on the main branch added with additonal user task 
+            // Find the second system task on the main branch added with additonal user task.
             var addedSystemTask = process.GetNextShape(addedUserTask);
             var incomingLinkForAddedSystemTask = process.GetIncomingLinkForShape(addedSystemTask);
 
-            // Add the second System Decision with branch merging to addedUserTask
+            // Add a System Decision with branch merging to addedUserTask (SD1 & ST7).
             process.AddSystemDecisionPointWithBranchBeforeSystemTask(addedSystemTask, incomingLinkForAddedSystemTask.Orderindex + 1, endShape.Id);
             
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.

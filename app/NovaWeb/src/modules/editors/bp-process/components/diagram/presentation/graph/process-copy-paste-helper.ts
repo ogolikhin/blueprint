@@ -239,7 +239,7 @@ export class ProcessCopyPasteHelper {
         });        
     }
 
- private addTasksAndDecisionsToClipboardData(prevId: string, data: PreprocessorData, baseNodes, 
+    private addTasksAndDecisionsToClipboardData(prevId: string, data: PreprocessorData, baseNodes, 
                                                 decisionPointRefs: Models.IHashMap<DecisionPointRef>) {        
         _.each(baseNodes, (node) => {
             // skip processed nodes
@@ -342,7 +342,7 @@ export class ProcessCopyPasteHelper {
                                             subTreeId);
     }      
 
- private  addSystemDecisionAndTasks(prevId: string, data: PreprocessorData, node: SystemDecision, 
+    private  addSystemDecisionAndTasks(prevId: string, data: PreprocessorData, node: SystemDecision, 
                                         decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
         const systemDecisionShape = this.createSystemDecisionShape(node);
         const systemDecisionId: string = systemDecisionShape.id.toString();

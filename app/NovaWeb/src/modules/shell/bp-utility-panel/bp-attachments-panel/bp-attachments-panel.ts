@@ -20,6 +20,7 @@ import {
 import {ISettingsService} from "../../../core/configuration/settings";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -152,9 +153,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     public deleteAttachment(attachment: IArtifactAttachment) {
         const dialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok", "OK"),
+            okButton: this.localization.get("App_Button_Delete", "Delete"),
             header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
-            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Please confirm the deletion of this attachment.")
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Please confirm the deletion of this attachment."),
+            css: "modal-alert nova-messaging"
         };
         this.dialogService.open(dialogSettings).then(() => {
             this.item.attachments.remove([attachment]);
@@ -163,9 +165,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     public deleteDocRef(docRef: IArtifactDocRef) {
         const dialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok", "OK"),
+            okButton: this.localization.get("App_Button_Delete", "Delete"),
             header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Document Reference"),
-            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?")
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?"),
+            css: "modal-alert nova-messaging"
         };
         this.dialogService.open(dialogSettings).then(() => {
             this.item.docRefs.remove([docRef]);

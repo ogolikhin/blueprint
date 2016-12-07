@@ -197,8 +197,8 @@ export class ProcessDiagram {
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
-                this.clipboard
-
+                this.clipboard,
+                this.fileUploadService
             );
              
         } catch (err) {

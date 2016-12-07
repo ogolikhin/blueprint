@@ -25,6 +25,7 @@ import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localizationService";
 import {IClipboardService} from "../../../../services/clipboard.svc";
+import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
 
 
 export class ProcessGraph implements IProcessGraph {
@@ -71,7 +72,8 @@ export class ProcessGraph implements IProcessGraph {
                 public messageService: IMessageService = null,
                 private $log: ng.ILogService = null,
                 private statefulArtifactFactory: IStatefulArtifactFactory = null,
-                private clipboard: IClipboardService = null) {
+                private clipboard: IClipboardService = null,
+                private fileUploadService: IFileUploadService) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -106,7 +108,7 @@ export class ProcessGraph implements IProcessGraph {
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
         this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, 
-                    this.clipboard, this.shapesFactory, this.messageService, this.$log);
+                    this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService);
     }
 
     private isCellSelectable = (cell: MxCell) => {

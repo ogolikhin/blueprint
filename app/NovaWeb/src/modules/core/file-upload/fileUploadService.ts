@@ -69,7 +69,7 @@ export class FileUploadService implements IFileUploadService {
         const deferred = this.$q.defer<any>();
         const request: ng.IRequestConfig | any = {
             method: "POST",
-            url: `/svc/components/filestore/copyToFilestore`,
+            url: `/svc/components/filestore/artifact/image/copyToFilestore`,
             params: expirationDate ? {expired: expirationDate.toISOString()} : undefined,
             data: artifactIds
         };

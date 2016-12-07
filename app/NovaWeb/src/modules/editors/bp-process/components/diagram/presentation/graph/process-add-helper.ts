@@ -69,17 +69,8 @@ export class ProcessAddHelper {
     }
 
     public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        // COPY PROPERTIES
-        userTaskShape.name = _userTaskShape.name; 
-        userTaskShape.personaReference = _.cloneDeep(_userTaskShape.personaReference); 
-        userTaskShape.propertyValues = _.cloneDeep(_userTaskShape.propertyValues); 
-
-        ProcessAddHelper.addShape(userTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
-
-        return userTaskShape.id;
+        _userTaskShape.propertyValues[shapesFactoryService.StoryLinks.key].value = null;
+        return this.insertClonedShapeInternal(layout, shapesFactoryService, _userTaskShape);
     }
 
     // #DEBUG
@@ -106,18 +97,18 @@ export class ProcessAddHelper {
 
     private static insertClonedShapeInternal(layout: ILayout, shapesFactoryService, shape: IProcessShape): number {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
-            layout.getTempShapeId(), -1, -1);
 
-        // COPY PROPERTIES
-        systemTaskShape.name = _systemTaskShape.name; 
-        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference); 
-        systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues); 
-            
-        ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
+        // update clone task with current process's information.
+        shape.parentId = layout.viewModel.id;
+        if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {
+            shape.associatedArtifact = null;
+        }
+        shape.projectId = layout.viewModel.projectId;
+        shape.id = layout.getTempShapeId();
 
-        return systemTaskShape.id;
+        ProcessAddHelper.addShape(shape, layout, shapesFactoryService);
+
+        return shape.id;
     }
 
     public static insertUserDecision(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory) {

@@ -72,7 +72,7 @@ export class ProcessGraph implements IProcessGraph {
                 private $log: ng.ILogService = null,
                 private statefulArtifactFactory: IStatefulArtifactFactory = null,
                 private clipboard: IClipboardService = null,
-                private fileUploadService: IFileUploadService) {
+                private fileUploadService: IFileUploadService = null) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.

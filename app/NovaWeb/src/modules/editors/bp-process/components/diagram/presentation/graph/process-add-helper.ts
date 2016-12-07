@@ -68,11 +68,6 @@ export class ProcessAddHelper {
         return userTaskShape.id;
     }
 
-    public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
-        _userTaskShape.propertyValues[shapesFactoryService.StoryLinks.key].value = null;
-        return this.insertClonedShapeInternal(layout, shapesFactoryService, _userTaskShape);
-    }
-
     // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
@@ -89,26 +84,6 @@ export class ProcessAddHelper {
         layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 
         return systemTaskShape.id;
-    }
-
-    public static insertClonedSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _systemTaskShape: ISystemTaskShape) {
-        return this.insertClonedShapeInternal(layout, shapesFactoryService, _systemTaskShape);
-    }
-
-    private static insertClonedShapeInternal(layout: ILayout, shapesFactoryService, shape: IProcessShape): number {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-
-        // update clone task with current process's information.
-        shape.parentId = layout.viewModel.id;
-        if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {
-            shape.associatedArtifact = null;
-        }
-        shape.projectId = layout.viewModel.projectId;
-        shape.id = layout.getTempShapeId();
-
-        ProcessAddHelper.addShape(shape, layout, shapesFactoryService);
-
-        return shape.id;
     }
 
     public static insertUserDecision(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory) {

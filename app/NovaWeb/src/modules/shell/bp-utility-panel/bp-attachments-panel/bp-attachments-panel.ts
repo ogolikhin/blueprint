@@ -154,7 +154,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public deleteAttachment(attachment: IArtifactAttachment) {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Delete", "Delete"),
-            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
+            header: this.localization.get("App_DialogTitle_Alert", "Warning"),
             message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Please confirm the deletion of this attachment."),
             css: "modal-alert nova-messaging"
         };
@@ -166,7 +166,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public deleteDocRef(docRef: IArtifactDocRef) {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Delete", "Delete"),
-            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Document Reference"),
+            header: this.localization.get("App_DialogTitle_Alert", "Warning"),
             message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?"),
             css: "modal-alert nova-messaging"
         };

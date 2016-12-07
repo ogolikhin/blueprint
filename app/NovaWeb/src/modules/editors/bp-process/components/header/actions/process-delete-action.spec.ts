@@ -104,6 +104,19 @@ describe("ProcessDeleteAction", () => {
             // assert
             expect(spy).toHaveBeenCalledWith(ProcessEvents.SelectionChanged, jasmine.any(Function));
         });
+
+        it("sets disabled to true for read-only process", () => {
+            // arrange
+            statefulProcess.artifactState.readonly = true;
+
+            // act
+            const action = new ProcessDeleteAction(
+                    statefulProcess, localization, messageService, artifactManager, projectManager, 
+                    loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
+
+            // assert
+            expect(action.disabled).toEqual(true);
+        });
     });
 
     describe("on selection changed", () => {
@@ -259,6 +272,21 @@ describe("ProcessDeleteAction", () => {
             // assert
             expect(action.disabled).toEqual(true);
         });
+
+        it("sets disabled to true when selection is valid for read-only process", () => {
+            // arrange
+            statefulProcess.artifactState.readonly = true;
+            const action = new ProcessDeleteAction(
+                    statefulProcess, localization, messageService, artifactManager, projectManager, 
+                    loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
+            const systemDecision = TestShapes.createSystemDecision(14, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [systemDecision]);
+
+            // assert
+            expect(action.disabled).toEqual(true);
+        });
     });
 
     describe("execute", () => {
@@ -349,6 +377,23 @@ describe("ProcessDeleteAction", () => {
             const userTask = TestShapes.createUserTask(14, $rootScope);
             const userTask1 = TestShapes.createUserTask(15, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask, userTask1]);
+            const spy = spyOn(processDiagramCommunication, "action");
+
+            // act
+            action.execute();
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't delete when selection is valid for read-only process", () => {
+            // arrange
+            statefulProcess.artifactState.readonly = true;
+            const action = new ProcessDeleteAction(
+                    statefulProcess, localization, messageService, artifactManager, projectManager, 
+                    loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
+            const userTask = TestShapes.createUserTask(14, $rootScope);
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
             const spy = spyOn(processDiagramCommunication, "action");
 
             // act

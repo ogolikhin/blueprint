@@ -138,11 +138,10 @@ export class ProcessCopyPasteHelper {
             baseNodes = _.sortBy(baseNodes, (node: IDiagramNode) => node.model.propertyValues["x"].value * 1000 + 
                                                                                                       node.model.propertyValues["y"].value);
 
-            let prevId = "0";
             data.numberOfSubTrees = -1;
 
             // 5. add user tasks, system tasks and user decisions to clipboard process data
-            this.addTasksAndDecisionsToClipboardData(prevId, data, baseNodes, decisionPointRefs);
+            this.addTasksAndDecisionsToClipboardData(data, baseNodes, decisionPointRefs);
 
             // 6. connect all subtrees together
             this.connectAllSubtrees(data);
@@ -194,8 +193,9 @@ export class ProcessCopyPasteHelper {
         });        
     }
 
-    private addTasksAndDecisionsToClipboardData(prevId: string, data: PreprocessorData, baseNodes, 
-                                                decisionPointRefs: Models.IHashMap<DecisionPointRef>) {        
+    private addTasksAndDecisionsToClipboardData(data: PreprocessorData, baseNodes, 
+                                                decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
+        let prevId = "UNDEFINED";
         _.each(baseNodes, (node) => {
             // skip processed nodes
             if (!data.preprocessorTree[(<IDiagramNode>node).model.id]) {

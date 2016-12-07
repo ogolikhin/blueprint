@@ -974,6 +974,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private highlightNode(node: IDiagramNode): void {
         // todo: implement highlight logic
+        this.highlightedCopyNodes.push(node);
     }
 
     private clearCopyGroupHighlight(): void {

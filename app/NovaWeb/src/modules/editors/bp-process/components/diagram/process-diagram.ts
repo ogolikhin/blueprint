@@ -1,3 +1,4 @@
+import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -53,7 +54,8 @@ export class ProcessDiagram {
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService,
                 private artifactManager: IArtifactManager,
-                private fileUploadService: IFileUploadService) {
+                private fileUploadService: IFileUploadService,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.processModel = null;
        
@@ -199,7 +201,8 @@ export class ProcessDiagram {
                 this.statefulArtifactFactory,
                 this.clipboard,
                 this.fileUploadService,
-                this.$q
+                this.$q,
+                this.loadingOverlayService
             );
              
         } catch (err) {

@@ -20,7 +20,7 @@ describe("Tour Dialog", () => {
 
     it("created images correctly", () => {
         expect(controller.images).not.toBeNull();
-        expect(controller.images.length).toBe(21);
+        expect(controller.images.length).toBe(7);
         expect(controller.images.filter(i => !i.src).length).toBe(0);
     });
 

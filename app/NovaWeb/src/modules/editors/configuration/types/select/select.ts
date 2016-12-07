@@ -12,9 +12,6 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
-
-            const $scopeOptions = $scope["options"] as AngularFormly.IFieldConfigurationObject;
-            $scopeOptions.validation.show = ($scope["fc"] as ng.IFormController).$invalid;
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;

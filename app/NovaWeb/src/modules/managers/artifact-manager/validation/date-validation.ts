@@ -72,7 +72,7 @@ export class DateValidation extends BaseValidation implements IDateValidation {
                this.minDateSQL(value) &&
                this.minDate(value, minDate, isValidated) &&
                this.maxDate(value, maxDate, isValidated) &&
-               this.hasValueIfRequired(isRequired, value, isValidated);
+               this.hasValueIfRequired(isRequired, value, value, isValidated);
     }
 
 }

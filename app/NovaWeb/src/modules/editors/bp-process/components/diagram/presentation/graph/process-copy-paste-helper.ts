@@ -12,6 +12,7 @@ import {DiagramNode, SystemTask, UserTask, UserDecision, SystemDecision} from ".
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
 import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/process-models";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
+import {Models} from "../../../../../../main";
 
 enum PreprocessorNodeType {
     UserTask,
@@ -21,7 +22,7 @@ enum PreprocessorNodeType {
 }
 
 class PreprocessorNode {
-    constructor(id: number, prevId: number, nextIds: number[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
+    constructor(id: string, prevId: string, nextIds: string[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
         this.id = id;
         this.prevId = prevId;
         this.nextIds = nextIds; 
@@ -31,9 +32,9 @@ class PreprocessorNode {
         this.y = y;
         this.subTreeId = subTreeId;
     }
-    id: number;
-    prevId: number;
-    nextIds: number[]; 
+    id: string;
+    prevId: string;
+    nextIds: string[]; 
     type: PreprocessorNodeType;
     x: number;
     y: number;
@@ -52,20 +53,20 @@ class PreprocessorLink {
 
 class PreprocessorData {
     constructor() {
-        this.shapes = [];
-        this.links = [];
-        this.preprocessorTree = [];
+        this.shapes = {};
+        this.links = {};
+        this.preprocessorTree = {};
         this.treeIndex = [];
         this.numberOfSubTrees = 0;
     }
-    shapes: IProcessShape[];
-    links: PreprocessorLink[];
-    preprocessorTree: PreprocessorNode[];
-    treeIndex: number[];
+    shapes: Models.IHashMap<IProcessShape>;
+    links: Models.IHashMap<PreprocessorLink>;
+    preprocessorTree: Models.IHashMap<PreprocessorNode>;
+    treeIndex: string[];
     startId: number;
     numberOfSubTrees: number;
 
-    public addPreprocessorNode(id: number, prevId: number, nextIds: number[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
+    public addPreprocessorNode(id: string, prevId: string, nextIds: string[], type: PreprocessorNodeType, x: number, y: number, subTreeId: number) {
         this.preprocessorTree[id] = new PreprocessorNode(id, prevId, nextIds, type, x, y, subTreeId);
         this.treeIndex.push(id);
     }
@@ -77,52 +78,34 @@ class PreprocessorData {
 }
 
 class Branch {
-    constructor(public taskId: number, 
-                public label: string, 
-                public orderindex: number,
-                public endPointId: number = undefined) {
+    constructor(taskId: string, label: string, orderindex: number) {
+        this.taskId = taskId;
+        this.label = label;
+        this.orderindex = orderindex;
+        this.endPointId = "UNDEFINED";
     }
+    taskId: string;
+    label: string;
+    orderindex: number;
+    endPointId: string;
 }
 
 // This is used for the user and system decisions with branches
 class DecisionPointRef {
-    constructor(
-        public decisionId: number, taskId: number, label: string, orderindex: number) {
+    constructor(decisionId: string, taskId: string, label: string, orderindex: number) {
         this.decisionId = decisionId;
         this.branches = [];
         this.branches.push(new Branch(taskId, label, orderindex));
     }
+    decisionId: string; 
     branches: Branch[]; 
 }
 
 export class ProcessCopyPasteHelper {
 
-    private processCopyHelper: ProcessCopyHelper;
-    private processPasteHelper: ProcessPasteHelper;
-
-    constructor(processGraph: IProcessGraph, 
-                     clipboard: IClipboardService, 
-                     shapesFactoryService: ShapesFactory,
-                     messageService: IMessageService,
-                     $log: ng.ILogService) {
-        this.processCopyHelper = new ProcessCopyHelper(processGraph, clipboard, shapesFactoryService, messageService, $log);
-        this.processPasteHelper = new ProcessPasteHelper(processGraph.layout, clipboard); 
-    }
-
-    public copySelectedShapes() {
-        this.processCopyHelper.copySelectedShapes();
-    }
-
-    public insertSelectedShapes(sourceIds: number[], destinationId: number): void {
-        this.processPasteHelper.insertSelectedShapes(sourceIds, destinationId);
-    }
-}
-
-class ProcessCopyHelper {
-
     private layout: ILayout;
-    private readonly treeStartId = -99999;
-    private readonly treeEndId = -100000;
+    private readonly treeStartId = "-99999";
+    private readonly treeEndId = "-100000";
 
     constructor(private processGraph: IProcessGraph, 
                      private clipboard: IClipboardService, 
@@ -139,28 +122,30 @@ class ProcessCopyHelper {
         
         const  data: PreprocessorData = new PreprocessorData();
         // baseNodes is a collection of the nodes which goes into clipboard process data
-        let baseNodes = this.processGraph.getSelectedShapes();
+        let  baseNodes = this.processGraph.getMxGraph().getSelectionCells();
 
         try {
             // 1. Find all User Decisions
-            const decisionPointRefs: DecisionPointRef[] = this.findUserDecisions(baseNodes);
+            let decisionPointRefs: Models.IHashMap<DecisionPointRef> = {};
+
+            this.findUserDecisions(baseNodes, decisionPointRefs);
                     
             // 2. add user decisions to base nodes
+
             this.addUserDecisionsToBasenodes(baseNodes, decisionPointRefs);
 
             // 4. sort base nodes
             baseNodes = _.sortBy(baseNodes, (node: IDiagramNode) => node.model.propertyValues["x"].value * 1000 + 
                                                                                                       node.model.propertyValues["y"].value);
 
-            let prevId = 0;
+            let prevId = "0";
             data.numberOfSubTrees = -1;
 
             // 5. add user tasks, system tasks and user decisions to clipboard process data
             this.addTasksAndDecisionsToClipboardData(prevId, data, baseNodes, decisionPointRefs);
 
             // 6. connect all subtrees together
-            let connectionNodeId = this.treeEndId;  
-            this.connectAllSubtrees(data, connectionNodeId);
+            this.connectAllSubtrees(data);
 
             // 7. add branch links
             this.addBranchLinks(data, decisionPointRefs);
@@ -179,12 +164,10 @@ class ProcessCopyHelper {
         }
     };
 
-    private findUserDecisions(baseNodes: IProcessShape[]): DecisionPointRef[] {
-        const decisionPointRefs: DecisionPointRef[] = [];
-
-        _.each(baseNodes, (node: IProcessShape) => {
-            if (node instanceof UserTaskShapeModel) {
-                const previousShapeIds: number[] = this.processGraph.viewModel.getPrevShapeIds(node.id);
+    private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
+        _.each(baseNodes, (node) => {
+            if (node instanceof UserTask) {
+                const previousShapeIds: number[] = this.processGraph.viewModel.getPrevShapeIds(node.model.id);
                 const shape = this.processGraph.viewModel.getShapeById(previousShapeIds[0]);
 
                 if (shape.propertyValues["clientType"].value === NodeType.UserDecision) {
@@ -194,16 +177,14 @@ class ProcessCopyHelper {
                     if (userDecisionPointRef) {
                         userDecisionPointRef.branches.push(new Branch(node.id, link.label, link.orderindex));
                     } else {
-                        decisionPointRefs[shape.id.toString()] = new DecisionPointRef(shape.id, node.id, link.label, link.orderindex);
+                        decisionPointRefs[shape.id.toString()] = new DecisionPointRef(shape.id.toString(), node.id, link.label, link.orderindex);
                     } 
                 }
             }
         });
-
-        return decisionPointRefs;
     }    
 
-    private addUserDecisionsToBasenodes(baseNodes: any, decisionPointRefs: DecisionPointRef[]) {
+    private addUserDecisionsToBasenodes(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.forOwn(decisionPointRefs, (node) => {
             if (!!node && node.branches.length > 1) {
                 // sort branches by orderindex 
@@ -213,8 +194,8 @@ class ProcessCopyHelper {
         });        
     }
 
-    private addTasksAndDecisionsToClipboardData(prevId: number, data: PreprocessorData, baseNodes, 
-                                                decisionPointRefs: DecisionPointRef[]) {        
+    private addTasksAndDecisionsToClipboardData(prevId: string, data: PreprocessorData, baseNodes, 
+                                                decisionPointRefs: Models.IHashMap<DecisionPointRef>) {        
         _.each(baseNodes, (node) => {
             // skip processed nodes
             if (!data.preprocessorTree[(<IDiagramNode>node).model.id]) {
@@ -231,7 +212,8 @@ class ProcessCopyHelper {
         data.sortTree();
     }
 
-    private connectAllSubtrees(data: PreprocessorData, connectionNodeId: number) {
+    private connectAllSubtrees(data: PreprocessorData) {
+        let connectionNodeId = this.treeEndId;  
         for (let i = data.treeIndex.length - 1; i >= 0; i--) {
             const preprocessorNode: PreprocessorNode = data.preprocessorTree[data.treeIndex[i]];
             if (i === data.treeIndex.length - 1) {
@@ -246,8 +228,8 @@ class ProcessCopyHelper {
         }       
     }
 
-    private addBranchLinks(data: PreprocessorData, decisionPointRefs: DecisionPointRef[]) {
-        _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {
+    private addBranchLinks(data: PreprocessorData, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
+        _.forOwn(decisionPointRefs, (node) => {
             if (!!node && node.branches.length > 1) {
                 for (let branch of node.branches) {
                     // add link
@@ -286,15 +268,15 @@ class ProcessCopyHelper {
         return (<PreprocessorNode>data.preprocessorTree[data.treeIndex[0]]).type === PreprocessorNodeType.UserTask;
     }
 
-    private  addUserDecisionAndTasks(prevId: number, data: PreprocessorData, baseNodes, 
-                                                      node: UserDecision, decisionPointRefs: DecisionPointRef[], subTreeId: number) {
+    private  addUserDecisionAndTasks(prevId: string, data: PreprocessorData, baseNodes, 
+                                                      node: UserDecision, decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
         const userDecisionShape = this.createUserDecisionShape(node);
-        const userDecisionId: number = userDecisionShape.id;
+        const userDecisionId: string = userDecisionShape.id.toString();
         data.shapes[userDecisionId] = userDecisionShape;
 
-        const userTasks: number[] = []; 
+        const userTasks: string[] = []; 
         _.each(decisionPointRefs[userDecisionId].branches, (branch: Branch) => {
-            let userTask = this.processGraph.getNodeById(branch.taskId.toString());
+            let userTask = this.processGraph.getNodeById(branch.taskId);
             userTasks.push(branch.taskId);
             this.addUserAndSystemTasks(userDecisionId, data, baseNodes, <UserTask>userTask, decisionPointRefs, subTreeId);
         });
@@ -306,21 +288,21 @@ class ProcessCopyHelper {
                                             subTreeId);
     }      
 
-    private  addSystemDecisionAndTasks(prevId: number, data: PreprocessorData, node: SystemDecision, 
-                                        decisionPointRefs: DecisionPointRef[], subTreeId: number) {
+    private  addSystemDecisionAndTasks(prevId: string, data: PreprocessorData, node: SystemDecision, 
+                                        decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
         const systemDecisionShape = this.createSystemDecisionShape(node);
-        const systemDecisionId: number = systemDecisionShape.id;
+        const systemDecisionId: string = systemDecisionShape.id.toString();
         data.shapes[systemDecisionId] = systemDecisionShape;
 
         const systemTasks = node.getNextNodes();
-        const systemTaskIds: number[] = []; 
+        const systemTaskIds: string[] = []; 
         _.each(systemTasks, (systemTask: SystemTask) => {
 
             const link: IProcessLink = this.processGraph.getLink(systemDecisionShape.id, systemTask.id);
             if (!decisionPointRefs[systemDecisionId]) {
-                decisionPointRefs[systemDecisionId] = new DecisionPointRef(systemDecisionId, systemTask.model.id, link.label, link.orderindex);
+                decisionPointRefs[systemDecisionId] = new DecisionPointRef(systemDecisionId, systemTask.model.id.toString(), link.label, link.orderindex);
             } else {
-                decisionPointRefs[systemDecisionId].branches.push(new Branch(systemTask.model.id, link.label, link.orderindex));
+                decisionPointRefs[systemDecisionId].branches.push(new Branch(systemTask.model.id.toString(), link.label, link.orderindex));
             }
 
             systemTaskIds.push(systemTask.id);
@@ -334,10 +316,10 @@ class ProcessCopyHelper {
                                             subTreeId);
     }    
 
-    private addSystemTask(prevId: number, data: PreprocessorData, node: SystemTask, subTreeId: number): number {
+    private addSystemTask(prevId: string, data: PreprocessorData, node: SystemTask, subTreeId: number): string {
         const systemTaskShape = this.createSystemTask(node);
-        const nextId = this.processGraph.viewModel.getNextShapeIds(systemTaskShape.id)[0];
-        const systemTaskId = systemTaskShape.id;
+        const nextId = this.processGraph.viewModel.getNextShapeIds(systemTaskShape.id)[0].toString();
+        const systemTaskId = systemTaskShape.id.toString();
         data.addPreprocessorNode(systemTaskId, prevId, [nextId], 
                                             PreprocessorNodeType.SystemTask, 
                                             systemTaskShape.propertyValues["x"].value,
@@ -348,13 +330,13 @@ class ProcessCopyHelper {
         return nextId;
     }
 
-    private  addUserAndSystemTasks(prevId: number, data: PreprocessorData, baseNodes, node: UserTask, 
-                                                    decisionPointRefs: DecisionPointRef[], subTreeId: number) {
+    private  addUserAndSystemTasks(prevId: string, data: PreprocessorData, baseNodes, node: UserTask, 
+                                                    decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
         const userTaskShape = this.createUserTaskShape(node);
         const systemTasks = node.getNextSystemTasks(this.processGraph);
 
-        const userTaskId: number = userTaskShape.id;
-        let systemTaskId: number = systemTasks[0].model.id;
+        const userTaskId: string = userTaskShape.id.toString();
+        let systemTaskId: string = systemTasks[0].model.id.toString();
 
         data.shapes[userTaskId] = userTaskShape;
         data.addPreprocessorNode(userTaskId, prevId, [systemTaskId], 
@@ -365,7 +347,7 @@ class ProcessCopyHelper {
 
         if (systemTasks.length === 1) {
             const nextId = this.addSystemTask(userTaskId, data, <SystemTask>systemTasks[0], subTreeId);
-            const nextNode = _.find(baseNodes, (node: IDiagramNode) =>  { return node.model.id === nextId; }); //data.preprocessorTree[nextId];
+            const nextNode = _.find(baseNodes, (node: IDiagramNode) =>  { return node.model.id.toString() === nextId; }); //data.preprocessorTree[nextId];
             
             if (!!nextNode && !data.preprocessorTree[nextId]) { // there is next selected user task or user decision 
                 if (nextNode instanceof UserTask) {
@@ -429,7 +411,7 @@ class ProcessCopyHelper {
         return systemTaskShape; 
     }
 
-    private createProcessModel(data: PreprocessorData, decisionPointRefs: DecisionPointRef[]): IProcess {
+    private createProcessModel(data: PreprocessorData, decisionPointRefs: Models.IHashMap<DecisionPointRef>): IProcess {
         const procModel: IProcess = new ProcessModel(
             -1,
             "CP",
@@ -470,16 +452,6 @@ class ProcessCopyHelper {
         });        
 
         return procModel;
-    }
-}
-
-class ProcessPasteHelper {
-
-    private readonly treeStartId = "-99999";
-    private readonly treeEndId = "-100000";
-
-    constructor(private layout: ILayout, 
-                private clipboard: IClipboardService) {
     }
 
     public insertSelectedShapes(sourceIds: number[], destinationId: number): void {

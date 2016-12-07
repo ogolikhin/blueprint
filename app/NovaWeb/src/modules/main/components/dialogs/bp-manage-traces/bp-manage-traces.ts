@@ -19,8 +19,8 @@ export class ManageTracesDialogController extends BaseDialogController {
     private selectedVMs: TreeModels.ITreeNodeVM<any>[];
 
     public item: IStatefulItem;
-    public allTraces: Relationships.IRelationshipView[];
     public otherTraces: Relationships.IRelationshipView[];
+    /*fixme: what is this variable used for?*/
     public scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;
@@ -59,7 +59,6 @@ export class ManageTracesDialogController extends BaseDialogController {
                 item.isSelected = false;
             });
         }
-
         this.selectedTraces[this.data.artifactId] = [];
     }
 
@@ -91,11 +90,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             return _.pick(trace, ["artifactId", "suspect", "traceDirection"]);
         });
 
-        if (!_.isEqual(this.initialArray, lastVersion)) {
-            this.disabledSave = false;
-        } else {
-            this.disabledSave = true;
-        }
+        this.disabledSave = _.isEqual(this.initialArray, lastVersion);
     }
 
     public trace(): void {
@@ -142,7 +137,6 @@ export class ManageTracesDialogController extends BaseDialogController {
             this.scroller.scrollTop = this.scroller.scrollHeight;
         });
 
-
         this.api.deselectAll();
         this.disableTrace();
         this.toggleSave();
@@ -150,7 +144,6 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public setDirection(direction: Relationships.TraceDirection): void {
         this.direction = direction;
-
         this.toggleSave();
     }
 
@@ -159,8 +152,8 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.hasFlagged = false;
         this.hasUnFlagged = false;
 
-        let traces = this.selectedTraces[this.data.artifactId],
-            selectedTracesLength = traces.length;
+        let traces = this.selectedTraces[this.data.artifactId];
+        let selectedTracesLength = traces.length;
 
         for (let i = 0; i < selectedTracesLength; i++) {
             if (traces[i].hasAccess) {
@@ -174,12 +167,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         for (let i = 0; i < selectedTracesLength; i++) {
             if (traces[i].hasAccess) {
-                if (this.hasFlagged === true && this.hasUnFlagged !== true) {
-                    traces[i].suspect = false;
-                } else {
-                    traces[i].suspect = true;
-                }
-
+                traces[i].suspect = !(this.hasFlagged === true && this.hasUnFlagged !== true);
                 traces[i].traceIcon = traces[i].suspect ? "trace-icon-suspect" : "trace-icon-regular";
             }
         }
@@ -240,7 +228,7 @@ export class ManageTracesDialogController extends BaseDialogController {
             found = true;
         }
 
-        this.isTraceDisabled = found ? true : false;
+        this.isTraceDisabled = found;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {

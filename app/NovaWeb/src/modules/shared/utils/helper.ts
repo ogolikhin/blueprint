@@ -1,5 +1,4 @@
-﻿import * as angular from "angular";
-import {Models} from "../../main";
+﻿import {Models} from "../../main";
 import {ItemTypePredefined} from "../../main/models/enums";
 
 export class Helper {

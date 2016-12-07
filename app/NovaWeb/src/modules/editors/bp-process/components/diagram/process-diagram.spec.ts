@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import * as TestModels from "../../models/test-model-factory";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
@@ -8,7 +9,6 @@ import {ICommunicationManager, CommunicationManager} from "../../../bp-process";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {DialogService} from "../../../../shared/widgets/bp-dialog";
 import {ProcessType} from "../../models/enums";
-import * as TestModels from "../../models/test-model-factory";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -16,6 +16,8 @@ import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
+import {IArtifactManager} from "./../../../../managers/artifact-manager";
+
 
 class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
@@ -37,13 +39,15 @@ describe("ProcessDiagram Tests", () => {
         log: ng.ILogService,
         messageService: IMessageService,
         statefulArtifactFactory: IStatefulArtifactFactory;
+
     let communicationManager: ICommunicationManager,
         dialogService: DialogService,
         localization: LocalizationServiceMock,
         clipboard: IClipboardService,
         navigationService: INavigationService,
         utilityPanelService: UtilityPanelService,
-        shapesFactory: ShapesFactory;
+        shapesFactory: ShapesFactory,
+        artifactManager: IArtifactManager;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -52,6 +56,8 @@ describe("ProcessDiagram Tests", () => {
     _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        artifactManager = <IArtifactManager>{};
+
         $provide.service("messageService", MessageServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
@@ -122,7 +128,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -151,7 +158,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -183,7 +191,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -215,7 +224,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -248,7 +258,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -280,7 +291,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -313,7 +325,8 @@ describe("ProcessDiagram Tests", () => {
             statefulArtifactFactory,
             shapesFactory,
             utilityPanelService,
-            clipboard
+            clipboard,
+            artifactManager
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

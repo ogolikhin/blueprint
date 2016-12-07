@@ -13,7 +13,6 @@ import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
-
 import {
     IArtifactManager,
     ArtifactManager,
@@ -27,6 +26,7 @@ import {
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -36,6 +36,7 @@ describe("Component BPRelationshipsPanel", () => {
         isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
     };
     let traces;
+    let onChangesObj: IOnPanelChangesObject;
 
     beforeEach(angular.mock.module("app.shell"));
 
@@ -62,6 +63,15 @@ describe("Component BPRelationshipsPanel", () => {
         let template = `<bp-relationships-panel></bp-relationships-panel>`;
         directiveTest = new ComponentTest<BPRelationshipsPanelController>(template, "bp-relationships-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
+        onChangesObj = {
+            context: {
+                currentValue: {
+                    panelType: PanelType.Relationships
+                },
+                previousValue: undefined,
+                isFirstChange: () => { return true; }
+            }
+        };
 
         traces = [{
             artifactId: 8,
@@ -100,7 +110,8 @@ describe("Component BPRelationshipsPanel", () => {
     }));
 
     afterEach(() => {
-        vm = null;
+        vm = undefined;
+        onChangesObj = undefined;
     });
 
     it("should load data for a selected artifact",
@@ -110,7 +121,7 @@ describe("Component BPRelationshipsPanel", () => {
         }));
 
     it("should have empty traces for newly created sub-artifacts",
-        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
             const artifact = statefulArtifactFactory.createStatefulArtifact({
                 id: 2,
@@ -130,9 +141,11 @@ describe("Component BPRelationshipsPanel", () => {
 
             };
             const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
+            onChangesObj.context.currentValue.artifact = artifact;
+            onChangesObj.context.currentValue.subArtifact = subArtifact;
 
             //Act
-            artifactManager.selection.setSubArtifact(subArtifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
 
             //Assert
@@ -145,42 +158,38 @@ describe("Component BPRelationshipsPanel", () => {
         }));
 
     it("should load data for a selected artifact",
-        inject(($rootScope: ng.IRootScopeService, processService: IProcessService, artifactManager: IArtifactManager,
+        inject(($rootScope: ng.IRootScopeService, processService: IProcessService,
                 statefulArtifactFactory: IStatefulArtifactFactory) => {
-
             //Arrange
             const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
+            onChangesObj.context.currentValue.artifact = artifact;
 
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
-            const selectedArtifact = artifactManager.selection.getArtifact();
 
             //Assert
-            expect(selectedArtifact).toBeDefined();
             expect(vm.manualTraces.length).toBe(2);
             expect(vm.otherTraces.length).toBe(3);
         }));
 
     it("should change direction of the selected artifact",
-        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager) => {
+        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory) => {
 
             //Arrange
             const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
-
+            onChangesObj.context.currentValue.artifact = artifact;
             //Act
-            artifactManager.selection.setArtifact(artifact);
+            vm.$onChanges(onChangesObj);
             $rootScope.$digest();
-            const selectedArtifact = artifactManager.selection.getArtifact();
 
             //Assert
-            expect(selectedArtifact).toBeDefined();
             expect(vm.manualTraces.length).toBe(2);
             expect(vm.otherTraces.length).toBe(3);
         }));
 
     it("should load data for a selected artifacts",
-        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager) => {
+        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory) => {
 
             //Arrange
             vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
@@ -197,7 +206,7 @@ describe("Component BPRelationshipsPanel", () => {
 
     it("should flag traces",
         inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
-                statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory,
                 artifactRelationships: IArtifactRelationshipsService) => {
 
             //Arrange
@@ -217,7 +226,7 @@ describe("Component BPRelationshipsPanel", () => {
 
     it("should delete trace from artifact",
         inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
-                statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory,
                 artifactRelationships: IArtifactRelationshipsService) => {
 
             //Arrange
@@ -235,7 +244,7 @@ describe("Component BPRelationshipsPanel", () => {
 
     it("should delete selected traces from artifact",
         inject(($httpBackend: ng.IHttpBackendService, $rootScope: ng.IRootScopeService,
-                statefulArtifactFactory: IStatefulArtifactFactory, artifactManager: IArtifactManager,
+                statefulArtifactFactory: IStatefulArtifactFactory,
                 artifactRelationships: IArtifactRelationshipsService) => {
 
             //Arrange

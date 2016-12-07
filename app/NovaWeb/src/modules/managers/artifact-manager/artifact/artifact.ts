@@ -27,6 +27,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
+    copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
 }
@@ -443,6 +444,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (error.statusCode === 400) {
             if (error.errorCode === 114) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400_114");
+            } else if (error.errorCode === 130) { // The Item name cannot be empty
+                message = "App_Save_Artifact_Error_409_130"; //todo get localized string
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_400") + error.message;
             }
@@ -595,6 +598,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.getServices().$q.all(promisesToExecute)
             .then(() => {
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
                 deferred.resolve(this);
             })
             .catch((error) => {
@@ -602,6 +606,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
                 //Project manager is listening to this, and will refresh the project.
                 this.subject.onNext(this);
+                this.propertyChange.onNext({item: this});
 
                 this.error.onNext(error);
             });
@@ -637,6 +642,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.services.$q.reject(error);
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(moveOverlayId);
+        });
+    }
+
+     public copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet> {
+        let copyOverlayId = this.services.loadingOverlayService.beginLoading();
+
+        return this.services.artifactService.copyArtifact(this.id, newParentId, orderIndex)
+        .catch((error: IApplicationError) => {
+            return this.services.$q.reject(error);
+        }).finally(() => {
+            this.services.loadingOverlayService.endLoading(copyOverlayId);
         });
     }
 

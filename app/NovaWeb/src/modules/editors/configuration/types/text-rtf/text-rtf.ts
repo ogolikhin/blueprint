@@ -192,15 +192,24 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     }
 
                     editor.on("KeyUp", (e) => {
-                        const currentContent = editor.getContent();
-                        if (currentContent !== this.contentBuffer) {
-                            this.triggerChange(currentContent);
+                        if (this.isDirty || this.contentBuffer !== editor.getContent()) {
+                            this.triggerChange();
                         }
                     });
 
                     editor.on("Change", (e) => {
                         if ($scope.options["data"].isFresh) {
                             this.prepRTF(true);
+                        } else if (this.isDirty || this.hasChangedFormat() || this.isLinkPopupOpen) {
+                            this.triggerChange();
+                        }
+                    });
+
+                    editor.on("ExecCommand", (e) => {
+                        if (e && _.indexOf(this.execCommandEvents, e.command) !== -1) {
+                            this.triggerChange();
+                        } else if (e && _.indexOf(this.linkEvents, e.command) !== -1) {
+                            this.isLinkPopupOpen = true;
                         }
                     });
 

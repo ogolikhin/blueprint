@@ -104,18 +104,24 @@ export class PageToolbarController implements IPageToolbarController {
      *
      */
     public closeProject = (evt?: ng.IAngularEvent) => {
+        const id = this.loadingOverlayService.beginLoading();
         if (evt) {
             evt.preventDefault();
         }
         this.artifactManager.autosave().then(() => {
-            let artifact = this.artifactManager.selection.getArtifact();
+            const artifact = this.artifactManager.selection.getArtifact();
             if (artifact) {
-                this.closeProjectInternal(artifact.projectId);
+                return this.closeProjectInternal(artifact.projectId);
             }
+            return this.$q.resolve();
+
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(id);
         });
     };
 
     public closeAllProjects = (evt?: ng.IAngularEvent) => {
+        const id = this.loadingOverlayService.beginLoading();
         if (evt) {
             evt.preventDefault();
         }
@@ -132,14 +138,16 @@ export class PageToolbarController implements IPageToolbarController {
                     //If the project we're closing has unpublished artifacts, we display a modal
                     let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
                         .replace(`{0}`, numberOfUnpublishedArtifacts.toString());
-                    this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                    return this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
                         this.closeAllProjectsInternal();
                     });
                 } else {
                     //Otherwise, just close it
-                    this.closeAllProjectsInternal();
+                    return this.closeAllProjectsInternal();
                 }
-            });
+            }).finally(() => {
+            this.loadingOverlayService.endLoading(id);
+        });
     };
 
     public createNewArtifact = (evt?: ng.IAngularEvent) => {
@@ -170,7 +178,7 @@ export class PageToolbarController implements IPageToolbarController {
                 this.artifactManager.create(name, projectId, parentId, itemTypeId)
                     .then((data: Models.IArtifact) => {
                         const newArtifactId = data.id;
-                        this.projectManager.refresh(projectId, true)
+                        this.projectManager.refresh(projectId, null, true)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
                                 this.navigationService.navigateTo({id: newArtifactId})
@@ -327,19 +335,19 @@ export class PageToolbarController implements IPageToolbarController {
             });
     }
 
-    private closeProjectInternal(currentProjectId: number) {
-        this.getProjectsWithUnpublishedArtifacts().then((projectsWithUnpublishedArtifacts) => {
+    private closeProjectInternal(currentProjectId: number): ng.IPromise<any> {
+        return this.getProjectsWithUnpublishedArtifacts().then((projectsWithUnpublishedArtifacts) => {
             const unpublishedArtifactCount = _.countBy(projectsWithUnpublishedArtifacts)[currentProjectId];
             if (unpublishedArtifactCount > 0) {
                 //If the project we're closing has unpublished artifacts, we display a modal
                 let message: string = this.localization.get("Close_Project_UnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactCount.toString());
-                this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
+                return this.dialogService.alert(message, null, "App_Button_ConfirmCloseProject", "App_Button_Cancel").then(() => {
                     this.closeProjectById(currentProjectId);
                 });
             } else {
                 //Otherwise, just close it
-                this.closeProjectById(currentProjectId);
+                return this.closeProjectById(currentProjectId);
             }
         });
     }
@@ -358,10 +366,10 @@ export class PageToolbarController implements IPageToolbarController {
         this.clearStickyMessages();
     }
 
-    private closeAllProjectsInternal() {
+    private closeAllProjectsInternal (): ng.IPromise<any> {
         this.projectManager.removeAll();
         this.clearStickyMessages();
-        this.navigationService.navigateToMain();
+        return this.navigationService.navigateToMain();
     }
 
     private getProjectsWithUnpublishedArtifacts = (): ng.IPromise<number[]> => {
@@ -388,7 +396,7 @@ export class PageToolbarController implements IPageToolbarController {
                 this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
 
                 if (_.find(data.artifacts, {predefinedType: Enums.ItemTypePredefined.Process})) {
-                    this.messageService.addWarning("ST_ProcessType_RegenerateUSS_Warning");
+                    this.messageService.addInfo("ST_ProcessType_RegenerateUSS_Message");
                  }
             })
             .catch((error) => {
@@ -448,6 +456,10 @@ export class PageToolbarController implements IPageToolbarController {
 
     public get isProjectOpened(): boolean {
         return this.projectManager.projectCollection.getValue().length > 0;
+    }
+
+    public get isArtifactSelected(): boolean {
+        return this.isProjectOpened && !!this.artifactManager.selection.getArtifact();
     }
 
     public get canCreateNew(): boolean {

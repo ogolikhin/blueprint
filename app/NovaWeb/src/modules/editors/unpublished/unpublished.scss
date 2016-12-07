@@ -22,12 +22,13 @@
     white-space: nowrap;
 }
 
-.unpublished__name-col {
+.unpublished__name-col,
+.unpublished__project-col {
     padding: 8px 25px;
 }
 
 .unpublished__header {
-    background: $gray;
+    background: $gray-dark;
     color: $white;
 }
 

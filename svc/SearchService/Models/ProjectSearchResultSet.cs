@@ -1,6 +1,6 @@
 ﻿namespace SearchService.Models
 {
-    public class ProjectSearchResultSet : SearchResultSet<SearchResult>
+    public class ProjectSearchResultSet : SearchResultSet<ProjectSearchResult>
     {
     }
 }

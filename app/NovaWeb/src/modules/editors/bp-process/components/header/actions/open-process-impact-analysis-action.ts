@@ -30,11 +30,23 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
         if (!super.canOpenImpactAnalysis()) {
             return false;
         }
+        
+        if (!this.selectedNodes || !this.selectedNodes.length) {
+            return true;
+        }
 
-        return !this.selectedNodes || this.selectedNodes.length <= 1;
+        if (this.selectedNodes.length > 1) {
+            return false;
+        }
+
+        return this.selectedNodes[0].model.id > 0;
     }
 
     protected openImpactAnalysis(): void {
+        if (!this.canOpenImpactAnalysis()) {
+            return;
+        }
+        
         if (!this.selectedNodes || !this.selectedNodes.length) {
             super.openImpactAnalysis();
         } else {

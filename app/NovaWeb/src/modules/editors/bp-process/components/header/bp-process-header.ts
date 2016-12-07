@@ -1,8 +1,10 @@
+import {BPButtonGroupAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {IBPAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-action";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPMenuAction, BPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../../../../shared";
+import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
@@ -16,7 +18,6 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../../../managers/selection-manager";
 import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -128,6 +129,12 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             if (openProcessImpactAnalysisAction) {
                 openProcessImpactAnalysisAction.dispose();
             }
+
+            const processDeleteAction =
+                <ProcessDeleteAction>_.find(this.toolbarActions, action => action instanceof ProcessDeleteAction);
+            if (processDeleteAction) {
+                processDeleteAction.dispose();
+            }
         }
 
         super.$onDestroy();
@@ -143,13 +150,16 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
     }
 
-    protected createCustomToolbarActions(): void {
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const processArtifact = this.artifact as StatefulProcessArtifact;
 
         if (!processArtifact) {
             return;
         }
 
+        const processDeleteAction = new ProcessDeleteAction(
+            processArtifact, this.localization, this.messageService, this.artifactManager, this.projectManager, 
+            this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,
             this.localization,
@@ -170,6 +180,10 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             processArtifact,
             this.communicationManager.toolbarCommunicationManager,
             this.localization);
+
+        if (buttonGroup) {
+            buttonGroup.actions.push(processDeleteAction);
+        }
 
         // expanded toolbar
         this.toolbarActions.push(

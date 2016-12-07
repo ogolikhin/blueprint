@@ -1,12 +1,15 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "lodash";
 import "rx/dist/rx.lite";
 import * as agGrid from "ag-grid/main";
 import {BPTreeViewComponent, BPTreeViewController, ITreeNode, IColumn} from "./bp-tree-view";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {WindowManager} from "../../../main/services/window-manager";
+import {IWindowManager, WindowManager} from "../../../main/services/window-manager";
 import {WindowResize} from "../../../core/services/window-resize";
+import {IMessageService, MessageService} from "./../../../core/messages/message.svc";
+import {MessageServiceMock} from "./../../../core/messages/message.mock";
 
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
@@ -17,6 +20,7 @@ describe("BPTreeViewComponent", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
@@ -80,6 +84,7 @@ describe("BPTreeViewComponent", () => {
             rowHeight: controller.rowHeight,
             showToolPanel: false,
             headerHeight: controller.headerHeight,
+            suppressMovableColumns: true,
             getBusinessKeyForNode: controller.getBusinessKeyForNode,
             getNodeChildDetails: controller.getNodeChildDetails,
             onRowGroupOpened: controller.onRowGroupOpened,
@@ -99,11 +104,16 @@ describe("BPTreeViewController", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
-    beforeEach(inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, $timeout, windowManager) => {
+    beforeEach(inject(($q: ng.IQService,
+                       $rootScope: ng.IRootScopeService,
+                       $timeout: ng.ITimeoutService,
+                       windowManager: IWindowManager,
+                       messageService: IMessageService) => {
         const element = angular.element(`<bp-tree-view />`);
-        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope), $timeout, windowManager);
+        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope), $timeout, windowManager, messageService);
         controller.options = {
             api: jasmine.createSpyObj("api", [
                 "setColumnDefs",
@@ -377,13 +387,14 @@ describe("BPTreeViewController", () => {
             $rootScope.$digest(); // Resolves promises
         }));
 
-        it("When root node asynchronous load fails, calls onError correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("When root node asynchronous load fails, calls addError correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService,
+                                                                                                         $q: ng.IQService,
+                                                                                                         messageService: IMessageService) => {
             // Arrange
-            controller.onError = jasmine.createSpy("onError");
+            messageService.addError = jasmine.createSpy("addError");
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
                 getRowCount: () => 1
             });
-            const reason = "reason";
             controller.rowData = [{
                 key: "root",
                 group: true,
@@ -391,7 +402,7 @@ describe("BPTreeViewController", () => {
                 expanded: true,
                 selectable: true,
                 loadChildrenAsync() {
-                    return $q.reject(reason);
+                    return $q.reject("error");
                 }
             } as ITreeNode];
 
@@ -401,7 +412,7 @@ describe("BPTreeViewController", () => {
                 // Assert
                 expect(controller.options.api.setRowData).toHaveBeenCalledWith([]);
                 expect(controller.options.api.showLoadingOverlay).toHaveBeenCalledWith();
-                expect(controller.onError).toHaveBeenCalledWith({reason: reason});
+                expect(messageService.addError).toHaveBeenCalledWith("error");
                 expect(controller.options.api.hideOverlay).toHaveBeenCalledWith();
                 expect(controller.options.api.showNoRowsOverlay).not.toHaveBeenCalled();
                 done();
@@ -562,11 +573,13 @@ describe("BPTreeViewController", () => {
             expect(controller.resetGridAsync).toHaveBeenCalledWith(true);
         }));
 
-        it("onRowGroupOpened, when asynchronous load fails, calls onError correctly", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("onRowGroupOpened, when asynchronous load fails, calls addError correctly", inject(($rootScope: ng.IRootScopeService,
+                                                                                               $q: ng.IQService,
+                                                                                               messageService: IMessageService) => {
             // Arrange
-            controller.onError = jasmine.createSpy("onError");
+            messageService.addError = jasmine.createSpy("addError");
             const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
-            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("reason"));
+            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("error"));
             vm.group = true;
             vm.expanded = true;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
@@ -577,7 +590,7 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(vm.loadChildrenAsync).toHaveBeenCalled();
             $rootScope.$digest(); // Resolves promises
-            expect(controller.onError).toHaveBeenCalledWith({reason: "reason"});
+            expect(messageService.addError).toHaveBeenCalledWith("error");
         }));
 
         it("onRowGroupOpened, when not group, does not set expanded", () => {

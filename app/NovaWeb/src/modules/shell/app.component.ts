@@ -5,8 +5,9 @@ import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILocalizationService} from "../core/localization/localizationService";
 import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
-import {IDialogService} from "../shared";
+import {IDialogService, IDialogSettings} from "../shared";
 import {IUnpublishedArtifactsService} from "../editors/unpublished/unpublished.svc";
+import {BPTourController} from "../main/components/dialogs/bp-tour/bp-tour";
 
 export class AppComponent implements ng.IComponentOptions {
     // Inline template
@@ -64,20 +65,21 @@ export class AppController {
     }
 
     public logout(evt: ng.IAngularEvent) {
-        evt.preventDefault();
         const id = this.loadingOverlayService.beginLoading();
+        if (evt) {
+            evt.preventDefault();
+        }
         this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
-            this.loadingOverlayService.endLoading(id);
             if (unpublishedArtifactSet.artifacts.length > 0) {
                 const dialogMessage = this.localization.get("App_ConfirmLogout_WithUnpublishedArtifacts")
                     .replace(`{0}`, unpublishedArtifactSet.artifacts.length.toString());
-                this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
-                    .then((success) => this.navigationService.navigateToLogout());
+                return this.dialogService.alert(dialogMessage, null, "App_ConfirmLogout_Logout", "App_ConfirmLogout_Cancel")
+                    .then((success) => { return this.navigationService.navigateToLogout(); });
             } else {
-                this.navigationService.navigateToLogout();
+                return this.navigationService.navigateToLogout();
             }
-        }).catch(() => {
-                this.loadingOverlayService.endLoading(id);
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(id);
         });
     }
 
@@ -86,6 +88,18 @@ export class AppController {
 
         //We want to open a new window, not a tab, to match old Silverlight behaviour.
         this.popUpWindowInCenterOfParent(this.settings.get("HelpURL"), "_blank", 1300, 800, this.$window);
+    }
+
+    public openTour (evt?: ng.IAngularEvent) {
+        if (evt) {
+            evt.preventDefault();
+        }
+        this.dialogService.open(<IDialogSettings>{
+            template: require("../main/components/dialogs/bp-tour/bp-tour.html"),
+            controller: BPTourController,
+            backdrop: true,
+            css: "nova-tour"
+        });
     }
 
     private popUpWindowInCenterOfParent(url: string, title: string, width: number, height: number, $window: ng.IWindowService) {

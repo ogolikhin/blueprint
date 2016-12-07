@@ -2,8 +2,7 @@ import {BPButtonAction} from "../../../../shared";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IArtifact} from "../../../models/models";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IArtifact, IPublishResultSet} from "../../../models/models";
 import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
 
 export class PublishArtifactsAction extends BPButtonAction {
@@ -12,8 +11,7 @@ export class PublishArtifactsAction extends BPButtonAction {
     constructor(publishService: IUnpublishedArtifactsService,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService) {
+                loadingOverlayService: ILoadingOverlayService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -25,6 +23,9 @@ export class PublishArtifactsAction extends BPButtonAction {
                 const artifactIds = this.artifactList.map(artifact => artifact.id);
 
                 publishService.publishArtifacts(artifactIds)
+                    .then((result: IPublishResultSet) => {
+                        messageService.addInfo("Publish_All_Success_Message", result.artifacts.length);
+                    })
                     .catch(error => {
                         publishService.getUnpublishedArtifacts();
                         messageService.addError(error);

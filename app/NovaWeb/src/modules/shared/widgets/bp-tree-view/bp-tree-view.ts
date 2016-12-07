@@ -1,7 +1,7 @@
-import * as _ from "lodash";
 import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IMessageService} from "./../../../core/messages/message.svc";
 
 /**
  * Usage:
@@ -18,7 +18,6 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
  *               size-columns-to-fit="true"
  *               on-select="$ctrl.onSelect(vm, isSelected)"
  *               on-double-click="$ctrl.onDoubleClick(vm)"
- *               on-error="$ctrl.onError(reason)"
  *               on-grid-reset="$ctrl.onGridReset(isExpanding)">
  * </bp-tree-view>
  */
@@ -41,7 +40,6 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         // Output
         onSelect: "&?",
         onDoubleClick: "&?",
-        onError: "&?",
         onGridReset: "&?"
     };
 }
@@ -59,7 +57,6 @@ export interface IBPTreeViewController extends ng.IComponentController {
     headerHeight: number;
     onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeNode}) => void;
-    onError: (param: {reason: any}) => void;
     onGridReset: (param: {isExpanding: boolean}) => void;
 
     // ag-grid bindings
@@ -116,7 +113,7 @@ export interface IBPTreeViewControllerApi {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager"];
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService"];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
@@ -130,7 +127,6 @@ export class BPTreeViewController implements IBPTreeViewController {
     public sizeColumnsToFit: boolean;
     public onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeNode}) => void;
-    public onError: (param: {reason: any}) => void;
     public onGridReset: (param: {isExpanding: boolean}) => void;
 
     // ag-grid bindings
@@ -138,8 +134,12 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     private timers = [];
 
-    constructor(private $q: ng.IQService, private $element: ng.IAugmentedJQuery, private localization: ILocalizationService,
-                private $timeout: ng.ITimeoutService, private windowManager: IWindowManager) {
+    constructor(private $q: ng.IQService,
+                private $element: ng.IAugmentedJQuery,
+                private localization: ILocalizationService,
+                private $timeout: ng.ITimeoutService,
+                private windowManager: IWindowManager,
+                private messageService: IMessageService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -174,6 +174,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             showToolPanel: false,
             columnDefs: [],
             headerHeight: this.headerHeight,
+            suppressMovableColumns: true,
 
             // Callbacks
             getBusinessKeyForNode: this.getBusinessKeyForNode,
@@ -304,7 +305,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 this.options.api.showLoadingOverlay();
             }
 
-            return this.$q.all(this.rowData.filter(vm => this.isLazyLoaded(vm)).map(vm => this.loadExpanded(vm))).then(() => {
+            return this.$q.all(this.rowData.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm))).then(() => {
                 if (this.options.api) {
                     this.options.api.setRowData(this.rootNodeVisible ? this.rowData : _.flatten(this.rowData.map(r => r.children)));
 
@@ -328,9 +329,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     }
                 }
             }).catch(reason => {
-                if (_.isFunction(this.onError)) {
-                    this.onError({reason: reason});
-                }
+                this.messageService.addError(reason || "Artifact_NotFound");
             }).finally(() => {
                 if (this.options.api) {
                     this.options.api.hideOverlay();
@@ -360,15 +359,14 @@ export class BPTreeViewController implements IBPTreeViewController {
         return undefined;
     }
 
-    private isLazyLoaded(vm: ITreeNode): boolean {
-        return vm.expanded && !_.isArray(vm.children) && _.isFunction(vm.loadChildrenAsync);
-    }
-
     private loadExpanded(vm: ITreeNode): ng.IPromise<any> {
-        return vm.loadChildrenAsync().then(children => {
-            vm.children = children;
-            return this.$q.all(children.filter(this.isLazyLoaded).map(this.loadExpanded));
-        });
+        if (!_.isArray(vm.children) && _.isFunction(vm.loadChildrenAsync)) {
+            return vm.loadChildrenAsync().then(children => {
+                vm.children = children;
+                return this.$q.all(vm.children.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm)));
+            });
+        }
+        return this.$q.all(vm.children.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm)));
     }
 
     public updateScrollbars() {
@@ -411,14 +409,17 @@ export class BPTreeViewController implements IBPTreeViewController {
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
             vm.expanded = node.expanded;
-            if (this.isLazyLoaded(vm)) {
+            if (node.expanded) {
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
-                this.loadExpanded(vm).then(() => this.resetGridAsync(true)).catch(reason => {
-                    if (_.isFunction(this.onError)) {
-                        this.onError({reason: reason});
-                    }
+                this.loadExpanded(vm)
+                    .then(() => this.resetGridAsync(true))
+                    .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
+                    .finally(() => {
+                        if (row) {
+                            row.classList.remove("ag-row-loading");
+                        }
                 });
             }
         }

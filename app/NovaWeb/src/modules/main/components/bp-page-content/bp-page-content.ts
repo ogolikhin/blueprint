@@ -1,4 +1,4 @@
-import {IDialogService} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
@@ -6,6 +6,8 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../models/enums";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IProjectManager} from "../../../managers/project-manager";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {BPTourController} from "../../../main/components/dialogs/bp-tour/bp-tour";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -22,7 +24,8 @@ export class PageContentCtrl {
         "navigationService",
         "mainbreadcrumbService",
         "$state",
-        "projectManager"
+        "projectManager",
+        "localization"
     ];
 
     constructor(private dialogService: IDialogService,
@@ -30,7 +33,8 @@ export class PageContentCtrl {
                 private navigationService: INavigationService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
                 private $state: ng.ui.IStateService,
-                private projectManager: IProjectManager) {
+                private projectManager: IProjectManager,
+                private localization: ILocalizationService) {
     }
 
     public $onInit() {
@@ -39,6 +43,18 @@ export class PageContentCtrl {
             .subscribe(this.onSelectionChanged);
 
         this._subscribers = [selectionObservable];
+    }
+
+    public openProductTour(evt?: ng.IAngularEvent) {
+        if (evt) {
+            evt.preventDefault();
+        }
+        this.dialogService.open(<IDialogSettings>{
+            template: require("../../../main/components/dialogs/bp-tour/bp-tour.html"),
+            controller: BPTourController,
+            backdrop: true,
+            css: "nova-tour"
+        });
     }
 
     public isMainState(): boolean {

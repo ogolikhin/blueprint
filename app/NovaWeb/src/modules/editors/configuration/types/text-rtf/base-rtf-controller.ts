@@ -54,11 +54,27 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected currentArtifact: IStatefulArtifact;
     protected currentSubArtifact: IStatefulSubArtifact;
 
+    protected isDirty: boolean;
+    protected isLinkPopupOpen: boolean;
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
     protected isSingleLine: boolean = false;
+    protected execCommandEvents: string[] = [
+        "mceInsertContent",
+        "mceToggleFormat",
+        "RemoveFormat",
+        "InsertUnorderedList",
+        "InsertOrderedList",
+        "Outdent",
+        "Indent",
+        "FontName"
+    ];
+    protected linkEvents: string[] = [
+        "mceLink"
+    ];
+    protected fontSizes: string[] = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
 
     constructor(protected $q: ng.IQService,
                 protected $scope: AngularFormly.ITemplateScope,
@@ -84,6 +100,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             });
         }
 
+        this.isDirty = false;
+        this.isLinkPopupOpen = false;
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -104,6 +122,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     private removeObserver = () => {
         if (this.observer) {
             this.observer.disconnect();
+        }
+        if (this.mceEditor) {
+            this.mceEditor.destroy(false);
         }
     };
 
@@ -146,6 +167,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             newContent = this.mceEditor.getContent();
         }
         newContent = newContent || "";
+        this.isDirty = true;
+        this.isLinkPopupOpen = false;
 
         this.handleValidation(newContent);
 
@@ -156,6 +179,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected prepRTF = (hasTables: boolean = false) => {
+        this.isDirty = false;
+        this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
         this.handleLinks(this.editorBody.querySelectorAll("a"));
@@ -176,8 +201,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected fontSizeMenu = (editor): ITinyMceMenu[] => {
-        const fontSizes = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
-        return fontSizes.map((size) => {
+        return this.fontSizes.map((size) => {
             return {
                 text: size,
                 onclick: () => {
@@ -206,6 +230,19 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 }
             }
         }] as ITinyMceMenu[];
+    };
+
+    protected hasChangedFormat(): boolean {
+        const colorRegEx = /(#[a-f0-9]{6})/gi;
+
+        let currentContent = "";
+        if (this.mceEditor) {
+            currentContent = this.mceEditor.getContent() as string;
+        }
+        const currentColors = currentContent.match(colorRegEx);
+        const bufferColors = (this.contentBuffer || "").match(colorRegEx);
+
+        return !_.isEqual(currentColors, bufferColors);
     };
 
     private canManageTraces(): boolean {

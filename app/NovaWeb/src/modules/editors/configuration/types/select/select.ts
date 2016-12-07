@@ -12,9 +12,6 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
-
-            const $scopeOptions = $scope["options"] as AngularFormly.IFieldConfigurationObject;
-            $scopeOptions.validation.show = ($scope["fc"] as ng.IFormController).$invalid;
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldSelectController;
@@ -32,6 +29,7 @@ interface ISelectItem {
 export class BpFieldSelectController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "validationService"];
 
+    private isValidated: boolean;
     private allowsCustomValues: boolean;
 
     constructor(private $scope: AngularFormly.ITemplateScope,
@@ -39,7 +37,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
                      private validationService: IValidationService) {
         super();
 
-        this.allowsCustomValues = !$scope.options["data"].isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
+        this.isValidated = $scope.options["data"].isValidated;
+        this.allowsCustomValues = !this.isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -52,11 +51,14 @@ export class BpFieldSelectController extends BPFieldBaseController {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
-                expression: function ($viewValue, $modelValue, scope) {
+                expression: ($viewValue, $modelValue, scope) => {
                     const isValid = validationService.selectValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
                         $viewValue,
-                        $modelValue);
+                        $modelValue,
+                        this.isValidated,
+                        this.allowsCustomValues
+                    );
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
                     return true;

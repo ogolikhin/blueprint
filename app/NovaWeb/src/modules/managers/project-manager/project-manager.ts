@@ -495,7 +495,7 @@ export class ProjectManager implements IProjectManager {
         let parentArtifactNode: IArtifactNode = this.getArtifactNode(selectedArtifact.parentId);
 
         //if parent isn't found, or if its children aren't loaded
-        if (!parentArtifactNode || (parentArtifactNode.model.hasChildren && (!parentArtifactNode.children || parentArtifactNode.children.length === 0))) {
+        if (!parentArtifactNode || (!parentArtifactNode.children || parentArtifactNode.children.length === 0)) {
             //get children from server
             promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId).then((data: Models.IArtifact[]) => {
                 siblings = data;

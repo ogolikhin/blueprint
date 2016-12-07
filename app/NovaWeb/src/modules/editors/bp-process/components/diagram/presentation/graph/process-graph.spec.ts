@@ -20,6 +20,7 @@ import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {FileUploadService} from "../../../../../../core/file-upload/file-upload.svc.mock";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
@@ -34,6 +35,7 @@ describe("ProcessGraph", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("fileUploadService", FileUploadService);
         $provide.service("shapesFactory", ShapesFactory);
     }));
 

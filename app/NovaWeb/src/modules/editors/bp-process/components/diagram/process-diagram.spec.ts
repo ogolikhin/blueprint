@@ -17,6 +17,7 @@ import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shap
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IArtifactManager} from "./../../../../managers/artifact-manager";
+import {FileUploadService} from "../../../../core/file-upload/file-upload.svc.mock";
 
 
 class ExecutionEnvironmentDetectorMock {
@@ -47,7 +48,8 @@ describe("ProcessDiagram Tests", () => {
         navigationService: INavigationService,
         utilityPanelService: UtilityPanelService,
         shapesFactory: ShapesFactory,
-        artifactManager: IArtifactManager;
+        artifactManager: IArtifactManager,
+        fileUploadService: FileUploadService;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -68,6 +70,7 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("shapesFactory", ShapesFactoryMock);
         $provide.service("clipboardService", ClipboardService);
         $provide.service("utilityPanelService", UtilityPanelService);
+        $provide.service("fileUploadService", FileUploadService);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
@@ -82,7 +85,8 @@ describe("ProcessDiagram Tests", () => {
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
                        _shapesFactory_: ShapesFactory,
                        _utilityPanelService_: UtilityPanelService,
-                       _clipboardService_: ClipboardService) => {
+                       _clipboardService_: ClipboardService,
+                       _fileUploadService_: FileUploadService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -105,6 +109,7 @@ describe("ProcessDiagram Tests", () => {
         statefulArtifactFactory = _statefulArtifactFactory_;
         utilityPanelService = _utilityPanelService_;
         shapesFactory = _shapesFactory_;
+        fileUploadService = _fileUploadService_; 
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -129,7 +134,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -159,7 +165,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -192,7 +199,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -225,7 +233,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -259,7 +268,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -292,7 +302,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -326,7 +337,8 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

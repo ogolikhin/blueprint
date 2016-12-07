@@ -60,6 +60,9 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             if (formControl) {
                 formControl.$setValidity(validationCheck, isValid, formControl);
                 scope.showError = !isValid;
+
+                const options = scope.options as AngularFormly.IFieldConfigurationObject;
+                options.validation.show = formControl.$invalid;
             }
         });
     }

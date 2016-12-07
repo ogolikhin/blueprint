@@ -40,7 +40,7 @@ namespace ArtifactStore.Controllers
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)
-                || ((versionId.HasValue && versionId.Value < 1)))
+                || versionId.HasValue && versionId.Value < 1)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
@@ -48,8 +48,8 @@ namespace ArtifactStore.Controllers
 
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted && versionId != null ?
-                (await _artifactVersionsRepository.GetDeletedItemInfo(itemId)) :
-                (await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
+                await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
+                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts);
             if (itemInfo == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             if (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId)
@@ -113,8 +113,8 @@ namespace ArtifactStore.Controllers
 
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
             var artifactInfo = isDeleted ?
-                (await _artifactVersionsRepository.GetDeletedItemInfo(artifactId)) :
-                (await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId));
+                await _artifactVersionsRepository.GetDeletedItemInfo(artifactId) :
+                await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId);
             if (artifactInfo == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
@@ -129,12 +129,8 @@ namespace ArtifactStore.Controllers
 
         private static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
         {
-            RolePermissions permission = RolePermissions.None;
-            if (permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType))
-            {
-                return true;
-            }
-            return false;
+            RolePermissions permission;
+            return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
     }
 }

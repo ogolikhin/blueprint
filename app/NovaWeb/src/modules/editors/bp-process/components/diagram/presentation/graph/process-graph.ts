@@ -924,7 +924,7 @@ export class ProcessGraph implements IProcessGraph {
         }
 
         for (const selectedNode of nodes) {
-            const relatedNodes: IDiagramNode[] = this.getCopyGroup(selectedNode);
+            const relatedNodes: IDiagramNode[] = this.getCopyGroupNodes(selectedNode);
             nodesToHighlight.push(...relatedNodes);
         }
 
@@ -957,9 +957,19 @@ export class ProcessGraph implements IProcessGraph {
         return commonUserDecisions;
     }
 
-    private getCopyGroup(node: IDiagramNode): IDiagramNode[] {
-        // todo: implement finding copy group using delete/drag & drop logic
-        return [];
+    private getCopyGroupNodes(node: IDiagramNode): IDiagramNode[] {
+        const copyGroupNodes: IDiagramNode[] = [];
+
+        const scopeContext = this.getScope(node.model.id);
+        const copyGroupIds: number[] = Object.keys(scopeContext.visitedIds)
+            .map(a => Number(a))
+            .filter(id => id !== node.model.id);
+
+        for (const id of copyGroupIds) {
+            copyGroupNodes.push(this.getNodeById(id.toString()));
+        }
+
+        return copyGroupNodes;
     }
 
     private highlightNode(node: IDiagramNode): void {

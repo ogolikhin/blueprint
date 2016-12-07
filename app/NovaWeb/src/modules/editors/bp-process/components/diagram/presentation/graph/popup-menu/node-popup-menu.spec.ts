@@ -75,13 +75,15 @@ describe("Popup Menu", () => {
         menu["div"].style.left = "100px";
         menu["div"].style.top = "100px";
 
-        let clipboardData: IProcessShape[] = [];
+        let clipboardData: IProcess = new ProcessModel();
+        let shapes: IProcessShape[] = [];
         let userTaskShape = shapesFactory.createModelUserTaskShape(-1, -1, -1, -1, -1);
         userTaskShape.name = "UT1";
-        clipboardData.push(userTaskShape);
+        shapes.push(userTaskShape);
         let systemTaskShape = shapesFactory.createModelSystemTaskShape(-1, -1, -2, -1, -1);
         systemTaskShape.name = "ST1";
-        clipboardData.push(systemTaskShape);
+        shapes.push(systemTaskShape);
+        clipboardData.shapes = shapes;
 
         clipboard.setData(new ProcessClipboardData(clipboardData));
 
@@ -109,17 +111,9 @@ describe("Popup Menu", () => {
         menu["div"] = document.createElement("div");
         menu["div"].className = "mxPopupMenu";
         menu["div"].style.left = "100px";
-        menu["div"].style.top = "100px";
+        menu["div"].style.top = "100px";        
 
-        let clipboardData: IProcessShape[] = [];
-        let userTaskShape = shapesFactory.createModelUserTaskShape(-1, -1, -1, -1, -1);
-        userTaskShape.name = "UT1";
-        clipboardData.push(userTaskShape);
-        let systemTaskShape = shapesFactory.createModelSystemTaskShape(-1, -1, -2, -1, -1);
-        systemTaskShape.name = "ST1";
-        clipboardData.push(systemTaskShape);
-
-        clipboard.setData(new ProcessClipboardData(clipboardData));
+        clipboard.setData(new ProcessClipboardData(null));
         clipboard["_data"].type = 999; // not a process data type
 
         spyOn(menu, "addItem");

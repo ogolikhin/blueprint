@@ -68,20 +68,6 @@ export class ProcessAddHelper {
         return userTaskShape.id;
     }
 
-    public static insertClonedUserTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _userTaskShape: IUserTaskShape) {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const userTaskShape = shapesFactoryService.createModelUserTaskShape(layout.viewModel.id, layout.viewModel.projectId, layout.getTempShapeId(), -1, -1);
-        // COPY PROPERTIES
-        userTaskShape.name = _userTaskShape.name; 
-        userTaskShape.personaReference = _.cloneDeep(_userTaskShape.personaReference); 
-        userTaskShape.propertyValues = _.cloneDeep(_userTaskShape.propertyValues); 
-
-        ProcessAddHelper.addShape(userTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(userTaskShape.id, NodeChange.Add, false);
-
-        return userTaskShape.id;
-    }
-
     // #DEBUG
     private static addShape(processShape: IProcessShape, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         if (processShape != null) {
@@ -94,22 +80,6 @@ export class ProcessAddHelper {
         layout.setTempShapeId(layout.getTempShapeId() - 1);
         const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
             layout.getTempShapeId(), -1, -1);
-        ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
-        layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
-
-        return systemTaskShape.id;
-    }
-
-    public static insertClonedSystemTaskInternal(layout: ILayout, shapesFactoryService: ShapesFactory, _systemTaskShape: ISystemTaskShape) {
-        layout.setTempShapeId(layout.getTempShapeId() - 1);
-        const systemTaskShape = shapesFactoryService.createModelSystemTaskShape(layout.viewModel.id, layout.viewModel.projectId,
-            layout.getTempShapeId(), -1, -1);
-
-        // COPY PROPERTIES
-        systemTaskShape.name = _systemTaskShape.name; 
-        systemTaskShape.personaReference = _.cloneDeep(_systemTaskShape.personaReference); 
-        systemTaskShape.propertyValues = _.cloneDeep(_systemTaskShape.propertyValues); 
-            
         ProcessAddHelper.addShape(systemTaskShape, layout, shapesFactoryService);
         layout.updateProcessChangedState(systemTaskShape.id, NodeChange.Add, false);
 

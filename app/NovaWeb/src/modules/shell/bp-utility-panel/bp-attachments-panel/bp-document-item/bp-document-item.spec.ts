@@ -33,6 +33,8 @@ describe("Component BP Artifact Document Item", () => {
             document: {
                 artifactName: "doc",
                 artifactId: 357,
+                versionId: 1,
+                versionsCount: 1,
                 userId: 1,
                 userName: "admin",
                 referencedDate: "2016-06-27T21:27:57.67Z"

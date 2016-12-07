@@ -563,10 +563,6 @@ pagecontent, bp-properties-panel {
                         .ui-select-choices-row-inner:hover .ui-select-choice-item {
                             background: $brand-secondary;
                             color: $white;
-
-                            &::before {
-                                content: '\2713';
-                            }
                         }
                     }
 
@@ -1378,14 +1374,37 @@ bp-properties-panel {
 
 pagecontent {
     .empty-collection {
-            background: $gray-lighter;
-            color: $gray-dark;
-            font-size: $font-size-big;
-            font-weight: 600;
-            line-height: 1em;
-            min-height: 36px;
-            padding: 11px 14px;
-            }
+        padding: 0 0 11px 0;
+    }
+
+    .empty-collection__table {
+        border-left: 1px solid $gray-lighter;
+        border-right: 1px solid $gray-lighter;
+        border-bottom: 1px solid $gray-lighter;
+        width: 100%;
+    }
+
+    .empty-collection__table-th {
+        background: $gray-dark;
+        color: $white;
+        font-size: $font-size-normal;
+        padding: 8px 25px;
+
+        &:first-child {
+            width: 9%;
+        }
+
+        &:last-child {
+            text-align: right;
+            padding-right: 9px;
+        }
+    }
+
+    .empty-collection__table-td {
+        padding: 8px 25px;
+        font-size: $font-size-normal;
+        color: $gray-light;
+    }
 }
 
 .uib-datepicker-popup {

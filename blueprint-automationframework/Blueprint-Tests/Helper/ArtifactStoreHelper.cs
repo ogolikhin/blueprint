@@ -705,18 +705,46 @@ namespace Helper
 
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
-                    var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(newValue));
 
-                    var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> { newPropertyValue };
+                    string[] values = ((System.Collections.IEnumerable)newValue)
+                      .Cast<object>()
+                      .Select(x => x.ToString())
+                      .ToArray();
 
-                    // Change custom property choice value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = newChoicePropertyValue };
+                    var validValues = new List<NovaPropertyType.ValidValue>();
+                    var customValue = string.Empty;
+
+                    foreach (string value in values)
+                    {
+                        var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(value));
+
+                        // Change custom property choice value
+                        if (newPropertyValue != null)
+                        {
+                            validValues.Add(newPropertyValue);
+                        }
+                        else
+                        {
+                            // Add as custom value if not found in valid values
+                            customValue = newValue.ToString();
+                        }
+                    }
+
+                    if (validValues.Count > 0)
+                    {
+                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                    }
+
+                    if (!string.IsNullOrEmpty(customValue))
+                    {
+                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                    }
                     break;
                 case PropertyPrimitiveType.Date:
                     property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
 
                     // Change custom property date value
-                    property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now.AddSeconds(newValue.ToInt32Invariant()));
+                    property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Number:
                     property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);

@@ -35,6 +35,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public itemTypeIconId: number;
     public hasCustomIcon: boolean;
     public isAnyPanelVisible: boolean;
+   
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
@@ -133,15 +134,17 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     private onSelectionChanged = (selection: ISelection) => {
         this.clearItem();
         this.selection = selection;
-        const item: IStatefulItem = selection ? (selection.subArtifact || selection.artifact) : undefined;
+        const item: IStatefulItem = selection.subArtifact || selection.artifact;
         if (this.propertySubscriber) {
             this.propertySubscriber.dispose();
         }
         if (item) {
             this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
         }
-
-        if (selection && (selection.artifact || selection.subArtifact)) {
+        
+        if (this.emptySelection(selection) || selection.multiSelect) {
+            this.hidePanels();
+        } else if (selection && (selection.artifact || selection.subArtifact)) {
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);
@@ -150,6 +153,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         }
         this.setAnyPanelIsVisible();
         this.updateActivePanelContexts(selection);
+    }
+
+    private emptySelection(selection: ISelection) {
+        return !selection.artifact;
     }
 
     private updateActivePanelContexts(selection: ISelection) {
@@ -178,6 +185,15 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             panelType: panelType
         };
         this.activePanelContexts.push(context);
+    }
+
+    private hidePanels() {
+        this.hidePanel(PanelType.Discussions);
+        this.hidePanel(PanelType.Files);
+        this.hidePanel(PanelType.History);
+        this.hidePanel(PanelType.Properties);
+        this.hidePanel(PanelType.Relationships); 
+        this.isAnyPanelVisible = false;
     }
 
     private toggleDiscussionsPanel(selection: ISelection) {

@@ -258,11 +258,13 @@ namespace StorytellerTests
 
             if (taskName == Process.DefaultUserTaskName)
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to UT Then the System will be ST", addedPersonaReference.Name);
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to {1} Then the System will be {2}", addedPersonaReference.Name,
+                    Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             }
             else
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to UT Then the {0} will be ST", addedPersonaReference.Name);
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the {1} will be {2}", Process.DefaultUserTaskName,
+                    addedPersonaReference.Name, Process.DefaultSystemTaskName);
             }
 
             Assert.AreEqual(expectedPersonaName, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have " + addedPersonaReference.Name + "persona!");
@@ -295,9 +297,9 @@ namespace StorytellerTests
             Assert.IsNotNull(userStories, "There is no user story generated!");
 
             StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
-
-            Assert.AreEqual("Given the System is Precondition When User attempts to UT Then the System will be ST",
-                    ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
+            var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the System will be {1}",
+                Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
+            Assert.AreEqual(expectedUserStoryText, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
         }
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -335,11 +337,13 @@ namespace StorytellerTests
 
             if (taskName == Process.DefaultUserTaskName)
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to UT Then the System will be ST", INACCESSIBLE_ACTOR);
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When {0} attempts to {1} Then the System will be {2}",
+                    INACCESSIBLE_ACTOR, Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             }
             else
             {
-                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to UT Then the {0} will be ST", INACCESSIBLE_ACTOR);
+                expectedPersonaName = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the {1} will be {2}",
+                    Process.DefaultUserTaskName, INACCESSIBLE_ACTOR, Process.DefaultSystemTaskName);
             }
 
             Assert.AreEqual(expectedPersonaName, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have " + INACCESSIBLE_ACTOR + " persona!");
@@ -371,8 +375,10 @@ namespace StorytellerTests
 
                 StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
-                Assert.AreEqual("Given the System is Precondition When User attempts to UT Then the System will be ST",
-                        ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
+                var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the System will be {1}",
+                Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
+                Assert.AreEqual(expectedUserStoryText, ConvertHtmlToText(returnedProperty.Value),
+                    "Generated user story does not have default persona names!");
             }
             finally
             {

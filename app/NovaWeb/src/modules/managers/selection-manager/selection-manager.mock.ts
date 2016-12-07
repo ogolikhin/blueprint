@@ -10,7 +10,8 @@ export class SelectionManagerMock implements ISelectionManager {
     constructor() {
         const selection = <ISelection>{
             artifact: undefined,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined 
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -56,7 +57,8 @@ export class SelectionManagerMock implements ISelectionManager {
 
         const selection = <ISelection>{
             artifact: artifact,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined
         };
 
         this.setSelectionSubject(selection);
@@ -77,7 +79,8 @@ export class SelectionManagerMock implements ISelectionManager {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: subArtifact
+            subArtifact: subArtifact,
+            multiSelect: undefined 
         };
 
         this.setSelectionSubject(selection);

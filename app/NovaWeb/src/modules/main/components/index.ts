@@ -9,6 +9,7 @@ import "./quickSearch";
 import "./momentDateFilter";
 import "./pagination";
 import "./analytics";
+import "./dialogs/open-project";
 
 angular.module("bp.components", [
     "bp.components.momentDateFilter",

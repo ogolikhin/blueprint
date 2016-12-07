@@ -907,6 +907,60 @@ namespace Helper
         }
 
         /// <summary>
+        /// Create and get the default Process with both a User Decision and System Decision added.
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the process artifact is created</param>
+        /// <param name="user">The user creating the process artifact</param>
+        /// <param name="updateProcess">(optional) Update the process if true; Default = true</param>
+        /// <returns>The created process</returns>
+        public static IProcess CreateAndGetDefaultProcessWithUserAndSystemDecisions(IStoryteller storyteller, IProject project, IUser user, bool updateProcess = true)
+        {
+            /*
+                [S]--[P]--+--<UD1>--+--[UT]---+--[ST]---+--[UT4]--<SD1>--+--[ST5]--+--[E]
+                               |                        |           |              |
+                               +-------[UT2]--+--[ST3]--+           +----+--[ST7]--+
+            */
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create and get the default process with one user decision.
+            var process = CreateAndGetDefaultProcessWithOneUserDecision(storyteller, project, user, updateProcess: false);
+
+            // Find the End shape.
+            var endShape = process.GetProcessShapeByShapeName(Process.EndName);
+
+            // Add additional user & system task before the End Shape (UT4 & ST5).
+            var addedUserTask = process.AddUserAndSystemTask(process.GetIncomingLinkForShape(endShape));
+
+            // Find the incoming link for the last user task.
+            var incomingLinkForLastUserTask = process.GetIncomingLinkForShape(addedUserTask);
+
+            // Find the link between user decision to the second branch.
+            var secondBranchLinkFromUserDecision = process.Links.Find(
+                l => l.Orderindex.Equals(incomingLinkForLastUserTask.Orderindex + 1)
+                );
+
+            // Find user & system tasks on the second branch of the user decision.
+            var secondLevelUserTask = process.GetProcessShapeById(secondBranchLinkFromUserDecision.DestinationId);
+            var secondLevelSystemTask = process.GetNextShape(secondLevelUserTask);
+
+            // Update first merging point so that first loop ends before the added user task.
+            process.GetOutgoingLinkForShape(secondLevelSystemTask).DestinationId = addedUserTask.Id;
+
+            // Find the second system task on the main branch added with additonal user task.
+            var addedSystemTask = process.GetNextShape(addedUserTask);
+            var incomingLinkForAddedSystemTask = process.GetIncomingLinkForShape(addedSystemTask);
+
+            // Add a System Decision with branch merging to addedUserTask (SD1 & ST7).
+            process.AddSystemDecisionPointWithBranchBeforeSystemTask(addedSystemTask, incomingLinkForAddedSystemTask.Orderindex + 1, endShape.Id);
+            
+            // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
+            return updateProcess ? storyteller.UpdateProcess(user, process) : process;
+        }
+
+        /// <summary>
         /// Create and Get the Default Process With Two Sequential User Tasks Added
         /// </summary>
         /// <param name="storyteller">The storyteller instance</param>

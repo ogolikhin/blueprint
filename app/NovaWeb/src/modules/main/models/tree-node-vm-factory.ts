@@ -44,7 +44,9 @@ export class TreeNodeVMFactory {
                 public timeout?: ng.IPromise<void>,
                 public isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
                 public selectableItemTypes?: Models.ItemTypePredefined[],
-                public showSubArtifacts?: boolean) {
+                public showArtifacts: boolean = true,
+                public showCollections: boolean = false,
+                public showSubArtifacts: boolean = false) {
     }
 
     public createStatefulArtifactNodeVM(model: IStatefulArtifact, expanded: boolean = false): StatefulArtifactNodeVM {
@@ -56,7 +58,7 @@ export class TreeNodeVMFactory {
     }
 
     public createArtifactNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.IArtifact): ArtifactNodeVM {
-        return new ArtifactNodeVM(this, project, model, this.isSelectable(model), this.showSubArtifacts);
+        return new ArtifactNodeVM(this, project, model, this.isSelectable(model));
     }
 
     public createSubArtifactContainerNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.IArtifact, name: string): SubArtifactContainerNodeVM {
@@ -67,9 +69,8 @@ export class TreeNodeVMFactory {
         return new SubArtifactNodeVM(this, project, model, this.isSelectable(model));
     }
 
-    public static processChildArtifacts(children: Models.IArtifact[], artifactPath: string[], 
+    public static processChildArtifacts(children: Models.IArtifact[], artifactPath: string[],
         idPath: number[], parentPredefinedType: Models.ItemTypePredefined): Models.IArtifact[] {
-        children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);
         children.forEach((value: Models.IArtifact) => {
             value.artifactPath = artifactPath;
             value.idPath = idPath;
@@ -202,6 +203,12 @@ export class InstanceItemNodeVM extends TreeNodeVM<AdminStoreModels.IInstanceIte
                 });
             case AdminStoreModels.InstanceItemType.Project:
                 return this.factory.projectService.getArtifacts(this.model.id, undefined, this.factory.timeout).then((children: Models.IArtifact[]) => {
+                    if (!this.factory.showArtifacts) {
+                        children = children.filter(child => child.predefinedType === Models.ItemTypePredefined.CollectionFolder);
+                    }
+                    if (!this.factory.showCollections) {
+                        children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);
+                    }
                     return TreeNodeVMFactory.processChildArtifacts(children, [this.model.name], [this.model.id], null)
                         .map(child => this.factory.createArtifactNodeVM(this.model, child));
                 });
@@ -215,10 +222,9 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
     constructor(private factory: TreeNodeVMFactory,
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.IArtifact,
-                isSelectable: boolean,
-                private showSubArtifacts?: boolean) {
+                isSelectable: boolean) {
         super(model, String(model.id), model.hasChildren ||
-            (Boolean(showSubArtifacts) && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), false, isSelectable);
+            (factory.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), false, isSelectable);
     }
 
     public getCellClass(): string[] {
@@ -247,7 +253,7 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
             const result: ITreeNode[] = TreeNodeVMFactory.processChildArtifacts(children, _.concat(this.model.artifactPath, this.model.name),
                 _.concat(this.model.idPath, this.model.id), this.model.predefinedType)
                 .map(child => this.factory.createArtifactNodeVM(this.project, child));
-            if (this.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
+            if (this.factory.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
                 const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
                 result.unshift(this.factory.createSubArtifactContainerNodeVM(this.project, this.model, name)); //TODO localize
             }

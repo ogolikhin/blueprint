@@ -13,6 +13,7 @@ import {IClipboardService, ClipboardDataType} from "../../../../services/clipboa
 import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/process-models";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {Models} from "../../../../../../main";
+import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
 
 enum PreprocessorNodeType {
     UserTask,
@@ -111,7 +112,8 @@ export class ProcessCopyPasteHelper {
                      private clipboard: IClipboardService, 
                      private shapesFactoryService: ShapesFactory,
                      private messageService: IMessageService,
-                     private $log: ng.ILogService) {
+                     private $log: ng.ILogService,
+                     private fileUploadService: IFileUploadService) {
         this.layout = processGraph.layout;
     }
 
@@ -155,14 +157,57 @@ export class ProcessCopyPasteHelper {
             // 8. add logic to determine is pastable
             processClipboardData.isPastableAfterUserDecision = this.isPastableAfterUserDecision(data);                        
 
-            // 9. set clipboard data
-            this.clipboard.setData(processClipboardData);
+            // 9. get all system tasks with saved images 
+            const systemShapeImageIds: number[] = this.getSystemTaskIdsWithSavedImages(data);
+
+            // 10. set clipboard data          
+
+            if (systemShapeImageIds.length > 0) {
+                const expirationDate = new Date();
+                expirationDate.setDate(expirationDate.getDate() + 1);
+                this.fileUploadService.copyArtifactImagesToFilestore(systemShapeImageIds, expirationDate).then((result) => {
+                    _.forEach(processClipboardData.getData().shapes, (shape: IProcessShape) => {
+                        const resultShape = result.filter(a => a.originalId === shape.id);
+                        if (resultShape.length > 0) {
+                            shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = resultShape[0].newImageUrl;
+                            shape.propertyValues[this.shapesFactoryService.ImageId.key].value = resultShape[0].newImageId;
+                        }
+                    });
+                }).finally(() => {                    
+                    this.clipboard.setData(processClipboardData);
+                });
+            }
+            else {
+                this.clipboard.setData(processClipboardData);
+            }
 
         } catch (error) {
             this.messageService.addError(error);
             this.$log.error(error);
         }
     };
+
+    private getSystemTaskIdsWithSavedImages(data: PreprocessorData): number[] {
+        const systemShapeImageIds: number[] = [];
+        _.each(data.shapes, (processShape: IProcessShape) => {
+            if (_.toNumber(processShape.propertyValues[this.shapesFactoryService.ClientType.key].value) !== ProcessShapeType.SystemTask) {
+                return;
+            }
+            const associatedImageUrl = processShape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value;
+            const imageId = processShape.propertyValues[this.shapesFactoryService.ImageId.key].value;
+
+            if (!!associatedImageUrl && _.isNumber(imageId)) {
+                systemShapeImageIds.push(processShape.id);
+                this.clearSystemTaskImageUrlsAndIds(processShape);
+            }
+        });
+        return systemShapeImageIds;
+    }
+    
+    private clearSystemTaskImageUrlsAndIds(systemTask: IProcessShape) {
+        systemTask.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
+        systemTask.propertyValues[this.shapesFactoryService.ImageId.key].value = null;
+    }
 
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.each(baseNodes, (node) => {
@@ -466,7 +511,7 @@ export class ProcessCopyPasteHelper {
         });        
 
         return procModel;
-    }
+    };
 
     public insertSelectedShapes(sourceIds: number[], destinationId: number): void {
         let idMap = {};

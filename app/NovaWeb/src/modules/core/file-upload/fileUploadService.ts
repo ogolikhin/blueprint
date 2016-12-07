@@ -1,8 +1,13 @@
+import {ICopyImageResult} from "./models/models";
+
 export interface IFileUploadService {
     uploadToFileStore(file: any,
                       expirationDate?: Date,
                       progress?: (ev: ProgressEvent) => any,
                       cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult>;
+    copyArtifactImagesToFilestore(
+                      artifactIds: number[],
+                      expirationDate?: Date): ng.IPromise<ICopyImageResult[]>;
 }
 
 export interface IFileResult {
@@ -53,6 +58,27 @@ export class FileUploadService implements IFileUploadService {
                 message: errResult.data ? errResult.data.message : ""
             };
             deferred.reject(error);
+        });
+
+        return deferred.promise;
+    }
+
+    
+
+    public copyArtifactImagesToFilestore(artifactIds: number[], expirationDate?: Date): ng.IPromise<ICopyImageResult[]> {
+        const deferred = this.$q.defer<any>();
+        const request: ng.IRequestConfig | any = {
+            method: "POST",
+            url: `/svc/components/filestore/imagecopy/tofilestore`,
+            params: expirationDate ? {expired: expirationDate.toISOString()} : undefined,
+            data: artifactIds
+        };
+        this.$http(request).then((result) => {
+            // success
+            deferred.resolve(result.data);
+
+        }).catch((err) => {
+            deferred.reject(err.data);
         });
 
         return deferred.promise;

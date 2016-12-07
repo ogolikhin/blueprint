@@ -73,6 +73,10 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public int ArtifactId { get; set; }
         [JsonProperty]
+        public int VersionsCount { get; set; }
+        [JsonProperty]
+        public int VersionId { get; set; }
+        [JsonProperty]
         public int UserId { get; set; }
         [JsonProperty]
         public string UserName { get; set; }

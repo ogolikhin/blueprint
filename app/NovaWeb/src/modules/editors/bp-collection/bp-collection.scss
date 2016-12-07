@@ -85,6 +85,12 @@
 
     .ag-grid{
 
+        .fonticon-delete-filled {
+            float: right;
+            margin-right: 20px;
+            margin-top: 2px;
+        }
+
         .ag-row .ag-cell:not(.not-selectable) .fonticon-delete-filled, .ag-row:hover .ag-cell:not(.not-selectable) .fonticon-delete-filled {
             &::before{
                 background: transparent;
@@ -163,10 +169,15 @@
 
             &.ag-row-selected:hover .ag-cell:not(.not-selectable) span > span{
                 background-color: transparent;
+                color: $gray-darkest;
             }
 
             &.ag-row-selected .ag-cell:not(.not-selectable).ag-cell-value{
                 background: transparent;
+
+                .ag-group-value > .ag-group-value-wrapper {
+                    color: $gray-darkest;
+                }
 
                 .icon__normal::before{
                     color: $brand-secondary;

@@ -12,12 +12,12 @@ import {ILocalizationService} from "../../../../core/localization/localizationSe
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {Enums} from "../../../../main/models";
+import {Enums, Models} from "../../../../main/models";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
 
 
-describe("MoveAction", () => {
+describe("MoveCopyAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
 
@@ -174,6 +174,47 @@ describe("MoveAction", () => {
             expect(moveAction.disabled).toBe(false);
         }));
 
+    it("calls artifact.copy when executed",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            const copySpy = spyOn(artifact, "copy").and.callFake(() => $q.reject(null));
+            const copyAction = new MoveCopyAction($q, artifact, localization, messageService,
+                projectManager, dialogService, navigationService, loadingOverlayService);
+            spyOn(dialogService, "open").and.callFake(() => {
+                let result: MoveCopyArtifactResult[] = [
+                    {
+                        artifacts: [
+                            {
+                                id: 1,
+                                name: "test"
+                            }
+                        ],
+                        insertMethod: MoveCopyArtifactInsertMethod.Inside
+                    }
+                ];
+                return $q.resolve(result);
+            });
+            //spyOn(artifact, "lock").and.callFake(() => $q.resolve());
+
+            // act
+            copyAction.executeCopy();
+            $scope.$digest();
+
+            // assert
+            expect(copySpy).toHaveBeenCalled();
+        }));
+
     it("calls artifact.move when executed",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
@@ -247,7 +288,7 @@ describe("MoveAction", () => {
                 ];
                 return $q.resolve(result);
             });
-            spyOn(artifact, "save").and.callFake(() => $q.resolve());
+            //spyOn(artifact, "save").and.callFake(() => $q.resolve());
             const refreshSpy = spyOn(projectManager, "refresh").and.callFake(() => $q.resolve());
 
             // act
@@ -256,5 +297,48 @@ describe("MoveAction", () => {
 
             // assert
             expect(refreshSpy).toHaveBeenCalled();
+        }));
+
+        it("navigate to after copy",
+            inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.TextualRequirement,
+                    lockedByUser: Enums.LockedByEnum.CurrentUser,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit
+                });
+            spyOn(artifact, "copy").and.callFake(() => $q.resolve(<Models.ICopyResultSet>{artifact: {id: 1}}));
+            const copyAction = new MoveCopyAction($q, artifact, localization, messageService,
+                projectManager, dialogService, navigationService, loadingOverlayService);
+            spyOn(dialogService, "open").and.callFake(() => {
+                let result: MoveCopyArtifactResult[] = [
+                    {
+                        artifacts: [
+                            {
+                                id: 1,
+                                name: "test"
+                            }
+                        ],
+                        insertMethod: MoveCopyArtifactInsertMethod.Inside
+                    }
+                ];
+                return $q.resolve(result);
+            });
+            //spyOn(artifact, "save").and.callFake(() => $q.resolve());
+            //spyOn(projectManager, "refresh").and.callFake(() => $q.resolve());
+            const navigateToSpy = spyOn(navigationService, "navigateTo").and.callFake(() => $q.resolve());
+
+            // act
+            copyAction.executeCopy();
+            $scope.$digest();
+
+            // assert
+            expect(navigateToSpy).toHaveBeenCalled();
         }));
 });

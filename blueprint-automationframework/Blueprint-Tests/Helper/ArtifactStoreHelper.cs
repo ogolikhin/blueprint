@@ -706,10 +706,19 @@ namespace Helper
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
 
-                    string[] values = ((System.Collections.IEnumerable)newValue)
-                      .Cast<object>()
-                      .Select(x => x.ToString())
-                      .ToArray();
+                    string[] values;
+
+                    if (newValue.GetType().IsArray)
+                    {
+                        values = ((System.Collections.IEnumerable) newValue)
+                            .Cast<object>()
+                            .Select(x => x.ToString())
+                            .ToArray();
+                    }
+                    else
+                    {
+                        values = new[] { newValue.ToString() };
+                    }
 
                     var validValues = new List<NovaPropertyType.ValidValue>();
                     var customValue = string.Empty;

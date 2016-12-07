@@ -109,7 +109,6 @@ export class PageToolbarController implements IPageToolbarController {
             return this.$q.resolve();
 
         }).finally(() => {
-            const artifact = this.artifactManager.selection.getArtifact();
             this.loadingOverlayService.endLoading(id);
         });
     };
@@ -446,7 +445,6 @@ export class PageToolbarController implements IPageToolbarController {
 
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact = artifact;
-
     };
 
     public get isProjectOpened(): boolean {

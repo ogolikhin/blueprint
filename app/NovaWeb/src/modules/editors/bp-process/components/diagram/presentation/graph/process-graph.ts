@@ -26,7 +26,6 @@ import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localizationService";
 import {IClipboardService} from "../../../../services/clipboard.svc";
 
-
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
     public startNode: IDiagramNode;
@@ -105,8 +104,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
-        this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, 
-                    this.clipboard, this.shapesFactory, this.messageService, this.$log);
+        this.processCopyPasteHelper = new ProcessCopyPasteHelper(this, this.clipboard, this.shapesFactory, this.messageService, this.$log);
     }
 
     private isCellSelectable = (cell: MxCell) => {
@@ -346,7 +344,6 @@ export class ProcessGraph implements IProcessGraph {
         this.mxgraph.isCellResizable = () => false;
         this.mxgraph.isCellEditable = () => false;
         this.mxgraph.isCellDeletable = () => false;
-        //this.graph.isCellsLocked = () => true;
     }
 
     private applyDefaultStyles() {
@@ -719,7 +716,6 @@ export class ProcessGraph implements IProcessGraph {
             let mapping = context.currentMappings[index];
             currentShapeInfo.parentConditions.push(mapping);
         }
-        ;
         return currentShapeInfo;
     }
 
@@ -768,9 +764,11 @@ export class ProcessGraph implements IProcessGraph {
         }
         return false;
     }
+
     public defaultNextIdsProvider: INextIdsProvider = (context) => {
         return this.viewModel.getNextShapeIds(context.id).map(id => Number(id));
     }
+
     private defaultDecisionNextIdsProvider: INextIdsProvider = (context) => {
         let nextShapeIds = this.viewModel.getNextShapeIds(context.id);
         // Remove the main branch, as decisions do not include the main branch in the scope
@@ -779,6 +777,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         return nextShapeIds.map(id => Number(id));
     }
+
     private defaultUserTaskStopCondition: IStopTraversalCondition = (context): boolean => {
         let isStop: boolean = this.defaultStopCondition(context);
         if (!isStop && context.mergeIds.length === 0 && this.viewModel.getShapeTypeById(context.id) === ProcessShapeType.SystemTask) {
@@ -787,6 +786,7 @@ export class ProcessGraph implements IProcessGraph {
         }
         return isStop;
     }
+
     private defaultUserTaskNextIdsProvider: INextIdsProvider = (context) => {
         return this.defaultNextIdsProvider(context);
     }
@@ -957,7 +957,7 @@ export class ProcessGraph implements IProcessGraph {
     public destroy() {
         if (this.viewModel.isSpa) {
             window.removeEventListener("resize", this.resizeWrapper, true);
-    }
+        }
         window.removeEventListener("buttonUpdated", this.buttonUpdated);
         // remove graph
         this.mxgraph.getModel().clear();
@@ -979,5 +979,4 @@ export class ProcessGraph implements IProcessGraph {
             this.selectionHelper.destroy();
         }
     }
-
 }

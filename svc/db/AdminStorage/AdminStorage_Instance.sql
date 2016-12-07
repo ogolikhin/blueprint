@@ -1019,7 +1019,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_Defau
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_DefaultScreen_UsefulResources_Header', 'en-US', N'Useful resources to get started')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_DefaultScreen_GetStartedWithStoryteller_Hypelink', 'en-US', N'Get started with Storyteller')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_DefaultScreen_GetStartedWithProcessEditor_Hypelink', 'en-US', N'Get started with the Process Editor')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink', 'en-US', N'Blueprint Community forum')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink', 'en-US', N'Blueprint Community Forum')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_MainArea_DefaultScreen_StorytellerTour_Hypelink', 'en-US', N'Storyteller Tour')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Filter_SortByLatest', 'en-US', N'Sort by latest')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Filter_SortByEarliest', 'en-US', N'Sort by earliest')

@@ -7,7 +7,7 @@ import {IValidationService} from "../../../../managers/artifact-manager/validati
 export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldNumber";
     public extends: string = "input";
-    public template: string = require("./number.template.html");
+    public template: string = require("./number.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
@@ -37,7 +37,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
                     const isValid = validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                      scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("wrongFormat", isValid, scope);
-                    
+
                     return true;
                 }
             },

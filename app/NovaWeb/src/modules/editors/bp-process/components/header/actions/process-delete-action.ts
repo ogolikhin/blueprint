@@ -12,7 +12,7 @@ import {IStatefulProcessArtifact} from "./../../../process-artifact";
 import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
 import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {Models, Enums} from "./../../../../../main/models";
+import {RolePermissions} from "./../../../../../main/models/enums";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
@@ -49,7 +49,7 @@ export class ProcessDeleteAction extends DeleteAction {
 
         //Is artifact and has Delete permissions 
         if (!this.selectedNodes || !this.selectedNodes.length) {
-            return this.hasDesiredPermissions(Enums.RolePermissions.Delete);
+            return this.hasDesiredPermissions(RolePermissions.Delete);
         }
 
         if (this.selectedNodes.length > 1) {
@@ -70,9 +70,9 @@ export class ProcessDeleteAction extends DeleteAction {
 
         return true;
     }
-    
+
     protected hasPermissions(): boolean {
-        return this.hasDesiredPermissions(Enums.RolePermissions.Edit);
+        return this.hasDesiredPermissions(RolePermissions.Edit);
     }
 
     protected delete(): void {

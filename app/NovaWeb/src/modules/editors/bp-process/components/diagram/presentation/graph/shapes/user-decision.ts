@@ -17,6 +17,10 @@ export class UserDecision extends Decision implements IDecision {
         return "#D4D5DA";
     }
 
+    protected get HIGHLIGHT_BORDER_COLOR(): string {
+        return "#FF0000";
+    }
+
     public getX(): number {
         return this.getCenter().x + this.DECISION_SHIFT;
     }

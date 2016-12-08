@@ -12,6 +12,8 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
     protected abstract DECISION_SHIFT: number;
     protected abstract DEFAULT_FILL_COLOR: string;
     protected abstract DEFAULT_BORDER_COLOR: string;
+    protected abstract HIGHLIGHT_BORDER_COLOR: string;
+
     protected abstract textLabelLeft;
     protected abstract textLabelWidth;
 
@@ -130,6 +132,17 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         );
 
         return this;
+    }
+
+    public highlightShape(color: string = undefined) {
+        if (!color) {
+            color = this.HIGHLIGHT_BORDER_COLOR;
+        }
+        this.setElementStyle("strokeColor", color);
+    }
+
+    public clearShapeHighlight() {
+        this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
     }
 
     public setLabelWithRedrawUi(value: string) {

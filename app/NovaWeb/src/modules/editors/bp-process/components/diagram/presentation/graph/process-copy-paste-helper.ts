@@ -135,8 +135,12 @@ export class ProcessCopyPasteHelper {
         }
         
         const  data: PreprocessorData = new PreprocessorData();
-        // baseNodes is a collection of the nodes which goes into clipboard process data
-        let  baseNodes = this.processGraph.getMxGraph().getSelectionCells();
+        
+        // Currently baseNodes are the selected/highlighted UserTasks only. 
+        // Later algorithm will be simplified to use all selected/highlighted nodes.
+        let  baseNodes = _.filter(this.processGraph.getCopyNodes(), (node) => { 
+            return node instanceof UserTask; 
+        });
 
         try {
             // 1. Find all User Decisions

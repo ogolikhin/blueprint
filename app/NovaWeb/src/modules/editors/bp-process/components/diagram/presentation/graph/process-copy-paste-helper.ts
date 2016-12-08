@@ -276,7 +276,7 @@ export class ProcessCopyPasteHelper {
                 // find end points for the DP branches
                 // 1. build search string
                 let preprocessorNode: PreprocessorNode = data.preprocessorTree[node.branches[0].taskId];
-                let searchString: string = "";
+                let searchString = "*" + node.decisionId + "*";
                 while (!!preprocessorNode) {
                     searchString += "*" + preprocessorNode.id + "*" + preprocessorNode.nextIds[0] + "*";
                     preprocessorNode = data.preprocessorTree[preprocessorNode.nextIds[0]];
@@ -306,6 +306,11 @@ export class ProcessCopyPasteHelper {
 
     private  addUserDecisionAndTasks(prevId: string, data: PreprocessorData, baseNodes, 
                                                       node: UserDecision, decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
+
+        if (!!data.preprocessorTree[node.id]) {
+            return;
+        }
+                                                          
         const userDecisionShape = this.createUserDecisionShape(node);
         const userDecisionId: string = userDecisionShape.id.toString();
         data.shapes[userDecisionId] = userDecisionShape;
@@ -316,6 +321,10 @@ export class ProcessCopyPasteHelper {
             userTasks.push(branch.taskId);
             this.addUserAndSystemTasks(userDecisionId, data, baseNodes, <UserTask>userTask, decisionPointRefs, subTreeId);
         });
+
+        if (!!data.preprocessorTree[node.id]) {
+            return;
+        }
 
         data.addPreprocessorNode(userDecisionId, prevId, userTasks, 
                                             PreprocessorNodeType.UserDecision, 
@@ -370,6 +379,11 @@ export class ProcessCopyPasteHelper {
 
     private  addUserAndSystemTasks(prevId: string, data: PreprocessorData, baseNodes, node: UserTask, 
                                                     decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
+
+        if (!!data.preprocessorTree[node.id]) {
+            return;
+        }
+                                                        
         const userTaskShape = this.createUserTaskShape(node);
         const systemTasks = node.getNextSystemTasks(this.processGraph);
 

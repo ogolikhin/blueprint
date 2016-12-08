@@ -520,7 +520,7 @@ export class ProcessGraph implements IProcessGraph {
         this.dialogService.alert(
             dialogParameters.message, 
             this.localization.get("App_DialogTitle_Alert"),
-            this.localization.get("App_Button_Ok"),
+            this.localization.get("App_Button_Delete"),
             this.localization.get("App_Button_Cancel"))
             .then(() => {
                 if (clickedNode.getNodeType() === NodeType.UserTask) {

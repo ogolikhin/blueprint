@@ -173,6 +173,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.handleValidation(newContent);
 
         const $scope = this.$scope;
+        $scope.options["data"].isFresh = false;
         if (typeof this.onChange === "function") {
             this.onChange(newContent, $scope.options, $scope);
         }

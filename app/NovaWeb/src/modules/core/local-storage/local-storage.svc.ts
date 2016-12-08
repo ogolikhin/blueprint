@@ -12,7 +12,7 @@ export interface ILocalStorageService {
 export class LocalStorageService implements ILocalStorageService {
     
     public static $inject = [
-        "$log"
+        "$log"       
     ];
 
     constructor(private $log: ng.ILogService) {
@@ -30,7 +30,7 @@ export class LocalStorageService implements ILocalStorageService {
         }
     }
 
-    public readObject<T>(path): T {
+    public readObject<T>(path: string): T {
         const text: any = this.read(path);
         let data: T;
         try {

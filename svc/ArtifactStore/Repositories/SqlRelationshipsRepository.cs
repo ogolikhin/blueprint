@@ -55,8 +55,9 @@ namespace ArtifactStore.Repositories
 
 
 
-        private async Task<string> GetItemDescription (int itemId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        private async Task<string> GetItemDescription (int itemId, int userId, bool? addDrafts = true, int? revisionId = int.MaxValue)
         {
+            // SP [GetItemDescription] returns last published version for deleted items when revisionId is NULL.
             var parameters = new DynamicParameters();
             parameters.Add("@itemId", itemId);
             parameters.Add("@userId", userId);
@@ -223,7 +224,7 @@ namespace ArtifactStore.Repositories
             if (pathInfoDictionary.Keys.Count == 0)
                 throw new ResourceNotFoundException($"Artifact in revision {revisionId} does not exist.", ErrorCodes.ResourceNotFound);
             var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
-            var description = (await GetItemDescription(artifactId, userId));
+            var description = (await GetItemDescription(artifactId, userId, addDrafts, revisionId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
     }

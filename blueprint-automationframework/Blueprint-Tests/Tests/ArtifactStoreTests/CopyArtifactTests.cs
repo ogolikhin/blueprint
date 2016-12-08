@@ -763,12 +763,11 @@ namespace ArtifactStoreTests
                 NovaArtifact.AssertAreEqual(originalChild, newChild);
             }
 
-            /*  TODO: This Assert fails.  Check if this is important.
+            // Verify User Stories generated on source and copied Processes are equal.
             for (int i = 0; i < sourceUserStories.Count; ++i)
             {
                 StorytellerUserStory.AssertAreEqual(sourceUserStories[i], copiedUserStories[i], skipIds: true);
             }
-            */
 
             var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Artifact.Id, author);
 

@@ -30,7 +30,7 @@ namespace AdminStoreTests
 
         [TestCase(1)]
         [TestCase(96238)]
-        [TestCase(int.MaxValue, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // BUG: 1362
+        [TestCase(int.MaxValue, Explicit = true, IgnoreReason = IgnoreReasons.WillNotFix)]  // BUG: 1362  Returns 401 Unauthorized if the days parameter >= 96239
         [Description("Call:  GET /licenses/transactions with the 'days' parameter > 0.  Verify a valid list of transactions is returned.")]
         [TestRail(146081)]
         public void GetLicenseTransactions_PositiveDays_ReturnsLicenseTransactionList(int days)

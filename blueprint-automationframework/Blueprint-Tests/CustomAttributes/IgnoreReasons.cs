@@ -28,5 +28,8 @@ namespace CustomAttributes
 
         /// <summary>A test that is incomplete and still being written.</summary>
         public const string UnderDevelopment = "UnderDevelopment";
+
+        /// <summary>A test that fails because of a product defect that won't be fixed.</summary>
+        public const string WillNotFix = "WillNotFix";
     }
 }

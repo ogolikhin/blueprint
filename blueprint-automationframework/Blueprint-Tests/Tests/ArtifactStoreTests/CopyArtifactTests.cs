@@ -775,7 +775,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(sourceUserStories.Count * 2, childArtifacts.Count, "The User Stories of the Process didn't get copied!");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/8dLfTOy2  Link Labels don't get copied when you copy a Process.
         [TestCase]
         [TestRail(195995)]
         [Description("Create and publish a source Process with Link Labels, and save a destination folder.  Copy the source artifact under the destination folder.  " +

@@ -185,13 +185,13 @@ export class MoveCopyAction extends BPDropdownAction {
 
     private prepareArtifactForMove(artifact: Models.IArtifact): ng.IPromise<IStatefulArtifact>  {
         //lock and presave if needed
-        if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            //save
-            return this.artifact.save();
-        }
         if (!this.artifact.artifactState.dirty) {
             //lock
             return this.artifact.lock();
+        }
+        if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
+            //save
+            return this.artifact.save();
         }
         //do nothing
         return this.$q.resolve(null);

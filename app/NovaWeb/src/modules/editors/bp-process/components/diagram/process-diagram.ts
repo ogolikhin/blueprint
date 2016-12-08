@@ -300,7 +300,7 @@ export class ProcessDiagram {
                     .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
-                this.processViewModel.communicationManager.processDiagramCommunication
+                this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
             }
         }

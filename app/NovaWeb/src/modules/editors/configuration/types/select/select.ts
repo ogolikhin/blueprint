@@ -31,6 +31,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
     private isValidated: boolean;
     private allowsCustomValues: boolean;
+    private customValue: ISelectItem;
 
     constructor(private $scope: AngularFormly.ITemplateScope,
                      private localization: ILocalizationService,
@@ -39,13 +40,14 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
         this.isValidated = $scope.options["data"].isValidated;
         this.allowsCustomValues = !this.isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
+        this.customValue = null;
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
             valueProp: "value",
             labelProp: "name"
         };
-        angular.merge($scope.to, to);
+        _.assign($scope.to, to);
 
         $scope.options["validators"] = {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
@@ -94,41 +96,37 @@ export class BpFieldSelectController extends BPFieldBaseController {
         return (selected as ISelectItem).name;
     };
 
+    private removeTempCustomValues = (items: ISelectItem[]): ISelectItem[] => {
+        const _items = _.clone(items);
+        while (_items.length && _.isObject(_items[0].value) && !_.isEqual(_items[0], this.customValue)) {
+            _items.shift();
+        }
+        return _items;
+    };
+
     private refreshResults = ($select) => {
         if (this.allowsCustomValues) {
-            const search = $select.search;
-            if (search) {
-                let isDuplicate = false;
-                $select.items.forEach((item) => {
-                    if (item[this.$scope.to.labelProp] === search) {
-                        isDuplicate = true;
-                        return;
-                    }
-                });
-
-                if (!isDuplicate) {
-                    this.selectCustomValue($select, search);
-                }
-            } else {
-                $select.items = this.filterOutCustomValues($select.items as ISelectItem[]);
-                $select.activeIndex = -1;
+            $select.items = this.removeTempCustomValues($select.items);
+            const search = $select.search || "";
+            if (search !== "" && _.findIndex($select.items, item => (item as ISelectItem).name === search) === -1) {
+                const newCustomValue: ISelectItem = {
+                    value: {
+                        customValue: search
+                    },
+                    name: search
+                };
+                $select.items.unshift(newCustomValue);
             }
         }
     };
 
     private onOpenClose = ($select, isOpen: boolean) => {
+        if (!isOpen) {
+            $select.items = this.refreshOptions();
+        }
+
         if (_.isUndefined($select.selected) || _.isNull($select.selected)) {
             $select.activeIndex = -1;
-        } else {
-            if (_.isObject($select.selected.value)) {
-                this.selectCustomValue($select, $select.selected.value.customValue);
-
-                // un-comment the following to make the custom value the only value in the dropdown
-                // this has no effect when a standard value is selected
-                // if (isOpen) {
-                //     $select.search = $select.selected.value.customValue;
-                // }
-            }
         }
     };
 
@@ -144,33 +142,18 @@ export class BpFieldSelectController extends BPFieldBaseController {
             });
         }
 
-        const currentModelVal = this.$scope.model[this.$scope.options["key"]] as ICustomItem;
-        if (_.isObject(currentModelVal) && currentModelVal.customValue) {
-            let newVal: ISelectItem = {
-                value: currentModelVal,
-                name: currentModelVal.customValue
-            };
-            options.unshift(newVal);
+        if (this.allowsCustomValues) {
+            const currentModelVal = this.$scope.model[this.$scope.options["key"]] as ICustomItem;
+            if (_.isObject(currentModelVal) && currentModelVal.customValue) {
+                const newVal: ISelectItem = {
+                    value: currentModelVal,
+                    name: currentModelVal.customValue
+                };
+                this.customValue = newVal;
+                options.unshift(newVal);
+            }
         }
 
         return options;
-    };
-
-    private filterOutCustomValues(items: ISelectItem[]): ISelectItem[] {
-        const optionList: ISelectItem[] = _.clone(items);
-        //remove custom values
-        return optionList.filter(item => !_.isObject(item.value));
-    }
-
-    private selectCustomValue = ($select, label: string) => {
-        const optionList = this.filterOutCustomValues($select.items as ISelectItem[]);
-        const userInputItem: ISelectItem = {
-            value: {
-                customValue: label
-            },
-            name: label
-        };
-        $select.items = [userInputItem].concat(optionList);
-        $select.activeIndex = 0;
     };
 }

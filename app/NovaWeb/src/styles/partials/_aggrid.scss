@@ -1,4 +1,6 @@
-$has-children-padding-before-arrow: 3px;
+$aggrid-has-children-padding-before-arrow: 3px;
+$aggrid-row-height: 20px;
+$aggrid-text-indent: 6px;
 
 .explorer__node-link,
 .explorer__node-link:visited,
@@ -35,7 +37,7 @@ $has-children-padding-before-arrow: 3px;
                 color: $brand-secondary;
                 display: inline-block;
                 font-weight: 600;
-                text-indent: 6px;
+                text-indent: $aggrid-text-indent;
             }
         }
 
@@ -363,7 +365,7 @@ $has-children-padding-before-arrow: 3px;
             display: inline-block;
             font-family: 'bp-font';
             font-size: $font-size-normal;
-            padding-left: $has-children-padding-before-arrow;
+            padding-left: $aggrid-has-children-padding-before-arrow;
             text-align: left;
         }
 
@@ -375,11 +377,18 @@ $has-children-padding-before-arrow: 3px;
             content: '\e81f';
         }
     }
+
+    .ag-overlay-loading-wrapper {
+        font-size: $font-size-normal;
+        text-align: left;
+        vertical-align: top;
+    }
 }
 
 .project-explorer {
     .ag-overlay-loading-wrapper {
-        display: none;
+        padding-top: 4px;
+        text-indent: 11px;
     }
 
     .ag-cell {
@@ -388,16 +397,14 @@ $has-children-padding-before-arrow: 3px;
 }
 
 .project-tree {
+    .ag-overlay-loading-wrapper {
+        padding-top: $aggrid-row-height;
+        text-indent: $aggrid-text-indent;
+    }
+
     .ag-grid,
     .ag-grid > div {
         height: $project-picker-tree-height;
-    }
-
-    .ag-overlay-loading-wrapper {
-        font-size: $font-size-normal;
-        padding-top: $aggrid-row-height;
-        text-align: left;
-        vertical-align: top;
     }
 
     .ag-row-group.ag-row-level-0 .ag-cell {

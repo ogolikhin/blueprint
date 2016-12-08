@@ -74,10 +74,21 @@ export class DeleteAction extends BPButtonAction {
             return false;
         }
 
-        if ((this.artifact.permissions & Enums.RolePermissions.Delete) !== Enums.RolePermissions.Delete) {
+        if (!this.hasRequiredPermissions()) {
             return false;
         }
 
+        return true;
+    }
+
+    protected hasRequiredPermissions(): boolean {
+        return this.hasDesiredPermissions(Enums.RolePermissions.Delete);
+    }
+
+    protected hasDesiredPermissions(permissions: Enums.RolePermissions): boolean {
+        if ((this.artifact.permissions & permissions) !== permissions) {
+            return false;
+        }
         return true;
     }
 

@@ -1,6 +1,7 @@
 import {BPDropdownAction, BPDropdownItemAction} from "../../../../../shared/widgets/bp-toolbar/actions";
 import {IDialogService, IDialogSettings} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IUserStoryService} from "../../../services/user-story.svc";
+import {IProjectManager, ProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
@@ -29,7 +30,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private localization: ILocalizationService,
         private dialogService: IDialogService,
         private loadingOverlayService: ILoadingOverlayService,
-        private processDiagramManager: IProcessDiagramCommunication
+        private processDiagramManager: IProcessDiagramCommunication,
+        private projectManager: IProjectManager
     ) {
         super();
 
@@ -55,6 +57,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
 
         if (!processDiagramManager) {
             throw new Error("Process diagram manager is not provided or is null");
+        }
+
+        if (!projectManager) {
+            throw new Error("Project manager is not provided or is null");
         }
 
         this.actions.push(
@@ -215,6 +221,12 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 this.messageService.addInfo(userStoriesGeneratedMessage);
 
                 return process.refresh(false);
+            })
+            .then(() => {
+                //refresh project
+                this.projectManager.refresh(process.projectId).then(() => {
+                    this.projectManager.triggerProjectCollectionRefresh();
+                });
             })
             .catch((reason: IApplicationError) => {
                 let message: string = this.localization.get("ST_US_Generate_Generic_Failure_Message");

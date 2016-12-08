@@ -153,37 +153,35 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
         [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
         [TestRail(191102)]
-        [Description("Create and publish an artifact (that has custom properties). Change custom property. Verify the published artifact has " +
+        [Description("Create and publish an artifact (that has custom properties). Change custom property. Verify the saved artifact has " +
                      "expected custom property change.")]
         public void UpdateArtifact_ChangePropertyAndSave_VerifyPropertyChange<T>( ItemTypePredefined itemType, PropertyPrimitiveType propertyType, 
             string propertyName, T newValue)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
-
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            IProject project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
 
             // Update custom property in artifact.
             NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+
             CustomProperty property = null;
 
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, author);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifactDetails, project, propertyType, propertyName, author);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateCustomProperty(artifactDetails, projectCustomData, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifactDetails, project, propertyType, propertyName, newValue);
             }
 
-            var artifactDetailsChangeset = TestHelper.CreateArtifactPropertyChangeSet(artifactDetails, property);
+            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
 
             // Execute:
             artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, (NovaArtifactDetails)artifactDetailsChangeset);
+            Helper.ArtifactStore.UpdateArtifact(author, project, (NovaArtifactDetails)artifactDetailsChangeset);
             artifact.Save();
 
             // Verify:
@@ -198,6 +196,60 @@ namespace ArtifactStoreTests
         #region Subartifact Properties tests
 
         //TODO: Refactor artifact & subartifact properties tests to use changesets as in the example below
+
+        [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Date, Process.DefaultUserTaskName, "Cust-Date", "2016-12-24T00:00:00")]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Number, Process.DefaultUserTaskName, "Cust-Number", 5)]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Text, Process.DefaultUserTaskName, "Cust-Text", "This is new text")]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice, Process.DefaultUserTaskName, "Cust-Choice-Multiple", new[] { "Math" })]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice, Process.DefaultUserTaskName, "Cust-Choice-Multiple", new[] { "Math", "English" })]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.User, Process.DefaultUserTaskName, "Cust-User", "")] // newValue not used here, so pass empty string.
+        [TestRail(191159)]
+        [Description("Create and publish an artifact with subartifact (that has custom properties). Change custom property in subartifact. " +
+                     "Verify the saved subartifact artifact has the expected custom property change.")]
+        public void UpdateSubArtifact_ChangePropertyAndSave_VerifyPropertyChanged<T>(ItemTypePredefined itemType,
+            PropertyPrimitiveType propertyType,
+            string subArtifactDisplayName,
+            string propertyName,
+            T newValue)
+        {
+            // Setup:
+            IProject project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectNonRequiredCustomPropertiesAssigned, _user);
+            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForCustomArtifactType(project, author, itemType);
+
+            // Update custom property in artifact.
+            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var subArtifact = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
+            var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, subArtifact.Id);
+
+            CustomProperty property = null;
+
+            if (propertyType == PropertyPrimitiveType.User)
+            {
+                property = ArtifactStoreHelper.UpdateSubArtifactCustomProperty(novaSubArtifact, project, propertyType, propertyName, author);
+            }
+            else
+            {
+                property = ArtifactStoreHelper.UpdateSubArtifactCustomProperty(novaSubArtifact, project, propertyType, propertyName, newValue);
+            }
+
+            var subartifactChangeSet = TestHelper.CreateSubArtifactChangeSet(novaSubArtifact, customProperty: property);
+            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, subArtifact: subartifactChangeSet);
+
+            // Execute:
+            artifact.Lock();
+            Helper.ArtifactStore.UpdateArtifact(author, project, (NovaArtifactDetails)artifactDetailsChangeset);
+            artifact.Save();
+
+            // Verify:
+            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+
+            CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(propertyName));
+
+            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
+        }
+
 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Text-Required-RT-Multi-HasDefault")]
@@ -1001,12 +1053,12 @@ namespace ArtifactStoreTests
         /// Create the changeset for the target artifact
         /// </summary>
         /// <param name="user">The user updating the artifact</param>
-        /// <param name="projectCustomData">The project with all the avaliable Nova artifact types</param>
+        /// <param name="project">The project with all the avaliable Nova artifact types</param>
         /// <param name="artifact">The artifact that the target sub artifact resides</param>
         /// <param name="artifactCustomPropertyName">custom property name for the artifact to update</param>
         /// <param name="artifactCustomPropertyValue">custom property value for the artifact to update</param>
         /// <returns>NovaArtifactDetails that contains the change for the artifact</returns>
-        private NovaArtifactDetails CreateArtifactChangeSet(IUser user, IProject projectCustomData, IArtifact artifact, string artifactCustomPropertyName, object artifactCustomPropertyValue)
+        private NovaArtifactDetails CreateArtifactChangeSet(IUser user, IProject project, IArtifact artifact, string artifactCustomPropertyName, object artifactCustomPropertyValue)
         {
             var artifactDetailsChangeSet = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
             var customPropertyValueToUpdate = artifactDetailsChangeSet.CustomPropertyValues.Find(p => p.Name.Equals(artifactCustomPropertyName));
@@ -1036,7 +1088,7 @@ namespace ArtifactStoreTests
                     }
                 case CustomPropertyName.ChoiceRequiredAllowMultipleDefaultValue:
                     {
-                        var choicePropertyValidValues = projectCustomData.NovaPropertyTypes.Find(pt => pt.Name.Equals(artifactCustomPropertyName)).ValidValues;
+                        var choicePropertyValidValues = project.NovaPropertyTypes.Find(pt => pt.Name.Equals(artifactCustomPropertyName)).ValidValues;
 
                         var collectedChoicePropertyValueList = new List<NovaPropertyType.ValidValue>();
                         foreach (string choiceValue in (List<string>)artifactCustomPropertyValue)
@@ -1066,13 +1118,13 @@ namespace ArtifactStoreTests
         /// Create the changeset for the target sub artifact
         /// </summary>
         /// <param name="user">The user updating the sub artifact</param>
-        /// <param name="projectCustomData">The project with all the avaliable Nova artifact types</param>
+        /// <param name="project">The project with all the avaliable Nova artifact types</param>
         /// <param name="artifact">The artifact that the target sub artifact resides</param>
         /// <param name="subArtifactDisplayName">display name for the sub artifact to update</param>
         /// <param name="subArtifactCustomPropertyName">custom property name for the sub artifact to update</param>
         /// <param name="subArtifactCustomPropertyValue">custom property value for the sub artifact to update</param>
         /// <returns>NovaSubArtifact that contains the change for the sub artifact</returns>
-        private NovaSubArtifact CreateSubArtifactChangeSet(IUser user, IProject projectCustomData, IArtifact artifact, string subArtifactDisplayName, string subArtifactCustomPropertyName, object subArtifactCustomPropertyValue)
+        private NovaSubArtifact CreateSubArtifactChangeSet(IUser user, IProject project, IArtifact artifact, string subArtifactDisplayName, string subArtifactCustomPropertyName, object subArtifactCustomPropertyValue)
         {
             var subArtifact = Helper.ArtifactStore.GetSubartifacts(user, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
@@ -1103,7 +1155,7 @@ namespace ArtifactStoreTests
                     }
                 case CustomPropertyName.ChoiceRequiredAllowMultipleDefaultValue:
                     {
-                        var choicePropertyValidValues = projectCustomData.NovaPropertyTypes.Find(pt => pt.Name.Equals(subArtifactCustomPropertyName)).ValidValues;
+                        var choicePropertyValidValues = project.NovaPropertyTypes.Find(pt => pt.Name.Equals(subArtifactCustomPropertyName)).ValidValues;
 
                         var collectedChoicePropertyValueList = new List<NovaPropertyType.ValidValue>();
                         foreach (string choiceValue in (List<string>)subArtifactCustomPropertyValue)

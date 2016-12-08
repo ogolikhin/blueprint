@@ -72,7 +72,8 @@ export class ProcessGraph implements IProcessGraph {
                 private $log: ng.ILogService = null,
                 private statefulArtifactFactory: IStatefulArtifactFactory = null,
                 private clipboard: IClipboardService = null,
-                private fileUploadService: IFileUploadService = null) {
+                private fileUploadService: IFileUploadService = null,
+                private $q: ng.IQService = null) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -107,7 +108,7 @@ export class ProcessGraph implements IProcessGraph {
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
         this.processCopyPasteHelper = new ProcessCopyPasteHelper(
-            this, this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService);
+            this, this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService, this.$q);
     }
 
     private isCellSelectable = (cell: MxCell) => {
@@ -517,7 +518,7 @@ export class ProcessGraph implements IProcessGraph {
         this.dialogService.alert(
             dialogParameters.message, 
             this.localization.get("App_DialogTitle_Alert"),
-            this.localization.get("App_Button_Ok"),
+            this.localization.get("App_Button_Delete"),
             this.localization.get("App_Button_Cancel"))
             .then(() => {
                 if (clickedNode.getNodeType() === NodeType.UserTask) {

@@ -207,6 +207,9 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getDeleteDialogParameters(): IDialogParams;
 
     getLabelCell(): MxCell;
+
+    highlightShape(color?: string);
+    clearShapeHighlight();
 }
 
 export interface IDiagramElement extends MxCell {
@@ -217,6 +220,9 @@ export interface IDiagramElement extends MxCell {
     getHeight(): number;
     getWidth(): number;
     getCenter(): MxPoint;
+    getElementStyle(name: string);
+    getElementStyles();
+    setElementStyle(name: string, val: any);
 }
 
 export interface IDiagramNodeElement extends IDiagramElement {

@@ -97,18 +97,20 @@ namespace AdminStoreTests
         public void GetProjectNavigation_UserHasNoProjectAccess_403Forbidden()
         {
             // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() => Helper.AdminStore.GetProjectNavigationPath(_secondProject.Id, _viewerUser),
-                                "GetNavigationPath should return 403 Forbidden when user has no access to the project.");
+            Assert.Throws<Http403ForbiddenException>(() =>
+                Helper.AdminStore.GetProjectNavigationPath(_secondProject.Id, _viewerUser),
+                "GetNavigationPath should return 403 Forbidden when user has no access to the project.");
         }
 
         [TestCase(int.MaxValue)]
         [TestRail(191086)]
-        [Description("Get Project Navigation Path for non-existing project id, verify that it returns 404 Not Found.")]
+        [Description("Get Project Navigation Path for non-existing project id, verify that it return 404 Not Found.")]
         public void GetProjectNavigation_ProjectDoesNotExist_404NotFound(int projectId)
         {
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetProjectNavigationPath(projectId, _viewerUser),
-                                "GetNavigationPath return throw 404 Not Found when user has no access to the project.");
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                Helper.AdminStore.GetProjectNavigationPath(projectId, _viewerUser),
+                "GetNavigationPath should return 404 Not Found when passed a non-existent project Id.");
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,

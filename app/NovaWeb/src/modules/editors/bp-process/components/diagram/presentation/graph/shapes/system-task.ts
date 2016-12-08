@@ -422,13 +422,11 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
         this.callout.setElementStyle("strokeColor", color);
-        this.callout.setElementStyle("strokeWidth", 1);
         this.callout.setElementStyle("dashed", 1);
     }
 
     public clearShapeHighlight(mxGraph: MxGraph = undefined) {
         this.callout.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
-        this.callout.setElementStyle("strokeWidth", 1);
         this.callout.setElementStyle("dashed", 0);
     }
 

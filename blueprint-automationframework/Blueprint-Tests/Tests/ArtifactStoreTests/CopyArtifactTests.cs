@@ -16,6 +16,7 @@ using System.Linq;
 using Common;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -774,6 +775,56 @@ namespace ArtifactStoreTests
             Assert.AreEqual(sourceUserStories.Count * 2, childArtifacts.Count, "The User Stories of the Process didn't get copied!");
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/8dLfTOy2  Link Labels don't get copied when you copy a Process.
+        [TestCase]
+        [TestRail(195995)]
+        [Description("Create and publish a source Process with Link Labels, and save a destination folder.  Copy the source artifact under the destination folder.  " +
+            "Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the Link Labels were also copied. " +
+            "New copied Process should not be published.")]
+        public void CopyArtifact_SinglePublishedProcessWithLinkLabels_ToNewFolder_ReturnsNewProcessWithLinkLabels()
+        {
+            // Setup:
+            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
+                Helper.Storyteller, _project, _user);
+
+            sourceProcess = AddRandomLinkLabelsToProcess(sourceProcess, publishProcess: true, user: _user);
+
+            var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
+            var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetFolder.Id, _user),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedVersionOfOriginalArtifact: sourceArtifactDetails.Version.Value);
+
+            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            {
+                CompareAttachmentIds = false,
+                CompareUploadedDates = false
+            };
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
+                skipSubArtifactTraces: true, compareOptions: compareOptions);
+
+            var copiedProcess = Helper.Storyteller.GetProcess(_user, copyResult.Artifact.Id);
+
+            StorytellerTestHelper.AssertProcessesAreEqual(sourceProcess, copiedProcess, isCopiedProcess: true);
+
+            // Compare the Process Links.
+            for (int i = 0; i < sourceProcess.Links.Count; ++i)
+            {
+                Assert.AreEqual(sourceProcess.Links[i].Label, copiedProcess.Links[i].Label, "Link labels do not match!");
+                Assert.AreEqual(sourceProcess.Links[i].Orderindex, copiedProcess.Links[i].Orderindex, "Link OrderIndexes do not match!");
+            }
+        }
+
         #endregion 201 Created tests
 
         #region 400 Bad Request tests
@@ -1231,6 +1282,38 @@ namespace ArtifactStoreTests
         #endregion 409 Conflict tests
 
         #region Private functions
+
+        /// <summary>
+        /// Adds random link labels to the specified Process.
+        /// </summary>
+        /// <param name="process">The Process whose link labels are to be updated.</param>
+        /// <param name="updateProcess">(optional) Pass true to update the Process after changing the link labels.</param>
+        /// <param name="publishProcess">(optional) Pass true to update and publish the Process after changing the link labels.</param>
+        /// <param name="user">(optional) The user to authenticate with.  Only needed if updateProcess is true.</param>
+        /// <returns>The Process.</returns>
+        private IProcess AddRandomLinkLabelsToProcess(IProcess process,
+            bool updateProcess = false,
+            bool publishProcess = false,
+            IUser user = null)
+        {
+            // TODO: Find a way to only add Labels to Links where sourceId is a User or System Decision, because UpdateProcess won't save Labels on anything else.
+            foreach (var link in process.Links)
+            {
+                link.Label = RandomGenerator.RandomAlphaNumeric(10);
+            }
+
+            if (updateProcess || publishProcess)
+            {
+                process = Helper.Storyteller.UpdateProcess(user, process);
+            }
+
+            if (publishProcess)
+            {
+                Helper.Storyteller.PublishProcess(user, process);
+            }
+
+            return process;
+        }
 
         /// <summary>
         /// Asserts that the properties of the copied artifact are the same as the original artifact (except Id and Version)

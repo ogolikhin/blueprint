@@ -1,4 +1,5 @@
-﻿import {ICommunicationManager} from "./";
+﻿import {ILoadingOverlayService} from "./../../core/loading-overlay/loading-overlay.svc";
+import {ICommunicationManager} from "./";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
@@ -45,7 +46,8 @@ export class BpProcessEditorController extends BpBaseEditor {
         "shapesFactory",
         "utilityPanelService",
         "clipboardService",
-        "fileUploadService"
+        "fileUploadService",
+        "loadingOverlayService"
     ];
 
     constructor(messageService: IMessageService,
@@ -66,7 +68,8 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private shapesFactory: ShapesFactory = null,
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService = null,
-                private fileUploadService: IFileUploadService) {
+                private fileUploadService: IFileUploadService = null,
+                private loadingOverlayService: ILoadingOverlayService = null) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -115,7 +118,8 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.utilityPanelService,
             this.clipboard,
             this.artifactManager,
-            this.fileUploadService
+            this.fileUploadService,
+            this.loadingOverlayService
         );
 
         let htmlElement = this.getHtmlElement();

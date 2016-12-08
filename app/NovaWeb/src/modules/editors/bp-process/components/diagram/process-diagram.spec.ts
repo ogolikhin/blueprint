@@ -1,3 +1,5 @@
+import {LoadingOverlayServiceMock} from "./../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
 import * as angular from "angular";
 import * as TestModels from "../../models/test-model-factory";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
@@ -49,7 +51,8 @@ describe("ProcessDiagram Tests", () => {
         utilityPanelService: UtilityPanelService,
         shapesFactory: ShapesFactory,
         artifactManager: IArtifactManager,
-        fileUploadService: FileUploadService;
+        fileUploadService: FileUploadService,
+        loadingOverlayService: ILoadingOverlayService;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -71,6 +74,7 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("clipboardService", ClipboardService);
         $provide.service("utilityPanelService", UtilityPanelService);
         $provide.service("fileUploadService", FileUploadService);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
@@ -86,7 +90,8 @@ describe("ProcessDiagram Tests", () => {
                        _shapesFactory_: ShapesFactory,
                        _utilityPanelService_: UtilityPanelService,
                        _clipboardService_: ClipboardService,
-                       _fileUploadService_: FileUploadService) => {
+                       _fileUploadService_: FileUploadService,
+                       _loadingOverlayService_: ILoadingOverlayService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -135,7 +140,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -166,7 +172,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -200,7 +207,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -234,7 +242,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -269,7 +278,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -303,7 +313,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -338,7 +349,8 @@ describe("ProcessDiagram Tests", () => {
             utilityPanelService,
             clipboard,
             artifactManager,
-            fileUploadService
+            fileUploadService,
+            loadingOverlayService
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

@@ -1,3 +1,4 @@
+import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -53,7 +54,8 @@ export class ProcessDiagram {
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService,
                 private artifactManager: IArtifactManager,
-                private fileUploadService: IFileUploadService) {
+                private fileUploadService: IFileUploadService,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.processModel = null;
        
@@ -198,7 +200,9 @@ export class ProcessDiagram {
                 this.$log,
                 this.statefulArtifactFactory,
                 this.clipboard,
-                this.fileUploadService
+                this.fileUploadService,
+                this.$q,
+                this.loadingOverlayService
             );
              
         } catch (err) {
@@ -302,7 +306,7 @@ export class ProcessDiagram {
                     .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
-                this.processViewModel.communicationManager.processDiagramCommunication
+                this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
             }
         }

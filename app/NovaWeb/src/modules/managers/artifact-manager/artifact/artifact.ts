@@ -276,7 +276,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            return;
+            return this.services.$q.resolve(this);
         }
         if (!this.lockPromise) {
             const deferred = this.services.getDeferred<IStatefulArtifact>();

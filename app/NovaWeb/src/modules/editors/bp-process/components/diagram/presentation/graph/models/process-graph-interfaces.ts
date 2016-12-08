@@ -90,45 +90,48 @@ export interface IUserStoryProvider {
 }
 
 export interface IProcessGraph {
+    rootScope: any;
+    messageService: IMessageService;
+    processDiagramCommunication: IProcessDiagramCommunication;
     viewModel: IProcessViewModel;
     layout: ILayout;
     startNode: IDiagramNode;
     endNode: IDiagramNode;
-    messageService: IMessageService;
-    rootScope: any;
     isUserSystemProcess: boolean;
+    globalScope: IScopeContext;
+    defaultNextIdsProvider: INextIdsProvider;
+    notifyUpdateInModel: INotifyModelChanged;
+
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;
-    getDefaultParent();
-    render(useAutolayout: boolean, selectedNodeId: number);
+    getDefaultParent(): MxCell;
+    render(useAutolayout: boolean, selectedNodeId: number): void;
     updateMergeNode(decisionId: number, condition: ICondition): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;
     getLink(sourceId: number, destinationId: number): IProcessLink;
-    globalScope: IScopeContext;
-    defaultNextIdsProvider: INextIdsProvider;
     getScope(id: number): IScopeContext;
-    notifyUpdateInModel: INotifyModelChanged;
     getShapeById(id: number): IProcessShape;
     getValidMergeNodes(condition: IProcessLink): IDiagramNode[];
     getNodeById(id: string): IDiagramNode;
     getNextLinks(id: number): IProcessLink[];
-    addLink(link: IDiagramLink, parent, index?: number, source?: MxCell, target?: MxCell);
-    updateAfterRender();
-    redraw(action: any);
-    updateSizeChanges(width?: number, height?: number);
-    setSystemTasksVisible(value: boolean);
-    clearSelection();
+    addLink(link: IDiagramLink, parent, index?: number, source?: MxCell, target?: MxCell): MxCell;
+    updateAfterRender(): void;
+    redraw(action: any): void;
+    updateSizeChanges(width?: number, height?: number): void;
+    setSystemTasksVisible(value: boolean): void;
+    clearSelection(): void;
     onUserStoriesGenerated(userStories: IUserStory[]): void;
-    copySelectedShapes();
-    insertSelectedShapes(edge: MxCell);
-    getSelectedShapes(): IProcessShape[];
-    processDiagramCommunication: IProcessDiagramCommunication;
-    highlightNodeEdges(nodes: IDiagramNode[]);
-    destroy();
-
+    copySelectedShapes(): void;
+    insertSelectedShapes(edge: MxCell): void;
+    getSelectedNodes(): IDiagramNode[];
+    getHighlightedCopyNodes(): IDiagramNode[];
+    getCopyNodes(): IDiagramNode[];
+    highlightNodeEdges(nodes: IDiagramNode[]): void;
+    highlightCopyGroups(nodes: IDiagramNode[]): void;
+    destroy(): void;
 }
 
 export interface ILayout {
@@ -183,6 +186,7 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     row: number;
     column: number;
     newShapeColor: string;
+    canCopy: boolean;
 
     getId(): string;
     setId(value: string);
@@ -206,6 +210,9 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getDeleteDialogParameters(): IDialogParams;
 
     getLabelCell(): MxCell;
+
+    highlightShape(color?: string);
+    clearShapeHighlight();
 }
 
 export interface IDiagramElement extends MxCell {
@@ -216,6 +223,9 @@ export interface IDiagramElement extends MxCell {
     getHeight(): number;
     getWidth(): number;
     getCenter(): MxPoint;
+    getElementStyle(name: string);
+    getElementStyles();
+    setElementStyle(name: string, val: any);
 }
 
 export interface IDiagramNodeElement extends IDiagramElement {

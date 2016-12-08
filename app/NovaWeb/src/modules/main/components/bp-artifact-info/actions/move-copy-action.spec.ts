@@ -119,7 +119,7 @@ describe("MoveCopyAction", () => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
                     id: 1,
-                    predefinedType: ItemTypePredefined.Project
+                    itemTypeId: ItemTypePredefined.Project
                 });
 
             // act
@@ -139,7 +139,7 @@ describe("MoveCopyAction", () => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
                     id: 1,
-                    predefinedType: ItemTypePredefined.Collections
+                    itemTypeId: ItemTypePredefined.Collections
                 });
 
             // act
@@ -172,6 +172,60 @@ describe("MoveCopyAction", () => {
 
             // assert
             expect(moveAction.disabled).toBe(false);
+            expect(moveAction.actions[0].disabled).toBe(false);
+            expect(moveAction.actions[1].disabled).toBe(false);
+        }));
+
+    it("only 'move' is enabled when artifact is a collection artifact",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.CollectionFolder,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit,
+                    version: -1
+                });
+
+            // act
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            // assert
+            expect(moveAction.disabled).toBe(false);
+            expect(moveAction.actions[0].disabled).toBe(false);
+            expect(moveAction.actions[1].disabled).toBe(true);
+        }));
+
+    it("only 'move' is enabled when artifact is a collection folder",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.ArtifactCollection,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit,
+                    version: -1
+                });
+
+            // act
+            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            // assert
+            expect(moveAction.disabled).toBe(false);
+            expect(moveAction.actions[0].disabled).toBe(false);
+            expect(moveAction.actions[1].disabled).toBe(true);
         }));
 
     it("calls artifact.copy when executed",

@@ -82,7 +82,7 @@ class Branch {
         this.taskId = taskId;
         this.label = label;
         this.orderindex = orderindex;
-        this.endPointId = "-100000";
+        this.endPointId = "UNDEFINED";
     }
     taskId: string;
     label: string;

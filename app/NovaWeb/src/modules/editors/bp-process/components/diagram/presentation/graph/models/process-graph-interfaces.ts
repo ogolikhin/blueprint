@@ -128,6 +128,7 @@ export interface IProcessGraph {
     processDiagramCommunication: IProcessDiagramCommunication;
     highlightNodeEdges(nodes: IDiagramNode[]);
     destroy();
+    getSelectedNodes(): Array<IDiagramNode>;
 
 }
 

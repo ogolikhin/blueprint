@@ -638,7 +638,7 @@ export class ProcessGraph implements IProcessGraph {
         this.isIe11 = (myBrowser.msie && (ver === 11));
     }
 
-    private getSelectedNodes(): Array<IDiagramNode> {
+    public getSelectedNodes(): Array<IDiagramNode> {
         let elements = <Array<IDiagramNode>>this.mxgraph.getSelectionCells();
         elements = elements.filter(e => e instanceof DiagramNode);
         return elements;

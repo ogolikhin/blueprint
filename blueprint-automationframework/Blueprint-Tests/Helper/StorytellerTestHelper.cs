@@ -9,12 +9,48 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Utilities;
+using Utilities.Factories;
 
 namespace Helper
 {
     public static class StorytellerTestHelper
     {
         #region Public Methods
+
+        /// <summary>
+        /// Adds random link labels to the specified Process.  Note: Only links coming from Decision Points can have labels.
+        /// </summary>
+        /// <param name="storyteller">An IStoryteller instance to make REST calls to.</param>
+        /// <param name="process">The Process whose link labels are to be updated.</param>
+        /// <param name="user">(optional) The user to authenticate with.  Only needed if updateProcess is true.</param>
+        /// <param name="updateProcess">(optional) Pass true to update the Process after changing the link labels.</param>
+        /// <returns>The Process.</returns>
+        public static IProcess AddRandomLinkLabelsToProcess(IStoryteller storyteller,
+            IProcess process,
+            IUser user = null,
+            bool updateProcess = false)
+        {
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            foreach (var link in process.Links)
+            {
+                var sourceShape = process.GetProcessShapeById(link.SourceId);
+
+                // Only links coming out of Decision shapes can have labels.
+                if (sourceShape.IsTypeOf(ProcessShapeType.SystemDecision) || sourceShape.IsTypeOf(ProcessShapeType.UserDecision))
+                {
+                    link.Label = RandomGenerator.RandomAlphaNumeric(10);
+                }
+            }
+
+            if (updateProcess)
+            {
+                process = storyteller.UpdateProcess(user, process);
+            }
+
+            return process;
+        }
 
         /// <summary>
         /// Asserts that the two Processes are equal.

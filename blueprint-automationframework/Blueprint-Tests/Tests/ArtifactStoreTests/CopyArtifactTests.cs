@@ -786,7 +786,8 @@ namespace ArtifactStoreTests
             var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
                 Helper.Storyteller, _project, _user);
 
-            sourceProcess = AddRandomLinkLabelsToProcess(sourceProcess, publishProcess: true, user: _user);
+            sourceProcess = StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, sourceProcess, _user);
+            sourceProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, _user);
 
             var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
             var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
@@ -1281,38 +1282,6 @@ namespace ArtifactStoreTests
         #endregion 409 Conflict tests
 
         #region Private functions
-
-        /// <summary>
-        /// Adds random link labels to the specified Process.
-        /// </summary>
-        /// <param name="process">The Process whose link labels are to be updated.</param>
-        /// <param name="updateProcess">(optional) Pass true to update the Process after changing the link labels.</param>
-        /// <param name="publishProcess">(optional) Pass true to update and publish the Process after changing the link labels.</param>
-        /// <param name="user">(optional) The user to authenticate with.  Only needed if updateProcess is true.</param>
-        /// <returns>The Process.</returns>
-        private IProcess AddRandomLinkLabelsToProcess(IProcess process,
-            bool updateProcess = false,
-            bool publishProcess = false,
-            IUser user = null)
-        {
-            // TODO: Find a way to only add Labels to Links where sourceId is a User or System Decision, because UpdateProcess won't save Labels on anything else.
-            foreach (var link in process.Links)
-            {
-                link.Label = RandomGenerator.RandomAlphaNumeric(10);
-            }
-
-            if (updateProcess || publishProcess)
-            {
-                process = Helper.Storyteller.UpdateProcess(user, process);
-            }
-
-            if (publishProcess)
-            {
-                Helper.Storyteller.PublishProcess(user, process);
-            }
-
-            return process;
-        }
 
         /// <summary>
         /// Asserts that the properties of the copied artifact are the same as the original artifact (except Id and Version)

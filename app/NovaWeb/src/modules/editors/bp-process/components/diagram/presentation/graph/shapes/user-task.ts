@@ -286,7 +286,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT,
             " editable=0;shape=label;strokeColor=#D4D5DA;fillColor=" + fillColor + ";foldable=0;fontColor=#4C4C4C;" +
-            "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12");
+            "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;dashed=0");
 
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
@@ -413,10 +413,12 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
         this.setElementStyle("strokeColor", color);
+        this.setElementStyle("dashed", 1);
     }
 
     public clearShapeHighlight() {
         this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
+        this.setElementStyle("dashed", 0);
     }
 
     private navigateToProcess() {

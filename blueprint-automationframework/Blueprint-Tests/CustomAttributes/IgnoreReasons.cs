@@ -23,6 +23,9 @@ namespace CustomAttributes
         /// <summary>This test fails because of a product defect.</summary>
         public const string ProductBug = "ProductBug";
 
+        /// <summary>This test fails because of a product defect that won't be fixed.</summary>
+        public const string ProductBugWillNotFix = "ProductBugWillNotFix";
+
         /// <summary>This test fails because of a test defect.</summary>
         public const string TestBug = "TestBug";
 

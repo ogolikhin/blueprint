@@ -18,7 +18,7 @@ export class UserDecision extends Decision implements IDecision {
     }
 
     protected get HIGHLIGHT_BORDER_COLOR(): string {
-        return "#FF0000";
+        return "#53BBED";
     }
 
     public getX(): number {

@@ -42,7 +42,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private BUTTON_SIZE = 16;
 
     private DEFAULT_BORDER_COLOR: string = "#D4D5DA";
-    private HIGHLIGHT_BORDER_COLOR: string = "#FF0000"; 
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
 
     private header: mxCell;
     private personaLabel: ILabel;
@@ -286,7 +286,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         this.insertVertex(mxGraph, this.model.id.toString(), null, x, y, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT,
             " editable=0;shape=label;strokeColor=#D4D5DA;fillColor=" + fillColor + ";foldable=0;fontColor=#4C4C4C;" +
-            "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12");
+            "fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;dashed=0");
 
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
@@ -354,10 +354,13 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
+        
+        mxGraph.insertVertex(this, "FB" + this.model.id.toString(), null, 0.5, this.USER_TASK_HEIGHT - 35, this.USER_TASK_WIDTH - 1, 1,
+            "shape=rectangle;strokeColor=none;fillColor=#D4D5DA;editable=0;selectable=0");
 
         //footer
-        this.footerCell = mxGraph.insertVertex(this, "F" + this.model.id.toString(), null, 0, this.USER_TASK_HEIGHT - 33, this.USER_TASK_WIDTH, 33,
-            "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
+        this.footerCell = mxGraph.insertVertex(this, "F" + this.model.id.toString(), null, 1, this.USER_TASK_HEIGHT - 34, this.USER_TASK_WIDTH - 2, 33,
+            "shape=rectangle;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
 
         this.addOverlays(mxGraph);
 
@@ -408,15 +411,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         // mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
     }
 
-    public highlightShape(color: string = undefined) {
+    public highlight(color: string = undefined) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
         this.setElementStyle("strokeColor", color);
+        this.setElementStyle("dashed", 1);
     }
 
-    public clearShapeHighlight() {
+    public clearHighlight() {
         this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
+        this.setElementStyle("dashed", 0);
     }
 
     private navigateToProcess() {

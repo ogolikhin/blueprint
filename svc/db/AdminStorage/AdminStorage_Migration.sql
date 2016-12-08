@@ -1361,6 +1361,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Delete_Artifact_Si
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_ResultsFound', 'en-US', N'{0} Results found')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Unpublished_Empty', 'en-US', N'No Unpublished Changes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('GO_TO_tooltip', 'en-US', N'Enter Artifact ID')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Images_Failed', 'en-US', N'Images were not copied into clipboard.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

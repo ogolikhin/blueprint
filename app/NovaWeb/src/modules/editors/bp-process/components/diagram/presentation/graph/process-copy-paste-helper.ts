@@ -1,3 +1,5 @@
+import {ILocalizationService} from "./../../../../../../core/localization/localizationService";
+import {IHttpError} from "./../../../../../../core/services/users-and-groups.svc";
 import {ILoadingOverlayService} from "./../../../../../../core/loading-overlay/loading-overlay.svc";
 import {ICopyImageResult} from "./../../../../../../core/file-upload/models/models";
 import {
@@ -16,6 +18,7 @@ import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/pro
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {Models} from "../../../../../../main";
 import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
+import {HttpStatusCode} from "../../../../../../core/http/http-status-code";
 
 
 enum PreprocessorNodeType {
@@ -120,7 +123,8 @@ export class ProcessCopyPasteHelper {
                      private $log: ng.ILogService,
                      private fileUploadService: IFileUploadService,
                      private $q: ng.IQService,
-                     private loadingOverlayService: ILoadingOverlayService) {
+                     private loadingOverlayService: ILoadingOverlayService,
+                     private localizationService: ILocalizationService) {
         this.layout = processGraph.layout;
     }
 
@@ -189,7 +193,11 @@ export class ProcessCopyPasteHelper {
                     }
                 });
                 return this.$q.when(clipboardData);
-            }).catch((error) => {                
+            }).catch((error: IHttpError) => {                
+                if (error.errorCode === HttpStatusCode.NotFound) {
+                    const message = this.localizationService.get("Copy_Images_Failed") + " " + error.message;
+                    this.messageService.addError(message);
+                }
                 return this.$q.when(clipboardData);
             }).finally(() => {
                 this.loadingOverlayService.endLoading(loadingId);

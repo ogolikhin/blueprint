@@ -634,10 +634,15 @@ export class ProcessCopyPasteHelper {
             this.layout.setTempShapeId(newId);
             idMap[shape.id.toString()] = newId;
             shape.id = newId;
-            shape.propertyValues["x"].value = -1;
-            shape.propertyValues["y"].value = -1;
+            shape.propertyValues[this.shapesFactoryService.X.key].value = -1;
+            shape.propertyValues[this.shapesFactoryService.Y.key].value = -1;
+            shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
             shape.projectId = this.layout.viewModel.projectId;
             shape.parentId = this.layout.viewModel.id;
+            if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {
+                shape.associatedArtifact = null;
+            }
+            
             this.layout.viewModel.addShape(shape);
         }
     }

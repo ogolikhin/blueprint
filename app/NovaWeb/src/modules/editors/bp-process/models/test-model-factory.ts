@@ -26,7 +26,7 @@ export function createProcessModel(id: number = 1, type: ProcessType = ProcessTy
     return process;
 }
 
-export function createShapeModel(type: ProcessShapeType, id: number, x?: number, y?: number): IProcessShape {
+export function createShapeModel(type: ProcessShapeType, id: number, x?: number, y?: number, imageid?: number): IProcessShape {
     let shapeModel = new ProcessShapeModel(id);
     shapeModel.name = id.toString();
     shapeModel.personaReference = {
@@ -59,6 +59,14 @@ export function createShapeModel(type: ProcessShapeType, id: number, x?: number,
             value: y ? y : 0
         }
     };
+    if (type === ProcessShapeType.SystemTask) {
+        shapeModel.propertyValues["imageId"] = {
+            typeId: 0,
+            typePredefined: null,
+            propertyName: "x",
+            value: imageid ? imageid : 1
+        };
+    }
 
     return shapeModel;
 }

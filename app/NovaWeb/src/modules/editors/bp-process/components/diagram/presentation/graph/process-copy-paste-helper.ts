@@ -636,7 +636,9 @@ export class ProcessCopyPasteHelper {
             shape.id = newId;
             shape.propertyValues[this.shapesFactoryService.X.key].value = -1;
             shape.propertyValues[this.shapesFactoryService.Y.key].value = -1;
-            shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            if (shape.propertyValues[this.shapesFactoryService.StoryLinks.key]) {
+                shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            }
             shape.projectId = this.layout.viewModel.projectId;
             shape.parentId = this.layout.viewModel.id;
             if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {

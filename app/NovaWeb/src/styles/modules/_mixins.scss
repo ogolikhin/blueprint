@@ -65,7 +65,14 @@
         box-shadow: $top $left $blur $color;
     }
 }
-
+@mixin circle($size, $color) {
+    width: $size;
+	height: $size;
+	background: $color;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+	border-radius: 50%;
+}
 @mixin transform-rotate($val) {
     @if ($val != null) {
         -webkit-transform: rotate($val + deg);

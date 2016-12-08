@@ -29,7 +29,6 @@ interface ISelectItem {
 export class BpFieldSelectController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "validationService"];
     private propertyDescriptor: IPropertyDescriptor; 
-    private isValidated: boolean;
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
 
@@ -39,9 +38,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
         super();
         this.propertyDescriptor = $scope.options["data"]; 
 
-        this.isValidated = $scope.options["data"].isValidated;
         
-        this.allowsCustomValues = !this.isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
+        this.allowsCustomValues = !this.propertyDescriptor.isValidated;
         this.customValue = null;
 
         const to: AngularFormly.ITemplateOptions = {

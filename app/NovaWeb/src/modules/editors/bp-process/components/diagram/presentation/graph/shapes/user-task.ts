@@ -42,7 +42,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private BUTTON_SIZE = 16;
 
     private DEFAULT_BORDER_COLOR: string = "#D4D5DA";
-    private HIGHLIGHT_BORDER_COLOR: string = "#FF0000"; 
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
 
     private header: mxCell;
     private personaLabel: ILabel;

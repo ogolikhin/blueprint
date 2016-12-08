@@ -24,7 +24,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private ORIGIN_DIAMETER = 8;
 
     private DEFAULT_BORDER_COLOR: string = "#53BBED";
-    private HIGHLIGHT_BORDER_COLOR: string = "#FF0000"; 
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
 
     private origin: DiagramNodeElement;
     private header: DiagramNodeElement;
@@ -422,12 +422,13 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
         this.callout.setElementStyle("strokeColor", color);
+        this.callout.setElementStyle("strokeWidth", 1);
         this.callout.setElementStyle("dashed", 1);
     }
 
     public clearShapeHighlight(mxGraph: MxGraph = undefined) {
-
         this.callout.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
+        this.callout.setElementStyle("strokeWidth", 1);
         this.callout.setElementStyle("dashed", 0);
     }
 

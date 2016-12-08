@@ -203,8 +203,11 @@ export class MoveCopyAction extends BPDropdownAction {
         .move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
         .then(() => {
             //refresh project
+            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
             this.projectManager.refresh(this.artifact.projectId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
             });
         });
     }
@@ -216,7 +219,7 @@ export class MoveCopyAction extends BPDropdownAction {
         .then((result: Models.ICopyResultSet) => {
             let selectionId = result && result.artifact ? result.artifact.id : null;
             //refresh project
-            let refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
+            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
             this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 if (selectionId) {

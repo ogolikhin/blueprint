@@ -263,11 +263,6 @@ export class ProcessCopyPasteHelper {
         });
         return systemShapeImageIds;
     }
-    
-    private clearSystemTaskImageUrlsAndIds(systemTask: IProcessShape) {
-        systemTask.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
-        systemTask.propertyValues[this.shapesFactoryService.ImageId.key].value = null;
-    }
 
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.each(baseNodes, (node) => {
@@ -727,7 +722,7 @@ export class ProcessCopyPasteHelper {
         }
     }
     
-    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {        
+    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {
         if (this.isSystemTaskImageSaved(shape)) {
             shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
             shape.propertyValues[this.shapesFactoryService.ImageId.key].value = null;

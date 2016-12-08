@@ -23,6 +23,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private BUTTON_SIZE = 16;
     private ORIGIN_DIAMETER = 8;
 
+    private DEFAULT_BORDER_COLOR: string = "#53BBED";
+    private HIGHLIGHT_BORDER_COLOR: string = "#FF0000"; 
+
     private origin: DiagramNodeElement;
     private header: DiagramNodeElement;
     private personaLabel: ILabel;
@@ -33,7 +36,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private detailsButton: Button;
     private linkButton: Button;
     private mockupButton: Button;
-    private rootScope: ng.IRootScopeService;
+    private rootScope: ng.IRootScopeService; 
 
     public callout: DiagramNodeElement;
 
@@ -412,6 +415,17 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         graph.getModel().setVisible(this.callout, value);
         this.textLabel.setVisible(value);
         this.personaLabel.setVisible(value);
+    }
+
+    public highlightShape(color: string = undefined) {
+        if (!color) {
+            color = this.HIGHLIGHT_BORDER_COLOR;
+        }
+        this.callout.setElementStyle("strokeColor", color);
+    }
+
+     public clearShapeHighlight() {
+         this.callout.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
     }
 
     private navigateToProcess() {

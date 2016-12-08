@@ -19,6 +19,7 @@ import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {Models} from "../../../../../../main";
 import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
 import {HttpStatusCode} from "../../../../../../core/http/http-status-code";
+import {IUserTask, IDecision} from "./models/process-graph-interfaces";
 
 
 enum PreprocessorNodeType {
@@ -205,6 +206,45 @@ export class ProcessCopyPasteHelper {
         else {
             return this.$q.when(clipboardData);
         }
+    }
+
+    public getCommonUserDecisions(userTasks: IUserTask[]): IDecision[] {
+        const commonUserDecisions: IDecision[] = [];
+        const userDecisionsById: {[id: number]: IDecision} = {};
+
+        for (const userTask of userTasks) {
+            // assumes user task only has one incoming connection
+            const sourceNode: IDiagramNode = userTask.getSources(this.processGraph.getMxGraphModel())[0];
+
+            if (sourceNode.getNodeType() !== NodeType.UserDecision) {
+                continue;
+            }
+
+            const userDecision: IDecision = <IDecision>sourceNode;
+
+            if (userDecisionsById[userDecision.model.id]) {
+                commonUserDecisions.push(userDecision);
+            } else {
+                userDecisionsById[userDecision.model.id] = userDecision;
+            }
+        }
+
+        return commonUserDecisions;
+    }
+
+    public getCopyFamilyNodes(node: IDiagramNode): IDiagramNode[] {
+        const copyGroupNodes: IDiagramNode[] = [];
+
+        const scopeContext = this.processGraph.getScope(node.model.id);
+        const copyGroupIds: number[] = Object.keys(scopeContext.visitedIds)
+            .map(a => Number(a))
+            .filter(id => id !== node.model.id);
+
+        for (const id of copyGroupIds) {
+            copyGroupNodes.push(this.processGraph.getNodeById(id.toString()));
+        }
+
+        return copyGroupNodes;
     }
 
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
@@ -665,7 +705,7 @@ export class ProcessCopyPasteHelper {
         }
     }
     
-    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {        
+    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {
         if (this.isSystemTaskImageSaved(shape)) {
             shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
             shape.propertyValues[this.shapesFactoryService.ImageId.key].value = null;

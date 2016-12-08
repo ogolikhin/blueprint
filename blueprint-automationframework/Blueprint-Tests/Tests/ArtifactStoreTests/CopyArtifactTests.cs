@@ -16,6 +16,7 @@ using System.Linq;
 using Common;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -762,16 +763,65 @@ namespace ArtifactStoreTests
                 NovaArtifact.AssertAreEqual(originalChild, newChild);
             }
 
-            /*  TODO: This Assert fails.  Check if this is important.
+            // Verify User Stories generated on source and copied Processes are equal.
             for (int i = 0; i < sourceUserStories.Count; ++i)
             {
                 StorytellerUserStory.AssertAreEqual(sourceUserStories[i], copiedUserStories[i], skipIds: true);
             }
-            */
 
             var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Artifact.Id, author);
 
             Assert.AreEqual(sourceUserStories.Count * 2, childArtifacts.Count, "The User Stories of the Process didn't get copied!");
+        }
+
+        [TestCase]
+        [TestRail(195995)]
+        [Description("Create and publish a source Process with Link Labels, and save a destination folder.  Copy the source artifact under the destination folder.  " +
+            "Verify the source Process is unchanged and the new Process is identical to the source Process.  Verify the Link Labels were also copied. " +
+            "New copied Process should not be published.")]
+        public void CopyArtifact_SinglePublishedProcessWithLinkLabels_ToNewFolder_ReturnsNewProcessWithLinkLabels()
+        {
+            // Setup:
+            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
+                Helper.Storyteller, _project, _user);
+
+            sourceProcess = StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, sourceProcess, _user);
+            sourceProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, _user);
+
+            var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
+            var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetFolder.Id, _user),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedVersionOfOriginalArtifact: sourceArtifactDetails.Version.Value);
+
+            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            {
+                CompareAttachmentIds = false,
+                CompareUploadedDates = false
+            };
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
+                skipSubArtifactTraces: true, compareOptions: compareOptions);
+
+            var copiedProcess = Helper.Storyteller.GetProcess(_user, copyResult.Artifact.Id);
+
+            StorytellerTestHelper.AssertProcessesAreEqual(sourceProcess, copiedProcess, isCopiedProcess: true);
+
+            // Compare the Process Links.
+            for (int i = 0; i < sourceProcess.Links.Count; ++i)
+            {
+                Assert.AreEqual(sourceProcess.Links[i].Label, copiedProcess.Links[i].Label, "Link labels do not match!");
+                Assert.AreEqual(sourceProcess.Links[i].Orderindex, copiedProcess.Links[i].Orderindex, "Link OrderIndexes do not match!");
+            }
         }
 
         #endregion 201 Created tests

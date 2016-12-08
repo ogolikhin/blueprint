@@ -394,7 +394,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     public clearSearch(): void {
         if (this.isSearching) {
-            this.canceller.reject();
+            this.canceller.resolve();
             this.canceller = this.$q.defer<void>();
         }
         this.filterItemType = this.itemTypes[0];

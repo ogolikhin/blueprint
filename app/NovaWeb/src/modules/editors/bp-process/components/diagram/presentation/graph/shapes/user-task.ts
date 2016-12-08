@@ -41,6 +41,9 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private PERSONA_EDIT_MAXLENGTH = 40;
     private BUTTON_SIZE = 16;
 
+    private DEFAULT_BORDER_COLOR: string = "#D4D5DA";
+    private HIGHLIGHT_BORDER_COLOR: string = "#FF0000"; 
+
     private header: mxCell;
     private personaLabel: ILabel;
     private footerCell: MxCell;
@@ -50,7 +53,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-
+     
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactoryService: ShapesFactory) {
         super(model);
@@ -405,6 +408,17 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         // mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
     }
 
+    public highlightShape(color: string = undefined) {
+        if (!color) {
+            color = this.HIGHLIGHT_BORDER_COLOR;
+        }
+        this.setElementStyle("strokeColor", color);
+    }
+
+    public clearShapeHighlight() {
+        this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
+    }
+
     private navigateToProcess() {
         if (this.associatedArtifact == null) {
             return;
@@ -457,6 +471,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             }
         }
         return dialogParams;
+    }
+
+    public get canCopy(): boolean {
+        return true; 
     }
 
     public canDelete(): boolean {

@@ -94,8 +94,12 @@ export class ProcessGraphSelectionHelper {
 
     private doProgrammaticSelectionChange(changeSelection: () => void): void {
         this.isProgrammaticSelectionChange = true;
-        changeSelection();
-        this.isProgrammaticSelectionChange = false;
+        
+        try {
+            changeSelection();
+        } finally {
+            this.isProgrammaticSelectionChange = false;
+        }
     }
 
     private notifySelectionChanged(nodes: IDiagramNode[]) {

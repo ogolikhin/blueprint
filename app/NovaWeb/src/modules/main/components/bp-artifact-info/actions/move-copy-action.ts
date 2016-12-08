@@ -81,16 +81,10 @@ export class MoveCopyAction extends BPDropdownAction {
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.Collections,
-            ItemTypePredefined.CollectionFolder,
-            ItemTypePredefined.ArtifactCollection
+            ItemTypePredefined.Collections
         ];
 
-        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
-            return false;
-        }
-
-        return true;
+        return (invalidTypes.indexOf(this.artifact.itemTypeId) === -1);
     }
 
     public executeMove() {
@@ -139,9 +133,16 @@ export class MoveCopyAction extends BPDropdownAction {
             header: this.localization.get(headerLabel)
         };
 
+        const collectionTypes = [
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
+        ];
+
         const dialogData: IMoveCopyArtifactPickerOptions = {
             showProjects: false,
+            showArtifacts: collectionTypes.indexOf(this.artifact.predefinedType) === -1,
             showSubArtifacts: false,
+            showCollections: collectionTypes.indexOf(this.artifact.predefinedType) !== -1,
             selectionMode: "single",
             currentArtifact: this.artifact,
             actionType: this.actionType

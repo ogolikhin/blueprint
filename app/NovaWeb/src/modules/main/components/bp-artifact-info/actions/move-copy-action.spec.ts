@@ -119,7 +119,7 @@ describe("MoveCopyAction", () => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
                     id: 1,
-                    predefinedType: ItemTypePredefined.Project
+                    itemTypeId: ItemTypePredefined.Project
                 });
 
             // act
@@ -139,7 +139,7 @@ describe("MoveCopyAction", () => {
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
                     id: 1,
-                    predefinedType: ItemTypePredefined.Collections
+                    itemTypeId: ItemTypePredefined.Collections
                 });
 
             // act

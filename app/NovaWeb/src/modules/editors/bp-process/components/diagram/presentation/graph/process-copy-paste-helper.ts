@@ -1,3 +1,4 @@
+import {ILoadingOverlayService} from "./../../../../../../core/loading-overlay/loading-overlay.svc";
 import {ICopyImageResult} from "./../../../../../../core/file-upload/models/models";
 import {
     IDiagramNode, IProcessShape,
@@ -15,6 +16,7 @@ import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/pro
 import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {Models} from "../../../../../../main";
 import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
+
 
 enum PreprocessorNodeType {
     UserTask,
@@ -117,7 +119,8 @@ export class ProcessCopyPasteHelper {
                      private messageService: IMessageService,
                      private $log: ng.ILogService,
                      private fileUploadService: IFileUploadService,
-                     private $q: ng.IQService) {
+                     private $q: ng.IQService,
+                     private loadingOverlayService: ILoadingOverlayService) {
         this.layout = processGraph.layout;
     }
 
@@ -176,6 +179,7 @@ export class ProcessCopyPasteHelper {
         if (systemTaskIds.length > 0) {
             const expirationDate = new Date();
             expirationDate.setDate(expirationDate.getDate() + 1);
+            const loadingId = this.loadingOverlayService.beginLoading();
             return this.fileUploadService.copyArtifactImagesToFilestore(systemTaskIds, expirationDate).then((result: ICopyImageResult[]) => {
                 _.forEach(clipboardData.getData().shapes, (shape: IProcessShape) => {
                     const resultShape = result.filter(a => a.originalId === shape.id);
@@ -187,6 +191,8 @@ export class ProcessCopyPasteHelper {
                 return this.$q.when(clipboardData);
             }).catch((error) => {                
                 return this.$q.when(clipboardData);
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(loadingId);
             });
         }
         else {

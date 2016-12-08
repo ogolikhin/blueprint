@@ -35,6 +35,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private mockupButton: Button;
     private rootScope: ng.IRootScopeService;
 
+    private defaultBorderColor: string = "#53BBED";
+    private highlightBorderColor: string = "#FF0000";
+
     public callout: DiagramNodeElement;
 
     constructor(model: ISystemTaskShape,
@@ -412,6 +415,17 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         graph.getModel().setVisible(this.callout, value);
         this.textLabel.setVisible(value);
         this.personaLabel.setVisible(value);
+    }
+
+    public highlightShape(color: string = undefined) {
+        if (!color) {
+            color = this.highlightBorderColor;
+        }
+        this.callout.setElementStyle("strokeColor", color);
+    }
+
+     public clearShapeHighlight() {
+         this.callout.setElementStyle("strokeColor", this.defaultBorderColor);
     }
 
     private navigateToProcess() {

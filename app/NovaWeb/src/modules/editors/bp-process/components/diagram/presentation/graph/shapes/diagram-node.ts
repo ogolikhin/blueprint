@@ -297,5 +297,12 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     public get canCopy() {
         return false;
     }
+
+    public highlightShape(color?: string) {
+        // override in descendant shape classes 
+    }
     
+    public clearShapeHighlight() {
+        // override in descendant shape classes 
+    }
 }

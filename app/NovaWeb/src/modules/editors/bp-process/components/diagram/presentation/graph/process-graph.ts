@@ -424,7 +424,7 @@ export class ProcessGraph implements IProcessGraph {
                     }
                 },
                 mouseUp: function (sender, me) {
-//fixme: this is empty and thus should be removed or return undefined
+                //fixme: this is empty and thus should be removed or return undefined
                 },
                 onMouseEnter: function (sender, evt, state) {
                     if (state != null) {
@@ -683,7 +683,7 @@ export class ProcessGraph implements IProcessGraph {
         let cells = this.mxgraph.getSelectionCells();
         if (cells) {
             return <IDiagramNode[]>cells.filter(cell => cell instanceof DiagramNode);
-    }
+        }
 
         return [];
     }
@@ -783,7 +783,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getScopeInternal(
         context: IScopeContext,
-                             stopCondition: IStopTraversalCondition,
+        stopCondition: IStopTraversalCondition,
         getNextIds: INextIdsProvider
     ): void {
         if (stopCondition(context)) {

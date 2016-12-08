@@ -57,7 +57,7 @@ describe("Controller: Quick Search Modal", () => {
         controller.form.$invalid = true;
         expect(controller.search()).toBe(null);
     });
-    
+
     it("clear search, clears searchTerm", () => {
         // arrange
         controller.search("New");
@@ -73,9 +73,11 @@ describe("Controller: Quick Search Modal", () => {
 
         // act
         controller.clearSearch();
+        const displayNoResult = controller.searchHasNoResult();
 
         // assert
         expect(controller.results.length).toBe(0);
+        expect(displayNoResult).toBe(true);
     });
 
     it("clearSearch - clears out page items", () => {
@@ -90,7 +92,7 @@ describe("Controller: Quick Search Modal", () => {
         expect(controller.metadata.totalCount).toBe(0);
         expect(controller.page).toBe(1);
     });
-    
+
     it("searchMetadata - 0 results, does not search", () => {
         // arrange
         const searchSpy = spyOn(controller, "search");
@@ -117,19 +119,21 @@ describe("Controller: Quick Search Modal", () => {
         expect(searchSpy).toHaveBeenCalled();
     });
 
-    
+
     it("searchMetadata - updates total item count", () => {
 
         // arrange
         const searchSpy = spyOn(controller, "search");
         quickSearchService.metadataReturned.totalCount = 10;
-        
+
         // act
         controller.searchWithMetadata("abc");
         $rootScope.$apply();
+        const displayNoResult = controller.searchHasNoResult();
 
         // assert
         expect(controller.metadata.totalCount).toBe(quickSearchService.metadataReturned.totalCount);
+        expect(displayNoResult).toBe(false);
     });
 
     it("searchMetadata - updates pageSize", () => {
@@ -137,7 +141,7 @@ describe("Controller: Quick Search Modal", () => {
         // arrange
         const searchSpy = spyOn(controller, "search");
         quickSearchService.metadataReturned.pageSize = 5;
-        
+
         // act
         controller.searchWithMetadata("abc");
         $rootScope.$apply();
@@ -148,8 +152,8 @@ describe("Controller: Quick Search Modal", () => {
 
     it("closeModal - unregisters state change listener", () => {
         // arrange
-        controller.stateChangeStartListener = () => { 
-            //statechangelistener event 
+        controller.stateChangeStartListener = () => {
+            //statechangelistener event
         };
         const stateChangeStartListener = spyOn(controller, "stateChangeStartListener");
 
@@ -168,7 +172,7 @@ describe("Controller: Quick Search Modal", () => {
         // assert
         expect(showHide).toBeFalsy();
     });
-    
+
     it("showHide - dirty but valid searchTerm - true", () => {
         // arrange
         controller.searchTerm = "abc";

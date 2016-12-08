@@ -135,8 +135,12 @@ export class ProcessCopyPasteHelper {
         }
         
         const  data: PreprocessorData = new PreprocessorData();
-        // baseNodes is a collection of the nodes which goes into clipboard process data
-        let  baseNodes = this.processGraph.getSelectedNodes();
+        
+        // Currently baseNodes are the selected/highlighted UserTasks only. 
+        // Later algorithm will be simplified to use all selected/highlighted nodes.
+        let  baseNodes = _.filter(this.processGraph.getCopyNodes(), (node) => { 
+            return node instanceof UserTask; 
+        });
 
         try {
             // 1. Find all User Decisions
@@ -632,7 +636,9 @@ export class ProcessCopyPasteHelper {
             shape.id = newId;
             shape.propertyValues[this.shapesFactoryService.X.key].value = -1;
             shape.propertyValues[this.shapesFactoryService.Y.key].value = -1;
-            shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            if (shape.propertyValues[this.shapesFactoryService.StoryLinks.key]) {
+                shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            }
             shape.projectId = this.layout.viewModel.projectId;
             shape.parentId = this.layout.viewModel.id;
             if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {

@@ -48,8 +48,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
-        // TODO: Need to implement Project.Equals(), CreateProject() & DeleteProject().
+        [Ignore(IgnoreReasons.UnderDevelopment)]    // TODO: Need to implement Project.Equals(), CreateProject() & DeleteProject().
         public void GetProject()
         {
             // Setup: Create a project and collect the projectID

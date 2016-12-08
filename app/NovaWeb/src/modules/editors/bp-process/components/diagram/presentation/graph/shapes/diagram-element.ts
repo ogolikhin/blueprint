@@ -58,6 +58,56 @@ export class DiagramElement extends mxCell implements IDiagramElement {
     public getImageSource(image: string) {
         return "/novaweb/static/bp-process/images/" + image;
     }
+
+    public setElementStyle(name: string, value: any) {
+        let str: string = this.getStyle();
+        let styles = this.createStyleDictionary(str);
+
+        if (styles[name]) {
+            styles[name] = value;
+            str = this.createStyleString(styles);
+            this.setStyle(str);
+        }
+    }
+
+    public getElementStyle(name: string): any {
+        let val = undefined;
+        let str: string = this.getStyle();
+        let styles = this.createStyleDictionary(str);
+        if (styles[name]) {
+            val = styles[name];
+        }
+        return val;
+    }
+
+    public getElementStyles(): any {
+        let str: string = this.getStyle();
+        let styles = this.createStyleDictionary(str);
+        
+        return styles;
+    }
+
+    private createStyleDictionary(styleString: string) {
+        let styles = {};
+        let s = styleString.split(";"); 
+        for (let i = 0; i < s.length; i++) {
+            let p = s[i].split("=");
+            if (p.length === 2) {
+                styles[p[0]] = p[1];
+            }
+        }
+        return styles;
+    }
+    private createStyleString(styles) {
+        let str: string = "";
+        let names = Object.getOwnPropertyNames(styles);
+
+        for (let i = 0; i < names.length; i++) {
+            str += names[i] + "=" + styles[names[i]] + ";";   
+        }
+        str = str.slice(0, str.length - 1);
+        return str;
+    }
 }
 
 export class DiagramNodeElement extends DiagramElement implements IDiagramNodeElement {

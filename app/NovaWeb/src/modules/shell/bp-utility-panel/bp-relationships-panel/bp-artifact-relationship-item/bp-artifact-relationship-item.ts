@@ -123,7 +123,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public limitChars(str) {
         if (str) {
-            return Helper.limitChars(Helper.stripHTMLTags(str));
+            return Helper.limitChars(Helper.stripHTMLTags(str)).replace(/\u200B/g, "");
         }
 
         return "";

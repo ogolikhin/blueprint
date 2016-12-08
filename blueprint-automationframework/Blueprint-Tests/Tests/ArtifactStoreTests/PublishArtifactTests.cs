@@ -639,7 +639,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3611
+        [Explicit(IgnoreReasons.ProductBug)] // Bug: 3611  [Cannot publish default collection] [404 - "Item with ID 3 is not an artifact."]
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(191158)]

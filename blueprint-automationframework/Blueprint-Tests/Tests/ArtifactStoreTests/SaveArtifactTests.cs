@@ -763,8 +763,8 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
              "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
         public void UpdateSubArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType,
-    string subArtifactDisplayName,
-    string subArtifactCustomPropertyName)
+            string subArtifactDisplayName,
+            string subArtifactCustomPropertyName)
         {
             // Setup: Set the required custom text property value for the target sub artifact with empty content
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);

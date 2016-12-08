@@ -73,8 +73,8 @@ describe("BPArtifactRelationshipItem", () => {
 
             let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
 
-            vm2.canModifyItem = () => { 
-                return true; 
+            vm2.canModifyItem = () => {
+                return true;
             };
 
             vm2.showActionsPanel = true;
@@ -115,7 +115,7 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, short text", () => {
         //Assert
         let result = vm.limitChars("<html><body>&#x200b;<div><span>ABC</span></div></body></html>");
-        expect(result.length).toBe(4); //zero width space included
+        expect(result.length).toBe(3); //zero width space included
     });
 
     it("limitChars, no text", () => {

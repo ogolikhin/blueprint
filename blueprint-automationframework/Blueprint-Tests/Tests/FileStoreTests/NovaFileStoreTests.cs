@@ -76,10 +76,9 @@ namespace FileStoreTests
 
         [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]  // TODO: need to find the way to add date in encoded format, currently not working
         [TestRail(164613)]
         [Description("POST a file with a future expiry time. Verify that the file exists in FileStore")]
-        // TODO: need to find the way to add date in encoded format, currently not working
         public void PostNovaFile_ExpireTimeInFuture_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.

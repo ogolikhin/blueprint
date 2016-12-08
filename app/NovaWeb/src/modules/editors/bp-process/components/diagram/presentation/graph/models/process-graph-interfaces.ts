@@ -206,13 +206,10 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getNextNodes(): IDiagramNode[];
     // gets immediate precursor nodes
     getPreviousNodes(): IDiagramNode[];
-
     getDeleteDialogParameters(): IDialogParams;
-
     getLabelCell(): MxCell;
-
-    highlightShape(color?: string);
-    clearShapeHighlight();
+    highlight(color?: string);
+    clearHighlight();
 }
 
 export interface IDiagramElement extends MxCell {

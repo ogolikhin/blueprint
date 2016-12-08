@@ -417,7 +417,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.personaLabel.setVisible(value);
     }
 
-    public highlightShape(color: string = undefined) {
+    public highlight(color: string = undefined) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
@@ -425,7 +425,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.callout.setElementStyle("dashed", 1);
     }
 
-    public clearShapeHighlight(mxGraph: MxGraph = undefined) {
+    public clearHighlight(mxGraph: MxGraph = undefined) {
         this.callout.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
         this.callout.setElementStyle("dashed", 0);
     }

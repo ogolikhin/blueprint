@@ -411,7 +411,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         // mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, -12, 14);
     }
 
-    public highlightShape(color: string = undefined) {
+    public highlight(color: string = undefined) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
@@ -419,7 +419,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.setElementStyle("dashed", 1);
     }
 
-    public clearShapeHighlight() {
+    public clearHighlight() {
         this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
         this.setElementStyle("dashed", 0);
     }

@@ -1034,7 +1034,7 @@ export class ProcessGraph implements IProcessGraph {
     };
 
     private highlightNode(node: IDiagramNode): void {
-        node.highlightShape();
+        node.highlight();
         this.mxgraph.refresh(node);
         this.highlightedCopyNodes.push(node);
     }
@@ -1048,7 +1048,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private clearNodeHighlight(node: IDiagramNode): void {
-        node.clearShapeHighlight();
+        node.clearHighlight();
         this.mxgraph.refresh(node);
     }
 

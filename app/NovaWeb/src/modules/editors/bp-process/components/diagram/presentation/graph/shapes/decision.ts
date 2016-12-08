@@ -134,7 +134,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         return this;
     }
 
-    public highlightShape(color: string = undefined) {
+    public highlight(color: string = undefined) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
@@ -142,7 +142,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         this.setElementStyle("dashed", 1);
     }
 
-    public clearShapeHighlight() {
+    public clearHighlight() {
         this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
         this.setElementStyle("dashed", 0);
     }

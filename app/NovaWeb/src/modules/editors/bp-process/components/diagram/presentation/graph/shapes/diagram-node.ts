@@ -298,11 +298,11 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return false;
     }
 
-    public highlightShape(color?: string) {
+    public highlight(color?: string) {
         // override in descendant shape classes 
     }
     
-    public clearShapeHighlight() {
+    public clearHighlight() {
         // override in descendant shape classes 
     }
 }

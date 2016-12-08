@@ -321,6 +321,27 @@ describe("ProcessDeleteAction", () => {
             expect(spy).toHaveBeenCalledWith(ProcessEvents.DeleteShape, userTask);
         });
 
+        fit("deletes User Task if User has no delete permissions but has edit permissions", () => {
+            // arrange
+            const testModel = TestModels.createProcessModel();
+            testModel["predefinedType"] = ItemTypePredefined.Process;
+            testModel["permissions"] = RolePermissions.Edit;
+            const testStatefulProcess = new StatefulProcessArtifact(testModel, null);
+
+            const action = new ProcessDeleteAction(
+                    testStatefulProcess, localization, messageService, artifactManager, projectManager, 
+                    loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
+            const userTask = TestShapes.createUserTask(14, $rootScope);
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
+            const spy = spyOn(processDiagramCommunication, "action");
+
+            // act
+            action.execute();
+
+            // assert
+            expect(spy).toHaveBeenCalledWith(ProcessEvents.DeleteShape, userTask);
+        });
+
         it("deletes User Decision if User Decision is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(

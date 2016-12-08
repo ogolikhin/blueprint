@@ -48,7 +48,7 @@ export class ProcessDeleteAction extends DeleteAction {
         }
 
         //Is artifact and has Delete permissions 
-        if (!this.selectedNodes || !this.selectedNodes.length) {
+        if (this.isArtifactSelected()) {
             return this.hasDesiredPermissions(RolePermissions.Delete);
         }
 
@@ -71,7 +71,7 @@ export class ProcessDeleteAction extends DeleteAction {
         return true;
     }
 
-    protected hasPermissions(): boolean {
+    protected hasRequiredPermissions(): boolean {
         return this.hasDesiredPermissions(RolePermissions.Edit);
     }
 
@@ -80,11 +80,15 @@ export class ProcessDeleteAction extends DeleteAction {
             return;
         }
         
-        if (!this.selectedNodes || !this.selectedNodes.length) {
+        if (this.isArtifactSelected()) {
             super.delete();
         } else {
             this.communication.action(ProcessEvents.DeleteShape, this.selectedNodes[0]);
         }
+    }
+
+    private isArtifactSelected(): boolean {
+        return !this.selectedNodes || !this.selectedNodes.length;
     }
 
     private onSelectionChanged = (nodes: IDiagramNode[]): void => {

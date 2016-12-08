@@ -175,9 +175,7 @@ describe("GenerateUserStoriesAction", () => {
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.reject();
-                    return deferred.promise;
+                    return $q.reject();
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
@@ -201,9 +199,7 @@ describe("GenerateUserStoriesAction", () => {
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.reject({errorCode: ErrorCode.ArtifactNotPublished});
-                    return deferred.promise;
+                    return $q.reject({errorCode: ErrorCode.ArtifactNotPublished});
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
@@ -228,14 +224,10 @@ describe("GenerateUserStoriesAction", () => {
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve(userStories);
-                    return deferred.promise;
+                    return $q.resolve(userStories);
                 });
             const refreshSpy = spyOn(process, "refresh").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve();
-                    return deferred.promise;
+                    return $q.resolve();
                 });
             const notifySpy = spyOn(processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");
@@ -263,14 +255,10 @@ describe("GenerateUserStoriesAction", () => {
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve(userStories);
-                    return deferred.promise;
+                    return $q.resolve(userStories);
                 });
             const refreshSpy = spyOn(process, "refresh").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve();
-                    return deferred.promise;
+                    return $q.resolve();
                 });
             const notifySpy = spyOn(processDiagramCommunication, "action");
             const successSpy = spyOn(messageService, "addInfo");

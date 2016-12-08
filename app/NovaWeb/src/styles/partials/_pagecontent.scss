@@ -3,7 +3,7 @@ $page-body-min-width: 386px;
 .empty-main__container {
     background: url('/novaweb/static/images/storyteller-default-bg.jpg') 90% 90% no-repeat;
     position: absolute;
-    background-size: 100%;
+    background-size: cover;
     top: 0;
     right: 0;
     bottom: 0;

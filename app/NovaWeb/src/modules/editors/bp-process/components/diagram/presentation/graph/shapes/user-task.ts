@@ -354,10 +354,13 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
+        
+        mxGraph.insertVertex(this, "FB" + this.model.id.toString(), null, 0.5, this.USER_TASK_HEIGHT - 35, this.USER_TASK_WIDTH - 1, 1,
+            "shape=rectangle;strokeColor=none;fillColor=#D4D5DA;editable=0;selectable=0");
 
         //footer
-        this.footerCell = mxGraph.insertVertex(this, "F" + this.model.id.toString(), null, 0, this.USER_TASK_HEIGHT - 33, this.USER_TASK_WIDTH, 33,
-            "shape=rectangle;strokeColor=#D4D5DA;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
+        this.footerCell = mxGraph.insertVertex(this, "F" + this.model.id.toString(), null, 1, this.USER_TASK_HEIGHT - 34, this.USER_TASK_WIDTH - 2, 33,
+            "shape=rectangle;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;foldable=0;editable=0;selectable=0");
 
         this.addOverlays(mxGraph);
 

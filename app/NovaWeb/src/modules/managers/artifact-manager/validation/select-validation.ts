@@ -9,7 +9,7 @@ export interface ISelectValidation extends IBaseValidation {
 export class SelectValidation extends BaseValidation implements ISelectValidation {
     
     public hasValueIfRequired(
-            isRequired: boolean, value: Models.IChoicePropertyValue, oldvalue: Models.IChoicePropertyValue, isValidated: boolean = true) {
+            isRequired: boolean, value: Models.IChoicePropertyValue) {
         if (!isRequired) {
             return true;
         }
@@ -42,7 +42,7 @@ export class SelectValidation extends BaseValidation implements ISelectValidatio
 
 
     public isValid(isRequired: boolean, value: Models.IChoicePropertyValue, isValidated: boolean, validValues: number[]): boolean {
-        return this.hasValueIfRequired(isRequired, value, value, isValidated) &&
+        return this.hasValueIfRequired(isRequired, value) &&
                this.checkValue(value, isValidated, validValues);
     }
 }
@@ -52,7 +52,7 @@ export interface IMultiSelectValidation extends ISelectValidation {
 
 export class MultiSelectValidation extends SelectValidation implements IMultiSelectValidation {
     public hasValueIfRequired(
-            isRequired: boolean, value: Models.IChoicePropertyValue, oldvalue: Models.IChoicePropertyValue, isValidated: boolean = true) {
+            isRequired: boolean, value: Models.IChoicePropertyValue) {
         if (!isRequired) {
             return true;
         }

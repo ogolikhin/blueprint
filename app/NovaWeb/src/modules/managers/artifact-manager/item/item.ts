@@ -501,14 +501,12 @@ export abstract class StatefulItem implements IIStatefulItem {
                         }
                     } else if (propertyType.isRichText) {
                         if (!this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired,
-                                propValue,
-                                propValue, propertyType.isValidated)) {
+                                propValue)) {
                             isValid = false;
                         }
                     } else {
                         if (!this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired,
-                                propValue,
-                                propValue, propertyType.isValidated)) {
+                                propValue)) {
                             isValid = false;
                         }
                     }
@@ -536,8 +534,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                             }
                         }
                     }
-                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired,
-                            value, value, propertyType.isValidated)) {
+                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, value)) {
                         isValid = false;
                     }
                     break;

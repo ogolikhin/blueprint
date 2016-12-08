@@ -111,7 +111,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
         if (propertyContext.isRichText && propertyContext.isRequired) {
             const value = this.model[field.key];
-            return this.validationService.textRtfValidation.hasValueIfRequired(true, value, value);
+            return this.validationService.textRtfValidation.hasValueIfRequired(true, value);
         } else {
             return true;
         }

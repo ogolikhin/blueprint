@@ -11,10 +11,10 @@ export class TextValidation extends BaseValidation implements ITextValidation {
 }
 
 export class TextRtfValidation extends BaseValidation implements ITextRtfValidation {
-    public hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any, isValidated: boolean = true) {
+    public hasValueIfRequired(isRequired: boolean, value: any) {
         
         if (isRequired) {
-            return Helper.tagsContainText(newValue);
+            return Helper.tagsContainText(value);
         } 
         return true;
     }

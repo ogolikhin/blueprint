@@ -116,8 +116,7 @@ class SelectValidationMock extends BaseValidation implements ISelectValidation {
     checkValue(value: Models.IChoicePropertyValue, isValidated: boolean, validValues: any[]) {
         return true;
     }
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any,
-                       isValidated: boolean = true, itAllowsCustomValues: boolean = false) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
     isValid(isRequired: boolean, value: Models.IChoicePropertyValue, isValidated: boolean, validValues: any[]) {
@@ -130,19 +129,19 @@ class MultiSelectValidationMock extends SelectValidationMock implements IMultiSe
 }
 
 class TextRtfValidationMock extends BaseValidation implements ITextRtfValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
 }
 
 class UserPickerValidationMock extends BaseValidation implements IUserPickerValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
 }
 
 class TextValidationMock extends BaseValidation implements ITextValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
 }

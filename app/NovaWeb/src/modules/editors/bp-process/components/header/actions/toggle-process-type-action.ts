@@ -1,6 +1,7 @@
 import {BPToggleAction, BPToggleItemAction} from "../../../../../shared";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessType} from "../../../models/enums";
+import {ReuseSettings} from "../../../../../main/models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
@@ -30,7 +31,14 @@ export class ToggleProcessTypeAction extends BPToggleAction {
             (value: ProcessType) => {
                 toolbarCommunication.toggleProcessType(value);
             },
-            () => this.loaded && process && process.artifactState && !process.artifactState.readonly,
+            () => {
+                return this.loaded && 
+                        process && 
+                        process.artifactState && 
+                        !process.artifactState.readonly &&
+                        //artifact is selected and selective readonly is set
+                        !process.isReuseSettingSRO(ReuseSettings.Subartifacts);
+            },
             new BPToggleItemAction(
                 "fonticon fonticon2-user-user",
                 ProcessType.BusinessProcess,

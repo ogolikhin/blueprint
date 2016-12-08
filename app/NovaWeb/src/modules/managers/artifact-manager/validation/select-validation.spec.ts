@@ -29,7 +29,7 @@ describe("select validation tests - ", () => {
             });
 
             it("returns true when required and values are valid", () => {
-                const value = "test";
+                const value = {customValue: "test"};
                 // act
                 const result = validationService.selectValidation.hasValueIfRequired(true, value, value, true);
 
@@ -79,9 +79,9 @@ describe("select validation tests - ", () => {
             });
 
             it("returns true when required and values are valid", () => {
-                const value = ["test"];
+                const value = [12];
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, true);
+                const result = validationService.multiSelectValidation.hasValueIfRequired(true, value, value, true);
 
                 // assert
                 expect(result).toBe(true);

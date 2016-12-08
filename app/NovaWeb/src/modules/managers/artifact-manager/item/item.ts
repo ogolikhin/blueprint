@@ -514,17 +514,14 @@ export abstract class StatefulItem implements IIStatefulItem {
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    const allowsCustomValues = !propertyType.isValidated && propertyType.lookup === Enums.PropertyLookupEnum.Custom;
-                    value = propValue && propValue.customValue ? propValue :
-                            propValue ? propValue.validValues : null;
                     if (propertyType.isMultipleAllowed) {
-                        if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired,
-                                value, value, propertyType.isValidated)) {
+                        if (!this.services.validationService.multiSelectValidation.isValid(propertyType.isRequired,
+                                propValue , propertyType.isValidated, propertyType.validValues)) {
                             isValid = false;
                         }
                     } else {
-                        if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired,
-                                value, value, propertyType.isValidated, allowsCustomValues)) {
+                        if (!this.services.validationService.selectValidation.isValid(propertyType.isRequired,
+                                propValue,  propertyType.isValidated, propertyType.validValues)) {
                             isValid = false;
                         }
                     }

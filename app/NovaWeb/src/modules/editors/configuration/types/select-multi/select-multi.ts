@@ -55,8 +55,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.multiSelectValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
-                        $viewValue,
-                        $modelValue);
+                        $modelValue, 
+                        $modelValue,
+                        true);
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
                     return true;

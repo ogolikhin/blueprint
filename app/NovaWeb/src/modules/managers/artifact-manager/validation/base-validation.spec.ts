@@ -45,7 +45,7 @@ describe("BaseValidation tests -", () => {
             const result = baseValidation.hasValueIfRequired(true, value, value, false);
 
             // assert
-            expect(result).toBe(true);
+            expect(result).toBe(false);
         });
 
     });

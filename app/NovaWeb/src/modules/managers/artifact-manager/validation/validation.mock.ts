@@ -1,5 +1,6 @@
 import {IValidationService} from "./validation.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {Models} from "../../../main/models";
 import {INumberValidation, NumberValidation} from "./number-validation";
 import {IDateValidation, DateValidation} from "./date-validation";
 import {ISelectValidation, SelectValidation, IMultiSelectValidation, MultiSelectValidation} from "./select-validation";
@@ -112,16 +113,20 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
 }
 
 class SelectValidationMock extends BaseValidation implements ISelectValidation {
+    checkValue(value: Models.IChoicePropertyValue, isValidated: boolean, validValues: any[]) {
+        return true;
+    }
     hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any,
                        isValidated: boolean = true, itAllowsCustomValues: boolean = false) {
         return true;
     }
-}
-
-class MultiSelectValidationMock extends BaseValidation implements IMultiSelectValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    isValid(isRequired: boolean, value: Models.IChoicePropertyValue, isValidated: boolean, validValues: any[]) {
         return true;
     }
+}
+
+class MultiSelectValidationMock extends SelectValidationMock implements IMultiSelectValidation {
+    
 }
 
 class TextRtfValidationMock extends BaseValidation implements ITextRtfValidation {

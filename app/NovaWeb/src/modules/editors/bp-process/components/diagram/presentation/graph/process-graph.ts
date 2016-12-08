@@ -110,7 +110,8 @@ export class ProcessGraph implements IProcessGraph {
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
         this.processCopyPasteHelper = new ProcessCopyPasteHelper(
-            this, this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService, this.$q, this.loadingOverlayService);
+            this, this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService, this.$q, this.loadingOverlayService, 
+            this.localization);
     }
 
     private isCellSelectable = (cell: MxCell) => {

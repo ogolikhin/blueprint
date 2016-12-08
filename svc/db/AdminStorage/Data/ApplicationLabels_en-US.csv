@@ -531,3 +531,6 @@ Search_Results_ResultsFound, "{0} Results found"
 
 Unpublished_Empty, "No Unpublished Changes"
 GO_TO_tooltip, "Enter Artifact ID"
+
+#Copy Image
+Copy_Images_Failed, "Images were not copied into clipboard."

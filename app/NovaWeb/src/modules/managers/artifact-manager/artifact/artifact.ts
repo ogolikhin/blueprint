@@ -275,12 +275,11 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public lock(): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            deferred.resolve(this);
-            return deferred.promise;
+            return this.services.$q.resolve(this);
         }
         if (!this.lockPromise) {
+            const deferred = this.services.getDeferred<IStatefulArtifact>();
             this.lockPromise = deferred.promise;
 
             const loadingId = this.services.loadingOverlayService.beginLoading();

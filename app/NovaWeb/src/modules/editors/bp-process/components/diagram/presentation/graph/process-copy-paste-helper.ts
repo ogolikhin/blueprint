@@ -247,23 +247,6 @@ export class ProcessCopyPasteHelper {
         return copyGroupNodes;
     }
 
-    private getSystemTaskIdsWithSavedImages(data: PreprocessorData): number[] {
-        const systemShapeImageIds: number[] = [];
-        _.each(data.shapes, (processShape: IProcessShape) => {
-            if (_.toNumber(processShape.propertyValues[this.shapesFactoryService.ClientType.key].value) !== ProcessShapeType.SystemTask) {
-                return;
-            }
-            const associatedImageUrl = processShape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value;
-            const imageId = processShape.propertyValues[this.shapesFactoryService.ImageId.key].value;
-
-            if (!!associatedImageUrl && _.isNumber(imageId)) {
-                systemShapeImageIds.push(processShape.id);
-                this.clearSystemTaskImageUrlsAndIds(processShape);
-            }
-        });
-        return systemShapeImageIds;
-    }
-
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.each(baseNodes, (node) => {
             if (node instanceof UserTask) {

@@ -136,7 +136,7 @@ export class ProcessCopyPasteHelper {
         
         const  data: PreprocessorData = new PreprocessorData();
         // baseNodes is a collection of the nodes which goes into clipboard process data
-        let  baseNodes = this.processGraph.getMxGraph().getSelectionCells();
+        let  baseNodes = this.processGraph.getSelectedNodes();
 
         try {
             // 1. Find all User Decisions

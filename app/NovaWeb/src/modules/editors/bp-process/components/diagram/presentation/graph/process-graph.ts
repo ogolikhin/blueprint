@@ -424,7 +424,7 @@ export class ProcessGraph implements IProcessGraph {
                     }
                 },
                 mouseUp: function (sender, me) {
-                    //fixme: this is empty and thus should be removed or return undefined
+                //fixme: this is empty and thus should be removed or return undefined
                 },
                 onMouseEnter: function (sender, evt, state) {
                     if (state != null) {

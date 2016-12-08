@@ -71,7 +71,12 @@ export class MoveCopyAction extends BPDropdownAction {
     }
 
     private canExecuteCopy(): boolean {
-        return this.canExecute();
+        const invalidTypes = [
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
+        ];
+
+        return this.canExecute() && invalidTypes.indexOf(this.artifact.predefinedType) === -1;
     }
 
     private canExecute(): boolean {

@@ -321,7 +321,7 @@ describe("ProcessDeleteAction", () => {
             expect(spy).toHaveBeenCalledWith(ProcessEvents.DeleteShape, userTask);
         });
 
-        fit("deletes User Task if User has no delete permissions but has edit permissions", () => {
+        it("deletes User Task if User has no delete permissions but has edit permissions", () => {
             // arrange
             const testModel = TestModels.createProcessModel();
             testModel["predefinedType"] = ItemTypePredefined.Process;

@@ -44,19 +44,8 @@ describe("PublishArtifactsAction", () => {
     }));
 
     it("throws exception when localization is null", () => {
-        // arrange
-        let error: Error = null;
-
-        // act
-        try {
-            new PublishArtifactsAction(publishService, null, messageService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Localization service not provided or is null"));
+        expect(() => new PublishArtifactsAction(publishService, null, messageService, loadingOverlayService))
+            .toThrow(new Error("Localization service not provided or is null"));
     });
 
     it("is disabled when no artifacts are provided", () => {

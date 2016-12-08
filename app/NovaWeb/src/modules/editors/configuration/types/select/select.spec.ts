@@ -26,6 +26,7 @@ describe("Formly Select", () => {
                 required: true
             },
             data: {
+                isRequired: true,
                 isValidated: false,
                 lookup: 2
             }

@@ -21,8 +21,10 @@ describe("Formly Select Multi", () => {
                     {value: 3, name: "Option 3"},
                     {value: 4, name: "Option 4"}
                 ],
-                optionsAttr: "bs-options",
-                required: true
+                optionsAttr: "bs-options"
+            },
+            data: {
+                isRequired: true
             }
         },
         {

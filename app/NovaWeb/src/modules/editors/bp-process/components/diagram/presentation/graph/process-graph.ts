@@ -986,18 +986,31 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
+    public canMultiSelect(node: IDiagramNode): boolean {
+        if (!node) {
+            return false;
+        }
+
+        if (node.getNodeType() !== NodeType.UserTask) {
+            return false;
+        }
+
+        const isCopyHighlighted = this.highlightedCopyNodes.indexOf(node) >= 0;
+        return !isCopyHighlighted;
+    }
+
     public highlightCopyGroups = (nodes: IDiagramNode[]): void => {
         if (!nodes) {
             throw new Error("nodes are not defined");
         }
+
+        this.clearCopyGroupHighlight();
 
         const copyNodes: IDiagramNode[] = nodes.filter((node: IDiagramNode) => node.canCopy);
 
         if (copyNodes.length === 0) {
             return;
         }
-
-        this.clearCopyGroupHighlight();
 
         const nodesToHighlight: IDiagramNode[] = [];
 

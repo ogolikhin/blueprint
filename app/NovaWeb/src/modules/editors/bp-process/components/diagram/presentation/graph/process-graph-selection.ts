@@ -66,7 +66,7 @@ export class ProcessGraphSelectionHelper {
                 return;
             }
             
-            const selectedNodes = this.processGraph.getSelectedNodes();
+            let selectedNodes = this.processGraph.getSelectedNodes();
 
             if (event.properties.removed && event.properties.removed.length > 0) {
                 if (this.hasUnSelectableElement(event)) {
@@ -76,10 +76,10 @@ export class ProcessGraphSelectionHelper {
 
             if (selectedNodes) {
                 if (selectedNodes.length > 1) {
-                    const userTasks = selectedNodes.filter(node => node instanceof UserTask);
+                    selectedNodes = selectedNodes.filter(node => this.processGraph.canMultiSelect(node));
                     this.doProgrammaticSelectionChange(() => {
                         this.mxGraph.clearSelection();
-                        this.mxGraph.getSelectionModel().addCells(userTasks);
+                        this.mxGraph.getSelectionModel().addCells(selectedNodes);
                     });
                 }
             

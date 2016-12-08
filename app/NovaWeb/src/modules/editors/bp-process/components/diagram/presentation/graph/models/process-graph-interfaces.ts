@@ -130,6 +130,7 @@ export interface IProcessGraph {
     getSelectedShapes(): IProcessShape[];
     highlightNodeEdges(nodes: IDiagramNode[]): void;
     highlightCopyGroups(nodes: IDiagramNode[]): void;
+    canMultiSelect(node: IDiagramNode): boolean;
     destroy(): void;
 }
 

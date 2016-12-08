@@ -128,6 +128,7 @@ export interface IProcessGraph {
     insertSelectedShapes(edge: MxCell): void;
     getSelectedNodes(): IDiagramNode[];
     getHighlightedCopyNodes(): IDiagramNode[];
+    getCopyNodes(): IDiagramNode[];
     highlightNodeEdges(nodes: IDiagramNode[]): void;
     highlightCopyGroups(nodes: IDiagramNode[]): void;
     destroy(): void;

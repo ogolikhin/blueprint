@@ -985,6 +985,18 @@ export class ProcessGraph implements IProcessGraph {
         return this.highlightedCopyNodes;
     }
 
+    public getCopyNodes(): IDiagramNode[] {
+        const copyNodes: IDiagramNode[] = this.getSelectedNodes().slice(0);
+
+        for (const node of this.highlightedCopyNodes) {
+            if (copyNodes.indexOf(node) < 0) {
+                copyNodes.push(node);
+            }
+        }
+
+        return copyNodes;
+    }
+
     public highlightCopyGroups = (nodes: IDiagramNode[]): void => {
         if (!nodes) {
             throw new Error("nodes are not defined");

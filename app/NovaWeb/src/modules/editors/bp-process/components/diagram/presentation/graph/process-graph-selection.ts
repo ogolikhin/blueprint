@@ -97,12 +97,7 @@ export class ProcessGraphSelectionHelper {
             return false;
         }
 
-        if (node.getNodeType() !== NodeType.UserTask) {
-            return false;
-        }
-
-        const isCopyHighlighted = this.processGraph.getHighlightedCopyNodes().indexOf(node) >= 0;
-        return !isCopyHighlighted;
+        return node.getNodeType() === NodeType.UserTask;
     }
 
     private doProgrammaticSelectionChange(changeSelection: () => void): void {

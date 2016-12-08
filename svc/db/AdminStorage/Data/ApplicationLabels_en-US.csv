@@ -29,7 +29,7 @@ App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
 Tooltip_App_Header_Help,"Help"
 Tooltip_App_Header_Logout,"Log out"
-Tooltip_Artifact_Header_LegacyArtifact,"Legacy artifact"
+Tooltip_Artifact_Header_LegacyArtifact,"Blueprint artifact"
 Tooltip_Browse_Actor, "Browse Actor"
 
 App_Sidebar_Left,"Explorer"
@@ -531,3 +531,6 @@ Search_Results_ResultsFound, "{0} Results found"
 
 Unpublished_Empty, "No Unpublished Changes"
 GO_TO_tooltip, "Enter Artifact ID"
+
+#Copy Image
+Copy_Images_Failed, "Images were not copied into clipboard."

@@ -1,4 +1,5 @@
-﻿import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
+﻿import {ILoadingOverlayService} from "./../../../../../../core/loading-overlay/loading-overlay.svc";
+import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
@@ -73,7 +74,8 @@ export class ProcessGraph implements IProcessGraph {
                 private statefulArtifactFactory: IStatefulArtifactFactory = null,
                 private clipboard: IClipboardService = null,
                 private fileUploadService: IFileUploadService = null,
-                private $q: ng.IQService = null) {
+                private $q: ng.IQService = null,
+                private loadingOverlayService: ILoadingOverlayService = null) {
         // Creates the graph inside the given container
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -108,7 +110,8 @@ export class ProcessGraph implements IProcessGraph {
         this.nodeLabelEditor = new NodeLabelEditor(this.htmlElement);
         this.initializeGlobalScope();
         this.processCopyPasteHelper = new ProcessCopyPasteHelper(
-            this, this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService, this.$q);
+            this, this.clipboard, this.shapesFactory, this.messageService, this.$log, this.fileUploadService, this.$q, this.loadingOverlayService, 
+            this.localization);
     }
 
     private isCellSelectable = (cell: MxCell) => {

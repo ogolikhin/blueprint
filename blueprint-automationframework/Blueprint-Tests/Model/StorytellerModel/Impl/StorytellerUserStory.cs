@@ -7,6 +7,7 @@ using Utilities;
 using Utilities.Facades;
 using Common;
 using Model.Impl;
+using NUnit.Framework;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -22,13 +23,11 @@ namespace Model.StorytellerModel.Impl
         public int TypeId { get; set; }
         public string TypePrefix { get; set; }
         public PropertyTypePredefined TypePredefined { get; set; }
-        [SuppressMessage("Microsoft.Usage",
-    "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
         //[JsonConverter(typeof(Deserialization.ConcreteListConverter<IStorytellerProperty, StorytellerProperty>))]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> SystemProperties { get; set; }
-        [SuppressMessage("Microsoft.Usage",
-    "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
         //[JsonConverter(typeof(Deserialization.ConcreteListConverter<IStorytellerProperty, StorytellerProperty>))]
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> CustomProperties { get; set; }
@@ -45,7 +44,61 @@ namespace Model.StorytellerModel.Impl
             CustomProperties = new List<StorytellerProperty>();
         }
 
-        public UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <summary>
+        /// Asserts that the properties of the two IStorytellerUserStory objects are equal.
+        /// </summary>
+        /// <param name="expectedUserStory">The expected IStorytellerUserStory.</param>
+        /// <param name="actualUserStory">The actual IStorytellerUserStory.</param>
+        /// <param name="skipIds">(optional) Pass true to skip comparison of the Id properties.</param>
+        /// <exception cref="AssertionException">If any properties don't match.</exception>
+        public static void AssertAreEqual(IStorytellerUserStory expectedUserStory,
+            IStorytellerUserStory actualUserStory,
+            bool skipIds = false)
+        {
+            ThrowIf.ArgumentNull(expectedUserStory, nameof(expectedUserStory));
+            ThrowIf.ArgumentNull(actualUserStory, nameof(actualUserStory));
+
+            if (!skipIds)
+            {
+                Assert.AreEqual(expectedUserStory.Id, actualUserStory.Id, "The Id properties don't match!");
+                Assert.AreEqual(expectedUserStory.ProcessTaskId, actualUserStory.ProcessTaskId, "The ProcessTaskId properties don't match!");
+            }
+
+            Assert.AreEqual(expectedUserStory.Name, actualUserStory.Name, "The Name properties don't match!");
+            Assert.AreEqual(expectedUserStory.ProjectId, actualUserStory.ProjectId, "The ProjectId properties don't match!");
+            Assert.AreEqual(expectedUserStory.TypeId, actualUserStory.TypeId, "The TypeId properties don't match!");
+            Assert.AreEqual(expectedUserStory.TypePrefix, actualUserStory.TypePrefix, "The TypePrefix properties don't match!");
+            Assert.AreEqual(expectedUserStory.TypePredefined, actualUserStory.TypePredefined, "The TypePredefined properties don't match!");
+            Assert.AreEqual(expectedUserStory.IsNew, actualUserStory.IsNew, "The IsNew properties don't match!");
+
+            Assert.AreEqual(expectedUserStory.CustomProperties.Count, actualUserStory.CustomProperties.Count,
+                "The number of CustomProperties is different!");
+
+            foreach (var expectedCustomProperty in expectedUserStory.CustomProperties)
+            {
+                var actualCustomProperty = actualUserStory.CustomProperties.Find(p => p.Name.Equals(expectedCustomProperty.Name));
+
+                Assert.NotNull(actualCustomProperty, "Couldn't find an actual Custom Property named: {0}", expectedCustomProperty.Name);
+                StorytellerProperty.AssertAreEqual(expectedCustomProperty, actualCustomProperty, skipIds);
+            }
+
+            Assert.AreEqual(expectedUserStory.SystemProperties.Count, actualUserStory.SystemProperties.Count,
+                "The number of SystemProperties is different!");
+
+            foreach (var expectedSystemProperty in expectedUserStory.SystemProperties)
+            {
+                var actualCustomProperty = actualUserStory.SystemProperties.Find(p => p.Name.Equals(expectedSystemProperty.Name));
+
+                Assert.NotNull(actualCustomProperty, "Couldn't find an actual System Property named: {0}", expectedSystemProperty.Name);
+                StorytellerProperty.AssertAreEqual(expectedSystemProperty, actualCustomProperty, skipIds);
+            }
+        }
+
+        public UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address,
+            IUser user,
+            string value,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Items_id_.PROPERTIES, Id);
@@ -76,5 +129,27 @@ namespace Model.StorytellerModel.Impl
         public int PropertyTypeId { get; set; }
         public int? PropertyType { get; set; }
         public string Value { get; set; }
+
+        /// <summary>
+        /// Asserts that the properties of the two IStorytellerProperty objects are equal.
+        /// </summary>
+        /// <param name="expectedProperty">The expected IStorytellerProperty.</param>
+        /// <param name="actualProperty">The actual IStorytellerProperty.</param>
+        /// <param name="skipIds">(optional) Pass true to skip comparison of Id properties.</param>
+        /// <exception cref="AssertionException">If any properties don't match.</exception>
+        public static void AssertAreEqual(IStorytellerProperty expectedProperty, IStorytellerProperty actualProperty, bool skipIds = false)
+        {
+            ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
+            ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
+
+            Assert.AreEqual(expectedProperty.Name, actualProperty.Name, "The Name properties don't match!");
+            Assert.AreEqual(expectedProperty.PropertyTypeId, actualProperty.PropertyTypeId, "The PropertyTypeId properties don't match for property: {0}!", actualProperty.Name);
+            Assert.AreEqual(expectedProperty.PropertyType, actualProperty.PropertyType, "The PropertyType properties don't match for property: {0}!", actualProperty.Name);
+
+            if (!(skipIds && actualProperty.Name.EqualsOrdinalIgnoreCase("Id")))
+            {
+                Assert.AreEqual(expectedProperty.Value, actualProperty.Value, "The Value properties don't match for property: {0}!", actualProperty.Name);
+            }
+        }
     }
 }

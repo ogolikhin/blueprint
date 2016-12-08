@@ -7,13 +7,15 @@ export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsSer
     constructor(private $q: ng.IQService) {
     }
 
-    public get unpublishedArtifactsObservable(): Rx.Observable<IPublishResultSet> {
-        return undefined;
-    }
+    public unpublishedArtifactsObservable: Rx.Observable<IPublishResultSet> = <any>{
+            subscribeOnNext: () => { return; },
+            dispose: () => { return; }
+    };
 
-    public get processedArtifactsObservable(): Rx.Observable<IPublishResultSet> {
-        return undefined;
-    }
+    public processedArtifactsObservable: Rx.Observable<IPublishResultSet> = <any>{
+        subscribeOnNext: () => { return; },
+        dispose: () => { return; }
+    };
 
     public publishAll(): ng.IPromise<IPublishResultSet> {
         const deferred = this.$q.defer<any>();

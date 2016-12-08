@@ -1,45 +1,23 @@
-﻿import {IProcessGraph, IProcessShape} from "./models/";
+﻿import {IProcessGraph, IDiagramNode} from "./models/process-graph-interfaces";
+import {UserTask} from "./shapes/user-task";
+import {SystemTask} from "./shapes/system-task";
+import {DiagramNode} from "./shapes/diagram-node";
 import {ProcessEvents} from "./../../process-diagram-communication";
-import {IDiagramNode} from "./models/";
-import {NodeType} from "./models/";
-import {SystemTask, DiagramNode, UserTask} from "./shapes/";
-
+import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessGraphSelectionHelper {
-    private isSingleSelection = true;
-    private mxGraph: MxGraph;
+    private isSingleSelection: boolean = true;
     private isProgrammaticSelectionChange: boolean = false; 
 
     constructor(private processGraph: IProcessGraph) {
-        this.mxGraph = processGraph.getMxGraph();
     }
      
-    public getDiagramElement(cell: MxCell): IProcessShape {
-        if (cell) {
-            if (cell.getParent()["getNodeType"]) { //for system tasks to work.
-                cell = cell.getParent();
-            }
-
-            if (cell["getNode"] && cell["getNodeType"]) {
-                let cellNode = <IDiagramNode>cell;
-                if (cellNode.getNodeType() !== NodeType.MergingPoint) {
-                    return cellNode.getNode().model;
-                }
-            }
-        }
-        return null;
-    }
-
-    private getSelectedNodes(): Array<IDiagramNode> {
-        let elements = <Array<IDiagramNode>>this.mxGraph.getSelectionCells();
-        if (elements) {
-            elements = elements.filter(e => e instanceof DiagramNode);
-        }
-        return elements;
+    private get mxGraph(): MxGraph {
+        return this.processGraph.getMxGraph();
     }
 
     public destroy() {
-        this.mxGraph = null;
+        this.processGraph = null;
     }
 
     public getLastSelectedCell() {
@@ -47,8 +25,8 @@ export class ProcessGraphSelectionHelper {
         return selectedCells[selectedCells.length - 1];
     }
 
-    public getInitialCellForEvent = (me: MxMouseEvent) => {
-        let cell = me.getCell();
+    public getInitialCellForEvent = (mouseEvent: MxMouseEvent) => {
+        let cell = mouseEvent.getCell();
         let state = this.mxGraph.getView().getState(cell);
         let style = (state != null) ? state.style : this.mxGraph.getCellStyle(cell);
 
@@ -62,71 +40,80 @@ export class ProcessGraphSelectionHelper {
             }
         }
 
-        if (cell instanceof SystemTask && (<SystemTask>cell).callout.isVisible() === false) {
+        if (cell instanceof SystemTask && !(<SystemTask>cell).callout.isVisible()) {
             if (this.isSingleSelection) {
                 this.mxGraph.clearSelection();
             }
 
             return null;
         }
+
         return cell;
     }
 
-    public initSelection() {
+    public initSelection(): void {
         new mxRubberband(this.mxGraph);
-        let baseIsEventIgnored = this.mxGraph.isEventIgnored;
-        this.mxGraph.isEventIgnored = (evtName, me, sender) => {
-            return baseIsEventIgnored.call(this.mxGraph, evtName, me, sender);
+
+        const baseIsEventIgnored = this.mxGraph.isEventIgnored;
+        this.mxGraph.isEventIgnored = (eventName, mouseEvent, sender): void => {
+            return baseIsEventIgnored.call(this.mxGraph, eventName, mouseEvent, sender);
         };
         this.mxGraph.popupMenuHandler.selectOnPopup = false;
         this.mxGraph.graphHandler.getInitialCellForEvent = this.getInitialCellForEvent;
-        this.mxGraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender, evt) => {
+
+        this.mxGraph.getSelectionModel().addListener(mxEvent.CHANGE, (sender: any, event: any) => {
             if (this.isProgrammaticSelectionChange) {
-                this.isProgrammaticSelectionChange = false;
                 return;
             }
-            let cells = this.mxGraph.getSelectionCells();
-            if (evt.properties.removed && evt.properties.removed.length > 0) {
-                if (this.hasUnSelectableElement(evt)) {
+            
+            const selectedNodes = this.processGraph.getSelectedNodes();
+
+            if (event.properties.removed && event.properties.removed.length > 0) {
+                if (this.hasUnSelectableElement(event)) {
                    this.mxGraph.clearSelection();
                 }
             }
 
-            if (cells.length > 1) {
-                cells = cells.filter(cell => cell instanceof UserTask);
-                this.isProgrammaticSelectionChange = true;
-                this.mxGraph.clearSelection();
-                this.isProgrammaticSelectionChange = true;
-                this.mxGraph.getSelectionModel().addCells(cells);
-            }
+            if (selectedNodes) {
+                if (selectedNodes.length > 1) {
+                    const userTasks = selectedNodes.filter(node => node instanceof UserTask);
+                    this.doProgrammaticSelectionChange(() => {
+                        this.mxGraph.clearSelection();
+                        this.mxGraph.getSelectionModel().addCells(userTasks);
+                    });
+                }
             
-            let elements = this.getSelectedNodes();
-            if (elements) {
-                elements = elements.filter(e => e instanceof DiagramNode);
                 // highlight edges and copy groups, and notify system that the subartifact 
                 // selection has changed. Note: elements array can be empty.
-                this.processGraph.highlightNodeEdges(elements);
-                this.processGraph.highlightCopyGroups(elements);
-                this.notifySelectionChanged(elements);
+                this.processGraph.highlightNodeEdges(selectedNodes);
+                this.processGraph.highlightCopyGroups(selectedNodes);
+                this.notifySelectionChanged(selectedNodes);
             }
         });
     }
 
-    private notifySelectionChanged(elements: IDiagramNode[]) {
-        const communication = this.processGraph.processDiagramCommunication;
-        communication.action(ProcessEvents.SelectionChanged, elements);
+    private doProgrammaticSelectionChange(changeSelection: () => void): void {
+        this.isProgrammaticSelectionChange = true;
+        changeSelection();
+        this.isProgrammaticSelectionChange = false;
     }
 
-    private hasUnSelectableElement(evt): boolean {
-        if (this.hasInvisibleSelectedSystemTask(evt)) {
+    private notifySelectionChanged(nodes: IDiagramNode[]) {
+        const communication = this.processGraph.processDiagramCommunication;
+        communication.action(ProcessEvents.SelectionChanged, nodes);
+    }
+
+    private hasUnSelectableElement(event: any): boolean {
+        if (this.hasInvisibleSelectedSystemTask(event)) {
             return true;
         }
-        return evt.properties.removed.filter(e => e instanceof DiagramNode).length !== evt.properties.removed.length;
+
+        return event.properties.removed.filter(cell => cell instanceof DiagramNode).length !== event.properties.removed.length;
     }
 
-    private hasInvisibleSelectedSystemTask(evt): boolean {
+    private hasInvisibleSelectedSystemTask(event: any): boolean {
         //using variables as alias due to line length restrictions
-        const systemTasks = evt.properties.removed.filter(e => e instanceof SystemTask);
+        const systemTasks = event.properties.removed.filter(cell => cell instanceof SystemTask);
 
         if (systemTasks.length > 0) {
             const isInvisible = !systemTasks[0].callout.isVisible();
@@ -135,5 +122,4 @@ export class ProcessGraphSelectionHelper {
 
         return false;
     }
-
 }

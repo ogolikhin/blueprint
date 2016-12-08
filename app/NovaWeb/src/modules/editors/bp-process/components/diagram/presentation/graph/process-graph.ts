@@ -1030,7 +1030,7 @@ export class ProcessGraph implements IProcessGraph {
     };
 
     private highlightNode(node: IDiagramNode): void {
-        node.highlightShape("#FF0000");
+        node.highlightShape();
         this.mxgraph.refresh(node);
         this.highlightedCopyNodes.push(node);
     }

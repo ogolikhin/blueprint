@@ -130,7 +130,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         $scope["deleteFile"] = () => {
             if (!templateOptions["disabled"] && !templateOptions["isReadOnly"]) {
                 const dialogSettings = <IDialogSettings>{
-                    okButton: localization.get("App_Button_Ok", "OK"),
+                    okButton: localization.get("App_Button_Delete", "Delete"),
                     header: localization.get("App_UP_Attachments_Delete_Attachment_Header", "Delete Attachment"),
                     message: localization.get("App_UP_Attachments_Delete_Attachment", "Please confirm the deletion of this attachment.")
                 };

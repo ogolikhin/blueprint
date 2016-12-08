@@ -171,7 +171,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.localization,
             this.dialogService,
             this.loadingOverlayService,
-            this.communicationManager.processDiagramCommunication);
+            this.communicationManager.processDiagramCommunication,
+            this.projectManager);
         const copyAction = new CopyAction(
             processArtifact,
             this.communicationManager,

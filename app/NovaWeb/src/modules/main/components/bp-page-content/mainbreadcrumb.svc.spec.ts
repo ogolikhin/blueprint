@@ -101,6 +101,30 @@ describe("Breadcrumb service unsuccessful", () => {
                 expect(mainbreadcrumbService.breadcrumbLinks.length).toEqual(0);
             }));
 
+        it("reload breadcrumb for deleted artifact is not available",
+            inject(($httpBackend: ng.IHttpBackendService, mainbreadcrumbService: IMainBreadcrumbService) => {
+
+                // Arrange
+                mainbreadcrumbService.breadcrumbLinks = [];
+
+                // Act
+                let error: any;
+                let data = ArtifactServiceMock.createArtifact(100);
+                let artifactState = {
+                    historical: true,
+                    deleted: true
+                };
+                data.artifactState = artifactState;
+                mainbreadcrumbService.reloadBreadcrumbs(data);
+
+                // Assert
+                $httpBackend.verifyNoOutstandingRequest();
+                expect(error).toBeUndefined();
+                expect(mainbreadcrumbService.breadcrumbLinks).not.toBeUndefined();
+                expect(mainbreadcrumbService.breadcrumbLinks.length).toEqual(0);
+            })
+        );
+
         it("reload project breadcrumb unsuccessful",
             inject(($httpBackend: ng.IHttpBackendService, mainbreadcrumbService: IMainBreadcrumbService) => {
 

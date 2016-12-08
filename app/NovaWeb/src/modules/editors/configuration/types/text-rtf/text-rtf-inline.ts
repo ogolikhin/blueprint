@@ -160,17 +160,33 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                         this.observer.observe(this.editorBody, observerConfig);
                     }
 
+                    let isFresh: boolean = true;
+
                     editor.on("KeyUp", (e) => {
-                        if (this.isDirty || this.contentBuffer !== editor.getContent()) {
-                            this.triggerChange();
+                        if (e && [
+                                8, // delete
+                                46 // backspace
+                            ].indexOf(e.keyCode) !== -1) {
+                            if (this.isDirty || this.contentBuffer !== editor.getContent()) {
+                                this.triggerChange();
+                            }
+                        }
+                    });
+
+                    editor.on("SetContent", (e) => {
+                        if ($scope.options["data"].isFresh) {
+                            this.prepRTF();
+                            isFresh = false;
                         }
                     });
 
                     editor.on("Change", (e) => {
-                        if ($scope.options["data"].isFresh) {
-                            this.prepRTF();
-                        } else if (this.isDirty || this.hasChangedFormat() || this.isLinkPopupOpen) {
-                            this.triggerChange();
+                        if (e && _.isObject(e.lastLevel)) { // tinyMce emits a 2 change events per actual change
+                            if ($scope.options["data"].isFresh && isFresh) {
+                                this.prepRTF();
+                            } else if (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen) {
+                                this.triggerChange();
+                            }
                         }
                     });
 

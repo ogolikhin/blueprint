@@ -46,7 +46,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             valueProp: "value",
             labelProp: "name"
         };
-        angular.merge($scope.to, to);
+        _.assign($scope.to, to);
 
         $scope.options["validators"] = {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
@@ -146,16 +146,14 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                     $scope["uiSelectContainer"].querySelector("input").focus();
                 }
             },
-            findDropdown: function ($select): HTMLElement {
-                let dropdown: HTMLElement;
-                const elements = $select.$element.find("ul");
+            findDropdown: ($select): HTMLElement => {
+                const elements: HTMLElement[] = $select.$element.find("ul");
                 for (let i = 0; i < elements.length; i++) {
                     if (elements[i].classList.contains("ui-select-choices")) {
-                        dropdown = elements[i];
-                        break;
+                        return elements[i] as HTMLElement;
                     }
                 }
-                return dropdown;
+                return null;
             },
             limitItems: function ($select) {
                 if ($select.items.length > this.maxItemsToRender) {
@@ -269,28 +267,30 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             },
             onHighlight: function (option, $select) {
-                if (this.isChoiceSelected(option, $select)) {
-                    if (this.areStillChoicesAvailable($select)) {
-                        if ($select.activeIndex >= this.currentSelectedItem) {
-                            if ($select.activeIndex < $select.items.length - 1) {
-                                $select.activeIndex++;
+                if (this.isOpen) {
+                    if (this.isChoiceSelected(option, $select)) {
+                        if (this.areStillChoicesAvailable($select)) {
+                            if ($select.activeIndex >= this.currentSelectedItem) {
+                                if ($select.activeIndex < $select.items.length - 1) {
+                                    $select.activeIndex++;
+                                } else {
+                                    this.currentSelectedItem = $select.activeIndex;
+                                    $select.activeIndex--;
+                                }
                             } else {
-                                this.currentSelectedItem = $select.activeIndex;
-                                $select.activeIndex--;
+                                if ($select.activeIndex > 0) {
+                                    $select.activeIndex--;
+                                } else {
+                                    this.currentSelectedItem = $select.activeIndex;
+                                    $select.activeIndex++;
+                                }
                             }
                         } else {
-                            if ($select.activeIndex > 0) {
-                                $select.activeIndex--;
-                            } else {
-                                this.currentSelectedItem = $select.activeIndex;
-                                $select.activeIndex++;
-                            }
+                            $select.activeIndex = -1;
                         }
                     } else {
-                        $select.activeIndex = -1;
+                        this.currentSelectedItem = $select.activeIndex;
                     }
-                } else {
-                    this.currentSelectedItem = $select.activeIndex;
                 }
             },
             onRemove: function ($item, $select, formControl: ng.IFormController, options: AngularFormly.IFieldConfigurationObject) {
@@ -310,7 +310,15 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 // On ENTER the ui-select reset the activeIndex to the first item of the list.
                 // We need to hide the highlight until we select the proper entry
                 if ($scope["uiSelectContainer"]) {
-                    $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.add("disable-highlight");
+                    const choicesContainer: HTMLElement = $scope["uiSelectContainer"].querySelector(".ui-select-choices");
+                    if (choicesContainer) {
+                        choicesContainer.classList.add("disable-highlight");
+                        const choices: NodeList = choicesContainer.querySelectorAll(".ui-select-choices-row");
+                        for (let i = 0; i < choices.length; i++) {
+                            let item = choices[i] as HTMLElement;
+                            item.classList.remove("active");
+                        }
+                    }
                 }
 
                 if (this.startingItem !== 0) { // user selected an item after scrolling

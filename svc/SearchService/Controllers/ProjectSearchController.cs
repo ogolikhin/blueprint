@@ -16,7 +16,7 @@ namespace SearchService.Controllers
     public class ProjectSearchController : LoggableApiController
     {
         internal readonly IProjectSearchRepository _projectSearchRepository;
-        private const int MaxResultCount = 100;
+        private const int MaxResultCount = 101;
         private const int DefaultResultCount = 20;
         private const string DefaultSeparator = "/";
 

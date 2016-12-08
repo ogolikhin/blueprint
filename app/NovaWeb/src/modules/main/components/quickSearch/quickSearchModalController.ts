@@ -10,7 +10,7 @@ export class QuickSearchModalController {
     metadata: ISearchMetadata;
 
     maxVisiblePageCount: number = 10;
-    
+
     private page: number;
 
     static $inject = [
@@ -55,9 +55,9 @@ export class QuickSearchModalController {
             this.updateMetadataInfo(result);
             if (result.totalCount > 0) {
                 this.search(this.searchTerm, source);
-            } 
+            }
         }).finally(() => {
-            this.isLoading = false;                       
+            this.isLoading = false;
             const modalDialog = this.$document[0].getElementsByClassName("modal-dialog");
             if (modalDialog && modalDialog.length > 0 && modalDialog[0].parentElement) {
                 const outerModalDialog: HTMLElement = modalDialog[0].parentElement;
@@ -70,9 +70,9 @@ export class QuickSearchModalController {
         if (this.isFormInvalid()) {
             return null;
         }
-        
+
         source = !source ? "Modal" : source;
-        
+
         this.isLoading = true;
         this.results = [];
 
@@ -94,7 +94,7 @@ export class QuickSearchModalController {
     }
 
     private resetData() {
-        this.isLoading = false;  
+        this.isLoading = false;
         if (this.form) {
             this.form.$setPristine();
         }
@@ -103,7 +103,7 @@ export class QuickSearchModalController {
         this.resetMetadata();
     }
 
-    
+
 
     get showHide(): boolean {
         return !!this.searchTerm || this.form.$dirty;
@@ -143,7 +143,7 @@ export class QuickSearchModalController {
     }
 
     showPagination(): boolean {
-        return this.metadata.totalCount > 0 && this.metadata.totalPages > 1;
+        return this.metadata.totalCount > 0 && this.metadata.totalPages > 1 && this.results.length > 0;
     }
 
     private resetMetadata() {
@@ -157,8 +157,12 @@ export class QuickSearchModalController {
             this.results = [];
             this.isLoading = false;
         }
-    }    
-    
+    }
+
+    searchHasNoResult(): boolean {
+        return this.metadata.totalCount === 0 && !this.isLoading;
+    }
+
     get getResultsFoundText() {
         return _.replace(this.localization.get("Search_Results_ResultsFound"), "{0}", this.metadata.totalCount.toString());
     }

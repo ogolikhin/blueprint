@@ -201,6 +201,7 @@ describe("ProcessCopyPasteHelper tests", () => {
         });
         
         it("does not send to filestore when detects system tasks with only unsaved images", () => {
+            //Arrange
             const userTaskId = 20;
             const systemTaskId = 25;
             const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
@@ -218,12 +219,16 @@ describe("ProcessCopyPasteHelper tests", () => {
 
             const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore");
 
+            //Act
             copyPasteHelper.copySelectedShapes();
             $rootScope.$digest();
+
+            //Assert
             expect(fileStoreSpy).not.toHaveBeenCalled();
         });
         
         it("correctly detects system tasks with saved images", () => {
+            //Arrange
             const userTaskId = 20;
             const systemTaskId = 25;
             const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
@@ -249,12 +254,16 @@ describe("ProcessCopyPasteHelper tests", () => {
                     return $q.when([copyResult]);
             });
 
+            //Act
             copyPasteHelper.copySelectedShapes();
             $rootScope.$digest();
+
+            //Assert
             expect(detectedSystemTaskIds.length).toBe(1);
         });
 
         it("sets clipboard data after sucessful filestore call", () => {
+            //Arrange
             const userTaskId = 20;
             const systemTaskId = 25;
             const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
@@ -279,10 +288,12 @@ describe("ProcessCopyPasteHelper tests", () => {
                     return $q.when([copyResult]);
             });
 
+            //Act
             copyPasteHelper.copySelectedShapes();
             $rootScope.$digest();
             const data  = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
 
+            //Assert
             expect(data).not.toBeNull();
             const clipboardSystemTask = data.shapes.filter(a => a.id === systemTaskId)[0];
             expect(clipboardSystemTask.propertyValues[shapesFactory.AssociatedImageUrl.key].value).toBe(copyResult.newImageUrl);

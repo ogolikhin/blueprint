@@ -6,22 +6,20 @@ import {LocalStorageService, ILocalStorageService} from "./local-storage.svc";
 
 describe("LocalStorage", () => {
 
-    let localizationStorageService: ILocalStorageService;   
-  
-    beforeEach(inject(($log: ng.ILogService) => {      
+    let localizationStorageService: ILocalStorageService;
+
+    beforeEach(inject(($log: ng.ILogService) => {
         localizationStorageService = new LocalStorageService($log);
     }));
 
     describe("LocalStorage", () => {
 
-        it("is created", () => {            
-
+        it("is created", () => {
             // Assert
             expect(localizationStorageService).not.toBeNull();
         });
 
         it("read null", () => {
-            
             spyOn(localStorage, "getItem").and.callFake((key: string): String => {
                 return null;
             });
@@ -32,7 +30,6 @@ describe("LocalStorage", () => {
         });
 
         it("read not null", () => {
-
             const customKey = "key";
             const customValue = "value";
             spyOn(localStorage, "getItem").and.callFake((key: string): String => {
@@ -48,7 +45,6 @@ describe("LocalStorage", () => {
         });
 
         it("read object", () => {
-
             const customKey = "key";
             const customValue = {
                 a: "a",
@@ -67,11 +63,10 @@ describe("LocalStorage", () => {
         });
 
         it("write item", () => {
-
             const customKey = "key";
             const customValue = "value";
             const setItemSpy = spyOn(localStorage, "setItem").and.callFake((key: string, data: string): void => {
-                
+                //
             });
 
             localizationStorageService.write(customKey, customValue);
@@ -80,14 +75,13 @@ describe("LocalStorage", () => {
         });
 
         it("write object", () => {
-
             const customKey = "key";
             const customValue = {
                 a: "a",
                 b: 5
             };
             const setItemSpy = spyOn(localStorage, "setItem").and.callFake((key: string, data: string): void => {
-
+                //
             });
 
             localizationStorageService.writeObject(customKey, customValue);
@@ -96,10 +90,9 @@ describe("LocalStorage", () => {
         });
 
         it("remove item", () => {
-
-            const customKey = "key";            
+            const customKey = "key";
             const removeSpy = spyOn(localStorage, "removeItem").and.callFake((path: string): void => {
-
+                //
             });
 
             localizationStorageService.remove(customKey);
@@ -108,8 +101,8 @@ describe("LocalStorage", () => {
         });
 
         it("clear", () => {
-           
             const clearSpy = spyOn(localStorage, "clear").and.callFake((): void => {
+                //
             });
 
             localizationStorageService.clear();
@@ -117,7 +110,4 @@ describe("LocalStorage", () => {
             expect(clearSpy).toHaveBeenCalled();
         });
     });
-
-    
-
 });

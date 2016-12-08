@@ -143,11 +143,6 @@ export class ProcessGraph implements IProcessGraph {
         this.processCopyPasteHelper.copySelectedShapes();
     }
 
-    public getSelectedShapes(): IProcessShape[] {
-        const selectedNodes = this.getSelectedNodes();
-        return _.map(selectedNodes, (node: IDiagramNode) => node.model);
-    }
-
     public insertSelectedShapes = (edge: MxCell): void => {
         const sourcesAndDestinations = this.layout.getSourcesAndDestinations(edge);
         const sourceIds = sourcesAndDestinations.sourceIds;
@@ -986,17 +981,8 @@ export class ProcessGraph implements IProcessGraph {
         return false;
     }
 
-    public canMultiSelect(node: IDiagramNode): boolean {
-        if (!node) {
-            return false;
-        }
-
-        if (node.getNodeType() !== NodeType.UserTask) {
-            return false;
-        }
-
-        const isCopyHighlighted = this.highlightedCopyNodes.indexOf(node) >= 0;
-        return !isCopyHighlighted;
+    public getHighlightedCopyNodes(): IDiagramNode[] {
+        return this.highlightedCopyNodes;
     }
 
     public highlightCopyGroups = (nodes: IDiagramNode[]): void => {

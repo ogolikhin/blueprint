@@ -76,7 +76,7 @@ export class ProcessGraphSelectionHelper {
 
             if (selectedNodes) {
                 if (selectedNodes.length > 1) {
-                    selectedNodes = selectedNodes.filter(node => this.processGraph.canMultiSelect(node));
+                    selectedNodes = selectedNodes.filter(node => this.canMultiSelect(node));
                     this.doProgrammaticSelectionChange(() => {
                         this.mxGraph.clearSelection();
                         this.mxGraph.getSelectionModel().addCells(selectedNodes);
@@ -90,6 +90,19 @@ export class ProcessGraphSelectionHelper {
                 this.notifySelectionChanged(selectedNodes);
             }
         });
+    }
+
+    private canMultiSelect(node: IDiagramNode): boolean {
+        if (!node) {
+            return false;
+        }
+
+        if (node.getNodeType() !== NodeType.UserTask) {
+            return false;
+        }
+
+        const isCopyHighlighted = this.processGraph.getHighlightedCopyNodes().indexOf(node) >= 0;
+        return !isCopyHighlighted;
     }
 
     private doProgrammaticSelectionChange(changeSelection: () => void): void {

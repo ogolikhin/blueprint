@@ -50,14 +50,14 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
     }
 
     public downloadItem(): ng.IPromise<any> {
-        let isHistorial = this.isHistoricalVersion(this.docRefInfo);
-        return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId, null, isHistorial ? this.docRefInfo.versionId : null)
+        const isHistorical = this.isHistoricalVersion(this.docRefInfo);
+        return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId, null, isHistorical ? this.docRefInfo.versionId : null)
             .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
                 if (attachmentResultSet.attachments.length) {
                     const artifactId = attachmentResultSet.artifactId;
                     const attachmentId = attachmentResultSet.attachments[0].attachmentId;
                     let url = `/svc/bpartifactstore/artifacts/${artifactId}/attachments/${attachmentId}`;
-                    if (isHistorial) {
+                    if (isHistorical) {
                         url += `?versionId=${this.docRefInfo.versionId}`;
                     }
                     this.$window.open(url, "_blank");

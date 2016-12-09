@@ -145,22 +145,9 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public isProjectTreeVisible(): boolean {
         return this.projects && this.projects.length > 0;
     }
-
-    private isSelectedArtifactBelongsToPreviouslyOpenedProjects(): boolean {
-        const projectIds = this.projects.map((project) => {
-            return project.model.id;
-        });
-        projectIds.splice(0, 1);
-
-        if (projectIds.indexOf(this.selected.model.projectId) > -1) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private isSelectedArtifactBelongsToOpeningProject(): boolean {
-        return this.selected.model.projectId === this.projects[0].model.id;
+    
+    private isMainAreaSelectedArtifactBelongsToOpeningProject(): boolean {
+        return this.selectionManager.getArtifact().projectId === this.projects[0].model.id;
     }
 
     public onGridReset(isExpanding: boolean): void {
@@ -184,8 +171,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 // we need to check if this artifact is not from this.projects[0] (last opened project)
                 (!selectedArtifactId ||
                     (selectedArtifactId &&
-                     !this.isSelectedArtifactBelongsToOpeningProject() &&
-                     !this.isSelectedArtifactBelongsToPreviouslyOpenedProjects()))) {
+                     this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {
                 if (!this.selectionManager.getArtifact().artifactState.historical) {
                     navigateToId = this.selectionManager.getArtifact().id;
                 } else {

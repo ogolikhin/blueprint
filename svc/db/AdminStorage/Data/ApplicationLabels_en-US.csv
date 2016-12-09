@@ -514,7 +514,6 @@ ag-Grid_noRowsToShow,"Empty"
 
 # Search
 Search_Validation_MinThreeChars, "Please use at least 3 characters."
-Search_Validation_MaxTwoFiftyChars, "At most 250 characters."
 Search_Validation_Required, "Required search term."
 Search_Results_Author, "Author"
 Search_Results_CreatedOn, "Created On:"

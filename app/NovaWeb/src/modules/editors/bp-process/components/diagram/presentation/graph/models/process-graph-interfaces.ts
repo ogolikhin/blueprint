@@ -81,7 +81,6 @@ export interface IShapeInformation {
 }
 
 export interface IMenuContainer {
-    hideMenu(mxGraph: MxGraph);
     showMenu(mxGraph: MxGraph);
 }
 
@@ -173,7 +172,6 @@ export interface IDiagramLink extends IDiagramElement, IMenuContainer {
     label: string;
     sourceNode: IDiagramNode;
     targetNode: IDiagramNode;
-    hideMenu(mxGraph: MxGraph);
     showMenu(mxGraph: MxGraph);
     getParentId(): number;
 }

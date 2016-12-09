@@ -25,11 +25,6 @@ export class SystemDecision extends Decision {
         this.detailsButton.setVisible(true);
     }
 
-    public hideMenu(mxGraph: MxGraph) {
-        // super.hideMenu(mxGraph);
-        // this.detailsButton.setVisible(false);
-    }
-
     public getDeleteDialogParameters(): IDialogParams {
         let dialogParams: IDialogParams = {};
         dialogParams.message = this.rootScope["config"].labels["ST_Confirm_Delete_System_Decision"];

@@ -15,7 +15,6 @@ export interface IDiagramLink extends IDiagramElement, IMenuContainer {
     label: string;
     sourceNode: IDiagramNode;
     targetNode: IDiagramNode;
-    hideMenu(mxGraph: MxGraph);
     showMenu(mxGraph: MxGraph);
     getParentId(): number;
 }
@@ -133,17 +132,13 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
         return null;
     }
 
-    public hideMenu(graph: MxGraph) {
-        //graph.removeCellOverlays(this);
-    }
-
     public showMenu(graph: MxGraph) {
         this.geometry.offset = new mxPoint(0, 30);
         const startNode = this.sourceNode;
         if (startNode && 
             (startNode.getNodeType() === NodeType.SystemDecision || 
             startNode.getNodeType() === NodeType.UserTask)) {
-                const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-decision-hover.svg", 16, 16), "Add Task/Decision");
+                const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-decision-neutral.svg", 16, 16), "Add Task/Decision");
                 graph.addCellOverlay(this, overlay);
         } else {
             const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");

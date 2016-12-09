@@ -134,17 +134,20 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         return this;
     }
 
-    public highlight(color: string = undefined) {
+    public highlight(mxGraph: MxGraph, color?: string) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
-        this.setElementStyle("strokeColor", color);
-        this.setElementStyle("dashed", 1);
+
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
     }
 
-    public clearHighlight() {
-        this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
-        this.setElementStyle("dashed", 0);
+    public clearHighlight(mxGraph: MxGraph) {
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
     }
 
     public setLabelWithRedrawUi(value: string) {

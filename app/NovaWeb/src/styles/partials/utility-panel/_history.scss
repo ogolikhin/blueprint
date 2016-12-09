@@ -9,6 +9,11 @@ bp-history-panel {
         color: $text-color;
         text-decoration: none;
         font-weight: normal;
+        display: block;
+    }
+
+    .history-item--selected {
+        pointer-events: none;
     }
 
     .history-item--selected bp-artifact-history-item {

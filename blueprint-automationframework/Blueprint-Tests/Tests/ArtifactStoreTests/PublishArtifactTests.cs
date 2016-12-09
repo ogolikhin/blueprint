@@ -639,11 +639,11 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] // Bug: 3611  [Cannot publish default collection] [404 - "Item with ID 3 is not an artifact."]
+        [Explicit(IgnoreReasons.UnderDevelopmentDev)] // User Story: 3578  [Nova] [Collection] Edit a Collection Folder / Collection Container
         [Category(Categories.CannotRunInParallel)]
         [TestCase]
         [TestRail(191158)]
-        [Description("Change co llection folder.  Publish it.  Verify the published collection artifact or collection folder is returned with proper content.")]
+        [Description("Change collection folder.  Publish it.  Verify the published collection artifact or collection folder is returned with proper content.")]
         public void PublishArtifact_UpdateDefaultCollectionFolder_ReturnsPublishedArtifact()
         {
             // Setup:

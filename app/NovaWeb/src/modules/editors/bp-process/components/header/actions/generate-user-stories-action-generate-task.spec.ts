@@ -9,7 +9,7 @@ import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {CommunicationManager} from "../../../";
-import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
+import {RolePermissions, LockedByEnum, ReuseSettings} from "../../../../../main/models/enums";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
 import * as TestShapes from "../../../models/test-shape-factory";
 import {ErrorCode} from "../../../../../core/error/error-code";
@@ -105,6 +105,21 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(generateFromTask.disabled).toBe(true);
         });
+
+        it("is disabled if process is reused readonly with subartifacts read-only settings", () => {
+            // arrange
+            const process = createStatefulProcessArtifact(1, ReuseSettings.Subartifacts);
+            const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+            const generateFromTask = action.actions[0];
+            const savedUserTask = TestShapes.createUserTask(2, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [savedUserTask]);
+
+            // assert
+            expect(generateFromTask.disabled).toBe(true);
+        });        
 
         it("is disabled when no shape is selected", () => {
             // arrange
@@ -213,6 +228,21 @@ describe("GenerateUserStoriesAction", () => {
         it("is enabled when a saved user task is selected", () => {
             // arrange
             const process = createStatefulProcessArtifact();
+            const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+            const generateFromTask = action.actions[0];
+            const savedUserTask = TestShapes.createUserTask(2, $rootScope);
+
+            // act
+            processDiagramCommunication.action(ProcessEvents.SelectionChanged, [savedUserTask]);
+
+            // assert
+            expect(generateFromTask.disabled).toBe(false);
+        });
+
+        it("is enabled if process is reused readonly with attachments read-only settings", () => {
+            // arrange
+            const process = createStatefulProcessArtifact(1, ReuseSettings.Attachments);
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
                 localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
             const generateFromTask = action.actions[0];
@@ -572,11 +602,12 @@ describe("GenerateUserStoriesAction", () => {
     }
 });
 
-function createStatefulProcessArtifact(version: number = 1): StatefulProcessArtifact {
+function createStatefulProcessArtifact(version: number = 1, reuseSettings?: ReuseSettings): StatefulProcessArtifact {
     const artifactModel = {
         id: 1,
         permissions: RolePermissions.Edit,
-        version: version
+        version: version,
+        readOnlyReuseSettings: reuseSettings
     };
 
     return new StatefulProcessArtifact(artifactModel, null);

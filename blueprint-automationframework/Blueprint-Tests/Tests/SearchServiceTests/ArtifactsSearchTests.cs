@@ -486,6 +486,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.NotNull(results.Items[0].HasChildren, "HasChildren is null in the ItemNameSearchResult!");
             Assert.IsTrue(results.Items[0].HasChildren.Value, "Artifact in search results should have HasChildren set to true.");
             Assert.AreEqual(childArtifact.Id, results.Items[0].Id);
         }

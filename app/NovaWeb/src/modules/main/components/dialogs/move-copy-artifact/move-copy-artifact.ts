@@ -36,7 +36,7 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
                 public dialogData: IMoveCopyArtifactPickerOptions,
                 public localization: ILocalizationService) {
         super($instance, dialogSettings, dialogData, localization);
-        
+
         dialogData.isItemSelectable = (item) => this.isItemSelectable(item);
         this._currentArtifact = dialogData.currentArtifact;
         this._actionType = dialogData.actionType;
@@ -53,11 +53,23 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
             if (this.insertMethod === this.InsertMethodSelection) {
                 return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
             } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
-                //or move as a sibling to somthing with a folder as parent (or no parent(i.e. project))
+                //or move as a sibling to something with a folder as parent (or no parent(i.e. project))
                 return !item.parentPredefinedType || item.parentPredefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
             }
         }
-        
+
+        //if we're moving a collection artifact/folder
+        if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.CollectionFolder ||
+            this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactCollection) {
+            //can only insert into collection folders
+            if (this.insertMethod === this.InsertMethodSelection) {
+                return item.predefinedType === Enums.ItemTypePredefined.CollectionFolder;
+            } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
+                //or move as a sibling to something with a folder as parent (or the main Collections folder)
+                return item.parentPredefinedType === Enums.ItemTypePredefined.CollectionFolder;
+            }
+        }
+
 
         return true;
     }

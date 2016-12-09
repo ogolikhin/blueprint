@@ -20,7 +20,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 
     // Unload full weight artifact
     unload();
-    save(ignoreInvalidValues?: boolean ): ng.IPromise<IStatefulArtifact>;
+    save(autoSave?: boolean ): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
@@ -391,14 +391,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return subArtifactChanges;
     }
 
-    public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
+    public save(autoSave: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
 
         let promise = this.services.$q.defer<any>();
         if (!this.canBeSaved()) {
             return this.services.$q.resolve(this);
         }
-        if (ignoreInvalidValues) {
+        if (autoSave) {
             promise.resolve();
         } else {
             promise.promise = this.validate();
@@ -408,7 +408,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
             const changes = this.changes();
-            return this.saveArtifact(changes).catch((error) => {
+            return this.saveArtifact(changes, autoSave).catch((error) => {
                 if (this.hasCustomSave) {
                     this.customHandleSaveFailed();
                 }
@@ -419,7 +419,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
     }
 
-    private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
+    private saveArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<IStatefulArtifact> {
         return this.services.artifactService.updateArtifact(changes).catch((error) => {
             // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
             if (error) {
@@ -428,6 +428,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.services.$q.reject(error);
         }).then((artifact: Models.IArtifact) => {
             this.discard();
+            if (autoSave) {
+                return this.services.$q.resolve(this);
+            }
+            return this.refresh().catch((error) => {
+                return this.services.$q.reject(error);
+            });
         });
     }
 

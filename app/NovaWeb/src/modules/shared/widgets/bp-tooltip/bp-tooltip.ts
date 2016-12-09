@@ -68,28 +68,33 @@ export class BPTooltip implements ng.IDirective {
             if (element.attr("bp-tooltip-truncated") === "true") {
                 let elem = element[0];
 
+                // getBoundingClientRect returns fractions of pixel while scrollWidth/Height return rounded values
                 let clientRect = elem.getBoundingClientRect();
-                let offsetWidth = clientRect.width;
-                let offsetHeight = clientRect.height;
+                let offsetWidth = _.round(clientRect.width);
+                let offsetHeight = _.round(clientRect.height);
+                let scrollWidth = elem.scrollWidth > offsetWidth ? elem.scrollWidth : offsetWidth;
+                let scrollHeight = elem.scrollHeight > offsetHeight ? elem.scrollHeight : offsetHeight;
 
-                if (elem.childElementCount === 1) {
-                    let child = elem.firstElementChild as HTMLElement;
-                    if (elem.textContent.trim() === child.textContent.trim()) {
+                if (offsetWidth < scrollWidth || offsetHeight < scrollHeight) {
+                    return true;
+                } else {
+                    if (elem.childElementCount === 1 && elem.textContent.trim() === elem.firstElementChild.textContent.trim()) {
+                        let child = elem.firstElementChild as HTMLElement;
                         const computedStyle = window.getComputedStyle(child);
                         offsetWidth -= parseFloat(computedStyle.marginLeft) + parseFloat(computedStyle.marginRight);
                         offsetHeight -= parseFloat(computedStyle.marginTop) + parseFloat(computedStyle.marginBottom);
 
                         elem = child;
                         clientRect = elem.getBoundingClientRect();
+                        // this allows to deal with inline elements, whose scrollWidth/Height is 0
+                        scrollWidth = elem.scrollWidth > clientRect.width ? elem.scrollWidth : _.round(clientRect.width);
+                        scrollHeight = elem.scrollHeight > clientRect.height ? elem.scrollHeight : _.round(clientRect.height);
+
+                        return offsetWidth < scrollWidth || offsetHeight < scrollHeight;
+                    } else {
+                        return false;
                     }
                 }
-
-                // this allows to deal with inline elements, whose scrollWidth/Height is 0
-                const scrollWidth = elem.scrollWidth > clientRect.width ? elem.scrollWidth : _.round(clientRect.width);
-                const scrollHeight = elem.scrollHeight > clientRect.height ? elem.scrollHeight : _.round(clientRect.height);
-
-                // getBoundingClientRect returns fractions of pixel while scrollWidth/Height return rounded values
-                return (_.round(offsetWidth) < scrollWidth || _.round(offsetHeight) < scrollHeight);
             }
             return true;
         }

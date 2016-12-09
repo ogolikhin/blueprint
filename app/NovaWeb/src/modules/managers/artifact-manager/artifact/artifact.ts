@@ -367,13 +367,22 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (this._relationships) {
             delta.traces = this.relationships.changes();
         }
-        const subArtifactChanges = this.getSubArtifactChanges();
-        if (!!subArtifactChanges) {
-            delta.subArtifacts = subArtifactChanges;
-        } else {
-            return null;
+
+        //do not get subartifact changes if selective readonly is enabled. 
+        //This is a hack for Jumanji as we need to ensure that the properties cannot be modified in client side in utility panel 
+        if (this.canCollectSubartifactChanges()) {
+            const subArtifactChanges = this.getSubArtifactChanges();
+            if (!!subArtifactChanges) {
+                delta.subArtifacts = subArtifactChanges;
+            } else {
+                return null;
+            }
         }
         return delta;
+    }
+
+    protected canCollectSubartifactChanges(): boolean {
+        return !this.isReuseSettingSRO || !this.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts);
     }
 
     //if any subartifact is invalid, do not return any changes. In future, we might send information about which artifacts are invalid to improve messaging

@@ -55,13 +55,15 @@ export class BPFieldBaseController implements IBPFieldBaseController {
     };
 
     public static handleValidationMessage(validationCheck: string, isValid: boolean, scope) {
-//            if (scope.fc && scope.fc.$error) {
-                scope.$applyAsync(() => {
-                    scope.fc.$error[validationCheck] = !isValid;
-                    const failedValidations = Object.keys(scope.fc.$error).filter(validation => scope.fc.$error[validation]);
-                    scope.showError = !!failedValidations.length;
-                    scope.fc.$valid = !(scope.fc.$invalid = !!failedValidations.length); 
-                });
-//            }
-        }
+        scope.$applyAsync(() => {
+            const formControl = scope.fc as ng.IFormController;
+            if (formControl) {
+                formControl.$setValidity(validationCheck, isValid, formControl);
+
+                const options = scope.options as AngularFormly.IFieldConfigurationObject;
+                options.validation.show = formControl.$invalid;
+                scope.showError = formControl.$invalid;
+            }
+        });
+    }
 }

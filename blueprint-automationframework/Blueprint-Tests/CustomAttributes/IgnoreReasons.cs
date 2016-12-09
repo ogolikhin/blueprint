@@ -23,10 +23,19 @@ namespace CustomAttributes
         /// <summary>This test fails because of a product defect.</summary>
         public const string ProductBug = "ProductBug";
 
+        /// <summary>This test fails because of a product defect that won't be fixed.</summary>
+        public const string ProductBugWillNotFix = "ProductBugWillNotFix";
+
         /// <summary>This test fails because of a test defect.</summary>
         public const string TestBug = "TestBug";
 
-        /// <summary>A test that is incomplete and still being written.</summary>
+        /// <summary>A test that is incomplete and still being written.  (DEPRICATED: use UnderDevelopmentDev or UnderDevelopmentQaDev).</summary>
         public const string UnderDevelopment = "UnderDevelopment";
+
+        /// <summary>The feature being tested hasn't started or finished being written by development.</summary>
+        public const string UnderDevelopmentDev = "UnderDevelopmentDev";
+
+        /// <summary>A test that is incomplete and still being written by QA Devs.</summary>
+        public const string UnderDevelopmentQaDev = "UnderDevelopmentQaDev";
     }
 }

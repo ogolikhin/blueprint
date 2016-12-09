@@ -71,7 +71,12 @@ export class MoveCopyAction extends BPDropdownAction {
     }
 
     private canExecuteCopy(): boolean {
-        return this.canExecute();
+        const invalidTypes = [
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
+        ];
+
+        return this.canExecute() && invalidTypes.indexOf(this.artifact.predefinedType) === -1;
     }
 
     private canExecute(): boolean {
@@ -81,16 +86,10 @@ export class MoveCopyAction extends BPDropdownAction {
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.Collections,
-            ItemTypePredefined.CollectionFolder,
-            ItemTypePredefined.ArtifactCollection
+            ItemTypePredefined.Collections
         ];
 
-        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
-            return false;
-        }
-
-        return true;
+        return (invalidTypes.indexOf(this.artifact.itemTypeId) === -1);
     }
 
     public executeMove() {
@@ -139,9 +138,16 @@ export class MoveCopyAction extends BPDropdownAction {
             header: this.localization.get(headerLabel)
         };
 
+        const collectionTypes = [
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
+        ];
+
         const dialogData: IMoveCopyArtifactPickerOptions = {
             showProjects: false,
+            showArtifacts: collectionTypes.indexOf(this.artifact.predefinedType) === -1,
             showSubArtifacts: false,
+            showCollections: collectionTypes.indexOf(this.artifact.predefinedType) !== -1,
             selectionMode: "single",
             currentArtifact: this.artifact,
             actionType: this.actionType
@@ -197,8 +203,11 @@ export class MoveCopyAction extends BPDropdownAction {
         .move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
         .then(() => {
             //refresh project
+            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
             this.projectManager.refresh(this.artifact.projectId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
+            }).finally(() => {
+                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
             });
         });
     }
@@ -210,7 +219,7 @@ export class MoveCopyAction extends BPDropdownAction {
         .then((result: Models.ICopyResultSet) => {
             let selectionId = result && result.artifact ? result.artifact.id : null;
             //refresh project
-            let refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
+            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
             this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 if (selectionId) {

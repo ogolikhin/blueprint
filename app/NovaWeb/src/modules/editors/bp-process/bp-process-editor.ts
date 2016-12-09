@@ -1,4 +1,5 @@
-﻿import {ICommunicationManager} from "./";
+﻿import {ILoadingOverlayService} from "./../../core/loading-overlay/loading-overlay.svc";
+import {ICommunicationManager} from "./";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
@@ -15,6 +16,7 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "./services/clipboard.svc";
+import {IFileUploadService} from "../../core/file-upload/fileUploadService";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -43,7 +45,9 @@ export class BpProcessEditorController extends BpBaseEditor {
         "statefulArtifactFactory",
         "shapesFactory",
         "utilityPanelService",
-        "clipboardService"
+        "clipboardService",
+        "fileUploadService",
+        "loadingOverlayService"
     ];
 
     constructor(messageService: IMessageService,
@@ -63,7 +67,9 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private shapesFactory: ShapesFactory = null,
                 private utilityPanelService: IUtilityPanelService,
-                private clipboard: IClipboardService = null) {
+                private clipboard: IClipboardService = null,
+                private fileUploadService: IFileUploadService = null,
+                private loadingOverlayService: ILoadingOverlayService = null) {
         super(messageService, artifactManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
@@ -111,7 +117,9 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.shapesFactory,
             this.utilityPanelService,
             this.clipboard,
-            this.artifactManager
+            this.artifactManager,
+            this.fileUploadService,
+            this.loadingOverlayService
         );
 
         let htmlElement = this.getHtmlElement();

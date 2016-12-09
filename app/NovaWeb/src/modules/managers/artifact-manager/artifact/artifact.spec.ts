@@ -868,6 +868,54 @@ describe("Artifact", () => {
         }));
     });
 
+    describe("copy", () => {
+        it("success", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService ) => {
+            // arrange
+            let error: ApplicationError;
+            artifact.errorObservable().subscribeOnNext((err: ApplicationError) => {
+                error = err;
+            });
+            const newParentId: number = 3;
+            const newOrderIndex: number = 15;
+            const expectedResult = [{
+                    id: 1, name: "TEST", parentId: newParentId, orderIndex: newOrderIndex
+                }];
+            spyOn(artifactService, "copyArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.resolve(expectedResult);
+                return deferred.promise;
+            });
+            // act
+            let result;
+            artifact.copy(newParentId, newOrderIndex).then((it) => {
+                result = it;
+            });
+            $rootScope.$digest();
+            // assert
+            expect(result).toEqual(expectedResult);
+            expect(error).toBeUndefined();
+        }));
+
+        it("failed", inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+            // arrange
+            spyOn(artifactService, "copyArtifact").and.callFake(() => {
+                const deferred = $q.defer<any>();
+                deferred.reject({
+                    statusCode: HttpStatusCode.Conflict
+                });
+                return deferred.promise;
+            });
+            const newParentId: number = 3;
+
+            // act
+            let error: ApplicationError;
+            artifact.copy(newParentId).catch((err) => { error = err; });
+            $rootScope.$digest();
+            // assert
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
+        }));
+    });
+
     describe("refresh", () => {
         it("invokes custom refresh if allowed", inject(() => {
             // arrange

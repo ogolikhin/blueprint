@@ -29,7 +29,7 @@ App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
 Tooltip_App_Header_Help,"Help"
 Tooltip_App_Header_Logout,"Log out"
-Tooltip_Artifact_Header_LegacyArtifact,"Legacy artifact"
+Tooltip_Artifact_Header_LegacyArtifact,"Blueprint artifact"
 Tooltip_Browse_Actor, "Browse Actor"
 
 App_Sidebar_Left,"Explorer"
@@ -69,7 +69,7 @@ App_Toolbar_Open_Impact_Analysis,"Analyze Impact"
 App_Toolbar_Tour,"Tour"
 App_Toolbar_Move_Copy,"Move/Copy Artifact"
 App_Toolbar_Move,"Move Artifact"
-App_Toolbar_Copy,"Copy"
+App_Toolbar_Copy,"Copy Artifact"
 App_Toolbar_Copy_Shapes, "Copy Shapes"
 App_Toolbar_Menu,"Additional actions"
 
@@ -95,7 +95,7 @@ App_MainArea_DefaultScreen_OpenProject_ButtonLabel,"Open a project"
 App_MainArea_DefaultScreen_UsefulResources_Header,"Useful resources to get started"
 App_MainArea_DefaultScreen_GetStartedWithStoryteller_Hypelink,"Get started with Storyteller"
 App_MainArea_DefaultScreen_GetStartedWithProcessEditor_Hypelink,"Get started with the Process Editor"
-App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink,"Blueprint Community forum"
+App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink,"Blueprint Community Forum"
 App_MainArea_DefaultScreen_StorytellerTour_Hypelink,"Storyteller Tour"
 
 
@@ -221,7 +221,7 @@ Refresh_Artifact_Deleted,"The artifact you were viewing has been deleted. The ar
 
 Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
-Publish_All_Success_Message,"All artifacts ({0}) have had their changes published."
+Publish_All_Success_Message,"Changes have been published for all artifacts ({0})."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
 
 Close_Project_UnpublishedArtifacts,"You have {0} saved but unpublished change(s).<br/><br/>Considering publishing or discarding before continuing."
@@ -531,3 +531,6 @@ Search_Results_ResultsFound, "{0} Results found"
 
 Unpublished_Empty, "No Unpublished Changes"
 GO_TO_tooltip, "Enter Artifact ID"
+
+#Copy Image
+Copy_Images_Failed, "Images were not copied into clipboard."

@@ -1,3 +1,5 @@
+import {LoadingOverlayServiceMock} from "./../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
 import * as angular from "angular";
 import * as TestModels from "../../models/test-model-factory";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
@@ -17,6 +19,7 @@ import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shap
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IArtifactManager} from "./../../../../managers/artifact-manager";
+import {FileUploadService} from "../../../../core/file-upload/file-upload.svc.mock";
 
 
 class ExecutionEnvironmentDetectorMock {
@@ -47,7 +50,9 @@ describe("ProcessDiagram Tests", () => {
         navigationService: INavigationService,
         utilityPanelService: UtilityPanelService,
         shapesFactory: ShapesFactory,
-        artifactManager: IArtifactManager;
+        artifactManager: IArtifactManager,
+        fileUploadService: FileUploadService,
+        loadingOverlayService: ILoadingOverlayService;
 
     let container: HTMLElement,
         wrapper: HTMLElement;
@@ -68,6 +73,8 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("shapesFactory", ShapesFactoryMock);
         $provide.service("clipboardService", ClipboardService);
         $provide.service("utilityPanelService", UtilityPanelService);
+        $provide.service("fileUploadService", FileUploadService);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService,
@@ -82,7 +89,9 @@ describe("ProcessDiagram Tests", () => {
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
                        _shapesFactory_: ShapesFactory,
                        _utilityPanelService_: UtilityPanelService,
-                       _clipboardService_: ClipboardService) => {
+                       _clipboardService_: ClipboardService,
+                       _fileUploadService_: FileUploadService,
+                       _loadingOverlayService_: ILoadingOverlayService) => {
 
         $rootScope["config"] = {
             settings: {
@@ -105,6 +114,7 @@ describe("ProcessDiagram Tests", () => {
         statefulArtifactFactory = _statefulArtifactFactory_;
         utilityPanelService = _utilityPanelService_;
         shapesFactory = _shapesFactory_;
+        fileUploadService = _fileUploadService_; 
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -129,7 +139,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -159,7 +171,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -192,7 +206,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -225,7 +241,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -259,7 +277,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -292,7 +312,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
 
         let model = TestModels.createDefaultProcessModel();
@@ -326,7 +348,9 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
         );
         let navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
 

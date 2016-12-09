@@ -416,27 +416,15 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
 
-        mxGraph.getModel().beginUpdate();
-
-        try {
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
-        } finally {
-            mxGraph.getModel().endUpdate();
-        }
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
     }
 
     public clearHighlight(mxGraph: MxGraph): void {
-        mxGraph.getModel().beginUpdate();
-
-        try {
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
-        } finally {
-            mxGraph.getModel().endUpdate();
-        }
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
     }
 
     private navigateToProcess() {

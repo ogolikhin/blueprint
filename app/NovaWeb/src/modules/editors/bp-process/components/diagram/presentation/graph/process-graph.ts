@@ -1028,8 +1028,14 @@ export class ProcessGraph implements IProcessGraph {
             nodesToHighlight.push(...familyNodes);
         }
 
-        for (const node of nodesToHighlight) {
-            this.highlightNode(node);
+        this.mxgraph.getModel().beginUpdate();
+
+        try {
+            for (const node of nodesToHighlight) {
+                this.highlightNode(node);
+            }
+        } finally {
+            this.mxgraph.getModel().endUpdate();
         }
     };
 
@@ -1039,8 +1045,14 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     private clearCopyGroupHighlight(): void {
-        for (let node of this.highlightedCopyNodes) {
-            this.clearNodeHighlight(node);
+        this.mxgraph.getModel().beginUpdate();
+
+        try {
+            for (let node of this.highlightedCopyNodes) {
+                this.clearNodeHighlight(node);
+            }
+        } finally {
+            this.mxgraph.getModel().endUpdate();
         }
 
         this.highlightedCopyNodes = [];

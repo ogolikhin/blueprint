@@ -139,27 +139,15 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
 
-        mxGraph.getModel().beginUpdate();
-
-        try {
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
-        } finally {
-            mxGraph.getModel().endUpdate();
-        }
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
     }
 
     public clearHighlight(mxGraph: MxGraph) {
-        mxGraph.getModel().beginUpdate();
-
-        try {
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
-            mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
-        } finally {
-            mxGraph.getModel().endUpdate();
-        }
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
     }
 
     public setLabelWithRedrawUi(value: string) {

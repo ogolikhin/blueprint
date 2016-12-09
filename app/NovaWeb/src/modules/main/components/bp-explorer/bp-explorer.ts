@@ -167,8 +167,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
             } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
                 this.selectionManager.getArtifact() &&
                 // selectedArtifactId = undefined only if there is no projects open.
-                // if there are some artifact pre selected in the tree before opening project
-                // we need to check if this artifact is not from this.projects[0] (last opened project)
+                // if there are some artifact pre selected in the main area before opening project
+                // we need to check if this artifact is from opening project: this.projects[0] (opening project)
                 (!selectedArtifactId ||
                     (selectedArtifactId &&
                      this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {

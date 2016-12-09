@@ -1,18 +1,14 @@
 if (!window.location.hash && window.location.search.toLowerCase().startsWith("?artifactid")) {
-        var params = window.location.search.toLowerCase().slice(1).split("$");
-        var id;
+    var params = window.location.search.toLowerCase().slice(1).split("$");
+    var id;
 
-        for (var i = 0; i < params.length; i++) {
-            var keyValue = params[i].split("=", 2);
+    for (var i = 0; i < params.length; i++) {
+        var keyValue = params[i].split("=", 2);
 
-            if (keyValue.length === 2 && keyValue[0] && keyValue[1]) {
-                switch (keyValue[0]) {
-                    case "artifactid":
-                        id = parseInt(keyValue[1]);
-                        break;
-                }
-            }
+        if (keyValue[0] === "artifactid" && keyValue[1]) {
+            id = parseInt(keyValue[1]);
         }
+    }
 
     var newHash = "/main" + (id ? "/" + id: "");
     if (window.history.replaceState) {

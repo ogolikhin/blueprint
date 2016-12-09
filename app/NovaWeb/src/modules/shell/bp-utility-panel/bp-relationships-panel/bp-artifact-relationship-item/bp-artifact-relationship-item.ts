@@ -30,8 +30,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         "localization",
         "relationshipDetailsService",
         "artifactManager",
-        "dialogService",
-        "navigationService"
+        "dialogService"
     ];
 
     public expanded: boolean = false;
@@ -51,8 +50,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
-                private dialogService: IDialogService,
-                private navigationService: INavigationService) {
+                private dialogService: IDialogService) {
     }
 
     public $onInit() {
@@ -138,12 +136,6 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
                 }
                 return relationshipExtendedInfo;
             });
-    }
-
-    public navigateToArtifact(id: number) {
-        if (this.relationship.hasAccess) {
-            this.navigationService.navigateTo({id: id});
-        }
     }
 
     public canModifyItem() {

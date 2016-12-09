@@ -417,17 +417,30 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.personaLabel.setVisible(value);
     }
 
-    public highlight(color: string = undefined) {
+    public highlight(mxGraph: MxGraph, color?: string) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
-        this.callout.setElementStyle("strokeColor", color);
-        this.callout.setElementStyle("dashed", 1);
+
+        mxGraph.getModel().beginUpdate();
+
+        try {
+            mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this.callout]);
+            mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this.callout]);
+        } finally {
+            mxGraph.getModel().endUpdate();
+        }
     }
 
-    public clearHighlight(mxGraph: MxGraph = undefined) {
-        this.callout.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
-        this.callout.setElementStyle("dashed", 0);
+    public clearHighlight(mxGraph: MxGraph) {
+        mxGraph.getModel().beginUpdate();
+
+        try {
+            mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this.callout]);
+            mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this.callout]);
+        } finally {
+            mxGraph.getModel().endUpdate();
+        }
     }
 
     private navigateToProcess() {

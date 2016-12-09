@@ -233,7 +233,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             this.columns = null;
         }
         this.onSelect = null;
-        this.canceller.reject();
+        this.canceller.resolve();
         this.canceller = null;
         this.rowData = null;
         this.treeApi = null;

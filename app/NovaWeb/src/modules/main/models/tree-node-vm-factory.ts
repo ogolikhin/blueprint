@@ -57,8 +57,8 @@ export class TreeNodeVMFactory {
         return new InstanceItemNodeVM(this, model, expanded);
     }
 
-    public createArtifactNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.IArtifact): ArtifactNodeVM {
-        return new ArtifactNodeVM(this, project, model, this.isSelectable(model));
+    public createArtifactNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.IArtifact, expanded: boolean = false): ArtifactNodeVM {
+        return new ArtifactNodeVM(this, project, model, this.isSelectable(model), expanded);
     }
 
     public createSubArtifactContainerNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.IArtifact, name: string): SubArtifactContainerNodeVM {
@@ -210,7 +210,7 @@ export class InstanceItemNodeVM extends TreeNodeVM<AdminStoreModels.IInstanceIte
                         children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);
                     }
                     return TreeNodeVMFactory.processChildArtifacts(children, [this.model.name], [this.model.id], null)
-                        .map(child => this.factory.createArtifactNodeVM(this.model, child));
+                        .map(child => this.factory.createArtifactNodeVM(this.model, child, this.factory.showCollections && !this.factory.showArtifacts));
                 });
             default:
                 return;
@@ -222,9 +222,10 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
     constructor(private factory: TreeNodeVMFactory,
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.IArtifact,
-                isSelectable: boolean) {
+                isSelectable: boolean,
+                expanded: boolean = false) {
         super(model, String(model.id), model.hasChildren ||
-            (factory.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), false, isSelectable);
+            (factory.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), expanded, isSelectable);
     }
 
     public getCellClass(): string[] {

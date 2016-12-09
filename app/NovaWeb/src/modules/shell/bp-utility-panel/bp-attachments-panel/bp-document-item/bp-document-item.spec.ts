@@ -68,7 +68,6 @@ describe("Component BP Artifact Document Item", () => {
     it("should try to download a document which has an historical attachment",
         inject((
             $timeout: ng.ITimeoutService,
-            artifactAttachments: IArtifactAttachmentsService,
             $window: ng.IWindowService) => {
 
             // Arrange
@@ -119,7 +118,7 @@ describe("Component BP Artifact Document Item", () => {
         }));
 
     it("should try to delete an item",
-        inject(($rootScope: ng.IRootScopeService, $window: ng.IWindowService) => {
+        inject(($window: ng.IWindowService) => {
             // Arrange
             spyOn($window, "alert").and.callFake(() => true);
 
@@ -131,13 +130,12 @@ describe("Component BP Artifact Document Item", () => {
         }));
 
     it("should navigate to document",
-        inject(($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService, $timeout: ng.ITimeoutService) => {
+        inject(($state: ng.ui.IStateService, $timeout: ng.ITimeoutService) => {
 
         //Arrange
         const routerSpy = spyOn($state, "go");
 
         //Act
-        // vm.navigateToDocumentReference(5);
         component.element.find("a").click();
         $timeout.flush();
 

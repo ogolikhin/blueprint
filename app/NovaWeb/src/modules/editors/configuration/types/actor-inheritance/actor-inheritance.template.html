@@ -6,7 +6,9 @@
                 {{item}}
             </span>
             <span>
-                <a ng-show="model[options.key].hasAccess" href ng-click="navigateToItem(model[options.key].actorId)">
+                <a ng-show="model[options.key].hasAccess"
+                   ui-sref="main.item({id: model[options.key].actorId})"
+                   ui-sref-opts="{inherit: false}">
                     {{model[options.key].actorPrefix }}{{ model[options.key].actorId }}: {{ model[options.key].actorName }}
                 </a>
                 <p ng-hide="model[options.key].hasAccess">
@@ -16,7 +18,9 @@
         </div>
         <div ng-hide="model[options.key].isProjectPathVisible"
              bp-tooltip="{{model[options.key].pathToProject.join(' > ')}}" class="path-wrapper">
-            <a ng-show="model[options.key].hasAccess" href ng-click="navigateToItem(model[options.key].actorId)">
+            <a ng-show="model[options.key].hasAccess"
+               ui-sref="main.item({id: model[options.key].actorId})"
+               ui-sref-opts="{inherit: false}">
                 {{model[options.key].actorPrefix }}{{ model[options.key].actorId }}: {{ model[options.key].actorName }}
             </a>
             <p ng-hide="model[options.key].hasAccess">

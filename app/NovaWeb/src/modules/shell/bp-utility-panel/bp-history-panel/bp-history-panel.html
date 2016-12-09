@@ -9,7 +9,7 @@
 <div ng-if="$ctrl.artifactHistoryList.length" class="scrollable-content"
      bp-infinite-scroll="$ctrl.loadMoreHistoricalVersions()">
 
-    <div ng-repeat="item in $ctrl.artifactHistoryList"
+    <div ng-repeat="item in $ctrl.artifactHistoryList track by $index"
          class="artifact-item-wrapper">
 
         <div class="separator"></div>

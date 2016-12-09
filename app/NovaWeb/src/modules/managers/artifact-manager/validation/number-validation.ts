@@ -102,10 +102,10 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
                    _max: any,
                    isValidated: boolean,
                    isRequired: boolean): boolean {
-        return this.decimalPlaces(newValue, oldValue, decimalPlaces, isValidated) &&
-            this.wrongFormat(newValue, oldValue, decimalPlaces, isValidated) &&
-            this.isMin(newValue, oldValue, _min, isValidated) &&
-            this.isMax(newValue, oldValue, _max, isValidated) &&
-            this.hasValueIfRequired(isRequired, newValue, oldValue, isValidated);
+        return this.hasValueIfRequired(isRequired, newValue) &&
+               this.decimalPlaces(newValue, oldValue, decimalPlaces, isValidated) &&
+               this.wrongFormat(newValue, oldValue, decimalPlaces, isValidated) &&
+               this.isMin(newValue, oldValue, _min, isValidated) &&
+            this.isMax(newValue, oldValue, _max, isValidated);
     }
 }

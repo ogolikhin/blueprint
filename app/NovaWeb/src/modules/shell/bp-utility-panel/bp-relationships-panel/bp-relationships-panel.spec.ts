@@ -14,7 +14,6 @@ import {SelectionManager} from "../../../managers/selection-manager/selection-ma
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {
-    IArtifactManager,
     ArtifactManager,
     IArtifactRelationshipsService,
     IStatefulArtifactFactory,
@@ -26,7 +25,7 @@ import {
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -38,7 +37,9 @@ describe("Component BPRelationshipsPanel", () => {
     let traces;
     let onChangesObj: IOnPanelChangesObject;
 
+    beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("app.shell"));
+    beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
@@ -56,7 +57,6 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
-
     }));
 
     beforeEach(inject(() => {

@@ -26,7 +26,7 @@ export function createProcessModel(id: number = 1, type: ProcessType = ProcessTy
     return process;
 }
 
-export function createShapeModel(type: ProcessShapeType, id: number, x?: number, y?: number, imageid?: number): IProcessShape {
+export function createShapeModel(type: ProcessShapeType, id: number, x?: number, y?: number): IProcessShape {
     let shapeModel = new ProcessShapeModel(id);
     shapeModel.name = id.toString();
     shapeModel.personaReference = {
@@ -59,14 +59,6 @@ export function createShapeModel(type: ProcessShapeType, id: number, x?: number,
             value: y ? y : 0
         }
     };
-    if (type === ProcessShapeType.SystemTask) {
-        shapeModel.propertyValues["imageId"] = {
-            typeId: 0,
-            typePredefined: null,
-            propertyName: "x",
-            value: imageid ? imageid : 1
-        };
-    }
 
     return shapeModel;
 }
@@ -93,6 +85,13 @@ export function createUserTask(id: number, x?: number, y?: number, hasComments: 
         hasTraces: hasTraces
     };
 
+    userTask.propertyValues["storyLinks"] = {
+        typeId: 0,
+        typePredefined: null,
+        propertyName: "StoryLinks",
+        value: null
+    };
+
     return <IUserTaskShape>userTask;
 }
 
@@ -107,6 +106,14 @@ export function createSystemTask(id: number, x?: number, y?: number, hasComments
         hasComments: hasComments,
         hasTraces: hasTraces
     };
+    
+    systemTask.propertyValues["imageId"] = {
+        typeId: 0,
+        typePredefined: null,
+        propertyName: "ImageId",
+        value: null
+    };
+    
     return <ISystemTaskShape>systemTask;
 }
 
@@ -138,7 +145,7 @@ export function createDefaultProcessModelWithoutXAndY(): IProcess {
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 0, 0);
     let ut1 = createUserTask(20, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 25, 0, 0);
+    let st2 = createSystemTask(25, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 30, 0, 0);
 
     process.shapes.push(start);

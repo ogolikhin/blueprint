@@ -1028,28 +1028,38 @@ export class ProcessGraph implements IProcessGraph {
             nodesToHighlight.push(...familyNodes);
         }
 
-        for (const node of nodesToHighlight) {
-            this.highlightNode(node);
+        this.mxgraph.getModel().beginUpdate();
+
+        try {
+            for (const node of nodesToHighlight) {
+                this.highlightNode(node);
+            }
+        } finally {
+            this.mxgraph.getModel().endUpdate();
         }
     };
 
     private highlightNode(node: IDiagramNode): void {
-        node.highlight();
-        this.mxgraph.refresh(node);
+        node.highlight(this.mxgraph);
         this.highlightedCopyNodes.push(node);
     }
 
     private clearCopyGroupHighlight(): void {
-        for (let node of this.highlightedCopyNodes) {
-            this.clearNodeHighlight(node);
+        this.mxgraph.getModel().beginUpdate();
+
+        try {
+            for (let node of this.highlightedCopyNodes) {
+                this.clearNodeHighlight(node);
+            }
+        } finally {
+            this.mxgraph.getModel().endUpdate();
         }
 
         this.highlightedCopyNodes = [];
     }
 
     private clearNodeHighlight(node: IDiagramNode): void {
-        node.clearHighlight();
-        this.mxgraph.refresh(node);
+        node.clearHighlight(this.mxgraph);
     }
 
     public highlightNodeEdges = (nodes: IDiagramNode[]) => {

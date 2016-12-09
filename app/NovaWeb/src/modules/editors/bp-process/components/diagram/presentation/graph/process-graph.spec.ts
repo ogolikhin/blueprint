@@ -23,7 +23,7 @@ import * as TestModels from "../../../../models/test-model-factory";
 import * as TestShapes from "../../../../models/test-shape-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {FileUploadService} from "../../../../../../core/file-upload/file-upload.svc.mock";
+import {FileUploadServiceMock} from "../../../../../../core/file-upload/file-upload.svc.mock";
 
 class ExecutionEnvironmentDetectorMock {
     private browserInfo: any;
@@ -53,7 +53,7 @@ describe("ProcessGraph", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("fileUploadService", FileUploadService);
+        $provide.service("fileUploadService", FileUploadServiceMock);
         $provide.service("shapesFactory", ShapesFactory);
     }));
 

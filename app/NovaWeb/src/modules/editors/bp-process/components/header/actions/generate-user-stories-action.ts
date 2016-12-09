@@ -8,7 +8,7 @@ import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {IUserStory} from "../../../models/process-models";
 import {ProcessShapeType} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../../../main/models/enums";
+import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError} from "../../../../../core/error/applicationError";
@@ -115,6 +115,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
 
         const subArtifact: IDiagramNode = this.selection[0];
+        
+        //Subartifact is selected and selective readonly is set
+        if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
+            return false;
+        }
 
         if (!subArtifact.model || subArtifact.model.id < 0) {
             return false;
@@ -146,6 +151,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
 
         if (this.selection && this.selection.length > 1) {
+            return false;
+        }
+
+        //artifact is selected and selective readonly is set
+        if (this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
             return false;
         }
 

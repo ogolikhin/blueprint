@@ -107,16 +107,28 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isReadonly(): boolean {
-        const statefulProcess: StatefulProcessArtifact = this.process as StatefulProcessArtifact;
+        const statefulProcess: IStatefulProcessArtifact = <IStatefulProcessArtifact>this.process;
 
+        if (statefulProcess) {
+            if (!(statefulProcess.artifactState)) {
+                return null;
+            } 
 
-        return statefulProcess.artifactState.readonly || statefulProcess.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts);
+            return statefulProcess.artifactState.readonly || 
+                    !!(statefulProcess.isReuseSettingSRO && statefulProcess.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts));
+        } 
+
+        return null;
     }
 
     public get isChanged(): boolean {
         const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
 
-        return statefulProcess.artifactState.dirty;
+        if (statefulProcess && statefulProcess.artifactState) {
+            return statefulProcess.artifactState.dirty;
+        }
+        
+        return null;
     }
 
     public get shapeLimit(): number {

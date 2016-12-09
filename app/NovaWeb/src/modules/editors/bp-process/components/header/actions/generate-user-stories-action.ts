@@ -117,8 +117,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         const subArtifact: IDiagramNode = this.selection[0];
         
         //Subartifact is selected and selective readonly is set
-        const statefulSubarifact = subArtifact.model as StatefulProcessSubArtifact; 
-        if (statefulSubarifact && statefulSubarifact.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
+        if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
             return false;
         }
 

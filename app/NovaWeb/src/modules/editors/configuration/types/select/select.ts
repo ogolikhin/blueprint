@@ -3,7 +3,7 @@ import {Enums, Models} from "../../../../main/models";
 import {BPFieldBaseController} from "../base-controller";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
-
+import {IPropertyDescriptor} from "../../property-descriptor-builder";
 export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldSelect";
     public extends: string = "select";
@@ -28,8 +28,7 @@ interface ISelectItem {
 
 export class BpFieldSelectController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "validationService"];
-
-    private isValidated: boolean;
+    private propertyDescriptor: IPropertyDescriptor; 
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
 
@@ -37,9 +36,10 @@ export class BpFieldSelectController extends BPFieldBaseController {
                      private localization: ILocalizationService,
                      private validationService: IValidationService) {
         super();
+        this.propertyDescriptor = $scope.options["data"]; 
 
-        this.isValidated = $scope.options["data"].isValidated;
-        this.allowsCustomValues = !this.isValidated && $scope.options["data"].lookup === Enums.PropertyLookupEnum.Custom;
+        
+        this.allowsCustomValues = !this.propertyDescriptor.isValidated;
         this.customValue = null;
 
         const to: AngularFormly.ITemplateOptions = {
@@ -55,12 +55,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
             requiredCustom: {
                 expression: ($viewValue, $modelValue, scope) => {
                     const isValid = validationService.selectValidation.hasValueIfRequired(
-                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
-                        $viewValue,
-                        $modelValue,
-                        this.isValidated,
-                        this.allowsCustomValues
-                    );
+                        this.propertyDescriptor.isRequired,
+                        $modelValue);
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
                     return true;

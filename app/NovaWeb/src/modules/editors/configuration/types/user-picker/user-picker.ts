@@ -75,7 +75,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.userPickerValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
-                        $viewValue, $modelValue);
+                        $modelValue);
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
                     return true;

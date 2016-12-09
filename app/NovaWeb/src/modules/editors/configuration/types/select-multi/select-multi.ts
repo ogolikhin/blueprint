@@ -34,12 +34,13 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
-
+    private propertyDescriptor: IPropertyDescriptor; 
     constructor(private $scope: AngularFormly.ITemplateScope,
                      private localization: ILocalizationService,
                      private $timeout: ng.ITimeoutService,
                      private validationService: IValidationService) {
         super();
+        this.propertyDescriptor = $scope.options["data"];
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -52,10 +53,9 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             // despite what the Formly doc says, "required" is not supported in ui-select, therefore we need our own implementation.
             // See: https://github.com/angular-ui/ui-select/issues/1226#event-604773506
             requiredCustom: {
-                expression: function ($viewValue, $modelValue, scope) {
+                expression: ($viewValue, $modelValue, scope) => {
                     const isValid = validationService.multiSelectValidation.hasValueIfRequired(
-                        ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
-                        $viewValue,
+                        this.propertyDescriptor.isRequired,
                         $modelValue);
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);

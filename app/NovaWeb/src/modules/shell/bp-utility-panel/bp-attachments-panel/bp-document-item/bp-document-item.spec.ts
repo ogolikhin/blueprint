@@ -8,17 +8,10 @@ import {LocalizationServiceMock} from "../../../../core/localization/localizatio
 import {IArtifactAttachmentsService} from "../../../../managers/artifact-manager";
 import {ArtifactAttachmentsMock} from "../../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-
 
 describe("Component BP Artifact Document Item", () => {
-    let directiveTest: ComponentTest<BPDocumentItemController>;
-    let template = `
-        <bp-document-item
-            doc-ref-info="document" delete-item="delete()">
-        </bp-document-item>
-    `;
+    const template = `<bp-document-item doc-ref-info="document" delete-item="delete()"></bp-document-item>`;
+    let component: ComponentTest<BPDocumentItemController>;
     let vm: BPDocumentItemController;
 
     beforeEach(angular.mock.module("app.shell"));
@@ -29,7 +22,7 @@ describe("Component BP Artifact Document Item", () => {
     }));
 
     beforeEach(inject(($window: ng.IWindowService) => {
-        let bindings: any = {
+        const bindings: any = {
             document: {
                 artifactName: "doc",
                 artifactId: 357,
@@ -42,15 +35,15 @@ describe("Component BP Artifact Document Item", () => {
             delete: () => $window.alert("Test Alert")
         };
 
-        directiveTest = new ComponentTest<BPDocumentItemController>(template, "bp-document-item");
-        vm = directiveTest.createComponent(bindings);
+        component = new ComponentTest<BPDocumentItemController>(template, "bp-document-item");
+        vm = component.createComponent(bindings);
     }));
 
     it("should be visible by default", () => {
         //Assert
-        expect(directiveTest.element.find(".author").length).toBe(1);
-        expect(directiveTest.element.find(".button-bar").length).toBe(1);
-        expect(directiveTest.element.find("h6").length).toBe(1);
+        expect(component.element.find(".author").length).toBe(1);
+        expect(component.element.find(".button-bar").length).toBe(1);
+        expect(component.element.find("h6").length).toBe(1);
     });
 
     it("should try to download a document which has an attachment",
@@ -138,16 +131,18 @@ describe("Component BP Artifact Document Item", () => {
         }));
 
     it("should navigate to document",
-        inject(($rootScope: ng.IRootScopeService,
-            navigationService: INavigationService) => {
+        inject(($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService, $timeout: ng.ITimeoutService) => {
 
-            //Arrange
-            const spy = spyOn(navigationService, "navigateTo");
+        //Arrange
+        const routerSpy = spyOn($state, "go");
 
-            //Act
-            vm.navigateToDocumentReference(5);
+        //Act
+        // vm.navigateToDocumentReference(5);
+        component.element.find("a").click();
+        $timeout.flush();
 
-            // Assert
-            expect(spy).toHaveBeenCalled();
-        }));
+        // Assert
+        expect(routerSpy).toHaveBeenCalled();
+        expect(routerSpy).toHaveBeenCalledWith("main.item", {id: 357}, jasmine.any(Object));
+    }));
 });

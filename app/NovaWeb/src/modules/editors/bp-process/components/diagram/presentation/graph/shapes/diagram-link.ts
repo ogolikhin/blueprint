@@ -138,13 +138,20 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
         if (startNode && 
             (startNode.getNodeType() === NodeType.SystemDecision || 
             startNode.getNodeType() === NodeType.UserTask)) {
-                const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-decision-neutral.svg", 16, 16), "Add Task/Decision");
-                graph.addCellOverlay(this, overlay);
+                this.addSystemDecisionOverlay(graph);
         } else {
-            const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
-            graph.addCellOverlay(this, overlay);
-        }
-        
+            this.addUserTaskAndDecisionOverlay(graph);
+        }               
+    }
+
+    private addSystemDecisionOverlay(graph: MxGraph): void {
+        const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-decision-neutral.svg", 16, 16), "Add Task/Decision");
+        graph.addCellOverlay(this, overlay);
+    }
+
+    private addUserTaskAndDecisionOverlay(graph: MxGraph): void {
+        const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
+        graph.addCellOverlay(this, overlay);
     }
 
     public getParentId(): number {

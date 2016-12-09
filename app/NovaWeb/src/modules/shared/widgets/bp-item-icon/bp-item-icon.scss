@@ -6,3 +6,7 @@
 .item-icon__image--fallback {
     position: absolute;
 }
+
+.item-icon__image--fallback ~ .item-icon__icon--fallback {
+    display: none;
+}

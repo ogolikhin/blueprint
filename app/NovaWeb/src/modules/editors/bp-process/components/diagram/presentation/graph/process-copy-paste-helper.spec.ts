@@ -1,3 +1,4 @@
+import {ICopyImageResult} from "./../../../../../../core/file-upload/models/models";
 import {ProcessGraph} from "./process-graph";
 import {IProcessGraph, IDiagramNode} from "./models/";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -13,7 +14,8 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {IClipboardService, ClipboardService, IClipboardData} from "../../../../services/clipboard.svc";
-import {IFileUploadService, FileUploadService} from "../../../../../../core/file-upload/fileUploadService";
+import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
+import {FileUploadServiceMock} from "./../../../../../../core/file-upload/file-upload.svc.mock";
 import {ILoadingOverlayService} from "../../../../../../core/loading-overlay/loading-overlay.svc";
 import {LoadingOverlayServiceMock} from "../../../../../../core/loading-overlay/loading-overlay.svc.mock";
 
@@ -34,7 +36,7 @@ describe("ProcessCopyPasteHelper tests", () => {
     let copyPasteHelper: ProcessCopyPasteHelper;
     let selectedNodes = [];
     let clipboard: IClipboardService;
-    let msgService: IMessageService;
+    let messageService: IMessageService;
     let $log: ng.ILogService;
     let fileUploadService: IFileUploadService;
     let $q: ng.IQService;
@@ -47,7 +49,7 @@ describe("ProcessCopyPasteHelper tests", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("fileUploadService", FileUploadService);
+        $provide.service("fileUploadService", FileUploadServiceMock);
         $provide.service("shapesFactory", ShapesFactory);
         $provide.service("clipboardService", ClipboardService);
         $provide.service("messageService", MessageServiceMock);
@@ -66,7 +68,7 @@ describe("ProcessCopyPasteHelper tests", () => {
                        _loadingOverlayService_: ILoadingOverlayService,
                        _fileUploadService_: IFileUploadService,
                        _clipboardService_: IClipboardService,
-                       messageService: IMessageService,
+                       _messageService_: IMessageService,
                        _shapesFactory_: ShapesFactory) => {
         $rootScope = _$rootScope_;
         timeout = $timeout;
@@ -79,10 +81,10 @@ describe("ProcessCopyPasteHelper tests", () => {
         document.body.appendChild(wrapper);
         statefulArtifactFactory = _statefulArtifactFactory_;
         shapesFactory = _shapesFactory_;
-        msgService = messageService;
+        messageService = _messageService_;
         $log = _$log_;
         $q = _$q_;
-        fileUploadService = fileUploadService;
+        fileUploadService = _fileUploadService_;
         loadingOverlayService = _loadingOverlayService_;
         clipboard = _clipboardService_;
 
@@ -114,9 +116,9 @@ describe("ProcessCopyPasteHelper tests", () => {
             clientModel = new ProcessGraphModel(process);
             viewModel = new ProcessViewModel(clientModel, communicationManager);
             graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService, 
-            localization, shapesFactory, msgService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
+            localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
             copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard, 
-            shapesFactory, msgService, $log, fileUploadService, $q, loadingOverlayService, localization);
+            shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
             graph.render(true, null);
             userTaskNode = graph.getNodeById(userTaskId);
             spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
@@ -130,6 +132,172 @@ describe("ProcessCopyPasteHelper tests", () => {
             expect(expectedModel.decisionBranchDestinationLinks.length).toEqual(0);
             expect(expectedModel.shapes.length).toEqual(2);
             expect(expectedModel.links.length).toEqual(2);
+        });
+    });
+    
+    describe("copy images tests", () => {
+        beforeEach(() => {
+            let userTaskNode;
+            let expectedModel: ProcessModels.IProcess;
+            process = TestModels.createDefaultProcessModel();
+            clientModel = new ProcessGraphModel(process);
+            viewModel = new ProcessViewModel(clientModel, communicationManager);
+            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService, 
+            localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
+            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard, 
+            shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+        });
+        
+
+        it("does not call filestore service when detects no system tasks with saved images", () => {
+            //Arrange
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+
+            spyOn(copyPasteHelper, "findUserDecisions");
+            spyOn(copyPasteHelper, "addUserDecisionsToBasenodes");
+            spyOn(copyPasteHelper, "addTasksAndDecisionsToClipboardData").and.callFake(
+                (data, baseNodes, decisionPointRefs) => {
+                    data.systemShapeImageIds = [];
+            });
+            spyOn(copyPasteHelper, "connectAllSubtrees");
+            spyOn(copyPasteHelper, "addBranchLinks");
+            spyOn(copyPasteHelper, "createProcessModel");
+            spyOn(copyPasteHelper, "isPastableAfterUserDecision");
+            const copySpy = spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();        
+            const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore");
+            
+            //Assert
+            copyPasteHelper.copySelectedShapes();
+
+            //Act
+            expect(copySpy).toHaveBeenCalled();
+            expect(fileStoreSpy).not.toHaveBeenCalled();
+        });
+        
+        it("calls filestore service when detects system tasks with saved images", () => {
+            //Arrange
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+            spyOn(copyPasteHelper, "findUserDecisions");
+            spyOn(copyPasteHelper, "addUserDecisionsToBasenodes");
+            spyOn(copyPasteHelper, "addTasksAndDecisionsToClipboardData").and.callFake(
+                (data, baseNodes, decisionPointRefs) => {
+                    data.systemShapeImageIds = [1];
+            });
+            spyOn(copyPasteHelper, "connectAllSubtrees");
+            spyOn(copyPasteHelper, "addBranchLinks");
+            spyOn(copyPasteHelper, "createProcessModel");
+            spyOn(copyPasteHelper, "isPastableAfterUserDecision");
+            const copySpy = spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();        
+            const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore");
+
+            //Act
+            copyPasteHelper.copySelectedShapes();
+
+            //Assert
+            expect(copySpy).toHaveBeenCalled();
+            expect(fileStoreSpy).toHaveBeenCalled();
+        });
+        
+        it("does not send to filestore when detects system tasks with only unsaved images", () => {
+            //Arrange
+            const userTaskId = 20;
+            const systemTaskId = 25;
+            const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
+            systemTaskShape.propertyValues[shapesFactory.AssociatedImageUrl.key].value = "a/b/c";
+            systemTaskShape.propertyValues[shapesFactory.ImageId.key].value = "some file guid";
+            graph.render(true, 20);
+            const userTaskNode = graph.getNodeById(userTaskId.toString());
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+
+                                        
+            spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();      
+
+            const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore");
+
+            //Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+
+            //Assert
+            expect(fileStoreSpy).not.toHaveBeenCalled();
+        });
+        
+        it("correctly detects system tasks with saved images", () => {
+            //Arrange
+            const userTaskId = 20;
+            const systemTaskId = 25;
+            const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
+            systemTaskShape.propertyValues[shapesFactory.AssociatedImageUrl.key].value = "a/b/c";
+            systemTaskShape.propertyValues[shapesFactory.ImageId.key].value = 1;
+            graph.render(true, 20);
+            const userTaskNode = graph.getNodeById(userTaskId.toString());
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+
+                                        
+            spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();      
+
+            const copyResult: ICopyImageResult = {
+                originalId: systemTaskId, newImageId: "some new guid", newImageUrl: "some/new/url"
+            };  
+            let detectedSystemTaskIds: number [] = [];
+            spyOn(fileUploadService, "copyArtifactImagesToFilestore")
+                .and.callFake((systemTaskIds, expirationDate) => {
+                    detectedSystemTaskIds = systemTaskIds;
+                    return $q.when([copyResult]);
+            });
+
+            //Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+
+            //Assert
+            expect(detectedSystemTaskIds.length).toBe(1);
+        });
+
+        it("sets clipboard data after sucessful filestore call", () => {
+            //Arrange
+            const userTaskId = 20;
+            const systemTaskId = 25;
+            const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
+            systemTaskShape.propertyValues[shapesFactory.AssociatedImageUrl.key].value = "a/b/c";
+            systemTaskShape.propertyValues[shapesFactory.ImageId.key].value = 1;
+            graph.render(true, 20);
+            const userTaskNode = graph.getNodeById(userTaskId.toString());
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+
+                                        
+            const copySpy = spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();      
+
+            const copyResult: ICopyImageResult = {
+                originalId: systemTaskId, newImageId: "some new guid", newImageUrl: "some/new/url"
+            };  
+
+            const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore")
+                .and.callFake((systemTaskIds, expirationDate) => {
+                    return $q.when([copyResult]);
+            });
+
+            //Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            const data  = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+
+            //Assert
+            expect(data).not.toBeNull();
+            const clipboardSystemTask = data.shapes.filter(a => a.id === systemTaskId)[0];
+            expect(clipboardSystemTask.propertyValues[shapesFactory.AssociatedImageUrl.key].value).toBe(copyResult.newImageUrl);
+            expect(clipboardSystemTask.propertyValues[shapesFactory.ImageId.key].value).toBe(copyResult.newImageId);
         });
     });
 }); 

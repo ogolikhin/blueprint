@@ -19,7 +19,7 @@ import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shap
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IArtifactManager} from "./../../../../managers/artifact-manager";
-import {FileUploadService} from "../../../../core/file-upload/file-upload.svc.mock";
+import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
 
 
 class ExecutionEnvironmentDetectorMock {
@@ -51,7 +51,7 @@ describe("ProcessDiagram Tests", () => {
         utilityPanelService: UtilityPanelService,
         shapesFactory: ShapesFactory,
         artifactManager: IArtifactManager,
-        fileUploadService: FileUploadService,
+        fileUploadService: FileUploadServiceMock,
         loadingOverlayService: ILoadingOverlayService;
 
     let container: HTMLElement,
@@ -73,7 +73,7 @@ describe("ProcessDiagram Tests", () => {
         $provide.service("shapesFactory", ShapesFactoryMock);
         $provide.service("clipboardService", ClipboardService);
         $provide.service("utilityPanelService", UtilityPanelService);
-        $provide.service("fileUploadService", FileUploadService);
+        $provide.service("fileUploadService", FileUploadServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
     }));
 
@@ -90,7 +90,7 @@ describe("ProcessDiagram Tests", () => {
                        _shapesFactory_: ShapesFactory,
                        _utilityPanelService_: UtilityPanelService,
                        _clipboardService_: ClipboardService,
-                       _fileUploadService_: FileUploadService,
+                       _fileUploadService_: FileUploadServiceMock,
                        _loadingOverlayService_: ILoadingOverlayService) => {
 
         $rootScope["config"] = {

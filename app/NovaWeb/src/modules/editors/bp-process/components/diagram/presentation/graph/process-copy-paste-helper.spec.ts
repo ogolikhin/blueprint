@@ -1,3 +1,4 @@
+import {ArtifactReference} from "./../../../../models/process-models";
 import {ICopyImageResult} from "./../../../../../../core/file-upload/models/models";
 import {ProcessGraph} from "./process-graph";
 import {IProcessGraph, IDiagramNode} from "./models/";
@@ -18,6 +19,7 @@ import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadS
 import {FileUploadServiceMock} from "./../../../../../../core/file-upload/file-upload.svc.mock";
 import {ILoadingOverlayService} from "../../../../../../core/loading-overlay/loading-overlay.svc";
 import {LoadingOverlayServiceMock} from "../../../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {IHttpError} from "./../../../../../../core/services/users-and-groups.svc";
 
 import * as ProcessModels from "../../../../models/process-models";
 import * as TestModels from "../../../../models/test-model-factory";
@@ -147,7 +149,7 @@ describe("ProcessCopyPasteHelper tests", () => {
             copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard, 
             shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
         });
-        
+
 
         it("does not call filestore service when detects no system tasks with saved images", () => {
             //Arrange
@@ -298,6 +300,81 @@ describe("ProcessCopyPasteHelper tests", () => {
             const clipboardSystemTask = data.shapes.filter(a => a.id === systemTaskId)[0];
             expect(clipboardSystemTask.propertyValues[shapesFactory.AssociatedImageUrl.key].value).toBe(copyResult.newImageUrl);
             expect(clipboardSystemTask.propertyValues[shapesFactory.ImageId.key].value).toBe(copyResult.newImageId);
+        });
+
+        it("sets clipboard data after failed filestore call", () => {
+             //Arrange
+            const userTaskId = 20;
+            const systemTaskId = 25;
+            const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
+            systemTaskShape.propertyValues[shapesFactory.AssociatedImageUrl.key].value = "a/b/c";
+            systemTaskShape.propertyValues[shapesFactory.ImageId.key].value = 1;
+            graph.render(true, 20);
+            const userTaskNode = graph.getNodeById(userTaskId.toString());
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+
+                                        
+            const copySpy = spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();      
+
+            const copyResult: ICopyImageResult = {
+                originalId: systemTaskId, newImageId: "some new guid", newImageUrl: "some/new/url"
+            };  
+
+            const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore")
+                .and.callFake((systemTaskIds, expirationDate) => {
+                    const error: IHttpError = {message: "ERROR", errorCode: 404, statusCode: null};
+                    return $q.reject(error);
+            });
+            //Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            const data  = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+
+            //Assert
+            expect(data).not.toBeNull();
+            const clipboardSystemTask = data.shapes.filter(a => a.id === systemTaskId)[0];
+            expect(clipboardSystemTask.propertyValues[shapesFactory.AssociatedImageUrl.key].value).toBeNull();
+            expect(clipboardSystemTask.propertyValues[shapesFactory.ImageId.key].value).toBeNull();
+        });
+        
+        it("adds error message to display to user after 404 filestore error", () => {
+             //Arrange
+            const userTaskId = 20;
+            const systemTaskId = 25;
+            const systemTaskShape = process.shapes.filter(a => a.id === systemTaskId)[0];
+            systemTaskShape.propertyValues[shapesFactory.AssociatedImageUrl.key].value = "a/b/c";
+            systemTaskShape.propertyValues[shapesFactory.ImageId.key].value = 1;
+            graph.render(true, 20);
+            const userTaskNode = graph.getNodeById(userTaskId.toString());
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+
+            const copyPasteHelper = new ProcessCopyPasteHelper
+                                        (graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+
+                                        
+            const copySpy = spyOn(copyPasteHelper, "copySystemTaskSavedImages").and.callThrough();      
+
+            const copyResult: ICopyImageResult = {
+                originalId: systemTaskId, newImageId: "some new guid", newImageUrl: "some/new/url"
+            };  
+            const serverError = "ERROR";
+            const fileStoreSpy = spyOn(fileUploadService, "copyArtifactImagesToFilestore")
+                .and.callFake((systemTaskIds, expirationDate) => {
+                    const error: IHttpError = {message: serverError, errorCode: 404, statusCode: null};
+                    return $q.reject(error);
+            });
+            const errorMessageSpy = spyOn(messageService, "addError");
+            const expectedErrorMessage = "Copy_Images_Failed" + " " + serverError;
+            //Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+
+            //Assert
+            expect(errorMessageSpy).toHaveBeenCalledTimes(1);
+            expect(errorMessageSpy).toHaveBeenCalledWith(expectedErrorMessage);
         });
     });
 }); 

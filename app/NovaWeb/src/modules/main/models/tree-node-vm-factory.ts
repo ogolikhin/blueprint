@@ -229,7 +229,13 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
 
     public getCellClass(): string[] {
         const result = super.getCellClass();
-        const typeName = Models.ItemTypePredefined[this.model.predefinedType];
+        let typeName: string;
+        if (this.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
+            this.model.itemTypeId === Models.ItemTypePredefined.Collections) {
+            typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
+        } else {
+            typeName = Models.ItemTypePredefined[this.model.predefinedType];
+        }
         if (typeName) {
             result.push("is-" + _.kebabCase(typeName));
         }

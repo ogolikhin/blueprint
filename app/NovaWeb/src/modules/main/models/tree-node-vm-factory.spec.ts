@@ -402,6 +402,23 @@ describe("TreeNodeVMFactory", () => {
             expect(result).toEqual(["has-children", "is-use-case"]);
         });
 
+        it("getCellClass, when a collection folder, returns correct result", () => {
+            // Arrange
+            const model = new StatefulArtifact({
+                id: 456,
+                predefinedType: Models.ItemTypePredefined.Collections,
+                itemTypeId: Models.ItemTypePredefined.CollectionFolder,
+                hasChildren: true
+            }, undefined);
+            const vm = factory.createArtifactNodeVM(project, model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["has-children", "is-collections"]);
+        });
+
         it("getCellClass, when invalid, returns correct result", () => {
             // Arrange
             const model = {

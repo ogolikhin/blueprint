@@ -317,6 +317,9 @@ export class ProcessCopyPasteHelper {
 
     private addBranchLinks(data: PreprocessorData, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.forOwn(decisionPointRefs, (node) => {
+
+            node.branches = _.sortBy(node.branches, (branch: any) => branch.orderindex);
+            
             if (!!node && node.branches.length > 1) {
                 for (let branch of node.branches) {
                     // add link
@@ -571,6 +574,8 @@ export class ProcessCopyPasteHelper {
                 }
             });
         }
+                
+        procModel.links = _.sortBy(procModel.links, (link: ProcessLinkModel) => link.sourceId * 100 + link.orderindex);
                 
         // set process decisionBranchDestinationLinks.
         _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {

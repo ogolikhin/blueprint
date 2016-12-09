@@ -63,6 +63,7 @@
     padding: 8px 19px;
     text-align: center;
     &[disabled],
+    &.active[disabled],
     &[disabled]:hover,
     &[disabled]:focus,
     &[disabled]:active,

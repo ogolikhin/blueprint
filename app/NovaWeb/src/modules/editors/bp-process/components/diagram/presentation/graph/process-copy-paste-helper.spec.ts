@@ -22,6 +22,7 @@ import {LoadingOverlayServiceMock} from "../../../../../../core/loading-overlay/
 import {IHttpError} from "./../../../../../../core/services/users-and-groups.svc";
 
 import * as ProcessModels from "../../../../models/process-models";
+import * as ProcessEnums from "../../../../models/enums";
 import * as TestModels from "../../../../models/test-model-factory";
 
 describe("ProcessCopyPasteHelper tests", () => {
@@ -137,6 +138,75 @@ describe("ProcessCopyPasteHelper tests", () => {
         });
     });
     
+    describe("insert shapes tests", () => {
+        it("clears out include if target process is same as include.", () => {
+            // Arrange
+            let userTaskId = "20";
+            let expectedModel: ProcessModels.IProcess;
+            process = TestModels.createDefaultProcessModel();
+
+            clientModel = new ProcessGraphModel(process);
+            viewModel = new ProcessViewModel(clientModel, communicationManager);
+            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService,
+                localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
+            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard,
+                shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+            graph.render(true, null);
+            const userTaskNode = graph.getNodeById(userTaskId);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            const include = new ArtifactReference();
+            include.id = viewModel.id;
+            userTaskNode.model.associatedArtifact = include;
+
+            // Act
+            const systemTaskId = 25;
+            const endId = 30;
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId], endId);
+            $rootScope.$digest();
+
+            // Assert
+            const newlyAddedUserTask = viewModel.shapes.filter(
+                a => a.id < 0 && a.propertyValues[shapesFactory.ClientType.key].value === ProcessEnums.ProcessShapeType.UserTask)[0];
+            expect(newlyAddedUserTask.associatedArtifact).toBeNull();
+        });
+        it("clears out story links for copied user tasks.", () => {
+            // Arrange
+            let userTaskId = "20";
+            let expectedModel: ProcessModels.IProcess;
+            process = TestModels.createDefaultProcessModel();
+
+            clientModel = new ProcessGraphModel(process);
+            viewModel = new ProcessViewModel(clientModel, communicationManager);
+            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService,
+                localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
+            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard,
+                shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+            graph.render(true, null);
+            const userTaskNode = graph.getNodeById(userTaskId);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            userTaskNode.model.propertyValues[shapesFactory.StoryLinks.key].value = 1;
+
+            // Act
+            const systemTaskId = 25;
+            const endId = 30;
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId], endId);
+            $rootScope.$digest();
+
+            // Assert
+            const newlyAddedUserTask = viewModel.shapes.filter(
+                a => a.id < 0 && a.propertyValues[shapesFactory.ClientType.key].value === ProcessEnums.ProcessShapeType.UserTask)[0];
+            expect(newlyAddedUserTask.propertyValues[shapesFactory.StoryLinks.key].value).toBeNull();
+        });
+    });
+
     describe("copy images tests", () => {
         beforeEach(() => {
             let userTaskNode;

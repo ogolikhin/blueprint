@@ -72,29 +72,30 @@ export class BPTooltip implements ng.IDirective {
                 let clientRect = elem.getBoundingClientRect();
                 let offsetWidth = _.round(clientRect.width);
                 let offsetHeight = _.round(clientRect.height);
-                let scrollWidth = elem.scrollWidth > offsetWidth ? elem.scrollWidth : offsetWidth;
-                let scrollHeight = elem.scrollHeight > offsetHeight ? elem.scrollHeight : offsetHeight;
+                let scrollWidth = _.max([elem.scrollWidth, offsetWidth]);
+                let scrollHeight = _.max([elem.scrollHeight, offsetHeight]);
 
                 if (offsetWidth < scrollWidth || offsetHeight < scrollHeight) {
                     return true;
-                } else {
-                    if (elem.childElementCount === 1 && elem.textContent.trim() === elem.firstElementChild.textContent.trim()) {
-                        const child = elem.firstElementChild as HTMLElement;
-                        const computedStyle = window.getComputedStyle(child);
-                        offsetWidth -= parseFloat(computedStyle.marginLeft) + parseFloat(computedStyle.marginRight);
-                        offsetHeight -= parseFloat(computedStyle.marginTop) + parseFloat(computedStyle.marginBottom);
-
-                        clientRect = child.getBoundingClientRect();
-                        // this allows to deal with inline elements, whose scrollWidth/Height is 0
-                        scrollWidth = child.scrollWidth > clientRect.width ? child.scrollWidth : _.round(clientRect.width);
-                        scrollHeight = child.scrollHeight > clientRect.height ? child.scrollHeight : _.round(clientRect.height);
-
-                        return offsetWidth < scrollWidth || offsetHeight < scrollHeight;
-                    } else {
-                        return false;
-                    }
                 }
+
+                if (elem.childElementCount === 1 && elem.textContent.trim() === elem.firstElementChild.textContent.trim()) {
+                    const child = elem.firstElementChild as HTMLElement;
+                    const computedStyle = window.getComputedStyle(child);
+                    offsetWidth -= parseFloat(computedStyle.marginLeft) + parseFloat(computedStyle.marginRight);
+                    offsetHeight -= parseFloat(computedStyle.marginTop) + parseFloat(computedStyle.marginBottom);
+
+                    clientRect = child.getBoundingClientRect();
+                    // this allows to deal with inline elements, whose scrollWidth/Height is 0
+                    scrollWidth = _.max([child.scrollWidth, _.round(clientRect.width)]);
+                    scrollHeight = _.max([child.scrollHeight, _.round(clientRect.height)]);
+
+                    return offsetWidth < scrollWidth || offsetHeight < scrollHeight;
+                }
+
+                return false;
             }
+
             return true;
         }
 

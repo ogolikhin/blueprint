@@ -68,18 +68,7 @@ export class QuickSearchService implements IQuickSearchService {
                 private analytics: IAnalyticsProvider) {
     }
 
-    private _searchTerm: string;
-
-    get searchTerm(): string{
-        return this._searchTerm;
-    }
-
-    set searchTerm(value: string){
-        if (value && value.length > 250) {
-            value = value.substring(0, 250);
-        }
-        this._searchTerm = value;
-    }
+    searchTerm: string;
 
     canSearch(): boolean {
         return !(this.projectManager.projectCollection.getValue().length > 0);

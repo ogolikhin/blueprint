@@ -639,8 +639,6 @@ export class ProcessGraph implements IProcessGraph {
                         && (targetNode.getNodeType() === NodeType.SystemTask || targetNode.getNodeType() === NodeType.SystemDecision)) {
                         if (value) {
                             (<DiagramLink>edge).showMenu(this.mxgraph);
-                        } else {
-                            (<DiagramLink>edge).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -660,8 +658,6 @@ export class ProcessGraph implements IProcessGraph {
                     if (cell.getNodeType() === NodeType.SystemDecision && !this.viewModel.isReadonly) {
                         if (value) {
                             (<SystemDecision>cell).showMenu(this.mxgraph);
-                        } else {
-                            (<SystemDecision>cell).hideMenu(this.mxgraph);
                         }
                     }
                 }

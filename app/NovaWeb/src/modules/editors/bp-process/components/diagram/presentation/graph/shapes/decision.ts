@@ -154,15 +154,11 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         this.setModelName(value, true);
     }
 
-    public hideMenu(mxGraph: MxGraph) {
-        mxGraph.removeCellOverlays(this);
-    }
-
     public showMenu(mxGraph: MxGraph) {
         // #TODO change URL for svg
         this.addOverlay(mxGraph,
             this,
-            "/novaweb/static/bp-process/images/add-neutral.svg",
+            "/novaweb/static/bp-process/images/add-decision-neutral.svg",
             this.MENU_SIZE,
             this.MENU_SIZE,
             null, // tooltip

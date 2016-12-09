@@ -420,6 +420,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         try {
             mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
+            mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
             mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
         } finally {
             mxGraph.getModel().endUpdate();
@@ -431,6 +432,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         try {
             mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
+            mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
             mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
         } finally {
             mxGraph.getModel().endUpdate();

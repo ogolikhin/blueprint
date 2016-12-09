@@ -21,7 +21,6 @@ import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadS
 import {HttpStatusCode} from "../../../../../../core/http/http-status-code";
 import {IUserTask, IDecision} from "./models/process-graph-interfaces";
 
-
 enum PreprocessorNodeType {
     UserTask,
     UserDecision,

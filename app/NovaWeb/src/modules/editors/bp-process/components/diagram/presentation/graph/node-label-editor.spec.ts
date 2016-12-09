@@ -1,16 +1,10 @@
 import * as angular from "angular";
+import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {NodeLabelEditor} from "./node-label-editor";
 import {Label, LabelStyle, LabelType, ILabel} from "./labels/label";
 import {Helper} from "../../../../../../shared/utils/helper";
 
-class ExecutionEnvironmentDetectorMock {
-    public getBrowserInfo(): any {
-        return {msie: false, firefox: false, version: 0};
-    }
-}
-
 describe("Node Label Editor test", () => {
-
     let w: any = window;
     w.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 

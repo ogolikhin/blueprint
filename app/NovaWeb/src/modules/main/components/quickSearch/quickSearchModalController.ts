@@ -2,7 +2,6 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
 export class QuickSearchModalController {
-    searchTerm: string;
     form: ng.IFormController;
     isLoading: boolean;
 
@@ -12,6 +11,18 @@ export class QuickSearchModalController {
     maxVisiblePageCount: number = 10;
 
     private page: number;
+    private _searchTerm: string;
+
+    get searchTerm(): string{
+        return this._searchTerm;
+    }
+
+    set searchTerm(value: string){
+        if (value && value.length > 250) {
+            value = value.substring(0, 250);
+        }
+        this._searchTerm = value;
+    }
 
     static $inject = [
         "$rootScope",

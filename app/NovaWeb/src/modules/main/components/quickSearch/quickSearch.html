@@ -16,7 +16,6 @@
                 ng-keydown="quickSearch.onKeyDown($event)"
                 required
                 ng-minlength="3"
-                ng-maxlength="250"
                 autocomplete="off"
                 placeholder="{{quickSearch.localization.get('Search_Placeholder')}}"
                 class="quick-serach__input"
@@ -34,7 +33,6 @@
              role="alert"
              ng-if="quickSearch.form.$submitted">
             <span ng-message="minlength">{{::$root.config.labels["Search_Validation_MinThreeChars"]}}</span>
-            <span ng-message="maxlength">{{::$root.config.labels["Search_Validation_MaxTwoFiftyChars"]}}</span>
         </div>
     </div>
 </form>

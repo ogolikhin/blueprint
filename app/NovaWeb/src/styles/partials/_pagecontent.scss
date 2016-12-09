@@ -186,7 +186,7 @@ pagecontent, bp-properties-panel {
             flex-grow: 0;
             flex-shrink: 0;
 
-            &::before {
+            &::before, .item-icon__icon::before {
                 color: $gray;
                 font-family: 'bp-line-icons';
                 font-size: 24px;

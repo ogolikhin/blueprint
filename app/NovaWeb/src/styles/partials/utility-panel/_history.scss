@@ -1,6 +1,21 @@
 bp-history-panel {
     $item-gap: $padding-bigger;
 
+    .history-item,
+    .history-item:hover,
+    .history-item:active,
+    .history-item:focus,
+    .history-item:visited {
+        color: $text-color;
+        text-decoration: none;
+        font-weight: normal;
+    }
+
+    .history-item--selected bp-artifact-history-item {
+        background: $gray-lightest;
+        border: 1px solid $brand-secondary;
+    }
+
     bp-artifact-history-item {
         &:hover {
             cursor: pointer;

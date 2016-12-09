@@ -428,9 +428,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.services.$q.reject(error);
         }).then((artifact: Models.IArtifact) => {
             this.discard();
-            return this.refresh().catch((error) => {
-                return this.services.$q.reject(error);
-            });
         });
     }
 

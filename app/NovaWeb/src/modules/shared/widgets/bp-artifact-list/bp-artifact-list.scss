@@ -7,6 +7,10 @@
     margin: 0;
     padding: 0;
 
+    .item-icon__fallback {
+        vertical-align: top;
+    }
+
     &__item {
         font-size: $font-size-small;
         list-style: none;

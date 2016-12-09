@@ -81,7 +81,6 @@ export interface IShapeInformation {
 }
 
 export interface IMenuContainer {
-    hideMenu(mxGraph: MxGraph);
     showMenu(mxGraph: MxGraph);
 }
 
@@ -173,7 +172,6 @@ export interface IDiagramLink extends IDiagramElement, IMenuContainer {
     label: string;
     sourceNode: IDiagramNode;
     targetNode: IDiagramNode;
-    hideMenu(mxGraph: MxGraph);
     showMenu(mxGraph: MxGraph);
     getParentId(): number;
 }
@@ -206,13 +204,10 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getNextNodes(): IDiagramNode[];
     // gets immediate precursor nodes
     getPreviousNodes(): IDiagramNode[];
-
     getDeleteDialogParameters(): IDialogParams;
-
     getLabelCell(): MxCell;
-
-    highlightShape(color?: string);
-    clearShapeHighlight();
+    highlight(mxGraph: MxGraph, color?: string): void;
+    clearHighlight(mxGraph: MxGraph): void;
 }
 
 export interface IDiagramElement extends MxCell {
@@ -223,9 +218,6 @@ export interface IDiagramElement extends MxCell {
     getHeight(): number;
     getWidth(): number;
     getCenter(): MxPoint;
-    getElementStyle(name: string);
-    getElementStyles();
-    setElementStyle(name: string, val: any);
 }
 
 export interface IDiagramNodeElement extends IDiagramElement {

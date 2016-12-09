@@ -9,7 +9,7 @@ namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
-    [Explicit(IgnoreReasons.ProductBug)]    // Bug: 179397
+    [Explicit(IgnoreReasons.ProductBug)]    // Bug: 753  Pasting the trademark character into the task title and generating a user story produces an exception, and user story is generated
     public class NonAsciiFilenames : TestBase
     {
         private const string ARABIC_CHARS = "غظضذخثتشرقصفعسنملكيطحزوهدجبا";

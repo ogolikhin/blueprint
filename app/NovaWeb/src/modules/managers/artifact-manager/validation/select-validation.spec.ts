@@ -22,16 +22,16 @@ describe("select validation tests - ", () => {
 
             it("returns true when it does not need to be validated", () => {
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(null, null, null, false);
+                const result = validationService.selectValidation.hasValueIfRequired(null, null);
 
                 // assert
                 expect(result).toBe(true);
             });
 
             it("returns true when required and values are valid", () => {
-                const value = "test";
+                const value = {customValue: "test"};
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, true);
+                const result = validationService.selectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(true);
@@ -39,7 +39,7 @@ describe("select validation tests - ", () => {
             it("returns false when required and values are null", () => {
                 const value = null;
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, true);
+                const result = validationService.selectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(false);
@@ -48,7 +48,7 @@ describe("select validation tests - ", () => {
             it("returns true when required and CUSTOM values are valid", () => {
                 const value = {"customValue": "test"};
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, false, true);
+                const result = validationService.selectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(true);
@@ -56,7 +56,7 @@ describe("select validation tests - ", () => {
             it("returns false when required and CUSTOM values are null", () => {
                 const value = null;
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, false, true);
+                const result = validationService.selectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(false);
@@ -72,16 +72,16 @@ describe("select validation tests - ", () => {
 
             it("returns true when it does not need to be validated", () => {
                 // act
-                const result = validationService.multiSelectValidation.hasValueIfRequired(null, null, null, false);
+                const result = validationService.multiSelectValidation.hasValueIfRequired(null, null);
 
                 // assert
                 expect(result).toBe(true);
             });
 
             it("returns true when required and values are valid", () => {
-                const value = ["test"];
+                const value = [12];
                 // act
-                const result = validationService.selectValidation.hasValueIfRequired(true, value, value, true);
+                const result = validationService.multiSelectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(true);
@@ -90,7 +90,7 @@ describe("select validation tests - ", () => {
             it("returns false when required and value is empty", () => {
                 const value = [];
                 // act
-                const result = validationService.multiSelectValidation.hasValueIfRequired(true, value, value, true);
+                const result = validationService.multiSelectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(false);
@@ -99,7 +99,7 @@ describe("select validation tests - ", () => {
             it("returns false when required and values are null", () => {
                 const value = null;
                 // act
-                const result = validationService.multiSelectValidation.hasValueIfRequired(true, value, value, true);
+                const result = validationService.multiSelectValidation.hasValueIfRequired(true, value);
 
                 // assert
                 expect(result).toBe(false);

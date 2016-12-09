@@ -1,18 +1,12 @@
 export interface IBaseValidation  {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any, isValidated?: boolean, itAllowsCustomValues?: boolean);
+    hasValueIfRequired(isRequired: boolean, value: any);
 }
 
 export class BaseValidation implements IBaseValidation {
-    public hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any,
-                              isValidated: boolean = true, itAllowsCustomValues: boolean = false) {
-        if (!isValidated) {
-            return true;
-        }
-
+    public hasValueIfRequired(isRequired: boolean, value: any) {
         if (isRequired) {
-            return !!newValue || !!oldValue;
-        } else {
-            return true;
+            return !!value;
         }
+        return true;
     }
 }

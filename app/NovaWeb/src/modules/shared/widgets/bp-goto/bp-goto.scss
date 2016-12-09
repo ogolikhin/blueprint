@@ -4,13 +4,14 @@
 
 .bp-goto {
     &__search {
+        transition: opacity 0.5s ease-out;
         position: absolute;
         opacity: 0;
         display: inline-block;
     }
 
     &__input {
-        transition: width 0.3s ease-out;
+        transition: width 0.5s ease-out;
         background: none;
         height: 40px;
         width: 50px;
@@ -71,6 +72,10 @@
     &__button-icon::before {
         font-size: 22px !important;
     }
+
+    &__button-icon {
+        transition: all 0.3s ease-out;
+    }
 }
 
 .bp-goto--active {
@@ -83,8 +88,6 @@
     }
 
     .bp-goto__button {
-        cursor: default;
-        pointer-events: none;
         width: initial;
         height: inherit;
         text-align: left;

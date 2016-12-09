@@ -9,8 +9,6 @@ import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-
 import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
-
-    
     direction: Direction;
     model: T;
     protected dialogManager: IModalDialogCommunication;
@@ -298,11 +296,11 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return false;
     }
 
-    public highlightShape(color?: string) {
+    public highlight(mxGraph: MxGraph, color?: string) {
         // override in descendant shape classes 
     }
     
-    public clearShapeHighlight() {
+    public clearHighlight(mxGraph: MxGraph) {
         // override in descendant shape classes 
     }
 }

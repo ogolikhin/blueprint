@@ -16,18 +16,13 @@ export class SystemDecision extends Decision {
     }
 
     protected get HIGHLIGHT_BORDER_COLOR(): string {
-        return "#FF0000";
+        return "#53BBED";
     }
 
     public showMenu(mxGraph: MxGraph) {
         super.showMenu(mxGraph);
 
         this.detailsButton.setVisible(true);
-    }
-
-    public hideMenu(mxGraph: MxGraph) {
-        super.hideMenu(mxGraph);
-        this.detailsButton.setVisible(false);
     }
 
     public getDeleteDialogParameters(): IDialogParams {

@@ -4,6 +4,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Common;
 using TestCommon;
 using Utilities;
 
@@ -39,7 +40,7 @@ namespace AdminStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase()]
+        [TestCase]
         [TestRail(191082)]
         [Description("Get Project Navigation Path for project, user with Viewer access, verify that path has expected value.")]
         public void GetProjectNavigation_ValidProject_ReturnsExpectedPath()
@@ -57,7 +58,7 @@ namespace AdminStoreTests
             Assert.AreEqual(_firstProject.Name, path[1]);
         }
 
-        [TestCase()]
+        [TestCase]
         [TestRail(191083)]
         [Description("Get Project Navigation Path for project, user with Viewer access, IncludeProjectItself is false, verify that path has expected value (doesn't contain project's name).")]
         public void GetProjectNavigation_ValidProjectIncludeProjectItselfFalse_ReturnsExpectedPath()
@@ -73,7 +74,7 @@ namespace AdminStoreTests
             Assert.AreEqual(ROOT_FOLDER_NAME, path[0]);
         }
 
-        [TestCase()]
+        [TestCase]
         [TestRail(191084)]
         [Description("Get Project Navigation Path for project, user with Admin access, verify that path has expected value.")]
         public void GetProjectNavigation_AdminUser_ReturnsExpectedPath()
@@ -90,34 +91,30 @@ namespace AdminStoreTests
             Assert.AreEqual(_secondProject.Name, path[1]);
         }
 
-        [TestCase()]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/tLKXXT65 now call returns 200 with empty body when user has no access
+        [TestCase]
         [TestRail(191085)]
-        [Description("Get Project Navigation Path for project, user no access, verify that it returns 404.")]
-        public void GetProjectNavigation_UserHasNoProjectAccess_Returns404()
+        [Description("Get Project Navigation Path for project, user no access, verify that it returns 403 Forbidden.")]
+        public void GetProjectNavigation_UserHasNoProjectAccess_403Forbidden()
         {
-            // Setup:
-
-            // Execute:
-            Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetProjectNavigationPath(_secondProject.Id, _viewerUser),
-                                "GetNavigationPath should throw 404 error when user has no access to the project.");
-
-            // Verify:
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+                Helper.AdminStore.GetProjectNavigationPath(_secondProject.Id, _viewerUser),
+                "GetNavigationPath should return 403 Forbidden when user has no access to the project.");
         }
 
-        [TestCase()]
-        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/tLKXXT65 now call returns 200 with empty body when user has no access
+        [TestCase(int.MaxValue)]
         [TestRail(191086)]
-        [Description("Get Project Navigation Path for non-existing project id, verify that it returns 404.")]
-        public void GetProjectNavigation_ProjectDoesNotExist_Returns404()
+        [Description("Get Project Navigation Path for non-existing project id, verify that it return 404 Not Found.")]
+        public void GetProjectNavigation_ProjectDoesNotExist_404NotFound(int projectId)
         {
-            // Setup:
-
             // Execute:
-            Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetProjectNavigationPath(int.MaxValue, _viewerUser),
-                                "GetNavigationPath should throw 404 error when user has no access to the project.");
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                Helper.AdminStore.GetProjectNavigationPath(projectId, _viewerUser),
+                "GetNavigationPath should return 404 Not Found when passed a non-existent project Id.");
 
             // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+                I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", projectId));
         }
     }
 }

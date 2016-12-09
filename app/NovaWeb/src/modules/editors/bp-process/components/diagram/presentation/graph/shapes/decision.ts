@@ -62,7 +62,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             this.DECISION_WIDTH,
             this.DECISION_HEIGHT,
             "shape=rhombus;strokeColor=" + this.DEFAULT_BORDER_COLOR + ";fillColor=" + fillColor +
-            ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;"
+            ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;dashed=0"
         );
 
 
@@ -134,30 +134,31 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         return this;
     }
 
-    public highlightShape(color: string = undefined) {
+    public highlight(mxGraph: MxGraph, color?: string) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
-        this.setElementStyle("strokeColor", color);
+
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this]);
     }
 
-    public clearShapeHighlight() {
-        this.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
+    public clearHighlight(mxGraph: MxGraph) {
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this]);
     }
 
     public setLabelWithRedrawUi(value: string) {
         this.setModelName(value, true);
     }
 
-    public hideMenu(mxGraph: MxGraph) {
-        mxGraph.removeCellOverlays(this);
-    }
-
     public showMenu(mxGraph: MxGraph) {
         // #TODO change URL for svg
         this.addOverlay(mxGraph,
             this,
-            "/novaweb/static/bp-process/images/add-neutral.svg",
+            "/novaweb/static/bp-process/images/add-decision-neutral.svg",
             this.MENU_SIZE,
             this.MENU_SIZE,
             null, // tooltip

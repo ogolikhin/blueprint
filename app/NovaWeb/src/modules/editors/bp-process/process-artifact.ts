@@ -1,4 +1,5 @@
 import {Models} from "../../main/models";
+import {ReuseSettings} from "../../main/models/enums";
 import {Message, MessageType} from "../../core/messages/message";
 import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
 import {IHashMapOfPropertyValues, IVersionInfo, ItemTypePredefined} from "./models/process-models";
@@ -55,7 +56,13 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     }
 
     protected getCustomArtifactPromiseForSave(): angular.IPromise<IStatefulArtifact> {
-        let saveProcessPromise = this.saveProcess();
+        let saveProcessPromise;
+        if (this.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
+            return this.services.$q.when(this);
+        }
+        else {
+            saveProcessPromise = this.saveProcess();
+        }
         return saveProcessPromise;
     }
 

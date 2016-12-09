@@ -24,7 +24,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private ORIGIN_DIAMETER = 8;
 
     private DEFAULT_BORDER_COLOR: string = "#53BBED";
-    private HIGHLIGHT_BORDER_COLOR: string = "#FF0000"; 
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
 
     private origin: DiagramNodeElement;
     private header: DiagramNodeElement;
@@ -66,8 +66,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         //initialize call-out
         const calloutGeometry = new mxGeometry(0, 0, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT);
         this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry,
-            "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans," +
-            " sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
+            "shape=systemTask;strokeColor=#53BBED;strokeWidth=1;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans," +
+            " sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0;dashed=0");
         this.callout.setVertex(true);
 
         //initialize header
@@ -417,15 +417,20 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.personaLabel.setVisible(value);
     }
 
-    public highlightShape(color: string = undefined) {
+    public highlight(mxGraph: MxGraph, color?: string) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;
         }
-        this.callout.setElementStyle("strokeColor", color);
+
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this.callout]);
     }
 
-     public clearShapeHighlight() {
-         this.callout.setElementStyle("strokeColor", this.DEFAULT_BORDER_COLOR);
+    public clearHighlight(mxGraph: MxGraph) {
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this.callout]);
     }
 
     private navigateToProcess() {

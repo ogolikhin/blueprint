@@ -29,7 +29,8 @@
                 <div>
                     <h6 bp-tooltip="{{$ctrl.relationship.itemTypePrefix}}{{$ctrl.relationship.itemId}} - {{$ctrl.relationship.itemName ? $ctrl.relationship.itemName : $ctrl.relationship.itemLabel }}"
                         bp-tooltip-truncated="true">
-                        <a ng-click="$ctrl.navigateToArtifact($ctrl.relationship.itemId)">
+
+                        <a ui-sref="main.item({id: $ctrl.relationship.itemId})" ui-sref-opts="{inherit: false}">
                             <i class="icon-textual"></i>
                             {{$ctrl.relationship.itemTypePrefix}}{{$ctrl.relationship.itemId}} -
                             {{$ctrl.relationship.itemName ? $ctrl.relationship.itemName : $ctrl.relationship.itemLabel}}
@@ -51,7 +52,7 @@
                     <div ng-if="!$ctrl.fromOtherProject" class="left-arrow"></div>
                     <ul class="wrappable-breadcrumbs">
                         <li ng-repeat="pathLink in $ctrl.relationshipExtendedInfo.pathToProject track by pathLink.itemId">
-                            <a ng-click="$ctrl.navigateToArtifact(pathLink.itemId)">{{::pathLink.name}}</a>
+                            <a ui-sref="main.item({id: pathLink.itemId})" ui-sref-opts="{inherit: false}">{{::pathLink.name}}</a>
                         </li>
                     </ul>
 

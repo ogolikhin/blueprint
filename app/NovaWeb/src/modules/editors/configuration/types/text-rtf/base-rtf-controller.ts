@@ -142,7 +142,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected handleValidation = (content: string) => {
         const $scope = this.$scope;
         $scope["$applyAsync"](() => {
-            const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, content, content);
+            const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, content);
             const formControl = $scope.fc as ng.IFormController;
             if (formControl) {
                 formControl.$setValidity("requiredCustom", isValid, formControl);

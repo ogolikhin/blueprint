@@ -135,8 +135,12 @@ export class ProcessCopyPasteHelper {
         }
         
         const  data: PreprocessorData = new PreprocessorData();
-        // baseNodes is a collection of the nodes which goes into clipboard process data
-        let  baseNodes = this.processGraph.getSelectedNodes();
+        
+        // Currently baseNodes are the selected/highlighted UserTasks only. 
+        // Later algorithm will be simplified to use all selected/highlighted nodes.
+        let  baseNodes = _.filter(this.processGraph.getCopyNodes(), (node) => { 
+            return node instanceof UserTask; 
+        });
 
         try {
             // 1. Find all User Decisions
@@ -313,6 +317,9 @@ export class ProcessCopyPasteHelper {
 
     private addBranchLinks(data: PreprocessorData, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.forOwn(decisionPointRefs, (node) => {
+
+            node.branches = _.sortBy(node.branches, (branch: any) => branch.orderindex);
+            
             if (!!node && node.branches.length > 1) {
                 for (let branch of node.branches) {
                     // add link
@@ -568,6 +575,8 @@ export class ProcessCopyPasteHelper {
             });
         }
                 
+        procModel.links = _.sortBy(procModel.links, (link: ProcessLinkModel) => link.sourceId * 100 + link.orderindex);
+                
         // set process decisionBranchDestinationLinks.
         _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {
             if (!!node && node.branches.length > 1) {
@@ -632,7 +641,9 @@ export class ProcessCopyPasteHelper {
             shape.id = newId;
             shape.propertyValues[this.shapesFactoryService.X.key].value = -1;
             shape.propertyValues[this.shapesFactoryService.Y.key].value = -1;
-            shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            if (shape.propertyValues[this.shapesFactoryService.StoryLinks.key]) {
+                shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            }
             shape.projectId = this.layout.viewModel.projectId;
             shape.parentId = this.layout.viewModel.id;
             if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {

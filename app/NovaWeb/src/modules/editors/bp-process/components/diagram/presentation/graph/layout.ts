@@ -485,18 +485,18 @@ export class Layout implements ILayout {
         return state;
     }
 
-    private hasOverlay(sourceNode: IDiagramNode, targetNode: IDiagramNode): boolean {
-        if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
-            if ((sourceNode.getNodeType() === NodeType.UserTask && targetNode.getNodeType() === NodeType.SystemTask) 
-                //||
-                // (sourceNode.getNodeType() === NodeType.SystemDecision) ||
-                // (targetNode.getNodeType() === NodeType.SystemDecision)
-                ) {
-                return false;
-            }
-        }
-        return true;
-    }
+    // private hasOverlay(sourceNode: IDiagramNode, targetNode: IDiagramNode): boolean {
+    //     if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
+    //         if (sourceNode.getNodeType() === NodeType.UserTask // && targetNode.getNodeType() === NodeType.SystemTask) 
+    //             //||
+    //             // (sourceNode.getNodeType() === NodeType.SystemDecision) ||
+    //             // (targetNode.getNodeType() === NodeType.SystemDecision)
+    //             ) {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     private postRender(id: number) {
         this.selectNode(this.getNodeById(id.toString()));
@@ -508,7 +508,9 @@ export class Layout implements ILayout {
 
         if (sourceNode !== null && targetNode !== null) {
             let edgeGeo = new EdgeGeo();
-            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode, this.hasOverlay(sourceNode, targetNode), link.label, null);
+            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode, 
+                                            true, //this.hasOverlay(sourceNode, targetNode), 
+                                            link.label, null);
             this.edgesGeo.push(edgeGeo);
         }
 

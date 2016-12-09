@@ -108,9 +108,9 @@ export class Layout implements ILayout {
                         if (node.getNodeType() === NodeType.SystemTask) {
                             (<SystemTask>node).setCellVisible(this.mxgraph, false);
                         }
-                        if (node.getNodeType() === NodeType.SystemDecision) {
-                            (<SystemDecision>node).hideMenu(this.mxgraph);
-                        }
+                        // if (node.getNodeType() === NodeType.SystemDecision) {
+                        //     (<SystemDecision>node).hideMenu(this.mxgraph);
+                        // }
                     }
                 }
             }
@@ -487,9 +487,11 @@ export class Layout implements ILayout {
 
     private hasOverlay(sourceNode: IDiagramNode, targetNode: IDiagramNode): boolean {
         if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
-            if ((sourceNode.getNodeType() === NodeType.UserTask && targetNode.getNodeType() === NodeType.SystemTask) ||
-                (sourceNode.getNodeType() === NodeType.SystemDecision) ||
-                (targetNode.getNodeType() === NodeType.SystemDecision)) {
+            if ((sourceNode.getNodeType() === NodeType.UserTask && targetNode.getNodeType() === NodeType.SystemTask) 
+                //||
+                // (sourceNode.getNodeType() === NodeType.SystemDecision) ||
+                // (targetNode.getNodeType() === NodeType.SystemDecision)
+                ) {
                 return false;
             }
         }

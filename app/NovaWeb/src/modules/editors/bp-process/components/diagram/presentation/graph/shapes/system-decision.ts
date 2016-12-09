@@ -26,8 +26,8 @@ export class SystemDecision extends Decision {
     }
 
     public hideMenu(mxGraph: MxGraph) {
-        super.hideMenu(mxGraph);
-        this.detailsButton.setVisible(false);
+        // super.hideMenu(mxGraph);
+        // this.detailsButton.setVisible(false);
     }
 
     public getDeleteDialogParameters(): IDialogParams {

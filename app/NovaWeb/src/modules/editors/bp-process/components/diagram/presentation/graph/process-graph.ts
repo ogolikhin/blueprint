@@ -640,7 +640,7 @@ export class ProcessGraph implements IProcessGraph {
                         if (value) {
                             (<DiagramLink>edge).showMenu(this.mxgraph);
                         } else {
-                            (<DiagramLink>edge).hideMenu(this.mxgraph);
+                            //(<DiagramLink>edge).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -660,9 +660,10 @@ export class ProcessGraph implements IProcessGraph {
                     if (cell.getNodeType() === NodeType.SystemDecision && !this.viewModel.isReadonly) {
                         if (value) {
                             (<SystemDecision>cell).showMenu(this.mxgraph);
-                        } else {
-                            (<SystemDecision>cell).hideMenu(this.mxgraph);
-                        }
+                        } 
+                        // else {
+                        //     (<SystemDecision>cell).hideMenu(this.mxgraph);
+                        // }
                     }
                 }
             }

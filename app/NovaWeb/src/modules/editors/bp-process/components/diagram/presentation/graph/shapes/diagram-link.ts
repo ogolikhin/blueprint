@@ -134,13 +134,22 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     }
 
     public hideMenu(graph: MxGraph) {
-        graph.removeCellOverlays(this);
+        //graph.removeCellOverlays(this);
     }
 
     public showMenu(graph: MxGraph) {
         this.geometry.offset = new mxPoint(0, 30);
-        const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
-        graph.addCellOverlay(this, overlay);
+        const startNode = this.sourceNode;
+        if (startNode && 
+            (startNode.getNodeType() === NodeType.SystemDecision || 
+            startNode.getNodeType() === NodeType.UserTask)) {
+                const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-decision-hover.svg", 16, 16), "Add Task/Decision");
+                graph.addCellOverlay(this, overlay);
+        } else {
+            const overlay = new ConnectorOverlay(new mxImage("/novaweb/static/bp-process/images/add-neutral.svg", 16, 16), "Add Task/Decision");
+            graph.addCellOverlay(this, overlay);
+        }
+        
     }
 
     public getParentId(): number {

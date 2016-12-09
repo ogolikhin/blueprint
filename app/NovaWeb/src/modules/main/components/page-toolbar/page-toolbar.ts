@@ -258,19 +258,23 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
-    public refreshAll = (evt: ng.IAngularEvent) => {
+    public refreshAll = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
         }
-
-        if (!this.isProjectOpened) {
-            return;
+        let promise: ng.IPromise<any>;
+        let artifact: IStatefulArtifact;
+        if (this.isProjectOpened) {
+            promise = this.projectManager.refreshAll();    
+        } else if (artifact = this.artifactManager.selection.getArtifact()) {
+            promise = artifact.refresh();
         }
-
-        let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
-        this.projectManager.refreshAll().finally(() => {
-            this.loadingOverlayService.endLoading(refreshAllLoadingId);
-        });
+        if (promise) {
+            let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
+            promise.finally(() => {
+                this.loadingOverlayService.endLoading(refreshAllLoadingId);
+            });
+        }
     };
     public openTour = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -409,13 +413,7 @@ export class PageToolbarController implements IPageToolbarController {
                 if (statefulArtifact) {
                     statefulArtifact.discard();
                 }
-
-                if (this.projectManager.projectCollection.getValue().length > 0) {
-                    //refresh all after discard all finishes
-                    this.projectManager.refreshAll();
-                } else {
-                    statefulArtifact.refresh();
-                }
+                this.refreshAll();
 
                 this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })

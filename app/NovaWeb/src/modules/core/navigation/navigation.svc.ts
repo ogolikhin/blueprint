@@ -4,7 +4,8 @@ export interface INavigationService {
     getNavigationState(): INavigationState;
     navigateToMain(redirect?: boolean): ng.IPromise<any>;
     navigateTo(params: INavigationParams): ng.IPromise<any>;
-    navigateBack(pathIndex?: number): ng.IPromise<any>;
+    // navigateBack(pathIndex?: number): ng.IPromise<any>;
+    getNavigateBackRouterPath(pathIndex?: number): string[];
     reloadParentState();
     reloadCurrentState();
     navigateToLogout(): ng.IPromise<any>;
@@ -99,26 +100,19 @@ export class NavigationService implements INavigationService {
         return this.navigateToArtifactInternal(routerParams, stateOptions);
     }
 
-    private getNavigationPathItems(path: string): INavigationPathItem[] {
-        const pathItems: INavigationPathItem[] = [];
-
+    private getNavigationPathItems(path: string[]): INavigationPathItem[] {
         if (!path) {
-            return pathItems;
+            return [];
         }
 
-        const items: string[] = path.split(this.pathItemDelimiter);
-
-        for (let i = 0; i < items.length; i++) {
-            const item: string = items[i];
+        return path.map(item => {
             const pair: string[] = item.split(this.pathVersionDelimiter);
 
-            pathItems.push(<INavigationPathItem>{
+            return <INavigationPathItem>{
                 id: parseInt(pair[0], 10),
                 version: pair.length > 1 ? parseInt(pair[1], 10) : undefined
-            });
-        }
-
-        return pathItems;
+            };
+        });
     }
 
     private getPathItemString(id: number, version?: number): string {
@@ -159,38 +153,52 @@ export class NavigationService implements INavigationService {
         return parameters;
     }
 
-    public navigateBack(pathIndex?: number): ng.IPromise<any> {
-        const deferred: ng.IDeferred<any> = this.$q.defer();
+    // public navigateBack(pathIndex?: number): ng.IPromise<any> {
+    //     const deferred: ng.IDeferred<any> = this.$q.defer();
+    //     const path: INavigationPathItem[] = this.getNavigationState().path;
+    //     const validationError: Error = this.validateBackNavigation(path, pathIndex);
+    //
+    //     if (!!validationError) {
+    //         deferred.reject(validationError);
+    //         return deferred.promise;
+    //     }
+    //
+    //     const parameters = this.createNavigateBackRouterParams(path, pathIndex);
+    //     return this.navigateToArtifactInternal(parameters);
+    // }
+    //
+    // private createNavigateBackRouterParams(path: INavigationPathItem[], pathIndex?: number): any {
+    //     if (pathIndex == null) {
+    //         // if path index is not defined set it to the index of the last element in navigation path
+    //         pathIndex = path.length - 1;
+    //     }
+    //
+    //     const parameters = {
+    //         id: path[pathIndex].id,
+    //         version: path[pathIndex].version
+    //     };
+    //
+    //     const newPath = this.getPathString(path.slice(0, pathIndex));
+    //
+    //     if (newPath) {
+    //         parameters["path"] = newPath;
+    //     }
+    //
+    //     return parameters;
+    // }
+
+    public getNavigateBackRouterPath(pathIndex?: number): string[] {
         const path: INavigationPathItem[] = this.getNavigationState().path;
-        const validationError: Error = this.validateBackNavigation(path, pathIndex);
 
-        if (!!validationError) {
-            deferred.reject(validationError);
-            return deferred.promise;
+        if (path && path.length > 0) {
+            if (pathIndex == null) {
+                // if path index is not defined set it to the index of the last element in navigation path
+                pathIndex = path.length - 1;
+            }
+
+            const newPath = path.slice(0, pathIndex).map(item => this.getPathItemString(item.id, item.version));
+            return newPath.length ? newPath : undefined;
         }
-
-        const parameters = this.createNavigateBackRouterParams(path, pathIndex);
-        return this.navigateToArtifactInternal(parameters);
-    }
-
-    private createNavigateBackRouterParams(path: INavigationPathItem[], pathIndex?: number): any {
-        if (pathIndex == null) {
-            // if path index is not defined set it to the index of the last element in navigation path
-            pathIndex = path.length - 1;
-        }
-
-        const parameters = {
-            id: path[pathIndex].id,
-            version: path[pathIndex].version
-        };
-
-        const newPath = this.getPathString(path.slice(0, pathIndex));
-
-        if (newPath) {
-            parameters["path"] = newPath;
-        }
-
-        return parameters;
     }
 
     private navigateToArtifactInternal(parameters: any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {
@@ -202,7 +210,7 @@ export class NavigationService implements INavigationService {
     }
 
     private isTheSameRoute(params: INavigationParams, state: INavigationState): boolean {
-        return params.id === state.id && 
+        return params.id === state.id &&
                params.version === state.version &&
                (!state.path || state.path.length === 0);
     }

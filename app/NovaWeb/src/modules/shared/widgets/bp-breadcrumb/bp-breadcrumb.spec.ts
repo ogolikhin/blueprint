@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-ui-router";
 import ".";
 import {BPBreadcrumbController} from "./bp-breadcrumb";
-import {IBreadcrumbLink} from "./breadcrumb-link";
+import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 
 describe("BPBreadcrumbComponent", () => {
     let $compile: ng.ICompileService;
@@ -11,6 +11,10 @@ describe("BPBreadcrumbComponent", () => {
 
     beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("bp.widgets.breadcrumb"));
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("navigationService", NavigationServiceMock);
+    }));
 
     beforeEach(inject((_$compile_: ng.ICompileService, _$rootScope_: ng.IRootScopeService) => {
         $compile = _$compile_;
@@ -78,6 +82,6 @@ describe("BPBreadcrumbComponent", () => {
 
         // assert
         expect(stateSpy).toHaveBeenCalled();
-        expect(stateSpy).toHaveBeenCalledWith("main.item", {id: 0}, jasmine.any(Object));
+        expect(stateSpy).toHaveBeenCalledWith("main.item", {id: 0, version: undefined, path: undefined}, jasmine.any(Object));
     }));
 });

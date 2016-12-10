@@ -41,10 +41,14 @@ export class NavigationServiceMock implements INavigationService {
         return deferred.promise;
     }
 
-    public navigateBack(pathIndex: number): ng.IPromise<any> {
-        const deferred = this.$q.defer();
-        deferred.resolve();
+    // public navigateBack(pathIndex: number): ng.IPromise<any> {
+    //     const deferred = this.$q.defer();
+    //     deferred.resolve();
+    //
+    //     return deferred.promise;
+    // }
 
-        return deferred.promise;
+    public getNavigateBackRouterPath(pathIndex?: number): string[] {
+        return;
     }
 }

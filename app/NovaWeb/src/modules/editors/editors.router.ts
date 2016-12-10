@@ -23,10 +23,14 @@ export class ArtifactRoutes {
                 }
             })
             .state("main.item", <ng.ui.IState>{
-                url: "/{id:int}?{version:int}&{path:string}",
+                url: "/{id:int}?{version:int}&{path:navpath}",
                 template: "<div ui-view class='artifact-state'></div>",
                 reloadOnSearch: false,
                 controller: ItemStateController,
+                params: {
+                    // prevents array format from being split into path=1&path=2&...
+                    path: {array : false}
+                },
                 resolve: {
                     saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
                 }

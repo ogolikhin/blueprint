@@ -15,7 +15,6 @@
         "dev:build": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --debug --NODE_ENV=dev ",
         "dev:public": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --public --NODE_ENV=dev",
         "test": "karma start --NODE_ENV=test",
-        "test:nolint": "karma start --debug --NODE_ENV=test",
         "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
         "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
         "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"

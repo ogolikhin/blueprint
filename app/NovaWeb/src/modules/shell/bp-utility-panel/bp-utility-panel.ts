@@ -5,9 +5,12 @@ import {
     ISelection,
     IStatefulItem,
     IItemChangeSet,
-    StatefulArtifact
+    IStatefulArtifact,
+    StatefulArtifact,
+    StatefulSubArtifact,
+    IStatefulSubArtifact
 } from "../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined, ReuseSettings} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {PanelType, IUtilityPanelContext, IUtilityPanelController, UtilityPanelService} from "./utility-panel.svc";
@@ -219,9 +222,16 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     }
 
     private togglePropertiesPanel(selection: ISelection) {
+            
         const artifact = selection.artifact;
+        const subArtifact = selection.subArtifact;
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
-        if (artifact && (selection.subArtifact
+        
+        //if the item is a process shape and has subartifacts read only reuse settings
+        if (subArtifact && subArtifact.predefinedType === ItemTypePredefined.PROShape &&
+            subArtifact.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
+                this.hidePanel(PanelType.Properties);
+        } else if (artifact && (selection.subArtifact
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
             || artifact.predefinedType === ItemTypePredefined.BusinessProcess
@@ -234,7 +244,6 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
-
             this.showPanel(PanelType.Properties);
         } else {
             this.hidePanel(PanelType.Properties);

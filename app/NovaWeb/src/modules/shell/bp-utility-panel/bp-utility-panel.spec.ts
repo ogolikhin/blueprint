@@ -3,10 +3,11 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../util/component.test";
 import {BPUtilityPanelController} from "./bp-utility-panel";
+import {PanelType} from "./utility-panel.svc";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactHistoryMock} from "./bp-history-panel/artifact-history.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined, ReuseSettings} from "../../main/models/enums";
 import {ArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactManager, IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {ArtifactAttachmentsService} from "../../managers/artifact-manager/attachments/attachments.svc";
@@ -102,5 +103,29 @@ describe("Component BPUtilityPanel", () => {
 
             // Assert
             expect(vm.isAnyPanelVisible).toBe(false);
+        }));
+
+        it("should hide properties tabs for subartifact when artifact is reused in read-only manner and subartifacts are readonly",
+        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+            //Arrange
+            const artifactModel = {id: 22, name: "Artifact", predefinedType: ItemTypePredefined.CollectionFolder, prefix: "My", 
+                                    readOnlyReuseSettings: ReuseSettings.Subartifacts};
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
+            const subartifact = statefulArtifactFactory.createStatefulSubArtifact(statefulArtifact,
+            {
+                id: 23,
+                predefinedType: ItemTypePredefined.PROShape
+            });
+            const spy = spyOn(vm, "hidePanel");
+
+            //Act
+            artifactManager.selection.setArtifact(statefulArtifact);
+            $rootScope.$digest();
+            artifactManager.selection.setSubArtifact(subartifact);
+            $rootScope.$digest();
+
+            // Assert
+            expect(spy).toHaveBeenCalledTimes(10);
+            expect(spy).toHaveBeenCalledWith(PanelType.Properties);            
         }));
 });

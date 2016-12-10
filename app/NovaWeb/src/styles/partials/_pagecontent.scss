@@ -196,12 +196,13 @@ pagecontent, bp-properties-panel {
 
             bp-item-type-icon {
                 display: block;
-                height: 32px;
+                height: 24px;
                 margin-top: 5px;
-                width: 32px;
+                width: 24px;
 
                 img {
                     background-color: $blue-lightest;
+                    width: 24px;
                 }
             }
         }

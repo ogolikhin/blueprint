@@ -181,6 +181,15 @@
     &:focus, &:hover {
         background: $tree-hover-background;
     }
+
+    .item-icon__fallback{
+        vertical-align: top;
+        margin-right: 24px;
+    }
+
+    .item-icon__image--fallback{
+        width: 24px;
+    }
 }
 
 .quick-search__results--link,
@@ -232,7 +241,7 @@
 }
 .quick-search__results--large-font,
 .quick-search__results--large-font::before {
-    font-size: $font-size-large;
+    font-size: $font-size-h3;
 }
 .quick-search__results--large-font.icon {
     margin-top: 10px;

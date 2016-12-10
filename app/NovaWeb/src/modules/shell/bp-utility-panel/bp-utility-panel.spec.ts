@@ -104,28 +104,5 @@ describe("Component BPUtilityPanel", () => {
             // Assert
             expect(vm.isAnyPanelVisible).toBe(false);
         }));
-
-        it("should hide properties tabs for subartifact when artifact is reused in read-only manner and subartifacts are readonly",
-        inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
-            //Arrange
-            const artifactModel = {id: 22, name: "Artifact", predefinedType: ItemTypePredefined.CollectionFolder, prefix: "My", 
-                                    readOnlyReuseSettings: ReuseSettings.Subartifacts};
-            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
-            const subartifact = statefulArtifactFactory.createStatefulSubArtifact(statefulArtifact,
-            {
-                id: 23,
-                predefinedType: ItemTypePredefined.PROShape
-            });
-            const spy = spyOn(vm, "hidePanel");
-
-            //Act
-            artifactManager.selection.setArtifact(statefulArtifact);
-            $rootScope.$digest();
-            artifactManager.selection.setSubArtifact(subartifact);
-            $rootScope.$digest();
-
-            // Assert
-            expect(spy).toHaveBeenCalledTimes(10);
-            expect(spy).toHaveBeenCalledWith(PanelType.Properties);            
-        }));
+        
 });

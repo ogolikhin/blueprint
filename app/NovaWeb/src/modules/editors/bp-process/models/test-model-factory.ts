@@ -85,6 +85,13 @@ export function createUserTask(id: number, x?: number, y?: number, hasComments: 
         hasTraces: hasTraces
     };
 
+    userTask.propertyValues["storyLinks"] = {
+        typeId: 0,
+        typePredefined: null,
+        propertyName: "StoryLinks",
+        value: null
+    };
+
     return <IUserTaskShape>userTask;
 }
 
@@ -99,6 +106,14 @@ export function createSystemTask(id: number, x?: number, y?: number, hasComments
         hasComments: hasComments,
         hasTraces: hasTraces
     };
+    
+    systemTask.propertyValues["imageId"] = {
+        typeId: 0,
+        typePredefined: null,
+        propertyName: "ImageId",
+        value: null
+    };
+    
     return <ISystemTaskShape>systemTask;
 }
 
@@ -130,7 +145,7 @@ export function createDefaultProcessModelWithoutXAndY(): IProcess {
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 0, 0);
     let ut1 = createUserTask(20, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 25, 0, 0);
+    let st2 = createSystemTask(25, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 30, 0, 0);
 
     process.shapes.push(start);
@@ -573,7 +588,7 @@ export function createSimpleProcessModelWithSystemDecision() {
         {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
     process.decisionBranchDestinationLinks.push(
-        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null}
+        {sourceId: sd1.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;

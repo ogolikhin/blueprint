@@ -219,8 +219,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     }
 
     private togglePropertiesPanel(selection: ISelection) {
-        const artifact = selection.artifact;
+            
+        const artifact = selection.artifact;        
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        
         if (artifact && (selection.subArtifact
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
@@ -234,7 +236,6 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
-
             this.showPanel(PanelType.Properties);
         } else {
             this.hidePanel(PanelType.Properties);

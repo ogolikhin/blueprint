@@ -1,7 +1,9 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "angular-ui-router";
 import "../../../";
+import "../../../../main";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
 import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
@@ -9,7 +11,6 @@ import {LocalizationServiceMock} from "../../../../core/localization/localizatio
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {Helper} from "../../../../shared";
 import {HttpStatusCode} from "../../../../core/http/http-status-code";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
@@ -22,7 +23,9 @@ import {IRelationship} from "../../../../main/models/relationshipModels";
 
 describe("BPArtifactRelationshipItem", () => {
 
+    beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("app.shell"));
+    beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
@@ -35,7 +38,6 @@ describe("BPArtifactRelationshipItem", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("processService", ProcessServiceMock);
-        $provide.service("navigationService", NavigationServiceMock);
         $provide.service("validationService", ValidationServiceMock);
     }));
 
@@ -43,11 +45,11 @@ describe("BPArtifactRelationshipItem", () => {
     let vm: BPArtifactRelationshipItemController;
 
 
-    beforeEach(inject(() => {
+    beforeEach(() => {
         let template = `<bp-artifact-relationship-item relationship="::artifact"></bp-artifact-relationship-item>`;
         directiveTest = new ComponentTest<BPArtifactRelationshipItemController>(template, "bp-artifact-relationship-item");
         vm = directiveTest.createComponent({});
-    }));
+    });
 
     afterEach(() => {
         vm = null;
@@ -63,28 +65,23 @@ describe("BPArtifactRelationshipItem", () => {
         expect(directiveTest.element.find(".icons").length).toBe(0);
     });
 
-    it("action panel should be visible if item is manual trace and user has access to it", () => {
+    it("action panel should be visible if item is manual trace and user has access to it",
         inject(($rootScope: ng.IRootScopeService) => {
-            //Arrange
 
-            let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
-            let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
-                new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
+        //Arrange
+        let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
+        let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
+            new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
+        let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
 
-            let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
+        vm2.canModifyItem = () => true;
+        vm2.showActionsPanel = true;
 
-            vm2.canModifyItem = () => { 
-                return true; 
-            };
+        $rootScope.$digest();
 
-            vm2.showActionsPanel = true;
-
-            $rootScope.$digest();
-
-            //Assert
-            expect(directiveTest2.element.find(".icons").length).toBe(1);
-        });
-    });
+        //Assert
+        expect(directiveTest2.element.find(".icons").length).toBe(1);
+    }));
 
     it("expanded view",
         inject(($httpBackend: ng.IHttpBackendService) => {
@@ -115,7 +112,7 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, short text", () => {
         //Assert
         let result = vm.limitChars("<html><body>&#x200b;<div><span>ABC</span></div></body></html>");
-        expect(result.length).toBe(4); //zero width space included
+        expect(result.length).toBe(3); //zero width space included
     });
 
     it("limitChars, no text", () => {

@@ -211,9 +211,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     const vm = params.data as CollectionNodeVM;
                     const prefix = Helper.escapeHTMLText(vm.model.prefix);
                     const icon = vm.getIcon();
-                    const url = this.$state.href("main.item", {id: vm.model.id});
-                    return `${icon} <a ng-href="${url}" target="_blank" class="collection__link" ` +
-                           `ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a>`;
+                    return `${icon} <a ui-sref="main.item({id: ${vm.model.id}})" ui-sref-opts="{inherit: false}" 
+                                       class="collection__link">${prefix}${vm.model.id}</a>`;
                 }
             },
             {
@@ -235,8 +234,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         pathName = pathName + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
-                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">${name}</div>
-                        <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
+                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">
+                                <a ui-sref="main.item({id: ${vm.model.id}})" ui-sref-opts="{inherit: false}">${name}</a>
+                            </div>
+                            <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">${pathName}</div>`;
                 }
             },
             {

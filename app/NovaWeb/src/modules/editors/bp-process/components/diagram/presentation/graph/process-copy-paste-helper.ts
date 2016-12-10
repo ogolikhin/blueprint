@@ -19,7 +19,7 @@ import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {Models} from "../../../../../../main";
 import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadService";
 import {HttpStatusCode} from "../../../../../../core/http/http-status-code";
-
+import {IUserTask, IDecision} from "./models/process-graph-interfaces";
 
 enum PreprocessorNodeType {
     UserTask,
@@ -134,8 +134,12 @@ export class ProcessCopyPasteHelper {
         }
         
         const  data: PreprocessorData = new PreprocessorData();
-        // baseNodes is a collection of the nodes which goes into clipboard process data
-        let  baseNodes = this.processGraph.getMxGraph().getSelectionCells();
+        
+        // Currently baseNodes are the selected/highlighted UserTasks only. 
+        // Later algorithm will be simplified to use all selected/highlighted nodes.
+        let  baseNodes = _.filter(this.processGraph.getCopyNodes(), (node) => { 
+            return node instanceof UserTask; 
+        });
 
         try {
             // 1. Find all User Decisions
@@ -207,6 +211,45 @@ export class ProcessCopyPasteHelper {
         }
     }
 
+    public getCommonUserDecisions(userTasks: IUserTask[]): IDecision[] {
+        const commonUserDecisions: IDecision[] = [];
+        const userDecisionsById: {[id: number]: IDecision} = {};
+
+        for (const userTask of userTasks) {
+            // assumes user task only has one incoming connection
+            const sourceNode: IDiagramNode = userTask.getSources(this.processGraph.getMxGraphModel())[0];
+
+            if (sourceNode.getNodeType() !== NodeType.UserDecision) {
+                continue;
+            }
+
+            const userDecision: IDecision = <IDecision>sourceNode;
+
+            if (userDecisionsById[userDecision.model.id]) {
+                commonUserDecisions.push(userDecision);
+            } else {
+                userDecisionsById[userDecision.model.id] = userDecision;
+            }
+        }
+
+        return commonUserDecisions;
+    }
+
+    public getCopyFamilyNodes(node: IDiagramNode): IDiagramNode[] {
+        const copyGroupNodes: IDiagramNode[] = [];
+
+        const scopeContext = this.processGraph.getScope(node.model.id);
+        const copyGroupIds: number[] = Object.keys(scopeContext.visitedIds)
+            .map(a => Number(a))
+            .filter(id => id !== node.model.id);
+
+        for (const id of copyGroupIds) {
+            copyGroupNodes.push(this.processGraph.getNodeById(id.toString()));
+        }
+
+        return copyGroupNodes;
+    }
+
     private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.each(baseNodes, (node) => {
             if (node instanceof UserTask) {
@@ -273,6 +316,9 @@ export class ProcessCopyPasteHelper {
 
     private addBranchLinks(data: PreprocessorData, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         _.forOwn(decisionPointRefs, (node) => {
+
+            node.branches = _.sortBy(node.branches, (branch: any) => branch.orderindex);
+            
             if (!!node && node.branches.length > 1) {
                 for (let branch of node.branches) {
                     // add link
@@ -528,6 +574,8 @@ export class ProcessCopyPasteHelper {
             });
         }
                 
+        procModel.links = _.sortBy(procModel.links, (link: ProcessLinkModel) => link.sourceId * 100 + link.orderindex);
+                
         // set process decisionBranchDestinationLinks.
         _.forOwn(decisionPointRefs, (node: DecisionPointRef) => {
             if (!!node && node.branches.length > 1) {
@@ -590,10 +638,17 @@ export class ProcessCopyPasteHelper {
             this.layout.setTempShapeId(newId);
             idMap[shape.id.toString()] = newId;
             shape.id = newId;
-            shape.propertyValues["x"].value = -1;
-            shape.propertyValues["y"].value = -1;
+            shape.propertyValues[this.shapesFactoryService.X.key].value = -1;
+            shape.propertyValues[this.shapesFactoryService.Y.key].value = -1;
+            if (shape.propertyValues[this.shapesFactoryService.StoryLinks.key]) {
+                shape.propertyValues[this.shapesFactoryService.StoryLinks.key].value = null;
+            }
             shape.projectId = this.layout.viewModel.projectId;
             shape.parentId = this.layout.viewModel.id;
+            if (shape.associatedArtifact && shape.parentId === shape.associatedArtifact.id) {
+                shape.associatedArtifact = null;
+            }
+            
             this.layout.viewModel.addShape(shape);
         }
     }
@@ -665,7 +720,7 @@ export class ProcessCopyPasteHelper {
         }
     }
     
-    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {        
+    private clearSystemTaskImageUrlsAndIds(shape: IProcessShape) {
         if (this.isSystemTaskImageSaved(shape)) {
             shape.propertyValues[this.shapesFactoryService.AssociatedImageUrl.key].value = null;
             shape.propertyValues[this.shapesFactoryService.ImageId.key].value = null;

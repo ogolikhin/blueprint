@@ -754,7 +754,7 @@ namespace ArtifactStoreTests
 
         #region Subartifact Properties tests
 
-        // TODO: Should returns 409 Conflict error if server side validation works for customproperties of sub artifact but it's diabled for December release.
+        // TODO: Should returns 409 Conflict error if server side validation works for customproperties of sub artifact but it's disabled for December release.
         // TODO: Currently, artifact publish pass without serverside validation when there is invalid data for custom property of sub artifact 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, Process.DefaultUserTaskName, "Std-Text-Required-RT-Multi-HasDefault")]
@@ -763,8 +763,8 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
              "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
         public void UpdateSubArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType,
-    string subArtifactDisplayName,
-    string subArtifactCustomPropertyName)
+            string subArtifactDisplayName,
+            string subArtifactCustomPropertyName)
         {
             // Setup: Set the required custom text property value for the target sub artifact with empty content
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
@@ -773,19 +773,25 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             var subArtifactCustomPropertyValue = "";
-            var subArtifactChangeSet = CreateSubArtifactChangeSet(author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
+            var subArtifactChangeSet = CreateSubArtifactChangeSet(
+                author, projectCustomData, artifact, subArtifactDisplayName, subArtifactCustomPropertyName, subArtifactCustomPropertyValue);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
 
             // Execute: Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author), "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
+
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author),
+                "'POST {0}' should return 409 Conflict if the artifact containing invalid change!",
+                RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
             // Validation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode, "Error code for PublishArtifact with the artifact containing invalid change should be {0}", InternalApiErrorCodes.CannotPublishOverValidationErrors);
+            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode,
+                "Error code for PublishArtifact with the artifact containing invalid change should be {0}",
+                InternalApiErrorCodes.CannotPublishOverValidationErrors);
 
             // Commented code below is for debugging purpose:
             /*

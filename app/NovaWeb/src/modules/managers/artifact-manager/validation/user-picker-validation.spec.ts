@@ -20,7 +20,7 @@ describe("user picker validation tests - ", () => {
 
         it("returns true when it does not need to be validated", () => {
             // act
-            const result = validationService.userPickerValidation.hasValueIfRequired(null, null, null, false);
+            const result = validationService.userPickerValidation.hasValueIfRequired(null, null);
 
             // assert
             expect(result).toBe(true);
@@ -29,7 +29,7 @@ describe("user picker validation tests - ", () => {
         it("returns true when required and values are valid", () => {
             const value = ["test"];
             // act
-            const result = validationService.userPickerValidation.hasValueIfRequired(true, value, value, true);
+            const result = validationService.userPickerValidation.hasValueIfRequired(true, value);
 
             // assert
             expect(result).toBe(true);
@@ -38,7 +38,7 @@ describe("user picker validation tests - ", () => {
         it("returns false when required and values are empty", () => {
             const value = [];
             // act
-            const result = validationService.userPickerValidation.hasValueIfRequired(true, value, value, true);
+            const result = validationService.userPickerValidation.hasValueIfRequired(true, value);
 
             // assert
             expect(result).toBe(false);
@@ -47,7 +47,7 @@ describe("user picker validation tests - ", () => {
         it("returns false when required and values are null", () => {
             const value = null;
             // act
-            const result = validationService.userPickerValidation.hasValueIfRequired(true, value, value, true);
+            const result = validationService.userPickerValidation.hasValueIfRequired(true, value);
 
             // assert
             expect(result).toBe(false);

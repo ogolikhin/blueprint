@@ -120,7 +120,8 @@ namespace ArtifactStoreTests
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
         [TestRail(183545)]
-        [Description("Create and publish artifact with a trace to target. Update and publish the artifact with the updated trace pointing to another target. Verify that GetRelationship call returns correct trace for each version of artifact.")]
+        [Description("Create and publish artifact with a trace to target. Update and publish the artifact with the updated trace pointing to another target.  " +
+            "Verify that GetRelationship call returns correct trace for each version of artifact.")]
         public void GetRelationships_ChangeTraceWhenPublishingArtifacts_ReturnsCorrectRelationshipPerVersion(TraceDirection direction)
         {
             // Setup: Create and Publish Two target artifacts: target artifact 1 and target artifact 2
@@ -199,7 +200,6 @@ namespace ArtifactStoreTests
         #region 400 Bad Request Tests
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/NAsq2SBG now we have versionId instead of revisionId
         [TestRail(183571)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
         public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
@@ -208,7 +208,10 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute: Execute GetRelationships with invalid version ID of the source artifact (less than 1)
-            Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: INVALID_VERSIONID), "Calling GET {0} with invalid version ID should return 400 Bad Request!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+            Assert.Throws<Http400BadRequestException>(() =>
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: INVALID_VERSIONID),
+                "Calling GET {0} with invalid version ID should return 400 Bad Request!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
         }
 
         [TestCase(TraceDirection.To)]
@@ -238,7 +241,10 @@ namespace ArtifactStoreTests
             TraceValidation(relationships, traces, new List<IArtifact> { targetArtifact });
 
             // Execute: Execute GetRelationshipDetails with the invalid revision ID (less than 1)
-            Assert.Throws<Http400BadRequestException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: INVALID_REVISIONID), "Calling GET {0} with invalid revision ID should return 400 Bad Request!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+            Assert.Throws<Http400BadRequestException>(() =>
+                ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: INVALID_REVISIONID),
+                "Calling GET {0} with invalid revision ID should return 400 Bad Request!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
         }
 
         #endregion 400 Bad Request Tests
@@ -246,7 +252,6 @@ namespace ArtifactStoreTests
         #region 404 Not Found Tests
 
         [TestCase(NONEXSITING_REVISIONID)]
-        [Explicit(IgnoreReasons.ProductBug)] //https://trello.com/c/NAsq2SBG now we have versionId instead of revisionId
         [TestCase(10)]
         [TestRail(183563)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
@@ -256,12 +261,17 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute: Execute GetRelationships with non-existing version ID of the source artifact
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId), "Calling GET {0} with non-existing version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId),
+                "Calling GET {0} with non-existing version ID should return 404 NotFound!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationships with non-existing versionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound),
+                "GetRelationships with non-existing versionId should return {0} errorCode but {1} is returned",
+                ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
         [TestCase(TraceDirection.To, NONEXSITING_REVISIONID)]
@@ -295,12 +305,17 @@ namespace ArtifactStoreTests
             targetArtifact.Publish();
 
             // Execute: Execute GetRelationshipDetails with the non-existing revision ID
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: nonExistingRevisionId), "Calling GET {0} with non-existing revision ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                ArtifactStore.GetRelationshipsDetails(bpServerAddress, _user, targetArtifact.Id, revisionId: nonExistingRevisionId),
+                "Calling GET {0} with non-existing revision ID should return 404 NotFound!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIP_DETAILS);
 
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound), "GetRelationshipsDetails with non-existing revisionId should return {0} errorCode but {1} is returned", ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound),
+                "GetRelationshipsDetails with non-existing revisionId should return {0} errorCode but {1} is returned",
+                ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
         }
 
         #endregion 404 Not Found Tests
@@ -462,7 +477,8 @@ namespace ArtifactStoreTests
         [TestCase(true)]
         [TestCase(null)]
         [TestRail(153703)]
-        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with and without the 'addDrafts=true' query parameter).  Verify no traces are returned.")]
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with and without the 'addDrafts=true' query parameter).  " +
+            "Verify no traces are returned.")]
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsTrue_ReturnsCorrectTraces(bool? addDrafts)
         {
             // Setup:
@@ -492,7 +508,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(153904)]
-        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with the 'addDrafts=false' query parameter).  Verify it returns 404 Not Found.")]
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with the 'addDrafts=false' query parameter).  " +
+            "Verify it returns 404 Not Found.")]
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsFalse_404NotFound()
         {
             // Setup:
@@ -513,7 +530,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(153691)]
-        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to the artifacts.  Verify that returned trace has expected value.")]
+        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to the artifacts.  " +
+            "Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceUserHasNoAccessToTarget_403Forbidden()
         {
             // Setup:
@@ -790,7 +808,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(154699)]
-        [Description("Try to get relationships using credentials of user which has no access to the target artifact. Verify that relationships returns empty artifact name and HasAccess false.")]
+        [Description("Try to get relationships using credentials of user which has no access to the target artifact.  " +
+            "Verify that relationships returns empty artifact name and HasAccess false.")]
         public void GetRelationships_NoAccessToTargetArtifact_ReturnsCorrectRelationships()
         {
             // Setup:

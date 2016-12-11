@@ -353,7 +353,7 @@ describe("NavigationService", () => {
             predecessorArtifactId2 = 22;
             sourceArtifactId = 33;
             $state.params["id"] = sourceArtifactId.toString();
-            $state.params["path"] = `${predecessorArtifactId1},${predecessorArtifactId2}`;
+            $state.params["path"] = [`${predecessorArtifactId1}`, `${predecessorArtifactId2}`];
             $state.current.name = "main.item";
         });
 
@@ -366,20 +366,20 @@ describe("NavigationService", () => {
             $state.current.name = "main";
         });
 
-        xit("transitions to last artifact if path index is not provided", () => {
+        it("transitions to last artifact if path index is not provided", () => {
             // arrange
             const stateGoSpy = spyOn($state, "go");
-            const expectedParams = {id: predecessorArtifactId2, version: undefined, path: `${predecessorArtifactId1}`};
+            const expectedParams = {id: predecessorArtifactId2, version: undefined, path: [`${predecessorArtifactId1}`]};
             const expectedOptions = {inherit: false};
 
             // act
-            // navigationService.navigateBack();
+            navigationService.navigateBack();
 
             // assert
             expect(stateGoSpy).toHaveBeenCalledWith(artifactState, expectedParams, expectedOptions);
         });
 
-        xit("doesn't transition if navigation history doesn't exist", () => {
+        it("doesn't transition if navigation history doesn't exist", () => {
             // arrange
             const pathIndex = 1;
             const stateGoSpy = spyOn($state, "go");
@@ -387,37 +387,37 @@ describe("NavigationService", () => {
             $state.params["path"] = undefined;
 
             // act
-            // navigationService.navigateBack(pathIndex);
+            navigationService.navigateBack(pathIndex);
 
             // assert
             expect(stateGoSpy).not.toHaveBeenCalled();
         });
 
-        xit("doesn't transition if path index is out of range (above the maximum)", () => {
+        it("doesn't transition if path index is out of range (above the maximum)", () => {
             // arrange
             const pathIndex = 2;
             const stateGoSpy = spyOn($state, "go");
 
             // act
-            // navigationService.navigateBack(pathIndex);
+            navigationService.navigateBack(pathIndex);
 
             // assert
             expect(stateGoSpy).not.toHaveBeenCalled();
         });
 
-        xit("doesn't transition if path index is out of range (below the maximum)", () => {
+        it("doesn't transition if path index is out of range (below the maximum)", () => {
             // arrange
             const pathIndex = -1;
             const stateGoSpy = spyOn($state, "go");
 
             // act
-            // navigationService.navigateBack(pathIndex);
+            navigationService.navigateBack(pathIndex);
 
             // assert
             expect(stateGoSpy).not.toHaveBeenCalled();
         });
 
-        xit("transitions if path index is correct", () => {
+        it("transitions if path index is correct", () => {
             // arrange
             const pathIndex = 0;
             const stateGoSpy = spyOn($state, "go");
@@ -425,7 +425,7 @@ describe("NavigationService", () => {
             const expectedOptions = {inherit: false};
 
             // act
-            // navigationService.navigateBack(pathIndex);
+            navigationService.navigateBack(pathIndex);
 
             // assert
             expect(stateGoSpy).toHaveBeenCalledWith(artifactState, expectedParams, expectedOptions);

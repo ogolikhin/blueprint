@@ -91,6 +91,11 @@
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
+    &:focus {
+        background-color: transparent;
+        border: 1px solid $gray-light;
+        color: $gray-light;
+    }
     &:hover,
     &:active,
     &.active,

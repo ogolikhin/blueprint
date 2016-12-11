@@ -1,5 +1,6 @@
-if (!window.location.hash && window.location.search.toLowerCase().startsWith("?artifactid")) {
-    var params = window.location.search.toLowerCase().slice(1).split("$");
+var searchString = window.location.search.toLowerCase();
+if (!window.location.hash && searchString.indexOf("?artifactid") === 0) {
+    var params = searchString.slice(1).split("$");
     var id;
 
     for (var i = 0; i < params.length; i++) {
@@ -15,5 +16,4 @@ if (!window.location.hash && window.location.search.toLowerCase().startsWith("?a
         window.history.replaceState({}, "", window.location.toString().replace(window.location.search, ""));
     }
     window.location.hash = newHash;
-
 }

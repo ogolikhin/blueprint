@@ -61,3 +61,11 @@
 .dropdown-menu__filter-item-text{
     @include text-ellipsis-any-width();
 }
+.dropdown.open {
+    .btn-secondary:focus {
+        background-color: $brand-secondary;
+        border: solid 1px $brand-secondary;
+        color: $white;
+        outline: none;
+    }
+}

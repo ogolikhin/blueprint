@@ -1,6 +1,6 @@
 import "angular";
 import "angular-mocks";
-// import "rx/dist/rx.lite";
+import "rx/dist/rx.lite";
 import {IStatefulArtifact, IStatefulSubArtifact} from "../artifact-manager";
 import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact.factory.mock";
 
@@ -8,6 +8,7 @@ import {SelectionManager,  ISelection} from "./selection-manager";
 
 describe("Selection Manager", () => {
     let $scope: ng.IScope;
+    let _$q: ng.IQService;
     let artifact: IStatefulArtifact;
     let subArtifact: IStatefulSubArtifact;
 
@@ -18,9 +19,9 @@ describe("Selection Manager", () => {
         subArtifact = new StatefulArtifactFactoryMock().createStatefulSubArtifact(artifact, {id: 100});
 
     }));
-    beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
         $scope = $rootScope.$new();
-
+        _$q = $q;
     }));
 
     describe("set selection", () => {
@@ -54,6 +55,29 @@ describe("Selection Manager", () => {
             });
 
         }));
+
+        it("notify subscriber when artifact changed", 
+            inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
+            //Arrange
+            const spy = jasmine.createSpy("TEST");
+            spyOn(artifact, "lock").and.callFake(() => { return _$q.resolve(); });
+            selectionManager.artifactObservable.filter(it => !!it).subscribeOnNext((artifact: IStatefulArtifact) => {
+                expect(artifact).toBeDefined();
+                expect(artifact.id).toEqual(artifact.id);
+                spy();
+            });
+            
+            //Act
+            selectionManager.setArtifact(artifact);
+            selectionManager.setArtifact(artifact);
+            
+            //Assert
+            expect(spy).toHaveBeenCalledTimes(2);
+
+        }));
+
+
+
     });
 
     describe("clearSelection", () => {

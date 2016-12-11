@@ -37,8 +37,8 @@ export class PageToolbar implements ng.IComponentOptions {
 export class PageToolbarController implements IPageToolbarController {
 
     private _subscribers: Rx.IDisposable[];
-    private currentartifact: IStatefulArtifact;
-    private cancreatenew: boolean = false;
+    private _currentArtifact: IStatefulArtifact;
+    private _canCreateNew: boolean = false;
 
     private get discardAllManyThreshold(): number {
         return 50;
@@ -148,7 +148,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        const artifact = this.currentartifact; //this.artifactManager.selection.getArtifact();
+        const artifact = this._currentArtifact; //this.artifactManager.selection.getArtifact();
         const projectId = artifact.projectId;
         const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
         this.dialogService.open(<IDialogSettings>{
@@ -441,12 +441,12 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
-        this.currentartifact = artifact;
+        this._currentArtifact = artifact;
         //calculate properties
-        this.cancreatenew = this.currentartifact && 
-                            !this.currentartifact.artifactState.historical && 
-                            !this.currentartifact.artifactState.deleted &&
-                            (this.currentartifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
+        this._canCreateNew = this._currentArtifact && 
+                            !this._currentArtifact.artifactState.historical && 
+                            !this._currentArtifact.artifactState.deleted &&
+                            (this._currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     };
 
     public get isProjectOpened(): boolean {
@@ -454,11 +454,11 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     public get isArtifactSelected(): boolean {
-        return this.isProjectOpened && !!this.currentartifact;
+        return this.isProjectOpened && !!this._currentArtifact;
     }
 
     public get canCreateNew(): boolean {
-        return this.cancreatenew;
+        return this._canCreateNew;
     }
 
 

@@ -71,6 +71,7 @@ module.exports = {
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
             {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
+            {from: '../src/redirect/silverlight-links.js', to: './static/redirect-silverlight-links.js'},
 
             {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
 

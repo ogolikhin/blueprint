@@ -1,12 +1,12 @@
 import "lodash";
 import {Enums, Models} from "../../main";
-import {IStatefulItem} from "../../managers/artifact-manager";
+import {IStatefulItem, StatefulSubArtifact} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
 import {BPLocale, ILocalizationService} from "../../core/localization/localizationService";
 import {IPropertyDescriptor} from "../configuration/property-descriptor-builder";
 import {IUserGroup} from "../configuration/types/user-picker/user-picker";
 
-export class PropertyEditor {
+export class PropertyEditor { 
 
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
@@ -141,6 +141,11 @@ export class PropertyEditor {
             this._fields = [];
         }
 
+        let allPropertiesReadOnlyDueToReuse = false;
+        if (statefulItem instanceof StatefulSubArtifact) {
+            allPropertiesReadOnlyDueToReuse = statefulItem.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts);
+        }        
+
         this.propertyContexts.forEach((propertyContext: IPropertyDescriptor) => {
             if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
                 let modelValue: any = null;
@@ -156,12 +161,14 @@ export class PropertyEditor {
                     isModelSet = true;
                     if (Models.PropertyTypePredefined.Name === propertyContext.propertyTypePredefined &&
                         statefulItem.readOnlyReuseSettings &&
-                        (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name) {
+                        ((statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Name) === Enums.ReuseSettings.Name ||
+                        allPropertiesReadOnlyDueToReuse)) {
                         propertyContext.disabled = true;
 
                     } else if (Models.PropertyTypePredefined.Description === propertyContext.propertyTypePredefined &&
                         statefulItem.readOnlyReuseSettings &&
-                        (statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description) {
+                        ((statefulItem.readOnlyReuseSettings & Enums.ReuseSettings.Description) === Enums.ReuseSettings.Description ||
+                        allPropertiesReadOnlyDueToReuse)) {
                         propertyContext.disabled = true;
                     }
                 } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Custom) {
@@ -170,7 +177,7 @@ export class PropertyEditor {
                     if (custompropertyvalue) {
                         modelValue = custompropertyvalue.value;
                         isModelSet = true;
-                        propertyContext.disabled = custompropertyvalue.isReuseReadOnly ? true : propertyContext.disabled;
+                        propertyContext.disabled = custompropertyvalue.isReuseReadOnly || allPropertiesReadOnlyDueToReuse ? true : propertyContext.disabled;
                     }
                 } else if (propertyContext.lookup === Enums.PropertyLookupEnum.Special) {
                     //Specific property
@@ -183,7 +190,7 @@ export class PropertyEditor {
                         } else {
                             modelValue = specificPropertyValue.value;
                         }
-                        propertyContext.disabled = specificPropertyValue.isReuseReadOnly ? true : propertyContext.disabled;
+                        propertyContext.disabled = specificPropertyValue.isReuseReadOnly || allPropertiesReadOnlyDueToReuse ? true : propertyContext.disabled;
                     }
                 }
                 if (isModelSet) {

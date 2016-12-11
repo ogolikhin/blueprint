@@ -1,3 +1,8 @@
+import * as angular from "angular";
+import "angular-mocks";
+import "script!mxClient";
+import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {IUserTask} from "./models/process-graph-interfaces";
 import {ArtifactReference} from "./../../../../models/process-models";
 import {ICopyImageResult} from "./../../../../../../core/file-upload/models/models";
 import {ProcessGraph} from "./process-graph";
@@ -20,10 +25,10 @@ import {FileUploadServiceMock} from "./../../../../../../core/file-upload/file-u
 import {ILoadingOverlayService} from "../../../../../../core/loading-overlay/loading-overlay.svc";
 import {LoadingOverlayServiceMock} from "../../../../../../core/loading-overlay/loading-overlay.svc.mock";
 import {IHttpError} from "./../../../../../../core/services/users-and-groups.svc";
-
 import * as ProcessModels from "../../../../models/process-models";
 import * as ProcessEnums from "../../../../models/enums";
 import * as TestModels from "../../../../models/test-model-factory";
+import * as TestShapes from "../../../../models/test-shape-factory";
 
 describe("ProcessCopyPasteHelper tests", () => {
     let localScope, timeout, wrapper, container;
@@ -31,7 +36,7 @@ describe("ProcessCopyPasteHelper tests", () => {
     let statefulArtifactFactory: IStatefulArtifactFactory;
     let communicationManager: ICommunicationManager;
     let dialogService: DialogService;
-    let localization: LocalizationServiceMock;        
+    let localization: LocalizationServiceMock;
     let process: ProcessModels.IProcess;
     let clientModel: IProcessGraphModel;
     let viewModel: IProcessViewModel;
@@ -45,6 +50,9 @@ describe("ProcessCopyPasteHelper tests", () => {
     let $q: ng.IQService;
     let loadingOverlayService: ILoadingOverlayService;
     let $rootScope: ng.IRootScopeService;
+
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
@@ -447,4 +455,76 @@ describe("ProcessCopyPasteHelper tests", () => {
             expect(errorMessageSpy).toHaveBeenCalledWith(expectedErrorMessage);
         });
     });
-}); 
+
+    describe("getCommonUserDecisions", () => {
+        beforeEach(() => {
+            process = TestModels.createDefaultProcessModel();
+            clientModel = new ProcessGraphModel(process);
+            viewModel = new ProcessViewModel(clientModel, communicationManager);
+            graph = new ProcessGraph(
+                $rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, 
+                messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
+            copyPasteHelper = new ProcessCopyPasteHelper(
+                graph, clipboard, shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, 
+                localization);
+        });
+        
+        it("returns empty array if no user task is selected", () => {
+            // act
+            const result = copyPasteHelper.getCommonUserDecisions([]);
+
+            // assert
+            expect(result).toEqual([]);
+        });
+
+        it("returns empty array if a single user task is selected", () => {
+            // arrange
+            spyOn(graph, "getMxGraphModel").and.returnValue({});
+            const decision = TestShapes.createUserDecision(999, $rootScope);
+            const userTask1 = TestShapes.createUserTask(888, $rootScope);
+            spyOn(userTask1, "getSources").and.returnValue([decision]);
+            const userTasks = [userTask1];
+
+            // act
+            const result = copyPasteHelper.getCommonUserDecisions(userTasks);
+
+            // assert
+            expect(result).toEqual([]);
+        });
+
+        it("returns empty array when selected user tasks don't share common user decision", () => {
+            // arrange
+            spyOn(graph, "getMxGraphModel").and.returnValue({});
+            const decision1 = TestShapes.createSystemTask(111, $rootScope);
+            const decision2 = TestShapes.createUserDecision(222, $rootScope);
+            const userTask1 = TestShapes.createUserTask(333, $rootScope);
+            spyOn(userTask1, "getSources").and.returnValue([decision1]);
+            const userTask2 = TestShapes.createUserTask(444, $rootScope);
+            spyOn(userTask2, "getSources").and.returnValue([decision2]);
+            const userTasks = [userTask1, userTask2];
+
+            // act
+            const result = copyPasteHelper.getCommonUserDecisions(userTasks);
+
+            // assert
+            expect(result).toEqual([]);
+        });
+
+        it("returns user decision when selected user tasks share common user decision", () => {
+            // arrange
+            spyOn(graph, "getMxGraphModel").and.returnValue({});
+            const decision = TestShapes.createUserDecision(222, $rootScope);
+            const userTask1 = TestShapes.createUserTask(333, $rootScope);
+            spyOn(userTask1, "getSources").and.returnValue([decision]);
+            const userTask2 = TestShapes.createUserTask(444, $rootScope);
+            spyOn(userTask2, "getSources").and.returnValue([decision]);
+            const userTasks = [userTask1, userTask2];
+
+            // act
+            const result = copyPasteHelper.getCommonUserDecisions(userTasks);
+
+            // assert
+            expect(result).toEqual([decision]);
+        });
+    });
+});

@@ -124,7 +124,7 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
-        it("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
+        xit("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
 
             // act

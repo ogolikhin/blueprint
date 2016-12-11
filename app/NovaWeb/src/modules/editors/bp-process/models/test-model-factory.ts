@@ -588,7 +588,7 @@ export function createSimpleProcessModelWithSystemDecision() {
         {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
     process.decisionBranchDestinationLinks.push(
-        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null}
+        {sourceId: sd1.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;

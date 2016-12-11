@@ -18,9 +18,7 @@ export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsSer
     };
 
     public publishAll(): ng.IPromise<IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
 
     public getUnpublishedArtifacts(): ng.IPromise<IPublishResultSet> {
@@ -28,20 +26,14 @@ export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsSer
     }
 
     public publishArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
 
     public discardArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
 
     public discardAll(): ng.IPromise<IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
 }

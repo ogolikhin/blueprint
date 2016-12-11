@@ -230,7 +230,7 @@ describe("NavigationService", () => {
                 $state.current.name = "main";
             });
 
-            xit("initiates state transition to artifact state with correct id and no path if navigation tracking is not defined", () => {
+            it("initiates state transition to artifact state with correct id and no path if navigation tracking is not defined", () => {
                 // arrange
                 const stateGoSpy = spyOn($state, "go");
 
@@ -284,7 +284,7 @@ describe("NavigationService", () => {
                 predecessorArtifactId = 11;
                 sourceArtifactId = 54;
                 $state.params["id"] = sourceArtifactId.toString();
-                $state.params["path"] = predecessorArtifactId.toString();
+                $state.params["path"] = [predecessorArtifactId.toString()];
                 $state.current.name = "main.item";
             });
 
@@ -296,7 +296,7 @@ describe("NavigationService", () => {
                 $state.current.name = "main";
             });
 
-            xit("initiates state transition to artifact state with correct id and no path if navigation tracking is not defined", () => {
+            it("initiates state transition to artifact state with correct id and no path if navigation tracking is not defined", () => {
                 // arrange
                 const stateGoSpy = spyOn($state, "go");
 
@@ -311,7 +311,7 @@ describe("NavigationService", () => {
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
             });
 
-            xit("initiates state transition to artifact state with correct id and no path if navigation tracking is disabled", () => {
+            it("initiates state transition to artifact state with correct id and no path if navigation tracking is disabled", () => {
                 // arrange
                 const stateGoSpy = spyOn($state, "go");
 
@@ -326,7 +326,7 @@ describe("NavigationService", () => {
                 expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
             });
 
-            xit("initiates state transition to artifact state with correct id and correct path if navigation tracking is enabled", () => {
+            it("initiates state transition to artifact state with correct id and correct path if navigation tracking is enabled", () => {
                 // arrange
                 const stateGoSpy = spyOn($state, "go");
 

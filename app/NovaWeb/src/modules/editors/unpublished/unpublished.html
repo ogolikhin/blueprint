@@ -24,6 +24,7 @@
                     <tr>
                         <th class="unpublished__checkbox-col">
                             <input type="checkbox"
+                                   ng-if="$ctrl.unpublishedArtifacts.length"
                                    ng-checked="$ctrl.isGroupToggleChecked()"
                                    ng-click="$ctrl.toggleAll()" />
                         </th>

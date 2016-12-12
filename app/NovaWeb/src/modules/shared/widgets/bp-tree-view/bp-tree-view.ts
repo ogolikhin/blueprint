@@ -87,6 +87,7 @@ export interface IColumn {
     width?: number;
     colWidth?: number;
     minColWidth?: number;
+    maxWidth?: number;
     isGroup?: boolean;
     isCheckboxSelection?: boolean;
     isCheckboxHidden?: boolean;
@@ -290,7 +291,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                     headerName: column.headerName ? column.headerName : "",
                     field: column.field,
                     width: column.width,
-                    minColWidth: column.minColWidth,
+                    maxWidth: column.maxWidth,
+                    minWidth: column.minColWidth,
                     suppressSizeToFit: column.suppressSizeToFit,
                     cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
                     cellRenderer: column.isGroup ? "group" : column.cellRenderer,

@@ -188,6 +188,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             {
                 isCheckboxSelection: !this.artifact.artifactState.readonly,
                 width: 30,
+                minColWidth: 20,
+                maxWidth: 30,
                 headerCellRenderer: (params) => {
                     return this.headerCellRendererSelectAll(params, this.artifact.artifactState.readonly);
                 },
@@ -201,7 +203,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             },
             {
                 width: 100,
-                colWidth: 100,
+                minColWidth: 100,
                 headerName: `<span class="header-name">` + this.localization.get("Label_ID") + `</span>`,
                 field: "model.id",
                 isGroup: true,
@@ -259,7 +261,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             {
                 headerName: this.localization.get("Label_Options"),
                 width: 60,
-                suppressSizeToFit: true,
+                maxWidth: 60,
+                minColWidth: 60,
                 isCheckboxHidden: true,
                 cellRenderer: (params: IColumnRendererParams) => {
                     params.$scope["removeArtifact"] = ($event) => {

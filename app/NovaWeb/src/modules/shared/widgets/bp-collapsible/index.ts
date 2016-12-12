@@ -1,6 +1,7 @@
-﻿import * as angular from "angular";
+﻿import "./bp-collapsible.scss";
+
 import {BPCollapsible} from "./bp-collapsible";
 
 angular.module("bp.widgets.collapsible", [])
-    .directive("bpCollapsible", BPCollapsible.factory());
+    .directive("bpCollapsible", BPCollapsible.instance());
 

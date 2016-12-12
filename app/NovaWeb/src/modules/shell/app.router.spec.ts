@@ -5,6 +5,8 @@ import "rx/dist/rx.lite";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../managers/selection-manager/selection-manager.mock";
 import {MainStateController} from "./app.router";
+import {IMessageService} from "../core/messages/message.svc";
+import {MessageServiceMock} from "../core/messages/message.mock";
 
 describe("AppRouter", () => {
     let $rootScope: ng.IRootScopeService,
@@ -12,6 +14,7 @@ describe("AppRouter", () => {
         $state: angular.ui.IStateService,
         $log: ng.ILogService,
         selectionManager: ISelectionManager,
+        messageService: IMessageService,
         isServerLicenseValid: boolean,
         ctrl: MainStateController;
 
@@ -19,6 +22,7 @@ describe("AppRouter", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("selectionManager", SelectionManagerMock);
+        $provide.service("messageService", MessageServiceMock);
         $provide.service("isServerLicenseValid", Boolean);
         $provide.service("session", Boolean);
     }));
@@ -28,6 +32,7 @@ describe("AppRouter", () => {
                        _$state_: ng.ui.IStateService,
                        _$log_: ng.ILogService,
                        _selectionManager_: ISelectionManager,
+                       _messageService_: IMessageService,
                        _isServerLicenseValid_: boolean) => {
 
         $rootScope = _$rootScope_;
@@ -35,12 +40,13 @@ describe("AppRouter", () => {
         $state = _$state_;
         $log = _$log_;
         selectionManager = _selectionManager_;
+        messageService = _messageService_;
         isServerLicenseValid = true;
     }));
 
     describe("$stateChangeSuccess", () => {
         beforeEach(() => {
-            ctrl = new MainStateController($rootScope, $window, $state, $log, selectionManager, isServerLicenseValid, null, null, null);
+            ctrl = new MainStateController($rootScope, $window, $state, $log, selectionManager, isServerLicenseValid, null, null, null, messageService);
         });
 
         it("should change title if navigating to an artifact", () => {

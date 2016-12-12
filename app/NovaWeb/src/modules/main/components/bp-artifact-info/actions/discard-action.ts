@@ -26,7 +26,10 @@ export class DiscardAction extends BPButtonAction {
                         });
                     } else {
                         artifact.refresh();
-                        navigationService.navigateToMain(true);
+                        // If artifact has never been published, navigate back to the main page
+                        if (artifact.version === -1) {
+                            navigationService.navigateToMain(true);
+                        }
                     }
                 })
                 .catch((err) => {

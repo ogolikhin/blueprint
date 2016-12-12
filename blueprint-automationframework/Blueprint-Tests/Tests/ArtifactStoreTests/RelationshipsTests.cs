@@ -427,7 +427,7 @@ namespace ArtifactStoreTests
 
         // TODO: Fix this test.
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // XXX: Complains about Artifact Ids being different.
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]  // XXX: Complains about Artifact Ids being different.
         [TestRail(153700)]
         [Description("Create manual trace between an artifact and a sub-artifact.  Get relationships.  Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceArtifactToSubartifact_ReturnsCorrectTraces()
@@ -469,7 +469,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // XXX: Is it possible to create Traces between two sub-artifacts with OpenAPI?
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]  // XXX: Is it possible to create Traces between two sub-artifacts with OpenAPI?
         [TestRail(153741)]
         [Description("Create manual trace between two sub-artifacts.  Get relationships.  Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceBetweenTwoSubArtifacts_ReturnsCorrectTraces()
@@ -529,7 +529,6 @@ namespace ArtifactStoreTests
 
         [TestCase(0)]
         [TestRail(153841)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Try to Get Relationships for a invalid sub-artifact ID .  Verify 400 Bad Request is returned.")]
         public void GetRelationships_InvalidSubArtifactId_400BadRequest(int fakeSubArtifactId)
         {

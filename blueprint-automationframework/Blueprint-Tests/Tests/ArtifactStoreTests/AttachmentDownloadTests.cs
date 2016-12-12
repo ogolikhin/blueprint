@@ -195,25 +195,30 @@ namespace ArtifactStoreTests
         #endregion Positive Tests
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestRail(191150)]
-        [Description("Add attachment to the saved never published artifact, save it, download attached file, check that file has expected name and content.")]
+        [Description("Publish a Process artifact.  Add an attachment to a sub-artifact and publish.  Then delete the attachment.  " +
+            "Try to get the attachment.  Verify 404 Not Found is returned.")]
         public void GetAttachmentFile_SubArtifactWithDeletedAttachment_Returns404()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(5, subArtifacts.Count, "Process should have 5 subartifacts.");
+
             var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
 
-            // User Task is subArtifacts[2]
+            // User Task is subArtifacts[2] - Add attachment to the sub-artifact.
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[2].Id);
             ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 },
                 Helper.ArtifactStore);
             artifact.Publish();
+
+            // Verify attachment was added.
             Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[2].Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
+
+            // Delete the attachment.
             int attachmentIdToDownload = attachment.AttachedFiles[0].AttachmentId;
             ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachmentIdToDownload,
                 Helper.ArtifactStore);

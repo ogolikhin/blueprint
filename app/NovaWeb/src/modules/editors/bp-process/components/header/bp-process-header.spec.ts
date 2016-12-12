@@ -6,7 +6,7 @@ import {LocalizationServiceMock} from "../../../../core/localization/localizatio
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {WindowManager} from "../../../../main";
 import {CommunicationManager} from "../../";
 import {

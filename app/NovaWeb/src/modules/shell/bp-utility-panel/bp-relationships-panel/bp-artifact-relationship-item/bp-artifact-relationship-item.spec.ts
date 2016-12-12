@@ -7,7 +7,7 @@ import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-i
 import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {Helper} from "../../../../shared";

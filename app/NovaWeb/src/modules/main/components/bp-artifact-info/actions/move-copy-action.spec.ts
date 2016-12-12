@@ -10,7 +10,7 @@ import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {Enums, Models} from "../../../../main/models";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";

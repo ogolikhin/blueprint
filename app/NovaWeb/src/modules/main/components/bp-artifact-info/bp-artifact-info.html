@@ -2,7 +2,7 @@
     <span class="icon fonticon-clock"></span>
     <span class="artifact-status__text">
         {{:: $ctrl.historicalMessage }}
-        <a class="artifact-status__open-latest" ui-sref="main.item({ id: $ctrl.artifact.id, version: undefined })">{{::$root.config.labels['App_Artifact_Info_OpenLatestVersion']}}</a>
+        <a class="artifact-status__open-latest" ui-sref="main.item({ id: $ctrl.artifact.id, version: undefined, path: undefined })">{{::$root.config.labels['App_Artifact_Info_OpenLatestVersion']}}</a>
     </span>
 </div>
 <div class="responsive-header">

@@ -49,6 +49,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
+    public isChanging: boolean = false;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -133,6 +134,12 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     public onGridReset(isExpanding: boolean): void {
         this.selectedVMs = [];
+
+        if (!this.isChanging) {
+            this.api.deselectAll();
+            this.isChanging = false;
+        }
+
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);
             this.visibleArtifact = undefined;
@@ -140,6 +147,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
+        this.isChanging = true;
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, collectionArtifact.projectId, this.metadataService, !collectionArtifact.artifactState.readonly);

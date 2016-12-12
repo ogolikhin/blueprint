@@ -1,5 +1,6 @@
 import * as angular from "angular";
 require("script!mxClient");
+import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
@@ -15,18 +16,6 @@ import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-m
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
 import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
 import {ProcessEvents} from "../../process-diagram-communication";
-
-class ExecutionEnvironmentDetectorMock {
-    private browserInfo: any;
-
-    constructor() {
-        this.browserInfo = {msie: false, firefox: false, version: 0};
-    }
-
-    public getBrowserInfo(): any {
-        return this.browserInfo;
-    }
-}
 
 describe("DragDropHandler test", () => {
     let msgService: IMessageService,

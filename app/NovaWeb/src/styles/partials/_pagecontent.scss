@@ -42,57 +42,6 @@ $page-body-min-width: 386px;
 .empty-main__button {
     margin: 0 auto;
 }
-.empty-main__value-props {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 50px;
-}
-.empty-main__value-prop {
-    width: 20%;
-    margin: 20px;
-    &--circle {
-        @include circle(80px, $brand-secondary);
-        margin: 0 auto;
-        position: relative;
-        i {
-            color: $white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            &::before {
-                font-size: 40px;
-            }
-        }
-    }
-    &:first-child {
-        .empty-main__value-prop--circle {
-            background: #82ba0e;
-        }
-    }
-    &:nth-child(2) {
-        .empty-main__value-prop--circle {
-            background: #008995;
-            i {
-                transform: translate(-50%, -30%);
-            }
-        }
-    }
-    &:nth-child(3) {
-        .empty-main__value-prop--circle {
-            background: #682145;
-            i {
-                transform: translate(-50%, -30%);
-            }
-        }
-    }
-    &--p{
-    margin-top: 20px;
-    color: $white;
-    font-size: $font-size-big;
-    }
-}
 
 .empty-main__resources {
     margin-top: 20px;
@@ -102,7 +51,7 @@ $page-body-min-width: 386px;
 }
 
 .empty-main__hyperlink {
-    font-weight: normal;
+    font-weight: 600;
     font-size: $font-size-big;
     text-decoration: underline;
     &:hover {
@@ -232,7 +181,7 @@ pagecontent, bp-properties-panel {
             flex-grow: 0;
             flex-shrink: 0;
 
-            &::before {
+            &::before, .item-icon__icon::before {
                 color: $gray;
                 font-family: 'bp-line-icons';
                 font-size: 24px;
@@ -242,12 +191,12 @@ pagecontent, bp-properties-panel {
 
             bp-item-type-icon {
                 display: block;
-                height: 32px;
+                height: 24px;
                 margin-top: 5px;
-                width: 32px;
+                width: 24px;
 
                 img {
-                    background-color: $blue-lightest;
+                    width: 24px;
                 }
             }
         }
@@ -371,9 +320,9 @@ pagecontent, bp-properties-panel {
             position: absolute;
 
             img {
-                background-color: $blue-lightest;
                 height: 12px;
                 left: 2px;
+                position: static;
                 top: 11px;
                 width: 12px;
             }

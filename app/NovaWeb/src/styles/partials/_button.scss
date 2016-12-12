@@ -80,6 +80,11 @@
             background-color: transparent;
         }
     }
+    &:focus,
+    &:active
+    &:focus:active {
+        outline: 0;
+    }
 }
 
 .btn-primary {
@@ -87,8 +92,12 @@
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
+    &:focus {
+        background-color: transparent;
+        border: 1px solid $gray-light;
+        color: $gray-light;
+    }
     &:hover,
-    &:focus,
     &:active,
     &.active,
     &:hover:focus {
@@ -126,9 +135,12 @@
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;
     color: $white;
-
+    &:focus {
+        background-color: $brand-secondary;
+        border: solid 1px $brand-secondary;
+        color: $white;
+    }
     &:hover,
-    &:focus,
     &:active,
     &.active {
         background-color: darken($brand-secondary, 10%);
@@ -141,13 +153,14 @@
     background-color: transparent;
     border: solid 1px $brand-secondary;
     color: $brand-secondary;
-
+    &:focus {
+        background-color: transparent;
+        border: solid 1px $brand-secondary;
+        color: $brand-secondary;
+    }
     &:hover,
-    &:focus,
     &:active,
-    &.active,
-    &.focus,
-    &:active:focus {
+    &.active, {
         background-color: $brand-secondary;
         border: solid 1px $brand-secondary;
         color: $white;

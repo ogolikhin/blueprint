@@ -1,6 +1,5 @@
-<bp-breadcrumb links="$ctrl.mainBreadcrumbService.breadcrumbLinks" on-navigate="$ctrl.navigateTo(link)"></bp-breadcrumb>
+﻿<bp-breadcrumb links="$ctrl.mainBreadcrumbService.breadcrumbLinks"></bp-breadcrumb>
 <div class="page-content-wrapper" ui-view></div>
-
 
 <div ng-if="$ctrl.isMainState()" class="empty-main__container">
     <div class="empty-main">
@@ -20,20 +19,6 @@
         <button type="button" class="btn btn-promoted-action empty-main__button"
                 ng-click="$ctrl.openProject()">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_OpenProject_ButtonLabel')}}
         </button>
-        <div class="empty-main__value-props">
-            <div class="empty-main__value-prop">
-                <div class="empty-main__value-prop--circle"><i class="icon-storyboard"></i></div>
-                <p class="empty-main__value-prop--p">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_LeftCircle_Label')}}</p>
-            </div>
-            <div class="empty-main__value-prop">
-                <div class="empty-main__value-prop--circle"><i class="fonticon2-impact-analysis"></i></div>
-                <p class="empty-main__value-prop--p">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_CenterCircle_Label')}}</p>
-            </div>
-            <div class="empty-main__value-prop">
-                <div class="empty-main__value-prop--circle"><i class="fonticon2-discussion"></i></div>
-                <p class="empty-main__value-prop--p">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_RightCircle_Label')}}</p>
-            </div>
-        </div>
 
 
         <p class="empty-main__resources">{{::$ctrl.localization.get('App_MainArea_DefaultScreen_UsefulResources_Header')}}</p>

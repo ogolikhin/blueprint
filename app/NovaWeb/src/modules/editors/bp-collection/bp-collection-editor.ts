@@ -264,6 +264,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 maxWidth: 60,
                 minColWidth: 60,
                 isCheckboxHidden: true,
+
                 cellRenderer: (params: IColumnRendererParams) => {
                     params.$scope["removeArtifact"] = ($event) => {
                         $event.stopPropagation();

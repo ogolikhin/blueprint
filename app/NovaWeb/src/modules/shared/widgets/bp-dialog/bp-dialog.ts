@@ -33,9 +33,15 @@ export class DialogService implements IDialogService {
     public dialogData: any;
     private defaultSettings: IDialogSettings;
 
-    public static $inject = ["localization", "$uibModal", "$timeout"];
+    public static $inject = ["localization",
+        "$uibModal",
+        "$timeout",
+        "$document"];
 
-    constructor(private localization: ILocalizationService, private $uibModal: ng.ui.bootstrap.IModalService, private $timeout: ng.ITimeoutService) {
+    constructor(private localization: ILocalizationService,
+                private $uibModal: ng.ui.bootstrap.IModalService,
+                private $timeout: ng.ITimeoutService,
+                private $document: ng.IDocumentService) {
         this.defaultSettings = {
             type: DialogTypeEnum.Base,
             cancelButton: this.localization.get("App_Button_Cancel", "Cancel"),
@@ -69,9 +75,9 @@ export class DialogService implements IDialogService {
         const instance = this.$uibModal.open(options);
         instance.opened.then(() => {
             this.$timeout(function () {
-                const modal = document.getElementsByClassName("modal")[0] as HTMLElement;
+                const modal = this.$document.getElementsByClassName("modal").get();
                 modal.focus();
-            }, 0);
+            });
         });
         return instance;
     };

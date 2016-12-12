@@ -114,7 +114,7 @@ export class ProcessCopyPasteHelper {
 
     private layout: ILayout;
     private readonly treeStartId = "-99999";
-    private readonly treeEndId = "-100000";
+    public readonly treeEndId = "-100000";
 
     constructor(private processGraph: IProcessGraph, 
                      private clipboard: IClipboardService, 

@@ -32,8 +32,8 @@ export class UserStoryPreviewController extends BaseModalDialogController<UserSt
         $uibModalInstance.closed.then(this.onModalClosed);
     }
     
-    private onUserStoryLoaded = () => {
-        this.isUserStoryLoaded = true;        
+    private onUserStoryLoaded = (isUserStoryLoaded) => {
+        this.isUserStoryLoaded = isUserStoryLoaded;        
     }
 
     public showWings(): boolean {

@@ -27,55 +27,118 @@ describe("Selection Manager", () => {
     describe("set selection", () => {
         it("notify subscriber when artifact changed", inject((selectionManager: SelectionManager) => {
             //Arrange
+            let selection: ISelection;
+            const func = (item: ISelection) => {
+                selection = item;
+            };
         
             //Act
+            selectionManager.selectionObservable.subscribeOnNext(func);
             selectionManager.setArtifact(artifact);
             
-            //Assert
-            const subscriber = selectionManager.selectionObservable.subscribeOnNext((item: ISelection) => {
-                expect(item).toBeDefined();
-                expect(item.artifact).toBeDefined();
-                expect(artifact.id).toEqual(artifact.id);
-            });
-
+            //Assert 
+            expect(selection).toBeDefined();
+            expect(selection.artifact).toBeDefined();
+            expect(selection.artifact.id).toEqual(artifact.id);
             //$scope.$digest();
             
         }));
     
-        it("notify subscriber when sub-artifact changed", inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
+        it("notify subscriber when sub-artifact changed", inject((selectionManager: SelectionManager) => {
             //Arrange
-            
+            let subartifact: IStatefulSubArtifact;
+            const func = (item: IStatefulSubArtifact) => {
+                subartifact = item;
+            };
             //Act
             selectionManager.setSubArtifact(subArtifact);
+            selectionManager.subArtifactObservable.subscribeOnNext(func);
 
             //Assert
-            selectionManager.subArtifactObservable.subscribeOnNext((subartifact: IStatefulSubArtifact) => {
-                expect(subartifact).toBeDefined();
-                expect(subartifact.id).toEqual(subArtifact.id);
-            });
+            expect(subartifact).toBeDefined();
+            expect(subartifact.id).toEqual(subArtifact.id);
 
         }));
 
-        it("notify subscriber when artifact changed", 
+        it("notify subscriber when artifact changed multiple times", 
             inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
+            
             //Arrange
-            const spy = jasmine.createSpy("TEST");
+            let artifacts: IStatefulArtifact[] = [];
+            const spy = jasmine.createSpy("TEST", (item: IStatefulArtifact) => {
+                artifacts.push(item);
+            }).and.callThrough();
             spyOn(artifact, "lock").and.callFake(() => { return _$q.resolve(); });
-            selectionManager.artifactObservable.filter(it => !!it).subscribeOnNext((artifact: IStatefulArtifact) => {
-                expect(artifact).toBeDefined();
-                expect(artifact.id).toEqual(artifact.id);
-                spy();
-            });
+            selectionManager.artifactObservable.subscribeOnNext(spy);
             
             //Act
             selectionManager.setArtifact(artifact);
             selectionManager.setArtifact(artifact);
             
             //Assert
-            expect(spy).toHaveBeenCalledTimes(2);
+            expect(spy).toHaveBeenCalledTimes(3);
+            expect(artifacts.length).toEqual(3);
 
         }));
 
+        it("notify subscriber when artifact's property has changed ", 
+            inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
+            
+            //Arrange
+            let names: string[] = [];
+            const spy = jasmine.createSpy("TEST").and.callThrough();
+
+            spyOn(artifact, "lock").and.callFake(() => { return _$q.resolve(); });
+            spyOn(artifact, "load").and.callFake(() => { return _$q.resolve(artifact); });
+            spyOn(artifact, "getServices").and.callFake(() => { return {$q: _$q}; });
+            selectionManager.currentlySelectedArtifactObservable.subscribeOnNext(spy);
+            
+            //Act
+            selectionManager.setArtifact(artifact);
+            artifact.artifactState.misplaced = true;
+            $scope.$digest();
+            
+            //Assert
+            expect(spy).toHaveBeenCalled();
+        }));
+
+        it("check artifact unsubscribe", inject((selectionManager: SelectionManager) => {
+            //arrange
+            const artifact2 = new StatefulArtifactFactoryMock().createStatefulArtifact({id: 2});
+            const unsubscribeSpy = spyOn(artifact, "unsubscribe").and.callFake(() => { ; });
+            const unloadSpy = spyOn(artifact, "unload").and.callFake(() => { ; });
+            
+            //act
+            selectionManager.setArtifact(artifact);
+            selectionManager.setArtifact(artifact2);
+
+            //asserts
+            expect(unsubscribeSpy).toHaveBeenCalled();
+            expect(unloadSpy).toHaveBeenCalled();
+
+        }));
+        it("check subartifact unsubscribe", inject((selectionManager: SelectionManager) => {
+            //arrange
+            const artifact2 = new StatefulArtifactFactoryMock().createStatefulArtifact({id: 2});
+            const subArtifact2 = new StatefulArtifactFactoryMock().createStatefulSubArtifact(artifact2, {id: 200});
+            spyOn(artifact2, "unload").and.callFake(() => { ; });
+            spyOn(artifact2, "unsubscribe").and.callFake(() => { ; });
+            const unloadSpy = spyOn(artifact, "unload").and.callFake(() => { ; });
+            const unsubscribeSpy = spyOn(artifact, "unsubscribe").and.callFake(() => { ; });
+            const unsubscribeSubartifactSpy = spyOn(subArtifact, "unsubscribe").and.callFake(() => { ; });
+            
+            //act
+            selectionManager.setArtifact(artifact);
+            selectionManager.setSubArtifact(subArtifact);
+            selectionManager.setArtifact(artifact2);
+            selectionManager.setSubArtifact(subArtifact2);
+
+            //asserts
+            expect(unloadSpy).toHaveBeenCalled();
+            expect(unsubscribeSpy).toHaveBeenCalled();
+            expect(unsubscribeSubartifactSpy).toHaveBeenCalled();
+
+        }));
 
 
     });
@@ -148,5 +211,18 @@ describe("Selection Manager", () => {
         }));
 
     });
+    describe("dispose", () => {
+        it("claer selection", inject((selectionManager: SelectionManager) => {
+            //arrange
+            const spy = spyOn(selectionManager, "clearAll").and .callFake(() => {; });
 
+            // //act
+             selectionManager.dispose();
+
+            //asserts
+            expect(spy).toHaveBeenCalled();
+
+        }));
+    });
+    
 });

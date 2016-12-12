@@ -178,12 +178,12 @@ describe("ProcessCopyPasteHelper tests", () => {
 
             // Assert
             expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
-            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(copyPasteHelper.treeEndId, 10));
+            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(ProcessCopyPasteHelper.treeEndId, 10));
             const copiedlinks1 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );            
             const copiedlinks2 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );
             expect(copiedlinks1.length).toEqual(1);
             expect(copiedlinks2.length).toEqual(1); 
@@ -223,12 +223,12 @@ describe("ProcessCopyPasteHelper tests", () => {
 
             // Assert
             expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
-            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(copyPasteHelper.treeEndId, 10));
+            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(ProcessCopyPasteHelper.treeEndId, 10));
             const copiedlinks1 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );            
             const copiedlinks2 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );
             expect(copiedlinks1.length).toEqual(1);
             expect(copiedlinks2.length).toEqual(1);            
@@ -264,13 +264,13 @@ describe("ProcessCopyPasteHelper tests", () => {
             $rootScope.$digest();
             resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
             // Assert
-                        expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
-            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(copyPasteHelper.treeEndId, 10));
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
+            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(ProcessCopyPasteHelper.treeEndId, 10));
             const copiedlinks1 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );            
             const copiedlinks2 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );
             expect(copiedlinks1.length).toEqual(1);
             expect(copiedlinks2.length).toEqual(1); 
@@ -313,7 +313,7 @@ describe("ProcessCopyPasteHelper tests", () => {
                 l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(userTaskId1, 10)
             );            
             const copiedlinks2 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );
             expect(copiedlinks1.length).toEqual(1);
             expect(copiedlinks2.length).toEqual(1);            
@@ -354,7 +354,7 @@ describe("ProcessCopyPasteHelper tests", () => {
                 l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(userTaskId2, 10)
             );            
             const copiedlinks2 = resultModel.links.filter(
-                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(copyPasteHelper.treeEndId, 10)
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
             );
             expect(copiedlinks1.length).toEqual(1);
             expect(copiedlinks2.length).toEqual(1);            

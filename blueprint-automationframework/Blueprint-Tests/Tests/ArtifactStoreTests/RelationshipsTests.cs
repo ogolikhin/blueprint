@@ -24,7 +24,6 @@ namespace ArtifactStoreTests
         private IProjectRole _viewerRole = null;
 
         private const int INVALID_VERSIONID = -1;
-        private const int INVALID_REVISIONID = -1;
         private const int NONEXSITING_REVISIONID = int.MaxValue;
 
         #region Setup and Cleanup

@@ -8,6 +8,7 @@ import {ArtifactManagerMock} from "./../../managers/artifact-manager/artifact-ma
 import {WindowManagerMock} from "./../../main/services/window-manager.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {PropertyDescriptorBuilderMock} from "./../configuration/property-descriptor-builder.mock";
+import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {IArtifactManager} from "./../../managers/artifact-manager";
 import {ISelectionManager} from "./../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "./../../managers/artifact-manager/artifact/artifact";
@@ -17,6 +18,10 @@ describe("Component BpGeneralEditorInfo", () => {
     let componentTest: ComponentTest<BpGeneralArtifactEditorController>;
     let template = `<bp-artifact-general-editor context="artifact"></bp-artifact-general-editor>`;
     let ctrl: BpGeneralArtifactEditorController;
+
+    let _artifactManager: IArtifactManager;
+    let _propertyDescriptorBuilder: IPropertyDescriptorBuilder;
+    let _$q: ng.IQService;
 
     beforeEach(angular.mock.module("bp.editors.details"));
 
@@ -36,7 +41,11 @@ describe("Component BpGeneralEditorInfo", () => {
         // $provide.service("windowResize", WindowResize);
     }));
 
-    beforeEach(inject((artifactManager: IArtifactManager) => {
+    beforeEach(inject((artifactManager: IArtifactManager, propertyDescriptorBuilder: IPropertyDescriptorBuilder, $q: ng.IQService) => {
+        _artifactManager = artifactManager;
+        _propertyDescriptorBuilder = propertyDescriptorBuilder;
+        _$q = $q;
+
         //artifactManager.selection.getArtifact(); -> Needs to return an artifact that has getObservable()
         artifactManager.selection = {
             getArtifact: () => {
@@ -58,13 +67,11 @@ describe("Component BpGeneralEditorInfo", () => {
 
      it("should be visible by default", () => {
         // Arrange
-        const bindings = {
-            artifact: {
-                id: 1
-            }
-        };
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptorBuilder[]>([]);
+        });
 
-        ctrl = componentTest.createComponent(bindings);
+        ctrl = componentTest.createComponent({});
 
         //Assert
         expect(componentTest.element.find(".artifact-overview").length).toBe(1);
@@ -72,5 +79,4 @@ describe("Component BpGeneralEditorInfo", () => {
         expect(componentTest.element.find(".lock-indicator").length).toBe(0);
         expect(componentTest.element.find(".dirty-indicator").length).toBe(0);
      });
-
 });

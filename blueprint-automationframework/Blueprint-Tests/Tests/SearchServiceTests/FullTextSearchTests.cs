@@ -181,7 +181,7 @@ namespace SearchServiceTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182340)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with saved artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchSavedNotPublishedArtifact_VerifyWithSameUserEmptySearchResult(BaseArtifactType baseArtifactType)
         {
@@ -192,6 +192,9 @@ namespace SearchServiceTests
             // Create search criteria with search term that matches with saved artifacts on each project.
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(savedOnlyArtifacts.First().Name, selectedProjectIds);
+
+            // Wait until second user can see the artifact in the search results or timeout occurs
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, _projects.Count);
 
             // Execute: Execute FullTextSearch with the search term using the same user
             FullTextSearchResult fullTextSearchResult = null;
@@ -204,7 +207,7 @@ namespace SearchServiceTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(182369)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with saved artifacts. Execute Search with different user - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchSavedNotPublishedArtifact_VerifyWithDifferentUserEmptySearchResult(BaseArtifactType baseArtifactType)
         {
@@ -215,6 +218,9 @@ namespace SearchServiceTests
             // Create search criteria with search term that matches with saved artifacts on each project.
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria(savedOnlyArtifacts.First().Name, selectedProjectIds);
+
+            // Wait until second user can see the artifact in the search results or timeout occurs
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, _projects.Count);
 
             // Execute: Execute FullTextSearch with search term using the different user
             FullTextSearchResult fullTextSearchResult = null;
@@ -249,7 +255,7 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182342)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithSameUserEmptySearchResult()
         {
@@ -264,6 +270,9 @@ namespace SearchServiceTests
             var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
+            // Wait until first user no longer sees the artifact in search results or timeout occurs
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+
             // Execute: Execute FullTextSearch with the search term using the same user
             FullTextSearchResult fullTextSearchResult = null;
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
@@ -275,7 +284,7 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182370)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
+        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search - Must return SearchResult with list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithDifferentUserSearchResultIncludesItem()
         {
@@ -293,6 +302,9 @@ namespace SearchServiceTests
             // Set the pageSize that can accomodate all expecting search results for the user
             var customSearchPageSize = _publishedArtifacts.Count();
 
+            // Wait until first user no longer sees the artifact in search results or timeout occurs
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+
             // Execute: Execute FullTextSearch with the search term using the different user
             FullTextSearchResult fullTextSearchResult = null;
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria),
@@ -304,7 +316,6 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182343)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
         [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyWithSameUserEmptySearchResult()
         {
@@ -331,7 +342,6 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182371)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
         [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with different user - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyWithDifferentUserEmptySearchResult()
         {
@@ -358,7 +368,6 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182258)]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
         [Description("Searching with the search criteria that matches with published artifacts using user doesn't have permission to the project. Execute Search - Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchWithoutPermissionOnProjects_VerifyEmptyFullTextSearchItemsOnSearchResult()
         {

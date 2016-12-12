@@ -381,8 +381,8 @@ bp-breadcrumb {
     }
 
     .nova-breadcrumbs-inaccessible {
-        color: #565656 !important;
-        cursor: default;
+        color: #565656;
+        font-weight: $font-weight-semibold;
     }
 }
 

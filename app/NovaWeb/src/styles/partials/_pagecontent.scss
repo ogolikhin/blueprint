@@ -247,7 +247,6 @@ pagecontent, bp-properties-panel {
                 width: 24px;
 
                 img {
-                    background-color: $blue-lightest;
                     width: 24px;
                 }
             }
@@ -372,9 +371,9 @@ pagecontent, bp-properties-panel {
             position: absolute;
 
             img {
-                background-color: $blue-lightest;
                 height: 12px;
                 left: 2px;
+                position: static;
                 top: 11px;
                 width: 12px;
             }

@@ -1,6 +1,7 @@
 import * as angular from "angular";
 require("script!mxClient");
 import "rx/dist/rx.lite";
+import {ExecutionEnvironmentDetectorMock} from "./../../core/services/execution-environment-detector.mock";
 import {Models, Enums} from "../../main/models";
 import {IProcess} from "./models/process-models";
 import {IArtifactService} from "../../managers/artifact-manager/";
@@ -25,20 +26,7 @@ import {MetaDataService} from "../../managers/artifact-manager";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {ApplicationError} from "../../core/error/applicationError";
 
-class ExecutionEnvironmentDetectorMock {
-    private browserInfo: any;
-
-    constructor() {
-        this.browserInfo = {msie: false, firefox: false, version: 0};
-    }
-
-    public getBrowserInfo(): any {
-        return this.browserInfo;
-    }
-}
-
 describe("When process is saved", () => {
-
     let services: IStatefulProcessArtifactServices;
     let $q: ng.IQService;
     let $log: ng.ILogService;

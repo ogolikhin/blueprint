@@ -21,7 +21,6 @@ import {IFileUploadService} from "../../../../../../core/file-upload/fileUploadS
 import {HttpStatusCode} from "../../../../../../core/http/http-status-code";
 import {IUserTask, IDecision} from "./models/process-graph-interfaces";
 
-
 enum PreprocessorNodeType {
     UserTask,
     UserDecision,
@@ -115,7 +114,8 @@ export class ProcessCopyPasteHelper {
 
     private layout: ILayout;
     private readonly treeStartId = "-99999";
-    private readonly treeEndId = "-100000";
+    // should be moved to a constant class in front end
+    public static readonly treeEndId = "-100000";
 
     constructor(private processGraph: IProcessGraph, 
                      private clipboard: IClipboardService, 
@@ -227,7 +227,9 @@ export class ProcessCopyPasteHelper {
             const userDecision: IDecision = <IDecision>sourceNode;
 
             if (userDecisionsById[userDecision.model.id]) {
-                commonUserDecisions.push(userDecision);
+                if (commonUserDecisions.indexOf(userDecision) < 0) {
+                    commonUserDecisions.push(userDecision);
+                }
             } else {
                 userDecisionsById[userDecision.model.id] = userDecision;
             }
@@ -298,7 +300,7 @@ export class ProcessCopyPasteHelper {
     }
 
     private connectAllSubtrees(data: PreprocessorData) {
-        let connectionNodeId = this.treeEndId;  
+        let connectionNodeId = ProcessCopyPasteHelper.treeEndId;  
         for (let i = data.treeIndex.length - 1; i >= 0; i--) {
             const preprocessorNode: PreprocessorNode = data.preprocessorTree[data.treeIndex[i]];
             if (i === data.treeIndex.length - 1) {
@@ -426,7 +428,7 @@ export class ProcessCopyPasteHelper {
         const systemTaskShape = this.createSystemTask(node);
         let nextId = this.processGraph.viewModel.getNextShapeIds(systemTaskShape.id)[0].toString();
         if (this.processGraph.viewModel.getPrevShapeIds(_.toNumber(nextId)).length > 1) {
-            nextId = this.treeEndId;
+            nextId = ProcessCopyPasteHelper.treeEndId;
         }
 
         const systemTaskId = systemTaskShape.id.toString();
@@ -439,7 +441,7 @@ export class ProcessCopyPasteHelper {
         this.addToSystemTasksWithSavedImages(systemTaskShape, data.systemShapeImageIds);
         this.clearSystemTaskImageUrlsAndIds(systemTaskShape);
 
-        if (nextId !== this.treeEndId) {
+        if (nextId !== ProcessCopyPasteHelper.treeEndId) {
             this.addNextNode(baseNodes, prevId, nextId, data, decisionPointRefs, subTreeId);
         }
     }
@@ -677,7 +679,7 @@ export class ProcessCopyPasteHelper {
     private pasteAndUpdateLinks(data: IProcess, idMap: any, destinationId: number) {            
         for (let link of data.links) {
             link.sourceId = idMap[link.sourceId.toString()];
-            if (link.destinationId.toString() === this.treeEndId) {
+            if (link.destinationId.toString() === ProcessCopyPasteHelper.treeEndId) {
                 link.destinationId = destinationId;
             } else {
                 link.destinationId = idMap[link.destinationId.toString()];
@@ -693,7 +695,7 @@ export class ProcessCopyPasteHelper {
     private pasteAndIpdateDecisionBranchDestinationLinks(data: IProcess, idMap: any, destinationId: number) {
         for (let link of data.decisionBranchDestinationLinks) {
             link.sourceId = idMap[link.sourceId.toString()]; 
-            if (link.destinationId.toString() === this.treeEndId) {
+            if (link.destinationId.toString() === ProcessCopyPasteHelper.treeEndId) {
                 link.destinationId = destinationId;
             } else {
                 link.destinationId = idMap[link.destinationId.toString()];

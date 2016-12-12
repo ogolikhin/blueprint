@@ -1054,8 +1054,11 @@ pagecontent, bp-properties-panel {
                     margin-left: 9px;
                     cursor: pointer;
                     &.disabled {
-                        opacity: $default-disabled-opacity;
+                        color: $disabled-color;
                         cursor: not-allowed;
+                    }
+                    &:hover:not(.disabled)  {
+                        color: $brand-secondary;
                     }
                 }
 
@@ -1126,7 +1129,7 @@ pagecontent, bp-properties-panel {
                     color: $brand-secondary;
                 }
                 &.disabled {
-                    opacity: $default-disabled-opacity;
+                    color: $disabled-color;
                     cursor: not-allowed;
                 }
             }
@@ -1259,11 +1262,12 @@ pagecontent, bp-properties-panel {
                 .icon__action{
                     &:hover{
                         cursor: pointer;
+                        color: $brand-secondary;
                     }
 
                     &.disabled, &[disabled] {
                         cursor: not-allowed;
-                        color: $default-disabled-opacity;
+                        color: $disabled-color;
                     }
                 }
 
@@ -1539,7 +1543,7 @@ pagecontent {
             padding: 5px 9px;
             min-width: 20px;
             &.disabled {
-                background-color: $gray-lightest;
+                background-color: $disabled-color;
             }
         }
     }

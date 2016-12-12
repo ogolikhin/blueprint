@@ -166,7 +166,7 @@ describe("Page Toolbar:", () => {
 
     });
     describe("publish all ->", () => {
-        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager,) => {
+        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager) => {
             spyOn(projectManager, "getSelectedProjectId").and.returnValue(1);
             spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
         }));
@@ -223,8 +223,8 @@ describe("Page Toolbar:", () => {
         
     });
 
-    fdescribe("discard all ->", () => {
-        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager,) => {
+    describe("discard all ->", () => {
+        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager) => {
             spyOn(projectManager, "getSelectedProjectId").and.returnValue(1);
             spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
             spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);

@@ -2,17 +2,17 @@
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import "../../";
+import "angular-ui-router";
+import "../../../main";
+import "../../../shell";
 import {ComponentTest} from "../../../util/component.test";
 import {BPHistoryPanelController} from "./bp-history-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
 import {ArtifactHistoryMock} from "./artifact-history.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager";
-import {IArtifactHistoryVersion} from "./artifact-history.svc";
+import {IArtifactHistory} from "./artifact-history.svc";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
@@ -20,10 +20,11 @@ import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/a
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 import {ArtifactStateEnum} from "../../../main/models/models";
+import {Helper} from "../../../shared/utils/helper";
 
 describe("Component BPHistoryPanel", () => {
-
-    let directiveTest: ComponentTest<BPHistoryPanelController>;
+    let $q: ng.IQService;
+    let component: ComponentTest<BPHistoryPanelController>;
     let vm: BPHistoryPanelController;
     let bpAccordionPanelController = {
         isActiveObservable: new Rx.BehaviorSubject<boolean>(true).asObservable()
@@ -32,29 +33,33 @@ describe("Component BPHistoryPanel", () => {
 
     beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("app.shell"));
+    beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactHistory", ArtifactHistoryMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("navigationService", NavigationServiceMock);
         $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((artifactManager: ArtifactManagerMock, selectionManager: ISelectionManager) => {
+    beforeEach(inject((artifactManager: ArtifactManagerMock,
+                       selectionManager: ISelectionManager,
+                       _$q_: ng.IQService) => {
+
+        $q = _$q_;
         artifactManager.selection = selectionManager;
         const template = `<bp-history-panel></bp-history-panel>`;
-        directiveTest = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
-        vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
+        component = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
+        vm = component.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
         onChangesObj = {
             context: {
                 currentValue: {
                     panelType: PanelType.History
                 },
                 previousValue: undefined,
-                isFirstChange: () => { return true; }
+                isFirstChange: () => true
             }
         };
     }));
@@ -66,8 +71,8 @@ describe("Component BPHistoryPanel", () => {
 
     it("should be visible by default", () => {
         //Assert
-        expect(directiveTest.element.find(".filter-bar").length).toBe(0);
-        expect(directiveTest.element.find(".empty-state").length).toBe(1);
+        expect(component.element.find(".filter-bar").length).toBe(0);
+        expect(component.element.find(".empty-state").length).toBe(1);
     });
 
     it("should load data for a selected artifact",
@@ -130,72 +135,83 @@ describe("Component BPHistoryPanel", () => {
         expect(vm.artifactHistoryList.length).toBe(11);
     }));
 
-    xit("should navigate to head version on click", inject((
+    it("should navigate to head version on click", inject((
         $rootScope: ng.IRootScopeService,
         $state: ng.ui.IStateService,
-        $timeout: ng.ITimeoutService,
-        navigationService: INavigationService) => {
-        //Arrange
-        const historyVersion = {
-            versionId: 2147483647 //head version
-        } as IArtifactHistoryVersion;
-        const artifact: IStatefulArtifact = <any>{id: 1};
-        artifact.getObservable = () => {
-            return new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
-        };
-        const navigateToSpy = spyOn(navigationService, "navigateTo");
-        onChangesObj.context.currentValue.artifact = artifact;
+        artifactHistory: IArtifactHistory,
+        $timeout: ng.ITimeoutService) => {
 
+        //Arrange
+        const artifact = <IStatefulArtifact>{id: 1};
+        artifact.getObservable = () => new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
+        onChangesObj.context.currentValue.artifact = artifact;
+        const historySpy = spyOn(artifactHistory, "getArtifactHistory")
+            .and.returnValue($q.resolve([{
+                versionId: Helper.draftVersion
+            }]));
         const stateSpy = spyOn($state, "go");
         $state.current.name = "";
 
         //Act
         vm.$onChanges(onChangesObj);
-        // vm.selectArtifactVersion(historyVersion);
         $rootScope.$digest();
+        component.element.find("a").click();
+        $timeout.flush();
 
         //Assert
-        expect(stateSpy).toHaveBeenCalledWith({id: 1});
+        expect(stateSpy).toHaveBeenCalledWith("main.item", {id: 1, version: undefined}, jasmine.any(Object));
     }));
 
-    xit("should navigate to historical version on click", inject((
+    it("should navigate to historical version on click", inject((
         $rootScope: ng.IRootScopeService,
-        navigationService: INavigationService) => {
+        $state: ng.ui.IStateService,
+        artifactHistory: IArtifactHistory,
+        $timeout: ng.ITimeoutService) => {
+
         //Arrange
-        const historyVersion = {
-            versionId: 10
-        } as IArtifactHistoryVersion;
-        const artifact: IStatefulArtifact = <any>{id: 1};
-        artifact.getObservable = () => {
-            return new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
-        };
-        const navigateToSpy = spyOn(navigationService, "navigateTo");
+        const artifact = <IStatefulArtifact>{id: 1};
+        artifact.getObservable = () =>  new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
+        const historySpy = spyOn(artifactHistory, "getArtifactHistory")
+            .and.returnValue($q.resolve([{
+                versionId: 10
+            }]));
         onChangesObj.context.currentValue.artifact = artifact;
+        const stateSpy = spyOn($state, "go");
+        $state.current.name = "";
 
         //Act
         vm.$onChanges(onChangesObj);
-        // vm.selectArtifactVersion(historyVersion);
         $rootScope.$digest();
+        component.element.find("a").click();
+        $timeout.flush();
 
         //Assert
-        expect(navigateToSpy).toHaveBeenCalledWith({id: 1, version: 10});
+        expect(stateSpy).toHaveBeenCalledWith("main.item", {id: 1, version: 10}, jasmine.any(Object));
     }));
 
     xit("should set selected version from navigation state", inject((
         $rootScope: ng.IRootScopeService,
-        navigationService: INavigationService) => {
+        $state: ng.ui.IStateService,
+        artifactHistory: IArtifactHistory) => {
+
         //Arrange
-        spyOn(navigationService, "getNavigationState").and.returnValue({id: 1, version: 10});
-        const artifact: IStatefulArtifact = <any>{id: 1};
-        artifact.getObservable = () => {
-            return new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
-        };
+        const artifact = <IStatefulArtifact>{id: 1};
+        artifact.getObservable = () => new Rx.BehaviorSubject<IStatefulArtifact>(artifact);
+        const historySpy = spyOn(artifactHistory, "getArtifactHistory")
+            .and.returnValue($q.resolve([{
+                id: 1,
+                versionId: 10
+            }]));
         onChangesObj.context.currentValue.artifact = artifact;
+        $state.current.name = "main";
 
         //Act
+        $state.go("main.item", {id: 1, version: 10});
         vm.$onChanges(onChangesObj);
+        $rootScope.$digest();
+        const selectedHistoryItem = component.element.find(".history-item--selected");
 
         //Assert
-        // expect(vm.selectedVersionId).toBe(10);
+        expect(selectedHistoryItem.length).toBe(1);
     }));
 });

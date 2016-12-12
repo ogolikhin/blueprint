@@ -1,12 +1,11 @@
-import {BPButtonGroupAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {BPButtonGroupAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
-import {IBPAction} from "./../../../../shared/widgets/bp-toolbar/actions/bp-action";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {IWindowManager} from "../../../../main/services";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../../../shared";
+import {IDialogService, BPButtonOrDropdownSeparator} from "../../../../shared";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
-import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
+import {IMetaDataService} from "../../../../managers/artifact-manager";
 import {ICommunicationManager} from "../../";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IUserStoryService} from "../../services/user-story.svc";
@@ -106,25 +105,25 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
     public $onDestroy() {
         if (this.toolbarActions) {
-            const toggleAction = 
+            const toggleAction =
                 <ToggleProcessTypeAction>_.find(this.toolbarActions, action => action instanceof ToggleProcessTypeAction);
             if (toggleAction) {
                 toggleAction.dispose();
             }
 
-            const copyAction = 
+            const copyAction =
                 <CopyAction>_.find(this.toolbarActions, action => action instanceof CopyAction);
             if (copyAction) {
                 copyAction.dispose();
             }
 
-            const generateUserStoriesAction = 
+            const generateUserStoriesAction =
                 <GenerateUserStoriesAction>_.find(this.toolbarActions, action => action instanceof GenerateUserStoriesAction);
             if (generateUserStoriesAction) {
                 generateUserStoriesAction.dispose();
             }
 
-            const openProcessImpactAnalysisAction = 
+            const openProcessImpactAnalysisAction =
                 <OpenProcessImpactAnalysisAction>_.find(this.toolbarActions, action => action instanceof OpenProcessImpactAnalysisAction);
             if (openProcessImpactAnalysisAction) {
                 openProcessImpactAnalysisAction.dispose();
@@ -140,16 +139,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         super.$onDestroy();
     }
 
-    public navigateTo = (link: IBreadcrumbLink): void => {
-        if (!!link && link.isEnabled) {
-            const index = this.breadcrumbLinks.indexOf(link);
-
-            if (index >= 0) {
-                this.navigationService.navigateBack(index);
-            }
-        }
-    }
-
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const processArtifact = this.artifact as StatefulProcessArtifact;
 
@@ -158,7 +147,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
 
         const processDeleteAction = new ProcessDeleteAction(
-            processArtifact, this.localization, this.messageService, this.artifactManager, this.projectManager, 
+            processArtifact, this.localization, this.messageService, this.artifactManager, this.projectManager,
             this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,
@@ -188,12 +177,12 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
 
         // expanded toolbar
         this.toolbarActions.push(
-            openProcessImpactAnalysisAction, 
-            generateUserStoriesAction, 
-            copyAction, 
+            openProcessImpactAnalysisAction,
+            generateUserStoriesAction,
+            copyAction,
             toggleProcessTypeAction
         );
-        
+
         // collapsed toolbar
         const dropdownSeparator = new BPButtonOrDropdownSeparator();
         this.additionalMenuActions.push(

@@ -1,14 +1,20 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "angular-ui-router";
 import ".";
 import {BPBreadcrumbController} from "./bp-breadcrumb";
-import {IBreadcrumbLink} from "./breadcrumb-link";
+import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 
 describe("BPBreadcrumbComponent", () => {
     let $compile: ng.ICompileService;
     let $scope: ng.IScope;
 
+    beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("bp.widgets.breadcrumb"));
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("navigationService", NavigationServiceMock);
+    }));
 
     beforeEach(inject((_$compile_: ng.ICompileService, _$rootScope_: ng.IRootScopeService) => {
         $compile = _$compile_;
@@ -29,12 +35,11 @@ describe("BPBreadcrumbComponent", () => {
 
         // assert
         expect(controller.links).toEqual([]);
-        expect(controller.onNavigate).toBeUndefined();
     });
 
     it("correctly binds properties and events", () => {
         // arrange
-        const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
+        const template = `<bp-breadcrumb links="links"></bp-breadcrumb>`;
         const links = [{id: 0, name: "test0", isEnabled: true}];
         $scope["links"] = links;
 
@@ -43,7 +48,6 @@ describe("BPBreadcrumbComponent", () => {
 
         // assert
         expect(controller.links).toEqual(links);
-        expect(angular.isFunction(controller.onNavigate)).toEqual(true);
     });
 
     it("correctly disposes the bound properties and events", () => {
@@ -51,63 +55,33 @@ describe("BPBreadcrumbComponent", () => {
         const template = `<bp-breadcrumb></bp-breadcrumb>`;
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
         controller.links = [];
-        controller.onNavigate = (parameter) => {
-            return;
-        };
 
         // act
-        controller.dispose();
+        controller.$onDestroy();
 
         // assert
         expect(controller.links).toBeUndefined();
-        expect(controller.onNavigate).toBeUndefined();
     });
 
-    it("ignores navigation to disabled links", () => {
-        // arrange
-        const disabledLink = {id: 0, name: "disabled link", isEnabled: false};
-        const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
-        const component = $compile(template)($scope);
-        const controller = <BPBreadcrumbController>component.controller("bpBreadcrumb");
-
-        $scope["links"] = [disabledLink];
-        $scope["navigateTo"] = (link: IBreadcrumbLink) => {
-            return;
-        };
-        $scope.$digest();
-
-        const onNavigateSpy = spyOn(controller, "onNavigate").and.callThrough();
-        const navigateToSpy = spyOn($scope, "navigateTo");
-
-        // act
-        component.find("a").click();
-
-        // assert
-        expect(onNavigateSpy).not.toHaveBeenCalled();
-        expect(navigateToSpy).not.toHaveBeenCalled();
-    });
-
-    it("navigates to enabled links", () => {
+    it("navigates to enabled links", inject(($state: ng.ui.IStateService, $timeout: ng.ITimeoutService) => {
         // arrange
         const enabledLink = {id: 0, name: "enabled link", isEnabled: true};
-        const template = `<bp-breadcrumb links="links" on-navigate="navigateTo(link)"></bp-breadcrumb>`;
+        const template = `<bp-breadcrumb links="links"></bp-breadcrumb>`;
         const component = $compile(template)($scope);
         const controller = <BPBreadcrumbController>component.controller("bpBreadcrumb");
+        const stateSpy = spyOn($state, "go");
 
         $scope["links"] = [enabledLink];
-        $scope["navigateTo"] = (link: IBreadcrumbLink) => {
-            return;
-        };
         $scope.$digest();
 
-        const onNavigateSpy = spyOn(controller, "onNavigate").and.callThrough();
-        const navigateToSpy = spyOn($scope, "navigateTo");
+        $state.current.name = "main";
 
         // act
         component.find("a").click();
+        $timeout.flush();
 
         // assert
-        expect(onNavigateSpy).toHaveBeenCalledWith({link: enabledLink});
-        expect(navigateToSpy).toHaveBeenCalledWith(enabledLink);
-    });
+        expect(stateSpy).toHaveBeenCalled();
+        expect(stateSpy).toHaveBeenCalledWith("main.item", {id: 0, version: undefined, path: undefined}, jasmine.any(Object));
+    }));
 });

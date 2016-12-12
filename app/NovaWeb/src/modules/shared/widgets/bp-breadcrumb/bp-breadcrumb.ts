@@ -1,34 +1,50 @@
-import * as angular from "angular";
 import {IBreadcrumbLink} from "./breadcrumb-link";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationState} from "../../../core/navigation/navigation-state";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public template: string = require("./bp-breadcrumb.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPBreadcrumbController;
     public bindings: any = {
         links: "<",
-        onNavigate: "&?"
+        trackPath: "<?"
     };
 }
 
 export interface IBPBreadcrumbController {
     links: IBreadcrumbLink[];
-    onNavigate: (parameter: { link: IBreadcrumbLink }) => void;
+    trackPath: boolean;
 }
 
 export class BPBreadcrumbController implements IBPBreadcrumbController {
     public links: IBreadcrumbLink[];
-    public onNavigate: (parameter: { link: IBreadcrumbLink }) => void;
+    public trackPath: boolean;
 
-    public $onInit = () => {
+    public static $inject: [string] = [
+        "navigationService"
+    ];
+
+    constructor(private navigationService: INavigationService) {
+    }
+
+    public $onInit() {
         this.links = angular.isDefined(this.links) ? this.links : [];
-    };
+    }
 
-    public $onDestroy = () => {
-        this.dispose();
-    };
+    public $onDestroy() {
+        this.links = undefined;
+    }
 
-    public dispose() {
-        delete this.links;
-        delete this.onNavigate;
+    public getNavigationParams(link: IBreadcrumbLink, pathIndex: number): INavigationState {
+        const params = {
+            id: link.id,
+            version: link.version,
+            path: undefined
+        };
+
+        if (this.trackPath) {
+            params.path = this.navigationService.getNavigateBackRouterPath(pathIndex);
+        }
+        return params;
     }
 }

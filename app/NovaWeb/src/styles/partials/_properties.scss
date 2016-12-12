@@ -372,7 +372,6 @@ pagecontent, bp-properties-panel {
 
                     .ui-select-choices-row.disabled {
                         .ui-select-choices-row-inner {
-                            cursor: not-allowed;
 
                             .ui-select-choice-item {
                                 background: transparent;
@@ -571,7 +570,6 @@ pagecontent, bp-properties-panel {
 
                     .ui-select-choices-row.disabled {
                         .ui-select-choices-row-inner {
-                            cursor: not-allowed;
 
                             .ui-select-choice-item {
                                 background: transparent;
@@ -1056,7 +1054,6 @@ pagecontent, bp-properties-panel {
                     cursor: pointer;
                     &.disabled {
                         color: $disabled-color;
-                        cursor: not-allowed;
                     }
                     &:hover:not(.disabled)  {
                         color: $brand-secondary;
@@ -1108,7 +1105,6 @@ pagecontent, bp-properties-panel {
                         cursor: pointer;
                         &.disabled {
                             background-color: $gray;
-                            cursor: not-allowed;
                         }
                     }
                 }
@@ -1131,7 +1127,6 @@ pagecontent, bp-properties-panel {
                 }
                 &.disabled {
                     color: $disabled-color;
-                    cursor: not-allowed;
                 }
             }
             .din {
@@ -1267,7 +1262,6 @@ pagecontent, bp-properties-panel {
                     }
 
                     &.disabled, &[disabled] {
-                        cursor: not-allowed;
                         color: $disabled-color;
                     }
                 }

@@ -49,7 +49,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
-    public isChanging: boolean = false;
+    public isCollectionChanging: boolean = false;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -135,9 +135,11 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public onGridReset(isExpanding: boolean): void {
         this.selectedVMs = [];
 
-        if (!this.isChanging) {
+        //Added this check for the case when grid reset performed because user added artifact to collection
+        //In this case we don't deselect ag-grid rows
+        if (!this.isCollectionChanging) {
             this.api.deselectAll();
-            this.isChanging = false;
+            this.isCollectionChanging = false;
         }
 
         if (this.visibleArtifact) {
@@ -147,7 +149,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
-        this.isChanging = true;
+        this.isCollectionChanging = true;
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, collectionArtifact.projectId, this.metadataService, !collectionArtifact.artifactState.readonly);

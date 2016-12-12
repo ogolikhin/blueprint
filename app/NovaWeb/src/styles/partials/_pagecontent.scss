@@ -272,6 +272,10 @@ pagecontent, bp-properties-panel {
             word-break: break-word;
             word-wrap: break-word;
 
+            &.collapsible__expanded {
+                overflow-x: hidden;
+            }
+
             .collapsible__button {
                 font-size: $font-size-small;
             }

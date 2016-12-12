@@ -260,7 +260,6 @@ pagecontent, bp-properties-panel {
             align-items: baseline;
             display: flex;
             justify-content: flex-start;
-            position: relative;
         }
 
         .name {
@@ -269,24 +268,16 @@ pagecontent, bp-properties-panel {
             font-size: $font-size-biggest;
             line-height: 25px;
             max-height: 250px; // 10x lines
-            overflow-x: hidden;
-            overflow-y: auto;
             white-space: pre-wrap;
             word-break: break-word;
             word-wrap: break-word;
 
-            &.collapsed {
-                overflow: hidden;
-            }
-
-            .show-more,
-            .show-less {
+            .collapsible__button {
                 font-size: $font-size-small;
             }
 
-            .show-more {
+            .collapsible__show-more {
                 background-image: linear-gradient(to bottom, rgba($white, 0) 0%, $blue-lightest 85%);
-                margin-bottom: 0;
             }
         }
 

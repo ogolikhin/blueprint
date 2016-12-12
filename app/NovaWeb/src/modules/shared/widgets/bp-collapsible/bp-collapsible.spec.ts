@@ -7,7 +7,7 @@ describe("BPCollapsible Directive", () => {
     let longElement: JQuery;
 
     beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider, $provide: ng.auto.IProvideService) => {
-        $compileProvider.directive("bpCollapsible", BPCollapsible.factory());
+        $compileProvider.directive("bpCollapsible", BPCollapsible.instance());
         $provide.service("localization", LocalizationServiceMock);
     }));
 
@@ -27,41 +27,48 @@ describe("BPCollapsible Directive", () => {
     it("can create the attribute",
         inject(($timeout: ng.ITimeoutService) => {
             // Act, Arrange
+            const collapsible = document.body.querySelector(".collapsible");
             $timeout.flush();
 
             // Assert
-            let collapsible = document.body.getElementsByClassName("collapsible")[0].hasAttribute("bp-collapsible");
-            expect(collapsible).toBe(true);
+            expect(collapsible.hasAttribute("bp-collapsible")).toBe(true);
         }));
 
     it("collapsed class should be added to element",
         inject(($timeout: ng.ITimeoutService) => {
             // Act, Arrange
+            const collapsible = document.body.querySelector(".collapsible");
             $timeout.flush();
 
             // Assert
-            expect(longElement[0].children[0].classList.contains("collapsed")).toBe(true);
+            expect(collapsible.classList.contains("collapsible__collapsed")).toBe(true);
+            expect(collapsible.classList.contains("collapsible__expanded")).toBe(false);
         }));
 
     it("clicking showmore and showless should remove and add collapsed class",
         inject(($timeout: ng.ITimeoutService) => {
             // Act, Arrange
+            const collapsible = document.body.querySelector(".collapsible");
             $timeout.flush();
-            longElement[0].getElementsByClassName("show-more")[0].dispatchEvent(new Event("click", {"bubbles": true}));
+            document.body.querySelector(".collapsible__show-more").dispatchEvent(new Event("click", {"bubbles": true}));
 
             // Assert
-            expect(longElement[0].classList.contains("collapsed")).toBe(false);
-            longElement[0].getElementsByClassName("show-less")[0].dispatchEvent(new Event("click", {"bubbles": true}));
-            expect(longElement[0].children[0].classList.contains("collapsed")).toBe(true);
+            expect(collapsible.classList.contains("collapsible__collapsed")).toBe(false);
+            expect(collapsible.classList.contains("collapsible__expanded")).toBe(true);
+            longElement[0].getElementsByClassName("collapsible__show-less")[0].dispatchEvent(new Event("click", {"bubbles": true}));
+            expect(collapsible.classList.contains("collapsible__collapsed")).toBe(true);
+            expect(collapsible.classList.contains("collapsible__expanded")).toBe(false);
         }));
 
     it("collapsed class should not be added to element",
         inject(($timeout: ng.ITimeoutService) => {
             // Act, Arrange
-            longElement[0].style.height = `${50}px`;
+            const collapsible = document.body.querySelector(".collapsible") as HTMLElement;
+            collapsible.style.height = `${50}px`;
             $timeout.flush();
 
             // Assert
-            expect(longElement[0].classList.contains("collapsed")).toBe(false);
+            expect(collapsible.classList.contains("collapsible__collapsed")).toBe(false);
+            expect(collapsible.classList.contains("collapsible__expanded")).toBe(true);
         }));
 });

@@ -807,7 +807,9 @@ describe("ProcessCopyPasteHelper tests", () => {
             spyOn(userTask1, "getSources").and.returnValue([decision]);
             const userTask2 = TestShapes.createUserTask(444, $rootScope);
             spyOn(userTask2, "getSources").and.returnValue([decision]);
-            const userTasks = [userTask1, userTask2];
+            const userTask3 = TestShapes.createUserTask(555, $rootScope);
+            spyOn(userTask3, "getSources").and.returnValue([decision]);
+            const userTasks = [userTask1, userTask2, userTask3];
 
             // act
             const result = copyPasteHelper.getCommonUserDecisions(userTasks);

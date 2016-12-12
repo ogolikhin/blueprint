@@ -227,7 +227,9 @@ export class ProcessCopyPasteHelper {
             const userDecision: IDecision = <IDecision>sourceNode;
 
             if (userDecisionsById[userDecision.model.id]) {
-                commonUserDecisions.push(userDecision);
+                if (commonUserDecisions.indexOf(userDecision) < 0) {
+                    commonUserDecisions.push(userDecision);
+                }
             } else {
                 userDecisionsById[userDecision.model.id] = userDecision;
             }

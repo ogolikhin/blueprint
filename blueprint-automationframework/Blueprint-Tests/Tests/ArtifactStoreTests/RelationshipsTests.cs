@@ -24,7 +24,7 @@ namespace ArtifactStoreTests
         private IProjectRole _viewerRole = null;
 
         private const int INVALID_VERSIONID = -1;
-        private const int NONEXSITING_REVISIONID = int.MaxValue;
+        private const int NONEXSITING_VERSIONID = int.MaxValue;
 
         #region Setup and Cleanup
 
@@ -167,7 +167,7 @@ namespace ArtifactStoreTests
 
         #region 404 Not Found Tests
 
-        [TestCase(NONEXSITING_REVISIONID)]
+        [TestCase(NONEXSITING_VERSIONID)]
         [TestCase(10)]
         [TestRail(183563)]
         [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]

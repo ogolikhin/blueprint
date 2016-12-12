@@ -4,18 +4,16 @@ import {BPCollapsible} from "./bp-collapsible";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 
 describe("BPCollapsible Directive", () => {
-    let longElement: JQuery;
-
     beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider, $provide: ng.auto.IProvideService) => {
         $compileProvider.directive("bpCollapsible", BPCollapsible.instance());
         $provide.service("localization", LocalizationServiceMock);
     }));
 
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        let collapsibleElementHtml = `<div class='collapsible' bp-collapsible='80' style='height:250px;'></div>`;
-        longElement = angular.element(`<div class='scrollable-content'>${collapsibleElementHtml}</div>`);
+        const collapsibleElementHtml = `<div class='collapsible' bp-collapsible='80' style='height:250px;'></div>`;
+        const longElement = angular.element(`<div class='scrollable-content'>${collapsibleElementHtml}</div>`);
         const scope = $rootScope.$new();
-        let element = $compile(longElement)(scope);
+        const element = $compile(longElement)(scope);
         angular.element("body").append(element);
         scope.$digest();
     }));
@@ -50,12 +48,13 @@ describe("BPCollapsible Directive", () => {
             // Act, Arrange
             const collapsible = document.body.querySelector(".collapsible");
             $timeout.flush();
-            document.body.querySelector(".collapsible__show-more").dispatchEvent(new Event("click", {"bubbles": true}));
 
             // Assert
+            document.body.querySelector(".collapsible__show-more .collapsible__button").dispatchEvent(new Event("click", {"bubbles": true}));
             expect(collapsible.classList.contains("collapsible__collapsed")).toBe(false);
             expect(collapsible.classList.contains("collapsible__expanded")).toBe(true);
-            longElement[0].getElementsByClassName("collapsible__show-less")[0].dispatchEvent(new Event("click", {"bubbles": true}));
+
+            document.body.querySelector(".collapsible__show-less .collapsible__button").dispatchEvent(new Event("click", {"bubbles": true}));
             expect(collapsible.classList.contains("collapsible__collapsed")).toBe(true);
             expect(collapsible.classList.contains("collapsible__expanded")).toBe(false);
         }));

@@ -10,7 +10,6 @@ bp-utility-panel {
     }
 
     .disabled {
-        cursor: not-allowed;
         pointer-events: none;
         color: $gray-lightest;
     }

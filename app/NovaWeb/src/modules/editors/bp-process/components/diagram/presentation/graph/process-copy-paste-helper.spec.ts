@@ -117,49 +117,351 @@ describe("ProcessCopyPasteHelper tests", () => {
         shapesFactory = new ShapesFactory($rootScope, _statefulArtifactFactory_);
     }));
 
+    function initializeCopyPasteHelperAndRenderGraph() {
+        clientModel = new ProcessGraphModel(process);
+        viewModel = new ProcessViewModel(clientModel, communicationManager);
+        graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService, 
+        localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
+        copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard, 
+        shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+        graph.render(true, null);
+    };
+
     describe("copy selected shapes", () => {
         it("copy 1 shape succeeded", () => {
             // Arrange
-            let userTaskId = "20";
+            const userTaskId = "20";
             let userTaskNode;
-            let expectedModel: ProcessModels.IProcess;
+            let resultModel: ProcessModels.IProcess;
             process = TestModels.createDefaultProcessModel();
-            clientModel = new ProcessGraphModel(process);
-            viewModel = new ProcessViewModel(clientModel, communicationManager);
-            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService, 
-            localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
-            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard, 
-            shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
-            graph.render(true, null);
+            initializeCopyPasteHelperAndRenderGraph();
             userTaskNode = graph.getNodeById(userTaskId);
             spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
 
             // Act
-             copyPasteHelper.copySelectedShapes();
-             $rootScope.$digest();
-             expectedModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
 
             // Assert
-            expect(expectedModel.decisionBranchDestinationLinks.length).toEqual(0);
-            expect(expectedModel.shapes.length).toEqual(2);
-            expect(expectedModel.links.length).toEqual(2);
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(0);
+            expect(resultModel.shapes.length).toEqual(2);
+            expect(resultModel.links.length).toEqual(2);
+        });
+
+        /*
+        copy 2 user tasks(UT1 + UT2), both are the first UT on a decision branch, belongs to the same user decision
+        start -> pre -> UD -> UT1 -> ST1 -> end
+                           -> UT2 -> ST2 -> end
+        result model:
+        UD -> UT1 -> ST1 -> end
+           -> UT2 -> ST2 -> end
+        */
+        it("copy 2 User Task in decision branch 1st position succeeded", () => {
+            // Arrange
+            const userTaskId1 = "5";
+            const systemTaskId1 = "6";
+            const userTaskId2 = "7";
+            const systemTaskId2 = "8";
+            let userTaskNode1, userTaskNode2;
+            let resultModel: ProcessModels.IProcess;
+            process = TestModels.createUserDecisionWithTwoBranchesModel();
+            initializeCopyPasteHelperAndRenderGraph();
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+
+            // Assert
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
+            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(ProcessCopyPasteHelper.treeEndId, 10));
+            const copiedlinks1 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );            
+            const copiedlinks2 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );
+            expect(copiedlinks1.length).toEqual(1);
+            expect(copiedlinks2.length).toEqual(1); 
+
+            expect(resultModel.shapes.length).toEqual(5);
+            expect(resultModel.links.length).toEqual(6);
+        });
+
+        /*
+        copy 2 user tasks(UT1 + UT2), one is the first UT on a decision branch, 
+        the other one is not on the branch
+        start -> pre -> ud -> ---------- -> ut2 -> st2 -> end
+                           -> ut1 -> st1 ->
+        result model:
+        UD -> UT1 -> ST1 -> end
+           -> UT2 -> ST2 -> end
+        */
+        it("copy 2 User Task not in decision branch 1st position succeeded", () => {
+            // Arrange
+            const userTaskId1 = "40";
+            const systemTaskId1 = "50";
+            const userTaskId2 = "60";
+            const systemTaskId2 = "70";
+            let userTaskNode1, userTaskNode2;
+            let resultModel: ProcessModels.IProcess;
+            process = TestModels.createDecisionWithFirstBranchEmptyNoXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+
+            // Assert
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
+            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(ProcessCopyPasteHelper.treeEndId, 10));
+            const copiedlinks1 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );            
+            const copiedlinks2 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );
+            expect(copiedlinks1.length).toEqual(1);
+            expect(copiedlinks2.length).toEqual(1);            
+            expect(resultModel.shapes.length).toEqual(5);
+            expect(resultModel.links.length).toEqual(6);
+        });
+
+        /*
+        copy 2 user tasks(UT2 + UT3) in a infinite loop
+        Start -> Pre -> UT1 -> ST1 -> UD -> UT2 -> ST2 -> End
+                                         -> UT3 -> ST3 -> UT1
+        result model:
+        UD -> UT1 -> ST1 -> end
+           -> UT2 -> ST2 -> end
+        */
+        it("copy 2 User Task where one of them in a loop succeeded", () => {
+            // Arrange
+            const userTaskId1 = "60";
+            const systemTaskId1 = "70";
+            const userTaskId2 = "80";
+            const systemTaskId2 = "90";
+            let userTaskNode1, userTaskNode2;
+            let resultModel: ProcessModels.IProcess;
+            process = TestModels.createUserDecisionLoopModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+            // Assert
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(1);
+            expect(resultModel.decisionBranchDestinationLinks[0].destinationId).toEqual(parseInt(ProcessCopyPasteHelper.treeEndId, 10));
+            const copiedlinks1 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );            
+            const copiedlinks2 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );
+            expect(copiedlinks1.length).toEqual(1);
+            expect(copiedlinks2.length).toEqual(1); 
+
+            expect(resultModel.shapes.length).toEqual(5);
+            expect(resultModel.links.length).toEqual(6);
+        });
+
+        /*
+        copy 2 user tasks(UT3 + UT5) in a infinite loop
+        Start -> Pre -> UD -> UT1 -> ST1 -> End
+                           -> UT2 -> ST2 -> UT3 -> ST3 -> UT5
+                           -> UT4 -> ST4 -> UT5 -> ST5 -> UT3
+        result model:
+        UT2 -> ST2 -> UT1 -> ST1 -> end
+        */
+        it("copy 2 User Task in inifinite loop succeeded", () => {
+            // Arrange
+            const userTaskId1 = "80";
+            const systemTaskId1 = "90";
+            const userTaskId2 = "120";
+            const systemTaskId2 = "130";
+            let userTaskNode1, userTaskNode2;
+            let resultModel: ProcessModels.IProcess;
+            process = TestModels.createUserDecisionInfiniteLoopModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+
+            // Assert
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(0);
+            const copiedlinks1 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(userTaskId1, 10)
+            );            
+            const copiedlinks2 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );
+            expect(copiedlinks1.length).toEqual(1);
+            expect(copiedlinks2.length).toEqual(1);            
+            expect(resultModel.shapes.length).toEqual(4);
+            expect(resultModel.links.length).toEqual(4);
+        });
+
+        /*
+        copy 2 user tasks(UT2 + UT4) in a loop from different decisions
+        Start -> Pre -> UD1 -> UT1 -> ST1 -> UD2 -> UT3 -> ST3 -> end
+                            -> UT2 ->ST2 ->UD2    -> UT4 -> ST4 -> UT2
+        result model:
+        UT2 -> ST2 -> UT1 -> ST1 -> end
+        */
+        it("copy 2 User Task in different loop", () => {
+            // Arrange
+            const userTaskId1 = "60";
+            const systemTaskId1 = "70";
+            const userTaskId2 = "110";
+            const systemTaskId2 = "120";
+            let userTaskNode1, userTaskNode2;
+            let resultModel: ProcessModels.IProcess;
+            process = TestModels.createLoopFromDIfferentUserDecisionModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            resultModel = (<ProcessModels.ProcessClipboardData>clipboard.getData()).getData();
+
+            // Assert            
+            expect(resultModel.decisionBranchDestinationLinks.length).toEqual(0);
+            const copiedlinks1 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId1, 10) && l.destinationId === parseInt(userTaskId2, 10)
+            );            
+            const copiedlinks2 = resultModel.links.filter(
+                l => l.sourceId === parseInt(systemTaskId2, 10) && l.destinationId === parseInt(ProcessCopyPasteHelper.treeEndId, 10)
+            );
+            expect(copiedlinks1.length).toEqual(1);
+            expect(copiedlinks2.length).toEqual(1);            
+            expect(resultModel.shapes.length).toEqual(4);
+            expect(resultModel.links.length).toEqual(4);
         });
     });
     
     describe("insert shapes tests", () => {
+        it("insert single shapes succeeded", () => {
+            // Arrange
+            const userTaskId1 = "20";
+            const systemTaskId = 25;
+            const tempUserTaskId = -1;
+            const tempSystemTaskId = -2;
+            const endId = 30;
+
+            process = TestModels.createDefaultProcessModel();
+            initializeCopyPasteHelperAndRenderGraph();
+            graph.layout.setTempShapeId(0);
+            const userTaskNode = graph.getNodeById(userTaskId1);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId], endId);
+            $rootScope.$digest();
+
+            // Assert
+            expect(viewModel.shapes.length).toEqual(7);
+            expect(viewModel.links.length).toEqual(6);
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(0);
+
+            const insertedLinks1 = viewModel.links.filter(
+                l => l.sourceId === systemTaskId && l.destinationId === tempUserTaskId
+            );            
+            const insertedLinks2 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId && l.destinationId === endId
+            );
+            expect(insertedLinks1.length).toEqual(1);
+            expect(insertedLinks2.length).toEqual(1);
+        });
+
+        /*
+        copy 2 user tasks(UT2 + UT4) in a loop from different decisions
+        and insert after preCondition
+        original: 
+        Start -> Pre -> UD1 -> UT1 -> ST1 -> UD2 -> UT3 -> ST3 -> end
+                            -> UT2 ->ST2 ->UD2    -> UT4 -> ST4 -> UT2
+        result:
+        Start -> Pre  -> UD1 -> UT1 -> ST1 -> tempUT1 -> tempST1 -> tempUT2 -> tempST2 -> UD2 -> UT3 -> ST3 -> end
+                             -> UT2 ->ST2 ->tempUT1                                               -> UT4 -> ST4 -> UT2
+
+        */
+        it("copy 2 User Task in different loop and insert at the beginning", () => {
+            // Arrange
+            const userTaskId1 = "60";
+            const userTaskId2 = "110";
+            const systemTaskId1 = 50;
+            const systemTaskId2 = 70;
+            const userDecisionId2 = 80;
+            const tempUserTaskId1 = -1;
+            const tempSystemTaskId2 = -4;
+
+            let userTaskNode1, userTaskNode2;
+            process = TestModels.createLoopFromDIfferentUserDecisionModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            graph.layout.setTempShapeId(0);
+            
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId1, systemTaskId2], userDecisionId2);
+            $rootScope.$digest();
+
+            // Assert       
+            expect(viewModel.shapes.length).toEqual(17);
+            expect(viewModel.links.length).toEqual(18);     
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(2);
+
+            const insertedLinks1 = viewModel.links.filter(
+                l => l.sourceId === systemTaskId1 && l.destinationId === tempUserTaskId1
+            );        
+            const insertedLinks2 = viewModel.links.filter(
+                l => l.sourceId === systemTaskId2 && l.destinationId === tempUserTaskId1
+            );    
+            const insertedLinks3 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId2 && l.destinationId === userDecisionId2
+            );     
+            expect(insertedLinks1.length).toEqual(1);
+            expect(insertedLinks2.length).toEqual(1);
+            expect(insertedLinks3.length).toEqual(1);
+
+        });
+
         it("clears out include if target process is same as include.", () => {
             // Arrange
-            let userTaskId = "20";
-            let expectedModel: ProcessModels.IProcess;
+            const userTaskId = "20";
             process = TestModels.createDefaultProcessModel();
-
-            clientModel = new ProcessGraphModel(process);
-            viewModel = new ProcessViewModel(clientModel, communicationManager);
-            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService,
-                localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
-            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard,
-                shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
-            graph.render(true, null);
+            initializeCopyPasteHelperAndRenderGraph();
             const userTaskNode = graph.getNodeById(userTaskId);
             spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
             spyOn(viewModel, "addToSubArtifactCollection");
@@ -181,19 +483,12 @@ describe("ProcessCopyPasteHelper tests", () => {
                 a => a.id < 0 && a.propertyValues[shapesFactory.ClientType.key].value === ProcessEnums.ProcessShapeType.UserTask)[0];
             expect(newlyAddedUserTask.associatedArtifact).toBeNull();
         });
+
         it("clears out story links for copied user tasks.", () => {
             // Arrange
-            let userTaskId = "20";
-            let expectedModel: ProcessModels.IProcess;
+            const userTaskId = "20";
             process = TestModels.createDefaultProcessModel();
-
-            clientModel = new ProcessGraphModel(process);
-            viewModel = new ProcessViewModel(clientModel, communicationManager);
-            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService,
-                localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
-            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard,
-                shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
-            graph.render(true, null);
+            initializeCopyPasteHelperAndRenderGraph();
             const userTaskNode = graph.getNodeById(userTaskId);
             spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
             spyOn(viewModel, "addToSubArtifactCollection");
@@ -218,14 +513,8 @@ describe("ProcessCopyPasteHelper tests", () => {
     describe("copy images tests", () => {
         beforeEach(() => {
             let userTaskNode;
-            let expectedModel: ProcessModels.IProcess;
             process = TestModels.createDefaultProcessModel();
-            clientModel = new ProcessGraphModel(process);
-            viewModel = new ProcessViewModel(clientModel, communicationManager);
-            graph = new ProcessGraph($rootScope, localScope, container, viewModel, dialogService, 
-            localization, shapesFactory, messageService, $log, statefulArtifactFactory, clipboard, fileUploadService, $q, loadingOverlayService);
-            copyPasteHelper = new ProcessCopyPasteHelper(graph, clipboard, 
-            shapesFactory, messageService, $log, fileUploadService, $q, loadingOverlayService, localization);
+            initializeCopyPasteHelperAndRenderGraph();
         });
 
 

@@ -16,7 +16,7 @@ export interface IModalDialogCommunication {
 
     registerUserStoryLoadedObserver(observer: any);
     removeUserStoryLoadedObserver(handler: string);
-    setUserStoryLoaded(modalProcessViewModel: any);
+    notifyUserStoryLoaded(isLoaded: boolean);
 
     onDestroy();
 }
@@ -86,7 +86,7 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
         this.userStoryLoadedSubject.disposeObserver(handler);
     }
 
-    public setUserStoryLoaded(isLoaded: boolean) {
+    public notifyUserStoryLoaded(isLoaded: boolean) {
         this.userStoryLoadedSubject.notify(isLoaded);
     }
 

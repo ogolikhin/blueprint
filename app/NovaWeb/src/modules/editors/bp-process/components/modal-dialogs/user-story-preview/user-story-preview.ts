@@ -29,16 +29,18 @@ export class UserStoryPreviewController extends BaseModalDialogController<UserSt
 
         this.userStoryLoadedHandler = this.communicationManager.modalDialogManager.registerUserStoryLoadedObserver(this.onUserStoryLoaded);
 
-        $scope.$on("$destory", () => {
-            this.communicationManager.modalDialogManager.removeUserStoryLoadedObserver(this.userStoryLoadedHandler);
-        });
+        $uibModalInstance.closed.then(this.onModalClosed);
     }
-
-    private onUserStoryLoaded = (isUserStoryLoaded) => {
-        this.isUserStoryLoaded = isUserStoryLoaded;        
+    
+    private onUserStoryLoaded = () => {
+        this.isUserStoryLoaded = true;        
     }
 
     public showWings(): boolean {
         return !!this.$scope.dialogModel && this.$scope.dialogModel["isUserSystemProcess"] && this.isUserStoryLoaded;
+    }
+
+    private onModalClosed = () => {        
+        this.communicationManager.modalDialogManager.removeUserStoryLoadedObserver(this.userStoryLoadedHandler);
     }
 }

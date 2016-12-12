@@ -205,7 +205,7 @@ export class PreviewCenterController {
     }
 
     private onUserStoryLoaded = () => {
-        this.communicationManager.modalDialogManager.setUserStoryLoaded(true);
+        this.communicationManager.modalDialogManager.notifyUserStoryLoaded(true);
     }
 
     private loadMetaData(statefulArtifact: IStatefulArtifact) {

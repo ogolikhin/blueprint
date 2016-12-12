@@ -12,18 +12,12 @@ describe("BPCollapsible Directive", () => {
     }));
 
     beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        let ContainterId = "discussion-scrollable-content";
-        let collapsibleElementHtml = `<div class='collapsible' bp-collapsible='80' scrollable-container-id=${ContainterId} style='height:250px;'></div>`;
+        let collapsibleElementHtml = `<div class='collapsible' bp-collapsible='80' style='height:250px;'></div>`;
         longElement = angular.element(`<div class='scrollable-content'>${collapsibleElementHtml}</div>`);
         const scope = $rootScope.$new();
         let element = $compile(longElement)(scope);
         angular.element("body").append(element);
         scope.$digest();
-        let perfectScrollbar = {};
-        perfectScrollbar["update"] = () => {
-            return;
-        };
-        (<any>window).PerfectScrollbar = perfectScrollbar;
     }));
 
     afterEach(function () {

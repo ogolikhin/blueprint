@@ -2,8 +2,7 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 export class BPCollapsible implements ng.IDirective {
     public restrict = "A";
     public scope = {
-        bpCollapsible: "=",
-        scrollableContainerId: "@"
+        bpCollapsible: "="
     };
 
     constructor(private $timeout: ng.ITimeoutService,
@@ -35,6 +34,7 @@ export class BPCollapsible implements ng.IDirective {
         let showLessClick = () => {
             $element.addClass("collapsed");
             $element[0].style.height = $scope.bpCollapsible + "px";
+            $element[0].scrollTop = 0; // scroll to the top of the collapsed element (in case it had a vertical scrollbar)
         };
 
         showMore[0].addEventListener("click", showMoreClick);

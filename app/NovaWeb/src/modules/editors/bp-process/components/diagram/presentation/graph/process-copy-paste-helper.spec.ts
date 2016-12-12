@@ -402,7 +402,7 @@ describe("ProcessCopyPasteHelper tests", () => {
 
         /*
         copy 2 user tasks(UT2 + UT4) in a loop from different decisions
-        and insert after preCondition
+        and insert before second user decision
         original: 
         Start -> Pre -> UD1 -> UT1 -> ST1 -> UD2 -> UT3 -> ST3 -> end
                             -> UT2 ->ST2 ->UD2    -> UT4 -> ST4 -> UT2
@@ -411,7 +411,7 @@ describe("ProcessCopyPasteHelper tests", () => {
                              -> UT2 ->ST2 ->tempUT1                                               -> UT4 -> ST4 -> UT2
 
         */
-        it("copy 2 User Task in different loop and insert at the beginning", () => {
+        it("copy 2 User Task in different loop and insert before second user decision", () => {
             // Arrange
             const userTaskId1 = "60";
             const userTaskId2 = "110";

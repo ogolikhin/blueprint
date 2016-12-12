@@ -6,7 +6,6 @@ import {ProcessEvents} from "./../../process-diagram-communication";
 import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessGraphSelectionHelper {
-    private isSingleSelection: boolean = true;
     private isProgrammaticSelectionChange: boolean = false; 
 
     constructor(private processGraph: IProcessGraph) {
@@ -41,10 +40,7 @@ export class ProcessGraphSelectionHelper {
         }
 
         if (cell instanceof SystemTask && !(<SystemTask>cell).callout.isVisible()) {
-            if (this.isSingleSelection) {
-                this.mxGraph.clearSelection();
-            }
-
+            this.mxGraph.clearSelection();
             return null;
         }
 

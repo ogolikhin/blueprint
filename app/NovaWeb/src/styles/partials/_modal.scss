@@ -214,18 +214,21 @@ $modal-open-project-height: 450px;
             }
 
             & > i {
+                color: $brand-secondary;
                 font-size: 24px;
                 line-height: 36px;
-                color: $brand-secondary;
             }
 
             .item-icon__fallback {
+                color: $brand-secondary;
+                font-size: 24px;
+                line-height: 36px;
                 width: 36px;
             }
 
             .item-icon__image--fallback {
-                max-width: 100%;
                 max-height: 36px;
+                max-width: 32px;
             }
 
             &:hover {

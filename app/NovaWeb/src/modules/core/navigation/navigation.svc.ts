@@ -199,6 +199,8 @@ export class NavigationService implements INavigationService {
             const newPath = path.slice(0, pathIndex).map(item => this.getPathItemString(item.id, item.version));
             return newPath.length ? newPath : undefined;
         }
+
+        return undefined;
     }
 
     private navigateToArtifactInternal(parameters: any, stateOptions?: ng.ui.IStateOptions): ng.IPromise<any> {

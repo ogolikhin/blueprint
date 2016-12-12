@@ -1062,7 +1062,7 @@ bp-select.persona-reference__dropdown .dropdown{
 
 .bp-select__selected-label {
     font-size: $font-size-big;
-    @include text-ellipsis-flex-width(95%);
+    @include text-ellipsis-flex-width(calc(100% - 50px));
     display: inline-block;
 }
 

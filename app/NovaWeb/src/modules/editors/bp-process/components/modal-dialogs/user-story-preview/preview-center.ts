@@ -1,3 +1,4 @@
+import {ICommunicationManager} from "./../../../services/communication-manager";
 import {UserStoryProperties} from "../../diagram/presentation/graph/shapes/user-task";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
@@ -38,7 +39,8 @@ export class PreviewCenterController {
         "$state",
         "statefulArtifactFactory",
         "messageService",
-        "localization"
+        "localization",        
+        "communicationManager"
     ];
 
     public resizeContentAreas = function (isTabSetVisible) {
@@ -135,7 +137,8 @@ export class PreviewCenterController {
                 private $state: angular.ui.IStateService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private messageService: IMessageService,
-                private localization: ILocalizationService) {
+                private localization: ILocalizationService,
+                private communicationManager: ICommunicationManager) {
 
         this.subscribers = [];
         this.isReadonly = $scope.$parent["vm"].isReadonly;
@@ -192,12 +195,17 @@ export class PreviewCenterController {
                 });
 
             const observer = this.statefulUserStoryArtifact.getObservable().subscribe((obs: IStatefulArtifact) => {
+                this.onUserStoryLoaded();
                 this.loadMetaData(obs);
             });
             this.subscribers = [observer];
 
             this.subscribers.push(stateObserver);
         }
+    }
+
+    private onUserStoryLoaded = () => {
+        this.communicationManager.modalDialogManager.setUserStoryLoaded(true);
     }
 
     private loadMetaData(statefulArtifact: IStatefulArtifact) {

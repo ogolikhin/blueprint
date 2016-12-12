@@ -12,7 +12,11 @@ export interface IModalDialogCommunication {
 
     registerModalProcessViewModelObserver(observer: any);
     removeModalProcessViewModelObserver(handler: string);
-    setModalProcessViewModel(modalProcessViewModel: any);
+    setModalProcessViewModel(modalProcessViewModel: any);    
+
+    registerUserStoryLoadedObserver(observer: any);
+    removeUserStoryLoadedObserver(handler: string);
+    setUserStoryLoaded(modalProcessViewModel: any);
 
     onDestroy();
 }
@@ -21,6 +25,7 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
     private setGraphSubject: ICommunicationWrapper;
     private openDialogSubject: ICommunicationWrapper;
     private setModalProcessViewModelSubject: ICommunicationWrapper;
+    private userStoryLoadedSubject: ICommunicationWrapper;
 
     constructor() {
 
@@ -30,6 +35,7 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
         this.setGraphSubject = new CommunicationWrapper();
         this.openDialogSubject = new CommunicationWrapper();
         this.setModalProcessViewModelSubject = new CommunicationWrapper();
+        this.userStoryLoadedSubject = new CommunicationWrapper();
     };
 
     // 1. Set graph object  
@@ -70,11 +76,25 @@ export class ModalDialogCommunication implements IModalDialogCommunication {
     public setModalProcessViewModel(modalProcessViewModel: any) {
         this.setModalProcessViewModelSubject.notify(modalProcessViewModel);
     }
+    
+    // 4. User Story Loaded
+    public registerUserStoryLoadedObserver(observer: any): string {
+        return this.userStoryLoadedSubject.subscribe(observer);
+    }
+
+    public removeUserStoryLoadedObserver(handler: string) {
+        this.userStoryLoadedSubject.disposeObserver(handler);
+    }
+
+    public setUserStoryLoaded(isLoaded: boolean) {
+        this.userStoryLoadedSubject.notify(isLoaded);
+    }
 
     public onDestroy() {
         this.setGraphSubject.dispose();
         this.openDialogSubject.dispose();
         this.setModalProcessViewModelSubject.dispose();
+        this.userStoryLoadedSubject.dispose();
     }
 }
 

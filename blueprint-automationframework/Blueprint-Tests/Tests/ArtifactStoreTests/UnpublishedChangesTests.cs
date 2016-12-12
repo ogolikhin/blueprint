@@ -218,7 +218,7 @@ namespace ArtifactStoreTests
             AssertArtifactsAndProjectsResponseIsOrderedByProjectNameThenByArtifactId(unpublishedChanges);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // We can't move artifacts from one project to another yet.  https://trello.com/c/V3AdEzXK
+        [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // We can't move artifacts from one project to another yet.  https://trello.com/c/V3AdEzXK
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(000)]     // TODO: Add to TestRail once this test is working.
         [Description("Create & publish an artifact, then move it to a different project.  GetUnpublishedChanges.  Verify the artifact and the specified projects are returned.")]

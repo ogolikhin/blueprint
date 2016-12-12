@@ -92,6 +92,7 @@ export interface IColumn {
     isCheckboxHidden?: boolean;
     cellClass?: (vm: ITreeNode) => string[];
     cellRenderer?: (params: IColumnRendererParams) => string;
+    suppressSizeToFit?: boolean;
 }
 
 export interface IColumnRendererParams {
@@ -289,6 +290,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                     headerName: column.headerName ? column.headerName : "",
                     field: column.field,
                     width: column.width,
+                    minColWidth: column.minColWidth,
+                    suppressSizeToFit: column.suppressSizeToFit,
                     cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
                     cellRenderer: column.isGroup ? "group" : column.cellRenderer,
                     cellRendererParams: column.isGroup ? this.getCellRendererParams(column) : undefined,

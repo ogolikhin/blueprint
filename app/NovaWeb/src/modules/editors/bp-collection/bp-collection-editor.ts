@@ -258,8 +258,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             },
             {
                 headerName: this.localization.get("Label_Options"),
-                width: 60,
-                colWidth: 60,
+                width: 70,
+                suppressSizeToFit: true,
                 isCheckboxHidden: true,
                 cellRenderer: (params: IColumnRendererParams) => {
                     params.$scope["removeArtifact"] = ($event) => {

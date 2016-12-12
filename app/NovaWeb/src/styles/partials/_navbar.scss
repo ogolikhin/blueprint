@@ -72,9 +72,10 @@
 
     .dropdown-menu-help {
         background: $navbar-color;
-        min-width: 70px;
+        min-width: 100px;
         margin-top: 0;
-        right: -13px;
+        right: -15px;
+        @include rounded-corners(0);
     }
 
     .dropdown-menu-help-btn {
@@ -84,8 +85,13 @@
         border: 0;
 
         &:hover {
-            background: $white;
-            color: $black;
+            background: $brand-secondary;
+            color: $white;
+        }
+        &:hover,
+        &:active,
+        &:focus {
+            outline: 0;
         }
     }
 

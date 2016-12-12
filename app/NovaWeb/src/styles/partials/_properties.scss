@@ -78,6 +78,7 @@ pagecontent, bp-properties-panel {
             .content.system-properties {
                 display: block;
                 height: #{$property-min-height + 12px};
+                overflow: hidden;
 
                 &.collapse:not(.in) .formly .formly-field:first-child {
                     width: 100%;

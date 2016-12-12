@@ -1,62 +1,63 @@
 import {ILocalizationService} from "../../../core/localization/localizationService";
-export class BPCollapsible implements ng.IDirective {
-    public restrict = "A";
-    public scope = {
-        bpCollapsible: "=",
-        scrollableContainerId: "@"
-    };
+class BPCollapsibleCtrl {
+    static $inject = ["$timeout", "$compile", "localization"];
+    private element: HTMLElement;
 
     constructor(private $timeout: ng.ITimeoutService,
+                private $compile: ng.ICompileService,
                 private localization: ILocalizationService) {
+        //controller constructor
     }
 
-    public static factory() {
-        const directive = ($timeout: ng.ITimeoutService,
-                           localization: ILocalizationService) => new BPCollapsible($timeout, localization);
+    public showMoreClick() {
+        this.element.classList.remove("collapsible__collapsed");
+        this.element.classList.add("collapsible__expanded");
+        this.element.style.height = "";
+    }
 
-        directive["$inject"] = [
-            "$timeout",
-            "localization"
-        ];
+    public showLessClick(height: number) {
+        this.element.classList.remove("collapsible__expanded");
+        this.element.classList.add("collapsible__collapsed");
+        this.element.style.height = `${height}px`;
+        this.element.scrollTop = 0; // scroll to the top of the collapsed element (in case it had a vertical scrollbar)
+    }
+}
 
+export class BPCollapsible implements ng.IDirective {
+    static instance(): ng.IDirectiveFactory {
+        const directive = () => new BPCollapsible();
         return directive;
     }
 
-    public link: ng.IDirectiveLinkFn = ($scope: any, $element: ng.IAugmentedJQuery, attr: ng.IAttributes) => {
+    public restrict = "A";
+    public scope = {
+        bpCollapsible: "="
+    };
+    public controller = BPCollapsibleCtrl;
+    public controllerAs = "$ctrl";
 
-        let showMore = angular.element(`<div class='show-more'><span>${this.localization.get("App_Collapsible_ShowMore")}</span></div>`);
-        let showLess = angular.element(`<div class='show-less'><span>${this.localization.get("App_Collapsible_ShowLess")}</span></div>`);
+    public link: ng.IDirectiveLinkFn = ($scope: any, $element: ng.IAugmentedJQuery, attr: ng.IAttributes, ctrl: any) => {
+        const element = $element[0] as HTMLElement;
+        const desiredHeight = ($scope.bpCollapsible || 0) as number;
+        ctrl.element = element;
 
-        let showMoreClick = () => {
-            $element.removeClass("collapsed");
-            $element[0].style.height = "";
-        };
+        const showMore = angular.element(ctrl.$compile(`<div class="collapsible__show-more">` +
+            `<button class="collapsible__button btn-link" ng-click="$ctrl.showMoreClick()">${ctrl.localization.get("App_Collapsible_ShowMore")}</button>` +
+            `</div>`)($scope));
+        const showLess = angular.element(ctrl.$compile(`<div class="collapsible__show-less">` +
+            `<button class="collapsible__button btn-link" ng-click="$ctrl.showLessClick(${desiredHeight})">` +
+            `${ctrl.localization.get("App_Collapsible_ShowLess")}</button></div>`)($scope));
 
-        let showLessClick = () => {
-            $element.addClass("collapsed");
-            $element[0].style.height = $scope.bpCollapsible + "px";
-        };
-
-        showMore[0].addEventListener("click", showMoreClick);
-        showLess[0].addEventListener("click", showLessClick);
-
-        this.$timeout(() => {
+        ctrl.$timeout(() => {
             //displays the 'show more' and 'show less' part if comment height is more than desired size + (%30 of desired size)
-            if ($element[0].offsetHeight > 1.3 * $scope.bpCollapsible) {
-                $element.addClass("collapsed");
-                $element[0].style.height = `${$scope.bpCollapsible}px`;
-                $element.append(showMore[0]);
-                $element.append(showLess[0]);
+            if (element.offsetHeight > 1.3 * $scope.bpCollapsible) {
+                element.classList.add("collapsible__collapsed");
+                element.style.height = `${desiredHeight}px`;
+                element.appendChild(showMore[0]);
+                element.appendChild(showLess[0]);
+            } else {
+                element.classList.add("collapsible__expanded");
             }
-        });
-
-        $scope.$on("$destroy", () => {
-            showMore[0].removeEventListener("click", showMoreClick);
-            showLess[0].removeEventListener("click", showLessClick);
-            showMore = undefined;
-            showLess = undefined;
-            showLessClick = undefined;
-            showMoreClick = undefined;
         });
     };
 }

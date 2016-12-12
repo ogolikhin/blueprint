@@ -258,7 +258,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             },
             {
                 headerName: this.localization.get("Label_Options"),
-                width: 70,
+                width: 60,
                 suppressSizeToFit: true,
                 isCheckboxHidden: true,
                 cellRenderer: (params: IColumnRendererParams) => {

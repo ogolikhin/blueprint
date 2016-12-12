@@ -244,6 +244,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         }
     }
 
+    public isUserDecision(): boolean {
+        return this.dialogModel.originalDecision.getNodeType() === NodeType.UserDecision;
+    }
+
     // This is a workaround to force re-rendering of the dialog
     public refreshView() {
         const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;

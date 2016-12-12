@@ -247,23 +247,30 @@ export class ProcessDiagram {
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        this.$rootScope.$applyAsync(() => {
-                            this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                        });
+                        this.setSubArtifactSelectionAsync(loadedSubArtifact);
                     });
             }
         } else if (elements.length > 1) {
             // multiple selection
-            this.$rootScope.$applyAsync(() => {
-                this.artifactManager.selection.setSubArtifact(undefined, true);
-            });
- 
+            this.setSubArtifactSelectionAsync(undefined, true);
         } else {
             // empty selection
             this.$rootScope.$applyAsync(() => {
-                this.artifactManager.selection.clearSubArtifact();
+                //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
+                if (this.graph) {
+                    this.artifactManager.selection.clearSubArtifact();
+                }
             });
         }
+    }
+
+    private setSubArtifactSelectionAsync(subArtifact: IStatefulSubArtifact, multiSelect: boolean = false) {
+        this.$rootScope.$applyAsync(() => {
+            //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
+            if (this.graph) {
+                this.artifactManager.selection.setSubArtifact(subArtifact, multiSelect);
+            }
+        });
     }
     
     private handleInitProcessGraphFailed(processId: number, err: any) {

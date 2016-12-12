@@ -107,7 +107,7 @@ export class Layout implements ILayout {
                     if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
                         if (node.getNodeType() === NodeType.SystemTask) {
                             (<SystemTask>node).setCellVisible(this.mxgraph, false);
-                        }                        
+                        }
                     }
                 }
             }
@@ -483,7 +483,19 @@ export class Layout implements ILayout {
     }
 
     private postRender(id: number) {
-        this.selectNode(this.getNodeById(id.toString()));
+        const nodeToSelect: IDiagramNode = this.getNodeById(id.toString());
+
+        if (!nodeToSelect) {
+            return;
+        }
+
+        if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
+            if (nodeToSelect.getNodeType() === NodeType.SystemTask) {
+                return;
+            }
+        }
+
+        this.selectNode(nodeToSelect);
     }
 
     private addConnector(graphModel, link: IProcessLinkModel, sourceId: number = link.sourceId, destinationId: number = link.destinationId) {

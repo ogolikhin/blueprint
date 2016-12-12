@@ -38,6 +38,7 @@ export class PageToolbarController implements IPageToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
+    private _canCreateNew: boolean = false;
 
     private get discardAllManyThreshold(): number {
         return 50;
@@ -147,7 +148,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        const artifact = this._currentArtifact;
+        const artifact = this._currentArtifact; 
         const projectId = artifact.projectId;
         const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
         this.dialogService.open(<IDialogSettings>{
@@ -258,19 +259,23 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
-    public refreshAll = (evt: ng.IAngularEvent) => {
+    public refreshAll = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
         }
-
-        if (!this.isProjectOpened) {
-            return;
+        let promise: ng.IPromise<any>;
+        let artifact: IStatefulArtifact;
+        if (this.isProjectOpened) {
+            promise = this.projectManager.refreshAll();    
+        } else if (artifact = this.artifactManager.selection.getArtifact()) {
+            promise = artifact.refresh();
         }
-
-        let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
-        this.projectManager.refreshAll().finally(() => {
-            this.loadingOverlayService.endLoading(refreshAllLoadingId);
-        });
+        if (promise) {
+            let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
+            promise.finally(() => {
+                this.loadingOverlayService.endLoading(refreshAllLoadingId);
+            });
+        }
     };
     public openTour = (evt?: ng.IAngularEvent) => {
         if (evt) {
@@ -409,13 +414,7 @@ export class PageToolbarController implements IPageToolbarController {
                 if (statefulArtifact) {
                     statefulArtifact.discard();
                 }
-
-                if (this.projectManager.projectCollection.getValue().length > 0) {
-                    //refresh all after discard all finishes
-                    this.projectManager.refreshAll();
-                } else {
-                    statefulArtifact.refresh();
-                }
+                this.refreshAll();
 
                 this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })
@@ -423,8 +422,6 @@ export class PageToolbarController implements IPageToolbarController {
                 this.loadingOverlayService.endLoading(publishAllLoadingId);
             });
     }
-
-
 
     showSubLevel(evt: any): void {
         // this is needed to allow tablets to show submenu (as touch devices don't understand hover)
@@ -445,6 +442,11 @@ export class PageToolbarController implements IPageToolbarController {
 
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact = artifact;
+        //calculate properties
+        this._canCreateNew = this._currentArtifact && 
+                            !this._currentArtifact.artifactState.historical && 
+                            !this._currentArtifact.artifactState.deleted &&
+                            (this._currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     };
 
     public get isProjectOpened(): boolean {
@@ -452,16 +454,11 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     public get isArtifactSelected(): boolean {
-        return this.isProjectOpened && !!this.artifactManager.selection.getArtifact();
+        return this.isProjectOpened && !!this._currentArtifact;
     }
 
     public get canCreateNew(): boolean {
-        const currArtifact = this._currentArtifact;
-        // if no artifact/project is selected and the project explorer is not open at all, always disable the button
-        // We check isArtifactSelected because we don't clear _currentArtifact when unselecting artifacts (a consequence of how we designed the observable)
-        return this.isArtifactSelected && currArtifact
-            && !currArtifact.artifactState.historical && !currArtifact.artifactState.deleted &&
-            (currArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
+        return this._canCreateNew;
     }
 
 

@@ -232,7 +232,7 @@ pagecontent, bp-properties-panel {
             flex-grow: 0;
             flex-shrink: 0;
 
-            &::before {
+            &::before, .item-icon__icon::before {
                 color: $gray;
                 font-family: 'bp-line-icons';
                 font-size: 24px;
@@ -242,12 +242,13 @@ pagecontent, bp-properties-panel {
 
             bp-item-type-icon {
                 display: block;
-                height: 32px;
+                height: 24px;
                 margin-top: 5px;
-                width: 32px;
+                width: 24px;
 
                 img {
                     background-color: $blue-lightest;
+                    width: 24px;
                 }
             }
         }

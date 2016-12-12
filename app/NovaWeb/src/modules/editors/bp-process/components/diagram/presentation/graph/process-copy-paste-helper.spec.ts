@@ -515,7 +515,7 @@ describe("ProcessCopyPasteHelper tests", () => {
 
         });
 
-        fit("copy 2 User Task with System Decision and insert before end", () => {
+        it("copy 2 User Task with System Decision and insert before end", () => {
             // Arrange
             const userTaskId = "30";
             const systemTaskId1 = 50;

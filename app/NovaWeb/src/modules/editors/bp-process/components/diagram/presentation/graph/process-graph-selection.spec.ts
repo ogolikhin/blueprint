@@ -15,7 +15,6 @@ import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {StatefulArtifactFactoryMock} from "./../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import * as TestModels from "../../../../models/test-model-factory";
-import * as TestShapes from "../../../../models/test-shape-factory";
 
 describe("ProcessGraphSelectionHelper", () => {
     let $rootScope: ng.IRootScopeService;

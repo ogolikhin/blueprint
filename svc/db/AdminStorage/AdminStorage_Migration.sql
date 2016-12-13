@@ -1116,6 +1116,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Succes
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Single_Dialog_Message', 'en-US', N'This artifact will be restored to its last published version. If it has never been published, it will be deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Dependents_Dialog_Message', 'en-US', N'If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Success_Message', 'en-US', N'Changes have been discarded.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_No_Changes', 'en-US', N'This artifact has no changes to discard and will now be refreshed to the most recent version.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Header', 'en-US', N'Move to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Artifacts_Picker_Header', 'en-US', N'Copy to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Insert_Label', 'en-US', N'Insert:')

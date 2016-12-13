@@ -39,8 +39,7 @@ export class BPCommentEditController {
         relative_urls: false,
         remove_script_host: false,
         statusbar: false,
-        content_style: `html { height: 100%; overflow: auto !important; }
-                        body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 12pt; min-height: 100px;`,
+        content_style: `body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 12pt; min-height: 100px;}`,
         menubar: false,
         extended_valid_elements: MentionService.requiredAttributes,
         invalid_elements: "img,frame,iframe,script",

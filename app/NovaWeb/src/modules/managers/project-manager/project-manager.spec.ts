@@ -1,12 +1,9 @@
 ﻿import "angular";
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-//import {SettingsService} from "../../core";
-//import {MessageService} from "../../shell/";
-//import {ProjectRepositoryMock} from "./project-repository.mock";
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
-import {ProjectManager, IProjectManager} from "./project-manager";
-import {Models} from "../../main/models";
+import {ProjectManager, IProjectManager, IArtifactNode} from "./project-manager";
+import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
 import {IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
 import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
@@ -19,6 +16,8 @@ import {AnalyticsProviderMock} from "../../main/components/analytics/analyticsPr
 import {ProjectServiceMock} from "./project-service.mock";
 import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
 import {StatefulArtifactMock} from "../../managers/artifact-manager/artifact/artifact.mock";
+import {ProjectServiceStatusCode} from "./project-service";
+import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("Project Manager Test", () => {
 
@@ -26,10 +25,8 @@ describe("Project Manager Test", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        //$provide.service("settings", SettingsService);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-        //$provide.service("projectRepository", ProjectRepositoryMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
@@ -42,17 +39,35 @@ describe("Project Manager Test", () => {
         $provide.service("analytics", AnalyticsProviderMock);
     }));
     beforeEach(inject(($q: ng.IQService, $compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
-        selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock, artifactManager: ArtifactManagerMock) => {
-        /*$rootScope["config"] = {
-            "settings": {
-                "StorytellerMessageTimeout": `{"Warning": 0, "Info": 3000, "Error": 0}`
-            }
-        };*/
+        selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock, artifactManager: ArtifactManagerMock,
+        projectService: ProjectServiceMock) => {
         artifactManager.selection = selectionManager;
-        //const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
         const artifact = new StatefulArtifactMock($q);
+        artifact.id = 20;
+        artifact.projectId = 10;
+        artifact.parentId = 10;
         selectionManager.setArtifact(artifact);
         projectManager.initialize();
+        let factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+
+        const project = {
+                id: 10,
+                name: "oldName",
+                parentFolderId: undefined,
+                type: AdminStoreModels.InstanceItemType.Project,
+                hasChildren: true,
+                projectId: 10,
+                itemTypeId: Enums.ItemTypePredefined.Project,
+                prefix: "PR",
+                itemTypeName: "Project",
+                predefinedType: Enums.ItemTypePredefined.Project
+                //permissions: projectInfo.permissions
+        } as AdminStoreModels.IInstanceItem;
+        const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(project);
+        let projectNode = factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+
+        projectManager.projectCollection.getValue().unshift(projectNode);
+        projectManager.projectCollection.getValue().unshift(factory.createStatefulArtifactNodeVM(artifact));
     }));
 
     describe("add project", () => {
@@ -61,24 +76,28 @@ describe("Project Manager Test", () => {
             
             //Act
             let error: Error;
-            projectManager.add(10).catch((err) => error = err);
+            projectManager.add(11).catch((err) => error = err);
             $rootScope.$digest();
 
             //Asserts
             expect(error).toBeUndefined();
-            expect(projectManager.projectCollection.getValue().length === 1);
+            expect(projectManager.projectCollection.getValue().length === 3);
             expect(projectManager.projectCollection.getValue()[0].model.id === 10);
+            expect(projectManager.projectCollection.getValue()[1].model.id === 20);
+            expect(projectManager.projectCollection.getValue()[2].model.id === 11);
         })));
      });
 
      describe("refresh project", () => {
-        it("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("single project success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
-            /*const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
-            this.artifactManager.add(statefulArtifact);
-            projectNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
-            this.projectCollection.getValue().unshift(projectNode);*/
-            projectManager.add(10).catch((err) => error = err);
+            spyOn(projectService, "getProjectTree").and.callFake(() => {
+                    return $q.resolve([<Models.IArtifact>{
+                            id: 10,
+                            name: "newName"
+                    }]);
+            });
 
             //Act
             let error: Error;
@@ -87,8 +106,36 @@ describe("Project Manager Test", () => {
 
             //Asserts
             expect(error).toBeUndefined();
-            //expect(projectManager.projectCollection.getValue().length === 1);
-            //expect(projectManager.projectCollection.getValue()[0].model.id === 10);
+            expect(projectManager.projectCollection.getValue().length === 2);
+            expect(projectManager.projectCollection.getValue()[0].model.id === 10);
+            expect(projectManager.projectCollection.getValue()[0].model.name === "newName");
+        })));
+
+        it("single project selected artifact not found", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
+                    if (expandToArtifactId === 20) {
+                            return $q.reject({statusCode: HttpStatusCode.NotFound, errorCode: ProjectServiceStatusCode.ResourceNotFound});
+                    } else {
+                            return $q.resolve([<Models.IArtifact>{
+                            id: 10,
+                            name: "newName"
+                    }]);
+                    }
+                
+            });
+           
+            //Act
+            let error: Error;
+            projectManager.refresh(10).catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(projectManager.projectCollection.getValue().length === 2);
+            expect(projectManager.projectCollection.getValue()[0].model.id === 10);
+            expect(projectManager.projectCollection.getValue()[0].model.name === "newName");
         })));
      });
 

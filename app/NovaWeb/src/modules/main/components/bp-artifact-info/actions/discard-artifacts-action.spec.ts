@@ -50,14 +50,14 @@ describe("DiscardArtifactsAction", () => {
     }));
 
     it("throws exception when localization is null", () => {
-        expect(() => new DiscardArtifactsAction(publishService, null, messageService, loadingOverlayService, projectManager))
+        expect(() => new DiscardArtifactsAction(publishService, null, messageService, loadingOverlayService, projectManager, null))
             .toThrow(new Error("Localization service not provided or is null"));
     });
 
     it("is disabled when no artifacts are provided", () => {
         // arrange
         const artifacts = [];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, null);
 
         // act
         action.updateList(artifacts);
@@ -69,7 +69,7 @@ describe("DiscardArtifactsAction", () => {
     it("is enabled when artifacts are provided", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, null);
 
         // act
         action.updateList(artifacts);
@@ -81,7 +81,7 @@ describe("DiscardArtifactsAction", () => {
     it("calls discard and refreshes projects (if project loaded) when successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, null);
         action.updateList(artifacts);
 
         const discardSpy = spyOn(publishService, "discardArtifacts").and.returnValue($q.resolve({
@@ -107,7 +107,7 @@ describe("DiscardArtifactsAction", () => {
     it("calls discard and doesn't refresh projects (if no project loaded) when successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, null);
         action.updateList(artifacts);
 
         const discardSpy = spyOn(publishService, "discardArtifacts").and.returnValue($q.resolve({
@@ -133,7 +133,7 @@ describe("DiscardArtifactsAction", () => {
     it("reloads unpublished artifacts and shows error when un-successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, null);
         action.updateList(artifacts);
 
         const publishSpy = spyOn(publishService, "discardArtifacts").and.returnValue($q.reject("error"));

@@ -1,5 +1,6 @@
-﻿import * as angular from "angular";
+﻿import "angular";
 import "angular-mocks";
+import "lodash";
 import {LocalizationServiceMock} from "../localization/localization.mock";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
@@ -49,21 +50,24 @@ describe("messages container directive", () => {
         let controller: MessageContainerController;
         let scope = $rootScope.$new();
 
-        let message = "show {0} items of type {1}";
+        let message = "show {0} <strong>items</strong> of type {1}";
         let par1 = 3;
         let par2 = "variable";
-        let result = "show 3 items of type variable";
+        let result = "show 3 <strong>items</strong> of type variable";
 
         messageService.addMessage(new Message(MessageType.Info, message, false, par1, par2));
 
         element = $compile("<messages-container/>")(scope);
         scope.$digest();
         controller = element.isolateScope()["messageContainterCntrl"];
+        const messageContainer = element.find("message")[0] as HTMLElement;
+        const messageText = messageContainer.firstElementChild;
 
         // Assert
-        expect(element.find("message").length).toEqual(1);
-        expect(element.find("message").text().trim()).toEqual(result);
-        
+        expect(messageContainer.children.length).toEqual(1);
+        expect(messageText.textContent).toEqual(result);
+        expect(messageText.innerHTML).toEqual(_.escape(result));
+
     })));
 
 });

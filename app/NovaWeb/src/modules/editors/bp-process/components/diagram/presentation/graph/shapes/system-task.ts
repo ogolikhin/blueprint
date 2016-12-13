@@ -87,7 +87,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
 
-        const bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1.5, 47);
+        const bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1, 47);
         this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry,
             "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;" +
             "foldable=0;shadow=0;editable=0;selectable=0");

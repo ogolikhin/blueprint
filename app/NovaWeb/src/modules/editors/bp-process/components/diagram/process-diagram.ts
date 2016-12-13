@@ -273,12 +273,12 @@ export class ProcessDiagram {
 
     private canChangeSelection() {
         //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
-        if (!this.graph) {
+        if (!this.graph || !this.artifactManager) {
             return false;
         }
         const selectedArtifact = this.artifactManager.selection.getArtifact();
-        const selectedArtifactId = selectedArtifact ? selectedArtifact.id : undefined;
-        const processArtifactId = this.processArtifact ? this.processArtifact.id : undefined;
+        const selectedArtifactId = selectedArtifact ? selectedArtifact.id : NaN;
+        const processArtifactId = this.processArtifact ? this.processArtifact.id : NaN;
         return selectedArtifactId === processArtifactId;
     }
     

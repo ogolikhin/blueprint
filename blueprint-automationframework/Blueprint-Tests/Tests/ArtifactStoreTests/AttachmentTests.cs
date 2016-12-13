@@ -62,12 +62,14 @@ namespace ArtifactStoreTests
             var openApiAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             artifact.Publish();
 
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             Attachments attachment = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, viewerUser);
             }, "'{0}' shouldn't return any error when passed a published artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
@@ -192,12 +194,14 @@ namespace ArtifactStoreTests
                 new List<INovaFile> { attachmentFile2 }, Helper.ArtifactStore);
             artifact.Publish();
 
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             Attachments attachment = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[0].Id);
+                attachment = Helper.ArtifactStore.GetAttachments(artifact, viewerUser, subArtifactId: subArtifacts[0].Id);
             }, "'{0}?subArtifactId={1}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[0].Id);
 
@@ -612,12 +616,41 @@ namespace ArtifactStoreTests
                     Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
                 }, "GetAttachments should throw 403 exception for user with no access.");
             }
-
-            finally {
+            finally
+            {
                 artifact.Delete(_adminUser);
                 artifact.Publish(_adminUser);
             }
-            
+        }
+
+        [TestCase]
+        [TestRail(209267)]
+        [Description("Create & publish a Use Case artifact.  Add an attachment to the Precondition subArtifact & publish.  Give a user no access to the artifact " +
+            "and get attachments for Precondition with that user.  Verify 403 Forbidden is returned.")]
+        public void GetAttachmentWithSubArtifactId_PublishedArtifactUserHasNoPermissionToArtifact_403Forbidden()
+        {
+            // Setup:
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+
+            var attachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
+                Helper.FileStore);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
+            var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
+
+            // Add attachment to a sub-artifact.
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact,
+                new List<INovaFile> { attachmentFile }, Helper.ArtifactStore);
+            artifact.Publish();
+
+            // Give author user no access to the artifact.
+            Helper.AssignProjectRolePermissionsToUser(_authorUser, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetAttachments(artifact, _authorUser, subArtifactId: subArtifacts[0].Id);
+            }, "'{0}?subArtifactId={1}' should return 403 Forbidden if the user has no access to the artifact.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[0].Id);
         }
 
         [TestCase(0)]

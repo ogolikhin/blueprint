@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
-import "Rx";
+import "rx";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {UnpublishedArtifactsService, IUnpublishedArtifactsService} from "./unpublished.svc";

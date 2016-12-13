@@ -8,21 +8,17 @@ import {ArtifactManagerMock} from "./../../managers/artifact-manager/artifact-ma
 import {WindowManagerMock} from "./../../main/services/window-manager.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {PropertyDescriptorBuilderMock} from "./../configuration/property-descriptor-builder.mock";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "./../configuration/property-descriptor-builder";
 import {IArtifactManager} from "./../../managers/artifact-manager";
 import {ISelectionManager} from "./../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "./../../managers/artifact-manager/artifact/artifact";
 import {ValidationServiceMock} from "./../../managers/artifact-manager/validation/validation.mock";
-import {Enums} from "./../../main";
+import {BpArtifactDetailsEditorController} from "./bp-details-editor";
+import {Models} from "../../main";
 
-describe("Component BpGeneralEditorInfo", () => {
-    let componentTest: ComponentTest<BpGeneralArtifactEditorController>;
-    let template = `<bp-artifact-general-editor context="artifact"></bp-artifact-general-editor>`;
-    let ctrl: BpGeneralArtifactEditorController;
-
-    let _artifactManager: IArtifactManager;
-    let _propertyDescriptorBuilder: IPropertyDescriptorBuilder;
-    let _$q: ng.IQService;
+describe("Component BpDetailsEditor", () => {
+    let componentTest: ComponentTest<BpArtifactDetailsEditorController>;
+    let template = `<bp-artifact-details-editor></bp-artifact-details-editor>`;
+    let ctrl: BpArtifactDetailsEditorController;
 
     beforeEach(angular.mock.module("bp.editors.details"));
 
@@ -42,16 +38,12 @@ describe("Component BpGeneralEditorInfo", () => {
         // $provide.service("windowResize", WindowResize);
     }));
 
-    beforeEach(inject((artifactManager: IArtifactManager, propertyDescriptorBuilder: IPropertyDescriptorBuilder, $q: ng.IQService) => {
-        _artifactManager = artifactManager;
-        _propertyDescriptorBuilder = propertyDescriptorBuilder;
-        _$q = $q;
-
-        //artifactManager.selection.getArtifact(); -> Needs to return an artifact that has getObservable()
+    beforeEach(inject((artifactManager: IArtifactManager) => {
+        const subject = new Rx.BehaviorSubject<IStatefulArtifact>(this);
         artifactManager.selection = {
             getArtifact: () => {
                 return {
-                    getObservable: () => new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable(),
+                    getObservable: () => subject.asObservable(),
                     artifactState: {readonly: false} as any
                 };
             }
@@ -59,7 +51,7 @@ describe("Component BpGeneralEditorInfo", () => {
     }));
 
     beforeEach(() => {
-        componentTest = new ComponentTest<BpGeneralArtifactEditorController>(template, "bp-artifact-general-editor");
+        componentTest = new ComponentTest<BpArtifactDetailsEditorController>(template, "bp-artifact-details-editor");
     });
 
     afterEach(() => {
@@ -68,38 +60,6 @@ describe("Component BpGeneralEditorInfo", () => {
 
      it("should be visible by default", () => {
         // Arrange
-        const itemtypeId = 1;
-        const descriptor: IPropertyDescriptor = {
-            id: itemtypeId,
-            versionId: 1,
-            name: "",
-            primitiveType: undefined,
-            instancePropertyTypeId: 0,
-            isRichText: true,
-            decimalDefaultValue: 0,
-            dateDefaultValue: undefined,
-            userGroupDefaultValue: undefined,
-            stringDefaultValue: "",
-            decimalPlaces: 0,
-            maxNumber: 0,
-            minNumber: 0,
-            maxDate: undefined,
-            minDate: undefined,
-            isMultipleAllowed: false,
-            isRequired: false,
-            isValidated: false,
-            validValues: undefined,
-            defaultValidValueId: 0,
-            propertyTypePredefined: Enums.PropertyTypePredefined.Description,
-            disabled: false,
-            lookup: Enums.PropertyLookupEnum.Custom,
-            fieldPropertyName: `${Enums.PropertyLookupEnum[Enums.PropertyLookupEnum.Custom]}_${itemtypeId.toString()}`,
-            modelPropertyName: itemtypeId
-        };
-        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
-            return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
-        });
-
         ctrl = componentTest.createComponent({});
 
         //Assert
@@ -108,4 +68,10 @@ describe("Component BpGeneralEditorInfo", () => {
         expect(componentTest.element.find(".lock-indicator").length).toBe(0);
         expect(componentTest.element.find(".dirty-indicator").length).toBe(0);
      });
+
+    it("should properly update with a rich text field", () => {
+        // Arrange
+        ctrl = componentTest.createComponent({});
+    });
+
 });

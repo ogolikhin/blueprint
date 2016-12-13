@@ -76,7 +76,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaReference = this.defaultPersonaReferenceValue;
         }
 
-        const headerGeometry = new mxGeometry(0.5, 0.5, this.SYSTEM_TASK_WIDTH - 1, 20);
+        const headerGeometry = new mxGeometry(1, 1, this.SYSTEM_TASK_WIDTH - 2, 20);
         this.header = new DiagramNodeElement("H" + modelId, ElementType.SystemTaskHeader, null, headerGeometry,
             "shape=label;strokeColor=none;fillColor=#E2F3FF;fontColor=#009cde;fontFamily=Open Sans, sans-serif;fontSize=11;editable=0;selectable=0");
         this.header.setVertex(true);
@@ -87,7 +87,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
 
-        const bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1, 47);
+        const bodyGeometry = new mxGeometry(1, 20, this.SYSTEM_TASK_WIDTH - 2, 47);
         this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry,
             "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;" +
             "foldable=0;shadow=0;editable=0;selectable=0");
@@ -367,7 +367,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         cell = mxGraph.addCell(this.bodyCell, this.callout);
 
         // footer
-        this.footerCell = mxGraph.insertVertex(this.callout, "F" + modelId, null, 0.5, this.SYSTEM_TASK_HEIGHT - 34.5, this.SYSTEM_TASK_WIDTH - 1, 24,
+        this.footerCell = mxGraph.insertVertex(this.callout, "F" + modelId, null, 1, this.SYSTEM_TASK_HEIGHT - 34, this.SYSTEM_TASK_WIDTH - 2, 23,
             "shape=rectangle;foldable=0;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;selectable=0");
 
         this.addOverlays(mxGraph);

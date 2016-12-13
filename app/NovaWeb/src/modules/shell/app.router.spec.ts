@@ -4,9 +4,15 @@ import "angular-ui-router";
 import "rx/dist/rx.lite";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../managers/selection-manager/selection-manager.mock";
-import {MainStateController} from "./app.router";
+import {MainStateController, LogoutStateController} from "./app.router";
 import {IMessageService} from "../core/messages/message.svc";
 import {MessageServiceMock} from "../core/messages/message.mock";
+import {INavigationService} from "../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
+import {IClipboardService} from "../editors/bp-process/services/clipboard.svc";
+import {IProjectManager} from "../managers/project-manager/project-manager";
+import {ISession} from "./login/session.svc";
+import {SessionSvcMock} from "./login/mocks.spec";
 
 describe("AppRouter", () => {
     let $rootScope: ng.IRootScopeService,
@@ -15,8 +21,13 @@ describe("AppRouter", () => {
         $log: ng.ILogService,
         selectionManager: ISelectionManager,
         messageService: IMessageService,
+        navigationService: INavigationService,
+        clipboardService: IClipboardService,
+        projectManager: IProjectManager,
+        session: ISession,
         isServerLicenseValid: boolean,
-        ctrl: MainStateController;
+        ctrl: MainStateController,
+        ctrlLogout: LogoutStateController;
 
     beforeEach(angular.mock.module("ui.router"));
 
@@ -24,7 +35,22 @@ describe("AppRouter", () => {
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("isServerLicenseValid", Boolean);
-        $provide.service("session", Boolean);
+        $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("clipboardService", () => {
+            return {
+                clearData: () => {
+                    return;
+                }
+            };
+        });
+        $provide.service("projectManager", () => {
+            return {
+                removeAll: () => {
+                    return;
+                }
+            };
+        });
+        $provide.service("session", SessionSvcMock);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
@@ -33,6 +59,10 @@ describe("AppRouter", () => {
                        _$log_: ng.ILogService,
                        _selectionManager_: ISelectionManager,
                        _messageService_: IMessageService,
+                       _navigationService_: INavigationService,
+                       _clipboardService_: IClipboardService,
+                       _projectManager_: IProjectManager,
+                       _session_: ISession,
                        _isServerLicenseValid_: boolean) => {
 
         $rootScope = _$rootScope_;
@@ -41,6 +71,10 @@ describe("AppRouter", () => {
         $log = _$log_;
         selectionManager = _selectionManager_;
         messageService = _messageService_;
+        navigationService = _navigationService_;
+        clipboardService = _clipboardService_;
+        projectManager = _projectManager_;
+        session = _session_;
         isServerLicenseValid = true;
     }));
 
@@ -81,6 +115,35 @@ describe("AppRouter", () => {
 
             // assert
             expect($window.document.title).toBe(expectedTitle);
+        });
+    });
+
+    describe("Logout", () => {
+        it("should call the correct methods", () => {
+            // arrange
+            const logoutSpy = spyOn(session, "logout").and.callFake(() => {
+                return {
+                    then: function(callback) { return callback(); }
+                };
+            });
+            const navigateToMainSpy = spyOn(navigationService, "navigateToMain").and.callFake(() => {
+                return {
+                    finally: function(callback) { return callback(); }
+                };
+            });
+            const removeAllSpy = spyOn(projectManager, "removeAll");
+            const clearDataSpy = spyOn(clipboardService, "clearData");
+            const clearMessagesSpy = spyOn(messageService, "clearMessages");
+            ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService, messageService);
+
+            // act
+
+            // assert
+            expect(logoutSpy).toHaveBeenCalled();
+            expect(navigateToMainSpy).toHaveBeenCalled();
+            expect(removeAllSpy).toHaveBeenCalled();
+            expect(clearDataSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalled();
         });
     });
 });

@@ -444,24 +444,57 @@ namespace ServiceLibrary.Repositories
 
             var rootArtifacts = await GetProjectOrArtifactChildrenAsync(projectId, null, userId);
 
-            await AddChildrenToAncestors(rootArtifacts, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId);
+            // Bug 3631 - handle orphan artifacts, for orphan artifacts ancestors are not returned by store proc GetArtifactAncestorsAndSelf.
+            // We fix this by adding the project id and the Collections id to the ancestors ids. The Collections id is required only for
+            // orphan artifacts from the collections section, but we do not know the artifact type in this point.
+            // So, after traversing the tree we remove the children of the Collections root folder if they are not required,
+            // see post-process for orphan artifacts below.
+            var isOrphan = !setAncestorsAndSelfIds.Contains(projectId);
+            Artifact rootCollections = null;
+            if (isOrphan)
+            {
+                setAncestorsAndSelfIds.Add(projectId);
+
+                rootCollections =
+                         rootArtifacts.FirstOrDefault(a => a.PredefinedType == ItemTypePredefined.CollectionFolder);
+                if (rootCollections != null)
+                    setAncestorsAndSelfIds.Add(rootCollections.Id);
+            }
+
+            // Bug 3631 - to find out the artifact type we return the artifact after traversing the tree.
+            var expandedToArtifact = await AddChildrenToAncestors(rootArtifacts, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId);
+
+            // Bug 3631 - post-process for orphan artifacts, remove children of the Collections root folder
+            // if the orphan artifact is not from the Collection section.
+            if (isOrphan && expandedToArtifact.PredefinedType.HasValue 
+                && !expandedToArtifact.PredefinedType.Value.IsCollectionsGroupType()
+                && rootCollections != null)
+            {
+                rootCollections.Children = null;
+            }
 
             return rootArtifacts;
         }
 
-        private async Task AddChildrenToAncestors(List<Artifact> siblings, HashSet<int> ancestorsAndSelfIds, int projectId, int expandedToArtifactId, int userId)
+        private async Task<Artifact> AddChildrenToAncestors(List<Artifact> siblings, HashSet<int> ancestorsAndSelfIds, int projectId, int expandedToArtifactId, int userId)
         {
             var isArtifactToExpandToFetched = false;
+            Artifact expandedToArtifact = null;
             while (true)
             {
-                if (siblings.FirstOrDefault(a => a.Id == expandedToArtifactId) != null)
+                var expandedToArtifactAmongSiblings
+                    = siblings.FirstOrDefault(a => a.Id == expandedToArtifactId);
+                if (expandedToArtifactAmongSiblings != null)
+                {
                     isArtifactToExpandToFetched = true;
+                    expandedToArtifact = expandedToArtifactAmongSiblings;
+                }
 
                 var ancestor = siblings.FirstOrDefault(a => ancestorsAndSelfIds.Contains(a.Id));
                 if (ancestor == null)
                 {
                     if (isArtifactToExpandToFetched)
-                        return;
+                        return expandedToArtifact;
 
                     ThrowForbiddenException(projectId, expandedToArtifactId);
                 }

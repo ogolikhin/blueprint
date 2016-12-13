@@ -1,4 +1,4 @@
-﻿/* tslint:disable:max-file-line-count */
+﻿/* tslint:disable max-file-line-count */
 import {IDecision} from "./models/process-graph-interfaces";
 import {ILoadingOverlayService} from "./../../../../../../core/loading-overlay/loading-overlay.svc";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";

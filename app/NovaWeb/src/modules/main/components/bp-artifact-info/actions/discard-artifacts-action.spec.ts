@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
-import "Rx";
+import "rx";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";

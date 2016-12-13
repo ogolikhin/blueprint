@@ -1,6 +1,6 @@
 import "angular";
 import "angular-mocks";
-import "Rx";
+import "rx";
 import {Models, AdminStoreModels} from "../models";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-node-vm-factory";

@@ -246,6 +246,7 @@ Discard_All_Success_Message,"Changes have been discarded for all artifacts ({0})
 Discard_Single_Dialog_Message,"This artifact will be restored to its last published version. If it has never been published, it will be deleted."
 Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:"
 Discard_Success_Message,"Changes have been discarded."
+Discard_No_Changes, "This artifact has no changes to discard and will now be refreshed to the most recent version."
 
 Move_Artifacts_Picker_Header,"Move to..."
 Copy_Artifacts_Picker_Header,"Copy to..."

@@ -1002,8 +1002,6 @@ export class ProcessGraph implements IProcessGraph {
             throw new Error("nodes are not defined");
         }
 
-        this.clearCopyGroupHighlight();
-
         const copyNodes: IDiagramNode[] = nodes.filter((node: IDiagramNode) => node.canCopy);
 
         if (copyNodes.length === 0) {
@@ -1040,7 +1038,7 @@ export class ProcessGraph implements IProcessGraph {
         this.highlightedCopyNodes.push(node);
     }
 
-    private clearCopyGroupHighlight(): void {
+    public clearCopyGroupHighlight(): void {
         this.mxgraph.getModel().beginUpdate();
 
         try {
@@ -1059,7 +1057,6 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public highlightNodeEdges = (nodes: IDiagramNode[]) => {
-        this.clearHighlightEdges();
         _.each(nodes, (node) => {
             let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());
 
@@ -1103,7 +1100,7 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    private clearHighlightEdges() {
+    public clearHighlightEdges() {
         for (let edge of this.highlightedEdgeStates) {
             if (edge.shape) {
                 edge.shape.stroke = mxConstants.DEFAULT_VALID_COLOR;

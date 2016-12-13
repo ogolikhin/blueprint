@@ -1628,18 +1628,6 @@ describe("ProcessGraph", () => {
     });
 
     describe("highlightCopyGroups", () => {
-        it("clears current highlighting", () => {
-            // arrange
-            const graph = createGraph(TestModels.createDefaultProcessModel());
-            const spy = spyOn(graph, "clearCopyGroupHighlight");
-
-            // act
-            graph.highlightCopyGroups([]);
-
-            // assert
-            expect(spy).toHaveBeenCalled();
-        });
-
         it("doesn't highlight anything when start shape is selected", () => {
             // arrange
             const graph = createGraph(TestModels.createDefaultProcessModel());

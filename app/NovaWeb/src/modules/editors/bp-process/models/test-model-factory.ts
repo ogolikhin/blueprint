@@ -122,8 +122,8 @@ export function createSystemDecision(id: number, x?: number, y?: number): IProce
     return systemDecision;
 }
 
-export function createDefaultProcessModel(): IProcess {
-    let process: IProcess = createDefaultProcessModelWithoutXAndY();
+export function createDefaultProcessModel(type: ProcessType = ProcessType.BusinessProcess): IProcess {
+    let process: IProcess = createDefaultProcessModelWithoutXAndY(type);
 
     process.shapes[0].propertyValues["x"].value = 0;
     process.shapes[0].propertyValues["y"].value = 0;
@@ -139,8 +139,8 @@ export function createDefaultProcessModel(): IProcess {
     return process;
 }
 
-export function createDefaultProcessModelWithoutXAndY(): IProcess {
-    let process: IProcess = createProcessModel(1, ProcessType.BusinessProcess);
+export function createDefaultProcessModelWithoutXAndY(type: ProcessType = ProcessType.BusinessProcess): IProcess {
+    let process: IProcess = createProcessModel(1, type);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 0, 0);
@@ -821,9 +821,9 @@ export function createInfiniteLoopFromDifferentDecisions(): IProcess {
     return process;
 }
 
-export function createUserDecisionTestModel(decisionShape: IProcessShape): IProcess {
+export function createUserDecisionTestModel(decisionShape: IProcessShape, type: ProcessType = ProcessType.UserToSystemProcess): IProcess {
     const shapesFactory = createShapesFactoryService();
-    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+    let model: IProcess = createProcessModel(1, type);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
@@ -861,9 +861,9 @@ export function createUserDecisionTestModel(decisionShape: IProcessShape): IProc
 }
 
 
-export function createSystemDecisionTestModel(decisionShape: IProcessShape): IProcess {
+export function createSystemDecisionTestModel(decisionShape: IProcessShape, type: ProcessType = ProcessType.UserToSystemProcess): IProcess {
     const shapesFactory = createShapesFactoryService();
-    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+    let model: IProcess = createProcessModel(1, type);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
@@ -871,7 +871,6 @@ export function createSystemDecisionTestModel(decisionShape: IProcessShape): IPr
     let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 30, 4, 0);
     let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 35, 4, 0);
     let end = createShapeModel(ProcessShapeType.End, 40, 5, 0);
-
 
     model.shapes.push(start, pre, ut1, decisionShape, st2, st3, end);
     /*

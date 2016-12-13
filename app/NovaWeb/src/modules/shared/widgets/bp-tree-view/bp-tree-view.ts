@@ -177,6 +177,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             columnDefs: [],
             headerHeight: this.headerHeight,
             suppressMovableColumns: true,
+            suppressColumnVirtualisation: true,
 
             // Callbacks
             getBusinessKeyForNode: this.getBusinessKeyForNode,

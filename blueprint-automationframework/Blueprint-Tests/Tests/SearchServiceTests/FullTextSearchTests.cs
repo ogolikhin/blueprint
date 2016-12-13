@@ -25,14 +25,10 @@ namespace SearchServiceTests
         protected const int DEFAULT_PAGE_VALUE = 1;
         protected const int DEFAULT_PAGESIZE_VALUE = 10;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
-        protected IUser _user = null;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
-        protected IUser _userSecond = null;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
-        protected List<IProject> _projects = null;
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields")]
-        protected List<IArtifactBase> _publishedArtifacts;
+        protected IUser _user { get; set; } = null;
+        protected IUser _userSecond { get; set; } = null;
+        protected List<IProject> _projects { get; private set; } = null;
+        protected List<IArtifactBase> _publishedArtifacts { get; private set; } = null;
 
         /// <summary>
         /// This code should be called in the Setup() or ClassSetup() method to set up the test fixture.

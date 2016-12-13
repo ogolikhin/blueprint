@@ -355,9 +355,8 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 404 Not Found when an Artifact ID is passed in place of a Project ID!", REST_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", notAProject.Id);
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
-                "If an Artifact ID is passed in place of a Project ID, we should get an error message of '{0}'!", expectedMessage);
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, I18NHelper.FormatInvariant(
+                "The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", notAProject.Id));
         }
 
         [TestCase]

@@ -5,7 +5,8 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/art
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {Models} from "../../../main/models";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {ApplicationError} from "../../../core/error/applicationError";
+import {IApplicationError} from "../../../core/error/applicationError";
+import {IArtifactState} from "./../../../managers/artifact-manager/state/state";
 
 export interface IMainBreadcrumbService {
     breadcrumbLinks: IBreadcrumbLink[];
@@ -30,7 +31,7 @@ export class MainBreadcrumbService implements IMainBreadcrumbService {
         if (artifact.predefinedType === ItemTypePredefined.Project) {
             this.setProjectBreadCrumb(artifact.id);
         } else {
-            this.setArtifactBreadCrumb(artifact.id, artifact.artifactState.historical);
+            this.setArtifactBreadCrumb(artifact.id, artifact.artifactState);
         }
     }
 
@@ -47,29 +48,33 @@ export class MainBreadcrumbService implements IMainBreadcrumbService {
                     };
                     this.breadcrumbLinks.push(breadcrumbLink);
                 });
-            }, (reason: ApplicationError) => {
+            }, (reason: IApplicationError) => {
                 if (reason.statusCode === HttpStatusCode.NotFound) {
                     this.breadcrumbLinks = [];
                 }
             });
     }
 
-    private setArtifactBreadCrumb = (artifactId: number, isHistorical: boolean): void => {
-        this.artifactService.getArtifactNavigationPath(artifactId)
-            .then((result: Models.IArtifact[]) => {
-                this.breadcrumbLinks = [];
-                _.each(result, artifact => {
-                    const breadcrumbLink: IBreadcrumbLink = {
-                        id: artifact.id,
-                        name: artifact.name,
-                        isEnabled: !isHistorical
-                    };
-                    this.breadcrumbLinks.push(breadcrumbLink);
-                });
-            }, (reason: ApplicationError) => {
-                if (reason.statusCode === HttpStatusCode.NotFound) {
+    private setArtifactBreadCrumb = (artifactId: number, artifactState: IArtifactState): void => {
+        if (artifactState.deleted) {
+            this.breadcrumbLinks = [];
+        } else {
+            this.artifactService.getArtifactNavigationPath(artifactId)
+                .then((result: Models.IArtifact[]) => {
                     this.breadcrumbLinks = [];
-                }
-            });
+                    _.each(result, artifact => {
+                        const breadcrumbLink: IBreadcrumbLink = {
+                            id: artifact.id,
+                            name: artifact.name,
+                            isEnabled: !artifactState.historical && artifact.id !== artifact.projectId
+                        };
+                        this.breadcrumbLinks.push(breadcrumbLink);
+                    });
+                }, (reason: IApplicationError) => {
+                    if (reason.statusCode === HttpStatusCode.NotFound) {
+                        this.breadcrumbLinks = [];
+                    }
+                });
+        }
     }
 }

@@ -7,7 +7,7 @@ import {ILocalizationService} from "../../../../core/localization/localizationSe
 
 export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";
-    public template: string = require("./read-only.template.html");
+    public template: string = require("./read-only.html");
     public wrapper: string = "bpFieldLabel";
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {

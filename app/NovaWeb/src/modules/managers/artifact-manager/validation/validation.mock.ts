@@ -1,5 +1,6 @@
 import {IValidationService} from "./validation.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {Models} from "../../../main/models";
 import {INumberValidation, NumberValidation} from "./number-validation";
 import {IDateValidation, DateValidation} from "./date-validation";
 import {ISelectValidation, SelectValidation, IMultiSelectValidation, MultiSelectValidation} from "./select-validation";
@@ -112,31 +113,35 @@ class DateValidationMock extends BaseValidation implements IDateValidation {
 }
 
 class SelectValidationMock extends BaseValidation implements ISelectValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    checkValue(value: Models.IChoicePropertyValue, isValidated: boolean, validValues: any[]) {
+        return true;
+    }
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
+        return true;
+    }
+    isValid(isRequired: boolean, value: Models.IChoicePropertyValue, isValidated: boolean, validValues: any[]) {
         return true;
     }
 }
 
-class MultiSelectValidationMock extends BaseValidation implements IMultiSelectValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
-        return true;
-    }
+class MultiSelectValidationMock extends SelectValidationMock implements IMultiSelectValidation {
+    
 }
 
 class TextRtfValidationMock extends BaseValidation implements ITextRtfValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
 }
 
 class UserPickerValidationMock extends BaseValidation implements IUserPickerValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
 }
 
 class TextValidationMock extends BaseValidation implements ITextValidation {
-    hasValueIfRequired(isRequired: boolean, newValue: any, oldValue: any) {
+    hasValueIfRequired(isRequired: boolean, newValue: any) {
         return true;
     }
 }

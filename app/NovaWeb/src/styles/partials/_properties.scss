@@ -1,3 +1,5 @@
+@import "../settings/colors";
+
 $properties-min-width: $page-body-min-width - 40px - 30px - 2px;
 $property-min-height: 28px;
 $property-multiple-height: 98px;
@@ -76,6 +78,7 @@ pagecontent, bp-properties-panel {
             .content.system-properties {
                 display: block;
                 height: #{$property-min-height + 12px};
+                overflow: hidden;
 
                 &.collapse:not(.in) .formly .formly-field:first-child {
                     width: 100%;
@@ -358,8 +361,7 @@ pagecontent, bp-properties-panel {
                             }
 
                             &:hover .ui-select-choice-item {
-                                background: $brand-secondary;
-                                color: $white;
+                                background: $selection-hover-background-color;
 
                                 &::before {
                                     content: '\2713';
@@ -370,7 +372,6 @@ pagecontent, bp-properties-panel {
 
                     .ui-select-choices-row.disabled {
                         .ui-select-choices-row-inner {
-                            cursor: not-allowed;
 
                             .ui-select-choice-item {
                                 background: transparent;
@@ -386,8 +387,8 @@ pagecontent, bp-properties-panel {
                     .ui-select-choices-row.active {
                         .ui-select-choices-row-inner {
                             .ui-select-choice-item {
-                                background: $brand-secondary;
-                                color: $white;
+                                background: $selection-selected-background-color;
+                                color: $selection-selected-color;
 
                                 &::before {
                                     content: '\2713';
@@ -558,21 +559,17 @@ pagecontent, bp-properties-panel {
                         }
                     }
 
-                    &:not(.disable-highlight) {
-                        .ui-select-choices-row.active .ui-select-choice-item,
-                        .ui-select-choices-row-inner:hover .ui-select-choice-item {
-                            background: $brand-secondary;
-                            color: $white;
+                    &:not(.disable-highlight) .ui-select-choices-row-inner:hover .ui-select-choice-item {
+                        background: $selection-hover-background-color;
+                    }
 
-                            &::before {
-                                content: '\2713';
-                            }
-                        }
+                    &:not(.disable-highlight) .ui-select-choices-row.active .ui-select-choice-item {
+                        background: $selection-selected-background-color;
+                        color: $selection-selected-color;
                     }
 
                     .ui-select-choices-row.disabled {
                         .ui-select-choices-row-inner {
-                            cursor: not-allowed;
 
                             .ui-select-choice-item {
                                 background: transparent;
@@ -602,6 +599,7 @@ pagecontent, bp-properties-panel {
                 color: $gray-dark;
                 font-size: $font-size-normal;
                 font-weight: 400;
+                background: $gray-lightest;
 
                 &.simple,
                 &.multiple {
@@ -1055,8 +1053,10 @@ pagecontent, bp-properties-panel {
                     margin-left: 9px;
                     cursor: pointer;
                     &.disabled {
-                        opacity: $default-disabled-opacity;
-                        cursor: not-allowed;
+                        color: $disabled-color;
+                    }
+                    &:hover:not(.disabled)  {
+                        color: $brand-secondary;
                     }
                 }
 
@@ -1105,7 +1105,6 @@ pagecontent, bp-properties-panel {
                         cursor: pointer;
                         &.disabled {
                             background-color: $gray;
-                            cursor: not-allowed;
                         }
                     }
                 }
@@ -1127,8 +1126,7 @@ pagecontent, bp-properties-panel {
                     color: $brand-secondary;
                 }
                 &.disabled {
-                    opacity: $default-disabled-opacity;
-                    cursor: not-allowed;
+                    color: $disabled-color;
                 }
             }
             .din {
@@ -1260,11 +1258,11 @@ pagecontent, bp-properties-panel {
                 .icon__action{
                     &:hover{
                         cursor: pointer;
+                        color: $brand-secondary;
                     }
 
                     &.disabled, &[disabled] {
-                        cursor: not-allowed;
-                        color: $default-disabled-opacity;
+                        color: $disabled-color;
                     }
                 }
 
@@ -1377,14 +1375,37 @@ bp-properties-panel {
 
 pagecontent {
     .empty-collection {
-            background: $gray-lighter;
-            color: $gray-dark;
-            font-size: $font-size-big;
-            font-weight: 600;
-            line-height: 1em;
-            min-height: 36px;
-            padding: 11px 14px;
-            }
+        padding: 0 0 11px 0;
+    }
+
+    .empty-collection__table {
+        border-left: 1px solid $gray-lighter;
+        border-right: 1px solid $gray-lighter;
+        border-bottom: 1px solid $gray-lighter;
+        width: 100%;
+    }
+
+    .empty-collection__table-th {
+        background: $gray-dark;
+        color: $white;
+        font-size: $font-size-normal;
+        padding: 8px 25px;
+
+        &:first-child {
+            width: 9%;
+        }
+
+        &:last-child {
+            text-align: right;
+            padding-right: 9px;
+        }
+    }
+
+    .empty-collection__table-td {
+        padding: 8px 25px;
+        font-size: $font-size-normal;
+        color: $gray-light;
+    }
 }
 
 .uib-datepicker-popup {
@@ -1517,7 +1538,7 @@ pagecontent {
             padding: 5px 9px;
             min-width: 20px;
             &.disabled {
-                background-color: $gray-lightest;
+                background-color: $disabled-color;
             }
         }
     }

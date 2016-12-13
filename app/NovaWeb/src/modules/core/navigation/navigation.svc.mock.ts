@@ -47,4 +47,8 @@ export class NavigationServiceMock implements INavigationService {
 
         return deferred.promise;
     }
+
+    public getNavigateBackRouterPath(pathIndex?: number): string[] {
+        return;
+    }
 }

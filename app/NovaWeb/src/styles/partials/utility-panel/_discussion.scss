@@ -10,6 +10,10 @@ bp-discussion-panel {
         min-width: 0;
     } */
 
+    .collapsible__show-less {
+        margin-top: 5px;
+    }
+
     bp-comment-edit {
         .edit-container {
             text-align: center;
@@ -106,6 +110,7 @@ bp-discussion-panel {
         font-size: $font-size-normal;
         color: $gray-darkest;
         font-style: normal;
+        min-height:14px;
 
         &.inactive {
             color: $gray-light;
@@ -168,7 +173,7 @@ bp-discussion-panel {
             @include text-ellipsis-flex-width(160px);
         }
 
-        .show-more {
+        .collapsible__show-more {
             background-image: linear-gradient(to bottom, transparent 0%, $blue-lightest 70%);
         }
     }

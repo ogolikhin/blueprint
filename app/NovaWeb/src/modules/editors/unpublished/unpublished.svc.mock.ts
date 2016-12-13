@@ -1,6 +1,5 @@
-import {Models} from "../../main/models";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
-import {IArtifact} from "../../main/models/models";
+import {IPublishResultSet} from "../../main/models/models";
 
 export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsService {
     public static $inject = ["$q"];
@@ -8,35 +7,33 @@ export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsSer
     constructor(private $q: ng.IQService) {
     }
 
-    public get unpublishedArtifacts(): IArtifact[] {
-        return undefined;
+    public unpublishedArtifactsObservable: Rx.Observable<IPublishResultSet> = <any>{
+            subscribeOnNext: () => { return; },
+            dispose: () => { return; }
+    };
+
+    public processedArtifactsObservable: Rx.Observable<IPublishResultSet> = <any>{
+        subscribeOnNext: () => { return; },
+        dispose: () => { return; }
+    };
+
+    public publishAll(): ng.IPromise<IPublishResultSet> {
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
 
-    public get unpublishedArtifactsObservable(): Rx.Observable<IArtifact[]> {
-        return undefined;
-    }
-
-    public publishAll(): ng.IPromise<Models.IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
-    }
-    public getUnpublishedArtifacts(): ng.IPromise<Models.IPublishResultSet> {
+    public getUnpublishedArtifacts(): ng.IPromise<IPublishResultSet> {
         return this.$q.when({artifacts: [], projects: []});
     }
-    public publishArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+
+    public publishArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
-    public discardArtifacts(artifactIds: number[]): ng.IPromise<Models.IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+
+    public discardArtifacts(artifactIds: number[]): ng.IPromise<IPublishResultSet> {
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
-    public discardAll(): ng.IPromise<Models.IPublishResultSet> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve();
-        return deferred.promise;
+
+    public discardAll(): ng.IPromise<IPublishResultSet> {
+        return this.$q.resolve<IPublishResultSet>(<IPublishResultSet>{});
     }
 }

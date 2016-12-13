@@ -1,13 +1,14 @@
 import {BPDropdownAction, BPDropdownItemAction} from "../../../../../shared/widgets/bp-toolbar/actions";
 import {IDialogService, IDialogSettings} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IUserStoryService} from "../../../services/user-story.svc";
+import {IProjectManager, ProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {ISelectionManager} from "../../../../../managers/selection-manager";
 import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {IUserStory} from "../../../models/process-models";
 import {ProcessShapeType} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../../../main/models/enums";
+import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError} from "../../../../../core/error/applicationError";
@@ -29,7 +30,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private localization: ILocalizationService,
         private dialogService: IDialogService,
         private loadingOverlayService: ILoadingOverlayService,
-        private processDiagramManager: IProcessDiagramCommunication
+        private processDiagramManager: IProcessDiagramCommunication,
+        private projectManager: IProjectManager
     ) {
         super();
 
@@ -55,6 +57,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
 
         if (!processDiagramManager) {
             throw new Error("Process diagram manager is not provided or is null");
+        }
+
+        if (!projectManager) {
+            throw new Error("Project manager is not provided or is null");
         }
 
         this.actions.push(
@@ -109,6 +115,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
 
         const subArtifact: IDiagramNode = this.selection[0];
+        
+        //Subartifact is selected and selective readonly is set
+        if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
+            return false;
+        }
 
         if (!subArtifact.model || subArtifact.model.id < 0) {
             return false;
@@ -140,6 +151,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
 
         if (this.selection && this.selection.length > 1) {
+            return false;
+        }
+
+        //artifact is selected and selective readonly is set
+        if (this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
             return false;
         }
 
@@ -215,6 +231,12 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 this.messageService.addInfo(userStoriesGeneratedMessage);
 
                 return process.refresh(false);
+            })
+            .then(() => {
+                //refresh project
+                this.projectManager.refresh(process.projectId).then(() => {
+                    this.projectManager.triggerProjectCollectionRefresh();
+                });
             })
             .catch((reason: IApplicationError) => {
                 let message: string = this.localization.get("ST_US_Generate_Generic_Failure_Message");

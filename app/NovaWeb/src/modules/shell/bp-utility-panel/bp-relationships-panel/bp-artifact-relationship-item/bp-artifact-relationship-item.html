@@ -29,7 +29,8 @@
                 <div>
                     <h6 bp-tooltip="{{$ctrl.relationship.itemTypePrefix}}{{$ctrl.relationship.itemId}} - {{$ctrl.relationship.itemName ? $ctrl.relationship.itemName : $ctrl.relationship.itemLabel }}"
                         bp-tooltip-truncated="true">
-                        <a ng-click="$ctrl.navigateToArtifact($ctrl.relationship.itemId)">
+
+                        <a ui-sref="main.item({id: $ctrl.relationship.itemId})" ui-sref-opts="{inherit: false}">
                             <i class="icon-textual"></i>
                             {{$ctrl.relationship.itemTypePrefix}}{{$ctrl.relationship.itemId}} -
                             {{$ctrl.relationship.itemName ? $ctrl.relationship.itemName : $ctrl.relationship.itemLabel}}
@@ -51,12 +52,12 @@
                     <div ng-if="!$ctrl.fromOtherProject" class="left-arrow"></div>
                     <ul class="wrappable-breadcrumbs">
                         <li ng-repeat="pathLink in $ctrl.relationshipExtendedInfo.pathToProject track by pathLink.itemId">
-                            <a ng-click="$ctrl.navigateToArtifact(pathLink.itemId)">{{::pathLink.name}}</a>
+                            <a ui-sref="main.item({id: pathLink.itemId})" ui-sref-opts="{inherit: false}">{{::pathLink.name}}</a>
                         </li>
                     </ul>
 
-                    <div class="desc">
-                        <span class="bolded-text ">Description:&nbsp;</span>{{$ctrl.limitChars($ctrl.relationshipExtendedInfo.description)}}
+                    <div class="desc" ng-if="$ctrl.traceDescription">
+                        <span class="bolded-text ">{{::$ctrl.localization.get('Label_Description')}}: &nbsp;</span>{{::$ctrl.traceDescription}}
                     </div>
                 </div>
             </div>
@@ -68,17 +69,18 @@
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"
-                   ng-disabled="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly  || $ctrl.relationship.readOnly"/>
+                   ng-if="$ctrl.canModifyItem()"/>
         </div>
         <div>
             <div uib-dropdown>
                 <span uib-dropdown-toggle>
-                    <i class="icon fonticon-exchange"
-                       ng-class="{disabled: !$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly}"
-                       bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"></i>
+                    <button type="button" class="btn-icon fonticon-exchange"
+                       ng-disabled="!$ctrl.canModifyItem()"
+                       ng-class="{'btn-icon--disabled': !$ctrl.canModifyItem()}"
+                       bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Change_Trace')}}"></button>
                 </span>
                 <ul class="dropdown-menu"
-                    ng-hide="!$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly">
+                    ng-hide="!$ctrl.canModifyItem()">
                     <li ng-class="{disabled: $ctrl.relationship.traceDirection == 0}">
                         <a ng-click="$ctrl.setDirection(0)"><i class="fonticon2-relationship-right"></i>
                             {{::$ctrl.localization.get('App_UP_Relationships_To')}}</a></li>
@@ -90,14 +92,18 @@
                             {{::$ctrl.localization.get('App_UP_Relationships_Bidirectional')}}</a></li>
                 </ul>
             </div>
-            <i class="icon fonticon-flag-1" ng-click="$ctrl.toggleItemFlag()"
-               ng-class="{'fonticon-flag-empty': $ctrl.relationship.suspect == true, disabled: !$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly}"
-               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}"></i>
+            <button type="button" class="btn-icon fonticon-flag-1" ng-click="$ctrl.toggleItemFlag()"
+                    ng-disabled="!$ctrl.canModifyItem()"
+                    ng-class="{'fonticon-flag-empty': $ctrl.relationship.suspect == true,
+                    'btn-icon--disabled': !$ctrl.canModifyItem()}"
+                    bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Flag_Trace')}}">
+            </button>
 
-            <i class="icon fonticon-delete-filled"
-               ng-class="{disabled: !$ctrl.relationship.hasAccess || $ctrl.isItemReadOnly || $ctrl.relationship.readOnly}"
+            <button type="button" class="btn-icon fonticon-delete-filled"
+               ng-disabled="!$ctrl.canModifyItem()"
+               ng-class="{'btn-icon--disabled': !$ctrl.canModifyItem()}"
                ng-click="$ctrl.deleteItem()"
-               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></i>
+               bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Delete')}}"></button>
         </div>
 
     </div>

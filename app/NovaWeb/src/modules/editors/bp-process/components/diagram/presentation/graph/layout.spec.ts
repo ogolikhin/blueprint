@@ -1,6 +1,7 @@
 /* tslint:disable max-file-line-count */
 import * as angular from "angular";
 require("script!mxClient");
+import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
@@ -23,18 +24,6 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
 import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
-
-class ExecutionEnvironmentDetectorMock {
-    private browserInfo: any;
-
-    constructor() {
-        this.browserInfo = {msie: false, firefox: false, version: 0};
-    }
-
-    public getBrowserInfo(): any {
-        return this.browserInfo;
-    }
-}
 
 describe("Layout test", () => {
     let msgService: IMessageService,

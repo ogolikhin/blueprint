@@ -66,27 +66,36 @@ export class BPTooltip implements ng.IDirective {
         // only checks the immediate text or the immediate (and only) child, not nested HTML elements
         function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
             if (element.attr("bp-tooltip-truncated") === "true") {
-                let elem = element[0];
-                if (elem.childElementCount === 1) {
-                    let child = elem.firstElementChild as HTMLElement;
-                    if (elem.textContent.trim() === child.textContent.trim()) {
-                        elem = child;
-                    }
+                const elem = element[0];
+
+                // getBoundingClientRect returns fractions of pixel while scrollWidth/Height return rounded values
+                let clientRect = elem.getBoundingClientRect();
+                let offsetWidth = _.round(clientRect.width);
+                let offsetHeight = _.round(clientRect.height);
+                let scrollWidth = _.max([elem.scrollWidth, offsetWidth]);
+                let scrollHeight = _.max([elem.scrollHeight, offsetHeight]);
+
+                if (offsetWidth < scrollWidth || offsetHeight < scrollHeight) {
+                    return true;
                 }
-                // the "- 1" allows some wiggle room in IE, as scrollWidth/Height round to the biggest integer
-                // while offsetWidth/Height to the smallest
-                let compensateWidth: boolean = false;
-                if (Math.abs(elem.offsetWidth - elem.scrollWidth) <= 1) {
-                    let realWidth = window.getComputedStyle(elem).width;
-                    if (Math.abs(parseFloat(realWidth) - parseInt(realWidth, 10)) < 0.5) {
-                        compensateWidth = true;
-                    }
+
+                if (elem.childElementCount === 1 && elem.textContent.trim() === elem.firstElementChild.textContent.trim()) {
+                    const child = elem.firstElementChild as HTMLElement;
+                    const computedStyle = window.getComputedStyle(child);
+                    offsetWidth -= parseFloat(computedStyle.marginLeft) + parseFloat(computedStyle.marginRight);
+                    offsetHeight -= parseFloat(computedStyle.marginTop) + parseFloat(computedStyle.marginBottom);
+
+                    clientRect = child.getBoundingClientRect();
+                    // this allows to deal with inline elements, whose scrollWidth/Height is 0
+                    scrollWidth = _.max([child.scrollWidth, _.round(clientRect.width)]);
+                    scrollHeight = _.max([child.scrollHeight, _.round(clientRect.height)]);
+
+                    return offsetWidth < scrollWidth || offsetHeight < scrollHeight;
                 }
-                return (elem && (
-                    elem.offsetWidth < elem.scrollWidth - (compensateWidth ? 1 : 0) ||
-                    elem.offsetHeight < elem.scrollHeight - 3)
-                );
+
+                return false;
             }
+
             return true;
         }
 

@@ -394,14 +394,16 @@ namespace Helper
         /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
         /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
         /// <param name="user">User to authenticate with.</param>
+        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
+        ///     should have the same ParentId.</param>
         /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
         /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
         /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
-        /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
-        ///     should have the same ParentId.</param>
+        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false, int? expectedParentId = null)
+            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false,
+            Attachments.CompareOptions compareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -461,19 +463,6 @@ namespace Helper
                 }
             }
 
-            Assert.AreEqual(expectedSubArtifact.AttachmentValues.Count, actualSubArtifact.AttachmentValues.Count, "The number of attachments is different!");
-
-            // Compare each attachment.
-            foreach (AttachmentValue attachment in expectedSubArtifact.AttachmentValues)
-            {
-                Assert.That(actualSubArtifact.AttachmentValues.Exists(a => a.Guid == attachment.Guid),
-                    "Couldn't find attachment with GUID: {0}!", attachment.Guid);
-
-                var actualAttachment = actualSubArtifact.AttachmentValues.Find(a => a.Guid == attachment.Guid);
-
-                AssertAttachmentsAreEqual(attachment, actualAttachment);
-            }
-
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
             Assert.AreEqual(0, expectedSubArtifact?.AttachmentValues.Count, "AttachmentValues should always be empty!");
             Assert.AreEqual(0, expectedSubArtifact?.DocRefValues.Count, "DocRefValues should always be empty!");
@@ -482,6 +471,13 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact?.DocRefValues.Count, actualSubArtifact?.DocRefValues.Count, "The number of Sub-Artifact Document References don't match!");
             Assert.AreEqual(expectedSubArtifact?.Traces.Count, actualSubArtifact?.Traces.Count, "The number of Sub-Artifact Traces don't match!");
 
+            // Get and compare sub-artifact Attachments & DocumentReferences.
+            var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
+            var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
+
+            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, compareOptions);
+
+            // Get and compare sub-artifact Traces.
             if (!skipTraces)
             {
                 var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
@@ -491,8 +487,6 @@ namespace Helper
 
                 Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
             }
-
-            //TODO: Add assertions for Doc References
         }
 
         /// <summary>
@@ -668,7 +662,7 @@ namespace Helper
             List<IProject> allProjects = null;
             allProjects = ProjectFactory.GetAllProjects(user);
 
-            const string customDataProjectName = "Custom Data";
+            const string customDataProjectName = TestHelper.GoldenDataProject.CustomData;
 
             Assert.That(allProjects.Exists(p => (p.Name == customDataProjectName)),
                 "No project was found named '{0}'!", customDataProjectName);
@@ -693,7 +687,7 @@ namespace Helper
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
         /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateCustomProperty<T>(NovaArtifactDetails artifactDetails,
+        public static CustomProperty UpdateArtifactCustomProperty<T>(NovaArtifactDetails artifactDetails,
             IProject project,
             PropertyPrimitiveType propertyType,
             string propertyName,
@@ -701,43 +695,137 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(newValue, nameof(newValue));
+
+            var customProperties = artifactDetails.CustomPropertyValues;
+
+            return UpdateCustomProperty(customProperties, project, propertyType, propertyName, newValue);
+        }
+
+        /// <summary>
+        /// Updates the specified custom property of the subartifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <typeparam name="T">The new value type.</typeparam>
+        /// <param name="subArtifactDetails">The subartifact details containing the custom property to update.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="propertyType">The type of property to be updated.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="newValue">The new value to assign to the custom property.
+        ///     For Choice & Text property types, pass a string.
+        ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
+        ///     For User property types, pass an IUser.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateSubArtifactCustomProperty<T>(NovaItem subArtifactDetails,
+            IProject project,
+            PropertyPrimitiveType propertyType,
+            string propertyName,
+            T newValue)
+        {
+            ThrowIf.ArgumentNull(subArtifactDetails, nameof(subArtifactDetails));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var customProperties = subArtifactDetails.CustomPropertyValues;
+
+            return UpdateCustomProperty(customProperties, project, propertyType, propertyName, newValue);
+        }
+
+        /// <summary>
+        /// Updates the specified custom property with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <typeparam name="T">The new value type.</typeparam>
+        /// <param name="customProperties">The list of custom properties to update.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="propertyType">The type of property to be updated.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="newValue">The new value to assign to the custom property.
+        ///     For Choice & Text property types, pass a string.
+        ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
+        ///     For User property types, pass an IUser.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomProperty<T>(List<CustomProperty> customProperties,
+            IProject project,
+            PropertyPrimitiveType propertyType,
+            string propertyName,
+            T newValue)
+        {
+            ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
+            ThrowIf.ArgumentNull(project, nameof(project));
 
             CustomProperty property = null;
 
             switch (propertyType)
             {
                 case PropertyPrimitiveType.Choice:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
-                    var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(newValue));
 
-                    var newChoicePropertyValue = new List<NovaPropertyType.ValidValue> { newPropertyValue };
+                    string[] values;
 
-                    // Change custom property choice value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = newChoicePropertyValue };
+                    if (newValue.GetType().IsArray)
+                    {
+                        values = ((System.Collections.IEnumerable) newValue)
+                            .Cast<object>()
+                            .Select(x => x.ToString())
+                            .ToArray();
+                    }
+                    else
+                    {
+                        values = new[] { newValue.ToString() };
+                    }
+
+                    var validValues = new List<NovaPropertyType.ValidValue>();
+                    var customValue = string.Empty;
+
+                    foreach (string value in values)
+                    {
+                        var newPropertyValue = choicePropertyValidValues.Find(vv => vv.Value.Equals(value));
+
+                        // Change custom property choice value
+                        if (newPropertyValue != null)
+                        {
+                            validValues.Add(newPropertyValue);
+                        }
+                        else
+                        {
+                            // Add as custom value if not found in valid values
+                            customValue = newValue.ToString();
+                        }
+                    }
+
+                    if (validValues.Count > 0)
+                    {
+                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                    }
+
+                    if (!string.IsNullOrEmpty(customValue))
+                    {
+                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                    }
                     break;
                 case PropertyPrimitiveType.Date:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     // Change custom property date value
-                    property.CustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now.AddSeconds(newValue.ToInt32Invariant()));
+                    property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Number:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     // Change custom property number value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Text:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                    property = customProperties.Find(p => p.Name == propertyName);
 
                     IUser user = (IUser)newValue;
 
@@ -1006,6 +1094,44 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates and saves (or publishes) a new artifact and attaches the specified file to it.  The attachment is not published.
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="project">The project where the artifact will be created.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactType">The type of artifact to create.</param>
+        /// <param name="file">The file to attach.</param>
+        /// <param name="shouldPublishArtifact">(optional) Pass true to publish the artifact before adding the attachment.  Default is no publish.</param>
+        /// <returns>The new artifact.</returns>
+        public static IArtifact CreateArtifactWithAttachment(TestHelper helper,
+            IProject project,
+            IUser user,
+            BaseArtifactType artifactType,
+            IFileMetadata file,
+            bool shouldPublishArtifact = false)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            var artifact = helper.CreateAndSaveArtifact(project, user, artifactType);
+
+            if (shouldPublishArtifact)
+            {
+                artifact.Publish();
+            }
+
+            // Create & add attachment to the artifact.
+            DateTime defaultExpireTime = DateTime.Now.AddDays(2);   // Currently Nova set ExpireTime 2 days from today for newly uploaded file.
+
+            var novaAttachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(user, file.FileName, file.FileType,
+                defaultExpireTime, helper.FileStore);
+
+            AddArtifactAttachmentAndSave(user, artifact, novaAttachmentFile, helper.ArtifactStore);
+
+            return artifact;
+        }
+
+        /// <summary>
         /// Checks if the inline trace link is valid or not.
         /// </summary>
         /// <param name="inlineTraceLink">The inline trace link to validate</param>
@@ -1194,6 +1320,31 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(itemType, nameof(itemType));
 
+            return GetArtifactTypeName(itemType, "(Standard Pack)");
+        }
+
+        /// <summary>
+        /// Gets the Custom Artifact Type that matches the given ItemTypePredefined
+        /// </summary>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>A string indicating the name of the Custom artifact name for the predefined item type.</returns>
+        public static string GetCustomArtifactTypeName(ItemTypePredefined itemType)
+        {
+            ThrowIf.ArgumentNull(itemType, nameof(itemType));
+
+            return GetArtifactTypeName(itemType, "(Custom Test)");
+        }
+
+        /// <summary>
+        /// Gets the Artifact Type that matches the given ItemTypePredefined with artifact type suffix
+        /// </summary>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="artifactTypeSuffix">The suffix to add the the artifcat type name</param>
+        /// <returns>A string indicating the artifact type name for the predefined item type.</returns>
+        private static string GetArtifactTypeName(ItemTypePredefined itemType, string artifactTypeSuffix)
+        {
+            ThrowIf.ArgumentNull(itemType, nameof(itemType));
+
             string artifactTypeNameBase;
 
             switch (itemType)
@@ -1255,7 +1406,7 @@ namespace Helper
                     break;
             }
 
-            return I18NHelper.FormatInvariant("{0}(Standard Pack)", artifactTypeNameBase);
+            return I18NHelper.FormatInvariant("{0}{1}", artifactTypeNameBase, artifactTypeSuffix);
         }
 
         public class ChoiceValues

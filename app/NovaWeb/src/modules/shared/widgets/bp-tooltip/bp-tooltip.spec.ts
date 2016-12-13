@@ -8,11 +8,12 @@ describe("Directive BP-Tooltip", () => {
     const tooltipTriggerNotTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true">Tooltip trigger</div></div>`;
 
     const tooltipTriggerTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"
-                                     style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div></div>`;
+                                     style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">
+                                     Tooltip trigger with looooong text</div></div>`;
 
-    const tooltipTriggerTruncatedNested = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true">
-                                           <div style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div>
-                                           </div></div>`;
+    const tooltipTriggerTruncatedNested = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true" 
+                                           style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">
+                                           <span>Tooltip trigger with looooong text</span></div></div>`;
 
     const tooltipTriggerTruncatedNested2x = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"><div>
                                              <div style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div>

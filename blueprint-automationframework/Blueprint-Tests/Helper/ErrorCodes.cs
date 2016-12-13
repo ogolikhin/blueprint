@@ -89,6 +89,8 @@ namespace Helper
 
         public const int CannotDiscard = 129;
 
+        public const int NameCannotBeEmpty = 130;
+
         //--------------------------------
 
         public const int Ok = 200;

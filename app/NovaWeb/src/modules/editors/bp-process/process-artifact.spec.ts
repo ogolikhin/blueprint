@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../../shell";
-import {IProcessService, IProcessUpdateResult} from "./services/process.svc";
+import {IProcessUpdateResult} from "./services/process.svc";
 import {ProcessServiceMock} from "./services/process.svc.mock";
 import {StatefulProcessArtifact} from "./process-artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";

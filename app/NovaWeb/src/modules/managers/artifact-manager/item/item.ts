@@ -323,7 +323,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         }
     }
 
-    
+
     protected initialize(artifact: Models.IArtifact): void {
         this.artifact = artifact;
         if (this.artifact.createdOn) {
@@ -441,7 +441,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                     if (!_.isBoolean(propertyType.isValidated)) {
                         propertyType.isValidated = true;
                     }
-                    
+
                     break;
                 case Enums.PropertyLookupEnum.Special:
                     propertyValue = this.specialProperties.get(propertyType.modelPropertyName as number);
@@ -501,28 +501,25 @@ export abstract class StatefulItem implements IIStatefulItem {
                         }
                     } else if (propertyType.isRichText) {
                         if (!this.services.validationService.textRtfValidation.hasValueIfRequired(propertyType.isRequired,
-                                propValue,
-                                propValue, propertyType.isValidated)) {
+                                propValue)) {
                             isValid = false;
                         }
                     } else {
                         if (!this.services.validationService.textValidation.hasValueIfRequired(propertyType.isRequired,
-                                propValue,
-                                propValue, propertyType.isValidated)) {
+                                propValue)) {
                             isValid = false;
                         }
                     }
                     break;
                 case Models.PrimitiveType.Choice:
-                    value = propValue ? propValue.validValues : null;
                     if (propertyType.isMultipleAllowed) {
-                        if (!this.services.validationService.multiSelectValidation.hasValueIfRequired(propertyType.isRequired,
-                                value, value, propertyType.isValidated)) {
+                        if (!this.services.validationService.multiSelectValidation.isValid(propertyType.isRequired,
+                                propValue , propertyType.isValidated, propertyType.validValues)) {
                             isValid = false;
                         }
                     } else {
-                        if (!this.services.validationService.selectValidation.hasValueIfRequired(propertyType.isRequired,
-                                value, value, propertyType.isValidated)) {
+                        if (!this.services.validationService.selectValidation.isValid(propertyType.isRequired,
+                                propValue,  propertyType.isValidated, propertyType.validValues)) {
                             isValid = false;
                         }
                     }
@@ -537,8 +534,7 @@ export abstract class StatefulItem implements IIStatefulItem {
                             }
                         }
                     }
-                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired,
-                            value, value, propertyType.isValidated)) {
+                    if (!this.services.validationService.userPickerValidation.hasValueIfRequired(propertyType.isRequired, value)) {
                         isValid = false;
                     }
                     break;

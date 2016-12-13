@@ -13,8 +13,10 @@ export interface IArtifactPickerOptions {
     isItemSelectable?: (item: Models.IArtifact | Models.ISubArtifactNode) => boolean;
     selectableItemTypes?: Models.ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
+    showProjects?: boolean;
+    showArtifacts?: boolean;
+    showCollections?: boolean;
     showSubArtifacts?: boolean;
-    isOneProjectLevel?: boolean;
 }
 
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {

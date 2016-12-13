@@ -25,9 +25,9 @@ namespace Model.StorytellerModel.Impl
 
         public const string DefaultPreconditionName = "Precondition";
 
-        public const string DefaultUserTaskName = "UT";
+        public const string DefaultUserTaskName = "Action 1";
 
-        public const string DefaultSystemTaskName = "ST";
+        public const string DefaultSystemTaskName = "Response 1";
 
         public const string EndName = "End";
 
@@ -1573,15 +1573,20 @@ namespace Model.StorytellerModel.Impl
             return PersonaReference;
         }
 
-        public bool IsTypeOf(ProcessShapeType processShapeType)
+        /// <seealso cref="IProcessShape.GetShapeType()"/>
+        public ProcessShapeType GetShapeType()
         {
             string clientType = PropertyTypeName.ClientType.ToString();
 
             clientType = PropertyValues.ContainsKey(clientType) ? clientType : clientType.LowerCaseFirstCharacter();
 
-            return
-                Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture).Equals(
-                    (int) processShapeType);
+            return (ProcessShapeType) Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture);
+        }
+
+        /// <seealso cref="IProcessShape.IsTypeOf(ProcessShapeType)"/>
+        public bool IsTypeOf(ProcessShapeType processShapeType)
+        {
+            return (GetShapeType() == processShapeType);
         }
     }
 

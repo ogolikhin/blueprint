@@ -1,3 +1,5 @@
+require("./pagination.scss");
+
 import {PaginationConfig} from "./paginationConfig";
 
 angular.module("bp.components.pagination", [])

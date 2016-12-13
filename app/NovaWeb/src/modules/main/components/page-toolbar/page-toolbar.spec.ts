@@ -15,9 +15,10 @@ import {IAnalyticsProvider, AnalyticsProvider} from "../analytics/analyticsProvi
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {IPublishResultSet} from "./../../models/models";
 
 
-describe("Application toolbar:", () => {
+describe("Page Toolbar:", () => {
     let _$q: ng.IQService;
     let $scope: ng.IScope;
     let toolbarCtrl: PageToolbarController;
@@ -30,16 +31,22 @@ describe("Application toolbar:", () => {
 
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", () => {
-            return {};
+            return {
+                open: {}
+            };
         });
         $provide.service("projectManager", () => {
             return {
                 remove: (projectId: number) => {
                     return;
-                },
+                }, 
                 removeAll: () => {
                     return;
                 },
+                refreshAll: () => {
+                    return;
+                },
+                getSelectedProjectId: {},
                 projectCollection: {
                     getValue: () => {
                         return;
@@ -50,7 +57,9 @@ describe("Application toolbar:", () => {
         $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("messageService", () => {
-            return {};
+            return {
+                addInfo: {}
+            };
         });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
@@ -83,11 +92,12 @@ describe("Application toolbar:", () => {
         //artifact = statefulArtifactFactory.createStatefulArtifact({id: 1, projectId: 1});
         artifact = {
             projectId: 1,
-            autosave: () => {
-                let deferred = _$q.defer();
-                deferred.resolve();
-                return deferred.promise;
-            }
+            autosave: () => { return _$q.resolve(); },
+            refresh: () => { return; },
+            artifactState : {
+                unlock: () => {return; }
+            },
+            discard: () => {; }
         };
         toolbarCtrl = new PageToolbarController($q, localization,
             dialogService, projectManager, artifactManager, publishService,
@@ -103,6 +113,205 @@ describe("Application toolbar:", () => {
         spyOn(artifactManager, "autosave").and.callFake(() => { return $q.resolve(); });
 
     }));
+
+    describe("refresh all ->", () => {
+        
+        it("refresh successful: project is opened", 
+            inject((projectManager: IProjectManager) => {
+            // Arrange
+            spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
+
+            const refreshAllSpy = spyOn(projectManager, "refreshAll").and.callFake(() => { return _$q.resolve(); });
+
+            // Act
+            toolbarCtrl.refreshAll();
+            $scope.$digest();
+
+            // Assert
+            expect(refreshAllSpy).toHaveBeenCalled();
+        }));
+
+        it("refresh successful: no opened project, but artifact is selected", 
+            inject((artifactManager: IArtifactManager, projectManager: IProjectManager) => {
+            // Arrange
+            const refreshAllSpy = spyOn(artifact, "refresh").and.callFake(() => { return _$q.resolve(); });
+            spyOn(projectManager.projectCollection, "getValue").and.returnValue([]);
+            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+
+            // Act
+            toolbarCtrl.refreshAll();
+            $scope.$digest();
+
+            // Assert
+            expect(refreshAllSpy).toHaveBeenCalled();
+        }));
+
+        it("refresh unsuccessful: no opened project or selected artifact", 
+            inject((artifactManager: IArtifactManager, projectManager: IProjectManager) => {
+            // Arrange
+            const refreshArtifactSpy = spyOn(artifact, "refresh").and.callFake(() => { return _$q.resolve(); });
+            const refreshAllSpy = spyOn(projectManager, "refreshAll").and.callFake(() => { return _$q.resolve(); });
+
+            spyOn(projectManager.projectCollection, "getValue").and.returnValue([]);
+            spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
+
+            // Act
+            toolbarCtrl.refreshAll();
+            $scope.$digest();
+
+            // Assert
+            expect(refreshAllSpy).not.toHaveBeenCalled();
+            expect(refreshArtifactSpy).not.toHaveBeenCalled();
+        }));
+
+    });
+    describe("publish all ->", () => {
+        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager) => {
+            spyOn(projectManager, "getSelectedProjectId").and.returnValue(1);
+            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+        }));
+
+        it("publish successful", 
+            inject((
+                publishService: UnpublishedArtifactsServiceMock,
+                dialogService: IDialogService,
+                messageService: IMessageService
+                ) => {
+            // Arrange
+            spyOn(publishService, "getUnpublishedArtifacts").and.callFake(() => {
+                return _$q.resolve({
+                        artifacts: [{}, {}] 
+                });
+            });
+            spyOn(messageService, "addInfo").and.callFake(() => {; });
+            const refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {return _$q.resolve(); });
+            const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.resolve(); });
+            const publishSpy = spyOn(publishService, "publishAll").and.callFake(() => {return _$q.resolve(); });
+
+            // Act
+            toolbarCtrl.publishAll();
+            $scope.$digest();
+
+            // Assert
+            expect(confirmSpy).toHaveBeenCalled();
+            expect(publishSpy).toHaveBeenCalled();
+            expect(refreshSpy).toHaveBeenCalled();
+        }));
+        it("publish successful: nothing to publish", 
+            inject((
+                publishService: UnpublishedArtifactsServiceMock,
+                dialogService: IDialogService,
+                messageService: IMessageService
+                ) => {
+            // Arrange
+            spyOn(publishService, "getUnpublishedArtifacts").and.callFake(() => {
+                return _$q.resolve({artifacts: []});
+            });
+            const messageSpy = spyOn(messageService, "addInfo").and.callFake(() => {; });
+            const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.resolve(); });
+            const publishAll = spyOn(publishService, "publishAll").and.callFake(() => {return _$q.resolve(); });
+
+            // Act
+            toolbarCtrl.publishAll();
+            $scope.$digest();
+
+            // Assert
+            expect(messageSpy).toHaveBeenCalled();
+            expect(confirmSpy).not.toHaveBeenCalled();
+            expect(publishAll).not.toHaveBeenCalled();
+        }));
+        
+    });
+
+    describe("discard all ->", () => {
+        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager) => {
+            spyOn(projectManager, "getSelectedProjectId").and.returnValue(1);
+            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
+        }));
+        
+        it("discard successful", 
+            inject((
+                publishService: UnpublishedArtifactsServiceMock,
+                projectManager: IProjectManager,
+                artifactManager: IArtifactManager,
+                dialogService: IDialogService,
+                messageService: IMessageService
+                ) => {
+            // Arrange
+            spyOn(publishService, "getUnpublishedArtifacts").and.callFake(() => {
+                return _$q.resolve({artifacts: [{}, {}]});
+            });
+
+            const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.resolve(); });
+            const discardSpy = spyOn(publishService, "discardAll").and.callFake(() => {return _$q.resolve(); });
+            spyOn(messageService, "addInfo").and.callFake((msg) => {
+                expect(msg).toEqual("Discard_All_Success_Message"); 
+            });
+
+            // Act
+            toolbarCtrl.discardAll();
+            $scope.$digest();
+
+            // Assert
+            expect(confirmSpy).toHaveBeenCalled();
+            expect(discardSpy).toHaveBeenCalled();
+        }));
+        it("discard -> confirmation canceled", 
+            inject((
+                publishService: UnpublishedArtifactsServiceMock,
+                projectManager: IProjectManager,
+                artifactManager: IArtifactManager,
+                dialogService: IDialogService,
+                messageService: IMessageService
+                ) => {
+            // Arrange
+            spyOn(publishService, "getUnpublishedArtifacts").and.callFake(() => {
+                return _$q.resolve({artifacts: [{}, {}]});
+            });
+
+            const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.reject(); });
+            const discardSpy = spyOn(publishService, "discardAll").and.callFake(() => {return _$q.resolve(); });
+           
+
+            // Act
+            toolbarCtrl.discardAll();
+            $scope.$digest();
+
+            // Assert
+            expect(confirmSpy).toHaveBeenCalled();
+            expect(discardSpy).not.toHaveBeenCalled();
+        }));
+
+        it("discard -> nothing to discard", 
+            inject((
+                publishService: UnpublishedArtifactsServiceMock,
+                projectManager: IProjectManager,
+                artifactManager: IArtifactManager,
+                dialogService: IDialogService,
+                messageService: IMessageService
+                ) => {
+            // Arrange
+            spyOn(publishService, "getUnpublishedArtifacts").and.callFake(() => {
+                return _$q.resolve({artifacts: []});
+            });
+
+            const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.reject(); });
+            const discardSpy = spyOn(publishService, "discardAll").and.callFake(() => {return _$q.resolve(); });
+            spyOn(messageService, "addInfo").and.callFake((msg) => {
+                expect(msg).toEqual("Discard_All_No_Unpublished_Changes"); 
+            });
+
+            // Act
+            toolbarCtrl.discardAll();
+            $scope.$digest();
+
+            // Assert
+            expect(confirmSpy).not.toHaveBeenCalled();
+            expect(discardSpy).not.toHaveBeenCalled();
+        }));
+    });
+
     describe("close project->", () => {
 
         it("does nothing, no artifact selected", inject((navigationService: INavigationService,

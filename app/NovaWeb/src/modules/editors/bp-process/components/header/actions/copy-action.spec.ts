@@ -116,6 +116,18 @@ describe("CopyAction", () => {
         expect(tooltip).toEqual(expectedTooltip);
     });
 
+    it("sets disabled to true when process is historical", () => {
+        // arrange
+        const process = createStatefulProcessArtifact();
+        const action = new CopyAction(process, communicationManager, localization);
+
+        // act
+        process.artifactState.historical = true;
+
+        // assert
+        expect(action.disabled).toEqual(true);
+    });
+
     describe("on selection change", () => {
         it("sets disabled to true when selection contains no shapes", () => {
             // arrange

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using Model.SearchServiceModel.Impl;
 using Utilities;
 using Utilities.Factories;
@@ -92,13 +93,15 @@ namespace Helper
         /// (Default is False => Wait for artifacts to appear instead of disappear)</param>
         /// <param name="timeoutInMilliseconds">(optional) Timeout in milliseconds after which search will terminate 
         /// if not successful </param>
+        /// <param name="sleepIntervalInMilliseconds">(optional) The amount of time in milliseconds to sleep between retries.</param>
         public static void WaitForFullTextSearchIndexerToUpdate(
             IUser user,
             TestHelper testHelper,
             FullTextSearchCriteria searchCriteria,
             int artifactCount,
             bool waitForArtifactsToDisappear = false,
-            int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS)
+            int timeoutInMilliseconds = DEFAULT_TIMEOUT_FOR_SEARCH_INDEXER_UPDATE_IN_MS,
+            int sleepIntervalInMilliseconds = 1000)
         {
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -114,8 +117,14 @@ namespace Helper
                     "SearchMetaData() call failed when using following search term: {0}!",
                     searchCriteria.Query);
 
-            } while ((!waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount < artifactCount) ||
-                    waitForArtifactsToDisappear && DateTime.Now < timeout && fullTextSearchMetaDataResult.TotalCount > artifactCount);
+                Thread.Sleep(sleepIntervalInMilliseconds); // Sleep betweeen retries so we don't DoS attack ourselves.
+                Logger.WriteDebug("** waitForArtifactsToDisappear = {0}", waitForArtifactsToDisappear);
+                Logger.WriteDebug("** fullTextSearchMetaDataResult.TotalCount = {0}", fullTextSearchMetaDataResult.TotalCount);
+
+            } while ((DateTime.Now < timeout) && (
+                    (!waitForArtifactsToDisappear && fullTextSearchMetaDataResult.TotalCount < artifactCount) ||
+                    (waitForArtifactsToDisappear && fullTextSearchMetaDataResult.TotalCount > artifactCount)
+                    ));
 
 
             var errorMessage = I18NHelper.FormatInvariant(

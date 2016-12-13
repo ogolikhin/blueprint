@@ -1,3 +1,5 @@
+import {BPButtonGroupAction} from "./../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {DeleteAction} from "./../../main/components/bp-artifact-info/actions/delete-action";
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
 import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../shared";
@@ -10,7 +12,6 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ISelectionManager} from "../../managers/selection-manager";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
@@ -69,27 +70,33 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         );
     }
 
-    protected updateToolbarOptions(artifact: any): void {
-        super.updateToolbarOptions(artifact);
-
-        const collectionArtifact = artifact as IStatefulCollectionArtifact;
+    protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
 
         if (!collectionArtifact) {
             return;
         }
 
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
         const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
-        // expanded toolbar
-        this.toolbarActions.push(rapidReviewAction, addCollectionArtifactAction);
-        // collapsed toolbar
-        for (let i = 0; i < this.collapsedToolbarActions.length; i++) {
-            if (this.collapsedToolbarActions[i].type === "menu") {
-                const buttonDropdown = this.collapsedToolbarActions[i] as BPMenuAction;
-                const dropdownSeparator = new BPButtonOrDropdownSeparator();
-                buttonDropdown.actions.push(dropdownSeparator, rapidReviewAction, addCollectionArtifactAction);
-            }
+        if (buttonGroup) {
+            buttonGroup.actions.push(deleteAction);
         }
+
+        // expanded toolbar
+        this.toolbarActions.push(
+            rapidReviewAction,
+            addCollectionArtifactAction
+        );
+
+        // collapsed toolbar
+        this.additionalMenuActions.push(
+            new BPButtonOrDropdownSeparator(),
+            rapidReviewAction,
+            addCollectionArtifactAction
+        );
     }
 }

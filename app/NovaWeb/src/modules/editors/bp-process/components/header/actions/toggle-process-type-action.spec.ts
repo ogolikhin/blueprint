@@ -1,10 +1,11 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "script!mxClient";
 import {ToggleProcessTypeAction} from "./toggle-process-type-action";
 import {CommunicationManager} from "../../../";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
+import {RolePermissions, LockedByEnum, ReuseSettings} from "../../../../../main/models/enums";
 import {ProcessType} from "../../../models/enums";
 
 describe("ToggleProcessTypeAction", () => {
@@ -97,6 +98,36 @@ describe("ToggleProcessTypeAction", () => {
         });
     });
 
+    describe("on artifact loaded", () => {
+        it("set current value to BusinessProcess for business process", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            process.propertyValues["clientType"].value = ProcessType.BusinessProcess;
+            spyOn(process, "getObservable").and.returnValue(subject);
+
+            // act
+            const action = new ToggleProcessTypeAction(process, communicationManager.toolbarCommunicationManager, localization);
+
+            // assert
+            expect(action.currentValue).toEqual(ProcessType.BusinessProcess);
+        });
+
+        it("set current value to UserToSystem for user-to-system process", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            process.propertyValues["clientType"].value = ProcessType.UserToSystemProcess;
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
+
+            // act
+            const action = new ToggleProcessTypeAction(process, communicationManager.toolbarCommunicationManager, localization);
+
+            // assert
+            expect(action.currentValue).toEqual(ProcessType.UserToSystemProcess);
+        });
+    });
+
     describe("toggle", () => {
         it("is disabled if process is read-only", () => {
             // arrange
@@ -114,6 +145,42 @@ describe("ToggleProcessTypeAction", () => {
 
             // assert
             expect(action.disabled).toBe(true);
+        });
+
+        it("is disabled if process is resued and has subartifacts reuse read-only settings", () => {
+            // arrange
+            const process = createStatefulProcessArtifact(1, ReuseSettings.Subartifacts);
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
+            const action = new ToggleProcessTypeAction(
+                process, 
+                communicationManager.toolbarCommunicationManager, 
+                localization
+            );
+
+            // act
+            process.artifactState.setState({readonly: false}, false);
+
+            // assert
+            expect(action.disabled).toBe(true);
+        });
+
+        it("is enabled if process is reuse read-only for attachments", () => {
+            // arrange
+            const process = createStatefulProcessArtifact(1, ReuseSettings.Attachments);
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
+            const action = new ToggleProcessTypeAction(
+                process, 
+                communicationManager.toolbarCommunicationManager, 
+                localization
+            );
+
+            // act
+            process.artifactState.setState({readonly: false}, false);
+
+            // assert
+            expect(action.disabled).toBe(false);
         });
 
         it("is enabled if process is not read-only", () => {
@@ -153,13 +220,32 @@ describe("ToggleProcessTypeAction", () => {
             expect(toggleSpy).toHaveBeenCalledWith(value);
         });
     });
+
+    describe("dispose", () => {
+        it("doesn't handle artifact change", () => {
+            // arrange
+            const process = createStatefulProcessArtifact();
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
+            const action = new ToggleProcessTypeAction(process, communicationManager.toolbarCommunicationManager, localization);
+            const spy = spyOn(action, "onArtifactChanged");
+            action.dispose();
+
+            // act
+            process.propertyValues["clientType"].value = ProcessType.BusinessProcess;
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+    });
 });
 
-function createStatefulProcessArtifact(version: number = 1): StatefulProcessArtifact {
+function createStatefulProcessArtifact(version: number = 1, reuseSettings?: ReuseSettings): StatefulProcessArtifact {
     const artifactModel = {
         id: 1,
         permissions: RolePermissions.Edit,
-        version: version
+        version: version,
+        readOnlyReuseSettings: reuseSettings
     };
     const process = new StatefulProcessArtifact(artifactModel, null);
     process.propertyValues = {

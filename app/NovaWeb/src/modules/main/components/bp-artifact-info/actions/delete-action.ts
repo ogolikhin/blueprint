@@ -13,8 +13,9 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 
 export class DeleteAction extends BPButtonAction {
-    constructor(private artifact: IStatefulArtifact,
-        private localization: ILocalizationService,
+    constructor(
+        private artifact: IStatefulArtifact,
+        protected localization: ILocalizationService,
         private messageService: IMessageService,
         private artifactManager: IArtifactManager,
         private projectManager: IProjectManager,
@@ -35,6 +36,8 @@ export class DeleteAction extends BPButtonAction {
         if (!dialogService) {
             throw new Error("Dialog service not provided or is null");
         }
+
+        this._tooltip = this.localization.get("App_Toolbar_Delete");
     }
 
     public get icon(): string {
@@ -42,18 +45,18 @@ export class DeleteAction extends BPButtonAction {
     }
 
     public get tooltip(): string {
-        return this.localization.get("App_Toolbar_Delete");
+        return this._tooltip;
     }
 
     public get disabled(): boolean {
-        return !this.canExecute();
+        return !this.canDelete();
     }
 
     public get execute() {
-        return this.deleteArtifact;
+        return this.delete;
     }
 
-    private canExecute() {
+    protected canDelete() {
         if (!this.artifact) {
             return false;
         }
@@ -71,14 +74,25 @@ export class DeleteAction extends BPButtonAction {
             return false;
         }
 
-        if ((this.artifact.permissions & Enums.RolePermissions.Delete) !== Enums.RolePermissions.Delete) {
+        if (!this.hasRequiredPermissions()) {
             return false;
         }
 
         return true;
     }
 
-    private deleteArtifact() {
+    protected hasRequiredPermissions(): boolean {
+        return this.hasDesiredPermissions(Enums.RolePermissions.Delete);
+    }
+
+    protected hasDesiredPermissions(permissions: Enums.RolePermissions): boolean {
+        if ((this.artifact.permissions & permissions) !== permissions) {
+            return false;
+        }
+        return true;
+    }
+
+    protected delete() {
         const overlayId: number = this.loadingOverlayService.beginLoading();
 
         this.projectManager.getDescendantsToBeDeleted(this.artifact).then((descendants: Models.IArtifactWithProject[]) => {
@@ -114,14 +128,13 @@ export class DeleteAction extends BPButtonAction {
         });
     };
 
-
     private complete(deletedArtifacts: Models.IArtifact[]) {
         const parentArtifact = this.artifactManager.get(this.artifact.parentId);
         if (parentArtifact) {
-            this.projectManager.refresh(parentArtifact.projectId, true).then(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-                this.navigationService.navigateTo({id: parentArtifact.id});
-
+            this.navigationService.navigateTo({id: parentArtifact.id}).then(() => {
+                this.projectManager.refresh(parentArtifact.projectId, parentArtifact.id, true).then(() => {
+                    this.projectManager.triggerProjectCollectionRefresh();
+                });
             });
         } else {
             this.artifact.refresh();
@@ -133,7 +146,5 @@ export class DeleteAction extends BPButtonAction {
             deletedArtifacts.length);
         message.timeout = 6000;
         this.messageService.addMessage(message);
-
     }
-
 }

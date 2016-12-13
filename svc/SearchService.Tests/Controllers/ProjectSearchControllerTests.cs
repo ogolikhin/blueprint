@@ -40,7 +40,7 @@ namespace SearchService.Controllers
             // Arrange
             const int projectId = 10;
             var searchCriteria = new SearchCriteria { Query = "Test"};
-            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var project = new ProjectSearchResult { ItemId = projectId, Name = searchCriteria.Query };
             var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
             var controller = CreateController(searchCriteria, searchResult);
 
@@ -60,7 +60,7 @@ namespace SearchService.Controllers
             // Arrange
             const int projectId = 10;
             var searchCriteria = new SearchCriteria { Query = "Test" };
-            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var project = new ProjectSearchResult { ItemId = projectId, Name = searchCriteria.Query };
             var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
             var controller = CreateController(searchCriteria, searchResult);
 
@@ -80,7 +80,7 @@ namespace SearchService.Controllers
             // Arrange
             const int projectId = 10;
             var searchCriteria = new SearchCriteria { Query = "Test" };
-            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var project = new ProjectSearchResult { ItemId = projectId, Name = searchCriteria.Query };
             var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
             var controller = CreateController(searchCriteria, searchResult);
 
@@ -174,7 +174,7 @@ namespace SearchService.Controllers
             // Arrange
             const int projectId = 10;
             var searchCriteria = new SearchCriteria { Query = "Test" };
-            var project = new SearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var project = new ProjectSearchResult { ItemId = projectId, Name = searchCriteria.Query };
             var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
             var controller = CreateController(searchCriteria, searchResult);
             controller.Request.Properties.Remove(ServiceConstants.SessionProperty);

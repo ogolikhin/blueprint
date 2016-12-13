@@ -37,6 +37,7 @@
  $brand-warning						- brand-warning
  $yellow-pale							- yellow-pale
  $text-highlight-background-color		- text-highlight-background-color
+ $selection-hover-background-color      - selection-hover-background-color
 
  markup:
  <div style="background: {$modifiers};" class="styleguide-color">{$modifiers}</div>
@@ -65,9 +66,14 @@ $brand-success: #36a2b0;
 $brand-error: #d95f5e;
 $brand-warning: #e4b169;
 
+$disabled-color: $gray-lightest;
 $text-color: $gray-darkest;
 $text-highlight-background-color: #ffffb3;
 $text-highlight-color: $black;
+
+$selection-selected-color: $white;
+$selection-selected-background-color: $brand-secondary;
+$selection-hover-background-color: #e5f3fb;
 
 $messages-bg-error: $brand-error;
 $messages-bg-info: $brand-success;
@@ -80,8 +86,8 @@ $modal-bg-color: #f0f0f0;
 $link-color: $brand-secondary;
 $link-hover-color: lighten($brand-secondary, 10%);
 
-$tree-hover-background: #e5f3fb;
-$tree-focus-background: #e5f3fb;
+$tree-hover-background: $selection-hover-background-color;
+$tree-focus-background: $selection-hover-background-color;
 $tree-focus-border: #70c0e7;
 
 $left-sidebar-border: $brand-secondary;

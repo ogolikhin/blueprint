@@ -31,7 +31,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] // Needs more asserts and custom data tag.
         public void GetProjects()
         {
             // TODO: Create some projects.
@@ -48,8 +48,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [Ignore(IgnoreReasons.UnderDevelopment)]
-        // TODO: Need to implement Project.Equals(), CreateProject() & DeleteProject().
+        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]    // TODO: Need to implement Project.Equals(), CreateProject() & DeleteProject(), or use CustomData.
         public void GetProject()
         {
             // Setup: Create a project and collect the projectID

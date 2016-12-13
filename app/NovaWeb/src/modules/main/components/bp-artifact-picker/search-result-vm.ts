@@ -7,21 +7,21 @@ export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult
     constructor(
         public model: T,
         private onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean,
-        public readonly isSelectable: boolean = true,
+        public readonly selectable: boolean = true,
         public project?: AdminStoreModels.IInstanceItem) {
     }
 
     public selected(value?: boolean): boolean {
-        return this.isSelectable && this.onSelect(this, value);
+        return this.selectable && this.onSelect(this, value);
     }
 }
 
-export class ProjectSearchResultVM extends SearchResultVM<SearchServiceModels.ISearchResult> {
+export class ProjectSearchResultVM extends SearchResultVM<SearchServiceModels.IProjectSearchResult> {
     public readonly id = "";
     public readonly iconClass = "icon-project";
 
     constructor(
-        model: SearchServiceModels.ISearchResult,
+        model: SearchServiceModels.IProjectSearchResult,
         onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean) {
         super(model, onSelect);
     }

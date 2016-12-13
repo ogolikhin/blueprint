@@ -139,8 +139,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(190742)]
-        [Explicit(IgnoreReasons.ProductBug)]//adding attachment to subartifact (Process\User Task or Use Case\Precondition) via OpenAPI gives 500 error
-        [Description("Create a Process artifact, add attachment, publish it, add attachment to User task & publish, get attachments for User task.  Verify only the User Task's attachment is returned.")]
+        [Description("Create a Process artifact, add attachment, publish it, add attachment to User task & publish, get attachments for User task.  " +
+            "Verify only the User Task's attachment is returned.")]
         public void AddAttachmentToSubArtifactOpenAPI_ArtifactWithAttachments_NoErrors()
         {
             // Setup:
@@ -160,6 +160,8 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => { artifact.AddSubArtifactAttachment(userTask.Id, file2, _adminUser); },
                 "Adding attachment shouldn't throw an error.");
 
+            artifact.Publish();
+
             // Verify:
             Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: userTask.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
@@ -171,7 +173,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(154648)]
-        [Description("Create a Use Case artifact, add attachment, publish it, add attachment to Precondition (subArtifact) & publish, get attachments for Precondition.  Verify only the Precondition's attachment is returned.")]
+        [Description("Create a Use Case artifact, add attachment, publish it, add attachment to Precondition (subArtifact) & publish, get attachments for Precondition.  " +
+            "Verify only the Precondition's attachment is returned.")]
         public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned()
         {
             // Setup:
@@ -242,7 +245,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.ProductBug)]    // BUG #1712
+        [Explicit(IgnoreReasons.ProductBug)]    // BUG #1712  ArtifactStore service: svc/artifactstore/artifacts/{id}/relationships works for subartifactid
         [TestRail(154604)]
         [Description("Create a Process artifact, publish it, add attachment to User task & publish, get attachments but pass the User Task sub-artifact ID instead of the artifact ID.  "
             + "Verify 404 Not Found is returned.")]

@@ -544,8 +544,7 @@ namespace ArtifactStoreTests
                 I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]
-        // TFS: Bug 3975:[ArtifactStore]: [Create] [failed integration test] Creating artifact with required custom property is now plain text instead of HTML wrapped value.
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS: Bug 3975: Creating artifact with required custom property is now plain text instead of HTML wrapped value.
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
         [Category(Categories.CustomData)]
         [TestCase(ArtifactTypePredefined.Actor)]

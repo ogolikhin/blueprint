@@ -65,4 +65,42 @@
             }
         }
     }
+
+    .navbar-help {
+        display: inline-block;
+    }
+
+    .dropdown-menu-help {
+        background: $navbar-color;
+        min-width: 100px;
+        margin-top: 0;
+        right: -15px;
+        @include rounded-corners(0);
+    }
+
+    .dropdown-menu-help-btn {
+        color: $white;
+        width: 100%;
+        background: transparent;
+        border: 0;
+
+        &:hover {
+            background: $brand-secondary;
+            color: $white;
+        }
+        &:hover,
+        &:active,
+        &:focus {
+            outline: 0;
+        }
+    }
+
+    .dropdown-menu-caret {
+        color: $white;
+        margin-left: 5px;
+    }
+
+    .dropdown-menu-item {
+        line-height: 27px;
+    }
 }

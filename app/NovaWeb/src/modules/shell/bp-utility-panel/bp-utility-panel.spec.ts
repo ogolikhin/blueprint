@@ -7,7 +7,7 @@ import {PanelType} from "./utility-panel.svc";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactHistoryMock} from "./bp-history-panel/artifact-history.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined, ReuseSettings} from "../../main/models/enums";
 import {ArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactManager, IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {ArtifactAttachmentsService} from "../../managers/artifact-manager/attachments/attachments.svc";
@@ -59,7 +59,8 @@ describe("Component BPUtilityPanel", () => {
     it("should load data for a selected artifact",
         inject(($rootScope: ng.IRootScopeService, artifactManager: IArtifactManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
+            const artifactModel = {id: 22, name: "Artifact", predefinedType: ItemTypePredefined.CollectionFolder, prefix: "My"};
+            const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
 
             //Act
             artifactManager.selection.setArtifact(artifact);
@@ -103,4 +104,5 @@ describe("Component BPUtilityPanel", () => {
             // Assert
             expect(vm.isAnyPanelVisible).toBe(false);
         }));
+        
 });

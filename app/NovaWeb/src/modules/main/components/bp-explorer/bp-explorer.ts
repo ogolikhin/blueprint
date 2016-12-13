@@ -1,4 +1,4 @@
-import {TreeModels, AdminStoreModels} from "../../models";
+import {TreeModels} from "../../models";
 import {Helper} from "../../../shared";
 import {IProjectManager, IArtifactManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
@@ -24,7 +24,6 @@ export interface IProjectExplorerController {
     projects: TreeModels.StatefulArtifactNodeVM[];
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
-    onError: (reason: any) => any;
     onGridReset: (isExpanding: boolean) => void;
 }
 
@@ -99,6 +98,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private setSelectedNode(artifact: IStatefulArtifact) {
         if (!artifact) {
             if (this.treeApi) {
+                this.selected = undefined;
                 this.treeApi.deselectAll();
             }
             return;
@@ -145,6 +145,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public isProjectTreeVisible(): boolean {
         return this.projects && this.projects.length > 0;
     }
+    
+    private isMainAreaSelectedArtifactBelongsToOpeningProject(): boolean {
+        return this.selectionManager.getArtifact().projectId === this.projects[0].model.id;
+    }
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
@@ -163,16 +167,18 @@ export class ProjectExplorerController implements IProjectExplorerController {
             } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
                 this.selectionManager.getArtifact() &&
                 // selectedArtifactId = undefined only if there is no projects open.
-                // if there are some artifact pre selected in the tree before opening project
-                // we need to check if this artifact is not from this.projects[0] (last opened project)
-                (!selectedArtifactId || (selectedArtifactId && this.selected.model.projectId !== this.projects[0].model.id))) {
+                // if there are some artifact pre selected in the main area before opening project
+                // we need to check if this artifact is from opening project: this.projects[0] (opening project)
+                (!selectedArtifactId ||
+                    (selectedArtifactId &&
+                     this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {
                 if (!this.selectionManager.getArtifact().artifactState.historical) {
                     navigateToId = this.selectionManager.getArtifact().id;
                 } else {
                     // for historical artifact we do not need to change selection in main area US3489
                     navigateToId = selectedArtifactId;
                 }
-            } else if (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length) {
+            } else if (this.$state.current.name !== "main.unpublished" && (!selectedArtifactId || this.numberOfProjectsOnLastLoad !== this.projects.length)) {
                 navigateToId = this.projects[0].model.id;
             } else if (this.projects.some(vm => Boolean(vm.getNode(model => model.id === selectedArtifactId)))) {
                 navigateToId = selectedArtifactId;
@@ -237,10 +243,4 @@ export class ProjectExplorerController implements IProjectExplorerController {
          }
          this.resettingSelection = false;
     };
-
-    public onError = (reason: any): void => {
-        if (reason) {
-            this.messageService.addError(reason["message"] || "Artifact_NotFound");
-        }
-    }
 }

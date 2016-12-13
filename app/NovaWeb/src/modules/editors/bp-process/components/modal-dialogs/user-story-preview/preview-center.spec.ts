@@ -1,4 +1,5 @@
-﻿import * as angular from "angular";
+﻿import {CommunicationManager} from "./../../../services/communication-manager";
+import * as angular from "angular";
 import "angular-ui-router";
 import {PreviewCenterController, PreviewCenterComponent} from "./preview-center";
 import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
@@ -25,7 +26,7 @@ describe("PreviewCenter Directive", () => {
 
     beforeEach(angular.mock.module("ui.router"));
 
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService, $compileProvider: ng.ICompileProvider) => {
+    beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider) => {
         $compileProvider.component("previewCenter", new PreviewCenterComponent());
     }));
 
@@ -34,6 +35,7 @@ describe("PreviewCenter Directive", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("communicationManager", CommunicationManager);
     }));
 
     beforeEach(

@@ -244,6 +244,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         }
     }
 
+    public isUserDecision(): boolean {
+        return this.dialogModel.originalDecision.getNodeType() === NodeType.UserDecision;
+    }
+
     // This is a workaround to force re-rendering of the dialog
     public refreshView() {
         const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
@@ -262,5 +266,13 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             20,
             false
         );
+    }
+
+    public get deleteConditionLabel(): string {
+        return `${this.localization.get("App_Button_Delete")} ${this.dialogModel.conditionLabel}`;
+    }
+
+    public get addConditionLabel(): string {
+        return `${this.localization.get("App_Button_Add")} ${this.dialogModel.conditionLabel}`;
     }
 }

@@ -1,9 +1,10 @@
+@import "./../../../styles/settings/colors";
+
 bp-glossary {
     display: block;
     font-size: 1.2rem;
 
     .selected-term {
-        // background: #e1edf5;
         background: $tree-hover-background;
     }
 
@@ -18,7 +19,7 @@ bp-glossary {
         border-right: 1px solid $gray-lighter;
 
         > thead {
-            background: $gray;
+            background: $gray-dark;
 
             th {
                 color: $white;

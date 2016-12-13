@@ -2,7 +2,7 @@ import {ISession} from "./login/session.svc";
 import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
-import {ClipboardService, IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
+import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
 
 
 export class AppRoutes {
@@ -18,6 +18,19 @@ export class AppRoutes {
                 $urlMatcherFactoryProvider: any) {
 
         $urlMatcherFactoryProvider.caseInsensitive(true);
+
+        // parses 'path' parameter into an array of IDs
+        $urlMatcherFactoryProvider.type("navpath", {
+            encode: (item: string[]): string => {
+                return _.isArray(item) ? item.join(",") : undefined;
+            },
+            decode: (item: string): string[] => {
+                return _.isString(item) ? item.split(",") : [];
+            },
+            is: (item) => {
+                return _.isObject(item);
+            }
+        });
 
         // pass through / to main state
         $urlRouterProvider.when("", "/main");
@@ -138,13 +151,13 @@ public static $inject = [
         "$log",
         "session",
         "projectManager",
-        "navigationService",
-        "clipboardService"
+    "navigationService",
+    "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
-                private projectManager: IProjectManager, 
+                private projectManager: IProjectManager,
                 private navigation: INavigationService,
                 private clipboardService: IClipboardService) {
 

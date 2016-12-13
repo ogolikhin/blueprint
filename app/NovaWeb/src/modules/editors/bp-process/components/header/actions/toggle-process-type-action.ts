@@ -1,6 +1,7 @@
 import {BPToggleAction, BPToggleItemAction} from "../../../../../shared";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessType} from "../../../models/enums";
+import {ReuseSettings} from "../../../../../main/models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
@@ -30,7 +31,14 @@ export class ToggleProcessTypeAction extends BPToggleAction {
             (value: ProcessType) => {
                 toolbarCommunication.toggleProcessType(value);
             },
-            () => this.loaded && process && process.artifactState && !process.artifactState.readonly,
+            () => {
+                return this.loaded && 
+                        process && 
+                        process.artifactState && 
+                        !process.artifactState.readonly &&
+                        //artifact is selected and selective readonly is set
+                        !process.isReuseSettingSRO(ReuseSettings.Subartifacts);
+            },
             new BPToggleItemAction(
                 "fonticon fonticon2-user-user",
                 ProcessType.BusinessProcess,
@@ -47,19 +55,7 @@ export class ToggleProcessTypeAction extends BPToggleAction {
 
         this.subscribers = [];
         this.subscribers.push(
-            process.getObservable().subscribeOnNext(
-                (process: StatefulProcessArtifact) => {
-                    if (process) {
-                        // case when artifact is loaded
-                        this._currentValue = process.propertyValues["clientType"].value;
-                        this.loaded = true;
-                    } else {
-                        // case when artifact is unloaded
-                        this._currentValue = ProcessType.None;
-                        this.loaded = false;
-                    }
-                }
-            )
+            process.getObservable().subscribeOnNext(this.onArtifactChanged, this)
         );
     }
 
@@ -71,7 +67,15 @@ export class ToggleProcessTypeAction extends BPToggleAction {
                 }
             );
 
-            delete this["subscribers"];
+            this.subscribers = undefined;
+        }
+    }
+
+    private onArtifactChanged(process: StatefulProcessArtifact): void {
+        if (process) {
+            // case when artifact is loaded
+            this._currentValue = process.propertyValues["clientType"].value;
+            this.loaded = true;
         }
     }
 }

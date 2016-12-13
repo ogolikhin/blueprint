@@ -79,7 +79,7 @@ namespace AdminStoreTests
         [TestRail(107439)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: DELETE, GET, HEAD & POST requests.  " +
             "Try to get an existing session from AdminStore.  Verify it returns 200 OK.")]
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // AdminStore.GetSession() isn't implemented!!
+        [Ignore(IgnoreReasons.UnderDevelopmentDev)]    // AdminStore.GetSession() isn't implemented!!
         public void GetSession_AccessControlErrorAllMethodsExceptPUT_ExpectSuccess(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
@@ -197,7 +197,7 @@ namespace AdminStoreTests
         [TestRail(107445)]
         [Description("Configure the AccessControlDouble to return error HTTP Status Codes for: PUT requests.  " +
             "Try to get a session token for the specified User ID.  Verify it returns a 401 Unauthorized error.")]
-        [Ignore(IgnoreReasons.UnderDevelopment)]    // AdminStore.GetSession() isn't implemented!!
+        [Ignore(IgnoreReasons.UnderDevelopmentDev)]    // AdminStore.GetSession() isn't implemented!!
         public void GetSession_AccessControlErrorPUT_Expect401Error(HttpStatusCode accessControlError)
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())

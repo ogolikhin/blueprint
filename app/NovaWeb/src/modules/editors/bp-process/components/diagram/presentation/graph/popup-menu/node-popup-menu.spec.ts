@@ -42,10 +42,9 @@ describe("Popup Menu", () => {
 
         rootScope["config"] = {};
         rootScope["config"].labels = {
-            "ST_Decision_Modal_Add_Condition_Button_Label": "Add Condition",
             "ST_Popup_Menu_Add_User_Task_Label": "Add User Task",
-            "ST_Popup_Menu_Add_System_Decision_Label": "Add System Decision Point",
-            "ST_Popup_Menu_Add_User_Decision_Label": "Add User Decision Point",
+            "ST_Popup_Menu_Add_System_Decision_Label": "Add Condition",
+            "ST_Popup_Menu_Add_User_Decision_Label": "Add Choice",
             "ST_Popup_Menu_Insert_Shapes_Label": "Insert Selected Shapes"
         };
 
@@ -76,25 +75,27 @@ describe("Popup Menu", () => {
         menu["div"].style.left = "100px";
         menu["div"].style.top = "100px";
 
-        let clipboardData: IProcessShape[] = [];
+        let clipboardData: IProcess = new ProcessModel();
+        let shapes: IProcessShape[] = [];
         let userTaskShape = shapesFactory.createModelUserTaskShape(-1, -1, -1, -1, -1);
         userTaskShape.name = "UT1";
-        clipboardData.push(userTaskShape);
+        shapes.push(userTaskShape);
         let systemTaskShape = shapesFactory.createModelSystemTaskShape(-1, -1, -2, -1, -1);
         systemTaskShape.name = "ST1";
-        clipboardData.push(systemTaskShape);
+        shapes.push(systemTaskShape);
+        clipboardData.shapes = shapes;
 
         clipboard.setData(new ProcessClipboardData(clipboardData));
 
         spyOn(menu, "addItem");
-        
+
         popupMenu.createPopupMenu(mxgraph, menu, null, null);
 
         expect(menu.addItem["calls"].count()).toEqual(3);
         let args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add User Task");
         args = menu.addItem["calls"].argsFor(1);
-        expect(args[0]).toContain("Add User Decision Point");
+        expect(args[0]).toContain("Add Choice");
         args = menu.addItem["calls"].argsFor(2);
         expect(args[0]).toContain("Insert");
 
@@ -110,17 +111,9 @@ describe("Popup Menu", () => {
         menu["div"] = document.createElement("div");
         menu["div"].className = "mxPopupMenu";
         menu["div"].style.left = "100px";
-        menu["div"].style.top = "100px";
+        menu["div"].style.top = "100px";        
 
-        let clipboardData: IProcessShape[] = [];
-        let userTaskShape = shapesFactory.createModelUserTaskShape(-1, -1, -1, -1, -1);
-        userTaskShape.name = "UT1";
-        clipboardData.push(userTaskShape);
-        let systemTaskShape = shapesFactory.createModelSystemTaskShape(-1, -1, -2, -1, -1);
-        systemTaskShape.name = "ST1";
-        clipboardData.push(systemTaskShape);
-
-        clipboard.setData(new ProcessClipboardData(clipboardData));
+        clipboard.setData(new ProcessClipboardData(null));
         clipboard["_data"].type = 999; // not a process data type
 
         spyOn(menu, "addItem");
@@ -131,12 +124,12 @@ describe("Popup Menu", () => {
         let args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add User Task");
         args = menu.addItem["calls"].argsFor(1);
-        expect(args[0]).toContain("Add User Decision Point");
+        expect(args[0]).toContain("Add Choice");
 
         clipboard.clearData();
     });
 
-    it("should show 'Add User Task' and 'Add Decision Point' when edge is not connected to a a user decision node ", () => {
+    it("should show 'Add User Task' and 'Add Choice' when edge is not connected to a a user decision node ", () => {
 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = true;
@@ -156,7 +149,7 @@ describe("Popup Menu", () => {
         let args = menu.addItem["calls"].argsFor(0);
         expect(args[0]).toContain("Add User Task");
         args = menu.addItem["calls"].argsFor(1);
-        expect(args[0]).toContain("Add User Decision Point");
+        expect(args[0]).toContain("Add Choice");
 
     });
 
@@ -187,7 +180,7 @@ describe("Popup Menu", () => {
 
     });
 
-    it("should show 'Add Branch' when edge is false and node type is 'UserDecision' ", () => {
+    it("should show 'Add Choice' when edge is false and node type is 'UserDecision' ", () => {
 
         popupMenu.insertionPoint = new mxCell("test", null, null);
         popupMenu.insertionPoint["__proto__"]["edge"] = false;
@@ -211,7 +204,7 @@ describe("Popup Menu", () => {
         // assert
         expect(menu.addItem["calls"].count()).toEqual(1);
         let args = menu.addItem["calls"].argsFor(0);
-        expect(args[0]).toContain("Add Condition");
+        expect(args[0]).toContain("Add Choice");
 
     });
 });

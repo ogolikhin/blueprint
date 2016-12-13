@@ -3,7 +3,6 @@
     IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "../../../../managers/artifact-manager";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
@@ -11,9 +10,9 @@ export class BPDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-document-item.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPDocumentItemController;
     public bindings: any = {
-        docRefInfo: "=",
+        docRefInfo: "<",
         deleteItem: "&",
-        canChangeAttachments: "="
+        canChangeAttachments: "<"
     };
 }
 
@@ -23,40 +22,39 @@ interface IBPAttachmentItemController {
 }
 
 export class BPDocumentItemController implements IBPAttachmentItemController {
-    public static $inject: [string] = [
-        "$log",
-        "localization",
-        "artifactAttachments",
-        "messageService",
-        "navigationService",
-        "$window"
-    ];
-
     public fileIconClass: string;
     public docRefInfo: IArtifactDocRef;
     public deleteItem: Function;
     public canChangeAttachments: boolean;
 
+    public static $inject: [string] = [
+        "$log",
+        "localization",
+        "artifactAttachments",
+        "messageService",
+        "$window"
+    ];
+
     constructor(private $log: ng.ILogService,
                 private localization: ILocalizationService,
                 private artifactAttachments: IArtifactAttachmentsService,
                 private messageService: IMessageService,
-                private navigationService: INavigationService,
                 private $window: ng.IWindowService) {
     }
 
     public $onInit() {
-        this.fileIconClass = "ext-document"; //FiletypeParser.getFiletypeClass(null);
+        this.fileIconClass = "ext-document";
     }
 
     public downloadItem(): ng.IPromise<any> {
-        return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId)
+        const isHistorical = this.isHistoricalVersion(this.docRefInfo);
+        return this.artifactAttachments.getArtifactAttachments(this.docRefInfo.artifactId, null, isHistorical ? this.docRefInfo.versionId : null)
             .then((attachmentResultSet: IArtifactAttachmentsResultSet) => {
                 if (attachmentResultSet.attachments.length) {
                     const artifactId = attachmentResultSet.artifactId;
                     const attachmentId = attachmentResultSet.attachments[0].attachmentId;
                     let url = `/svc/bpartifactstore/artifacts/${artifactId}/attachments/${attachmentId}`;
-                    if (_.isFinite(this.docRefInfo.versionId)) {
+                    if (isHistorical) {
                         url += `?versionId=${this.docRefInfo.versionId}`;
                     }
                     this.$window.open(url, "_blank");
@@ -66,7 +64,9 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
             });
     }
 
-    public navigateToDocumentReference(artifactId: number) {
-        this.navigationService.navigateTo({id: artifactId});
+    private isHistoricalVersion(docRefInfo: IArtifactDocRef): boolean {
+        return _.isFinite(this.docRefInfo.versionId) 
+            && _.isFinite(this.docRefInfo.versionsCount)
+            && this.docRefInfo.versionId !== this.docRefInfo.versionsCount;
     }
 }

@@ -6,22 +6,23 @@
     </bp-select>
 </div>
 
-<div ng-if="$ctrl.artifactHistoryList.length"
-     class="scrollable-content"
-     bp-infinite-scroll="$ctrl.loadMoreHistoricalVersions()"
-     >
+<div ng-if="$ctrl.artifactHistoryList.length" class="scrollable-content"
+     bp-infinite-scroll="$ctrl.loadMoreHistoricalVersions()">
 
-    <div ng-repeat="artifactHistoryItem in $ctrl.artifactHistoryList"
+    <div ng-repeat="item in $ctrl.artifactHistoryList track by $index"
          class="artifact-item-wrapper">
 
         <div class="separator"></div>
 
-        <bp-artifact-history-item
-            class="utility-panel-artifact-item"
-            artifact-info="artifactHistoryItem"
-            ng-click="$ctrl.selectArtifactVersion(artifactHistoryItem)"
-            ng-class="{ 'selected': $ctrl.selectedVersionId === artifactHistoryItem.versionId }">
-        </bp-artifact-history-item>
+        <a class="history-item"
+           ui-sref="main.item({id: $ctrl.artifactId, version: $ctrl.getItemVersionId(item)})"
+           ui-sref-opts="{inherit: false}" ui-sref-active="history-item--selected">
+
+            <bp-artifact-history-item
+                class="utility-panel-artifact-item"
+                artifact-info="::item">
+            </bp-artifact-history-item>
+        </a>
     </div>
 </div>
 

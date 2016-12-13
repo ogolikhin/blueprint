@@ -225,7 +225,7 @@ namespace SearchServiceTests
 
         #region Permissions Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [TestCase(0, 0, BaseArtifactType.Actor)]
         [TestRail(182364)]
         [Description("Save artifact but don't publish. Search artifact with other user. Executed search must return no search hits.")]
@@ -286,7 +286,7 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [TestCase(1, 1, BaseArtifactType.Actor)]
         [TestRail(182366)]
         [Description("Delete artifact but don't publish. Search artifact with other user. Executed search must return search hits for search criteria.")]

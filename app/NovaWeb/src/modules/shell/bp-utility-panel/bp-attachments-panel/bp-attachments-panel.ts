@@ -20,12 +20,13 @@ import {
 import {ISettingsService} from "../../../core/configuration/settings";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPAttachmentsPanelController;
-    public require: any = {
-        bpAccordionPanel: "^bpAccordionPanel"
+    public bindings = {
+        context: "<"
     };
 }
 
@@ -33,9 +34,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public static $inject: [string] = [
         "$q",
         "localization",
-        "artifactManager",
         "session",
-        "artifactAttachments",
         "settings",
         "dialogService",
         "messageService"
@@ -53,14 +52,11 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
-                protected artifactManager: IArtifactManager,
                 private session: ISession,
-                private artifactAttachments: IArtifactAttachmentsService,
                 private settingsService: ISettingsService,
                 private dialogService: IDialogService,
-                private messageService: IMessageService,
-                public bpAccordionPanel: IBpAccordionPanelController) {
-        super($q, artifactManager.selection, bpAccordionPanel);
+                private messageService: IMessageService) {
+        super($q);
 
         this.subscribers = [];
     }
@@ -157,9 +153,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     public deleteAttachment(attachment: IArtifactAttachment) {
         const dialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok", "OK"),
-            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Attachment"),
-            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Attachment will be deleted. Continue?")
+            okButton: this.localization.get("App_Button_Delete", "Delete"),
+            header: this.localization.get("App_DialogTitle_Alert", "Warning"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Please confirm the deletion of this attachment."),
+            css: "modal-alert nova-messaging"
         };
         this.dialogService.open(dialogSettings).then(() => {
             this.item.attachments.remove([attachment]);
@@ -168,9 +165,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
     public deleteDocRef(docRef: IArtifactDocRef) {
         const dialogSettings = <IDialogSettings>{
-            okButton: this.localization.get("App_Button_Ok", "OK"),
-            header: this.localization.get("App_UP_Attachments_Delete_Header", "Delete Document Reference"),
-            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?")
+            okButton: this.localization.get("App_Button_Delete", "Delete"),
+            header: this.localization.get("App_DialogTitle_Alert", "Warning"),
+            message: this.localization.get("App_UP_Attachments_Delete_Confirm", "Document Reference will be deleted. Continue?"),
+            css: "modal-alert nova-messaging"
         };
         this.dialogService.open(dialogSettings).then(() => {
             this.item.docRefs.remove([docRef]);
@@ -188,7 +186,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         });
 
         if (this.item) {
-            
+
             const refresh = !this.item.attachments.changes() && !this.item.docRefs.changes();
             if (refresh) {
                 this.item.attachments.refresh();

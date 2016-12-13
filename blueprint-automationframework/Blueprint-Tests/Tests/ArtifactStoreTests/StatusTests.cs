@@ -12,7 +12,7 @@ namespace ArtifactStoreTests
     {
         [TestCase]
         [TestRail(106928)]
-        [Explicit(IgnoreReasons.ProductBug)]  // ArtifactStore is still being written...
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 4135  Gets a 500 error.
         [Description("Calls the /status endpoint for ArtifactStore with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
         public static void Status_ValidateReturnedContent()
         {
@@ -34,7 +34,7 @@ namespace ArtifactStoreTests
         [TestCase(null)]
         [TestCase("ABCDEFG123456")]
         [TestRail(106929)]
-        [Explicit(IgnoreReasons.ProductBug)]  // ArtifactStore is still being written...
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 4135  Gets a 500 error.
         [Description("Calls the /status endpoint for ArtifactStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
         public static void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
         {

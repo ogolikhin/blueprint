@@ -169,7 +169,7 @@ $modal-open-project-height: 450px;
                 border: 1px solid $gray-lighter;
                 padding: 2px 2px 2px 12px;
                 margin-top: 0;
-                margin-bottom: -15px;
+                margin-bottom: -23px;
                 position: relative;
                 color: $gray-light;
             }
@@ -214,9 +214,21 @@ $modal-open-project-height: 450px;
             }
 
             & > i {
+                color: $brand-secondary;
                 font-size: 24px;
                 line-height: 36px;
+            }
+
+            .item-icon__fallback {
                 color: $brand-secondary;
+                font-size: 24px;
+                line-height: 36px;
+                width: 36px;
+            }
+
+            .item-icon__image--fallback {
+                max-height: 36px;
+                max-width: 32px;
             }
 
             &:hover {
@@ -258,16 +270,6 @@ $modal-open-project-height: 450px;
 
         .project-wrapper {
             height: 100%;
-        }
-
-        .project-tree-container {
-            box-sizing: border-box;
-            display: block;
-            float: left;
-            height: calc(100% - 50px);
-            margin: 0 15px 0 0;
-            min-height: $project-picker-tree-height;
-            width: calc(100% - #{$project-picker-data-width + 15px});
         }
 
         .artifact-picker-container {
@@ -350,38 +352,6 @@ $modal-open-project-height: 450px;
             min-height: $project-picker-tree-height;
         }
 
-        .project-data {
-            display: block;
-            float: left;
-            font-size: 13px;
-            width: $project-picker-data-width;
-
-            .project-name {
-                @include text-ellipsis-flex-width(999px);
-                background: $gray-lightest;
-                border-radius: $border-radius-amount;
-                height: 36px;
-                line-height: 36px;
-                margin-bottom: 15px;
-                margin-top: 10px;
-                padding: 0 15px;
-                white-space: nowrap;
-            }
-
-            .project-description-wrapper {
-                background: $gray-lightest;
-                border-radius: $border-radius-amount;
-                margin-top: 10px;
-                max-height: 142px;
-                min-height: 36px;
-                overflow: auto;
-
-                .project-description {
-                    padding: 8px 15px;
-        }
-            }
-    }
-
         &::before {
             content: ' ';
             display: table;
@@ -391,7 +361,7 @@ $modal-open-project-height: 450px;
             clear: both;
             content: ' ';
             display: table;
-    }
+        }
     }
 }
 

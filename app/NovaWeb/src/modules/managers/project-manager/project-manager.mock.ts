@@ -1,8 +1,7 @@
 import {IProjectManager} from "./project-manager";
 import {IViewModel, IArtifact, IArtifactWithProject} from "../../main/models/models";
-import {IInstanceItem} from "../../main/models/admin-store-models";
 import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
-import {MoveArtifactInsertMethod} from "../../main/components/dialogs/move-artifact/move-artifact";
+import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 
 export class ProjectManagerMock implements IProjectManager {
     public projectCollection: Rx.BehaviorSubject<IViewModel<IStatefulArtifact>[]>;
@@ -20,12 +19,8 @@ export class ProjectManagerMock implements IProjectManager {
         return;
     }
 
-    public load(projectId: number): ng.IPromise<void> {
+    public add(projectId: number): ng.IPromise<void> {
         return this.$q.resolve();
-    }
-
-    public add(project: IInstanceItem) {
-        return;
     }
 
     public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
@@ -44,7 +39,7 @@ export class ProjectManagerMock implements IProjectManager {
         return;
     }
 
-    public refresh(id: number, forceOpen?: boolean): ng.IPromise<void> {
+    public refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
         return this.$q.resolve();
     }
 
@@ -72,7 +67,7 @@ export class ProjectManagerMock implements IProjectManager {
         return this.$q.resolve([]);
     }
 
-    public calculateOrderIndex(insertMethod: MoveArtifactInsertMethod, selectedArtifact: IArtifact): ng.IPromise<number> {
+    public calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: IArtifact): ng.IPromise<number> {
         return this.$q.resolve(0);
     }
 

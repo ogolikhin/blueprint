@@ -28,6 +28,14 @@ namespace Helper
             Author
         }
 
+        public static class GoldenDataProject
+        {
+            public const string Default = "test";
+            public const string CustomData = "Custom Data";
+            public const string UIProject = "UI-Project";
+            public const string EmptyProjectNonRequiredCustomPropertiesAssigned = "Empty Project With PropertyTypes - Non-Required Properties Assigned";
+        }
+
         private bool _isDisposed = false;
 
         // Nova services:
@@ -377,7 +385,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates, Wraps and Publishes a Nova Artifact for a Specific Artifact Type
+        /// Creates, Wraps and Publishes a Nova Artifact for a Specific Standard Artifact Type
         /// </summary>
         /// <param name="project">The project where the artifact is to be created.</param>
         /// <param name="user">The user creating the artifact.</param>
@@ -387,6 +395,22 @@ namespace Helper
         {
 
             var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
+
+            return CreateWrapAndPublishNovaArtifact(project, user, itemType,
+                artifactTypeName: artifactTypeName);
+        }
+
+        /// <summary>
+        /// Creates, Wraps and Publishes a Nova Artifact for a Specific Custom Artifact Type
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user creating the artifact.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>The Nova artifact wrapped in an IArtifact.</returns>
+        public IArtifact CreateWrapAndPublishNovaArtifactForCustomArtifactType(IProject project, IUser user, ItemTypePredefined itemType)
+        {
+
+            var artifactTypeName = ArtifactStoreHelper.GetCustomArtifactTypeName(itemType);
 
             return CreateWrapAndPublishNovaArtifact(project, user, itemType,
                 artifactTypeName: artifactTypeName);
@@ -622,6 +646,138 @@ namespace Helper
                     project, novaArtifactDetails);
         }
 
+        /// <summary>
+        /// Create the property changeset for the target artifact
+        /// </summary>
+        /// <param name="artifactDetails">The nova artifact details</param>
+        /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
+        /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
+        /// <param name="subArtifacts">(optional) The subartifacts to add to the changeset</param>
+        /// <returns>The artifact details changeset</returns>
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null, List<NovaSubArtifact> subArtifacts = null)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+
+            NovaArtifactDetails changesetDetails = new NovaArtifactDetails
+            {
+                Id = artifactDetails.Id,
+                ProjectId = artifactDetails.ProjectId
+            };
+
+            if (customProperties != null)
+            {
+                changesetDetails.CustomPropertyValues = new List<CustomProperty>();
+                changesetDetails.CustomPropertyValues.AddRange(customProperties);
+            }
+
+            if (specificProperties != null)
+            {
+                changesetDetails.SpecificPropertyValues = new List<CustomProperty>();
+                changesetDetails.SpecificPropertyValues.AddRange(specificProperties);
+            }
+
+            if (subArtifacts != null)
+            {
+                changesetDetails.SubArtifacts = new List<NovaSubArtifact>();
+                changesetDetails.SubArtifacts.AddRange(subArtifacts);
+            }
+
+            return changesetDetails;
+        }
+
+        /// <summary>
+        /// Create the property changeset for the target artifact
+        /// </summary>
+        /// <param name="artifactDetails">The nova artifact details</param>
+        /// <param name="customProperty">(optional) The custom property to add to the changeset</param>
+        /// <param name="specificProperty">(optional) The specific property to add to the changeset</param>
+        /// <param name="subArtifact">(optional) The subartifact to add to the changeset</param>
+        /// <returns>The artifact details changeset</returns>
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails, CustomProperty customProperty = null, CustomProperty specificProperty = null, NovaSubArtifact subArtifact = null)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+
+            List<CustomProperty> customProperties = null;
+            List<CustomProperty> specificProperties = null;
+            List<NovaSubArtifact> subartifacts = null;
+
+            if (customProperty != null)
+            {
+                customProperties = new List<CustomProperty> {customProperty};
+            }
+
+            if (specificProperty != null)
+            {
+                specificProperties = new List<CustomProperty> {specificProperty};
+            }
+
+            if (subArtifact != null)
+            {
+                subartifacts= new List<NovaSubArtifact> {subArtifact};
+            }
+
+            return CreateArtifactChangeSet(artifactDetails, customProperties, specificProperties, subartifacts);
+        }
+
+        /// <summary>
+        /// Create the property changeset for the target subartifact
+        /// </summary>
+        /// <param name="subArtifact">The nova subartifact details</param>
+        /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
+        /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
+        /// <returns>The subartifact details changeset</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static NovaSubArtifact CreateSubArtifactChangeSet(NovaSubArtifact subArtifact, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null)
+        {
+            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+
+            NovaSubArtifact changesetDetails = new NovaSubArtifact
+            {
+                Id = subArtifact.Id
+            };
+
+            if (customProperties != null)
+            {
+                changesetDetails.CustomPropertyValues = new List<CustomProperty>();
+                changesetDetails.CustomPropertyValues.AddRange(customProperties);
+            }
+
+            if (specificProperties != null)
+            {
+                changesetDetails.SpecificPropertyValues = new List<CustomProperty>();
+                changesetDetails.SpecificPropertyValues.AddRange(specificProperties);
+            }
+
+            return changesetDetails;
+        }
+
+        /// <summary>
+        /// Create the property changeset for the target subartifact
+        /// </summary>
+        /// <param name="subArtifact">The nova subartifact details</param>
+        /// <param name="customProperty">(optional) The custom property to add to the changeset</param>
+        /// <param name="specificProperty">(optional) The specific property to add to the changeset</param>
+        /// <returns>The subartifact details changeset</returns>
+        public static NovaSubArtifact CreateSubArtifactChangeSet(NovaSubArtifact subArtifact, CustomProperty customProperty = null, CustomProperty specificProperty = null)
+        {
+            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+
+            List<CustomProperty> customProperties = null;
+            List<CustomProperty> specificProperties = null;
+
+            if (customProperty != null)
+            {
+                customProperties = new List<CustomProperty> { customProperty };
+            }
+
+            if (specificProperty != null)
+            {
+                specificProperties = new List<CustomProperty> { specificProperty };
+            }
+
+            return CreateSubArtifactChangeSet(subArtifact, customProperties, specificProperties);
+        }
+
         #endregion Artifact Management
 
         #region Project Management
@@ -638,6 +794,27 @@ namespace Helper
         {
             IProject project = ProjectFactory.CreateProject(name, description, location, id);
             Projects.Add(project);
+            return project;
+        }
+
+        /// <summary>
+        /// Gets a project by name
+        /// </summary>
+        /// <param name="projectName">The project to retrieve</param>
+        /// <param name="user">The user getting the project.</param>
+        /// <returns>The retrieved project.</returns>
+        public IProject GetProject(string projectName, IUser user)
+        {
+            List<IProject> allProjects = null;
+            allProjects = ProjectFactory.GetAllProjects(user);
+
+            Assert.That(allProjects.Exists(p => (p.Name == projectName)),
+                "No project was found named '{0}'!", projectName);
+
+            var project = allProjects.First(p => (p.Name == projectName));
+            project.GetAllNovaArtifactTypes(ArtifactStore, user);
+            project.GetAllArtifactTypes(ProjectFactory.Address, user);
+
             return project;
         }
 

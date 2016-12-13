@@ -22,12 +22,11 @@ interface IUserPickerItem {
 export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldUserPicker";
     public extends: string = "select";
-    public template: string = require("./user-picker.template.html");
+    public template: string = require("./user-picker.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
-            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
 
             let uiSelectContainer = $element[0].querySelector(".ui-select-container");
             if (uiSelectContainer) {
@@ -76,7 +75,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.userPickerValidation.hasValueIfRequired(
                         ((<AngularFormly.ITemplateScope>scope.$parent).to.required),
-                        $viewValue, $modelValue);
+                        $modelValue);
 
                     BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);
                     return true;

@@ -503,15 +503,16 @@ $fonticon2-more-menu: '\e850'; /* '' */
 .fonticon2-add:before {
     content: $fonticon2-add;
 }
+
 .fonticon2-actor-add:before {
     content: $fonticon2-actor-add;
 }
+
 .fonticon2-more-menu:before {
     content: $fonticon2-more-menu;
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;
-   cursor: not-allowed !important;
 }
 .fonticon2__action--disabled:hover {
     color: $gray-lighter !important;

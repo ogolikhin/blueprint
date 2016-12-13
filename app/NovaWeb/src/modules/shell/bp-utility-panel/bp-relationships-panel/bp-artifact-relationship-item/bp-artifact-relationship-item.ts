@@ -30,8 +30,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         "localization",
         "relationshipDetailsService",
         "artifactManager",
-        "dialogService",
-        "navigationService"
+        "dialogService"
     ];
 
     public expanded: boolean = false;
@@ -46,12 +45,12 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public toggleItemFlag: Function;
     public deleteItem: Function;
     public itemVersionId: number;
+    public traceDescription: string;
 
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
-                private dialogService: IDialogService,
-                private navigationService: INavigationService) {
+                private dialogService: IDialogService) {
     }
 
     public $onInit() {
@@ -79,10 +78,15 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
                     }
+                    this.traceDescription = this.limitChars(relationshipExtendedInfo.description);
                     this.relationshipExtendedInfo = relationshipExtendedInfo;
                 });
         }
         this.expanded = !this.expanded;
+    }
+
+    public isDisabled () {
+        return !this.relationship.hasAccess || this.isItemReadOnly || this.relationship.readOnly;
     }
 
     public selectTrace() {
@@ -117,7 +121,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public limitChars(str) {
         if (str) {
-            return Helper.limitChars(Helper.stripHTMLTags(str));
+            return Helper.limitChars(Helper.stripHTMLTags(str)).replace(/\u200B/g, "");
         }
 
         return "";
@@ -134,9 +138,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
             });
     }
 
-    public navigateToArtifact(id: number) {
-        if (this.relationship.hasAccess) {
-            this.navigationService.navigateTo({id: id});
-        }
+    public canModifyItem() {
+        return this.relationship.hasAccess && !this.isItemReadOnly && !this.relationship.readOnly;
     }
 }

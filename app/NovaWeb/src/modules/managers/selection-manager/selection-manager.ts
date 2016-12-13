@@ -16,7 +16,7 @@ export interface ISelectionManager extends IDispose {
     setExplorerArtifact(artifact: IStatefulArtifact);
 
     getSubArtifact(): IStatefulSubArtifact;
-    setSubArtifact(subArtifact: IStatefulSubArtifact);
+    setSubArtifact(subArtifact: IStatefulSubArtifact, multiSelect?: boolean);
 
     clearAll();
     clearSubArtifact();
@@ -25,6 +25,7 @@ export interface ISelectionManager extends IDispose {
 export interface ISelection {
     artifact?: IStatefulArtifact;
     subArtifact?: IStatefulSubArtifact;
+    multiSelect?: boolean;
 }
 
 export class SelectionManager implements ISelectionManager {
@@ -35,7 +36,8 @@ export class SelectionManager implements ISelectionManager {
     constructor() {
         const selection = <ISelection>{
             artifact: undefined,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -49,7 +51,7 @@ export class SelectionManager implements ISelectionManager {
         return this.selectionSubject
             .filter(s => s != null)
             .map(s => s.artifact)
-            .distinctUntilChanged(this.distinctById).asObservable();
+            .asObservable();
     }
 
     public get explorerArtifactObservable() {
@@ -88,7 +90,8 @@ export class SelectionManager implements ISelectionManager {
 
         const selection = <ISelection>{
             artifact: artifact,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined
         };
 
         this.setSelectionSubject(selection);
@@ -103,11 +106,12 @@ export class SelectionManager implements ISelectionManager {
         return null;
     }
 
-    public setSubArtifact(subArtifact: IStatefulSubArtifact) {
+    public setSubArtifact(subArtifact: IStatefulSubArtifact, multiSelect: boolean = false) {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: subArtifact
+            subArtifact: subArtifact,
+            multiSelect: multiSelect
         };
 
         this.setSelectionSubject(selection);
@@ -124,7 +128,8 @@ export class SelectionManager implements ISelectionManager {
     public clearAll() {
         const emptyselection = <ISelection>{
             artifact: undefined,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined 
         };
         this.setExplorerArtifact(undefined);
         this.setSelectionSubject(emptyselection);
@@ -134,7 +139,8 @@ export class SelectionManager implements ISelectionManager {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
-            subArtifact: undefined
+            subArtifact: undefined,
+            multiSelect: undefined 
         };
 
         this.setSelectionSubject(selection);

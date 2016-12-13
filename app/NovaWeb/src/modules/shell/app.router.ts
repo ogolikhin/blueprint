@@ -3,6 +3,7 @@ import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers"
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
+import {IMessageService} from "../core/messages/message.svc";
 
 
 export class AppRoutes {
@@ -84,7 +85,8 @@ export class MainStateController {
         "isServerLicenseValid",
         "session",
         "projectManager",
-        "navigationService"
+        "navigationService",
+        "messageService"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
@@ -95,7 +97,8 @@ export class MainStateController {
                 private isServerLicenseValid: boolean,
                 private session: ISession,
                 private projectManager: IProjectManager,
-                private navigation: INavigationService) {
+                private navigation: INavigationService,
+                private messageService: IMessageService) {
 
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
         $rootScope.$on("$stateChangeSuccess", this.stateChangeSuccess);
@@ -113,6 +116,7 @@ export class MainStateController {
         if (this.isLeavingState("main.item", fromState.name, toState.name)) {
             this.$log.info("Leaving artifact state, clearing selection...");
             this.selectionManager.clearAll();
+            this.messageService.clearMessages(true);
         }
 
         this.updateAppTitle();
@@ -151,20 +155,23 @@ public static $inject = [
         "$log",
         "session",
         "projectManager",
-    "navigationService",
-    "clipboardService"
+        "navigationService",
+        "clipboardService",
+        "messageService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
                 private projectManager: IProjectManager,
                 private navigation: INavigationService,
-                private clipboardService: IClipboardService) {
+                private clipboardService: IClipboardService,
+                private messageService: IMessageService) {
 
         this.session.logout().then(() => {
             this.navigation.navigateToMain(true).finally(() => {
                 this.projectManager.removeAll();
                 this.clipboardService.clearData();
+                this.messageService.clearMessages(true);
             });
         });
     }

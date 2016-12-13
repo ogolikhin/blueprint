@@ -36,17 +36,10 @@ $modal-tour-height: 703px;
         }
     }
 
-    .carousel-indicators li {
-        border-color: #666;
-        &.active {
-            background: #666;
-        }
-    }
-
     .carousel-control {
         top: inherit;
         bottom: 45px;
-        color: #666;
+        color: white;
         text-shadow: none;
     }
 }

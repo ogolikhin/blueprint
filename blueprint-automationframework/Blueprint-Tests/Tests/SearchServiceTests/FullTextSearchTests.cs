@@ -314,6 +314,7 @@ namespace SearchServiceTests
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
         }
 
+        [Explicit(IgnoreReasons.FlakyTest)] // This test deletes the artifacts in the FixtureSetup which then causes all tests after it to fail.
         [TestCase]
         [TestRail(182343)]
         [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
@@ -340,6 +341,7 @@ namespace SearchServiceTests
             FullTextSearchResultValidation(searchResult: fullTextSearchResult);
         }
 
+        [Explicit(IgnoreReasons.FlakyTest)] // This test deletes the artifacts in the FixtureSetup which then causes all tests after it to fail.
         [TestCase]
         [TestRail(182371)]
         [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with different user - Must return SearchResult with empty list of FullTextSearchItems.")]

@@ -76,8 +76,7 @@ export class UnpublishedController {
             this.localization,
             this.messageService,
             this.loadingOverlayService,
-            this.projectManager,
-            this.navigationService);
+            this.projectManager);
 
         this.toolbarActions.push(
             new BPButtonGroupAction(

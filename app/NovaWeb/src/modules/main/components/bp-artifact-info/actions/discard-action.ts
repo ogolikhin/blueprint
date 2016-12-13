@@ -25,10 +25,12 @@ export class DiscardAction extends BPButtonAction {
                             projectManager.triggerProjectCollectionRefresh();
                         });
                     } else {
-                        artifact.refresh();
-                        // If artifact has never been published, navigate back to the main page
+                        // If artifact has never been published, navigate back to the main page;
+                        // otherwise, refresh the artifact
                         if (artifact.version === -1) {
                             navigationService.navigateToMain(true);
+                        } else {
+                            artifact.refresh();
                         }
                     }
                 })

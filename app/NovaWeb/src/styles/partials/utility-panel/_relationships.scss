@@ -23,7 +23,6 @@ bp-relationships-panel {
 
         .dropdown {
             .btn-icon--disabled:hover{
-                cursor: not-allowed;
                 color: $gray-lightest;
             }
         }
@@ -56,11 +55,9 @@ bp-relationships-panel {
         }
 
         .btn-icon--disabled {
-            cursor: not-allowed;
             color: $gray-lightest;
 
             &:hover{
-                cursor: not-allowed;
                 color: $gray-lightest;
                 background: transparent;
             }

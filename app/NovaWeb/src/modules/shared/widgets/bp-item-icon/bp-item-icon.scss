@@ -3,5 +3,5 @@
 }
 
 .item-icon__image--fallback ~ .item-icon__icon--fallback {
-    display: none;
+    display: none !important;
 }

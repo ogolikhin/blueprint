@@ -42,7 +42,7 @@ namespace OpenAPITests
         /// </summary>
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] // Needs more asserts.
         public void AddArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
@@ -74,7 +74,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] // Needs more asserts.
         public void DiscardArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
@@ -108,7 +108,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] // Needs more asserts.
         public void PublishArtifact_Actor()
         {
             //Create an artifact with ArtifactType and populate all required values without properties
@@ -144,7 +144,7 @@ namespace OpenAPITests
         /// <exception cref="NUnit.Framework.AssertionException">If the response contains other than 201 status code.</exception>
         [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_01.txt")]
         [TestCase("C:/Users/akim/Documents/GitHub/blueprint-automationframework/Blueprint-Tests/Tests/OpenAPITests/Files/testHTML_supported_02.txt")]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] // Needs more asserts and fix input data.
         public void AddArtifact_Actor_With(string sampleTextPath)
         {
             var text = System.IO.File.ReadAllText(sampleTextPath);

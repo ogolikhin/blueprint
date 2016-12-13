@@ -402,7 +402,7 @@ describe("ProcessCopyPasteHelper tests", () => {
 
         /*
         copy 2 user tasks(UT2 + UT4) in a loop from different decisions
-        and insert after preCondition
+        and insert before second user decision
         original: 
         Start -> Pre -> UD1 -> UT1 -> ST1 -> UD2 -> UT3 -> ST3 -> end
                             -> UT2 ->ST2 ->UD2    -> UT4 -> ST4 -> UT2
@@ -411,7 +411,7 @@ describe("ProcessCopyPasteHelper tests", () => {
                              -> UT2 ->ST2 ->tempUT1                                               -> UT4 -> ST4 -> UT2
 
         */
-        it("copy 2 User Task in different loop and insert at the beginning", () => {
+        it("copy 2 User Task in different loop and insert before second user decision", () => {
             // Arrange
             const userTaskId1 = "60";
             const userTaskId2 = "110";
@@ -455,6 +455,104 @@ describe("ProcessCopyPasteHelper tests", () => {
             expect(insertedLinks2.length).toEqual(1);
             expect(insertedLinks3.length).toEqual(1);
 
+        });
+
+        /*
+        copy 2 user tasks(UT1 + UT2) in a loop from different decisions
+        and insert before UD2
+        original: 
+        Start -> Pre -> UD1 -> UT1 -> ST1 -> UD2 -> UT3 -> ST3 -> end
+                            -> UT2 ->ST2 ->UD2    -> UT4 -> ST4 -> UT2
+        result:
+        Start -> Pre  -> UD1 -> UT1 -> ST1                  -> tempUD1 -> tempUT1 -> tempST1 -> UD2 -> UT3 -> ST3 -> end
+                                       -> UT2 ->ST2 ->tempUT1                         tempUT2 -> tempST2 ->        -> UT4 -> ST4 -> UT2
+
+        */
+        it("copy 2 User Task and insert before second user decision", () => {
+            // Arrange
+            const userTaskId1 = "60";
+            const userTaskId2 = "40";
+            const systemTaskId1 = 50;
+            const systemTaskId2 = 70;
+            const userDecisionId2 = 80;
+            const tempUserDecisionId1 = -1;
+            const tempUserTaskId1 = -2;
+            const tempSystemTaskId2 = -5;
+
+            let userTaskNode1, userTaskNode2;
+            process = TestModels.createLoopFromDIfferentUserDecisionModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            graph.layout.setTempShapeId(0);
+            
+            userTaskNode1 = graph.getNodeById(userTaskId1);
+            userTaskNode2 = graph.getNodeById(userTaskId2);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId1, systemTaskId2], userDecisionId2);
+            $rootScope.$digest();
+
+            // Assert       
+            expect(viewModel.shapes.length).toEqual(18);
+            expect(viewModel.links.length).toEqual(20);     
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(3);
+
+            const insertedLinks1 = viewModel.links.filter(
+                l => l.sourceId === systemTaskId1 && l.destinationId === tempUserDecisionId1
+            );        
+            const insertedLinks2 = viewModel.links.filter(
+                l => l.sourceId === systemTaskId2 && l.destinationId === tempUserDecisionId1
+            );    
+            const insertedLinks3 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId2 && l.destinationId === userDecisionId2
+            );     
+            expect(insertedLinks1.length).toEqual(1);
+            expect(insertedLinks2.length).toEqual(1);
+            expect(insertedLinks3.length).toEqual(1);
+
+        });
+
+        it("copy 2 User Task with System Decision and insert before end", () => {
+            // Arrange
+            const userTaskId = "30";
+            const systemTaskId1 = 50;
+            const systemTaskId2 = 60;
+            const endId = 70;
+            const tempUserTaskId = -2;
+            const tempSystemTaskId1 = -3;
+            const tempSystemTaskId2 = -4;
+
+            let userTaskNode;
+            process = TestModels.createSystemDecisionLoopModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            graph.layout.setTempShapeId(0);
+            
+            userTaskNode = graph.getNodeById(userTaskId);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId1, systemTaskId2], endId);
+            $rootScope.$digest();
+
+            // Assert       
+            expect(viewModel.shapes.length).toEqual(11);
+            expect(viewModel.links.length).toEqual(12);     
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(2);
+
+            const insertedLinks1 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId1 && l.destinationId === endId
+            );        
+            const insertedLinks2 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId2 && l.destinationId === endId
+            );    
+            expect(insertedLinks1.length).toEqual(1);
+            expect(insertedLinks2.length).toEqual(1);
         });
 
         it("clears out include if target process is same as include.", () => {

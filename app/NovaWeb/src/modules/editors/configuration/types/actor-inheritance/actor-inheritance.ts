@@ -3,7 +3,6 @@ import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
 import {ISelectionManager} from "../../../../managers";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
@@ -20,15 +19,21 @@ export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
 }
 
 export class BPFieldInheritFromController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "$window", "messageService", "dialogService", "selectionManager", "navigationService"];
+    static $inject: [string] = [
+        "$scope",
+        "localization",
+        "$window",
+        "messageService",
+        "dialogService",
+        "selectionManager"
+    ];
 
     constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
-                private selectionManager: ISelectionManager,
-                private navigationService: INavigationService) {
+                private selectionManager: ISelectionManager) {
         super();
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
@@ -107,10 +112,6 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
             }
             return $scope.fields[1];
         }
-
-        $scope["navigateToItem"] = (id: number) => {
-            this.navigationService.navigateTo({id: id});
-        };
 
         $scope["selectBaseActor"] = () => {
             setBaseActor();

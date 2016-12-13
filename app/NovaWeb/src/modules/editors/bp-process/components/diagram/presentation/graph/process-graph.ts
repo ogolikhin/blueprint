@@ -639,8 +639,6 @@ export class ProcessGraph implements IProcessGraph {
                         && (targetNode.getNodeType() === NodeType.SystemTask || targetNode.getNodeType() === NodeType.SystemDecision)) {
                         if (value) {
                             (<DiagramLink>edge).showMenu(this.mxgraph);
-                        } else {
-                            (<DiagramLink>edge).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -660,8 +658,6 @@ export class ProcessGraph implements IProcessGraph {
                     if (cell.getNodeType() === NodeType.SystemDecision && !this.viewModel.isReadonly) {
                         if (value) {
                             (<SystemDecision>cell).showMenu(this.mxgraph);
-                        } else {
-                            (<SystemDecision>cell).hideMenu(this.mxgraph);
                         }
                     }
                 }
@@ -1006,8 +1002,6 @@ export class ProcessGraph implements IProcessGraph {
             throw new Error("nodes are not defined");
         }
 
-        this.clearCopyGroupHighlight();
-
         const copyNodes: IDiagramNode[] = nodes.filter((node: IDiagramNode) => node.canCopy);
 
         if (copyNodes.length === 0) {
@@ -1028,32 +1022,41 @@ export class ProcessGraph implements IProcessGraph {
             nodesToHighlight.push(...familyNodes);
         }
 
-        for (const node of nodesToHighlight) {
-            this.highlightNode(node);
+        this.mxgraph.getModel().beginUpdate();
+
+        try {
+            for (const node of nodesToHighlight) {
+                this.highlightNode(node);
+            }
+        } finally {
+            this.mxgraph.getModel().endUpdate();
         }
     };
 
     private highlightNode(node: IDiagramNode): void {
-        node.highlight();
-        this.mxgraph.refresh(node);
+        node.highlight(this.mxgraph);
         this.highlightedCopyNodes.push(node);
     }
 
-    private clearCopyGroupHighlight(): void {
-        for (let node of this.highlightedCopyNodes) {
-            this.clearNodeHighlight(node);
+    public clearCopyGroupHighlight(): void {
+        this.mxgraph.getModel().beginUpdate();
+
+        try {
+            for (let node of this.highlightedCopyNodes) {
+                this.clearNodeHighlight(node);
+            }
+        } finally {
+            this.mxgraph.getModel().endUpdate();
         }
 
         this.highlightedCopyNodes = [];
     }
 
     private clearNodeHighlight(node: IDiagramNode): void {
-        node.clearHighlight();
-        this.mxgraph.refresh(node);
+        node.clearHighlight(this.mxgraph);
     }
 
     public highlightNodeEdges = (nodes: IDiagramNode[]) => {
-        this.clearHighlightEdges();
         _.each(nodes, (node) => {
             let highLightEdges = this.getHighlightScope(node, this.mxgraph.getModel());
 
@@ -1097,7 +1100,7 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    private clearHighlightEdges() {
+    public clearHighlightEdges() {
         for (let edge of this.highlightedEdgeStates) {
             if (edge.shape) {
                 edge.shape.stroke = mxConstants.DEFAULT_VALID_COLOR;

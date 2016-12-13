@@ -1,8 +1,7 @@
 .item-icon__fallback {
     display: inline-block;
-    position: relative;
 }
 
-.item-icon__image--fallback {
-    position: absolute;
+.item-icon__image--fallback ~ .item-icon__icon--fallback {
+    display: none !important;
 }

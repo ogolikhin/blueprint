@@ -284,7 +284,7 @@ describe("NavigationService", () => {
                 predecessorArtifactId = 11;
                 sourceArtifactId = 54;
                 $state.params["id"] = sourceArtifactId.toString();
-                $state.params["path"] = predecessorArtifactId.toString();
+                $state.params["path"] = [predecessorArtifactId.toString()];
                 $state.current.name = "main.item";
             });
 
@@ -353,7 +353,7 @@ describe("NavigationService", () => {
             predecessorArtifactId2 = 22;
             sourceArtifactId = 33;
             $state.params["id"] = sourceArtifactId.toString();
-            $state.params["path"] = `${predecessorArtifactId1},${predecessorArtifactId2}`;
+            $state.params["path"] = [`${predecessorArtifactId1}`, `${predecessorArtifactId2}`];
             $state.current.name = "main.item";
         });
 
@@ -369,7 +369,7 @@ describe("NavigationService", () => {
         it("transitions to last artifact if path index is not provided", () => {
             // arrange
             const stateGoSpy = spyOn($state, "go");
-            const expectedParams = {id: predecessorArtifactId2, version: undefined, path: `${predecessorArtifactId1}`};
+            const expectedParams = {id: predecessorArtifactId2, version: undefined, path: [`${predecessorArtifactId1}`]};
             const expectedOptions = {inherit: false};
 
             // act

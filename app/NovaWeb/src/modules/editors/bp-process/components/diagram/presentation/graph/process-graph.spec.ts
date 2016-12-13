@@ -2,6 +2,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
+import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import * as Enums from "../../../../models/enums";
@@ -23,19 +24,7 @@ import * as TestModels from "../../../../models/test-model-factory";
 import * as TestShapes from "../../../../models/test-shape-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {FileUploadService} from "../../../../../../core/file-upload/file-upload.svc.mock";
-
-class ExecutionEnvironmentDetectorMock {
-    private browserInfo: any;
-
-    constructor() {
-        this.browserInfo = {msie: false, firefox: false, version: 0};
-    }
-
-    public getBrowserInfo(): any {
-        return this.browserInfo;
-    }
-}
+import {FileUploadServiceMock} from "../../../../../../core/file-upload/file-upload.svc.mock";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
@@ -53,7 +42,7 @@ describe("ProcessGraph", () => {
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
-        $provide.service("fileUploadService", FileUploadService);
+        $provide.service("fileUploadService", FileUploadServiceMock);
         $provide.service("shapesFactory", ShapesFactory);
     }));
 
@@ -640,6 +629,7 @@ describe("ProcessGraph", () => {
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
+            
             //Assert
             expect(processModel.shapes.length).toEqual(shapeLengthBeforeDelete); //5
             expect(processModel.links.length).toEqual(linkLengthBeforeDelete);  //4
@@ -1638,18 +1628,6 @@ describe("ProcessGraph", () => {
     });
 
     describe("highlightCopyGroups", () => {
-        it("clears current highlighting", () => {
-            // arrange
-            const graph = createGraph(TestModels.createDefaultProcessModel());
-            const spy = spyOn(graph, "clearCopyGroupHighlight");
-
-            // act
-            graph.highlightCopyGroups([]);
-
-            // assert
-            expect(spy).toHaveBeenCalled();
-        });
-
         it("doesn't highlight anything when start shape is selected", () => {
             // arrange
             const graph = createGraph(TestModels.createDefaultProcessModel());
@@ -1786,6 +1764,34 @@ describe("ProcessGraph", () => {
 
             // assert
             expect(spy).toHaveBeenCalledWith(userDecision);
+        });
+
+        it("highlights nodes in the user task scope when user task is selected", () => {
+            // arrange
+            const process = TestModels.createSimpleProcessModelWithSystemDecision();
+            const graph = createGraph(process);
+            graph.render(true, null);
+            const userTask = graph.getNodeById("20");
+            const systemDecision = graph.getNodeById("25");
+            const systemDecisionSpy = spyOn(systemDecision, "highlight");
+            const systemTask1 = graph.getNodeById("26");
+            const systemTask1Spy = spyOn(systemTask1, "highlight");
+            const systemTask2 = graph.getNodeById("27");
+            const systemTask2Spy = spyOn(systemTask2, "highlight");
+            const userTask2 = graph.getNodeById("28");
+            const userTask2Spy = spyOn(userTask2, "highlight");
+            const systemTask3 = graph.getNodeById("29");
+            const systemTask3Spy = spyOn(systemTask3, "highlight");
+
+            // act
+            graph.highlightCopyGroups([userTask]);
+
+            // assert
+            expect(systemDecisionSpy).toHaveBeenCalled();
+            expect(systemTask1Spy).toHaveBeenCalled();
+            expect(systemTask2Spy).toHaveBeenCalled();
+            expect(userTask2Spy).toHaveBeenCalled();
+            expect(systemTask3Spy).toHaveBeenCalled();
         });
     });
 

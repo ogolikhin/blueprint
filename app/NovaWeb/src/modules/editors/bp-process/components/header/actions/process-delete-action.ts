@@ -12,7 +12,7 @@ import {IStatefulProcessArtifact} from "./../../../process-artifact";
 import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
 import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {RolePermissions} from "./../../../../../main/models/enums";
+import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
@@ -57,6 +57,11 @@ export class ProcessDeleteAction extends DeleteAction {
         }
 
         const selectedNode: IDiagramNode = this.selectedNodes[0];
+        
+        //Subartifact is selected and selective readonly is set
+        if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
+            return false;
+        }
 
         const validNodeTypes: NodeType[] = [
             NodeType.UserTask,

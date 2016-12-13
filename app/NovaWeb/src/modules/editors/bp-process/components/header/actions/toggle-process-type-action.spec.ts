@@ -5,7 +5,7 @@ import {ToggleProcessTypeAction} from "./toggle-process-type-action";
 import {CommunicationManager} from "../../../";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
+import {RolePermissions, LockedByEnum, ReuseSettings} from "../../../../../main/models/enums";
 import {ProcessType} from "../../../models/enums";
 
 describe("ToggleProcessTypeAction", () => {
@@ -147,6 +147,42 @@ describe("ToggleProcessTypeAction", () => {
             expect(action.disabled).toBe(true);
         });
 
+        it("is disabled if process is resued and has subartifacts reuse read-only settings", () => {
+            // arrange
+            const process = createStatefulProcessArtifact(1, ReuseSettings.Subartifacts);
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
+            const action = new ToggleProcessTypeAction(
+                process, 
+                communicationManager.toolbarCommunicationManager, 
+                localization
+            );
+
+            // act
+            process.artifactState.setState({readonly: false}, false);
+
+            // assert
+            expect(action.disabled).toBe(true);
+        });
+
+        it("is enabled if process is reuse read-only for attachments", () => {
+            // arrange
+            const process = createStatefulProcessArtifact(1, ReuseSettings.Attachments);
+            const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
+            spyOn(process, "getObservable").and.returnValue(subject);
+            const action = new ToggleProcessTypeAction(
+                process, 
+                communicationManager.toolbarCommunicationManager, 
+                localization
+            );
+
+            // act
+            process.artifactState.setState({readonly: false}, false);
+
+            // assert
+            expect(action.disabled).toBe(false);
+        });
+
         it("is enabled if process is not read-only", () => {
             // arrange
             const process = createStatefulProcessArtifact();
@@ -204,11 +240,12 @@ describe("ToggleProcessTypeAction", () => {
     });
 });
 
-function createStatefulProcessArtifact(version: number = 1): StatefulProcessArtifact {
+function createStatefulProcessArtifact(version: number = 1, reuseSettings?: ReuseSettings): StatefulProcessArtifact {
     const artifactModel = {
         id: 1,
         permissions: RolePermissions.Edit,
-        version: version
+        version: version,
+        readOnlyReuseSettings: reuseSettings
     };
     const process = new StatefulProcessArtifact(artifactModel, null);
     process.propertyValues = {

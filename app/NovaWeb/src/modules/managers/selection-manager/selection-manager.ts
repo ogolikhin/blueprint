@@ -51,7 +51,7 @@ export class SelectionManager implements ISelectionManager {
         return this.selectionSubject
             .filter(s => s != null)
             .map(s => s.artifact)
-            .distinctUntilChanged(this.distinctById).asObservable();
+            .asObservable();
     }
 
     public get explorerArtifactObservable() {

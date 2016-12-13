@@ -107,11 +107,16 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get isReadonly(): boolean {
-        const statefulProcess: StatefulProcessArtifact = <StatefulProcessArtifact>this.process;
+        const statefulProcess: IStatefulProcessArtifact = <IStatefulProcessArtifact>this.process;
 
-        if (statefulProcess && statefulProcess.artifactState) {
-            return statefulProcess.artifactState.readonly;
-        }
+        if (statefulProcess) {
+            if (!(statefulProcess.artifactState)) {
+                return null;
+            } 
+
+            return statefulProcess.artifactState.readonly || 
+                    !!(statefulProcess.isReuseSettingSRO && statefulProcess.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts));
+        } 
 
         return null;
     }
@@ -122,7 +127,7 @@ export class ProcessViewModel implements IProcessViewModel {
         if (statefulProcess && statefulProcess.artifactState) {
             return statefulProcess.artifactState.dirty;
         }
-
+        
         return null;
     }
 

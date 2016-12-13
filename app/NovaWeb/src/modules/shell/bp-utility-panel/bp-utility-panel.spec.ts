@@ -3,10 +3,11 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../util/component.test";
 import {BPUtilityPanelController} from "./bp-utility-panel";
+import {PanelType} from "./utility-panel.svc";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactHistoryMock} from "./bp-history-panel/artifact-history.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined, ReuseSettings} from "../../main/models/enums";
 import {ArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactManager, IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {ArtifactAttachmentsService} from "../../managers/artifact-manager/attachments/attachments.svc";
@@ -103,4 +104,5 @@ describe("Component BPUtilityPanel", () => {
             // Assert
             expect(vm.isAnyPanelVisible).toBe(false);
         }));
+        
 });

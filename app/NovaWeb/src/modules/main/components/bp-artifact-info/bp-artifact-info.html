@@ -2,7 +2,7 @@
     <span class="icon fonticon-clock"></span>
     <span class="artifact-status__text">
         {{:: $ctrl.historicalMessage }}
-        <a class="artifact-status__open-latest" ui-sref="main.item({ id: $ctrl.artifact.id, version: undefined })">{{::$root.config.labels['App_Artifact_Info_OpenLatestVersion']}}</a>
+        <a class="artifact-status__open-latest" ui-sref="main.item({ id: $ctrl.artifact.id, version: undefined, path: undefined })">{{::$root.config.labels['App_Artifact_Info_OpenLatestVersion']}}</a>
     </span>
 </div>
 <div class="responsive-header">
@@ -12,12 +12,12 @@
             <bp-item-type-icon ng-if="$ctrl.hasCustomIcon"
                                item-type-id="$ctrl.artifactTypeId"
                                item-type-icon-id="$ctrl.artifactTypeIconId"
-                               predefined-type="$ctrl.predefinedType"
+                               predefined-type="$ctrl.artifact.predefinedType"
                                fallback="true"></bp-item-type-icon>
         </div>
         <div class="artifact-heading-group1">
             <div class="artifact-heading-group2">
-                <div class="name">{{ $ctrl.artifactName }}</div>
+                <div class="name" bp-collapsible="90">{{ $ctrl.artifactName }}</div>
                 <div class="indicators">
                     <i class="readonly-indicator fonticon2-unauthorize" bp-tooltip="Read-only" ng-if="$ctrl.isReadonly"></i>
                     <i class="fonticon-lock self-locked" ng-if="$ctrl.selfLocked" bp-tooltip="Locked"> </i>

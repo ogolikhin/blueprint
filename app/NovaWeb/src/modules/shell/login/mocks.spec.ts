@@ -165,6 +165,7 @@ export class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceIn
         this.opened = this.openedDeffered.promise;
         this.rendered = this.openedDeffered.promise;
         this.result = this.resultDeffered.promise;
+        this.closed = this.$q.when();
     }
 
     public close(result?: any): void {

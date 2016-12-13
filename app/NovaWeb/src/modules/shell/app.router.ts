@@ -19,6 +19,19 @@ export class AppRoutes {
 
         $urlMatcherFactoryProvider.caseInsensitive(true);
 
+        // parses 'path' parameter into an array of IDs
+        $urlMatcherFactoryProvider.type("navpath", {
+            encode: (item: string[]): string => {
+                return _.isArray(item) ? item.join(",") : undefined;
+            },
+            decode: (item: string): string[] => {
+                return _.isString(item) ? item.split(",") : [];
+            },
+            is: (item) => {
+                return _.isObject(item);
+            }
+        });
+
         // pass through / to main state
         $urlRouterProvider.when("", "/main");
 

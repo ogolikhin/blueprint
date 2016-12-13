@@ -78,6 +78,7 @@ pagecontent, bp-properties-panel {
             .content.system-properties {
                 display: block;
                 height: #{$property-min-height + 12px};
+                overflow: hidden;
 
                 &.collapse:not(.in) .formly .formly-field:first-child {
                     width: 100%;
@@ -371,7 +372,6 @@ pagecontent, bp-properties-panel {
 
                     .ui-select-choices-row.disabled {
                         .ui-select-choices-row-inner {
-                            cursor: not-allowed;
 
                             .ui-select-choice-item {
                                 background: transparent;
@@ -570,7 +570,6 @@ pagecontent, bp-properties-panel {
 
                     .ui-select-choices-row.disabled {
                         .ui-select-choices-row-inner {
-                            cursor: not-allowed;
 
                             .ui-select-choice-item {
                                 background: transparent;
@@ -1054,8 +1053,10 @@ pagecontent, bp-properties-panel {
                     margin-left: 9px;
                     cursor: pointer;
                     &.disabled {
-                        opacity: $default-disabled-opacity;
-                        cursor: not-allowed;
+                        color: $disabled-color;
+                    }
+                    &:hover:not(.disabled)  {
+                        color: $brand-secondary;
                     }
                 }
 
@@ -1104,7 +1105,6 @@ pagecontent, bp-properties-panel {
                         cursor: pointer;
                         &.disabled {
                             background-color: $gray;
-                            cursor: not-allowed;
                         }
                     }
                 }
@@ -1126,8 +1126,7 @@ pagecontent, bp-properties-panel {
                     color: $brand-secondary;
                 }
                 &.disabled {
-                    opacity: $default-disabled-opacity;
-                    cursor: not-allowed;
+                    color: $disabled-color;
                 }
             }
             .din {
@@ -1259,11 +1258,11 @@ pagecontent, bp-properties-panel {
                 .icon__action{
                     &:hover{
                         cursor: pointer;
+                        color: $brand-secondary;
                     }
 
                     &.disabled, &[disabled] {
-                        cursor: not-allowed;
-                        color: $default-disabled-opacity;
+                        color: $disabled-color;
                     }
                 }
 
@@ -1539,7 +1538,7 @@ pagecontent {
             padding: 5px 9px;
             min-width: 20px;
             &.disabled {
-                background-color: $gray-lightest;
+                background-color: $disabled-color;
             }
         }
     }

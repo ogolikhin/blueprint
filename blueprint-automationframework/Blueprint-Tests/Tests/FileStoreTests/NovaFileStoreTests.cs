@@ -57,7 +57,6 @@ namespace FileStoreTests
         [TestCase((uint)1048576, "1MB_File.txt", "text/plain")]
         [TestRail(164612)]
         [Description("POST a file without using multipart mime. Verify that the file exists in FileStore.")]
-        [Explicit(IgnoreReasons.TestBug)]
         public void PostNovaFile_NoMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
@@ -66,7 +65,7 @@ namespace FileStoreTests
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: false);
 
-            FileStoreTestHelper.AssertNovaFilesAreIdentical(file, storedFile, compareIds: false);
+            FileStoreTestHelper.AssertNovaFilesAreIdentical(file, storedFile);
 
             // Verify: Assert that the file was stored properly by getting it back and comparing it with original.
             var returnedFile = Helper.FileStore.GetNovaFile(storedFile.Guid, _user);
@@ -76,7 +75,6 @@ namespace FileStoreTests
 
         [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // TODO: need to find the way to add date in encoded format, currently not working
         [TestRail(164613)]
         [Description("POST a file with a future expiry time. Verify that the file exists in FileStore")]
         public void PostNovaFile_ExpireTimeInFuture_FileExists(uint fileSize, string fakeFileName, string fileType)

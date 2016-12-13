@@ -113,29 +113,4 @@ describe("Component BPPageContent", () => {
             expect(breadcrumbs.length).toBe(1);
             expect(spy).not.toHaveBeenCalled();
         }));
-
-    it("should navigate to link",
-        inject(($rootScope: ng.IRootScopeService,
-            artifactManager: IArtifactManager,
-            statefulArtifactFactory: IStatefulArtifactFactory,
-            mainbreadcrumbService: IMainBreadcrumbService,
-            navigationService: INavigationService) => {
-
-            //Arrange
-            mainbreadcrumbService.breadcrumbLinks = [];
-            const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});
-
-            //Act
-            artifactManager.selection.setArtifact(artifact);
-            const spy = spyOn(navigationService, "navigateTo");
-            $rootScope.$digest();
-            vm.navigateTo(mainbreadcrumbService.breadcrumbLinks[0]);
-
-            // Assert
-            const breadcrumbs = mainbreadcrumbService.breadcrumbLinks;
-            expect(breadcrumbs).toBeDefined();
-            expect(breadcrumbs.length).toBeGreaterThan(0);
-            expect(spy).toHaveBeenCalled();
-        }));
-
 });

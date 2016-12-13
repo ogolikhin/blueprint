@@ -112,7 +112,7 @@ export class Label implements ILabel {
     private mode: divMode;
     // #UNUSED
     //private shortContent: string;
-    private visibility: string;
+    private visible: boolean;
     private executionEnvironmentDetector: any;
     private beforeEditText: string;
 
@@ -136,6 +136,7 @@ export class Label implements ILabel {
         if (!_labelText) {
             this._labelText = "";
         }
+        this.visible = true;
         this.beforeEditText = "";
         // This is temporary code. It will be replaced with
         // a class that wraps this global functionality.
@@ -160,11 +161,20 @@ export class Label implements ILabel {
     }
 
     public setVisible(value: boolean) {
-        this.visibility = (value) ? "visible" : "hidden";
+        if (this.visible === value) {
+            return;
+        }
+
+        this.visible = value;
+        
         if (this.wrapperDiv != null) {
             this.wrapperDiv.style.visibility = this.visibility;
             this.div.style.visibility = this.visibility;
         }
+    }
+
+    private get visibility(): string {
+        return this.visible ? "visible" : "hidden";
     }
 
     private isIe11(): boolean {
@@ -174,7 +184,7 @@ export class Label implements ILabel {
     }
     
     private onEdit = (e) => {
-        if (this.mode === divMode.VIEW) {
+        if (this.visible && this.mode === divMode.VIEW) {
             this.setEditMode();
         }
         e.stopPropagation();
@@ -187,9 +197,16 @@ export class Label implements ILabel {
     }
 
     private onKeyUp = (e) => {
-        this.callbackIfTextChanged();
+        if (this.visible) {
+            this.callbackIfTextChanged();
+        }
     }
     private onKeyDown = (e) => {
+        if (!this.visible) {
+            this.cancelDefaultAction(e);
+            return false;
+        }
+
         if (e.keyCode === action.ENTER) {
             this.update();
             this.cancelDefaultAction(e);
@@ -222,9 +239,18 @@ export class Label implements ILabel {
         return this._labelText !== newText;
     }
     private onCut = (e) => {
+        if (!this.visible) {
+            return;
+        }
+
         this.callbackIfTextChanged();
     }
     private onPaste = (e) => {
+        if (!this.visible) {
+            this.cancelDefaultAction(e);
+            return;
+        }
+
         let win: any = window;
         let text: string;
         //#UNUSED
@@ -332,7 +358,9 @@ export class Label implements ILabel {
     }
 
     private onBlur = (e) => {
-        this.update();
+        if (this.visible) {
+            this.update();
+        }
     }
 
     public render() {
@@ -408,10 +436,7 @@ export class Label implements ILabel {
     }
 
     private setEventListenersForPersonaLabel() {
-       
-        angular.element(this.div).on("labeldblclick", (e) => {
-            this.raiseDblClickEvent();
-        });
+        angular.element(this.div).on("labeldblclick", (e) => this.raiseDblClickEvent());
     }
 
     // using this event interface we can wire up 
@@ -424,9 +449,7 @@ export class Label implements ILabel {
     }
     private raiseTextChangeEvent(newValue: string) {
         if (this.textChangeListeners.length > 0) {
-            this.textChangeListeners.forEach(listener => {
-                listener(newValue);
-            });
+            this.textChangeListeners.forEach(listener => listener(newValue));
         }
     }
 
@@ -438,9 +461,7 @@ export class Label implements ILabel {
 
     private raiseClickEvent() {
         if (this.clickEventListeners.length > 0) {
-            this.clickEventListeners.forEach(listener => {
-                listener();
-            });
+            this.clickEventListeners.forEach(listener => listener());
         }
     }
 
@@ -451,10 +472,12 @@ export class Label implements ILabel {
     }
 
     private raiseDblClickEvent() {
+        if (!this.visible) {
+            return;
+        }
+
         if (this.dblClickEventListeners.length > 0) {
-            this.dblClickEventListeners.forEach(listener => {
-                listener();
-            });
+            this.dblClickEventListeners.forEach(listener => listener());
         }
     }
 

@@ -11,7 +11,7 @@ import {LocalizationServiceMock} from "../../../core/localization/localization.m
 import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {
     ArtifactManager,

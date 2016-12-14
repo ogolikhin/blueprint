@@ -7,7 +7,7 @@ import {IStatefulArtifact} from "../artifact";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
 import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
 import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {SelectionManager} from "../../selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";

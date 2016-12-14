@@ -3,7 +3,7 @@ import "angular-mocks";
 import "script!mxClient";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {LocalizationServiceMock} from "./../../../../../../core/localization/localization.mock";
-import {DialogServiceMock} from "./../../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "./../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessGraph} from "./models/process-graph-interfaces";
 import {ProcessType} from "./../../../../models/enums";
 import {IProcess} from "./../../../../models/process-models";

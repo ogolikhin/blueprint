@@ -8,7 +8,7 @@ import {CommunicationManager} from "../../../bp-process/services/communication-m
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
 import {UserTask, SystemTask, UserDecision} from "../diagram/presentation/graph/shapes";

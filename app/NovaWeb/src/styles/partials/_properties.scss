@@ -338,63 +338,46 @@ pagecontent, bp-properties-panel {
 
                     .ui-select-choices-row {
                         height: $property-choice-height;
+                    }
 
-                        .ui-select-choices-row-inner {
-                            color: $gray-darkest;
-                            cursor: pointer;
-                            text-decoration: none;
+                    .ui-select-choices-row-inner {
+                        color: $gray-darkest;
+                        cursor: pointer;
+                        text-decoration: none;
 
-                            .ui-select-choice-item {
-                                font-size: 1.2rem;
-                                line-height: $property-choice-height;
-                                overflow: hidden;
-                                padding: 0 8px;
-                                text-overflow: ellipsis;
-                                white-space: pre;
-                                width: 100%;
-
-                                &::before {
-                                    content: '';
-                                    display: inline-block;
-                                    width: 12px;
-                                }
-                            }
-
-                            &:hover .ui-select-choice-item {
-                                background: $selection-hover-background-color;
-
-                                &::before {
-                                    content: '\2713';
-                                }
-                            }
+                        &:hover .ui-select-choice-item {
+                            background: $selection-hover-background-color;
                         }
                     }
 
-                    .ui-select-choices-row.disabled {
-                        .ui-select-choices-row-inner {
+                    .ui-select-choice-item {
+                        font-size: 1.2rem;
+                        line-height: $property-choice-height;
+                        overflow: hidden;
+                        padding: 0 8px;
+                        text-overflow: ellipsis;
+                        white-space: pre;
+                        width: 100%;
 
-                            .ui-select-choice-item {
-                                background: transparent;
-                                color: $gray;
-
-                                &::before {
-                                    content: '\2713';
-                                }
-                            }
+                        &::before {
+                            content: '';
+                            display: inline-block;
+                            width: 12px;
                         }
                     }
 
-                    .ui-select-choices-row.active {
-                        .ui-select-choices-row-inner {
-                            .ui-select-choice-item {
-                                background: $selection-selected-background-color;
-                                color: $selection-selected-color;
+                    .ui-select-choices-row.disabled .ui-select-choice-item {
+                        background: transparent;
+                        color: $gray;
+                    }
 
-                                &::before {
-                                    content: '\2713';
-                                }
-                            }
-                        }
+                    .ui-select-choices-row.active .ui-select-choice-item {
+                        background: $selection-selected-background-color;
+                        color: $selection-selected-color;
+                    }
+
+                    .ui-select-choice-item-selected::before {
+                        content: '\2713';
                     }
                 }
 

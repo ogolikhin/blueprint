@@ -209,7 +209,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_404', 'en-US', N'Sorry, but the artifact {0} cannot be saved because it has been deleted or moved. Please Refresh All.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409', 'en-US', N'There was a conflict while saving the artifact {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_400_114', 'en-US', N'The artifact {0} cannot be saved. Please ensure all values are correct.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_115', 'en-US', N'The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_115', 'en-US', N'The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh, any changes you have made will be lost.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_116', 'en-US', N'The artifact {0} cannot be saved. Changes were made to an artifact you do not have permission to access, or has read-only properties.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_117', 'en-US', N'A property type is out of date.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All.')

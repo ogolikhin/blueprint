@@ -286,7 +286,7 @@ describe("DecisionEditorController", () => {
         });
     });
 
-    fdescribe("addCondition", () => {
+    describe("addCondition", () => {
         let decision: IDecision, model: DecisionEditorModel, $scope: IModalScope, controller: DecisionEditorController;
         beforeEach(() => {
              // arrange

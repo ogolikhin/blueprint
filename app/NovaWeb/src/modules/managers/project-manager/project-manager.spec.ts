@@ -86,6 +86,92 @@ describe("Project Manager Test", () => {
             expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(11);
             expect(projectManager.projectCollection.getValue()[1].model.id).toEqual(10);
         })));
+
+        it("single project metadata service error failure", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        metadataService: MetaDataServiceMock, messageService: MessageServiceMock) => {
+            // Arrange
+            spyOn(metadataService, "get").and.callFake(() => {
+                return $q.reject("error text");
+            });
+            
+            //Act
+            let error: Error;
+            projectManager.add(11).catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeDefined();
+            expect(messageService.messages.length).toEqual(1);
+            expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
+            expect(messageService.messages[0].messageText).toEqual("error text");
+        })));
+     });
+
+     describe("dispose", () => {
+        it("success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+            // Arrange
+            
+            //Act
+            projectManager.dispose();
+            $rootScope.$digest();
+
+            //Asserts
+            expect(projectManager.projectCollection.getValue().length).toEqual(0);
+        })));
+     });
+
+     describe("get selected project id", () => {
+        it("success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+            // Arrange
+            
+            //Act
+            let result: number = projectManager.getSelectedProjectId();
+
+            //Asserts
+            expect(result).toEqual(10);
+        })));
+     });
+
+     describe("open project and expand to node", () => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectService: ProjectServiceMock) => {
+            // Arrange
+            spyOn(projectService, "getProjectTree").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact",
+                    hasChildren: true,
+                    children: [<Models.IArtifact>{
+                        id: 25,
+                        name: "new artifact"
+                    }]
+                        
+                }]);
+            });
+            spyOn(projectService, "getProject").and.callFake(() => {
+                return $q.resolve(<AdminStoreModels.IInstanceItem>{
+                    id: 10,
+                    name: "newName"
+                });
+            });
+            
+            //Act
+            let error: Error;
+            projectManager.openProjectAndExpandToNode(10, 25).catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(projectManager.projectCollection.getValue().length).toEqual(1);
+            let project = projectManager.projectCollection.getValue()[0];
+            expect(project.model.id).toEqual(10);
+            expect(project.model.name).toEqual("newName");
+            expect((<IArtifactNode>project).children.length).toEqual(1);
+            expect((<IArtifactNode>project).children[0].model.id).toEqual(20);
+            expect((<IArtifactNode>project).children[0].model.name).toEqual("artifact");
+            expect((<IArtifactNode>project).children[0].children.length).toEqual(1);
+            expect((<IArtifactNode>project).children[0].children[0].model.id).toEqual(25);
+            expect((<IArtifactNode>project).children[0].children[0].model.name).toEqual("new artifact");
+        })));
      });
 
      describe("get descendants to be deleted", () => {
@@ -270,6 +356,164 @@ describe("Project Manager Test", () => {
             expect((<IArtifactNode>project).children[0].children[0].model.name).toEqual("new artifact");
         }));
 
+        it("single project failure", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            spyOn(projectService, "getProjectTree").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact",
+                    hasChildren: true,
+                    children: [<Models.IArtifact>{
+                        id: 25,
+                        name: "new artifact"
+                    }]
+                        
+                }]);
+            });
+            spyOn(projectService, "getProject").and.callFake(() => {
+                return $q.reject();
+            });
+
+            //Act
+            let rejected: boolean;
+            projectManager.refresh(10).catch(() => rejected = true);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(projectManager.projectCollection.getValue().length).toEqual(1);
+            let project = projectManager.projectCollection.getValue()[0];
+            expect(project.model.id).toEqual(10);
+            expect(project.model.name).toEqual("oldName");
+            expect((<IArtifactNode>project).children).toBeUndefined();
+            expect(rejected).toEqual(true);
+        }));
+
+        it("single project selected artifact not found artifact deleted success", 
+        inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, selectionManager: SelectionManagerMock,
+        messageService: MessageServiceMock) => {
+            // Arrange
+            spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
+                return $q.reject({statusCode: HttpStatusCode.NotFound, errorCode: ProjectServiceStatusCode.ResourceNotFound});
+            });
+            spyOn(projectService, "getProject").and.callFake(() => {
+                return $q.resolve(<AdminStoreModels.IInstanceItem>{
+                    id: 10,
+                    name: "newName"
+                });
+            });
+            spyOn(projectService, "getArtifacts").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact"
+                }]);
+            });
+            const artifact = new StatefulArtifactMock($q);
+            artifact.id = 20;
+            artifact.projectId = 10;
+            artifact.parentId = null;
+            selectionManager.setArtifact(artifact);
+           
+            //Act
+            let error: Error;
+            projectManager.refresh(10).catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(projectManager.projectCollection.getValue().length).toEqual(1);
+            expect(messageService.messages.length).toEqual(1);
+            expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
+            expect(messageService.messages[0].messageText).toEqual("Refresh_Artifact_Deleted");
+            let project = projectManager.projectCollection.getValue()[0];
+            expect(project.model.id).toEqual(10);
+            expect(project.model.name).toEqual("newName");
+            expect((<IArtifactNode>project).children.length).toEqual(1);
+            expect((<IArtifactNode>project).children[0].model.id).toEqual(20);
+            expect((<IArtifactNode>project).children[0].model.name).toEqual("artifact");
+        }));
+
+        it("single project selected artifact not found artifact deleted failure", 
+        inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, selectionManager: SelectionManagerMock,
+        messageService: MessageServiceMock, metadataService: MetaDataServiceMock, dialogService: DialogServiceMock) => {
+            // Arrange
+            spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
+                return $q.reject({statusCode: HttpStatusCode.NotFound, errorCode: ProjectServiceStatusCode.ResourceNotFound});
+            });
+            spyOn(projectService, "getProject").and.callFake(() => {
+                return $q.resolve(<AdminStoreModels.IInstanceItem>{
+                    id: 10,
+                    name: "newName"
+                });
+            });
+            spyOn(projectService, "getArtifacts").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact"
+                }]);
+            });
+            spyOn(metadataService, "get").and.callFake(() => {
+                return $q.reject("error text");
+            });
+            const artifact = new StatefulArtifactMock($q);
+            artifact.id = 20;
+            artifact.projectId = 10;
+            artifact.parentId = null;
+            selectionManager.setArtifact(artifact);
+           
+            //Act
+            let error: Error;
+            projectManager.refresh(10).catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(projectManager.projectCollection.getValue().length).toEqual(0);
+            expect(dialogService.alerts.length).toEqual(1);
+            expect(dialogService.alerts[0]).toEqual("Refresh_Project_NotFound");
+            expect(messageService.messages.length).toEqual(1);
+            expect(messageService.messages[0].messageType).toEqual(MessageType.Info);
+            expect(messageService.messages[0].messageText).toEqual("Refresh_Artifact_Deleted");
+        }));
+
+
+        it("single project no selection success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, selectionManager: SelectionManagerMock) => {
+            // Arrange
+            selectionManager.setArtifact(null);
+
+            spyOn(projectService, "getProjectTree").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact",
+                    hasChildren: true
+                }]);
+            });
+            spyOn(projectService, "getProject").and.callFake(() => {
+                return $q.resolve(<AdminStoreModels.IInstanceItem>{
+                    id: 10,
+                    name: "newName"
+                });
+            });
+
+            //Act
+            let error: Error;
+            projectManager.refresh(10).catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(projectManager.projectCollection.getValue().length).toEqual(1);
+            let project = projectManager.projectCollection.getValue()[0];
+            expect(project.model.id).toEqual(10);
+            expect(project.model.name).toEqual("newName");
+            expect((<IArtifactNode>project).children.length).toEqual(1);
+            expect((<IArtifactNode>project).children[0].model.id).toEqual(20);
+            expect((<IArtifactNode>project).children[0].model.name).toEqual("artifact");
+        }));
+
         it("single project selected artifact not found load parent success", 
         inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
         projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
@@ -305,6 +549,37 @@ describe("Project Manager Test", () => {
             expect((<IArtifactNode>project).children.length).toEqual(1);
             expect((<IArtifactNode>project).children[0].model.id).toEqual(25);
             expect((<IArtifactNode>project).children[0].model.name).toEqual("new artifact");
+        }));
+
+        it("single project selected artifact not found load parent failure", 
+        inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, metadataService: MessageServiceMock) => {
+            // Arrange
+            spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
+                if (expandToArtifactId === 20) {
+                    return $q.reject({statusCode: HttpStatusCode.NotFound, errorCode: ProjectServiceStatusCode.ResourceNotFound});
+                } else {
+                    return $q.resolve([<Models.IArtifact>{
+                        id: 25,
+                        name: "new artifact"
+                    }]);
+                }
+            });
+            spyOn(metadataService, "get").and.callFake(() => {
+                return $q.reject("error text");
+            });
+           
+            //Act
+            let rejected: boolean;
+            projectManager.refresh(10).catch(() => rejected = true);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(projectManager.projectCollection.getValue().length).toEqual(1);
+            let project = projectManager.projectCollection.getValue()[0];
+            expect(project.model.id).toEqual(10);
+            expect(project.model.name).toEqual("oldName");
+            expect(rejected).toEqual(true);
         }));
 
         it("single project selected artifact not found project not found failure", 

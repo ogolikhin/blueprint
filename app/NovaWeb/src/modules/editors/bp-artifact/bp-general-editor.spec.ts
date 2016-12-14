@@ -23,6 +23,8 @@ describe("Component BpGeneralEditorInfo", () => {
     let _artifactManager: IArtifactManager;
     let _propertyDescriptorBuilder: IPropertyDescriptorBuilder;
     let _$q: ng.IQService;
+    let descriptor: IPropertyDescriptor;
+    let propertyValue: Models.IPropertyValue;
 
     beforeEach(angular.mock.module("bp.editors.details"));
 
@@ -47,42 +49,20 @@ describe("Component BpGeneralEditorInfo", () => {
         _propertyDescriptorBuilder = propertyDescriptorBuilder;
         _$q = $q;
 
-        //artifactManager.selection.getArtifact(); -> Needs to return an artifact that has getObservable()
-        artifactManager.selection = {
-            getArtifact: () => {
-                return {
-                    getObservable: () => new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable(),
-                    artifactState: {readonly: false} as any,
-                    customProperties: {
-                        get: (() => {return {
-                            propertyTypeId: 1,
-                            propertyTypeVersionId: 1,
-                            propertyTypePredefined: Models.PropertyTypePredefined.Description,
-                            name: "Desc",
-                            isReuseReadOnly: false,
-                            isRichText: true,
-                            primitiveType: Models.PrimitiveType.Text,
-                            isMultipleAllowed: false,
-                            value: "My text"
-                        } as Models.IPropertyValue; })
-                    }
-                } as any;
-            }
-        } as ISelectionManager;
-    }));
+        propertyValue = {
+            propertyTypeId: 1,
+            propertyTypeVersionId: 1,
+            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+            name: "Desc",
+            isReuseReadOnly: false,
+            isRichText: true,
+            primitiveType: Models.PrimitiveType.Text,
+            isMultipleAllowed: false,
+            value: "My text"
+        };
 
-    beforeEach(() => {
-        componentTest = new ComponentTest<BpGeneralArtifactEditorController>(template, "bp-artifact-general-editor");
-    });
-
-    afterEach(() => {
-        ctrl = null;
-    });
-
-     it("should be visible by default", () => {
-        // Arrange
         const itemtypeId = 1;
-        const descriptor: IPropertyDescriptor = {
+        descriptor = {
             id: itemtypeId,
             versionId: 1,
             name: "",
@@ -109,6 +89,31 @@ describe("Component BpGeneralEditorInfo", () => {
             fieldPropertyName: `${Enums.PropertyLookupEnum[Enums.PropertyLookupEnum.Custom]}_${itemtypeId.toString()}`,
             modelPropertyName: itemtypeId
         };
+
+        //artifactManager.selection.getArtifact(); -> Needs to return an artifact that has getObservable()
+        artifactManager.selection = {
+            getArtifact: () => {
+                return {
+                    getObservable: () => new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable(),
+                    artifactState: {readonly: false} as any,
+                    customProperties: {
+                        get: (() => propertyValue)
+                    }
+                } as any;
+            }
+        } as ISelectionManager;
+    }));
+
+    beforeEach(() => {
+        componentTest = new ComponentTest<BpGeneralArtifactEditorController>(template, "bp-artifact-general-editor");
+    });
+
+    afterEach(() => {
+        ctrl = null;
+    });
+
+     it("should be visible by default", () => {
+        // Arrange
         spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
             return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
         });
@@ -120,5 +125,69 @@ describe("Component BpGeneralEditorInfo", () => {
         expect(componentTest.element.find(".readonly-indicator").length).toBe(0);
         expect(componentTest.element.find(".lock-indicator").length).toBe(0);
         expect(componentTest.element.find(".dirty-indicator").length).toBe(0);
+     });
+
+     it("should have a note field for description when provided", () => {
+        // Arrange
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
+        });
+
+        ctrl = componentTest.createComponent({});
+
+        //Assert
+        expect(ctrl.noteFields.length).toBe(1);
+     });
+
+     it("should have a system field for name", () => {
+        // Arrange
+        descriptor.propertyTypePredefined = Enums.PropertyTypePredefined.Name;
+        descriptor.primitiveType = Models.PrimitiveType.Text;
+        descriptor.lookup = Enums.PropertyLookupEnum.System;
+        descriptor.isRichText = false;
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
+        });
+
+        ctrl = componentTest.createComponent({});
+
+        //Assert
+        expect(ctrl.noteFields.length).toBe(0);
+        expect(ctrl.systemFields.length).toBe(1);
+     });
+
+     it("should not have fields that aren't Name or Description", () => {
+        // Arrange
+        descriptor.propertyTypePredefined = Enums.PropertyTypePredefined.CreatedBy;
+        descriptor.primitiveType = Models.PrimitiveType.Text;
+        descriptor.lookup = Enums.PropertyLookupEnum.System;
+        descriptor.isRichText = false;
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
+        });
+
+        ctrl = componentTest.createComponent({});
+
+        //Assert
+        expect(ctrl.systemFields.length).toBe(0);
+        expect(ctrl.noteFields.length).toBe(0);
+        expect(ctrl.fields.length).toBe(0);
+        expect(ctrl.editor.getFields().length).toBe(1);
+        //expect(ctrl.editor.getFields()[0].hide).toBe(true);
+     });
+
+     it("should have no fields if none are provided", () => {
+        // Arrange
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptor[]>([]);
+        });
+
+        ctrl = componentTest.createComponent({});
+
+        //Assert
+        expect(ctrl.systemFields.length).toBe(0);
+        expect(ctrl.noteFields.length).toBe(0);
+        expect(ctrl.fields.length).toBe(0);
+        expect(ctrl.editor.getFields().length).toBe(0);
      });
 });

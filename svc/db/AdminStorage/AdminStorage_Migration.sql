@@ -1330,6 +1330,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Show_More', 'en
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Additional_Info_Tab_Label', 'en-US', N'Additional Info')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Include_Tab_Label', 'en-US', N'Include')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Add_Include_Tab_Label', 'en-US', N'Add Include')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inaccessible_Include_Artifact_Label', 'en-US', N'Inaccessible Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Browse_Include_Label', 'en-US', N'Browse')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Select_Include_Artifact_Label', 'en-US', N'Select Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_Search_No_Matches_Found', 'en-US', N'No matches found')

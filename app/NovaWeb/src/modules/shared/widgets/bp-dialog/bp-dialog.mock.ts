@@ -8,22 +8,16 @@ export class DialogServiceMock implements IDialogService {
     }
 
     public open(dialogSettings: IDialogSettings): ng.IPromise<any> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve(true);
-        return deferred.promise;
+        return this.$q.resolve(true);
     }
 
     public alert(message: string, header?: string): ng.IPromise<any> {
-        const deferred = this.$q.defer<any>();
         this.alerts.push(message);
-        deferred.resolve(true);
-        return deferred.promise;
+        return this.$q.resolve(true);
     }
 
     public confirm(message: string, header?: string): ng.IPromise<any> {
-        const deferred = this.$q.defer<any>();
-        deferred.resolve(true);
-        return deferred.promise;
+        return this.$q.resolve(true);
     }
 
     public dialogSettings: IDialogSettings = {

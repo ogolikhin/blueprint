@@ -94,7 +94,7 @@ export class ItemStateController {
 
                     const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                     const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
-                    this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage));
+                    this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 
                 this.navigateToSubRoute(statefulArtifact, version);

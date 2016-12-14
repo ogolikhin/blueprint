@@ -141,7 +141,7 @@ export class BPDiagramController extends BpBaseEditor {
                         if (result.isDeleted) {
                             const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
                             const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
-                            this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage));
+                            this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                         }
                         if (artifactPromise) {
                             artifactPromise.then((artifact) => {

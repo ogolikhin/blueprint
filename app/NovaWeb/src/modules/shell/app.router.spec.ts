@@ -13,6 +13,7 @@ import {IClipboardService} from "../editors/bp-process/services/clipboard.svc";
 import {IProjectManager} from "../managers/project-manager/project-manager";
 import {ISession} from "./login/session.svc";
 import {SessionSvcMock} from "./login/mocks.spec";
+import {MessageType} from "../core/messages/message";
 
 describe("AppRouter", () => {
     let $rootScope: ng.IRootScopeService,
@@ -128,7 +129,20 @@ describe("AppRouter", () => {
 
             // assert
             expect(clearMessagesSpy).toHaveBeenCalled();
-            expect(clearMessagesSpy).toHaveBeenCalledWith(false);
+        });
+
+        it("should clear normal and Deleted messages when main", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.details"};
+            const toState = {name: "main"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(false, [MessageType.Deleted]);
         });
 
         it("should clear normal and persistent messages when logout", () => {

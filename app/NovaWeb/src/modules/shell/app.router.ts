@@ -4,6 +4,7 @@ import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
 import {IMessageService} from "../core/messages/message.svc";
+import {MessageType} from "../core/messages/message";
 
 
 export class AppRoutes {
@@ -119,11 +120,13 @@ export class MainStateController {
         }
 
         this.updateAppTitle();
-        this.messageService.clearMessages([
-            "logout",
-            "error",
-            "licenseError"
-            ].indexOf(toState.name) !== -1);
+        if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
+            this.messageService.clearMessages(true);
+        } else if (toState.name === "main") { // initial state with no project open
+            this.messageService.clearMessages(false, [MessageType.Deleted]);
+        } else {
+            this.messageService.clearMessages();
+        }
     };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {

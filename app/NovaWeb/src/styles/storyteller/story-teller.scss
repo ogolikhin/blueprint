@@ -1005,9 +1005,10 @@ body.mce-content-body a, body.mce-content-body a:hover {
 .dropdown-menu-item-label {
     display: inline-block;
     white-space: nowrap;
-    width: 100px;
+    max-width: 145px;
     overflow: hidden;
     text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
 .dropdown-menu__item i:before {

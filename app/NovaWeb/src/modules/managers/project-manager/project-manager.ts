@@ -510,8 +510,7 @@ export class ProjectManager implements IProjectManager {
             //filter collections and sort by order index
             siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
             siblings = _.sortBy(siblings, (a) => a.orderIndex);
-
-            index = siblings.findIndex((a) => a.id === selectedArtifact.id);
+            index = _.findIndex(siblings, (a) => a.id === selectedArtifact.id);
 
             //compute new order index
             if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first

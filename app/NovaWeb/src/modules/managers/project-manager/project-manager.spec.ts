@@ -19,6 +19,7 @@ import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-mana
 import {StatefulArtifactMock} from "../../managers/artifact-manager/artifact/artifact.mock";
 import {ProjectServiceStatusCode} from "./project-service";
 import {HttpStatusCode} from "../../core/http/http-status-code";
+import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 
 describe("Project Manager Test", () => {
 
@@ -81,6 +82,105 @@ describe("Project Manager Test", () => {
 
             //Asserts
             expect(error).toBeUndefined();
+            expect(projectManager.projectCollection.getValue().length).toEqual(2);
+            expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(11);
+            expect(projectManager.projectCollection.getValue()[1].model.id).toEqual(10);
+        })));
+     });
+
+     describe("get descendants to be deleted", () => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectService: ProjectServiceMock,
+        statefulArtifactFactory: StatefulArtifactFactoryMock) => {
+            // Arrange
+            spyOn(projectService, "getProject").and.callFake(() => {
+                return $q.resolve(<AdminStoreModels.IInstanceItem>{
+                    id: 10,
+                    name: "newName"
+                });
+            });
+            spyOn(projectService, "getArtifacts").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact"
+                }]);
+            });
+            const artifact = <Models.IArtifact>{
+                id: 25,
+                projectId: 10
+            };
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
+            
+            //Act
+            let error: Error;
+            let result: Models.IArtifactWithProject[];
+            projectManager.getDescendantsToBeDeleted(statefulArtifact)
+            .then((res: Models.IArtifactWithProject[]) => result = res)
+            .catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(result.length).toEqual(1);
+            expect(result[0].id).toEqual(20);
+            expect(result[0].name).toEqual("artifact");
+            expect(result[0].projectName).toEqual("newName");
+        })));
+     });
+
+     describe("remove project", () => {
+        it("single success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+            // Arrange
+            
+            //Act
+            projectManager.remove(10);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(projectManager.projectCollection.getValue().length).toEqual(0);
+        })));
+
+        it("all success", (inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager, projectService: ProjectServiceMock,
+        selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock, artifactManager: ArtifactManagerMock) => {
+            // Arrange
+            let factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+            const project = {
+                id: 12,
+                name: "oldName 2",
+                parentFolderId: undefined,
+                type: AdminStoreModels.InstanceItemType.Project,
+                hasChildren: true,
+                projectId: 12,
+                itemTypeId: Enums.ItemTypePredefined.Project,
+                prefix: "PR",
+                itemTypeName: "Project",
+                predefinedType: Enums.ItemTypePredefined.Project
+            } as AdminStoreModels.IInstanceItem;
+            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(project);
+            let projectNode = factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+
+            projectManager.projectCollection.getValue().unshift(projectNode);
+            
+            //Act
+            projectManager.removeAll();
+            $rootScope.$digest();
+
+            //Asserts
+            expect(projectManager.projectCollection.getValue().length).toEqual(0);
+        })));
+     });
+
+     describe("open project with dialog", () => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, dialogService: DialogServiceMock) => {
+            // Arrange
+            spyOn(dialogService, "open").and.callFake(() => {
+                return $q.resolve(11);
+            });
+            
+            //Act
+            projectManager.openProjectWithDialog();
+            $rootScope.$digest();
+
+            //Asserts
             expect(projectManager.projectCollection.getValue().length).toEqual(2);
             expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(11);
             expect(projectManager.projectCollection.getValue()[1].model.id).toEqual(10);
@@ -316,6 +416,138 @@ describe("Project Manager Test", () => {
             expect((<IArtifactNode>project).children.length).toEqual(1);
             expect((<IArtifactNode>project).children[0].model.id).toEqual(20);
             expect((<IArtifactNode>project).children[0].model.name).toEqual("artifact");
+        }));
+     });
+
+     describe("calculate order index", () => {
+        beforeEach(inject(($q: ng.IQService, projectService: ProjectServiceMock) => {
+            spyOn(projectService, "getArtifacts").and.callFake(() => {
+                return $q.resolve([<Models.IArtifact>{
+                    id: 20,
+                    name: "artifact",
+                    orderIndex: 10
+                },
+                <Models.IArtifact>{
+                    id: 21,
+                    name: "another artifact",
+                    orderIndex: 15
+                }]);
+            });
+        }));
+
+        it("inside method success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            const artifact = <Models.IArtifact>{
+                id: 20,
+                orderIndex: 10
+            };
+
+            //Act
+            let error: Error;
+            let result: number;
+            projectManager.calculateOrderIndex(MoveCopyArtifactInsertMethod.Inside, artifact)
+            .then((res) => {
+                result = res;
+            })
+            .catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(result).toBeUndefined();
+        }));
+
+        it("below method between success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            const artifact = <Models.IArtifact>{
+                id: 20,
+                orderIndex: 10
+            };
+
+            //Act
+            let error: Error;
+            let result: number;
+            projectManager.calculateOrderIndex(MoveCopyArtifactInsertMethod.Below, artifact)
+            .then((res) => {
+                result = res;
+            })
+            .catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(result).toEqual(12.5);
+        }));
+
+        it("above method top success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            const artifact = <Models.IArtifact>{
+                id: 20,
+                orderIndex: 10
+            };
+
+            //Act
+            let error: Error;
+            let result: number;
+            projectManager.calculateOrderIndex(MoveCopyArtifactInsertMethod.Above, artifact)
+            .then((res) => {
+                result = res;
+            })
+            .catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(result).toEqual(5);
+        }));
+
+        it("below method bottom success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            const artifact = <Models.IArtifact>{
+                id: 21,
+                orderIndex: 15
+            };
+
+            //Act
+            let error: Error;
+            let result: number;
+            projectManager.calculateOrderIndex(MoveCopyArtifactInsertMethod.Below, artifact)
+            .then((res) => {
+                result = res;
+            })
+            .catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(result).toEqual(25);
+        }));
+
+        it("above method between success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, 
+        projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
+            // Arrange
+            const artifact = <Models.IArtifact>{
+                id: 21,
+                orderIndex: 15
+            };
+
+            //Act
+            let error: Error;
+            let result: number;
+            projectManager.calculateOrderIndex(MoveCopyArtifactInsertMethod.Above, artifact)
+            .then((res) => {
+                result = res;
+            })
+            .catch((err) => error = err);
+            $rootScope.$digest();
+
+            //Asserts
+            expect(error).toBeUndefined();
+            expect(result).toEqual(12.5);
         }));
      });
 });

@@ -119,7 +119,11 @@ export class MainStateController {
         }
 
         this.updateAppTitle();
-        this.messageService.clearMessages(toState.name === "logout");
+        this.messageService.clearMessages([
+            "logout",
+            "error",
+            "licenseError"
+            ].indexOf(toState.name) !== -1);
     };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {

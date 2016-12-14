@@ -117,7 +117,7 @@ describe("AppRouter", () => {
             expect($window.document.title).toBe(expectedTitle);
         });
 
-        it("should clear normal messages when changing state", () => {
+        it("should clear normal messages when changing state between artifacts", () => {
             // arrange
             const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
             const fromState = {name: "main.item.general"};
@@ -136,6 +136,20 @@ describe("AppRouter", () => {
             const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
             const fromState = {name: "main.item.general"};
             const toState = {name: "logout"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(true);
+        });
+
+        it("should clear normal and persistent messages when error", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "error"};
 
             // act
             $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);

@@ -45,14 +45,11 @@ module.exports = {
             }
         }),
         new ExtractTextPlugin('[name].css', {allChunks: true}),
-
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,
                 drop_console: true
             },
-            //mangle: true,
-            //beautify: false,
             sourceMap: isDebug
         }),
         new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),

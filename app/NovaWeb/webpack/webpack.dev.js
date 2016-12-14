@@ -14,10 +14,6 @@ var default_port = '8000';
 
 var _APP = path.join(__dirname, './../src');
 
-
-var del = require('del');
-del(['dist/*']);
-
 var open_browser = process.env.npm_config_nova_open_browser === '1';
 var is_public = false;
 if (process.argv.some(function (argument) {
@@ -66,7 +62,6 @@ module.exports = {
         new webpack.HotModuleReplacementPlugin(),
         new CopyWebpackPlugin([
             // {output}/file.txt
-            {from: './web.config'},
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},

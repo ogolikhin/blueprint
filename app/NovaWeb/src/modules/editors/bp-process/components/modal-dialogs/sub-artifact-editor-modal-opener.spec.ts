@@ -1,6 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
+import {ExecutionEnvironmentDetectorMock} from "./../../../../core/services/execution-environment-detector.mock";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";
@@ -20,18 +21,6 @@ import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
-
-class ExecutionEnvironmentDetectorMock {
-    private browserInfo: any;
-
-    constructor() {
-        this.browserInfo = {msie: false, firefox: false, version: 0};
-    }
-
-    public getBrowserInfo(): any {
-        return this.browserInfo;
-    }
-}
 
 describe("SubArtifactEditorModalOpener test", () => {
     let dialogManager: IModalDialogCommunication;

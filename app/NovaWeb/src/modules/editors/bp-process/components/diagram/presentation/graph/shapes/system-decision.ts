@@ -15,15 +15,14 @@ export class SystemDecision extends Decision {
         return "#53BBED";
     }
 
+    protected get HIGHLIGHT_BORDER_COLOR(): string {
+        return "#53BBED";
+    }
+
     public showMenu(mxGraph: MxGraph) {
         super.showMenu(mxGraph);
 
         this.detailsButton.setVisible(true);
-    }
-
-    public hideMenu(mxGraph: MxGraph) {
-        super.hideMenu(mxGraph);
-        this.detailsButton.setVisible(false);
     }
 
     public getDeleteDialogParameters(): IDialogParams {

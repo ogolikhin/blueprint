@@ -101,7 +101,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
         let msg: string;
         if (model.typePrefix === "<Inaccessible>") {
-            msg = this.localization.get("HttpError_Forbidden");
+            msg = this.localization.get("ST_Inaccessible_Include_Artifact_Label");
         } else {
             msg = model.typePrefix + model.id + " - " + model.name;
         }

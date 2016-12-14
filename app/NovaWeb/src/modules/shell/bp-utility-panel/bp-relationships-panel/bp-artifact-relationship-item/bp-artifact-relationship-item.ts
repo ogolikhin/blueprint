@@ -30,8 +30,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         "localization",
         "relationshipDetailsService",
         "artifactManager",
-        "dialogService",
-        "navigationService"
+        "dialogService"
     ];
 
     public expanded: boolean = false;
@@ -51,8 +50,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
                 private artifactManager: IArtifactManager,
-                private dialogService: IDialogService,
-                private navigationService: INavigationService) {
+                private dialogService: IDialogService) {
     }
 
     public $onInit() {
@@ -75,7 +73,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public expand($event) {
         this.remove($event);
         if (!this.expanded) {
-            this.getRelationshipDetails(this.relationship.itemId)
+            this.getRelationshipDetails(this.relationship.artifactId)
                 .then(relationshipExtendedInfo => {
                     if (relationshipExtendedInfo.pathToProject.length > 0 && relationshipExtendedInfo.pathToProject[0].parentId == null) {
                         relationshipExtendedInfo.pathToProject.shift(); // do not show project in the path.
@@ -123,7 +121,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     public limitChars(str) {
         if (str) {
-            return Helper.limitChars(Helper.stripHTMLTags(str));
+            return Helper.limitChars(Helper.stripHTMLTags(str)).replace(/\u200B/g, "");
         }
 
         return "";
@@ -138,12 +136,6 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
                 }
                 return relationshipExtendedInfo;
             });
-    }
-
-    public navigateToArtifact(id: number) {
-        if (this.relationship.hasAccess) {
-            this.navigationService.navigateTo({id: id});
-        }
     }
 
     public canModifyItem() {

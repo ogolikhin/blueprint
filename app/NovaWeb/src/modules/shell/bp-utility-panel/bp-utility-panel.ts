@@ -138,13 +138,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (this.propertySubscriber) {
             this.propertySubscriber.dispose();
         }
-        if (item) {
-            this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
-        }
-        
         if (this.emptySelection(selection) || selection.multiSelect) {
             this.hidePanels();
-        } else if (selection && (selection.artifact || selection.subArtifact)) {
+        } else if (item) {
+            this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);
@@ -222,8 +219,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     }
 
     private togglePropertiesPanel(selection: ISelection) {
-        const artifact = selection.artifact;
+            
+        const artifact = selection.artifact;        
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        
         if (artifact && (selection.subArtifact
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram
@@ -237,7 +236,6 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             || (artifact.predefinedType === ItemTypePredefined.Actor &&
             explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram))) {
-
             this.showPanel(PanelType.Properties);
         } else {
             this.hidePanel(PanelType.Properties);

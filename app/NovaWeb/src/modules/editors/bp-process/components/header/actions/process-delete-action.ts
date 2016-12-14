@@ -9,15 +9,17 @@ import {IArtifactManager} from "./../../../../../managers/artifact-manager/artif
 import {IMessageService} from "./../../../../../core/messages/message.svc";
 import {ILocalizationService} from "./../../../../../core/localization/localizationService";
 import {IStatefulProcessArtifact} from "./../../../process-artifact";
+import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
 import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
     private selectedNodes: IDiagramNode[];
     
     constructor(
-        process: IStatefulProcessArtifact,
+        private process: IStatefulProcessArtifact,
         localization: ILocalizationService,
         messageService: IMessageService,
         artifactManager: IArtifactManager,
@@ -41,11 +43,23 @@ export class ProcessDeleteAction extends DeleteAction {
     }
 
     protected canDelete(): boolean {
-        if (!this.selectedNodes || !this.selectedNodes.length) {
-            return super.canDelete();
+        if (!super.canDelete()) {
+            return false;
+        }
+
+        //Is artifact and has Delete permissions 
+        if (this.isArtifactSelected()) {
+            return this.hasDesiredPermissions(RolePermissions.Delete);
         }
 
         if (this.selectedNodes.length > 1) {
+            return false;
+        }
+
+        const selectedNode: IDiagramNode = this.selectedNodes[0];
+        
+        //Subartifact is selected and selective readonly is set
+        if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
             return false;
         }
 
@@ -54,7 +68,6 @@ export class ProcessDeleteAction extends DeleteAction {
             NodeType.UserDecision,
             NodeType.SystemDecision
         ];
-        const selectedNode: IDiagramNode = this.selectedNodes[0];
         
         if (validNodeTypes.indexOf(selectedNode.getNodeType()) < 0) {
             return false;
@@ -63,16 +76,24 @@ export class ProcessDeleteAction extends DeleteAction {
         return true;
     }
 
+    protected hasRequiredPermissions(): boolean {
+        return this.hasDesiredPermissions(RolePermissions.Edit);
+    }
+
     protected delete(): void {
         if (!this.canDelete()) {
             return;
         }
         
-        if (!this.selectedNodes || !this.selectedNodes.length) {
+        if (this.isArtifactSelected()) {
             super.delete();
         } else {
             this.communication.action(ProcessEvents.DeleteShape, this.selectedNodes[0]);
         }
+    }
+
+    private isArtifactSelected(): boolean {
+        return !this.selectedNodes || !this.selectedNodes.length;
     }
 
     private onSelectionChanged = (nodes: IDiagramNode[]): void => {

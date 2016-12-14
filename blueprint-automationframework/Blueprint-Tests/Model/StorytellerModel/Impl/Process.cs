@@ -1573,15 +1573,20 @@ namespace Model.StorytellerModel.Impl
             return PersonaReference;
         }
 
-        public bool IsTypeOf(ProcessShapeType processShapeType)
+        /// <seealso cref="IProcessShape.GetShapeType()"/>
+        public ProcessShapeType GetShapeType()
         {
             string clientType = PropertyTypeName.ClientType.ToString();
 
             clientType = PropertyValues.ContainsKey(clientType) ? clientType : clientType.LowerCaseFirstCharacter();
 
-            return
-                Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture).Equals(
-                    (int) processShapeType);
+            return (ProcessShapeType) Convert.ToInt32(PropertyValues[clientType].Value, CultureInfo.InvariantCulture);
+        }
+
+        /// <seealso cref="IProcessShape.IsTypeOf(ProcessShapeType)"/>
+        public bool IsTypeOf(ProcessShapeType processShapeType)
+        {
+            return (GetShapeType() == processShapeType);
         }
     }
 

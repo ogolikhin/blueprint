@@ -17,6 +17,7 @@
     float: left;
     font-size: 13px;
     width: calc(50% - 15px);
+    padding-top: 49px;
 
     .project-name {
         @include text-ellipsis-flex-width(999px);
@@ -34,7 +35,7 @@
         background: $gray-lightest;
         border-radius: $border-radius-amount;
         margin-top: 10px;
-        max-height: 142px;
+        max-height: 139px;
         min-height: 36px;
         overflow: auto;
 

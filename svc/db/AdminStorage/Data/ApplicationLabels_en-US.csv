@@ -29,7 +29,7 @@ App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
 Tooltip_App_Header_Help,"Help"
 Tooltip_App_Header_Logout,"Log out"
-Tooltip_Artifact_Header_LegacyArtifact,"Legacy artifact"
+Tooltip_Artifact_Header_LegacyArtifact,"Blueprint artifact"
 Tooltip_Browse_Actor, "Browse Actor"
 
 App_Sidebar_Left,"Explorer"
@@ -90,12 +90,15 @@ App_MainArea_DefaultScreen_BetterTop_Label,"Better "
 App_MainArea_DefaultScreen_Stories_Label,"Stories"
 App_MainArea_DefaultScreen_Drive_Label,"drive"
 App_MainArea_DefaultScreen_BetterBottom_Label,"Better "
-App_MainArea_DefaultScreen_Products_Label,"Products"
+App_MainArea_DefaultScreen_Products_Label,"Products."
 App_MainArea_DefaultScreen_OpenProject_ButtonLabel,"Open a project"
+App_MainArea_DefaultScreen_LeftCircle_Label,"Speeds up projects by auto-generating a complete set of highquality, well formatted and consistent User Stories."
+App_MainArea_DefaultScreen_CenterCircle_Label,"Improves Business and IT Alignment through visualization and traceability."
+App_MainArea_DefaultScreen_RightCircle_Label,"Enhances enterprise collaboration and communication from a broad range of users, of any skills."
 App_MainArea_DefaultScreen_UsefulResources_Header,"Useful resources to get started"
 App_MainArea_DefaultScreen_GetStartedWithStoryteller_Hypelink,"Get started with Storyteller"
 App_MainArea_DefaultScreen_GetStartedWithProcessEditor_Hypelink,"Get started with the Process Editor"
-App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink,"Blueprint Community forum"
+App_MainArea_DefaultScreen_BlueprintCommunityForum_Hypelink,"Blueprint Community Forum"
 App_MainArea_DefaultScreen_StorytellerTour_Hypelink,"Storyteller Tour"
 
 
@@ -208,7 +211,7 @@ App_Save_Artifact_Error_404,"Sorry, but the artifact {0} cannot be saved because
 App_Save_Artifact_Error_409,"There was a conflict while saving the artifact {0}."
 App_Save_Artifact_Error_400_114,"The artifact {0} cannot be saved. Please ensure all values are correct."
 App_Save_Artifact_Error_409_115,"The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost."
-App_Save_Artifact_Error_409_116,"The artifact {0} cannot be saved. It is a reused artifact with read-only settings. You have modified read-only properties."
+App_Save_Artifact_Error_409_116,"The artifact {0} cannot be saved. Changes were made to an artifact you do not have permission to access, or has read-only properties."
 App_Save_Artifact_Error_409_117,"A property type is out of date."
 App_Save_Artifact_Error_409_123,"The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All."
 App_Save_Artifact_Error_409_124,"The artifact {0} cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other."
@@ -221,7 +224,7 @@ Refresh_Artifact_Deleted,"The artifact you were viewing has been deleted. The ar
 
 Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
-Publish_All_Success_Message,"All artifacts ({0}) have had their changes published."
+Publish_All_Success_Message,"Changes have been published for all artifacts ({0})."
 Publish_All_No_Unpublished_Changes,"There are no artifacts that can be published."
 
 Close_Project_UnpublishedArtifacts,"You have {0} saved but unpublished change(s).<br/><br/>Considering publishing or discarding before continuing."
@@ -464,7 +467,9 @@ ST_Show_More, "Show More"
 ST_Additional_Info_Tab_Label, "Additional Info"
 ST_Include_Tab_Label, "Include"
 ST_Add_Include_Tab_Label, "Add Include"
+ST_Inaccessible_Include_Artifact_Label, "Inaccessible Artifact"
 ST_Browse_Include_Label, "Browse"
+
 ST_Select_Include_Artifact_Label, "Select Artifact"
 ST_Inline_Traces_Search_No_Matches_Found, "No matches found"
 ST_Inline_Traces_Search_Bad_Request, "Bad search request"
@@ -510,8 +515,7 @@ ST_US_Generate_LockedByOtherUser_Failure_Message, "User stories cannot be genera
 ag-Grid_noRowsToShow,"Empty"
 
 # Search
-Search_Validation_MinThreeChars, "At least 3 characters."
-Search_Validation_MaxTwoFiftyChars, "At most 250 characters."
+Search_Validation_MinThreeChars, "Please use at least 3 characters."
 Search_Validation_Required, "Required search term."
 Search_Results_Author, "Author"
 Search_Results_CreatedOn, "Created On:"
@@ -531,3 +535,6 @@ Search_Results_ResultsFound, "{0} Results found"
 
 Unpublished_Empty, "No Unpublished Changes"
 GO_TO_tooltip, "Enter Artifact ID"
+
+#Copy Image
+Copy_Images_Failed, "Images were not copied into clipboard."

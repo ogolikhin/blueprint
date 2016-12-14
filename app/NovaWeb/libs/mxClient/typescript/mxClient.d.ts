@@ -2668,6 +2668,16 @@ interface MxGraph {
      */
     orderCells(back, cells);
 
+    /**
+     * Sets the key to value in the styles of the given cells.  This will modify the existing cell styles in-place and override any existing assignment for the given key.  If no cells are specified, then the selection cells are changed.  If no value is specified, then the respective key is removed * from the styles.
+     * 
+     * Parameters:
+     * key - String representing the key to be assigned.
+     * value - String representing the new value for the key.
+     * cells - Optional array of mxCells to change the style for.  Default is the selection cells.
+     */
+    setCellStyles(key: string, value: string, cells: MxCell[]): void;
+
      /**
      * Function: destroy
      * 

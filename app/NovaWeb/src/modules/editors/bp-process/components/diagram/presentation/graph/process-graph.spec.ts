@@ -1,5 +1,8 @@
 ﻿/* tslint:disable max-file-line-count */
 import * as angular from "angular";
+import "angular-mocks";
+import "script!mxClient";
+import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import * as Enums from "../../../../models/enums";
@@ -18,8 +21,10 @@ import {LocalizationServiceMock} from "../../../../../../core/localization/local
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
+import * as TestShapes from "../../../../models/test-shape-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {FileUploadServiceMock} from "../../../../../../core/file-upload/file-upload.svc.mock";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
@@ -28,12 +33,16 @@ describe("ProcessGraph", () => {
         dialogService: DialogService,
         localization: LocalizationServiceMock;
 
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("dialogService", DialogService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("fileUploadService", FileUploadServiceMock);
         $provide.service("shapesFactory", ShapesFactory);
     }));
 
@@ -620,6 +629,7 @@ describe("ProcessGraph", () => {
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
+            
             //Assert
             expect(processModel.shapes.length).toEqual(shapeLengthBeforeDelete); //5
             expect(processModel.links.length).toEqual(linkLengthBeforeDelete);  //4
@@ -1614,6 +1624,174 @@ describe("ProcessGraph", () => {
             let decisionScopesToEnd = processModel.decisionBranchDestinationLinks.filter(a => a.sourceId === decisionId && a.destinationId === endId);
             expect(isUpdated).toBeTruthy();
             expect(decisionScopesToEnd.length).toEqual(1);
+        });
+    });
+
+    describe("highlightCopyGroups", () => {
+        it("doesn't highlight anything when start shape is selected", () => {
+            // arrange
+            const graph = createGraph(TestModels.createDefaultProcessModel());
+            graph.render(true, null);
+            const start = graph.getNodeById("10");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([start]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't highlight anything when pre-condition is selected", () => {
+            // arrange
+            const graph = createGraph(TestModels.createDefaultProcessModel());
+            graph.render(true, null);
+            const precondition = graph.getNodeById("15");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([precondition]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't highlight anything when system task is selected", () => {
+            // arrange
+            const graph = createGraph(TestModels.createDefaultProcessModel());
+            graph.render(true, null);
+            const systemTask = graph.getNodeById("25");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([systemTask]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't highlight anything when end shape is selected", () => {
+            // arrange
+            const graph = createGraph(TestModels.createDefaultProcessModel());
+            graph.render(true, null);
+            const end = graph.getNodeById("30");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([end]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("highlights system task when user task is selected", () => {
+            // arrange
+            const graph = createGraph(TestModels.createDefaultProcessModel());
+            graph.render(true, null);
+            const userTask = graph.getNodeById("20");
+            const systemTask = graph.getNodeById("25");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([userTask]);
+
+            // assert
+            expect(spy).toHaveBeenCalledWith(systemTask);
+        });
+
+        it("doesn't highlight anything when user decision is selected", () => {
+            // arrange
+            const decisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 999, 0, 0);
+            const process = TestModels.createUserDecisionTestModel(decisionShape);
+            const graph = createGraph(process);
+            graph.render(true, null);
+            const userDecision = graph.getNodeById("999");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([userDecision]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't highlight anything when system decision is selected", () => {
+            // arrange
+            const decisionShape = shapesFactory.createModelSystemDecisionShape(2, 1, 999, 0, 0);
+            const process = TestModels.createSystemDecisionTestModel(decisionShape);
+            const graph = createGraph(process);
+            graph.render(true, null);
+            const systemDecision = graph.getNodeById("999");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([systemDecision]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it("doesn't highlight user decision when single first user task is selected", () => {
+            // arrange
+            const decisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 999, 0, 0);
+            const process = TestModels.createUserDecisionTestModel(decisionShape);
+            const graph = createGraph(process);
+            graph.render(true, null);
+            const userTask = graph.getNodeById("35");
+            const userDecision = graph.getNodeById("999");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([userTask]);
+
+            // assert
+            expect(spy).not.toHaveBeenCalledWith(userDecision);
+        });
+
+        it("highlights user decision when multiple first user tasks are selected", () => {
+            // arrange
+            const decisionShape = shapesFactory.createModelUserDecisionShape(2, 1, 999, 0, 0);
+            const process = TestModels.createUserDecisionTestModel(decisionShape);
+            const graph = createGraph(process);
+            graph.render(true, null);
+            const userTask = graph.getNodeById("35");
+            const userTask2 = graph.getNodeById("45");
+            const userDecision = graph.getNodeById("999");
+            const spy = spyOn(graph, "highlightNode");
+
+            // act
+            graph.highlightCopyGroups([userTask, userTask2]);
+
+            // assert
+            expect(spy).toHaveBeenCalledWith(userDecision);
+        });
+
+        it("highlights nodes in the user task scope when user task is selected", () => {
+            // arrange
+            const process = TestModels.createSimpleProcessModelWithSystemDecision();
+            const graph = createGraph(process);
+            graph.render(true, null);
+            const userTask = graph.getNodeById("20");
+            const systemDecision = graph.getNodeById("25");
+            const systemDecisionSpy = spyOn(systemDecision, "highlight");
+            const systemTask1 = graph.getNodeById("26");
+            const systemTask1Spy = spyOn(systemTask1, "highlight");
+            const systemTask2 = graph.getNodeById("27");
+            const systemTask2Spy = spyOn(systemTask2, "highlight");
+            const userTask2 = graph.getNodeById("28");
+            const userTask2Spy = spyOn(userTask2, "highlight");
+            const systemTask3 = graph.getNodeById("29");
+            const systemTask3Spy = spyOn(systemTask3, "highlight");
+
+            // act
+            graph.highlightCopyGroups([userTask]);
+
+            // assert
+            expect(systemDecisionSpy).toHaveBeenCalled();
+            expect(systemTask1Spy).toHaveBeenCalled();
+            expect(systemTask2Spy).toHaveBeenCalled();
+            expect(userTask2Spy).toHaveBeenCalled();
+            expect(systemTask3Spy).toHaveBeenCalled();
         });
     });
 

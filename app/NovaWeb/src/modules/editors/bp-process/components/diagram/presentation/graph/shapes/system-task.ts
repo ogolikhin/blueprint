@@ -23,6 +23,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private BUTTON_SIZE = 16;
     private ORIGIN_DIAMETER = 8;
 
+    private DEFAULT_BORDER_COLOR: string = "#53BBED";
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
+
     private origin: DiagramNodeElement;
     private header: DiagramNodeElement;
     private personaLabel: ILabel;
@@ -33,7 +36,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private detailsButton: Button;
     private linkButton: Button;
     private mockupButton: Button;
-    private rootScope: ng.IRootScopeService;
+    private rootScope: ng.IRootScopeService; 
 
     public callout: DiagramNodeElement;
 
@@ -63,8 +66,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         //initialize call-out
         const calloutGeometry = new mxGeometry(0, 0, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT);
         this.callout = new DiagramNodeElement("C" + modelId, ElementType.Shape, null, calloutGeometry,
-            "shape=systemTask;strokeColor=#53BBED;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans," +
-            " sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0");
+            "shape=systemTask;strokeColor=#53BBED;strokeWidth=1;fillColor=#FFFFFF;fontColor=#4C4C4C;fontFamily=Open Sans," +
+            " sans-serif;fontStyle=1;fontSize=11;foldable=0;shadow=0;editable=0;selectable=0;dashed=0");
         this.callout.setVertex(true);
 
         //initialize header
@@ -73,7 +76,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             personaReference = this.defaultPersonaReferenceValue;
         }
 
-        const headerGeometry = new mxGeometry(0.5, 0.5, this.SYSTEM_TASK_WIDTH - 1, 20);
+        const headerGeometry = new mxGeometry(1, 1, this.SYSTEM_TASK_WIDTH - 2, 20);
         this.header = new DiagramNodeElement("H" + modelId, ElementType.SystemTaskHeader, null, headerGeometry,
             "shape=label;strokeColor=none;fillColor=#E2F3FF;fontColor=#009cde;fontFamily=Open Sans, sans-serif;fontSize=11;editable=0;selectable=0");
         this.header.setVertex(true);
@@ -84,7 +87,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
             fillColor = justCreated ? this.newShapeColor : "#FBF8E7";
         }
 
-        const bodyGeometry = new mxGeometry(0.5, 20.5, this.SYSTEM_TASK_WIDTH - 1.5, 47);
+        const bodyGeometry = new mxGeometry(1, 20, this.SYSTEM_TASK_WIDTH - 2, 47);
         this.bodyCell = new DiagramNodeElement("B" + modelId, ElementType.Shape, null, bodyGeometry,
             "shape=label;strokeColor=none;fillColor=" + fillColor + ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;" +
             "foldable=0;shadow=0;editable=0;selectable=0");
@@ -364,7 +367,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         cell = mxGraph.addCell(this.bodyCell, this.callout);
 
         // footer
-        this.footerCell = mxGraph.insertVertex(this.callout, "F" + modelId, null, 0.5, this.SYSTEM_TASK_HEIGHT - 34.5, this.SYSTEM_TASK_WIDTH - 1, 24,
+        this.footerCell = mxGraph.insertVertex(this.callout, "F" + modelId, null, 1, this.SYSTEM_TASK_HEIGHT - 34, this.SYSTEM_TASK_WIDTH - 2, 23,
             "shape=rectangle;foldable=0;strokeColor=none;fillColor=#FFFFFF;gradientColor=#DDDDDD;selectable=0");
 
         this.addOverlays(mxGraph);
@@ -412,6 +415,22 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         graph.getModel().setVisible(this.callout, value);
         this.textLabel.setVisible(value);
         this.personaLabel.setVisible(value);
+    }
+
+    public highlight(mxGraph: MxGraph, color?: string) {
+        if (!color) {
+            color = this.HIGHLIGHT_BORDER_COLOR;
+        }
+
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, color, [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1.5", [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "1", [this.callout]);
+    }
+
+    public clearHighlight(mxGraph: MxGraph) {
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKECOLOR, this.DEFAULT_BORDER_COLOR, [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, "1", [this.callout]);
+        mxGraph.setCellStyles(mxConstants.STYLE_DASHED, "0", [this.callout]);
     }
 
     private navigateToProcess() {

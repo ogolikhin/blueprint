@@ -20,7 +20,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 
     // Unload full weight artifact
     unload();
-    save(ignoreInvalidValues?: boolean ): ng.IPromise<IStatefulArtifact>;
+    save(autoSave?: boolean ): ng.IPromise<IStatefulArtifact>;
     delete(): ng.IPromise<Models.IArtifact[]>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
@@ -276,7 +276,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     public lock(): ng.IPromise<IStatefulArtifact> {
         if (this.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            return;
+            return this.services.$q.resolve(this);
         }
         if (!this.lockPromise) {
             const deferred = this.services.getDeferred<IStatefulArtifact>();
@@ -367,13 +367,22 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         if (this._relationships) {
             delta.traces = this.relationships.changes();
         }
-        const subArtifactChanges = this.getSubArtifactChanges();
-        if (!!subArtifactChanges) {
-            delta.subArtifacts = subArtifactChanges;
-        } else {
-            return null;
+
+        //do not get subartifact changes if selective readonly is enabled. 
+        //This is a hack for Jumanji as we need to ensure that the properties cannot be modified in client side in utility panel 
+        if (this.canCollectSubartifactChanges()) {
+            const subArtifactChanges = this.getSubArtifactChanges();
+            if (!!subArtifactChanges) {
+                delta.subArtifacts = subArtifactChanges;
+            } else {
+                return null;
+            }
         }
         return delta;
+    }
+
+    protected canCollectSubartifactChanges(): boolean {
+        return !this.isReuseSettingSRO || !this.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts);
     }
 
     //if any subartifact is invalid, do not return any changes. In future, we might send information about which artifacts are invalid to improve messaging
@@ -391,14 +400,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         return subArtifactChanges;
     }
 
-    public save(ignoreInvalidValues: boolean = false): ng.IPromise<IStatefulArtifact> {
+    public save(autoSave: boolean = false): ng.IPromise<IStatefulArtifact> {
         this.services.messageService.clearMessages();
 
         let promise = this.services.$q.defer<any>();
         if (!this.canBeSaved()) {
             return this.services.$q.resolve(this);
         }
-        if (ignoreInvalidValues) {
+        if (autoSave) {
             promise.resolve();
         } else {
             promise.promise = this.validate();
@@ -408,7 +417,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.getCustomArtifactPromiseForSave();
         }).then(() => {
             const changes = this.changes();
-            return this.saveArtifact(changes).catch((error) => {
+            return this.saveArtifact(changes, autoSave).catch((error) => {
                 if (this.hasCustomSave) {
                     this.customHandleSaveFailed();
                 }
@@ -419,7 +428,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         });
     }
 
-    private saveArtifact(changes: Models.IArtifact): ng.IPromise<IStatefulArtifact> {
+    private saveArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<IStatefulArtifact> {
         return this.services.artifactService.updateArtifact(changes).catch((error) => {
             // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
             if (error) {
@@ -428,6 +437,9 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.services.$q.reject(error);
         }).then((artifact: Models.IArtifact) => {
             this.discard();
+            if (autoSave) {
+                return this.services.$q.resolve(this);
+            }
             return this.refresh().catch((error) => {
                 return this.services.$q.reject(error);
             });

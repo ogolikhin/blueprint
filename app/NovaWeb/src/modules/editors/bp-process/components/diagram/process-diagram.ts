@@ -1,3 +1,4 @@
+import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -18,6 +19,7 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IFileUploadService} from "../../../../core/file-upload/fileUploadService";
 import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "../../services/clipboard.svc";
 import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
@@ -51,7 +53,9 @@ export class ProcessDiagram {
                 private shapesFactory: ShapesFactory,
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService,
-                private artifactManager: IArtifactManager) {
+                private artifactManager: IArtifactManager,
+                private fileUploadService: IFileUploadService,
+                private loadingOverlayService: ILoadingOverlayService) {
 
         this.processModel = null;
        
@@ -195,8 +199,10 @@ export class ProcessDiagram {
                 this.messageService,
                 this.$log,
                 this.statefulArtifactFactory,
-                this.clipboard
-
+                this.clipboard,
+                this.fileUploadService,
+                this.$q,
+                this.loadingOverlayService
             );
              
         } catch (err) {
@@ -241,23 +247,39 @@ export class ProcessDiagram {
             if (subArtifact) {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
-                        this.$rootScope.$applyAsync(() => {
-                            this.artifactManager.selection.setSubArtifact(loadedSubArtifact);
-                        });
+                        this.setSubArtifactSelectionAsync(loadedSubArtifact);
                     });
             }
         } else if (elements.length > 1) {
             // multiple selection
-            this.$rootScope.$applyAsync(() => {
-                this.artifactManager.selection.setSubArtifact(undefined, true);
-            });
- 
+            this.setSubArtifactSelectionAsync(undefined, true);
         } else {
             // empty selection
             this.$rootScope.$applyAsync(() => {
-                this.artifactManager.selection.clearSubArtifact();
+                if (this.canChangeSelection()) {
+                    this.artifactManager.selection.clearSubArtifact();
+                }
             });
         }
+    }
+
+    private setSubArtifactSelectionAsync(subArtifact: IStatefulSubArtifact, multiSelect: boolean = false) {
+        this.$rootScope.$applyAsync(() => {
+            if (this.canChangeSelection()) {
+                this.artifactManager.selection.setSubArtifact(subArtifact, multiSelect);
+            }
+        });
+    }
+
+    private canChangeSelection() {
+        //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
+        if (!this.graph || !this.artifactManager) {
+            return false;
+        }
+        const selectedArtifact = this.artifactManager.selection.getArtifact();
+        const selectedArtifactId = selectedArtifact ? selectedArtifact.id : NaN;
+        const processArtifactId = this.processArtifact ? this.processArtifact.id : NaN;
+        return selectedArtifactId === processArtifactId;
     }
     
     private handleInitProcessGraphFailed(processId: number, err: any) {
@@ -300,7 +322,7 @@ export class ProcessDiagram {
                     .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
-                this.processViewModel.communicationManager.processDiagramCommunication
+                this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
             }
         }

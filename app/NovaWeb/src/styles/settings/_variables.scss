@@ -236,7 +236,7 @@ $input-group-addon-bg:           $gray-lighter !default;
 $input-group-addon-border-color: $input-border !default;
 
 //** Disabled cursor for form controls and buttons.
-$cursor-disabled:                not-allowed !default;
+$cursor-disabled:                default !default;
 
 
 //== Dropdowns
@@ -926,9 +926,6 @@ $sidebar-size: 280px;
 //utility panel
 $utility-panel-title-height: 33px;
 $utility-panel-heading-height: 31px;
-
-//project tree/picker
-$aggrid-row-height: 20px;
 
 //project picker
 $project-picker-tree-height: 244px;

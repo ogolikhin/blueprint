@@ -14,7 +14,7 @@ export interface IMetaDataService {
 }
 
 
-class ProjectMetaData {
+export class ProjectMetaData {
     constructor(public id: number, public data: IProjectMeta, locale: BPLocale) {
         if (data) {
             _.each(data.propertyTypes, (propertyType: IPropertyType) => {
@@ -103,7 +103,9 @@ export class MetaDataService implements IMetaDataService {
     }
 
     public remove(projectId: number) {
-        delete this.projectsMeta[projectId];
+        if (_.has(this.projectsMeta, projectId)) {
+            delete this.projectsMeta[projectId];
+        }
     }
 
     public refresh(projectId: number) {
@@ -114,9 +116,9 @@ export class MetaDataService implements IMetaDataService {
 
     public getArtifactItemType(projectId: number, itemTypeId: number): ng.IPromise<IItemType> {
         return this.get(projectId).then((metaData) => {
-            return metaData.data.artifactTypes.filter((it: IItemType) => {
+            return _.find(metaData.data.artifactTypes, (it: IItemType) => {
                 return it.id === itemTypeId;
-            })[0];
+            });
         });
     }
 
@@ -124,27 +126,27 @@ export class MetaDataService implements IMetaDataService {
     public getArtifactItemTypeTemp(projectId: number, itemTypeId: number): IItemType {
         const loadedMeta = this.projectsMeta[String(projectId)];
         if (loadedMeta) {
-            return loadedMeta.data.artifactTypes.filter((it: IItemType) => {
+            return _.find(loadedMeta.data.artifactTypes, (it: IItemType) => {
                 return it.id === itemTypeId;
-            })[0];
+            });
         }
         return undefined;
     }
 
     public getSubArtifactItemType(projectId: number, itemTypeId: number): ng.IPromise<IItemType> {
         return this.get(projectId).then((metaData) => {
-            return metaData.data.subArtifactTypes.filter((it: IItemType) => {
+            return _.find(metaData.data.subArtifactTypes, (it: IItemType) => {
                 return it.id === itemTypeId;
-            })[0];
+            });
         });
     }
 
     public getArtifactPropertyTypes(projectId: number, itemTypeId: number): ng.IPromise<IPropertyType[]> {
 
         return this.get(projectId).then((projectMeta) => {
-            const itemType = projectMeta.data.artifactTypes.filter((it: IItemType) => {
+            const itemType = _.find(projectMeta.data.artifactTypes, (it: IItemType) => {
                 return it.id === itemTypeId;
-            })[0];
+            });
             const properties: IPropertyType[] = [];
             if (itemType) {
                 properties.push(...this.getArtifactSystemPropertyTypes(projectMeta, itemType));
@@ -159,9 +161,9 @@ export class MetaDataService implements IMetaDataService {
     public getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): ng.IPromise<IPropertyType[]> {
 
         return this.get(projectId).then((projectMeta) => {
-            const itemType = projectMeta.data.subArtifactTypes.filter((it: IItemType) => {
+            const itemType = _.find(projectMeta.data.subArtifactTypes, (it: IItemType) => {
                 return it.id === itemTypeId;
-            })[0];
+            });
             const properties: IPropertyType[] = [];
             if (itemType) {
                 properties.push(...this.getSubArtifactSystemPropertyTypes(itemType));
@@ -192,7 +194,7 @@ export class MetaDataService implements IMetaDataService {
                 if (!data) {
                     return [];
                 }
-                return data.artifactTypes.filter((it: IItemType) => {
+                return _.filter(data.artifactTypes, (it: IItemType) => {
                     return (itemType && (itemType.predefinedType === it.predefinedType));
                 });
             }(projectMeta ? projectMeta.data : null).map(function (it) {
@@ -351,8 +353,8 @@ export class MetaDataService implements IMetaDataService {
     private getCustomPropertyTypes(projectMeta: ProjectMetaData, itemType: IItemType): IPropertyType[] {
         let properties: IPropertyType[] = [];
         if (projectMeta && projectMeta.data) {
-            itemType.customPropertyTypeIds.forEach(id => {
-                let propertyType = projectMeta.data.propertyTypes.find(pt => pt.id === id);
+            _.each(itemType.customPropertyTypeIds, id => {
+                let propertyType = _.find(projectMeta.data.propertyTypes, pt => pt.id === id);
                 if (propertyType) {
                     propertyType.propertyTypePredefined = PropertyTypePredefined.CustomGroup;
                     properties.push(propertyType);

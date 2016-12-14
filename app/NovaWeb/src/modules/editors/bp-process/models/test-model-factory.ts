@@ -85,6 +85,13 @@ export function createUserTask(id: number, x?: number, y?: number, hasComments: 
         hasTraces: hasTraces
     };
 
+    userTask.propertyValues["storyLinks"] = {
+        typeId: 0,
+        typePredefined: null,
+        propertyName: "StoryLinks",
+        value: null
+    };
+
     return <IUserTaskShape>userTask;
 }
 
@@ -99,6 +106,14 @@ export function createSystemTask(id: number, x?: number, y?: number, hasComments
         hasComments: hasComments,
         hasTraces: hasTraces
     };
+    
+    systemTask.propertyValues["imageId"] = {
+        typeId: 0,
+        typePredefined: null,
+        propertyName: "ImageId",
+        value: null
+    };
+    
     return <ISystemTaskShape>systemTask;
 }
 
@@ -107,8 +122,8 @@ export function createSystemDecision(id: number, x?: number, y?: number): IProce
     return systemDecision;
 }
 
-export function createDefaultProcessModel(): IProcess {
-    let process: IProcess = createDefaultProcessModelWithoutXAndY();
+export function createDefaultProcessModel(type: ProcessType = ProcessType.BusinessProcess): IProcess {
+    let process: IProcess = createDefaultProcessModelWithoutXAndY(type);
 
     process.shapes[0].propertyValues["x"].value = 0;
     process.shapes[0].propertyValues["y"].value = 0;
@@ -124,13 +139,13 @@ export function createDefaultProcessModel(): IProcess {
     return process;
 }
 
-export function createDefaultProcessModelWithoutXAndY(): IProcess {
-    let process: IProcess = createProcessModel(1, ProcessType.BusinessProcess);
+export function createDefaultProcessModelWithoutXAndY(type: ProcessType = ProcessType.BusinessProcess): IProcess {
+    let process: IProcess = createProcessModel(1, type);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 0, 0);
     let ut1 = createUserTask(20, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 25, 0, 0);
+    let st2 = createSystemTask(25, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 30, 0, 0);
 
     process.shapes.push(start);
@@ -573,7 +588,7 @@ export function createSimpleProcessModelWithSystemDecision() {
         {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: null}
     );
     process.decisionBranchDestinationLinks.push(
-        {sourceId: sd1.id, destinationId: st2.id, orderindex: 1, label: null}
+        {sourceId: sd1.id, destinationId: end.id, orderindex: 1, label: null}
     );
 
     return process;
@@ -643,21 +658,22 @@ export function createUserDecisionInfiniteLoopModelWithoutXAndY(): IProcess {
     // Start -> Pre -> UD -> UT1 -> ST1 -> End
     //                       UT2 -> ST2 -> UT3 -> ST3 -> UT5
     //                       UT4 -> ST4 -> UT5 -> ST5 -> UT3
-    let process: IProcess = createProcessModel(0);
+    let process: IProcess = createProcessModel(0, ProcessType.UserToSystemProcess);
+    const shapesFactory = createShapesFactoryService();
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20, 0, 0);
-    let ud = createShapeModel(ProcessShapeType.UserDecision, 30, 0, 0);
-    let ut1 = createShapeModel(ProcessShapeType.UserTask, 40, 0, 0);
-    let st1 = createShapeModel(ProcessShapeType.SystemTask, 50, 0, 0);
-    let ut2 = createShapeModel(ProcessShapeType.UserTask, 60, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 70, 0, 0);
-    let ut3 = createShapeModel(ProcessShapeType.UserTask, 80, 0, 0);
-    let st3 = createShapeModel(ProcessShapeType.SystemTask, 90, 0, 0);
-    let ut4 = createShapeModel(ProcessShapeType.UserTask, 100, 0, 0);
-    let st4 = createShapeModel(ProcessShapeType.SystemTask, 110, 0, 0);
-    let ut5 = createShapeModel(ProcessShapeType.UserTask, 120, 0, 0);
-    let st5 = createShapeModel(ProcessShapeType.SystemTask, 130, 0, 0);
+    let ud = shapesFactory.createModelUserDecisionShape(1, 0, 30, 0, 0);   
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 40, 0, 0);    
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 50, 0, 0); 
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 60, 0, 0); 
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 70, 0, 0);
+    let ut3 = shapesFactory.createModelUserTaskShape(1, 0, 80, 0, 0); 
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 90, 0, 0);
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 100, 0, 0); 
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 110, 0, 0);
+    let ut5 = shapesFactory.createModelUserTaskShape(1, 0, 120, 0, 0); 
+    let st5 = shapesFactory.createModelSystemTaskShape(1, 0, 130, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 140, 0, 0);
 
     process.shapes.push(start, pre, ud, ut1, st1, ut2, st2, ut3, st3, ut4, st4, ut5, st5, end);
@@ -805,9 +821,9 @@ export function createInfiniteLoopFromDifferentDecisions(): IProcess {
     return process;
 }
 
-export function createUserDecisionTestModel(decisionShape: IProcessShape): IProcess {
+export function createUserDecisionTestModel(decisionShape: IProcessShape, type: ProcessType = ProcessType.UserToSystemProcess): IProcess {
     const shapesFactory = createShapesFactoryService();
-    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+    let model: IProcess = createProcessModel(1, type);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
@@ -845,9 +861,9 @@ export function createUserDecisionTestModel(decisionShape: IProcessShape): IProc
 }
 
 
-export function createSystemDecisionTestModel(decisionShape: IProcessShape): IProcess {
+export function createSystemDecisionTestModel(decisionShape: IProcessShape, type: ProcessType = ProcessType.UserToSystemProcess): IProcess {
     const shapesFactory = createShapesFactoryService();
-    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+    let model: IProcess = createProcessModel(1, type);
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
     let pre = shapesFactory.createModelSystemTaskShape(1, 0, 15, 1, 0);
@@ -855,7 +871,6 @@ export function createSystemDecisionTestModel(decisionShape: IProcessShape): IPr
     let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 30, 4, 0);
     let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 35, 4, 0);
     let end = createShapeModel(ProcessShapeType.End, 40, 5, 0);
-
 
     model.shapes.push(start, pre, ut1, decisionShape, st2, st3, end);
     /*
@@ -1355,6 +1370,42 @@ export function createSystemDecisionForAddBranchTestModel(): IProcess {
     return model;
 }
 
+export function createDecisionWithFirstBranchEmptyNoXAndY() {
+    const shapesFactory = createShapesFactoryService();
+    let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);
+
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 20, 1, 0);    
+    let ud = shapesFactory.createModelUserDecisionShape(1, 0, 30 , 2, 0);
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 40, 6, 0);
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 50, 7, 0);
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 60, 3, 1);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 70, 4, 1);
+    let end = createShapeModel(ProcessShapeType.End, 80, 8, 0);
+
+
+    model.shapes.push(start, pre, ud, ut1, st1, ut2, st2, end);
+    /*
+     start -> pre -> ud -> ---------- -> ut1 -> st1 -> end
+                        -> ut2 -> st2->
+     */
+
+    model.links.push({sourceId: start.id, destinationId: pre.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: pre.id, destinationId: ud.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: ""});
+    model.links.push({sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st2.id, destinationId: ut1.id, orderindex: 0, label: ""});
+    model.links.push({sourceId: st1.id, destinationId: end.id, orderindex: 0, label: ""});
+
+    model.decisionBranchDestinationLinks.push(
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 1, label: ""}
+    );
+
+    return model; 
+}
+
 
 export function createSimpleCaseModelWithoutXandY() {
     const testModel = {
@@ -1477,7 +1528,6 @@ export function createSimpleCaseModelWithoutXandY() {
 
     return testModel;
 }
-
 
 export function createSimpleCaseModelAfterAutoLayout() {
     const testModel = {
@@ -2188,17 +2238,18 @@ export function createSystemDecisionBeforeUserDecisionInBranchModel() {
 export function createUserDecisionLoopModelWithoutXAndY(): IProcess {
     // Start -> Pre -> UT1 -> ST1 -> UD -> UT2 -> ST2 -> End
     //                                     UT3 -> ST3 -> UT1
-    let process: IProcess = createProcessModel(0);
+    let process: IProcess = createProcessModel(0, ProcessType.UserToSystemProcess);
+    const shapesFactory = createShapesFactoryService();
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
-    let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20, 0, 0);
-    let ut1 = createShapeModel(ProcessShapeType.UserTask, 30, 0, 0);
-    let st1 = createShapeModel(ProcessShapeType.SystemTask, 40, 0, 0);
-    let ud = createShapeModel(ProcessShapeType.UserDecision, 50, 0, 0);
-    let ut2 = createShapeModel(ProcessShapeType.UserTask, 60, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 70, 0, 0);
-    let ut3 = createShapeModel(ProcessShapeType.UserTask, 80, 0, 0);
-    let st3 = createShapeModel(ProcessShapeType.SystemTask, 90, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 20, 0, 0);  
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 30, 0, 0);
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 40, 0, 0);
+    let ud = shapesFactory.createModelUserDecisionShape(1, 0, 50, 0, 0);  
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 60, 0, 0);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 70, 0, 0);
+    let ut3 = shapesFactory.createModelUserTaskShape(1, 0, 80, 0, 0);
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 90, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 100, 0, 0);
 
     process.shapes.push(start, pre, ut1, st1, ud, ut2, st2, ut3, st3, end);
@@ -2217,6 +2268,61 @@ export function createUserDecisionLoopModelWithoutXAndY(): IProcess {
     );
 
     process.decisionBranchDestinationLinks.push({sourceId: ud.id, destinationId: ut1.id, orderindex: 1, label: null});
+
+    return process;
+}
+
+export function createLoopFromDIfferentUserDecisionModelWithoutXAndY(): IProcess {
+    // Start -> Pre -> UD1 -> UT1 -> ST1 -> UD2 -> UT3 -> ST3 -> end
+    //                     ->UT2 ->ST2 ->UD2    -> UT4 -> ST4 -> UT2
+    let process: IProcess = createProcessModel(0, ProcessType.UserToSystemProcess);
+    const shapesFactory = createShapesFactoryService();
+
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 20, 0, 0);  
+    let ud1 = shapesFactory.createModelUserDecisionShape(1, 0, 30, 0, 0);
+    ud1.name = ud1.id.toString();  
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 40, 0, 0);
+    ut1.name = ut1.id.toString();  
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 50, 0, 0);
+    st1.name = st1.id.toString();  
+    let ut2 = shapesFactory.createModelUserTaskShape(1, 0, 60, 0, 0);
+    ut2.name = ut2.id.toString();  
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 70, 0, 0);
+    st2.name = st2.id.toString();  
+    let ud2 = shapesFactory.createModelUserDecisionShape(1, 0, 80, 0, 0);  
+    ud2.name = ud2.id.toString();  
+    let ut3 = shapesFactory.createModelUserTaskShape(1, 0, 90, 0, 0);
+    ut3.name = ut3.id.toString();  
+    let st3 = shapesFactory.createModelSystemTaskShape(1, 0, 100, 0, 0);
+    st3.name = st3.id.toString();  
+    let ut4 = shapesFactory.createModelUserTaskShape(1, 0, 110, 0, 0);
+    ut4.name = ut4.id.toString();  
+    let st4 = shapesFactory.createModelSystemTaskShape(1, 0, 120, 0, 0);
+    st4.name = st4.id.toString();  
+    let end = createShapeModel(ProcessShapeType.End, 130, 0, 0);
+
+    process.shapes.push(start, pre, ud1, ut1, st1, ut2, st2, ud2, ut3, st3, ut4, st4, end);
+
+    process.links.push(
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: ""},
+        {sourceId: pre.id, destinationId: ud1.id, orderindex: 0, label: ""},
+        {sourceId: ud1.id, destinationId: ut1.id, orderindex: 0, label: ""},
+        {sourceId: ud1.id, destinationId: ut2.id, orderindex: 1, label: ""},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: ""},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: ""},
+        {sourceId: st1.id, destinationId: ud2.id, orderindex: 0, label: ""},
+        {sourceId: st2.id, destinationId: ud2.id, orderindex: 0, label: ""},
+        {sourceId: ud2.id, destinationId: ut3.id, orderindex: 0, label: ""},
+        {sourceId: ud2.id, destinationId: ut4.id, orderindex: 1, label: ""},
+        {sourceId: ut3.id, destinationId: st3.id, orderindex: 0, label: ""},
+        {sourceId: ut4.id, destinationId: st4.id, orderindex: 0, label: ""},
+        {sourceId: st3.id, destinationId: end.id, orderindex: 0, label: ""},
+        {sourceId: st4.id, destinationId: ut2.id, orderindex: 0, label: ""}
+    );
+
+    process.decisionBranchDestinationLinks.push({sourceId: ud1.id, destinationId: ud2.id, orderindex: 1, label: null},
+    {sourceId: ud2.id, destinationId: ut2.id, orderindex: 1, label: null});
 
     return process;
 }
@@ -2246,13 +2352,14 @@ export function createSystemDecisionLoopModelWithoutXAndY(): IProcess {
     // Start -> Pre -> UT1 -> SD -> ST1 -> End
     //                              ST2 -> UT1
     let process: IProcess = createProcessModel(0);
+    const shapesFactory = createShapesFactoryService();
 
     let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
-    let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20, 0, 0);
-    let ut1 = createShapeModel(ProcessShapeType.UserTask, 30, 0, 0);
+    let pre = shapesFactory.createModelSystemTaskShape(1, 0, 20, 0, 0);  
+    let ut1 = shapesFactory.createModelUserTaskShape(1, 0, 30, 0, 0);
     let sd = createShapeModel(ProcessShapeType.SystemDecision, 40, 0, 0);
-    let st1 = createShapeModel(ProcessShapeType.SystemTask, 50, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 60, 0, 0);
+    let st1 = shapesFactory.createModelSystemTaskShape(1, 0, 50, 0, 0);
+    let st2 = shapesFactory.createModelSystemTaskShape(1, 0, 60, 0, 0);
     let end = createShapeModel(ProcessShapeType.End, 70, 0, 0);
 
     process.shapes.push(start, pre, ut1, sd, st1, st2, end);

@@ -11,7 +11,7 @@
     <i class="bp-goto__clear-search fonticon-error" ng-if="$ctrl.gotoValue" ng-mousedown="$ctrl.onClearInput($event)"></i>
 </div>
 
-<a class="bp-goto__button" ng-click="$ctrl.showSearch()"  bp-tooltip="{{::$ctrl.localization.get('GO_TO_tooltip')}}">
+<a class="bp-goto__button" ng-mousedown="$ctrl.showOrDoSearch($event)" bp-tooltip="{{$ctrl.tooltip}}">
     <i class="bp-goto__button-icon fonticon fonticon2-relationship-right"></i>
     <span class="bp-goto__button-label">Go to</span>
 </a>

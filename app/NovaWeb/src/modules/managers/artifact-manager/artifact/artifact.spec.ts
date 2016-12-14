@@ -124,7 +124,7 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
-        it("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
+        xit("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
 
             // act
@@ -132,11 +132,15 @@ describe("Artifact", () => {
             artifact.save(true).then((result) => {
                 returnedArtifact = result;
             });
+            const refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
+                return $q.resolve();
+            });
             $rootScope.$digest();
 
             // assert
             expect(returnedArtifact).toBeDefined();
-            //expect(validateSpy).toHaveBeenCalledTimes(0);
+            expect(validateSpy).toHaveBeenCalledTimes(0);
+            expect(refreshSpy).toHaveBeenCalledTimes(0);
         }));
 
         it("failed (invalid)", inject(($rootScope: ng.IRootScopeService) => {

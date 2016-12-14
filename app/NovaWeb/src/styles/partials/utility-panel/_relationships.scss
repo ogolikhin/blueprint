@@ -23,7 +23,6 @@ bp-relationships-panel {
 
         .dropdown {
             .btn-icon--disabled:hover{
-                cursor: not-allowed;
                 color: $gray-lightest;
             }
         }
@@ -56,11 +55,9 @@ bp-relationships-panel {
         }
 
         .btn-icon--disabled {
-            cursor: not-allowed;
             color: $gray-lightest;
 
             &:hover{
-                cursor: not-allowed;
                 color: $gray-lightest;
                 background: transparent;
             }
@@ -119,10 +116,24 @@ bp-relationships-panel {
             opacity: 0;
             overflow: hidden;
 
+            .icon {
+                padding-left: 4px;
+                margin-top: 4px;
+                display: inline-block;
+            }
+
+            .fonticon-delete-filled{
+                padding-left: 2px;
+            }
+
             &.active {
                 max-height: $utility-panel-title-height;
                 opacity: 1;
                 overflow: visible;
+            }
+
+            > div:first-child {
+                padding-top: 3px;
             }
 
             > div:last-child {

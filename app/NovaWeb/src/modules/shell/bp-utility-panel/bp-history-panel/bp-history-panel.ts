@@ -1,11 +1,10 @@
-﻿import {Models} from "../../../main";
-import {IArtifactManager, IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
-import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
+﻿import {IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {AppConstants} from "../../../core/constants/appConstants";
-import {INavigationService, INavigationParams} from "../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ArtifactStateEnum} from "../../../main/models/models";
+import {Helper} from "../../../shared/utils/helper";
 
 interface ISortOptions {
     value: boolean;
@@ -21,22 +20,21 @@ export class BPHistoryPanel implements ng.IComponentOptions {
 }
 
 export class BPHistoryPanelController extends BPBaseUtilityPanelController {
+    public artifactHistoryList: IArtifactHistoryVersion[] = [];
+    public sortOptions: ISortOptions[];
+    public sortAscending: boolean = false;
+    public isLoading: boolean = false;
+
+    private subscribers: Rx.IDisposable[];
+    private loadLimit: number = 10;
+    private artifactId: number;
+
     public static $inject: [string] = [
         "$q",
         "localization",
         "artifactHistory",
         "navigationService"
     ];
-
-    private loadLimit: number = 10;
-    private artifactId: number;
-
-    public artifactHistoryList: IArtifactHistoryVersion[] = [];
-    public sortOptions: ISortOptions[];
-    public sortAscending: boolean = false;
-    public selectedVersionId: number;
-    public isLoading: boolean = false;
-    private subscribers: Rx.IDisposable[];
 
     constructor($q: ng.IQService,
                 private localization: ILocalizationService,
@@ -77,7 +75,6 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         });
 
         this.clearHistoryList();
-        this.updateSelectedVersion();
 
         if (artifact) {
             this.subscribers.push(
@@ -94,18 +91,13 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
         this.artifactHistoryList = [];
     }
 
-    private updateSelectedVersion() {
-        const state = this.navigationService.getNavigationState();
-        this.selectedVersionId = state ? state.version : undefined;
-    }
-
     private onSelectionChangedHelper = (artifact: IStatefulArtifact, timeout: ng.IPromise<void>): ng.IPromise<any> => {
         this.artifactId = artifact.id;
         return this.getHistoricalVersions(this.loadLimit, 0, null, this.sortAscending, timeout)
             .then((list: IArtifactHistoryVersion[]) => {
                 this.artifactHistoryList = list;
             });
-    }
+    };
 
     public loadMoreHistoricalVersions(): ng.IPromise<IArtifactHistoryVersion[]> {
         let offset: number = this.artifactHistoryList.length;
@@ -128,17 +120,12 @@ export class BPHistoryPanelController extends BPBaseUtilityPanelController {
     }
 
     private isDeletedOrDraft(item: IArtifactHistoryVersion): boolean {
-        return item.artifactState === Models.ArtifactStateEnum.Draft
-            || item.artifactState === Models.ArtifactStateEnum.Deleted;
+        return item.artifactState === ArtifactStateEnum.Draft
+            || item.artifactState === ArtifactStateEnum.Deleted;
     }
 
-    public selectArtifactVersion(artifactHistoryItem: IArtifactHistoryVersion): void {
-        this.selectedVersionId = artifactHistoryItem.versionId;
-        const params = {id: this.artifactId} as INavigationParams;
-        if (_.isFinite(this.selectedVersionId) && this.selectedVersionId !== new AppConstants().draftVersion) {
-            params.version = this.selectedVersionId;
-        }
-        this.navigationService.navigateTo(params);
+    public getItemVersionId(item: IArtifactHistoryVersion) {
+        return item && item.versionId !== Helper.draftVersion ? item.versionId : undefined;
     }
 
     private getHistoricalVersions(limit: number,

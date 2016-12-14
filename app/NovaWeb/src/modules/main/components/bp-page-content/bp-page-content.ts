@@ -1,13 +1,11 @@
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
-import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../models/enums";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IProjectManager} from "../../../managers/project-manager";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {BPTourController} from "../../../main/components/dialogs/bp-tour/bp-tour";
+import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -21,7 +19,6 @@ export class PageContentCtrl {
     public static $inject: [string] = [
         "dialogService",
         "artifactManager",
-        "navigationService",
         "mainbreadcrumbService",
         "$state",
         "projectManager",
@@ -30,7 +27,6 @@ export class PageContentCtrl {
 
     constructor(private dialogService: IDialogService,
                 private artifactManager: IArtifactManager,
-                private navigationService: INavigationService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
                 private $state: ng.ui.IStateService,
                 private projectManager: IProjectManager,
@@ -85,7 +81,7 @@ export class PageContentCtrl {
         this.currentArtifact = selection.artifact;
 
         this.mainBreadcrumbService.reloadBreadcrumbs(this.currentArtifact);
-    }
+    };
 
     public $onDestroy() {
         //dispose all subscribers
@@ -94,11 +90,5 @@ export class PageContentCtrl {
             return false;
         });
         delete this.currentArtifact;
-    }
-
-    public navigateTo = (link: IBreadcrumbLink): void => {
-        if (!!link && link.isEnabled) {
-            this.navigationService.navigateTo({id: link.id});
-        }
     }
 }

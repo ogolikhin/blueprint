@@ -1,5 +1,7 @@
 import {IFileUploadService, IFileResult} from "./fileUploadService";
-export class FileUploadService implements IFileUploadService {
+import {ICopyImageResult} from "./models/models";
+
+export class FileUploadServiceMock implements IFileUploadService {
     public static $inject = [
         "$q",
         "$http",
@@ -25,5 +27,9 @@ export class FileUploadService implements IFileUploadService {
         deferred.resolve(result);
 
         return deferred.promise;
+    }
+    public copyArtifactImagesToFilestore(artifactIds: number[],
+                                         expirationDate?: Date): ng.IPromise<ICopyImageResult[]> {
+        return this.$q.when(null);
     }
 }

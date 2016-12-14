@@ -1,4 +1,4 @@
-﻿/* tslint:disable:max-file-line-count */
+﻿/* tslint:disable max-file-line-count */
 
 //fixme: this file is far to large. consider splitting it up
 import {UIMockupShapes, UIMockupShapeProps} from "./utils/constants";

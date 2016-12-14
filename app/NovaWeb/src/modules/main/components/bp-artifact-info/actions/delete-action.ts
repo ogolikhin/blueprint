@@ -74,10 +74,21 @@ export class DeleteAction extends BPButtonAction {
             return false;
         }
 
-        if ((this.artifact.permissions & Enums.RolePermissions.Delete) !== Enums.RolePermissions.Delete) {
+        if (!this.hasRequiredPermissions()) {
             return false;
         }
 
+        return true;
+    }
+
+    protected hasRequiredPermissions(): boolean {
+        return this.hasDesiredPermissions(Enums.RolePermissions.Delete);
+    }
+
+    protected hasDesiredPermissions(permissions: Enums.RolePermissions): boolean {
+        if ((this.artifact.permissions & permissions) !== permissions) {
+            return false;
+        }
         return true;
     }
 
@@ -120,10 +131,10 @@ export class DeleteAction extends BPButtonAction {
     private complete(deletedArtifacts: Models.IArtifact[]) {
         const parentArtifact = this.artifactManager.get(this.artifact.parentId);
         if (parentArtifact) {
-            this.projectManager.refresh(parentArtifact.projectId, null, true).then(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-                this.navigationService.navigateTo({id: parentArtifact.id});
-
+            this.navigationService.navigateTo({id: parentArtifact.id}).then(() => {
+                this.projectManager.refresh(parentArtifact.projectId, parentArtifact.id, true).then(() => {
+                    this.projectManager.triggerProjectCollectionRefresh();
+                });
             });
         } else {
             this.artifact.refresh();

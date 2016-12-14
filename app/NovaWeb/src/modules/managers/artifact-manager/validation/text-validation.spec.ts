@@ -20,7 +20,7 @@ describe("text validation tests - ", () => {
 
         it("isValidated true - ignore validation", () => {
             // act
-            const result = validationService.textRtfValidation.hasValueIfRequired(null, null, null, false);
+            const result = validationService.textRtfValidation.hasValueIfRequired(null, null);
 
             // assert
             expect(result).toBeTruthy();
@@ -28,7 +28,7 @@ describe("text validation tests - ", () => {
 
         it("isRequired true - valid values - success", () => {
             // act
-            const result = validationService.textRtfValidation.hasValueIfRequired(true, "abc", "abc", true);
+            const result = validationService.textRtfValidation.hasValueIfRequired(true, "abc");
 
             // assert
             expect(result).toBeTruthy();
@@ -36,7 +36,7 @@ describe("text validation tests - ", () => {
 
         it("isRequired true - null values - fails", () => {
             // act
-            const result = validationService.textRtfValidation.hasValueIfRequired(true, null, null, true);
+            const result = validationService.textRtfValidation.hasValueIfRequired(true, null);
 
             // assert
             expect(result).toBeFalsy();
@@ -44,7 +44,7 @@ describe("text validation tests - ", () => {
 
         it("isRequired false - null values - success", () => {
             // act
-            const result = validationService.textRtfValidation.hasValueIfRequired(false, null, null, true);
+            const result = validationService.textRtfValidation.hasValueIfRequired(false, null);
 
             // assert
             expect(result).toBeTruthy();

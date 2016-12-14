@@ -49,6 +49,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public itemsSelected: string;
     public api: IBPTreeViewControllerApi;
     public columns: IColumn[];
+    public isCollectionChanging: boolean = false;
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
@@ -133,6 +134,14 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     public onGridReset(isExpanding: boolean): void {
         this.selectedVMs = [];
+
+        //Added this check for the case when grid reset performed because user added artifact to collection
+        //In this case we don't deselect ag-grid rows
+        if (!this.isCollectionChanging) {
+            this.api.deselectAll();
+            this.isCollectionChanging = false;
+        }
+
         if (this.visibleArtifact) {
             this.api.ensureNodeVisible(this.visibleArtifact);
             this.visibleArtifact = undefined;
@@ -140,6 +149,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     }
 
     private onCollectionArtifactsChanged = (changes: IItemChangeSet) => {
+        this.isCollectionChanging = true;
         const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
         this.rowData = collectionArtifact.artifacts.map((a: ICollectionArtifact) => {
             return new CollectionNodeVM(a, collectionArtifact.projectId, this.metadataService, !collectionArtifact.artifactState.readonly);
@@ -188,6 +198,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             {
                 isCheckboxSelection: !this.artifact.artifactState.readonly,
                 width: 30,
+                minColWidth: 20,
+                maxWidth: 30,
                 headerCellRenderer: (params) => {
                     return this.headerCellRendererSelectAll(params, this.artifact.artifactState.readonly);
                 },
@@ -201,7 +213,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             },
             {
                 width: 100,
-                colWidth: 100,
+                minColWidth: 100,
                 headerName: `<span class="header-name">` + this.localization.get("Label_ID") + `</span>`,
                 field: "model.id",
                 isGroup: true,
@@ -211,9 +223,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     const vm = params.data as CollectionNodeVM;
                     const prefix = Helper.escapeHTMLText(vm.model.prefix);
                     const icon = vm.getIcon();
-                    const url = this.$state.href("main.item", {id: vm.model.id});
-                    return `${icon} <a ng-href="${url}" target="_blank" class="collection__link" ` +
-                           `ng-click="$event.stopPropagation();">${prefix}${vm.model.id}</a>`;
+                    return `${icon} <a ui-sref="main.item({id: ${vm.model.id}})" ui-sref-opts="{inherit: false}" 
+                                       class="collection__link">${prefix}${vm.model.id}</a>`;
                 }
             },
             {
@@ -235,8 +246,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                         pathName = pathName + `${Helper.escapeHTMLText(collectionArtifact)}`;
                     });
 
-                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">${name}</div>
-                        <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">` + pathName + `</div>`;
+                    return `<div bp-tooltip="${tooltipName}" bp-tooltip-truncated="true" class="collection__name">
+                                <a ui-sref="main.item({id: ${vm.model.id}})" ui-sref-opts="{inherit: false}">${name}</a>
+                            </div>
+                            <div bp-tooltip="${Helper.escapeQuot(pathName)}" bp-tooltip-truncated="true" class="path">${pathName}</div>`;
                 }
             },
             {
@@ -258,7 +271,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             {
                 headerName: this.localization.get("Label_Options"),
                 width: 60,
-                colWidth: 60,
+                maxWidth: 60,
+                minColWidth: 60,
                 isCheckboxHidden: true,
                 cellRenderer: (params: IColumnRendererParams) => {
                     params.$scope["removeArtifact"] = ($event) => {

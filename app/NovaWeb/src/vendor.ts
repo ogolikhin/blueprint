@@ -18,3 +18,5 @@ import "mxClientCss/common.css";
 import "mxClientCss/explorer.css";
 import "ui-select";
 import "es6-shim";
+import "angular-animate";
+import "angular-vs-repeat";

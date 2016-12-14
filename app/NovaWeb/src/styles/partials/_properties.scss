@@ -362,10 +362,6 @@ pagecontent, bp-properties-panel {
 
                             &:hover .ui-select-choice-item {
                                 background: $selection-hover-background-color;
-
-                                &::before {
-                                    content: '\2713';
-                                }
                             }
                         }
                     }

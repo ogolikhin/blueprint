@@ -2,6 +2,7 @@ import {IDialogService, IDialogSettings, DialogTypeEnum} from "./bp-dialog";
 
 export class DialogServiceMock implements IDialogService {
     public static $inject = ["$q"];
+    public alerts: string[] = [];
 
     constructor(private $q: ng.IQService) {
     }
@@ -14,6 +15,7 @@ export class DialogServiceMock implements IDialogService {
 
     public alert(message: string, header?: string): ng.IPromise<any> {
         const deferred = this.$q.defer<any>();
+        this.alerts.push(message);
         deferred.resolve(true);
         return deferred.promise;
     }

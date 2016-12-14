@@ -271,7 +271,7 @@ export class ProjectManager implements IProjectManager {
                         return this.loadProject(projectId, project);
                     }
 
-                    this.messageService.addError(error["message"]);
+                    this.messageService.addError(innerError["message"]);
                     this.clearProject(project);
                     return this.$q.reject();
                 });

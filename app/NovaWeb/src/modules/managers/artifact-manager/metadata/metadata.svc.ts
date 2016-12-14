@@ -103,7 +103,7 @@ export class MetaDataService implements IMetaDataService {
     }
 
     public remove(projectId: number) {
-        if (projectId in this.projectsMeta) {
+        if (_.has(this.projectsMeta, projectId)) {
             delete this.projectsMeta[projectId];
         }
     }

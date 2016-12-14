@@ -116,10 +116,10 @@ export class MainStateController {
         if (this.isLeavingState("main.item", fromState.name, toState.name)) {
             this.$log.info("Leaving artifact state, clearing selection...");
             this.selectionManager.clearAll();
-            this.messageService.clearMessages();
         }
 
         this.updateAppTitle();
+        this.messageService.clearMessages(toState.name === "logout");
     };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
@@ -156,19 +156,16 @@ public static $inject = [
         "session",
         "projectManager",
         "navigationService",
-        "clipboardService",
-        "messageService"
+        "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
                 private projectManager: IProjectManager,
                 private navigation: INavigationService,
-                private clipboardService: IClipboardService,
-                private messageService: IMessageService) {
+                private clipboardService: IClipboardService) {
 
         this.session.logout().then(() => {
-            this.messageService.clearMessages(true);
             this.navigation.navigateToMain(true).finally(() => {
                 this.projectManager.removeAll();
                 this.clipboardService.clearData();

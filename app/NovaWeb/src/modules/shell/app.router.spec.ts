@@ -116,6 +116,34 @@ describe("AppRouter", () => {
             // assert
             expect($window.document.title).toBe(expectedTitle);
         });
+
+        it("should clear normal messages when changing state", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "main.item.process"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(false);
+        });
+
+        it("should clear normal and persistent messages when logout", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "logout"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(true);
+        });
     });
 
     describe("Logout", () => {
@@ -126,7 +154,6 @@ describe("AppRouter", () => {
                     then: function(callback) { return callback(); }
                 };
             });
-            const clearMessagesSpy = spyOn(messageService, "clearMessages");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain").and.callFake(() => {
                 return {
                     finally: function(callback) { return callback(); }
@@ -134,13 +161,12 @@ describe("AppRouter", () => {
             });
             const removeAllSpy = spyOn(projectManager, "removeAll");
             const clearDataSpy = spyOn(clipboardService, "clearData");
-            ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService, messageService);
+            ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService);
 
             // act
 
             // assert
             expect(logoutSpy).toHaveBeenCalled();
-            expect(clearMessagesSpy).toHaveBeenCalled();
             expect(navigateToMainSpy).toHaveBeenCalled();
             expect(removeAllSpy).toHaveBeenCalled();
             expect(clearDataSpy).toHaveBeenCalled();

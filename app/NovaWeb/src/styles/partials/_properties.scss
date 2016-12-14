@@ -17,7 +17,7 @@ $property-choice-height: 24px;
 $richtext-fontcolor: #000;
 $richtext-linkcolor: #00f;
 $richtext-min-height: 150px;
-$richtext-fontsize: 9pt;
+$richtext-fontsize: 12pt;
 $richtext-fontfamily: $font-family-base;
 
 pagecontent, bp-properties-panel {
@@ -643,6 +643,12 @@ pagecontent, bp-properties-panel {
                         cursor: pointer;
                         text-decoration: underline;
                     }
+
+                    p {
+                        color: $richtext-fontcolor;
+                        font-family: $richtext-fontfamily;
+                        font-size: $richtext-fontsize;
+                    }
                 }
 
                 &.richtext {
@@ -1014,6 +1020,13 @@ pagecontent, bp-properties-panel {
                     color: $richtext-linkcolor;
                     cursor: pointer;
                     text-decoration: underline;
+                }
+
+                p {
+                    color: $richtext-fontcolor;
+                    font-family: $richtext-fontfamily;
+                    font-size: $richtext-fontsize;
+                    font-weight: 400;
                 }
             }
 

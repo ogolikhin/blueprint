@@ -116,7 +116,7 @@ export class MainStateController {
         if (this.isLeavingState("main.item", fromState.name, toState.name)) {
             this.$log.info("Leaving artifact state, clearing selection...");
             this.selectionManager.clearAll();
-            this.messageService.clearMessages(true);
+            this.messageService.clearMessages();
         }
 
         this.updateAppTitle();
@@ -168,10 +168,10 @@ public static $inject = [
                 private messageService: IMessageService) {
 
         this.session.logout().then(() => {
+            this.messageService.clearMessages(true);
             this.navigation.navigateToMain(true).finally(() => {
                 this.projectManager.removeAll();
                 this.clipboardService.clearData();
-                this.messageService.clearMessages(true);
             });
         });
     }

@@ -126,6 +126,7 @@ describe("AppRouter", () => {
                     then: function(callback) { return callback(); }
                 };
             });
+            const clearMessagesSpy = spyOn(messageService, "clearMessages");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain").and.callFake(() => {
                 return {
                     finally: function(callback) { return callback(); }
@@ -133,17 +134,16 @@ describe("AppRouter", () => {
             });
             const removeAllSpy = spyOn(projectManager, "removeAll");
             const clearDataSpy = spyOn(clipboardService, "clearData");
-            const clearMessagesSpy = spyOn(messageService, "clearMessages");
             ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService, messageService);
 
             // act
 
             // assert
             expect(logoutSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalled();
             expect(navigateToMainSpy).toHaveBeenCalled();
             expect(removeAllSpy).toHaveBeenCalled();
             expect(clearDataSpy).toHaveBeenCalled();
-            expect(clearMessagesSpy).toHaveBeenCalled();
         });
     });
 });

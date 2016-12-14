@@ -11,11 +11,11 @@ import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
-import {IApplicationError} from "./../../core/error/applicationError";
+import {IApplicationError} from "../../core/error/applicationError";
+import {IInstanceItem} from "../../main/models/admin-store-models";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];
@@ -58,7 +58,6 @@ export class ProjectManager implements IProjectManager {
         "statefulArtifactFactory",
         "loadingOverlayService",
         "mainbreadcrumbService",
-        "itemInfoService",
         "localization",
         "analytics"
     ];
@@ -72,7 +71,6 @@ export class ProjectManager implements IProjectManager {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
-                private itemInfoService: IItemInfoService,
                 private localization: ILocalizationService,
                 private analytics: IAnalyticsProvider) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
@@ -378,10 +376,11 @@ export class ProjectManager implements IProjectManager {
     public add(projectId: number): ng.IPromise<void> {
         let projectNode: IArtifactNode = this.getProject(projectId);
         if (!projectNode) {
-            return this.itemInfoService.get(projectId).then((projectInfo: IItemInfoResult) => {
+            return this.projectService.getProject(projectId).then((projectInfo: IInstanceItem) => {
                 const project = {
                     id: projectInfo.id,
                     name: projectInfo.name,
+                    description: projectInfo.description,
                     parentFolderId: undefined,
                     type: AdminStoreModels.InstanceItemType.Project,
                     hasChildren: true,

@@ -215,9 +215,23 @@ pagecontent, bp-properties-panel {
             color: $gray-dark;
             display: block;
             font-size: $font-size-biggest;
+            line-height: 25px;
+            max-height: 250px; // 10x lines
             white-space: pre-wrap;
-            //word-break: break-all;
+            word-break: break-word;
             word-wrap: break-word;
+
+            &.collapsible__expanded {
+                overflow-x: hidden;
+            }
+
+            .collapsible__button {
+                font-size: $font-size-small;
+            }
+
+            .collapsible__show-more {
+                background-image: linear-gradient(to bottom, rgba($white, 0) 0%, $blue-lightest 85%);
+            }
         }
 
         .indicators {
@@ -321,9 +335,6 @@ pagecontent, bp-properties-panel {
 
             img {
                 height: 12px;
-                left: 2px;
-                position: static;
-                top: 11px;
                 width: 12px;
             }
         }

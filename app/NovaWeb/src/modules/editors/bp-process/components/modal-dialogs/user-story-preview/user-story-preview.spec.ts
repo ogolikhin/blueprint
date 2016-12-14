@@ -9,6 +9,8 @@ import {CommunicationManager, ICommunicationManager} from "../../../services/com
 describe("UserStoryPreviewController", () => {
     let controller: UserStoryPreviewController;
     let dialogModel = new UserStoryDialogModel();
+    let communicationManager: ICommunicationManager;
+    let $rootScope: ng.IRootScopeService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
@@ -17,10 +19,12 @@ describe("UserStoryPreviewController", () => {
 
     beforeEach(
         inject(($controller: ng.IControllerService,
-                $rootScope: ng.IRootScopeService,
+                _$rootScope_: ng.IRootScopeService,
                 $uibModalInstance: angular.ui.bootstrap.IModalServiceInstance,
-                communicationManager: ICommunicationManager) => {
+                _communicationManager_: ICommunicationManager) => {
                 dialogModel = new UserStoryDialogModel();
+                communicationManager = _communicationManager_;
+                $rootScope = _$rootScope_;
                 const controllerScope = $rootScope.$new();
                 controller = $controller(UserStoryPreviewController, {
                     $scope: controllerScope,
@@ -36,5 +40,40 @@ describe("UserStoryPreviewController", () => {
             //Act/Assert
             expect(controller).toBeDefined();
     }));
+    describe("isUserStoryLoaded -", () => {
 
+        it("successfully sets through communication manager", () => {
+            //arrange
+            communicationManager.modalDialogManager.notifyUserStoryLoaded(true);
+
+            //act/assert
+            expect(controller["isUserStoryLoaded"]).toBe(true);
+        });
+    });
+    describe("showWings -", () => {
+        it("successfully shows wings when everything is true", () => {
+            //arrange
+            dialogModel.isUserSystemProcess = true;
+            communicationManager.modalDialogManager.notifyUserStoryLoaded(true);
+
+            //act/assert
+            expect(controller.showWings()).toBe(true);
+        });
+        it("does not show wings when is not user system process", () => {
+            //arrange
+            dialogModel.isUserSystemProcess = false;
+            communicationManager.modalDialogManager.notifyUserStoryLoaded(true);
+
+            //act/assert
+            expect(controller.showWings()).toBe(false);
+        });
+        it("does not show wings when user story is not loaded", () => {
+            //arrange
+            dialogModel.isUserSystemProcess = true;
+            communicationManager.modalDialogManager.notifyUserStoryLoaded(false);
+
+            //act/assert
+            expect(controller.showWings()).toBe(false);
+        });
+    });
 });

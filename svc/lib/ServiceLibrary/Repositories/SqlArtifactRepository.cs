@@ -325,7 +325,7 @@ namespace ServiceLibrary.Repositories
         private static void ThrowNotFoundException(int projectId, int? artifactId)
         {
             var errorMessage = artifactId == null
-                ? I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", projectId)
+                ? I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId)
                 : I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifactId, projectId);
             throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);
         }

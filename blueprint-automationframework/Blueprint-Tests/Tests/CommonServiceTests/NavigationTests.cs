@@ -83,7 +83,7 @@ namespace CommonServiceTests
         }
 
         [TestRail(107168)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]  // https://trello.com/c/v8zXJTty
+        [Explicit(IgnoreReasons.ProductBug)]  // https://trello.com/c/v8zXJTty  Passing more than 24 artifact ID's in GET navigation URL gives an error.
         [TestCase]
         [Description("Get the navigation with maxium allowable number of artifacts in the URL path. " +
             "Verify the returned artifact reference list contains the expected values.")]

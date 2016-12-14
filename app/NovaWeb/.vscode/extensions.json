@@ -4,6 +4,7 @@
 	"recommendations": [
 		// Extension identifier format: ${publisher}.${name}. Example: vscode.csharp
 		"eg2.tslint",
-		"steoates.autoimport"
+		"rbbit.typescript-hero",
+		"christian-kohler.path-intellisense"
 	]
 }

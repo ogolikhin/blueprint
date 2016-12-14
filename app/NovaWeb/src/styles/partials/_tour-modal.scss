@@ -1,6 +1,7 @@
 $modal-tour-height: 703px;
 .modal.nova-tour {
     text-align: center;
+    z-index: 18000 !important;
 
     .modal-dialog {
         height: $modal-tour-height;
@@ -35,17 +36,10 @@ $modal-tour-height: 703px;
         }
     }
 
-    .carousel-indicators li {
-        border-color: #666;
-        &.active {
-            background: #666;
-        }
-    }
-
     .carousel-control {
         top: inherit;
         bottom: 45px;
-        color: #666;
+        color: white;
         text-shadow: none;
     }
 }

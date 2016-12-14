@@ -187,7 +187,7 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, collection.ParentId, author);
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)] //Artifacts for Baseline and Review need to be added to Custom Data project
+        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)] //Artifacts for Baseline and Review need to be added to Custom Data project
         [Category(Categories.CustomData)]
         [TestCase(96384)]
         [TestRail(185119)]

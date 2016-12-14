@@ -376,7 +376,7 @@ export class BPTreeViewController implements IBPTreeViewController {
 
     public updateScrollbars() {
         const viewport = this.$element[0].querySelector(".ag-body-viewport");
-        if (viewport) {
+        if (viewport && !this.sizeColumnsToFit) {
             this.options.columnApi.autoSizeAllColumns();
         }
     };

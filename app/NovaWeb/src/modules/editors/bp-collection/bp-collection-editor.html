@@ -45,10 +45,11 @@
                           api="$ctrl.api"
                           selection-mode="'checkbox'"
                           row-height="53"
+                          row-buffer="15"
                           row-data="$ctrl.rowData"
                           columns="$ctrl.columns"
                           header-height="33"
-                          size-columns-to-fit="'true'"
+                          size-columns-to-fit="true"
                           on-select="$ctrl.onSelect(vm, isSelected)"
                           on-grid-reset="$ctrl.onGridReset(isExpanding)"/>
                 </div>

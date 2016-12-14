@@ -13,7 +13,7 @@ import {IArtifactManager} from "./../../managers/artifact-manager";
 import {ISelectionManager} from "./../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "./../../managers/artifact-manager/artifact/artifact";
 import {ValidationServiceMock} from "./../../managers/artifact-manager/validation/validation.mock";
-import {Enums} from "./../../main";
+import {Enums, Models} from "./../../main";
 
 describe("Component BpGeneralEditorInfo", () => {
     let componentTest: ComponentTest<BpGeneralArtifactEditorController>;
@@ -52,8 +52,21 @@ describe("Component BpGeneralEditorInfo", () => {
             getArtifact: () => {
                 return {
                     getObservable: () => new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable(),
-                    artifactState: {readonly: false} as any
-                };
+                    artifactState: {readonly: false} as any,
+                    customProperties: {
+                        get: (() => {return {
+                            propertyTypeId: 1,
+                            propertyTypeVersionId: 1,
+                            propertyTypePredefined: Models.PropertyTypePredefined.Description,
+                            name: "Desc",
+                            isReuseReadOnly: false,
+                            isRichText: true,
+                            primitiveType: Models.PrimitiveType.Text,
+                            isMultipleAllowed: false,
+                            value: "My text"
+                        } as Models.IPropertyValue; })
+                    }
+                } as any;
             }
         } as ISelectionManager;
     }));

@@ -35,13 +35,6 @@ describe("Component BpGeneralEditorInfo", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);
-
-        // $provide.service("session", SessionSvcMock);
-        // $provide.service("stateManager", StateManager);
-        // $provide.service("projectRepository", ProjectRepositoryMock);
-        // $provide.service("projectManager", ProjectManager);
-        // $provide.service("selectionManager", SelectionManager);
-        // $provide.service("windowResize", WindowResize);
     }));
 
     beforeEach(inject((artifactManager: IArtifactManager, propertyDescriptorBuilder: IPropertyDescriptorBuilder, $q: ng.IQService) => {

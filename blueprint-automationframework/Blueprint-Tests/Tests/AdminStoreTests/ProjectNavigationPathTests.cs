@@ -114,7 +114,7 @@ namespace AdminStoreTests
 
             // Verify:
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
-                I18NHelper.FormatInvariant("Project (Id:{0}) is not found.", projectId));
+                I18NHelper.FormatInvariant("The project (Id:2147483647) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId));
         }
     }
 }

@@ -4,6 +4,7 @@ import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
 import {IMessageService} from "../core/messages/message.svc";
+import {MessageType} from "../core/messages/message";
 
 
 export class AppRoutes {
@@ -116,10 +117,16 @@ export class MainStateController {
         if (this.isLeavingState("main.item", fromState.name, toState.name)) {
             this.$log.info("Leaving artifact state, clearing selection...");
             this.selectionManager.clearAll();
-            this.messageService.clearMessages(true);
         }
 
         this.updateAppTitle();
+        if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
+            this.messageService.clearMessages(true);
+        } else if (toState.name === "main") { // initial state with no project open
+            this.messageService.clearMessages(false, [MessageType.Deleted]);
+        } else {
+            this.messageService.clearMessages();
+        }
     };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
@@ -156,22 +163,19 @@ public static $inject = [
         "session",
         "projectManager",
         "navigationService",
-        "clipboardService",
-        "messageService"
+        "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
                 private projectManager: IProjectManager,
                 private navigation: INavigationService,
-                private clipboardService: IClipboardService,
-                private messageService: IMessageService) {
+                private clipboardService: IClipboardService) {
 
         this.session.logout().then(() => {
             this.navigation.navigateToMain(true).finally(() => {
                 this.projectManager.removeAll();
                 this.clipboardService.clearData();
-                this.messageService.clearMessages(true);
             });
         });
     }

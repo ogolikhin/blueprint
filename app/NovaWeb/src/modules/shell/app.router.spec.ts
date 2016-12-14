@@ -13,6 +13,7 @@ import {IClipboardService} from "../editors/bp-process/services/clipboard.svc";
 import {IProjectManager} from "../managers/project-manager/project-manager";
 import {ISession} from "./login/session.svc";
 import {SessionSvcMock} from "./login/mocks.spec";
+import {MessageType} from "../core/messages/message";
 
 describe("AppRouter", () => {
     let $rootScope: ng.IRootScopeService,
@@ -116,6 +117,61 @@ describe("AppRouter", () => {
             // assert
             expect($window.document.title).toBe(expectedTitle);
         });
+
+        it("should clear normal messages when changing state between artifacts", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "main.item.process"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+        });
+
+        it("should clear normal and Deleted messages when main", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.details"};
+            const toState = {name: "main"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(false, [MessageType.Deleted]);
+        });
+
+        it("should clear normal and persistent messages when logout", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "logout"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(true);
+        });
+
+        it("should clear normal and persistent messages when error", () => {
+            // arrange
+            const clearMessagesSpy = spyOn(messageService, "clearMessages").and.callThrough();
+            const fromState = {name: "main.item.general"};
+            const toState = {name: "error"};
+
+            // act
+            $rootScope.$broadcast("$stateChangeSuccess", toState, null, fromState, null);
+
+            // assert
+            expect(clearMessagesSpy).toHaveBeenCalled();
+            expect(clearMessagesSpy).toHaveBeenCalledWith(true);
+        });
     });
 
     describe("Logout", () => {
@@ -133,8 +189,7 @@ describe("AppRouter", () => {
             });
             const removeAllSpy = spyOn(projectManager, "removeAll");
             const clearDataSpy = spyOn(clipboardService, "clearData");
-            const clearMessagesSpy = spyOn(messageService, "clearMessages");
-            ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService, messageService);
+            ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService);
 
             // act
 
@@ -143,7 +198,6 @@ describe("AppRouter", () => {
             expect(navigateToMainSpy).toHaveBeenCalled();
             expect(removeAllSpy).toHaveBeenCalled();
             expect(clearDataSpy).toHaveBeenCalled();
-            expect(clearMessagesSpy).toHaveBeenCalled();
         });
     });
 });

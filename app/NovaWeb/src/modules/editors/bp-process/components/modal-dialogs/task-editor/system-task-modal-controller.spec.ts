@@ -119,7 +119,7 @@ describe("SystemTaskModalController", () => {
             const label = controller.formatIncludeLabel(artifactReference);
 
             // assert
-            expect(localizationSpy).toHaveBeenCalledWith("HttpError_Forbidden");
+            expect(localizationSpy).toHaveBeenCalledWith("ST_Inaccessible_Include_Artifact_Label");
 
         });
 

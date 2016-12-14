@@ -166,7 +166,6 @@ describe("Component BpGeneralEditorInfo", () => {
         expect(ctrl.noteFields.length).toBe(0);
         expect(ctrl.fields.length).toBe(0);
         expect(ctrl.editor.getFields().length).toBe(1);
-        //expect(ctrl.editor.getFields()[0].hide).toBe(true);
      });
 
      it("should have no fields if none are provided", () => {

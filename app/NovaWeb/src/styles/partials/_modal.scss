@@ -187,7 +187,7 @@ $modal-open-project-height: 450px;
             background: $white;
             border: solid 1px $gray-lightest;
             border-radius: $border-radius-amount;
-            min-height: $artifact-picker-tree-height;
+            min-height: #{$artifact-picker-tree-height + 2px};
         }
 
         .search-message {

@@ -20,6 +20,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public item: IStatefulItem;
     public otherTraces: Relationships.IRelationshipView[];
+    /*fixme: what is this variable used for?*/
     public scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;

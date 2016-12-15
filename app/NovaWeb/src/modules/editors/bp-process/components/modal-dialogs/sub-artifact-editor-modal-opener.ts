@@ -46,7 +46,10 @@ export class SubArtifactEditorModalOpener {
                 this.$uibModal.open(settings);
             }
         } catch (err) {
-            window.console.log(err);
+            // TODO: NEED TO REMOVE WINDOW.CONSOLE.LOG, TEMP LOW-RISK FIX
+            if (window && window.console) {
+                window.console.log(err);
+            }            
         }
     };
 

@@ -3,6 +3,7 @@ export interface IBpLinksHelper {
     hasExternalLink($element: ng.IAugmentedJQuery): boolean;
     hasBlueprintLink($element: ng.IAugmentedJQuery): boolean;
     isRichTextMentionLink($element: ng.IAugmentedJQuery): boolean;
+    isValidLink($element: ng.IAugmentedJQuery): boolean;
     getItemId($element: ng.IAugmentedJQuery): number;
 }
 
@@ -24,6 +25,10 @@ export class BpLinksHelper implements IBpLinksHelper {
 
     public getItemId($element: ng.IAugmentedJQuery) {
         return $element.attr("subartifactid") ? Number($element.attr("subartifactid")) : Number($element.attr("artifactid"));
+    }
+
+    public isValidLink($element: ng.IAugmentedJQuery) {
+        return $element.attr("isvalid").toLowerCase() === "true";
     }
 
 }
@@ -60,7 +65,7 @@ export class BpSpecialLinkContainer implements ng.IDirective {
             e.preventDefault();
 
             //navigate to internal link
-            if (this.bpLinksHelper.isRichTextMentionLink($anchor)) {
+            if (this.bpLinksHelper.isRichTextMentionLink($anchor) && this.bpLinksHelper.isValidLink($anchor)) {
                 const id = this.bpLinksHelper.getItemId($anchor);
                 this.navigationService.navigateTo({id: id});
             }

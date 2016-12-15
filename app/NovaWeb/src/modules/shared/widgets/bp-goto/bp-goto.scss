@@ -3,6 +3,13 @@
 @import "../../../../styles/settings/typography";
 
 .bp-goto {
+    &__overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+    }
+
     &__search {
         transition: opacity 0.5s ease-out;
         position: absolute;

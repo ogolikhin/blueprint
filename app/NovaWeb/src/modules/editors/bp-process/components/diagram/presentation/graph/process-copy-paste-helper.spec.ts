@@ -555,7 +555,7 @@ describe("ProcessCopyPasteHelper tests", () => {
             expect(insertedLinks2.length).toEqual(1);
         });
 
-        fit("copy User Task with nested System Decisions and insert before end", () => {
+        it("copy User Task with nested System Decisions and insert before end", () => {
             // Arrange
             const userTaskId = "3";
             const systemTaskId1 = 5;

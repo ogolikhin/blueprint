@@ -6,7 +6,7 @@ import {Relationships} from "../../../../main";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {BPManageTracesItem, BPManageTracesItemController} from "./bp-manage-traces-item";
 import {ComponentTest} from "../../../../util/component.test";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 
 describe("Component BPManageTracesItem", () => {
     //angular.module("bp.components.artifactinfo", [])

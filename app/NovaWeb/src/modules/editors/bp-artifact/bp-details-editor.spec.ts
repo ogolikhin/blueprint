@@ -2,7 +2,7 @@
 import "angular-mocks";
 import "../";
 import {ComponentTest} from "../../util/component.test";
-import {BpGeneralArtifactEditorController} from "./bp-general-editor";
+import {BpArtifactDetailsEditorController} from "./bp-details-editor";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ArtifactManagerMock} from "./../../managers/artifact-manager/artifact-manager.mock";
 import {WindowManagerMock} from "./../../main/services/window-manager.mock";
@@ -15,10 +15,10 @@ import {IStatefulArtifact} from "./../../managers/artifact-manager/artifact/arti
 import {ValidationServiceMock} from "./../../managers/artifact-manager/validation/validation.mock";
 import {Enums, Models} from "./../../main";
 
-describe("Component BpGeneralEditorInfo", () => {
-    let componentTest: ComponentTest<BpGeneralArtifactEditorController>;
-    let template = `<bp-artifact-general-editor context="artifact"></bp-artifact-general-editor>`;
-    let ctrl: BpGeneralArtifactEditorController;
+describe("Component BpArtifactDetailsEditor", () => {
+    let componentTest: ComponentTest<BpArtifactDetailsEditorController>;
+    let template = `<bp-artifact-details-editor context="artifact"></bp-artifact-details-editor>`;
+    let ctrl: BpArtifactDetailsEditorController;
 
     let _artifactManager: IArtifactManager;
     let _propertyDescriptorBuilder: IPropertyDescriptorBuilder;
@@ -50,6 +50,18 @@ describe("Component BpGeneralEditorInfo", () => {
             isReuseReadOnly: false,
             isRichText: true,
             primitiveType: Models.PrimitiveType.Text,
+            isMultipleAllowed: false,
+            value: "My text"
+        };
+
+        const specialPropertyValue = {
+            propertyTypeId: 1,
+            propertyTypeVersionId: 1,
+            propertyTypePredefined: Models.PropertyTypePredefined.DocumentFile,
+            name: "File",
+            isReuseReadOnly: false,
+            isRichText: true,
+            primitiveType: Models.PrimitiveType.DocumentFile,
             isMultipleAllowed: false,
             value: "My text"
         };
@@ -91,6 +103,9 @@ describe("Component BpGeneralEditorInfo", () => {
                     artifactState: {readonly: false} as any,
                     customProperties: {
                         get: (() => propertyValue)
+                    },
+                    specialProperties: {
+                        get: (() => specialPropertyValue)
                     }
                 } as any;
             }
@@ -98,7 +113,7 @@ describe("Component BpGeneralEditorInfo", () => {
     }));
 
     beforeEach(() => {
-        componentTest = new ComponentTest<BpGeneralArtifactEditorController>(template, "bp-artifact-general-editor");
+        componentTest = new ComponentTest<BpArtifactDetailsEditorController>(template, "bp-artifact-details-editor");
     });
 
     afterEach(() => {
@@ -120,7 +135,7 @@ describe("Component BpGeneralEditorInfo", () => {
         expect(componentTest.element.find(".dirty-indicator").length).toBe(0);
      });
 
-     it("should have a note field for description when provided", () => {
+     it("should have a rich text field for description", () => {
         // Arrange
         spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
             return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
@@ -129,7 +144,21 @@ describe("Component BpGeneralEditorInfo", () => {
         ctrl = componentTest.createComponent({});
 
         //Assert
-        expect(ctrl.noteFields.length).toBe(1);
+        expect(ctrl.richTextFields.length).toBe(1);
+     });
+
+     it("should validate a required rich text field", () => {
+        // Arrange
+        descriptor.isRequired = true;
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
+        });
+
+        ctrl = componentTest.createComponent({});
+
+        //Assert
+        expect(ctrl.richTextFields.length).toBe(1);
+        expect(ctrl.isRtfFieldValid(ctrl.richTextFields[0])).toBe(true);
      });
 
      it("should have a system field for name", () => {
@@ -145,15 +174,15 @@ describe("Component BpGeneralEditorInfo", () => {
         ctrl = componentTest.createComponent({});
 
         //Assert
-        expect(ctrl.noteFields.length).toBe(0);
         expect(ctrl.systemFields.length).toBe(1);
+        expect(ctrl.isSystemPropertyAvailable).toBe(true);
      });
 
-     it("should not have fields that aren't Name or Description", () => {
+     it("should have a custom field if provided", () => {
         // Arrange
-        descriptor.propertyTypePredefined = Enums.PropertyTypePredefined.CreatedBy;
+        descriptor.propertyTypePredefined = Enums.PropertyTypePredefined.None;
         descriptor.primitiveType = Models.PrimitiveType.Text;
-        descriptor.lookup = Enums.PropertyLookupEnum.System;
+        descriptor.lookup = Enums.PropertyLookupEnum.Custom;
         descriptor.isRichText = false;
         spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
             return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
@@ -162,10 +191,24 @@ describe("Component BpGeneralEditorInfo", () => {
         ctrl = componentTest.createComponent({});
 
         //Assert
-        expect(ctrl.systemFields.length).toBe(0);
-        expect(ctrl.noteFields.length).toBe(0);
-        expect(ctrl.fields.length).toBe(0);
-        expect(ctrl.editor.getFields().length).toBe(1);
+        expect(ctrl.customFields.length).toBe(1);
+        expect(ctrl.isCustomPropertyAvailable).toBe(true);
+     });
+
+     it("should have a special field if provided", () => {
+        // Arrange
+        descriptor.propertyTypePredefined = Enums.PropertyTypePredefined.None;
+        descriptor.primitiveType = Models.PrimitiveType.DocumentFile;
+        descriptor.lookup = Enums.PropertyLookupEnum.Special;
+        descriptor.isRichText = false;
+        spyOn(_propertyDescriptorBuilder, "createArtifactPropertyDescriptors").and.callFake(() => {
+            return _$q.resolve<IPropertyDescriptor[]>([descriptor]);
+        });
+
+        ctrl = componentTest.createComponent({});
+
+        //Assert
+        expect(ctrl.specificFields.length).toBe(1);
      });
 
      it("should have no fields if none are provided", () => {
@@ -175,10 +218,10 @@ describe("Component BpGeneralEditorInfo", () => {
         });
 
         ctrl = componentTest.createComponent({});
-
+        console.log(ctrl.specificPropertiesHeading);
         //Assert
         expect(ctrl.systemFields.length).toBe(0);
-        expect(ctrl.noteFields.length).toBe(0);
+        expect(ctrl.richTextFields.length).toBe(0);
         expect(ctrl.fields.length).toBe(0);
         expect(ctrl.editor.getFields().length).toBe(0);
      });

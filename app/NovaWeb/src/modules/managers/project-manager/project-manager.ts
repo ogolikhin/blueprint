@@ -222,7 +222,6 @@ export class ProjectManager implements IProjectManager {
     }
 
     private doRefresh(projectId: number, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
-
         const project = this.getProject(projectId);
 
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
@@ -267,12 +266,17 @@ export class ProjectManager implements IProjectManager {
                         return this.$q.reject();
                     });
                 }).catch((innerError: any) => {
+                    if (!innerError) {
+                        this.clearProject(project);
+                        return this.$q.reject();
+                    }
+
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
                         return this.loadProject(projectId, project);
                     }
 
-                    this.messageService.addError(error.message);
+                    this.messageService.addError(innerError.message);
                     this.clearProject(project);
                     return this.$q.reject();
                 });
@@ -285,7 +289,6 @@ export class ProjectManager implements IProjectManager {
     }
 
     private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number): ng.IPromise<void> {
-
         const oldProject = this.getProject(projectId);
         // if old project is opened
         if (oldProject) {
@@ -511,8 +514,7 @@ export class ProjectManager implements IProjectManager {
             //filter collections and sort by order index
             siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
             siblings = _.sortBy(siblings, (a) => a.orderIndex);
-
-            index = siblings.findIndex((a) => a.id === selectedArtifact.id);
+            index = _.findIndex(siblings, (a) => a.id === selectedArtifact.id);
 
             //compute new order index
             if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first

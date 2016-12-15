@@ -6,9 +6,10 @@ import {IArtifactManager} from "./artifact-manager";
 
 export class ArtifactManagerMock implements IArtifactManager {
     public static $inject = ["$q"];
+    private collectionChangeSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
-    constructor(private $q: ng.IQService) {
-        //
+    constructor(private $q: ng.IQService, private selectionService: ISelectionManager) {
+        this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
 
     public dispose() {
@@ -20,13 +21,16 @@ export class ArtifactManagerMock implements IArtifactManager {
             return <IStatefulArtifact>{};
         }
     } as ISelectionManager;
+    /*public get selection() {
+        return this.selectionService;
+    }*/
 
     public list(): IStatefulArtifact[] {
         return [];
     }
 
     public get collectionChangeObservable(): Rx.Observable<IStatefulArtifact> {
-        return null;
+        return this.collectionChangeSubject.filter((it: IStatefulArtifact) => it != null).asObservable();
     }
 
     public get(id: number): IStatefulArtifact {

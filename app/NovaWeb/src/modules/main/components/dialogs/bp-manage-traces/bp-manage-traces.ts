@@ -20,7 +20,6 @@ export class ManageTracesDialogController extends BaseDialogController {
 
     public item: IStatefulItem;
     public otherTraces: Relationships.IRelationshipView[];
-    /*fixme: what is this variable used for?*/
     public scroller;
     public isLoading: boolean = false;
     public isItemReadOnly: boolean;
@@ -210,25 +209,28 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.toggleSave();
     }
 
+    /**
+     * Disable trace button if selected artfiact is a folder of artifact already in manual traces or
+     * selected artifact is the same as current artifact
+     */
     private disableTrace() {
-        let found = false;
+        this.isTraceDisabled = false;
+
+        if (_.find(this.selectedVMs, (o) => {
+                return o.model.id === this.data.artifactId || (o.model.type && o.model.type === 0);
+            })) {
+            this.isTraceDisabled = true;
+            return false;
+        }
 
         _.each(this.data.manualTraces, (trace) => {
             if (_.find(this.selectedVMs, (o) => {
                     return o.model.id === trace.itemId;
                 })) {
-                found = true;
+                this.isTraceDisabled = true;
+                return false;
             }
         });
-
-        if (_.find(this.selectedVMs, (o) => {
-                return o.model.id === this.data.artifactId;
-
-            })) {
-            found = true;
-        }
-
-        this.isTraceDisabled = found;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {

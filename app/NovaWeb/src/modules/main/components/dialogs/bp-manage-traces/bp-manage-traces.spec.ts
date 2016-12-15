@@ -179,6 +179,31 @@ describe("ManageTracesController", () => {
             expect(ctrl.data.manualTraces[0]["cssClass"]).toBe("icon-glossary");
         }));
 
+    it("should disable trace button if we are currently in selected artifact",
+        inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+            //Arrange
+            ctrl.isTraceDisabled = false;
+            this.data = {};
+            this.data.artifactId = 15;
+
+            this.selectedVMs = [{
+                expanded: false,
+                group: true,
+                key: 100,
+                model: {
+                    id: 100,
+                    name: "new",
+                    parentId: 50
+                }
+            }];
+
+            //Act
+            ctrl.onSelectionChanged(this.selectedVMs);
+
+            //Assert
+            expect(ctrl.isTraceDisabled).toBe(false);
+        }));
+
     it("add artifact from artifact picker to manual traces",
         inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
 

@@ -16,6 +16,7 @@
     <label class="file-upload_left-label" ng-class="{'img-error': typeError}">jpg, png</label>
     <label class="file-upload_right-label" ng-class="{'img-error': sizeError}">Maximum size: 2MB</label>
 </div>
-
+    
 <input id="upload-image" type="file" style="display: none;"
-               onchange="angular.element(this).scope().fileChanged(this)"/>
+        bp-file-upload="fileChanged(files, callback)" />
+

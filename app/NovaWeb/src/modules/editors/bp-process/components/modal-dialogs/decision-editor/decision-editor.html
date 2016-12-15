@@ -33,7 +33,9 @@
                             <ul class="dropdown-menu dropdown-next-node">
                                 <li ng-repeat="node in condition.validMergeNodes">
                                     <a class="dropdown-menu__item" ng-click="condition.mergeNode = node" href="javascript:void(0);" ng-attr-title="{{node.label}}">
-                                        <i ng-class="$ctrl.getNodeIcon(node)"></i>{{node.label}}
+                                        <div class="dropdown-menu-item-label">
+                                            <i ng-class="$ctrl.getNodeIcon(node)"></i>{{node.label}}
+                                        </div>
                                     </a>
                                 </li>
                             </ul>
@@ -56,4 +58,4 @@
 <div class="modal-footer storyteller-modal-footer">
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
     <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.canApplyChanges">{{::$root.config.labels['App_Button_Ok']}}</button>
-</div>
+</div> 

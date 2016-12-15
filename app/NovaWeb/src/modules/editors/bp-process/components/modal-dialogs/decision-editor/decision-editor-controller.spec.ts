@@ -8,7 +8,7 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
-import {IProcessGraph, IDiagramNode, IDiagramLink, NodeType, ICondition, IDecision} from "../../diagram/presentation/graph/models";
+import {ICondition, IDecision, IDiagramLink, IDiagramNode, IProcessGraph, IUserTask, NodeType} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
@@ -287,20 +287,26 @@ describe("DecisionEditorController", () => {
     });
 
     describe("addCondition", () => {
-        it("doesn't update conditions if read-only", () => {
-            // arrange
-            const $scope = <IModalScope>$rootScope.$new();
-            const decision = <IDecision>{
+        let decision: IDecision, model: DecisionEditorModel, $scope: IModalScope, controller: DecisionEditorController;
+        beforeEach(() => {
+             // arrange
+            decision = <IDecision>{
                 model: {id: 1}
             };
-            const model = new DecisionEditorModel();
+            model = new DecisionEditorModel();
             model.originalDecision = decision;
+            model.graph = createMockGraph();
             model.conditions = createConditions(ProcessGraph.MinConditions);
 
-            const controller = new DecisionEditorController(
+            $scope = <IModalScope>$rootScope.$new();
+            controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
                 $location, localization, $uibModalInstance, model
             );
+        });
+        it("doesn't update conditions if read-only", () => {
+            // arrange
+            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
             controller.isReadonly = true;
 
             // act
@@ -312,22 +318,7 @@ describe("DecisionEditorController", () => {
 
         it("correcly updates conditions", () => {
             // arrange
-            const decision = <IDecision>{
-                model: {id: 1}
-            };
-            const model = new DecisionEditorModel();
-            model.originalDecision = decision;
-            model.graph = createMockGraph();
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-
             spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
-            );
-
             const refreshSpy = spyOn(controller, "refreshView").and.callFake(noop);
             const scrollSpy = spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
 
@@ -338,6 +329,26 @@ describe("DecisionEditorController", () => {
             expect(model.conditions.length).toBe(ProcessGraph.MinConditions + 1);
             expect(refreshSpy).toHaveBeenCalled();
             expect(scrollSpy).toHaveBeenCalled();
+
+        });
+        
+        it("defaults the merge node to be the one passed in the dialogModel", () => {
+            // arrange            
+            const mergingUserTask = <IUserTask>{
+                model: {id: 5}
+            };
+            spyOn(model.graph, "getValidMergeNodes").and.returnValue([mergingUserTask]);
+            const refreshSpy = spyOn(controller, "refreshView").and.callFake(noop);
+            const scrollSpy = spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
+            model.defaultDestinationId = mergingUserTask.model.id;
+
+            // act
+            controller.addCondition();
+            
+            // assert
+            const lastAddedCondition = model.conditions[model.conditions.length - 1];
+            expect(lastAddedCondition.mergeNode).toBeDefined();
+            expect(lastAddedCondition.mergeNode.model.id).toBe(mergingUserTask.model.id);
         });
     });
 

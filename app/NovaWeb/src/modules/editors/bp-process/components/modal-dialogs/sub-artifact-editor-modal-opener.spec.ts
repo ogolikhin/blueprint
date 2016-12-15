@@ -331,7 +331,8 @@ describe("SubArtifactEditorModalOpener test", () => {
                         originalDecision: decision,
                         isReadonly: false,
                         isHistoricalVersion: false,
-                        conditionLabel: "Choice"
+                        conditionLabel: "Choice",
+                        defaultDestinationId: null
                     }
                 },
                 windowClass: "storyteller-modal"

@@ -218,7 +218,7 @@ describe("Component BpArtifactDetailsEditor", () => {
         });
 
         ctrl = componentTest.createComponent({});
-        console.log(ctrl.specificPropertiesHeading);
+
         //Assert
         expect(ctrl.systemFields.length).toBe(0);
         expect(ctrl.richTextFields.length).toBe(0);

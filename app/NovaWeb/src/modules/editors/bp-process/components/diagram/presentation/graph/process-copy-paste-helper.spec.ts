@@ -515,7 +515,7 @@ describe("ProcessCopyPasteHelper tests", () => {
 
         });
 
-        it("copy 2 User Task with System Decision and insert before end", () => {
+        it("copy User Task with System Decision and insert before end", () => {
             // Arrange
             const userTaskId = "30";
             const systemTaskId1 = 50;
@@ -538,6 +538,85 @@ describe("ProcessCopyPasteHelper tests", () => {
             copyPasteHelper.copySelectedShapes();
             $rootScope.$digest();
             copyPasteHelper.insertSelectedShapes([systemTaskId1, systemTaskId2], endId);
+            $rootScope.$digest();
+
+            // Assert       
+            expect(viewModel.shapes.length).toEqual(11);
+            expect(viewModel.links.length).toEqual(12);     
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(2);
+
+            const insertedLinks1 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId1 && l.destinationId === endId
+            );        
+            const insertedLinks2 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId2 && l.destinationId === endId
+            );    
+            expect(insertedLinks1.length).toEqual(1);
+            expect(insertedLinks2.length).toEqual(1);
+        });
+
+        fit("copy User Task with nested System Decisions and insert before end", () => {
+            // Arrange
+            const userTaskId = "3";
+            const systemTaskId1 = 5;
+            const systemTaskId3 = 9;
+            const endId = 14;
+            const tempUserTaskId = -2;
+            const tempSystemTaskId1 = -3;
+            const tempSystemTaskId2 = -4;
+
+            let userTaskNode;
+            process = TestModels.createNestedSystemDecisionsWithLoopModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            graph.layout.setTempShapeId(0);
+            
+            userTaskNode = graph.getNodeById(userTaskId);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId3], endId);
+            $rootScope.$digest();
+
+            // Assert       
+            expect(viewModel.shapes.length).toEqual(19);
+            expect(viewModel.links.length).toEqual(23);     
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(5);
+
+            const insertedLinks1 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId1 && l.destinationId === endId
+            );        
+            const insertedLinks2 = viewModel.links.filter(
+                l => l.sourceId === tempSystemTaskId2 && l.destinationId === endId
+            );    
+            expect(insertedLinks1.length).toEqual(1);
+            expect(insertedLinks2.length).toEqual(1);
+        });
+
+        it("copy User Task with System Decision and insert into a branch", () => {
+            // Arrange
+            const userTaskId = "30";
+            const systemTaskId2 = 60;
+            const endId = 70;
+            const tempUserTaskId = -2;
+            const tempSystemTaskId1 = -3;
+            const tempSystemTaskId2 = -4;
+
+            let userTaskNode;
+            process = TestModels.createSystemDecisionLoopModelWithoutXAndY();
+            initializeCopyPasteHelperAndRenderGraph();
+            graph.layout.setTempShapeId(0);
+            
+            userTaskNode = graph.getNodeById(userTaskId);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode]);
+            spyOn(viewModel, "addToSubArtifactCollection");
+
+            // Act
+            copyPasteHelper.copySelectedShapes();
+            $rootScope.$digest();
+            copyPasteHelper.insertSelectedShapes([systemTaskId2], endId);
             $rootScope.$digest();
 
             // Assert       

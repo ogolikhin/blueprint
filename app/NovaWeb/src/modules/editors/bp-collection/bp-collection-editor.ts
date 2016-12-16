@@ -133,11 +133,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     private visibleArtifact: CollectionNodeVM;
 
     public onGridReset(isExpanding: boolean): void {
-        this.selectedVMs = [];
-
         //Added this check for the case when grid reset performed because user added artifact to collection
         //In this case we don't deselect ag-grid rows
         if (!this.isCollectionChanging) {
+            this.selectedVMs = [];
             this.api.deselectAll();
             this.isCollectionChanging = false;
         }

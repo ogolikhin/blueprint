@@ -4,13 +4,15 @@ import {IProjectManager} from "../../../../managers";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class DiscardAction extends BPButtonAction {
     constructor(artifact: IStatefulArtifact,
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 projectManager: IProjectManager,
-                loadingOverlayService: ILoadingOverlayService) {
+                loadingOverlayService: ILoadingOverlayService,
+                navigationService: INavigationService) {
         if (!localization) {
             throw new Error("Localization service not provided or is null");
         }
@@ -23,7 +25,13 @@ export class DiscardAction extends BPButtonAction {
                             projectManager.triggerProjectCollectionRefresh();
                         });
                     } else {
-                        artifact.refresh();
+                        // If artifact has never been published, navigate back to the main page;
+                        // otherwise, refresh the artifact
+                        if (artifact.version === -1) {
+                            navigationService.navigateToMain(true);
+                        } else {
+                            artifact.refresh();
+                        }
                     }
                 })
                 .catch((err) => {

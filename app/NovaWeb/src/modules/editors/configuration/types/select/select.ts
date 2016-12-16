@@ -28,7 +28,7 @@ interface ISelectItem {
 
 export class BpFieldSelectController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "validationService"];
-    private propertyDescriptor: IPropertyDescriptor; 
+    private propertyDescriptor: IPropertyDescriptor;
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
 
@@ -36,9 +36,9 @@ export class BpFieldSelectController extends BPFieldBaseController {
                      private localization: ILocalizationService,
                      private validationService: IValidationService) {
         super();
-        this.propertyDescriptor = $scope.options["data"]; 
+        this.propertyDescriptor = $scope.options["data"];
 
-        
+
         this.allowsCustomValues = !this.propertyDescriptor.isValidated;
         this.customValue = null;
 
@@ -119,10 +119,6 @@ export class BpFieldSelectController extends BPFieldBaseController {
     private onOpenClose = ($select, isOpen: boolean) => {
         if (!isOpen) {
             $select.items = this.refreshOptions();
-        }
-
-        if (_.isUndefined($select.selected) || _.isNull($select.selected)) {
-            $select.activeIndex = -1;
         }
     };
 

@@ -116,21 +116,7 @@
                             </div>
                         </li>
                     </ul>
-                </div>
-
-                <div class="quick-search__response" ng-if="$ctrl.isLoading">
-                    <div class="quick-serach__loading">
-                        <div class="quick-serach__loading-overlay"></div>
-                        <span class="glyphicon glyphicon-refresh spin quick-serach__loading-icon"></span>
-                    </div>
-                </div>
-
-                <div class="quick-search__response" ng-if="$ctrl.searchHasNoResult()">
-                    <div class="center-item font-larger">
-                        <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
-                    </div>
-                </div>
-
+                    
                 <div class="text-center">
                    <ul  uib-pagination
                         class="quick-search__pagination"
@@ -144,6 +130,21 @@
                         ng-change="$ctrl.search($ctrl.searchTerm)"
                         ng-if="$ctrl.showPagination()"
                      ></ul>
+                </div>
+                
+                </div>
+
+                <div class="quick-search__response" ng-if="$ctrl.isLoading">
+                    <div class="quick-serach__loading">
+                        <div class="quick-serach__loading-overlay"></div>
+                        <span class="glyphicon glyphicon-refresh spin quick-serach__loading-icon"></span>
+                    </div>
+                </div>
+
+                <div class="quick-search__response" ng-if="$ctrl.searchHasNoResult()">
+                    <div class="center-item font-larger">
+                        <span>{{::$root.config.labels["Search_Results_NoResults"]}}</span>
+                    </div>
                 </div>
             </div>
         </div>

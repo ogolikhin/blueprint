@@ -9,7 +9,7 @@ import {IArtifactManager} from "../../../managers/artifact-manager/artifact-mana
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";

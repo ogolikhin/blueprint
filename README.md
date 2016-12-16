@@ -90,13 +90,16 @@ Nova
 	- **_Silver Builds:_**
 		- Copy **build-develop** and name **build-_release-\<CODENAME>_**
 			- Within the newly created project's configuration, replace all occurances of '_develop_' with '_release-\<CODENAME>_' within the project's parameters
-		- Update the **build-develop** and **build-develop-nwa** projects such that the default value for the `BlueprintMajorVersion` parameter reflects the up coming release version
+		- Update the **build-develop** project such that the default value for the `BlueprintMajorVersion` parameter reflects the up coming release version
 
 
 4. Update application version on the _develop_ branch across all repositories and push changes to the _develop_ branch
-	- For an example of code changes that need to be applied to update the application version, please refer to the following pull requests:
-		- blueprint-current: #2173 https://git.io/voGNf 
-		- blueprint: #672 https://git.io/voGNY
+	- For an example of code changes that need to be applied to update the application's **major** version, please refer to the following pull requests:
+		- blueprint-current: #2735 https://git.io/v19ZP
+		- blueprint: #3242 https://git.io/v19Zb
+	- For an example of chode changes that need to be applied to update the application's **minor** version, please refer to the following pull requests:
+		- blueprint-current: #2740 https://git.io/v19ZS
+		- blueprint: #3281 https://git.io/v19Zj
 
 
 5. Until silver-pipeline is completed, temporarly have integration tests use the **_release-\<CODENAME>_** build

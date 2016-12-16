@@ -274,7 +274,7 @@ export class BpArtifactInfoController {
         const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
         const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
         const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
-            this.projectManager, this.loadingOverlayService);
+            this.projectManager, this.loadingOverlayService, this.navigationService);
         const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
             this.metadataService, this.mainBreadcrumbService);
         const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,

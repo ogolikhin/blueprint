@@ -441,7 +441,8 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
             id: this.associatedArtifact.id,
             version: this.associatedArtifact.version,
-            enableTracking: true
+            enableTracking: true,
+            isAccessible: this.associatedArtifact.typePrefix !== this.getLocalizedLabel("ST_Breadcrumb_InaccessibleArtifact")
         });
     }
 

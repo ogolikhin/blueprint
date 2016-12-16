@@ -20,13 +20,12 @@ export class RelationshipDetailsService implements IRelationshipDetailsService {
 
     public getRelationshipDetails(artifactId: number, subArtifactId?: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         const defer = this.$q.defer<any>();
-        let url = `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`;
-        if (subArtifactId) {
-            url += `?subArtifactId=${subArtifactId}`;
-        }
         const requestObj: ng.IRequestConfig = {
-            url: url,
-            method: "GET"
+            url: `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`,
+            method: "GET",
+            params: {
+                subArtifactId: subArtifactId
+            }
         };
 
         this.$http(requestObj).then(

@@ -417,7 +417,7 @@ export class PageToolbarController implements IPageToolbarController {
 
                 // If the current artifact has never been published, navigate back to the main page;
                 // otherwise, refresh all
-                if (statefulArtifact.version === -1) {
+                if (!this.isProjectOpened && statefulArtifact.version === -1) {
                     this.navigationService.navigateToMain(true);
                 } else {          
                     this.refreshAll();

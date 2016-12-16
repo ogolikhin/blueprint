@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
 import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
-import {Relationships, Models, TreeModels} from "../../../models";
+import {Relationships, Models, AdminStoreModels, TreeModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {IStatefulItem, IArtifactRelationships} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
@@ -218,7 +218,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.isTraceDisabled = false;
 
         if (_.find(this.selectedVMs, (o) => {
-                return o.model.id === this.data.artifactId || (o.model.type && o.model.type === 0);
+                return o.model.id === this.data.artifactId || (o.model.type && o.model.type === AdminStoreModels.InstanceItemType.Folder);
             })) {
             this.isTraceDisabled = true;
             return false;

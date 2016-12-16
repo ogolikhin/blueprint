@@ -167,15 +167,19 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             newContent = this.mceEditor.getContent();
         }
         newContent = newContent || "";
-        this.isDirty = true;
-        this.isLinkPopupOpen = false;
-
-        this.handleValidation(newContent);
 
         const $scope = this.$scope;
-        $scope.options["data"].isFresh = false;
-        if (typeof this.onChange === "function") {
-            this.onChange(newContent, $scope.options, $scope);
+        if ($scope.model[$scope.options["key"]] !== newContent) {
+            this.isDirty = true;
+            this.isLinkPopupOpen = false;
+
+            this.handleValidation(newContent);
+
+            $scope.options["data"].isFresh = false;
+            if (typeof this.onChange === "function") {
+                $scope.model[$scope.options["key"]] = newContent;
+                this.onChange(newContent, $scope.options, $scope);
+            }
         }
     };
 

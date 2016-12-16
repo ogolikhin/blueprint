@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -78,11 +79,19 @@ namespace SearchService.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            return await _projectSearchRepository.SearchName(
-                session.UserId, 
-                searchCriteria, 
-                resultCount.Value,
-                separatorString);
+            try
+            {
+                return await _projectSearchRepository.SearchName(
+                    session.UserId,
+                    searchCriteria,
+                    resultCount.Value,
+                    separatorString);
+            }
+            catch (Exception ex)
+            {
+                await Log.LogError(LogSource, ex);
+                throw;
+            }
         }
     }
 }

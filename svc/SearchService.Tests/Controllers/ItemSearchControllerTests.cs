@@ -26,7 +26,7 @@ namespace SearchService.Controllers
             var controller = new ItemSearchController();
 
             // Assert
-            Assert.IsInstanceOfType(controller._itemSearchRepository, typeof(SqlItemSearchRepository));
+            Assert.IsInstanceOfType(controller.ItemSearchRepo, typeof(SqlItemSearchRepository));
         }
 
         #endregion

@@ -73,6 +73,9 @@ var executionEnvironmentDetector = (function () {
         if (browser.msie && parseInt(browser.version, 10) >= 11 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
+        else if (browser.firefox && parseInt(browser.version, 10) >= 47 && browser.win7plus) {
+            browser.blueprintSupportedBrowser = true;
+        }
         else if (browser.chrome && parseInt(browser.version, 10) >= 50 && browser.win7plus) {
             browser.blueprintSupportedBrowser = true;
         }
@@ -117,6 +120,9 @@ var executionEnvironmentDetector = (function () {
     };
     executionEnvironmentDetector.prototype.isChrome = function () {
         return this.userBrowser.chrome;
+    };
+    executionEnvironmentDetector.prototype.isFirefox = function () {
+        return this.userBrowser.firefox;
     };
     executionEnvironmentDetector.prototype.isSafari = function () {
         return this.userBrowser.safari;
@@ -289,6 +295,9 @@ var appBootstrap = (function () {
         }
         if (self.executionEnvironment.isChrome()) {
             document.body.className += " is-chrome";
+        }
+        if (self.executionEnvironment.isFirefox()) {
+            document.body.className += " is-firefox";
         }
         if (self.executionEnvironment.isIE()) {
             document.body.className += " is-msie";

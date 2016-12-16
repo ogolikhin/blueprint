@@ -218,7 +218,7 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.isTraceDisabled = false;
 
         if (_.find(this.selectedVMs, (o) => {
-                return o.model.id === this.data.artifactId || (o.model.type && o.model.type === AdminStoreModels.InstanceItemType.Folder);
+                return o.model.id === this.data.artifactId || o.model.type === AdminStoreModels.InstanceItemType.Folder;
             })) {
             this.isTraceDisabled = true;
             return false;

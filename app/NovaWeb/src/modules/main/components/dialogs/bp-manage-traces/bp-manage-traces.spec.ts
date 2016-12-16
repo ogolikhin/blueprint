@@ -249,7 +249,32 @@ describe("ManageTracesController", () => {
 
             //Act
             ctrl.onSelectionChanged(this.selectedVMs);
-            //$rootScope.$digest();
+
+            //Assert
+            expect(ctrl.isTraceDisabled).toBe(true);
+        }));
+
+    it("should disable trace button if selected artifact is a folder",
+        inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+            //Arrange
+            ctrl.isTraceDisabled = false;
+            this.data = {};
+            this.data.artifactId = 15;
+
+            this.selectedVMs = [{
+                expanded: false,
+                group: true,
+                key: 2,
+                model: {
+                    id: 2,
+                    name: "new",
+                    parentId: 50,
+                    type: 0
+                }
+            }];
+
+            //Act
+            ctrl.onSelectionChanged(this.selectedVMs);
 
             //Assert
             expect(ctrl.isTraceDisabled).toBe(true);

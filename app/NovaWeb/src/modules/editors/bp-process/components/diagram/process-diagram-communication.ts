@@ -167,7 +167,8 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                     this.setNavigateToAssociatedArtifactSubject.notify({
                         id: eventPayload.id,
                         version: eventPayload.version,
-                        enableTracking: eventPayload.enableTracking
+                        enableTracking: eventPayload.enableTracking,
+                        isAccessible: eventPayload.isAccessible
                     });
                 }
                 break;

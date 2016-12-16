@@ -349,7 +349,8 @@ describe("ProcessDiagram Tests", () => {
         rootScope.$apply();
 
         // act
-        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, {id: artifactId});
+        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, 
+        {id: artifactId, isAccessible: true});
 
         // assert
         expect(navigateToArtifactSpy).toHaveBeenCalledWith({id: artifactId, version: undefined, enableTracking: undefined});

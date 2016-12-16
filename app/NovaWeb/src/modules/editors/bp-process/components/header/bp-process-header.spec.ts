@@ -37,7 +37,6 @@ describe("BpProcessHeader", () => {
     let breadcrumbService: IBreadcrumbService;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
-
             $provide.service("artifactManager", ArtifactManager);
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("messageService", MessageServiceMock);
@@ -88,7 +87,6 @@ describe("BpProcessHeader", () => {
         const element = $compile(template)($rootScope.$new());
         controller = element.controller("bpProcessHeader");
 
-        // should have isEnabled = false since no link
         const link0 = <IBreadcrumbLink>{
             id: 0,
             name: localization.get("ST_Breadcrumb_InaccessibleArtifact"),
@@ -101,13 +99,6 @@ describe("BpProcessHeader", () => {
             version: undefined,
             isEnabled: true
         };
-        // should have isEnabled = false since last link
-        // const link2 = <IBreadcrumbLink>{
-        //     id: 2,
-        //     name: "link2",
-        //     version: undefined,
-        //     isEnabled: false
-        // };
 
         // act
         $rootScope.$digest();
@@ -117,7 +108,5 @@ describe("BpProcessHeader", () => {
         expect(controller.breadcrumbLinks.length).toBe(2);
         expect(controller.breadcrumbLinks[0]).toEqual(link0);
         expect(controller.breadcrumbLinks[1]).toEqual(link1);
-        //The process name has been removed from breadcrumb
-        // expect(controller.breadcrumbLinks[2]).toEqual(link2);
     });
 });

@@ -62,9 +62,10 @@ export class DocumentRefs implements IDocumentRefs {
         } else {
             this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
                 deferred.resolve(result.documentReferences);
-                this.isLoaded = true;
             }, (error) => {
                 deferred.reject(error);
+            }).finally(() => {
+                this.isLoaded = true;
             });
         }
 

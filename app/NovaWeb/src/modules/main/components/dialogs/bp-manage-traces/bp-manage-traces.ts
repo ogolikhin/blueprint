@@ -1,7 +1,7 @@
 import * as _ from "lodash";
 import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
 import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
-import {Relationships, Models, TreeModels} from "../../../models";
+import {Relationships, Models, AdminStoreModels, TreeModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {IStatefulItem, IArtifactRelationships} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
@@ -210,25 +210,28 @@ export class ManageTracesDialogController extends BaseDialogController {
         this.toggleSave();
     }
 
+    /**
+     * Disable trace button if selected artfiact is a folder of artifact already in manual traces or
+     * selected artifact is the same as current artifact
+     */
     private disableTrace() {
-        let found = false;
+        this.isTraceDisabled = false;
+
+        if (_.find(this.selectedVMs, (o) => {
+                return o.model.id === this.data.artifactId || o.model.type === AdminStoreModels.InstanceItemType.Folder;
+            })) {
+            this.isTraceDisabled = true;
+            return false;
+        }
 
         _.each(this.data.manualTraces, (trace) => {
             if (_.find(this.selectedVMs, (o) => {
                     return o.model.id === trace.itemId;
                 })) {
-                found = true;
+                this.isTraceDisabled = true;
+                return false;
             }
         });
-
-        if (_.find(this.selectedVMs, (o) => {
-                return o.model.id === this.data.artifactId;
-
-            })) {
-            found = true;
-        }
-
-        this.isTraceDisabled = found;
     }
 
     public setSelectedDirection(direction: Relationships.TraceDirection): void {

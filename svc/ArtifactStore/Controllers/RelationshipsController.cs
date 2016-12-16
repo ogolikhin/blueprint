@@ -103,7 +103,7 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationshipdetails"), SessionRequired]
         [ActionName("GetRelationshipDetails")]
-        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId)
+        public async Task<RelationshipExtendedInfo> GetRelationshipDetails(int artifactId, int? subArtifactId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1)
@@ -124,7 +124,7 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
-            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, isDeleted);
+            return await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, session.UserId, subArtifactId, isDeleted);
         }
 
         private static bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)

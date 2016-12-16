@@ -440,8 +440,6 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     private openDialog(dialogType: ModalDialogType) {
-        window.console.log(`UserTask.openDialog, ${dialogType}`);
-
         this.dialogManager.openDialog(this.model.id, dialogType);
 
         // #TODO use new dialog communication mechanism to open modal dialog

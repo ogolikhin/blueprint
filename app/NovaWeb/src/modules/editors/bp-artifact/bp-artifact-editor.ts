@@ -150,7 +150,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                     return;
                 }
                 //here we need to update original model
-                const value = this.editor.convertToModelValue($field, $value);
+                const value = this.editor.convertToModelValue($field);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);

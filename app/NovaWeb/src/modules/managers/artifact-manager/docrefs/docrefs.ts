@@ -76,6 +76,7 @@ export class DocumentRefs implements IDocumentRefs {
             this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
                 .catch(error => {
                     this.error.onNext(error);
+                    this.isLoaded = true;
                 }).finally(() => {
                     this.loadPromise = undefined;
                 });

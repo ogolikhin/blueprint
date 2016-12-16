@@ -75,6 +75,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
             this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
                 .catch(error => {
                     this.error.onNext(error);
+                    this.isLoaded = true;
                 }).finally(() => {
                     this.loadPromise = null;
                 });

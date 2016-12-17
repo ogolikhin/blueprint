@@ -435,7 +435,8 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
             id: this.associatedArtifact.id,
             version: this.associatedArtifact.version,
-            enableTracking: true
+            enableTracking: true,
+            isAccessible: this.associatedArtifact.typePrefix !== this.rootScope.config.labels["ST_Breadcrumb_InaccessibleArtifact"]
         });
     }
 

@@ -18,6 +18,7 @@ import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
+import {IPropertyDescriptor} from "../../property-descriptor-builder";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -87,6 +88,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected selectionManager: ISelectionManager,
                 protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
+        $scope["modelValue"] = null; //$scope.model[$scope.options["key"]];
+
         this.currentArtifact = selectionManager.getArtifact();
         this.currentSubArtifact = selectionManager.getSubArtifact();
 
@@ -117,6 +120,15 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 this.handleLinks(this.editorBody.querySelectorAll("a"), true);
             }
         });
+
+        $scope.options["expressionProperties"] = {
+            "model": () => {
+                const context: IPropertyDescriptor = $scope.options["data"];
+                if (context.isFresh && this.mceEditor) { // format the data only if fresh
+                    this.prepRTF(!this.isSingleLine);
+                }
+            }
+        };
     }
 
     private removeObserver = () => {
@@ -184,6 +196,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected prepRTF = (hasTables: boolean = false) => {
+        const $scope = this.$scope;
+        $scope["modelValue"] = $scope.model[$scope.options["key"]];
         this.isDirty = false;
         this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
@@ -192,7 +206,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.contentBuffer = this.mceEditor.getContent();
 
         this.handleValidation(this.contentBuffer);
-        this.$scope.options["data"].isFresh = false;
+        $scope.options["data"].isFresh = false;
     };
 
     protected normalizeHtml(body: Node, hasTables: boolean = false) {
@@ -235,6 +249,132 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 }
             }
         }] as ITinyMceMenu[];
+    };
+
+    protected initInstanceCallback = (editor) => {
+        this.mceEditor = editor;
+
+        editor.formatter.register("font8", {
+            inline: "span",
+            styles: {"font-size": "8pt"}
+        });
+        editor.formatter.register("font9", {
+            inline: "span",
+            styles: {"font-size": "9pt"}
+        });
+        editor.formatter.register("font10", {
+            inline: "span",
+            styles: {"font-size": "10pt"}
+        });
+        editor.formatter.register("font11", {
+            inline: "span",
+            styles: {"font-size": "11pt"}
+        });
+        editor.formatter.register("font12", { // default font
+            inline: "span",
+            styles: {"font-size": "12pt"}
+        });
+        editor.formatter.register("font14", {
+            inline: "span",
+            styles: {"font-size": "14pt"}
+        });
+        editor.formatter.register("font16", {
+            inline: "span",
+            styles: {"font-size": "16pt"}
+        });
+        editor.formatter.register("font18", {
+            inline: "span",
+            styles: {"font-size": "18pt"}
+        });
+        editor.formatter.register("font20", {
+            inline: "span",
+            styles: {"font-size": "20pt"}
+        });
+
+        this.prepRTF(!this.isSingleLine);
+
+        // MutationObserver
+        const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
+        if (!_.isUndefined(mutationObserver)) {
+            // create an observer instance
+            this.observer = new MutationObserver((mutations) => {
+                mutations.forEach(this.handleMutation);
+            });
+
+            const observerConfig = {
+                attributes: false,
+                childList: true,
+                characterData: false,
+                subtree: true
+            };
+            this.observer.observe(this.editorBody, observerConfig);
+        }
+
+        editor.on("KeyUp", (e) => {
+            if (e && [
+                    8, // delete
+                    46 // backspace
+                ].indexOf(e.keyCode) !== -1) {
+                if (this.isDirty || this.contentBuffer !== editor.getContent()) {
+                    this.triggerChange();
+                }
+            }
+        });
+
+        editor.on("Change", (e) => {
+            if (e && _.isObject(e.lastLevel)) { // tinyMce emits a 2 change events per actual change
+                if (!this.$scope.options["data"].isFresh &&
+                    (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen)) {
+                    this.triggerChange();
+                }
+            }
+        });
+
+        editor.on("ExecCommand", (e) => {
+            if (e && _.indexOf(this.execCommandEvents, e.command) !== -1) {
+                this.triggerChange();
+            } else if (e && _.indexOf(this.linkEvents, e.command) !== -1) {
+                this.isLinkPopupOpen = true;
+            }
+        });
+
+        editor.on("Focus", (e) => {
+            if (this.isSingleLine) {
+                if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
+                    this.editorBody.parentElement.parentElement.classList.remove("tinymce-toolbar-hidden");
+                }
+            } else {
+                if (editor.editorContainer) {
+                    editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
+                }
+            }
+        });
+
+        editor.on("Blur", (e) => {
+            if (this.isSingleLine) {
+                if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
+                    this.editorBody.parentElement.parentElement.classList.add("tinymce-toolbar-hidden");
+                }
+            } else {
+                if (editor.editorContainer) {
+                    editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
+                }
+            }
+        });
+    };
+
+    protected pastePostProcess = (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
+        this.normalizeHtml(args.node, !this.isSingleLine);
+        Helper.removeAttributeFromNode(args.node, "id");
+    };
+
+    protected pastePreProcess(plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
+        // remove generic font family
+        let content = args.content;
+        content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
+        content = content.replace(/, ?serif([;'"])/gi, "$1");
+        content = content.replace(/, ?monospace([;'"])/gi, "$1");
+        args.content = content;
     };
 
     protected hasChangedFormat(): boolean {

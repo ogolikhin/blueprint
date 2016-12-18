@@ -187,6 +187,7 @@ $modal-open-project-height: 450px;
             background: $white;
             border: solid 1px $gray-lightest;
             border-radius: $border-radius-amount;
+            box-sizing: content-box;
             min-height: $artifact-picker-tree-height;
         }
 

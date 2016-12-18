@@ -93,7 +93,8 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         };
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);
-        const newCondition: ICondition = Condition.create(processLink, null, validMergeNodes);
+        const defaultMergeNode = _.find(validMergeNodes, node => node.model.id === this.dialogModel.defaultDestinationId);
+        const newCondition: ICondition = Condition.create(processLink, defaultMergeNode, validMergeNodes);
 
         this.dialogModel.conditions.push(newCondition);
         this.refreshView();

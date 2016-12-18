@@ -217,7 +217,7 @@ namespace ArtifactStore.Repositories
             try
             {
                 // Act
-                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, isDeleted);
+                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
             }
             catch (ResourceNotFoundException e)
             {
@@ -252,7 +252,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }}, descriptionResult);
             
             // Act
-            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, isDeleted);
+            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
 
             //Assert
             Assert.AreEqual(artifactId, actual.ArtifactId);

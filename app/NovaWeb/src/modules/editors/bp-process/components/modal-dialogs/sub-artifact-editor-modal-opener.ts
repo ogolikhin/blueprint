@@ -225,6 +225,7 @@ export class SubArtifactEditorModalOpener {
         model.conditionLabel = node.getNodeType() === NodeType.SystemDecision ?
             this.localization.get("ST_Condition_Label") :
             this.localization.get("ST_Choice_Label");
+        model.defaultDestinationId = graph.layout.getConditionDestination(decision.model.id).id;
 
         return model;
     }

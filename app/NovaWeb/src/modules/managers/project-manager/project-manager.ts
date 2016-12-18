@@ -11,11 +11,11 @@ import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
-import {IApplicationError} from "./../../core/error/applicationError";
+import {IApplicationError} from "../../core/error/applicationError";
+import {IInstanceItem} from "../../main/models/admin-store-models";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];
@@ -58,7 +58,6 @@ export class ProjectManager implements IProjectManager {
         "statefulArtifactFactory",
         "loadingOverlayService",
         "mainbreadcrumbService",
-        "itemInfoService",
         "localization",
         "analytics"
     ];
@@ -72,7 +71,6 @@ export class ProjectManager implements IProjectManager {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
-                private itemInfoService: IItemInfoService,
                 private localization: ILocalizationService,
                 private analytics: IAnalyticsProvider) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
@@ -222,7 +220,6 @@ export class ProjectManager implements IProjectManager {
     }
 
     private doRefresh(projectId: number, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
-
         const project = this.getProject(projectId);
 
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
@@ -267,12 +264,17 @@ export class ProjectManager implements IProjectManager {
                         return this.$q.reject();
                     });
                 }).catch((innerError: any) => {
+                    if (!innerError) {
+                        this.clearProject(project);
+                        return this.$q.reject();
+                    }
+
                     if (innerError.statusCode === HttpStatusCode.NotFound && innerError.errorCode === ProjectServiceStatusCode.ResourceNotFound) {
                         //try it with project
                         return this.loadProject(projectId, project);
                     }
 
-                    this.messageService.addError(error.message);
+                    this.messageService.addError(innerError.message);
                     this.clearProject(project);
                     return this.$q.reject();
                 });
@@ -285,7 +287,6 @@ export class ProjectManager implements IProjectManager {
     }
 
     private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number): ng.IPromise<void> {
-
         const oldProject = this.getProject(projectId);
         // if old project is opened
         if (oldProject) {
@@ -378,10 +379,11 @@ export class ProjectManager implements IProjectManager {
     public add(projectId: number): ng.IPromise<void> {
         let projectNode: IArtifactNode = this.getProject(projectId);
         if (!projectNode) {
-            return this.itemInfoService.get(projectId).then((projectInfo: IItemInfoResult) => {
+            return this.projectService.getProject(projectId).then((projectInfo: IInstanceItem) => {
                 const project = {
                     id: projectInfo.id,
                     name: projectInfo.name,
+                    description: projectInfo.description,
                     parentFolderId: undefined,
                     type: AdminStoreModels.InstanceItemType.Project,
                     hasChildren: true,
@@ -511,8 +513,7 @@ export class ProjectManager implements IProjectManager {
             //filter collections and sort by order index
             siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
             siblings = _.sortBy(siblings, (a) => a.orderIndex);
-
-            index = siblings.findIndex((a) => a.id === selectedArtifact.id);
+            index = _.findIndex(siblings, (a) => a.id === selectedArtifact.id);
 
             //compute new order index
             if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first

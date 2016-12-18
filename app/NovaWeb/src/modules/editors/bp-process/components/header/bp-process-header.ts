@@ -1,33 +1,30 @@
-import {BPButtonGroupAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {ProcessDeleteAction} from "./actions/process-delete-action";
-import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
-import {IWindowManager} from "../../../../main/services";
+import {ICommunicationManager} from "../../";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPButtonOrDropdownSeparator} from "../../../../shared";
+import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {IWindowManager} from "../../../../main/services";
 import {IArtifactManager, IProjectManager} from "../../../../managers";
 import {IMetaDataService} from "../../../../managers/artifact-manager";
-import {ICommunicationManager} from "../../";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {IUserStoryService} from "../../services/user-story.svc";
-import {IPathItem, IBreadcrumbService} from "../../services/breadcrumb.svc";
+import {BPButtonOrDropdownSeparator, IDialogService} from "../../../../shared";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {GenerateUserStoriesAction, ToggleProcessTypeAction, CopyAction} from "./actions";
+import {BPButtonGroupAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {StatefulProcessArtifact} from "../../process-artifact";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
+import {IBreadcrumbService, IPathItem} from "../../services/breadcrumb.svc";
+import {IUserStoryService} from "../../services/user-story.svc";
+import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
+import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
+import {ProcessDeleteAction} from "./actions/process-delete-action";
 
 export class BpProcessHeader implements ng.IComponentOptions {
-    public template: string = require("./bp-process-header.html");
+    public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpProcessHeaderController;
 }
 
 export class BpProcessHeaderController extends BpArtifactInfoController {
-    public breadcrumbLinks: IBreadcrumbLink[];
-    public isToolbarCollapsed: boolean = true;
-
     static $inject: [string] = [
         "$q",
         "$scope",
@@ -37,15 +34,15 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "messageService",
         "dialogService",
         "windowManager",
-        "communicationManager",
         "loadingOverlayService",
         "navigationService",
-        "breadcrumbService",
         "projectManager",
         "metadataService",
-        "userStoryService",
         "mainbreadcrumbService",
-        "analytics"
+        "analytics",
+        "communicationManager",
+        "breadcrumbService",
+        "userStoryService"
     ];
 
     constructor($q: ng.IQService,
@@ -56,15 +53,15 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 messageService: IMessageService,
                 dialogService: IDialogService,
                 windowManager: IWindowManager,
-                private communicationManager: ICommunicationManager,
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
-                private breadcrumbService: IBreadcrumbService,
-                protected projectManager: IProjectManager,
-                protected metadataService: IMetaDataService,
-                private userStoryService: IUserStoryService,
+                projectManager: IProjectManager,
+                metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                analytics: IAnalyticsProvider) {
+                analytics: IAnalyticsProvider,
+                private communicationManager: ICommunicationManager,
+                private breadcrumbService: IBreadcrumbService,
+                private userStoryService: IUserStoryService) {
         super(
             $q,
             $scope,
@@ -81,8 +78,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             mainBreadcrumbService,
             analytics
         );
-
-        this.breadcrumbLinks = [];
     }
 
     public $onInit() {

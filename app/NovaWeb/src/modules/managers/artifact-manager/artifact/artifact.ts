@@ -540,8 +540,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                         this.publishDependents(err.errorContent);
                     }
                     else if (err.errorCode === ErrorCode.CannotPublish) {
-                        this.refresh();
-                        this.services.messageService.addError(err);
+                        this.services.messageService.addError(err, true);
+                        this.refresh();                        
                     }
                 } else if (err && err.statusCode === HttpStatusCode.Unavailable && !err.message) {
                     this.services.messageService.addError("Publish_Artifact_Failure_Message");

@@ -53,7 +53,7 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
 
         const selectedVm = _.find(this.selectedVMs, vm => vm.model.type === AdminStoreModels.InstanceItemType.Folder);
 
-        this.disableOkButton = this.selectedVMs && this.selectedVMs.length || selectedVm;
+        this.disableOkButton = this.selectedVMs && !this.selectedVMs.length || !!selectedVm;
     }
 
     public onDoubleClick(vm: Models.IViewModel<any>): void {

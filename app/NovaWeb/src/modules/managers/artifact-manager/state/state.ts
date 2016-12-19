@@ -261,7 +261,6 @@ export class ArtifactState implements IArtifactState {
     public dispose() {
         if (this.subject) {
             this.subject.dispose();
-            delete (this.subject);
         }
     }
 }

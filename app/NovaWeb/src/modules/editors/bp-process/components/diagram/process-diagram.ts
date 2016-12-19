@@ -162,12 +162,16 @@ export class ProcessDiagram {
     };
 
     private navigateToAssociatedArtifact = (info: any) => {
-        const options = {
-            id: info.id,
-            version: info.version,
-            enableTracking: info.enableTracking
-        };
-        this.navigationService.navigateTo(options);
+        if (!!info && info.isAccessible) {
+            const options = {
+                id: info.id,
+                version: info.version,
+                enableTracking: info.enableTracking
+            };
+            this.navigationService.navigateTo(options);
+        } else {
+            this.messageService.addError(this.localization.get("HttpError_Forbidden"));
+        }
     };
 
     private openUtilityPanel = () => {

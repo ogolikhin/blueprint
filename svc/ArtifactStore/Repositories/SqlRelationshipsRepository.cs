@@ -100,15 +100,18 @@ namespace ArtifactStore.Repositories
         {
             int artifactId;
             int itemId;
+            int projectId;
             if (traceDirection == TraceDirection.From)
             {
                 artifactId = link.SourceArtifactId;
                 itemId = link.SourceItemId;
+                projectId = link.SourceProjectId;
             }
             else
             {
                 artifactId = link.DestinationArtifactId;
                 itemId = link.DestinationItemId;
+                projectId = link.DestinationProjectId;
             }
             return new Relationship
             {
@@ -117,7 +120,7 @@ namespace ArtifactStore.Repositories
                 TraceDirection = traceDirection,
                 Suspect = link.IsSuspect,
                 TraceType = link.LinkType,
-                ProjectId = link.DestinationProjectId
+                ProjectId = projectId
             };
         }
         private List<Relationship> GetManualTraceRelationships(List<LinkInfo> manualLinks, int itemId)

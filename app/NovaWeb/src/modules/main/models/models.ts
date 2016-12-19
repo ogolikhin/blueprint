@@ -23,12 +23,13 @@ export interface ISubArtifactNode {
     parentId: number;
     itemTypeId: number;
     displayName: string;
-    artifactName: string;
-    artifactTypePrefix: string;
     predefinedType: ItemTypePredefined;
     prefix: string;
     hasChildren: boolean;
     children?: ISubArtifactNode[];
+    // populated on clident side. used for displaying subartifact trace info.
+    artifactName: string;
+    artifactTypePrefix: string;
 }
 export interface ITrace {
     traceType?: TraceType;

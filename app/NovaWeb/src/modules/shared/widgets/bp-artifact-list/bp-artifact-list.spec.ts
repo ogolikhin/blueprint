@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import {BPArtifactListComponent, BPArtifactListController} from "./bp-artifact-list";
 
-fdescribe("BPArtifactListComponent", () => {
+describe("BPArtifactListComponent", () => {
     angular.module("bp.widgets.artifactList", [])
         .component("bpArtifactList", new BPArtifactListComponent());
 

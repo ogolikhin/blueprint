@@ -1,6 +1,7 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {Models} from "../../models";
+import {Models, AdminStoreModels} from "../../models";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {InstanceItemType} from "../../models/admin-store-models";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
@@ -17,11 +18,13 @@ export interface IArtifactPickerOptions {
     showArtifacts?: boolean;
     showCollections?: boolean;
     showSubArtifacts?: boolean;
+    disableOkButtonOnFolderSelection?: boolean;
 }
 
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {
     public hasCloseButton: boolean = true;
     public selectedVMs: Models.IViewModel<any>[];
+    public disableOnFolderSelection: boolean = false;
 
     static $inject = [
         "$uibModalInstance",
@@ -48,10 +51,23 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
 
     public onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): void {
         this.selectedVMs = selectedVMs;
+
+        if (this.dialogData.disableOkButtonOnFolderSelection && _.find(this.selectedVMs, (vm) => {
+                return vm.model.type === AdminStoreModels.InstanceItemType.Folder;
+            })) {
+            this.disableOnFolderSelection = true;
+        } else {
+            this.disableOnFolderSelection = false;
+        };
     }
 
     public onDoubleClick(vm: Models.IViewModel<any>): void {
         this.selectedVMs = [vm];
         this.ok();
+    }
+
+
+    public get isOkDisabled () {
+        return this.selectedVMs && this.selectedVMs.length === 0 || this.disableOnFolderSelection;
     }
 }

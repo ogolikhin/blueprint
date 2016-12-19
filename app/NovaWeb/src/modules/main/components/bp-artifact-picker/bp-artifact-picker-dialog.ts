@@ -17,13 +17,13 @@ export interface IArtifactPickerOptions {
     showProjects?: boolean;
     showArtifacts?: boolean;
     showCollections?: boolean;
-    showSubArtifacts?: boolean
+    showSubArtifacts?: boolean;
 }
 
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {
     public hasCloseButton: boolean = true;
     public selectedVMs: Models.IViewModel<any>[];
-    public disableOnFolderSelection: boolean = false;
+    public disableOkButton: boolean = true;
 
     static $inject = [
         "$uibModalInstance",
@@ -54,9 +54,9 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
         if (_.find(this.selectedVMs, (vm) => {
                 return vm.model.type === AdminStoreModels.InstanceItemType.Folder;
             })) {
-            this.disableOnFolderSelection = true;
+            this.isOkDisabled(true);
         } else {
-            this.disableOnFolderSelection = false;
+            this.isOkDisabled(false);
         };
     }
 
@@ -65,8 +65,7 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
         this.ok();
     }
 
-
-    public get isOkDisabled () {
-        return this.selectedVMs && this.selectedVMs.length === 0 || this.disableOnFolderSelection;
+    public isOkDisabled (disableOnFolderSelection) {
+        this.disableOkButton = this.selectedVMs && this.selectedVMs.length === 0 || disableOnFolderSelection;
     }
 }

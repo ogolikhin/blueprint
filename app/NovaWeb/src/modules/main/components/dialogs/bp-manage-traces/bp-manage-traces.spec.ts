@@ -5,7 +5,8 @@ import "angular-sanitize";
 import {Relationships} from "../../../../main";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
 import {ManageTracesDialogController} from "./bp-manage-traces";
-import {DialogServiceMock, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {DataMock, DialogSettingsMock} from "./bp-manage-traces.mock";
 import {ModalServiceInstanceMock, ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
@@ -177,6 +178,107 @@ describe("ManageTracesController", () => {
             //Assert
             expect(ctrl.artifactId).toBe(15);
             expect(ctrl.data.manualTraces[0]["cssClass"]).toBe("icon-glossary");
+        }));
+
+    it("should not disable trace button if we are currently not in selected artifact",
+        inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+            //Arrange
+            ctrl.isTraceDisabled = false;
+            this.data = {};
+            this.data.artifactId = 15;
+
+            this.selectedVMs = [{
+                expanded: false,
+                group: true,
+                key: 100,
+                model: {
+                    id: 100,
+                    name: "new",
+                    parentId: 50
+                }
+            }];
+
+            //Act
+            ctrl.onSelectionChanged(this.selectedVMs);
+
+            //Assert
+            expect(ctrl.isTraceDisabled).toBe(false);
+        }));
+
+    it("should disable trace button if we are currently in selected artifact",
+        inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+            //Arrange
+            ctrl.isTraceDisabled = false;
+            this.data = {};
+            this.data.artifactId = 15;
+
+            this.selectedVMs = [{
+                expanded: false,
+                group: true,
+                key: 15,
+                model: {
+                    id: 15,
+                    name: "new",
+                    parentId: 50
+                }
+            }];
+
+            //Act
+            ctrl.onSelectionChanged(this.selectedVMs);
+
+            //Assert
+            expect(ctrl.isTraceDisabled).toBe(true);
+        }));
+
+    it("should disable trace button if we already have selected trace in manual traces",
+        inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+            //Arrange
+            ctrl.isTraceDisabled = false;
+            this.data = {};
+            this.data.artifactId = 15;
+
+            this.selectedVMs = [{
+                expanded: false,
+                group: true,
+                key: 1,
+                model: {
+                    id: 1,
+                    name: "new",
+                    parentId: 50
+                }
+            }];
+
+            //Act
+            ctrl.onSelectionChanged(this.selectedVMs);
+
+            //Assert
+            expect(ctrl.isTraceDisabled).toBe(true);
+        }));
+
+    it("should disable trace button if selected artifact is a folder",
+        inject(($rootScope: ng.IRootScopeService, ctrl: ManageTracesDialogController) => {
+            //Arrange
+            ctrl.isTraceDisabled = false;
+            this.data = {};
+            this.data.artifactId = 15;
+
+            this.selectedVMs = [{
+                expanded: false,
+                group: true,
+                key: 2,
+                model: {
+                    id: 2,
+                    name: "new",
+                    parentId: 50,
+                    type: 0
+                }
+            }];
+
+            //Act
+            ctrl.onSelectionChanged(this.selectedVMs);
+
+            //Assert
+            expect(ctrl.isTraceDisabled).toBe(true);
         }));
 
     it("add artifact from artifact picker to manual traces",

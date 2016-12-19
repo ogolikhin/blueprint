@@ -414,7 +414,14 @@ export class PageToolbarController implements IPageToolbarController {
                 if (statefulArtifact) {
                     statefulArtifact.discard();
                 }
-                this.refreshAll();
+
+                // If the current artifact has never been published, navigate back to the main page;
+                // otherwise, refresh all
+                if (!this.isProjectOpened && statefulArtifact.version === -1) {
+                    this.navigationService.navigateToMain(true);
+                } else {          
+                    this.refreshAll();
+                }
 
                 this.messageService.addInfo("Discard_All_Success_Message", data.artifacts.length);
             })

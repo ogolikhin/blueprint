@@ -27,6 +27,7 @@ export enum ErrorCode {
     CannotSaveOverDependencies = 123,
     CycleRelationship = 124,
     CannotSaveConflictWithParent = 125,
+    NoChanges = 129,
     Ok = 200,
     NotFound = 404,
     UnhandledException = 500

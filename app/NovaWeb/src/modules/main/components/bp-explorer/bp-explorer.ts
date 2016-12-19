@@ -145,7 +145,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public isProjectTreeVisible(): boolean {
         return this.projects && this.projects.length > 0;
     }
-    
+
     private isMainAreaSelectedArtifactBelongsToOpeningProject(): boolean {
         return this.selectionManager.getArtifact().projectId === this.projects[0].model.id;
     }
@@ -194,10 +194,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
         if (_.isFinite(navigateToId)) {
             if (navigateToId !== selectedArtifactId) {
                 this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
-                this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
             } else {
                 this.navigationService.reloadParentState();
             }
+
+            this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
         } else {
             this.treeApi.deselectAll();
             this.selected = undefined;

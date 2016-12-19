@@ -21,7 +21,7 @@ import {ValidationServiceMock} from "../../managers/artifact-manager/validation/
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
 import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.svc.mock";

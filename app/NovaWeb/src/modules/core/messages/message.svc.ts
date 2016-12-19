@@ -12,7 +12,7 @@ export interface IMessageService {
     addWarning(text: string, ...params: any[]): void;
     addInfo(text: string, ...params: any[]): void;
     deleteMessageById(id: number): void;
-    clearMessages(): void;
+    clearMessages(clearPersistent?: boolean, typesToForceClear?: MessageType[]): void;
     messages: IMessage[];
     dispose(): void;
 }
@@ -83,11 +83,11 @@ export class MessageService implements IMessageService {
         return result;
     }
 
-    public clearMessages(): void {
+    public clearMessages(clearPersistent: boolean = false, typesToForceClear: MessageType[] = []): void {
         if (this._messages) {
             for (let index = this._messages.length - 1; index >= 0; index--) {
                 let msg: IMessage = this._messages[index];
-                if (!msg.persistent) {
+                if (!msg.persistent || clearPersistent || typesToForceClear.indexOf(msg.messageType) !== -1) {
                     this.cancelTimer(msg.id);
                     this._messages.splice(index, 1);
                 }

@@ -14,7 +14,7 @@ import {SelectionManagerMock} from "../../../managers/selection-manager/selectio
 import {SessionSvcMock} from "../../login/mocks.spec";
 import {IArtifactManager} from "../../../managers";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
 import {IArtifactAttachmentsService} from "../../../managers/artifact-manager/attachments";

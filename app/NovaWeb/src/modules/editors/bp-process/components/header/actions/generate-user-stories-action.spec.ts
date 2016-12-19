@@ -7,7 +7,7 @@ import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {UserStoryServiceMock} from "../../../services/user-story.svc.mock";
 import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
-import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {CommunicationManager} from "../../../";
 import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";

@@ -18,11 +18,14 @@ export class RelationshipDetailsService implements IRelationshipDetailsService {
                 private localization: ILocalizationService) {
     }
 
-    public getRelationshipDetails(artifactId: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
+    public getRelationshipDetails(artifactId: number, subArtifactId?: number): ng.IPromise<Relationships.IRelationshipExtendedInfo> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `/svc/artifactstore/artifacts/${artifactId}/relationshipdetails`,
-            method: "GET"
+            method: "GET",
+            params: {
+                subArtifactId: subArtifactId
+            }
         };
 
         this.$http(requestObj).then(

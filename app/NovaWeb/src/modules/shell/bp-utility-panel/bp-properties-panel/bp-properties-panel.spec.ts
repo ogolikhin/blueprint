@@ -9,7 +9,7 @@ import {LocalizationServiceMock} from "../../../core/localization/localization.m
 import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {Enums, Models} from "../../../main";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";

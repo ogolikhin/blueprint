@@ -289,6 +289,10 @@ export class SubArtifactContainerNodeVM extends TreeNodeVM<Models.IArtifact> {
 
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         return this.factory.projectService.getSubArtifactTree(this.model.id, this.factory.timeout).then((children: Models.ISubArtifactNode[]) => {
+            children.forEach(child => {
+                child.artifactName = this.model.name;
+                child.artifactTypePrefix = this.model.prefix;
+            });
             return children.map(child => this.factory.createSubArtifactNodeVM(this.project, child));
         });
     }

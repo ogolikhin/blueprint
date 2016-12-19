@@ -960,8 +960,10 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_PrerequisiteMs
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Name', 'en-US', N'Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_SignedInAs', 'en-US', N'Signed in as')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Welcome', 'en-US', N'Welcome')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Help', 'en-US', N'Help')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Logout', 'en-US', N'Log out')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_ChangePassword', 'en-US', N'Change password')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Logout', 'en-US', N'Log out')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Help', 'en-US', N'Help')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Tour', 'en-US', N'Tour')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Artifact_Header_LegacyArtifact', 'en-US', N'Blueprint artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Browse_Actor', 'en-US', N'Browse Actor')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Left', 'en-US', N'Explorer')
@@ -1126,7 +1128,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_404', 'en-US', N'Sorry, but the artifact {0} cannot be saved because it has been deleted or moved. Please Refresh All.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409', 'en-US', N'There was a conflict while saving the artifact {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_400_114', 'en-US', N'The artifact {0} cannot be saved. Please ensure all values are correct.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_115', 'en-US', N'The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_115', 'en-US', N'The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh, any changes you have made will be lost.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_116', 'en-US', N'The artifact {0} cannot be saved. Changes were made to an artifact you do not have permission to access, or has read-only properties.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_117', 'en-US', N'A property type is out of date.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All.')
@@ -1155,6 +1157,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Succes
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Single_Dialog_Message', 'en-US', N'This artifact will be restored to its last published version. If it has never been published, it will be deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Dependents_Dialog_Message', 'en-US', N'If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Success_Message', 'en-US', N'Changes have been discarded.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_No_Changes', 'en-US', N'This artifact has no changes to discard and will now be refreshed to the most recent version.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Header', 'en-US', N'Move to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Artifacts_Picker_Header', 'en-US', N'Copy to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Insert_Label', 'en-US', N'Insert:')
@@ -1350,6 +1353,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Show_More', 'en
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Additional_Info_Tab_Label', 'en-US', N'Additional Info')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Include_Tab_Label', 'en-US', N'Include')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Add_Include_Tab_Label', 'en-US', N'Add Include')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inaccessible_Include_Artifact_Label', 'en-US', N'Inaccessible Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Browse_Include_Label', 'en-US', N'Browse')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Select_Include_Artifact_Label', 'en-US', N'Select Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Inline_Traces_Search_No_Matches_Found', 'en-US', N'No matches found')
@@ -1498,7 +1502,7 @@ DROP TABLE #tempAppLabels
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [dbo].[SetSchemaVersion] @value = N'7.4.0';
+EXEC [dbo].[SetSchemaVersion] @value = N'8.0.0';
 GO
 -- --------------------------------------------------
 

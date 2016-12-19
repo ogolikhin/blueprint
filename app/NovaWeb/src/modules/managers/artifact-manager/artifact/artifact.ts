@@ -11,6 +11,7 @@ import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main
 import {IDialogSettings} from "../../../shared";
 import {IApplicationError, ApplicationError} from "../../../core/error/applicationError";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {ErrorCode} from "../../../core/error/error-code";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
@@ -145,7 +146,13 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict) {
-                    deffered.promise = this.discardDependents(err.errorContent);
+                    if (err.errorCode === ErrorCode.NoChanges) {   
+                        this.discard();                     
+                        this.services.messageService.addInfo("Discard_No_Changes");
+                        deffered.resolve();
+                    } else {
+                        deffered.promise = this.discardDependents(err.errorContent);
+                    }
                 } else {
                     if (err && err.errorCode === 114) {
                         this.services.messageService.addInfo("Artifact_Lock_Refresh");

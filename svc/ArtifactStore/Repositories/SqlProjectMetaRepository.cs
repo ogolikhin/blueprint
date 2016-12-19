@@ -51,7 +51,7 @@ namespace ArtifactStore.Repositories
 
             var project = (await ConnectionWrapper.QueryAsync<ProjectVersion>("GetInstanceProjectById", prm, commandType: CommandType.StoredProcedure))?.FirstOrDefault();
             if (project == null)
-                throw new ResourceNotFoundException(string.Format("Project (Id:{0}) is not found.", projectId), ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException(string.Format("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", projectId), ErrorCodes.ResourceNotFound);
             if (!project.IsAccesible.GetValueOrDefault())
                 throw new AuthorizationException(string.Format("The user does not have permissions for Project (Id:{0}).", projectId), ErrorCodes.UnauthorizedAccess);
 

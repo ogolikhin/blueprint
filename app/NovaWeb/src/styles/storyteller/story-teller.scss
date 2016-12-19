@@ -468,8 +468,10 @@ bp-process-editor {
         padding: 10px;
         background-color: aqua;
     }
-}
 
+   
+}
+ 
 /* mxPopupMenu style */
 
 div.mxPopupMenu {
@@ -999,6 +1001,16 @@ body.mce-content-body a, body.mce-content-body a:hover {
     min-width: auto;
     padding-left: 7px; // buttons with icons inside are uneven due to padding on the icons
 }
+
+.dropdown-menu-item-label {
+    display: inline-block;
+    white-space: nowrap;
+    max-width: 145px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+}
+
 .dropdown-menu__item i:before {
     font-size: 2.0rem;
 }

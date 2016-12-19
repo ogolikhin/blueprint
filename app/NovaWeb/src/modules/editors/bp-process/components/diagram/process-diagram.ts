@@ -162,12 +162,16 @@ export class ProcessDiagram {
     };
 
     private navigateToAssociatedArtifact = (info: any) => {
-        const options = {
-            id: info.id,
-            version: info.version,
-            enableTracking: info.enableTracking
-        };
-        this.navigationService.navigateTo(options);
+        if (!!info && info.isAccessible) {
+            const options = {
+                id: info.id,
+                version: info.version,
+                enableTracking: info.enableTracking
+            };
+            this.navigationService.navigateTo(options);
+        } else {
+            this.messageService.addError(this.localization.get("HttpError_Forbidden"));
+        }
     };
 
     private openUtilityPanel = () => {
@@ -256,8 +260,7 @@ export class ProcessDiagram {
         } else {
             // empty selection
             this.$rootScope.$applyAsync(() => {
-                //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
-                if (this.graph) {
+                if (this.canChangeSelection()) {
                     this.artifactManager.selection.clearSubArtifact();
                 }
             });
@@ -266,11 +269,21 @@ export class ProcessDiagram {
 
     private setSubArtifactSelectionAsync(subArtifact: IStatefulSubArtifact, multiSelect: boolean = false) {
         this.$rootScope.$applyAsync(() => {
-            //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
-            if (this.graph) {
+            if (this.canChangeSelection()) {
                 this.artifactManager.selection.setSubArtifact(subArtifact, multiSelect);
             }
         });
+    }
+
+    private canChangeSelection() {
+        //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
+        if (!this.graph || !this.artifactManager) {
+            return false;
+        }
+        const selectedArtifact = this.artifactManager.selection.getArtifact();
+        const selectedArtifactId = selectedArtifact ? selectedArtifact.id : NaN;
+        const processArtifactId = this.processArtifact ? this.processArtifact.id : NaN;
+        return selectedArtifactId === processArtifactId;
     }
     
     private handleInitProcessGraphFailed(processId: number, err: any) {

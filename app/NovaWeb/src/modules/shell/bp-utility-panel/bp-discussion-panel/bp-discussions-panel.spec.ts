@@ -9,7 +9,7 @@ import {LocalizationServiceMock} from "../../../core/localization/localization.m
 import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
 import {IReply, IDiscussion} from "./artifact-discussions.svc";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";

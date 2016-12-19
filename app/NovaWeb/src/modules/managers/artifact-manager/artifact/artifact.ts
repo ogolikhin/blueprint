@@ -41,7 +41,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
     protected _subArtifactCollection: ISubArtifactCollection;
-    protected hasCustomSave: boolean = false;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
@@ -93,11 +92,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading() && !this.isHeadVersionDeleted()) {
             this.loadPromise = this.load();
-            const customPromises = this.getCustomArtifactPromisesForGetObservable();
-
-            const promisesToExecute = [this.loadPromise].concat(customPromises);
-
-            this.getServices().$q.all(promisesToExecute).then(() => {
+            
+            this.loadPromise.then(() => {
                 this.subject.onNext(this);
                 this.propertyChange.onNext({item: this});
             }).catch((error) => {
@@ -421,22 +417,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         return promise.promise.then(() => {
-            return this.getCustomArtifactPromiseForSave();
-        }).then(() => {
             const changes = this.changes();
             return this.saveArtifact(changes, autoSave).catch((error) => {
-                if (this.hasCustomSave) {
-                    this.customHandleSaveFailed();
-                }
                 return this.services.$q.reject(error);
             });
         }).catch((error) => {
             return this.services.$q.reject(error);
         });
     }
-
+    protected updateArtifact(changes: Models.IArtifact): ng.IPromise<Models.IArtifact> {
+        const url = `/svc/bpartifactstore/artifacts/${changes.id}`;
+        return this.services.artifactService.updateArtifact(url, changes);
+    }
     private saveArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<IStatefulArtifact> {
-        return this.services.artifactService.updateArtifact(changes).catch((error) => {
+        return this.updateArtifact(changes).catch((error) => {
             // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
             if (error) {
                 return this.services.$q.reject(this.handleSaveError(error));
@@ -451,6 +445,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.services.$q.reject(error);
             });
         });
+    }
+
+    protected getArtifactToSave(changes: Models.IArtifact) {
+        return changes;
     }
 
     protected handleSaveError(error: any): Error {
@@ -608,12 +606,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         //Also see: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3338&fullScreen=false
         //promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
 
-        if (allowCustomRefresh) {
-            // get promises for custom artifact refresh operations
-            // this operation merges two arrays
-            Array.prototype.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
-        }
-
         this.getServices().$q.all(promisesToExecute)
             .then(() => {
                 this.subject.onNext(this);
@@ -673,24 +665,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(copyOverlayId);
         });
-    }
-
-    //Hook for subclasses to provide additional promises which should be run for obtaining data
-    protected getCustomArtifactPromisesForGetObservable(): ng.IPromise<IStatefulArtifact>[] {
-        return [];
-    }
-
-    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
-        return [];
-    }
-
-    protected getCustomArtifactPromiseForSave(): ng.IPromise <IStatefulArtifact> {
-        return this.services.$q.when(this);
-    }
-
-    protected customHandleSaveFailed(): void {
-        ;
-    }
+    }    
 
     //Hook for subclasses to do some post processing
     protected runPostGetObservable() {

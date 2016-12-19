@@ -158,7 +158,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                                 item.id !== subArtifact.id &&
                                 item.id > 0 &&
                                 !item.lockedByUser;
-                    }
+                    },
+            disableOkButtonOnFolderSelection: true
         };
 
         this.openArtifactPicker(dialogSettings, dialogOption, this.postIncludePickerAction);
@@ -180,6 +181,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                                 !item.lockedByUser;
                     },
             disableOkButtonOnFolderSelection: true
+
         };
 
         this.openArtifactPicker(dialogSettings, dialogOption, this.postActorPickerAction);

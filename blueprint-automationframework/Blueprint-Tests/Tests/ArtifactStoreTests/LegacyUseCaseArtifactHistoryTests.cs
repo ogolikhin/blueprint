@@ -94,7 +94,8 @@ namespace ArtifactStoreTests
             userWithBadOrMissingToken.Token.SetToken(token);
 
             // Execute: Get the use case artifact with invalid token header using GetUseCaseArtifact
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1), "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1),
+                "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.USECASE_id_);
         }
 
         #endregion 401 Unauthorized Tests
@@ -112,11 +113,15 @@ namespace ArtifactStoreTests
             Helper.AssignProjectRolePermissionsToUser(userWithNonePermissionForArtifact, TestHelper.ProjectRole.None, _project, publishedUseCaseArtifact);
 
             // Execute: Get the use case artifact with the user with no permission to the artifact
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithNonePermissionForArtifact, publishedUseCaseArtifact.Id), "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithNonePermissionForArtifact, publishedUseCaseArtifact.Id),
+                "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!",
+                RestPaths.Svc.ArtifactStore.USECASE_id_);
 
             // Vaidation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode, "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}", InternalApiErrorCodes.Forbidden);
+            Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
+                "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}",
+                InternalApiErrorCodes.Forbidden);
         }
 
         #endregion 403 Forbidden Tests

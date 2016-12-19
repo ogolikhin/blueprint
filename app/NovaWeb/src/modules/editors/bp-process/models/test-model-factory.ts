@@ -1093,18 +1093,18 @@ export function createSystemDecisionWithMaximumConditionsModel(): IProcess {
 }
 
 export function createUserDecisionWithFourShapesLessThanMaximumShapesModel(): IProcess {
-    let process: IProcess = createProcessModel();
+    const process: IProcess = createProcessModel();
 
-    let start = createShapeModel(ProcessShapeType.Start, 10);
-    let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20);
-    let ut = createShapeModel(ProcessShapeType.UserTask, 30);
-    let st = createShapeModel(ProcessShapeType.SystemTask, 40);
-    let ud = createShapeModel(ProcessShapeType.UserDecision, 50);
-    let ut1 = createShapeModel(ProcessShapeType.UserTask, 70);
-    let st1 = createShapeModel(ProcessShapeType.SystemTask, 80);
-    let ut2 = createShapeModel(ProcessShapeType.UserTask, 90);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 100);
-    let end = createShapeModel(ProcessShapeType.End, 160);
+    const start = createShapeModel(ProcessShapeType.Start, 10);
+    const pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20);
+    const ut = createShapeModel(ProcessShapeType.UserTask, 30);
+    const st = createShapeModel(ProcessShapeType.SystemTask, 40);
+    const ud = createShapeModel(ProcessShapeType.UserDecision, 50);
+    const ut1 = createShapeModel(ProcessShapeType.UserTask, 70);
+    const st1 = createShapeModel(ProcessShapeType.SystemTask, 80);
+    const ut2 = createShapeModel(ProcessShapeType.UserTask, 90);
+    const st2 = createShapeModel(ProcessShapeType.SystemTask, 100);
+    const end = createShapeModel(ProcessShapeType.End, 160);
 
     process.shapes.push(start, pre, ut, st, ud, ut1, st1, ut2, st2, end);
 

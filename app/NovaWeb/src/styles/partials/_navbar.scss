@@ -25,7 +25,7 @@
         color: $white;
         display: none; //we don't want to show "blueprint Blueprint". It will be used for other products
         font-size: $font-size-smaller;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         height: $navbar-height;
         line-height: $navbar-height;
         margin: 0 0 0 144px;
@@ -44,12 +44,12 @@
         color: $white;
         font-size: $font-size-normal;
         font-style: italic;
-        font-weight: 600;
+        font-weight: $font-weight-semibold;
         line-height: $navbar-height;
 
         span {
             font-style: normal;
-            font-weight: 700;
+            font-weight: $font-weight-bold;
             margin-left: 4px;
         }
     }
@@ -76,22 +76,20 @@
     .navbar__help {
         color: $white;
         padding-right: 15px;
+    }
 
-        a {
-            line-height: 37px;
-        }
-
-        .fonticon, .fonticon::before {
-            color: $white;
-            cursor: pointer;
-            margin-top: -3px;
-            text-decoration: none;
-            vertical-align: middle;
-        }
-
-        .fonticon2-help::before {
-            font-size: 23px;
-        }
+    .navbar__question-mark {
+        border: solid 2px $white;
+        border-radius: 50%;
+        color: $white;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: $font-weight-extrabold;
+        height: 24px;
+        line-height: 20px;
+        margin: 8px 0;
+        text-align: center;
+        width: 24px;
     }
 
     .navbar__dropdown {

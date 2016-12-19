@@ -12,7 +12,7 @@
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right navbar__dropdown">
                     <li class="dropdown-menu-item">
-                        <button class="navbar__dropdown-btn" ng-click="app.navigateToHelpUrl($event)">{{::$root.config.labels['App_Header_ChangePassword']}}</button>
+                        <button class="navbar__dropdown-btn" ng-click="app.changePassword($event)">{{::$root.config.labels['App_Header_ChangePassword']}}</button>
                     </li>
                     <li class="dropdown-menu-item">
                         <button class="navbar__dropdown-btn" ng-click="app.logout($event)">{{::$root.config.labels['App_Header_Logout']}}</button>
@@ -20,7 +20,7 @@
                 </ul>
             </div>
             <div uib-dropdown class="navbar__help">
-                <a href="#" uib-dropdown-toggle><i class="fonticon fonticon2-help"></i><b class="caret dropdown-menu-caret"></b></a>
+                <a href="#" uib-dropdown-toggle><span class="navbar__question-mark">?</span><b class="caret dropdown-menu-caret"></b></a>
                 <ul class="dropdown-menu dropdown-menu-right navbar__dropdown">
                     <li class="dropdown-menu-item">
                         <button class="navbar__dropdown-btn" ng-click="app.logout($event)">{{::$root.config.labels["App_Header_Help"]}}</button>

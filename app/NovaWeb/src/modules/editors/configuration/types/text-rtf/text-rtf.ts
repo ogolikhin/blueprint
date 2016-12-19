@@ -84,7 +84,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 p { margin: 0 0 8px; }`,
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
-                invalid_elements: "frame,iframe,script",
+                invalid_elements: "img,frame,iframe,script",
                 invalid_styles: {
                     "*": "background-image"
                 },
@@ -321,7 +321,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
                                 // const imgSource =
                                 //      "http://1.bp.blogspot.com/-KDOldxM87mo/TcoHidaiAsI/AAAAAAAAADc/gg2ny9ms-_g/s1600/gir-gir-480869_500_512.jpg";
-                                // editor.insertContent("<img src='" + imgSource + "'");
+                                // editor.selection.setContent("<img src='" + imgSource + "' />");
                             });
 
                             input[0].click();

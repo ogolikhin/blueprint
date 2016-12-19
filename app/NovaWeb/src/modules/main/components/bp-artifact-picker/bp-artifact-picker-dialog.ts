@@ -17,8 +17,7 @@ export interface IArtifactPickerOptions {
     showProjects?: boolean;
     showArtifacts?: boolean;
     showCollections?: boolean;
-    showSubArtifacts?: boolean;
-    disableOkButtonOnFolderSelection?: boolean;
+    showSubArtifacts?: boolean
 }
 
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {
@@ -52,7 +51,7 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
     public onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): void {
         this.selectedVMs = selectedVMs;
 
-        if (this.dialogData.disableOkButtonOnFolderSelection && _.find(this.selectedVMs, (vm) => {
+        if (_.find(this.selectedVMs, (vm) => {
                 return vm.model.type === AdminStoreModels.InstanceItemType.Folder;
             })) {
             this.disableOnFolderSelection = true;

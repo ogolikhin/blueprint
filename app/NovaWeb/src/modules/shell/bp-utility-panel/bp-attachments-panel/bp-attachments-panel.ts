@@ -72,8 +72,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         const dialogData: IArtifactPickerOptions = {
             selectableItemTypes: [Models.ItemTypePredefined.Document],
-            showSubArtifacts: false,
-            disableOkButtonOnFolderSelection: true
+            showSubArtifacts: false
         };
 
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {

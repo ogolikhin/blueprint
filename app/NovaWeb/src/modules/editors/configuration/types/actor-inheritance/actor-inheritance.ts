@@ -73,8 +73,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
 
             const dialogData: IArtifactPickerOptions = {
                 selectableItemTypes: [Models.ItemTypePredefined.Actor],
-                showSubArtifacts: false,
-                disableOkButtonOnFolderSelection: true
+                showSubArtifacts: false
             };
 
             dialogService.open(dialogSettings, dialogData).then((items: Models.IArtifact[]) => {

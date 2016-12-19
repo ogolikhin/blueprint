@@ -8,7 +8,9 @@
             </div>
             <div uib-dropdown class="navbar__account">
                 <a href="#" uib-dropdown-toggle>
-                    <bp-avatar class="navbar__avatar" name="{{::app.currentUser.displayName}}" color-base="{{::app.currentUser.displayName}}"></bp-avatar>
+                    <bp-avatar class="navbar__avatar"
+                               name="{{::app.currentUser.displayName}}"
+                               color-base="{{::app.currentUser.id + app.currentUser.displayName}}"></bp-avatar>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right navbar__dropdown">
                     <li class="dropdown-menu-item">

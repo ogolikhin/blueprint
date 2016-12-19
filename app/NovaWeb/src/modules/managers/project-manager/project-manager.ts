@@ -283,58 +283,57 @@ export class ProjectManager implements IProjectManager {
     }
 
     private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number): ng.IPromise<void> {
-
         const oldProject = this.getProject(projectId);
         // if old project is opened
         if (oldProject) {
             this.artifactManager.removeAll(projectId);
         }
 
+        return this.metadataService.get(projectId)
+            .then(() => {
+                //reload project info
+                return this.projectService.getProject(projectId);
+            })
+            .then((result: AdminStoreModels.IInstanceItem) => {
+                //add some additional info
+                _.assign(result, {
+                    projectId: projectId,
+                    itemTypeId: Enums.ItemTypePredefined.Project,
+                    prefix: "PR",
+                    itemTypeName: "Project",
+                    predefinedType: Enums.ItemTypePredefined.Project,
+                    hasChildren: true
+                });
 
-        return this.metadataService.get(projectId).then(() => {
+                //create project node
+                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(result);
+                this.artifactManager.add(statefulArtifact);
+                let newProjectNode: IArtifactNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
 
-            //reload project info
-            return this.projectService.getProject(projectId);
-        }).then((result: AdminStoreModels.IInstanceItem) => {
+                //populate it
+                newProjectNode.children = data.map((it: Models.IArtifact) => {
+                    const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(it);
+                    this.artifactManager.add(statefulProject);
+                    return this.factory.createStatefulArtifactNodeVM(statefulProject);
+                });
 
-            //add some additional info
-            _.assign(result, {
-                projectId: projectId,
-                itemTypeId: Enums.ItemTypePredefined.Project,
-                prefix: "PR",
-                itemTypeName: "Project",
-                predefinedType: Enums.ItemTypePredefined.Project,
-                hasChildren: true
-            });
+                //open any children that have children
+                this.openChildNodes(newProjectNode.children, data);
 
-            //create project node
-            const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(result);
-            this.artifactManager.add(statefulArtifact);
-            let newProjectNode: IArtifactNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
-
-            //populate it
-            newProjectNode.children = data.map((it: Models.IArtifact) => {
-                const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(it);
-                this.artifactManager.add(statefulProject);
-                return this.factory.createStatefulArtifactNodeVM(statefulProject);
-            });
-
-            //open any children that have children
-            const expandedStatefulArtifact =  this.openChildNodes(newProjectNode.children, data, artifactToSelectId);
-
-            if (oldProject) {
-                //update project collection
-                this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
-                oldProject.unloadChildren();
-            } else {
-                this.projectCollection.getValue().unshift(newProjectNode);
-                this.projectCollection.onNext(this.projectCollection.getValue());
-                if (expandedStatefulArtifact) {
-                    this.artifactManager.selection.setExplorerArtifact(expandedStatefulArtifact);
+                if (oldProject) {
+                    //update project collection
+                    this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
+                    oldProject.unloadChildren();
+                } else {
+                    this.projectCollection.getValue().unshift(newProjectNode);
+                    this.projectCollection.onNext(this.projectCollection.getValue());
                 }
-            }
 
-        });
+                const artifactToSelect = this.artifactManager.get(artifactToSelectId);
+                if (artifactToSelect) {
+                    this.artifactManager.selection.setExplorerArtifact(artifactToSelect);
+                }
+            });
     }
 
     private clearProject(project: IArtifactNode) {
@@ -344,33 +343,25 @@ export class ProjectManager implements IProjectManager {
         }
     }
 
-    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[], resultStatefulArtifactId: number): IStatefulArtifact {
-
-        let resultArtifact: IStatefulArtifact;
-        //go through each node
+    private openChildNodes(childrenNodes: IArtifactNode[], childrenData: Models.IArtifact[]): void {
         _.forEach(childrenNodes, (node) => {
             let childData = childrenData.filter(it => it.id === node.model.id);
+
             //if it has children - expand the node
             if (childData[0].hasChildren && childData[0].children) {
-                node.children = childData[0].children.map((it: Models.IArtifact) => {
-                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
-                    this.artifactManager.add(statefulArtifact);
-                    if (it.id === resultStatefulArtifactId) {
-                        resultArtifact = statefulArtifact;
-                    }
-                    return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
-                });
+                node.children = childData[0].children.map(
+                    (it: Models.IArtifact) => {
+                        const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                        this.artifactManager.add(statefulArtifact);
+
+                        return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
+                    });
+
                 node.expanded = true;
 
-                const openChildeResult = this.openChildNodes(node.children, childData[0].children, resultStatefulArtifactId);
-                if (!resultArtifact) {
-                    resultArtifact = openChildeResult;
-                }
-                //process its children
+                this.openChildNodes(node.children, childData[0].children);
             }
         });
-
-        return resultArtifact;
     }
 
     public add(projectId: number): ng.IPromise<void> {

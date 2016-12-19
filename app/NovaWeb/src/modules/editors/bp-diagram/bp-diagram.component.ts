@@ -157,7 +157,7 @@ export class BPDiagramController extends BpBaseEditor {
                 }
             } else {
                 this.selectedElementId = undefined;
-                this.artifactManager.selection.setArtifact(this.artifact);
+                this.artifactManager.selection.clearSubArtifact();
             }
         });
     }

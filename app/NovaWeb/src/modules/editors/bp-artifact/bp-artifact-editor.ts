@@ -84,8 +84,18 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         });
     }
 
+    private onBeforeFieldCreatedCallback(context: IPropertyDescriptor) {
+        if (context.propertyTypePredefined === Models.PropertyTypePredefined.Description) {
+            context.allowAddImages = true;
+        }
+    }
+
     private displayContent(propertyContexts: IPropertyDescriptor[]) {
-        const shouldCreateFields = this.editor.create(this.artifact, propertyContexts, this.shouldRenewFields());
+        const shouldCreateFields = this.editor.create(this.artifact,
+            propertyContexts,
+            this.shouldRenewFields(),
+            this.onBeforeFieldCreatedCallback);
+
         if (shouldCreateFields) {
             this.clearFields();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {

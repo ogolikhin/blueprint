@@ -48,6 +48,8 @@ export class ProcessGraph implements IProcessGraph {
     private popupMenu: NodePopupMenu = null;
     private processCopyPasteHelper: ProcessCopyPasteHelper;
     private selectionChangedHandler: string = null;
+    private minNoOfShapesAddedPerSystemDecision: number = 1;
+    private minNoOfShapesAddedPerUserDecision: number = 2;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
         return this.viewModel.communicationManager.processDiagramCommunication;
@@ -227,10 +229,10 @@ export class ProcessGraph implements IProcessGraph {
             canAdd = false;
             errorMessage = this.rootScope.config.labels["ST_Add_CannotAdd_MaximumConditionsReached"];
         } else if (shapeType === ProcessShapeType.SystemDecision &&
-            this.viewModel.isWithinShapeLimit(1) === false) {
+            this.viewModel.isWithinShapeLimit(conditions.length * this.minNoOfShapesAddedPerSystemDecision) === false) {
             canAdd = false;
         } else if (shapeType === ProcessShapeType.UserDecision &&
-            this.viewModel.isWithinShapeLimit(2) === false) {
+            this.viewModel.isWithinShapeLimit(conditions.length * this.minNoOfShapesAddedPerUserDecision) === false) {
             canAdd = false;
         }
 

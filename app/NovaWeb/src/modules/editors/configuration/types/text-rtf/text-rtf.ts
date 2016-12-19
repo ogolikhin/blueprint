@@ -28,6 +28,7 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = [
         "$q",
+        "$log",
         "$scope",
         "$window",
         "navigationService",
@@ -41,6 +42,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     ];
 
     constructor($q: ng.IQService,
+                private $log: ng.ILogService,
                 $scope: AngularFormly.ITemplateScope,
                 $window: ng.IWindowService,
                 navigationService: INavigationService,
@@ -51,6 +53,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 selectionManager: ISelectionManager,
                 artifactService: IArtifactService,
                 artifactRelationships: IArtifactRelationships) {
+
         super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
 
@@ -66,7 +69,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 menubar: false,
-                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table",
+                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table uploadimage",
                 statusbar: false,
                 content_style: `html { height: 100%; overflow: auto !important; }
                 body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 12pt; min-height: 100px;
@@ -81,7 +84,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 p { margin: 0 0 8px; }`,
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
-                invalid_elements: "img,frame,iframe,script",
+                invalid_elements: "frame,iframe,script",
                 invalid_styles: {
                     "*": "background-image"
                 },
@@ -301,9 +304,38 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         icon: "link",
                         menu: this.linksMenu(editor)
                     });
+
+                    editor.addButton("uploadimage", {
+                        title: "Upload Image",
+                        text: "",
+                        icon: "image",
+                        onclick: () => {
+                            const input = angular.element(`<input type="file" name="image_file"
+                                    accept=".jpeg,.jpg,.png,image/jpeg,image/jpeg,image/png" style="display: none">`);
+
+                            input.one("change", (event: Event) => {
+                                const inputElement = <HTMLInputElement>event.currentTarget;
+                                const selectedImage = inputElement.files[0];
+
+                                this.uploadImage(selectedImage);
+
+                                // const imgSource =
+                                //      "http://1.bp.blogspot.com/-KDOldxM87mo/TcoHidaiAsI/AAAAAAAAADc/gg2ny9ms-_g/s1600/gir-gir-480869_500_512.jpg";
+                                // editor.insertContent("<img src='" + imgSource + "'");
+                            });
+
+                            input[0].click();
+                        }
+                    });
                 }
             }
         };
         _.assign($scope.to, to);
+    }
+
+    // placeholder for TinyMCE add image US4104
+    private uploadImage(file: File): string {
+        this.$log.info(`Will upload and insert <img src='${file.name}' />`);
+        return;
     }
 }

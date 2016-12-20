@@ -294,9 +294,9 @@ export class ProjectManager implements IProjectManager {
                 //reload project info
                 return this.projectService.getProject(projectId);
             })
-            .then((result: AdminStoreModels.IInstanceItem) => {
+            .then((project: AdminStoreModels.IInstanceItem) => {
                 //add some additional info
-                _.assign(result, {
+                _.assign(project, {
                     projectId: projectId,
                     itemTypeId: Enums.ItemTypePredefined.Project,
                     prefix: "PR",
@@ -306,15 +306,15 @@ export class ProjectManager implements IProjectManager {
                 });
 
                 //create project node
-                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(result);
-                this.artifactManager.add(statefulArtifact);
-                let newProjectNode: IArtifactNode = this.factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+                const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(project);
+                this.artifactManager.add(statefulProject);
+                let newProjectNode: IArtifactNode = this.factory.createStatefulArtifactNodeVM(statefulProject, true);
 
                 //populate it
                 newProjectNode.children = data.map((it: Models.IArtifact) => {
-                    const statefulProject = this.statefulArtifactFactory.createStatefulArtifact(it);
-                    this.artifactManager.add(statefulProject);
-                    return this.factory.createStatefulArtifactNodeVM(statefulProject);
+                    const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(it);
+                    this.artifactManager.add(statefulArtifact);
+                    return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
                 });
 
                 //open any children that have children

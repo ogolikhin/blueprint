@@ -1,5 +1,6 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
+import {LoginCtrl, ILoginInfo} from "./login/login.ctrl";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
@@ -80,6 +81,19 @@ export class AppController {
             }
         }).finally(() => {
             this.loadingOverlayService.endLoading(id);
+        });
+    }
+
+    public changePassword(evt?: ng.IAngularEvent) {
+        if (evt) {
+            evt.preventDefault();
+        }
+        this.dialogService.open(<IDialogSettings>{
+            template: require("./login/changePassword.html"),
+            css: "nova-login",
+            controller: LoginCtrl,
+            controllerAs: "ctrl",
+            backdrop: true
         });
     }
 

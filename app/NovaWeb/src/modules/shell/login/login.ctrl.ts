@@ -359,4 +359,8 @@ export class LoginCtrl {
                 this.handleLoginErrors(error);
             });
     }
+
+    public cancel(): void {
+        this.$uibModalInstance.dismiss();
+    }
 }

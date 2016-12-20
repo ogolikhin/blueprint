@@ -785,7 +785,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish.", artifact.Id);
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish. The artifact will now be refreshed.", artifact.Id);
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublish, expectedExceptionMessage);
         }
 

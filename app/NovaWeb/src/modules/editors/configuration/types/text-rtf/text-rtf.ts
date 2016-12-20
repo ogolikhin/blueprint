@@ -235,6 +235,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     });
 
                     editor.on("Focus", (e) => {
+                        this.hasReceivedFocus = true;
                         if (editor.editorContainer) {
                             editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
                         }

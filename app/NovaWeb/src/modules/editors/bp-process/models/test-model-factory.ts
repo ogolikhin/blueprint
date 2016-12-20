@@ -1092,6 +1092,42 @@ export function createSystemDecisionWithMaximumConditionsModel(): IProcess {
     return process;
 }
 
+export function createUserDecisionWithFourShapesLessThanMaximumShapesModel(): IProcess {
+    const process: IProcess = createProcessModel();
+
+    const start = createShapeModel(ProcessShapeType.Start, 10);
+    const pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 20);
+    const ut = createShapeModel(ProcessShapeType.UserTask, 30);
+    const st = createShapeModel(ProcessShapeType.SystemTask, 40);
+    const ud = createShapeModel(ProcessShapeType.UserDecision, 50);
+    const ut1 = createShapeModel(ProcessShapeType.UserTask, 70);
+    const st1 = createShapeModel(ProcessShapeType.SystemTask, 80);
+    const ut2 = createShapeModel(ProcessShapeType.UserTask, 90);
+    const st2 = createShapeModel(ProcessShapeType.SystemTask, 100);
+    const end = createShapeModel(ProcessShapeType.End, 160);
+
+    process.shapes.push(start, pre, ut, st, ud, ut1, st1, ut2, st2, end);
+
+    process.links.push(
+        {sourceId: start.id, destinationId: pre.id, orderindex: 0, label: null},
+        {sourceId: pre.id, destinationId: ut.id, orderindex: 0, label: null},
+        {sourceId: ut.id, destinationId: st.id, orderindex: 0, label: null},
+        {sourceId: st.id, destinationId: ud.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut1.id, orderindex: 0, label: null},
+        {sourceId: ut1.id, destinationId: st1.id, orderindex: 0, label: null},
+        {sourceId: st1.id, destinationId: end.id, orderindex: 0, label: null},
+        {sourceId: ud.id, destinationId: ut2.id, orderindex: 1, label: null},
+        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
+        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null},
+        );
+
+    process.decisionBranchDestinationLinks.push(
+        {sourceId: ud.id, destinationId: end.id, orderindex: 1, label: null}        
+    );
+
+    return process;
+}
+
 export function createUserDecisionWithMultipleBranchesModel(): IProcess {
     const shapesFactory = createShapesFactoryService();
     let model: IProcess = createProcessModel(1, ProcessType.UserToSystemProcess);

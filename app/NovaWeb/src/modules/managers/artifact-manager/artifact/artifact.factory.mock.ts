@@ -33,7 +33,6 @@ export class StatefulArtifactFactoryMock implements IStatefulArtifactFactoryMock
         statefulArtifact.links = process.links;
         statefulArtifact.decisionBranchDestinationLinks = process.decisionBranchDestinationLinks;
         statefulArtifact.propertyValues = process.propertyValues;
-        statefulArtifact.requestedVersionInfo = process.requestedVersionInfo;
 
         const statefulSubArtifacts = [];
         statefulArtifact.shapes = [];

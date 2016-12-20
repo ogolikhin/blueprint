@@ -7,7 +7,7 @@ export class ArtifactServiceMock implements IArtifactService {
     constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
     }
 
-    public updateArtifact(artifact: Models.IArtifact) {
+    public updateArtifact(url: string, artifact: Models.IArtifact) {
         const defer = this.$q.defer<Models.IArtifact>();
         defer.resolve(artifact);
         return defer.promise;

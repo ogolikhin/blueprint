@@ -1,5 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
+import "../../shell";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
 import {ProjectManager, IProjectManager, IArtifactNode} from "./project-manager";
@@ -271,6 +272,20 @@ describe("Project Manager Test", () => {
             expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(11);
             expect(projectManager.projectCollection.getValue()[1].model.id).toEqual(10);
         })));
+     });
+
+     describe("open project", () => {
+         it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+             // Arrange
+             const projectId = 10;
+             // Act
+             projectManager.openProject(projectId);
+             $rootScope.$digest();
+
+             // Assert            
+             expect(projectManager.projectCollection.getValue().length).toEqual(1);
+             expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(projectId);
+         })));
      });
 
      describe("refresh project", () => {

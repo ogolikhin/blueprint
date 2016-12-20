@@ -3,7 +3,7 @@ import "angular-mocks";
 import "../../shell";
 import {IProcessUpdateResult} from "./services/process.svc";
 import {ProcessServiceMock} from "./services/process.svc.mock";
-import {StatefulProcessArtifact} from "./process-artifact";
+import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {Models} from "../../main/models";
 import * as TestModels from "./models/test-model-factory";
@@ -21,7 +21,7 @@ import {ValidationServiceMock} from "../../managers/artifact-manager/validation/
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
 import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.svc.mock";
@@ -32,7 +32,7 @@ describe("StatefulProcessArtifact", () => {
     let $log: ng.ILogService;
     let $rootScope: ng.IRootScopeService;
     let statefulArtifactFactory: IStatefulArtifactFactory;
-
+    let getArtifactModelSpy: jasmine.Spy;
     beforeEach(angular.mock.module("app.shell"));
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
@@ -53,17 +53,24 @@ describe("StatefulProcessArtifact", () => {
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _$log_: ng.ILogService,
-        _statefulArtifactFactory_: IStatefulArtifactFactory
+        _statefulArtifactFactory_: IStatefulArtifactFactory,
+        artifactService: ArtifactServiceMock
         ) => {
 
         statefulArtifactFactory = _statefulArtifactFactory_;
+
         $rootScope = _$rootScope_;
         $q = _$q_;
         $log = _$log_;
+
+        const processArtifactReturn: INovaProcess = ArtifactServiceMock.createArtifact(1);
+        processArtifactReturn.process = TestModels.createDefaultProcessModel();
+        getArtifactModelSpy = spyOn(artifactService, "getArtifactModel").
+                                and.returnValue($q.when(processArtifactReturn));
     }));
 
-
-    it("Load - calls both the artifact service and process service to retrieve information", () => {
+    
+    it("Load - calls both the artifact service to retrieve information", () => {
         //Arrange
 
         const artifact = {
@@ -76,17 +83,12 @@ describe("StatefulProcessArtifact", () => {
 
         const processArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
 
-        const loadSpy = spyOn(processArtifact.getServices().processService, "load").and.callThrough();
-        const artifactSpy = spyOn(processArtifact.getServices().artifactService, "getArtifact").and.callThrough();
-
         //Act
         processArtifact.getObservable();
 
         //Assert
-        expect(loadSpy).toHaveBeenCalled();
-        expect(artifactSpy).toHaveBeenCalled();
+        expect(getArtifactModelSpy).toHaveBeenCalled();
     });
-
     it("Load - multiple loads will only execute once if initial load is not finished.", () => {
         //Arrange
 
@@ -100,17 +102,13 @@ describe("StatefulProcessArtifact", () => {
 
         const processArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
 
-        const loadSpy = spyOn(processArtifact.getServices().processService, "load").and.callThrough();
-        const artifactSpy = spyOn(processArtifact.getServices().artifactService, "getArtifact").and.callThrough();
-
         //Act
         processArtifact.getObservable();
         processArtifact.getObservable();
         processArtifact.getObservable();
 
         //Assert
-        expect(loadSpy).toHaveBeenCalledTimes(1);
-        expect(artifactSpy).toHaveBeenCalledTimes(1);
+        expect(getArtifactModelSpy).toHaveBeenCalledTimes(1);
     });
 
     it("Load - artifact service updates are reflected on model", () => {
@@ -128,7 +126,8 @@ describe("StatefulProcessArtifact", () => {
         let isLoaded: boolean = false;
         const loaded = () => {
             isLoaded = true;
-        };
+        };        
+
         //Act
         processArtifact.getObservable().subscribe(loaded, () => {
             return;
@@ -193,65 +192,6 @@ describe("StatefulProcessArtifact", () => {
         });
 
 
-    });
-
-    describe("Changes - ", () => {
-        it("updates new artifact ids and calls updateArtifact with correct updated subArtifacts", () => {
-            // arrange
-            const artifact = {
-                id: 1,
-                name: "",
-                projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process,
-                version: 1
-            } as Models.IArtifact;
-
-            const processArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);
-            processArtifact.artifactState.readonly = false;
-
-            spyOn(processArtifact, "lock");
-            spyOn(processArtifact, "canBeSaved").and.callFake(() => {
-                return true;
-            });
-
-            const testUserTask = ShapeModelMock.instance().UserTaskMock();
-            testUserTask.id = -1;
-            const newShape = statefulArtifactFactory.createStatefulProcessSubArtifact(processArtifact, testUserTask);
-            processArtifact.shapes = [newShape];
-            processArtifact.subArtifactCollection.add(newShape);
-            newShape.attachments.initialize([]);
-
-            const newIdValue = 100;
-            const keyValuePair: Models.IKeyValuePair = {key: -1, value: newIdValue};
-            const updateModel: IProcessUpdateResult = {messages: [], result: processArtifact, tempIdMap: [keyValuePair]};
-            const changesSpy = spyOn(processArtifact, "changes").and.callThrough();
-            spyOn(processArtifact.getServices().processService, "save").and.returnValue($q.when(updateModel))();
-            let changes;
-            spyOn(processArtifact.getServices().artifactService, "updateArtifact").and.callFake((parameter) => {
-                changes = parameter;
-                return $q.when();
-            })();
-
-
-            //act
-            newShape.attachments.add([{
-                userId: 0,
-                userName: "test",
-                fileName: "test.txt",
-                fileType: ".txt",
-                attachmentId: 1,
-                uploadedDate: "test",
-                guid: "test",
-                changeType: 0
-            }]);
-            processArtifact.save(true);
-            $rootScope.$digest();
-
-            //assert
-            expect(changesSpy).toHaveBeenCalled();
-            expect(changes.subArtifacts.length).toBe(1);
-            expect(changes.subArtifacts[0].id).toBe(newIdValue);
-        });
-    });
+    });   
 
 });

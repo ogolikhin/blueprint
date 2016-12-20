@@ -149,19 +149,19 @@ export class AnalyticsProvider implements ng.IServiceProvider {
         this._trackPage = () => {
             const track = this.canEmit();
             if (!track.canTrack) {
-                return $log.warn(track.message);
+                return $log.debug(track.message);
             }
             let pageView = _baseKeenEvent();
             let event = "pageView";
             if (this.isNotLocalhost || this.enableLocalhostTracking) {
                 this.client.addEvent(event, pageView, (error) => {
                     if (error) {
-                        $log.warn("KeenIO:  ", error);
+                        $log.debug("KeenIO:  ", error);
                     }
                 });
             }
             else {
-                $log.warn("Tracking Disabled");
+                $log.debug("Tracking Disabled");
             }
             $log.info("Tracking Page view: ", pageView);
 
@@ -178,7 +178,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
         this._trackEvent = (eventCollection, action, label?, value?, custom?, jQEvent?) => {
             const track = this.canEmit();
             if (!track.canTrack) {
-                return $log.warn(track.message);
+                return $log.debug(track.message);
             }
             //send the event type
 
@@ -212,12 +212,12 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             if (this.isNotLocalhost || this.enableLocalhostTracking) {
                 this.client.addEvent(eventCollection, newEvent, function (error) {
                     if (error) {
-                        $log.warn("KeenIO: ", error);
+                        $log.debug("KeenIO: ", error);
                     }
                 });
             }
             else {
-                $log.warn("Tracking Disabled");
+                $log.debug("Tracking Disabled");
             }
             $log.info(`tracking event Collection ${eventCollection}: `, newEvent);
 

@@ -7,7 +7,7 @@ import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {UserStoryServiceMock} from "../../../services/user-story.svc.mock";
 import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
-import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {CommunicationManager} from "../../../";
 import {RolePermissions, LockedByEnum} from "../../../../../main/models/enums";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
@@ -241,7 +241,6 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
-            expect(refreshSpy).toHaveBeenCalledWith(false);
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
@@ -274,7 +273,6 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
-            expect(refreshSpy).toHaveBeenCalledWith(false);
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
             expect(projectManagerRefreshSpy).toHaveBeenCalledTimes(1);

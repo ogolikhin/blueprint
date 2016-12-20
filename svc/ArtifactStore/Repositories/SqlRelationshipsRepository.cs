@@ -100,15 +100,18 @@ namespace ArtifactStore.Repositories
         {
             int artifactId;
             int itemId;
+            int projectId;
             if (traceDirection == TraceDirection.From)
             {
                 artifactId = link.SourceArtifactId;
                 itemId = link.SourceItemId;
+                projectId = link.SourceProjectId;
             }
             else
             {
                 artifactId = link.DestinationArtifactId;
                 itemId = link.DestinationItemId;
+                projectId = link.DestinationProjectId;
             }
             return new Relationship
             {
@@ -117,7 +120,7 @@ namespace ArtifactStore.Repositories
                 TraceDirection = traceDirection,
                 Suspect = link.IsSuspect,
                 TraceType = link.LinkType,
-                ProjectId = link.DestinationProjectId
+                ProjectId = projectId
             };
         }
         private List<Relationship> GetManualTraceRelationships(List<LinkInfo> manualLinks, int itemId)
@@ -210,8 +213,7 @@ namespace ArtifactStore.Repositories
             pathToProject.Reverse();
             return pathToProject;
         }
-
-        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, bool isDeleted)
+        public async Task<RelationshipExtendedInfo> GetRelationshipExtendedInfo(int artifactId, int userId, int? subArtifactId = null, bool isDeleted = false)
         {
             bool? addDrafts = null;
             int? revisionId = null;
@@ -220,11 +222,12 @@ namespace ArtifactStore.Repositories
                 addDrafts = true;
                 revisionId = int.MaxValue;
             }
+            var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var pathInfoDictionary = (await GetPathInfoToRoute(artifactId, userId, addDrafts, revisionId)).ToDictionary(a => a.ItemId);
             if (pathInfoDictionary.Keys.Count == 0)
                 throw new ResourceNotFoundException($"Artifact in revision {revisionId} does not exist.", ErrorCodes.ResourceNotFound);
             var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
-            var description = (await GetItemDescription(artifactId, userId, addDrafts, revisionId));
+            var description = (await GetItemDescription(itemId, userId, addDrafts, revisionId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
     }

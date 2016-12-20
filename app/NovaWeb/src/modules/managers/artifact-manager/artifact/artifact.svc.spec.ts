@@ -71,7 +71,8 @@ describe("Artifact Repository", () => {
             // Act
             let error: any;
             let data: Models.IArtifact;
-            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => {
+            const url = `/svc/bpartifactstore/artifacts/${100}`;
+            artifactService.updateArtifact(url, ArtifactServiceMock.createArtifact(100)).then((responce) => {
                 data = responce;
             }, (err) => error = err);
             $httpBackend.flush();
@@ -96,7 +97,8 @@ describe("Artifact Repository", () => {
             // Act
             let error: any;
             let data: Models.IArtifact;
-            artifactService.updateArtifact(ArtifactServiceMock.createArtifact(100)).then((responce) => {
+            const url = `/svc/bpartifactstore/artifacts/${100}`;
+            artifactService.updateArtifact(url, ArtifactServiceMock.createArtifact(100)).then((responce) => {
                 data = responce;
             }, (err) => error = err);
             $httpBackend.flush();

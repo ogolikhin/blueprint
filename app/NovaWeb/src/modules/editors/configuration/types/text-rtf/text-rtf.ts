@@ -10,7 +10,6 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
@@ -69,7 +68,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table",
                 statusbar: false,
                 content_style: `html { height: 100%; overflow: auto !important; }
-                body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 9pt; min-height: 100px;
+                body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 12pt; min-height: 100px;
                 margin: 0 20px 0 0; overflow: visible !important; padding-bottom: 0 !important; }
                 html:hover, html:focus { background: ${bodyBgColor} url(${bodyBgImage}) no-repeat right 4px top 6px; background-attachment: fixed; }
                 body.mce-content-body *[contentEditable=false] *[contentEditable=true]:focus,
@@ -120,127 +119,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 autoresize_overflow_padding: 0,
                 // plugins: "contextmenu", // https://www.tinymce.com/docs/plugins/contextmenu/
                 // contextmenu: "bold italic underline strikethrough | link inserttable | cell row column deletetable",
-                paste_preprocess: function (plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
-                    // remove generic font family
-                    let content = args.content;
-                    content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
-                    content = content.replace(/, ?serif([;'"])/gi, "$1");
-                    content = content.replace(/, ?monospace([;'"])/gi, "$1");
-                    args.content = content;
-                },
-                paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    this.normalizeHtml(args.node, true);
-                    Helper.removeAttributeFromNode(args.node, "id");
-                },
-                init_instance_callback: (editor) => {
-                    this.mceEditor = editor;
-
-                    editor.formatter.register("font8", {
-                        inline: "span",
-                        styles: {"font-size": "8pt"}
-                    });
-                    editor.formatter.register("font9", { // default font, equivalent to 12px
-                        inline: "span",
-                        styles: {"font-size": "9pt"}
-                    });
-                    editor.formatter.register("font10", {
-                        inline: "span",
-                        styles: {"font-size": "10pt"}
-                    });
-                    editor.formatter.register("font11", {
-                        inline: "span",
-                        styles: {"font-size": "11pt"}
-                    });
-                    editor.formatter.register("font12", {
-                        inline: "span",
-                        styles: {"font-size": "12pt"}
-                    });
-                    editor.formatter.register("font14", {
-                        inline: "span",
-                        styles: {"font-size": "14pt"}
-                    });
-                    editor.formatter.register("font16", {
-                        inline: "span",
-                        styles: {"font-size": "16pt"}
-                    });
-                    editor.formatter.register("font18", {
-                        inline: "span",
-                        styles: {"font-size": "18pt"}
-                    });
-                    editor.formatter.register("font20", {
-                        inline: "span",
-                        styles: {"font-size": "20pt"}
-                    });
-
-                    this.prepRTF(true);
-
-                    // MutationObserver
-                    const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
-                    if (!_.isUndefined(mutationObserver)) {
-                        // create an observer instance
-                        this.observer = new MutationObserver((mutations) => {
-                            mutations.forEach(this.handleMutation);
-                        });
-
-                        const observerConfig = {
-                            attributes: false,
-                            childList: true,
-                            characterData: false,
-                            subtree: true
-                        };
-                        this.observer.observe(this.editorBody, observerConfig);
-                    }
-
-                    let isFresh: boolean = true;
-
-                    editor.on("KeyUp", (e) => {
-                        if (e && [
-                            8, // delete
-                            46 // backspace
-                            ].indexOf(e.keyCode) !== -1) {
-                            if (this.isDirty || this.contentBuffer !== editor.getContent()) {
-                                this.triggerChange();
-                            }
-                        }
-                    });
-
-                    editor.on("SetContent", (e) => {
-                        if ($scope.options["data"].isFresh) {
-                            this.prepRTF(true);
-                            isFresh = false;
-                        }
-                    });
-
-                    editor.on("Change", (e) => {
-                        if (e && _.isObject(e.lastLevel)) { // tinyMce emits a 2 change events per actual change
-                            if ($scope.options["data"].isFresh && isFresh) {
-                                this.prepRTF(true);
-                            } else if (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen) {
-                                this.triggerChange();
-                            }
-                        }
-                    });
-
-                    editor.on("ExecCommand", (e) => {
-                        if (e && _.indexOf(this.execCommandEvents, e.command) !== -1) {
-                            this.triggerChange();
-                        } else if (e && _.indexOf(this.linkEvents, e.command) !== -1) {
-                            this.isLinkPopupOpen = true;
-                        }
-                    });
-
-                    editor.on("Focus", (e) => {
-                        if (editor.editorContainer) {
-                            editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
-                        }
-                    });
-
-                    editor.on("Blur", (e) => {
-                        if (editor.editorContainer) {
-                            editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
-                        }
-                    });
-                },
+                paste_preprocess: this.pastePreProcess,
+                paste_postprocess: this.pastePostProcess,
+                init_instance_callback: this.initInstanceCallback,
                 setup: (editor) => {
                     editor.addButton("format", {
                         title: "Format",

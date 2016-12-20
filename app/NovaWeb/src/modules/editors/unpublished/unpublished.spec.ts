@@ -1,6 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
-import "Rx";
+import "rx";
 import {UnpublishedController} from "./unpublished";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../core/messages/message.mock";

@@ -90,7 +90,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
             this.clearFields();
             this.editor.getFields().forEach((field: AngularFormly.IFieldConfigurationObject) => {
                 //add property change handler to each field
-                Object.assign(field.templateOptions, {
+                _.assign(field.templateOptions, {
                     onChange: this.onValueChange.bind(this)
                 });
 
@@ -150,7 +150,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                     return;
                 }
                 //here we need to update original model
-                const value = this.editor.convertToModelValue($field, $value);
+                const value = this.editor.convertToModelValue($field);
                 switch (context.lookup) {
                     case Enums.PropertyLookupEnum.Custom:
                         this.artifact.customProperties.set(context.modelPropertyName as number, value);

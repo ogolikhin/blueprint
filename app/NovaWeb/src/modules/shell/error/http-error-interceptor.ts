@@ -1,5 +1,4 @@
-﻿import "angular";
-import {ISession} from "../login/session.svc";
+﻿import {ISession} from "../login/session.svc";
 import {SessionTokenHelper} from "../login/session.token.helper";
 import {IApplicationError, ApplicationError} from "../../core/error/applicationError";
 import {IHttpInterceptorConfig} from "../../core/http/http-interceptor-config";
@@ -29,7 +28,7 @@ export class HttpErrorInterceptor {
             deferred.reject(response);
         } else if (response.status === HttpStatusCode.Unavailable || response.status === HttpStatusCode.ServiceUnavailable) {
             if (!this.canceledByUser(config)) {
-                $message.addError("HttpError_ServiceUnavailable"); // Service is unavailable
+                $message.addError("HttpError_ServiceUnavailable", true); // Service is unavailable
                 response.data = _.assign(error, {handled: true});
                 deferred.reject(response);
             } else {
@@ -62,7 +61,7 @@ export class HttpErrorInterceptor {
                 }
             );
         } else if (response.status === HttpStatusCode.Forbidden) {
-            $message.addError("HttpError_Forbidden"); //Forbidden. The user does not have permissions for the artifact
+            $message.addError("HttpError_Forbidden", true); //Forbidden. The user does not have permissions for the artifact
             response.data = _.assign(error, {
                 message: "HttpError_Forbidden",
                 handled: true
@@ -70,9 +69,8 @@ export class HttpErrorInterceptor {
             //here we need to reject with none object passed in, means that the error has been handled
             deferred.reject(response);
 
-
         } else if (response.status === HttpStatusCode.ServerError) {
-            $message.addError("HttpError_InternalServer"); //Internal Server Error. An error occurred.
+            $message.addError("HttpError_InternalServer", true); //Internal Server Error. An error occurred.
             //here we need to reject with none object passed in, means that the error has been handled
             response.data = _.assign(error, {
                 message: "HttpError_InternalServer",

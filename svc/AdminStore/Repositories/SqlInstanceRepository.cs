@@ -91,7 +91,7 @@ namespace AdminStore.Repositories
 
             var projectPaths = (await ConnectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetProjectNavigationPath", param, commandType: CommandType.StoredProcedure)).ToList();
             if(projectPaths.Count == 0)
-                throw new ResourceNotFoundException($"Project (Id:{projectId}) is not found.", ErrorCodes.ResourceNotFound);
+                throw new ResourceNotFoundException($"The project (Id:{projectId}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", ErrorCodes.ResourceNotFound);
             if (!includeProjectItself)
                 projectPaths.RemoveAll(p => p.Level == 0);
 

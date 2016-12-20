@@ -15,7 +15,6 @@ export class TabSliderController {
     public transitionDelay: number;
     public responsive: boolean;
     public slideSelect: Function;
-    public slidesCollection: any[];
 
     public showButtons: boolean;
     public isButtonPrevInvalid: boolean;

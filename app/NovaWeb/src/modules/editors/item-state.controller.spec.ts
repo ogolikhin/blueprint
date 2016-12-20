@@ -101,7 +101,8 @@ describe("Item State Controller tests", () => {
             navigationService,
             itemInfoService,
             loadingOverlayService,
-            statefulArtifactFactory);
+            statefulArtifactFactory,
+            $rootScope);
     }
 
     afterEach(() => {

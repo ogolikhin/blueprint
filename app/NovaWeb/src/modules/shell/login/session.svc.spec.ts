@@ -16,7 +16,7 @@ describe("SessionSvc", () => {
         $provide.service("dialogService", DialogService);
     }));
 
-    fdescribe("ensureAuthenticated", () => {
+    describe("ensureAuthenticated", () => {
         it("return current user from auth service", inject(($rootScope: ng.IRootScopeService, session: ISession) => {
             // Arrange
 

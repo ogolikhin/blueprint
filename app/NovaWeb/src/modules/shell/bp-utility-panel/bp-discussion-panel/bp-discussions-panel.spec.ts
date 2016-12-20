@@ -97,7 +97,8 @@ describe("Component BPDiscussionPanel", () => {
                 typePrefix: "PROS",
                 propertyValues: {},
                 associatedArtifact: null,
-                personaReference: null
+                personaReference: null,
+                flags: null
 
             };
             const subArtifact = statefulArtifactFactory.createStatefulProcessSubArtifact(artifact, processShape);
@@ -152,8 +153,8 @@ describe("Component BPDiscussionPanel", () => {
                 typePrefix: "PROS",
                 propertyValues: {},
                 associatedArtifact: null,
-                personaReference: null
-
+                personaReference: null,
+                flags: null
             };
             const subArtifact = new StatefulSubArtifact(artifact, processShape, services);
             onChangesObj.context.currentValue.artifact = artifact;

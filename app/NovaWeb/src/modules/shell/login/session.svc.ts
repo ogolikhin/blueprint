@@ -148,62 +148,60 @@ export class SessionSvc implements ISession {
             keyboard: false, // cannot Escape ))
             backdrop: false,
             bindToController: true
-        })
-            .then((result: ILoginInfo) => {
-                this._isLoginModalOpen = true;
-                if (result) {
-                    let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
-                    if (result.loginSuccessful) {
-                        this._isExpired = false;
-                        done.resolve();
-                    } else if (result.samlLogin) {
-                        this.dialogService
-                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
-                            .then(() => {
-                                this.loginWithSaml(true).then(
-                                    () => {
-                                        this._isExpired = false;
-                                        done.resolve();
-                                    },
-                                    (err) => {
-                                        this.showLogin(done, err);
-                                    });
-                            })
-                            .catch(() => {
-                                this.showLogin(done);
-                            })
-                            .finally(() => {
-                                confirmationDialog = null;
-                            });
-                    } else if (result.userName && result.password) {
-                        this.dialogService
-                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                            .then(() => {
-                                this.login(result.userName, result.password, true).then(
-                                    () => {
-                                        this._isExpired = false;
-                                        done.resolve();
-                                    },
-                                    (err) => {
-                                        this.showLogin(done, err);
-                                    });
-                            })
-                            .catch(() => {
-                                this.showLogin(done);
-                            })
-                            .finally(() => {
-                                confirmationDialog = null;
-                            });
-                    } else {
-                        this.showLogin(done);
-                    }
+        }).then((result: ILoginInfo) => {
+            this._isLoginModalOpen = true;
+            if (result) {
+                let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
+                if (result.loginSuccessful) {
+                    this._isExpired = false;
+                    done.resolve();
+                } else if (result.samlLogin) {
+                    this.dialogService
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
+                        .then(() => {
+                            this.loginWithSaml(true).then(
+                                () => {
+                                    this._isExpired = false;
+                                    done.resolve();
+                                },
+                                (err) => {
+                                    this.showLogin(done, err);
+                                });
+                        })
+                        .catch(() => {
+                            this.showLogin(done);
+                        })
+                        .finally(() => {
+                            confirmationDialog = null;
+                        });
+                } else if (result.userName && result.password) {
+                    this.dialogService
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                        .then(() => {
+                            this.login(result.userName, result.password, true).then(
+                                () => {
+                                    this._isExpired = false;
+                                    done.resolve();
+                                },
+                                (err) => {
+                                    this.showLogin(done, err);
+                                });
+                        })
+                        .catch(() => {
+                            this.showLogin(done);
+                        })
+                        .finally(() => {
+                            confirmationDialog = null;
+                        });
                 } else {
                     this.showLogin(done);
                 }
-            })
-            .finally(() => {
-                this._isLoginModalOpen = false;
-            });
+            } else {
+                this.showLogin(done);
+            }
+        }).finally(() => {
+            this._isLoginModalOpen = false;
+        });
     };
 
     public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {

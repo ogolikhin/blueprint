@@ -16,6 +16,7 @@ import {ActorImagePickerDialogServiceMock} from "./actor-image-choose-window.moc
 import {SettingsService, ISettingsService} from "../../../../core/configuration/settings";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
 
 describe("Actor image controller tests", () => {
 
@@ -31,6 +32,7 @@ describe("Actor image controller tests", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", ActorImagePickerDialogServiceMock);
         $provide.service("settingsService", SettingsService);
+        $provide.service("fileUploadService", FileUploadServiceMock);
     }));
 
     beforeEach(

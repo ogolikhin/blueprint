@@ -9,6 +9,7 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -20,18 +21,21 @@ namespace ArtifactStoreTests
         private const string ADD_IMAGE_PATH = RestPaths.Svc.ArtifactStore.IMAGES;
         private const string GET_IMAGE_PATH = RestPaths.Svc.ArtifactStore.IMAGES_id_;
 
-        private const string JPEG = "Jpeg";
-        private const string PNG = "Png";
-
-        private static Dictionary<string, ImageFormat> ImageFormatMap = new Dictionary<string, ImageFormat>
+        private static Dictionary<ImageType, ImageFormat> ImageFormatMap = new Dictionary<ImageType, ImageFormat>
         {
-            { JPEG, ImageFormat.Jpeg },
-            { PNG, ImageFormat.Png }
+            { ImageType.JPEG, ImageFormat.Jpeg },
+            { ImageType.PNG, ImageFormat.Png }
         };
 
         private IUser _adminUser = null;
         private IUser _authorUser = null;
         private IProject _project = null;
+
+        public enum ImageType
+        {
+            JPEG,
+            PNG
+        }
 
         [SetUp]
         public void SetUp()
@@ -50,16 +54,14 @@ namespace ArtifactStoreTests
 
         #region AddImage tests
 
-        [TestCase(20, 30, JPEG, "image/jpeg")]
-        [TestCase(80, 80, PNG, "image/png")]
+        [TestCase(20, 30, ImageType.JPEG, "image/jpeg")]
+        [TestCase(80, 80, ImageType.PNG, "image/png")]
         [TestRail(211529)]
         [Description("Upload a random image file to ArtifactStore.  Verify 201 Created is returned and that the image is saved in the database properly.")]
-        public void AddImage_ValidImage_ImageIsAddedToDatabase(int width, int height, string imageFormatName, string contentType)
+        public void AddImage_ValidImage_ImageIsAddedToDatabase(int width, int height, ImageType imageType, string contentType)
         {
             // Setup:
-            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageFormatName]);
-            string filename = I18NHelper.FormatInvariant("random-file.{0}", imageFormatName);
-            var imageFile = FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
             IFile returnedFile = null;
 
@@ -76,21 +78,65 @@ namespace ArtifactStoreTests
             // Then get the FileStore file GUID from the DB and get the file from FileStore and compare against what we added.
         }
 
+        [TestCase(20, 30, ImageType.JPEG, "text/plain")]
+        [TestCase(80, 80, ImageType.PNG, "application/json")]
+        [TestRail(211536)]
+        [Description("Try to upload a random image file to ArtifactStore but use the wrong Content-Type.  Verify 400 Bad Request is returned.")]
+        public void AddImage_ValidImage_InvalidContentType_400BadRequest(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 400 Bad Request when called with a Content-Type of '{1}'!", ADD_IMAGE_PATH, contentType);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "TODO: Fill this in when development is done.");
+
+            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+        }
+
+        [TestCase("jpg", "image/jpeg")]
+        [TestCase("png", "image/png")]
+        [TestRail(211537)]
+        [Description("Try to upload a random non-image file to ArtifactStore but use a valid image Content-Type and file extension.  Verify 400 Bad Request is returned.")]
+        public void AddImage_ValidImageFileExtensionAndContentType_NonImageData_400BadRequest(string fileExtension, string contentType)
+        {
+            // Setup:
+            string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, fileExtension);
+            var nonImageFile = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize: 1024, fakeFileName: filename, fileType: contentType);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, nonImageFile);
+            }, "'POST {0}' should return 400 Bad Request when called with data that's not in JPEG or PNG format!", ADD_IMAGE_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "TODO: Fill this in when development is done.");
+
+            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+        }
+
         #endregion AddImage tests
 
         #region GetImage tests
 
-        [TestCase(60, 40, JPEG, "image/jpeg")]
-        [TestCase(70, 50, PNG, "image/png")]
+        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ImageType.PNG, "image/png")]
         [TestRail(211535)]
         [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
             "and the same image that was uploaded is returned.")]
-        public void GetImage_AddedImage_ReturnsImage(int width, int height, string imageFormatName, string contentType)
+        public void GetImage_AddedImage_ReturnsImage(int width, int height, ImageType imageType, string contentType)
         {
             // Setup:
-            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageFormatName]);
-            string filename = I18NHelper.FormatInvariant("random-file.{0}", imageFormatName);
-            var imageFile = FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
             IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
             IFile returnedFile = null;
@@ -106,5 +152,26 @@ namespace ArtifactStoreTests
         }
 
         #endregion GetImage tests
+
+        #region Private functions
+
+        /// <summary>
+        /// Creates a random image file of the specified type and size.
+        /// </summary>
+        /// <param name="width">The image width.</param>
+        /// <param name="height">The image height.</param>
+        /// <param name="imageType">The type of image to create (ex. jpeg, png).</param>
+        /// <param name="contentType">The MIME Content-Type.</param>
+        /// <returns>The random image file.</returns>
+        private static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
+        {
+            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
+            string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType);
+
+            return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
+        }
+
+        #endregion Private functions
     }
 }

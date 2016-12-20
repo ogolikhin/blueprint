@@ -72,7 +72,7 @@ describe("Project Manager Test", () => {
     }));
 
     describe("add project", () => {
-        xit("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
             // Arrange
 
             //Act
@@ -256,7 +256,7 @@ describe("Project Manager Test", () => {
      });
 
      describe("open project with dialog", () => {
-        xit("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, dialogService: DialogServiceMock) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, dialogService: DialogServiceMock) => {
             // Arrange
             spyOn(dialogService, "open").and.callFake(() => {
                 return $q.resolve(11);

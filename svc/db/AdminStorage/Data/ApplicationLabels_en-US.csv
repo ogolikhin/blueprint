@@ -27,8 +27,11 @@ App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this applicati
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
-Tooltip_App_Header_Help,"Help"
-Tooltip_App_Header_Logout,"Log out"
+App_Header_ChangePassword,"Change password"
+App_Header_Logout,"Log out"
+App_Header_Help,"Help"
+App_Header_Tour,"Tour"
+
 Tooltip_Artifact_Header_LegacyArtifact,"Blueprint artifact"
 Tooltip_Browse_Actor, "Browse Actor"
 

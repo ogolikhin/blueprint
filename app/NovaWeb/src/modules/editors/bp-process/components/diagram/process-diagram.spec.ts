@@ -349,9 +349,51 @@ describe("ProcessDiagram Tests", () => {
         rootScope.$apply();
 
         // act
-        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, {id: artifactId});
+        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, 
+        {id: artifactId, isAccessible: true});
 
         // assert
         expect(navigateToArtifactSpy).toHaveBeenCalledWith({id: artifactId, version: undefined, enableTracking: undefined});
+    });
+
+        it("calls navigationService to navigation to associated artifact", () => {
+        // arrange
+        let artifactId = 14;
+        let diagram = new ProcessDiagram(
+            rootScope,
+            scope,
+            timeout,
+            q,
+            log,
+            messageService,
+            communicationManager,
+            dialogService,
+            localization,
+            navigationService,
+            statefulArtifactFactory,
+            shapesFactory,
+            utilityPanelService,
+            clipboard,
+            artifactManager,
+            fileUploadService,
+            loadingOverlayService
+        );
+        const navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
+        const errorMessageSpy = spyOn(messageService, "addError");
+
+
+        let model = TestModels.createDefaultProcessModel();
+        model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
+
+        diagram.createDiagram(model, container);
+        rootScope.$apply();
+
+        // act
+        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, 
+        {id: artifactId, isAccessible: false});
+
+        // assert
+        expect(navigateToArtifactSpy).not.toHaveBeenCalled();
+        expect(errorMessageSpy).toHaveBeenCalled();
     });
 });

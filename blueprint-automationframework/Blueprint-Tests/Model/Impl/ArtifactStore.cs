@@ -12,11 +12,16 @@ using Utilities;
 using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
+using Model.Factories;
 
 namespace Model.Impl
 {
     public class ArtifactStore : NovaServiceBase, IArtifactStore
     {
+        private IUser _userForFiles = null;
+
+        public List<IFileMetadata> Files { get; } = new List<IFileMetadata>();
+
         /// <summary>
         /// Constructor.
         /// </summary>
@@ -29,6 +34,28 @@ namespace Model.Impl
         }
 
         #region Members inherited from IArtifactStore
+
+        /// <seealso cref="IArtifactStore.AddImage(IUser, IFile, List{HttpStatusCode})"/>
+        public IFile AddImage(IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var addedImage = AddImage(Address, user, imageFile, expectedStatusCodes);
+
+            Files.Add(addedImage);
+
+            // We'll use this user in Dispose() to delete the files.
+            if (_userForFiles == null)
+            {
+                _userForFiles = user;
+            }
+
+            return addedImage;
+        }
+
+        /// <seealso cref="IArtifactStore.GetImage(string, List{HttpStatusCode})"/>
+        public IFile GetImage(string imageId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetImage(Address, imageId, expectedStatusCodes);
+        }
 
         /// <seealso cref="IArtifactStore.CopyArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
         public CopyNovaArtifactResultSet CopyArtifact(
@@ -613,7 +640,24 @@ namespace Model.Impl
 
             if (disposing)
             {
-                // TODO: Delete anything created by this class.
+                if (Files.Count > 0)
+                {
+                    Logger.WriteDebug("Deleting all files created by this ArtifactStore instance...");
+
+                    Assert.NotNull(_userForFiles,
+                        "It shouldn't be possible for the '{0}' member variable to be null if files were added to ArtifactStore!",
+                        nameof(_userForFiles));
+
+                    var fileStore = FileStoreFactory.GetFileStoreFromTestConfig();
+
+                    // Delete all the files that were created.
+                    foreach (var file in Files.ToArray())
+                    {
+                        fileStore.DeleteFile(file.Guid, _userForFiles);
+                    }
+
+                    Files.Clear();
+                }
             }
 
             _isDisposed = true;
@@ -631,6 +675,101 @@ namespace Model.Impl
         #endregion Members inherited from IDisposable
 
         #region Static members
+
+        /// <summary>
+        /// Uploads a new image to artifact store that could later be embedded in artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="imageFile">The image file to upload.  Valid image formats are:  JPG and PNG.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The uploaded file with the GUID identification.</returns>
+        public static IFile AddImage(string address, IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(imageFile, nameof(imageFile));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+            var additionalHeaders = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(imageFile.FileType))
+            {
+                additionalHeaders.Add("Content-Type", imageFile.FileType);
+            }
+
+            if (!string.IsNullOrEmpty(imageFile.FileName))
+            {
+                additionalHeaders.Add("Content-Disposition",
+                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
+                        HttpUtility.UrlEncode(imageFile.FileName, System.Text.Encoding.UTF8)));
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            var path = RestPaths.Svc.ArtifactStore.IMAGES;
+            var restApi = new RestApiFacade(address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                imageFile.FileName,
+                imageFile.Content.ToArray(),
+                imageFile.FileType,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            imageFile.Guid = response.Content.Replace("\"", "");
+            
+            return imageFile;
+        }
+
+        /// <summary>
+        /// Gets an image that was uploaded to artifact store.  No authentication is required.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="imageId">The GUID of the file you want to retrieve.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The file that was requested.</returns>
+        public static IFile GetImage(string address, string imageId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(imageId, nameof(imageId));
+
+            IFile file = null;
+
+            var restApi = new RestApiFacade(address);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.IMAGES_id_, imageId);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var contentDisposition = new ContentDisposition(
+                    response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString());
+
+                Assert.NotNull(contentDisposition, "The Content-Disposition shouldn't be null!");
+
+                string filename = HttpUtility.UrlDecode(contentDisposition.FileName);
+
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    Guid = imageId,
+                    LastModifiedDate =
+                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
+                            null),
+                    FileType = response.ContentType,
+                    FileName = filename
+                };
+            }
+
+            return file;
+        }
 
         /// <summary>
         /// Copies an artifact to a new parent.

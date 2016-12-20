@@ -84,7 +84,7 @@ export class Layout implements ILayout {
         }
 
         const nodeFactorySettings = new NodeFactorySettings();
-        nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
+        nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isSMB;
         nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
         nodeFactorySettings.isDetailsButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa;

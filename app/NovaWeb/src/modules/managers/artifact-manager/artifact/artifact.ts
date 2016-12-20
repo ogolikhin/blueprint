@@ -16,7 +16,7 @@ import {ErrorCode} from "../../../core/error/error-code";
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
     lastSaveInvalid: boolean;
-
+    isDisposed: boolean;
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact
@@ -36,8 +36,10 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IIStatefulItem {
 }
+
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
+    private _isDisposed: boolean;
 
     protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
     protected _subArtifactCollection: ISubArtifactCollection;
@@ -48,11 +50,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.metadata = new MetaData(this);
         this.state = new ArtifactState(this);
     }
+    
     public get lastSaveInvalid(): boolean {
         return this.artifact.lastSaveInvalid;
     }
+
+    public get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+
     public dispose() {
+        this._isDisposed = true;
+
         super.dispose();
+        
         if (this.state) {
             this.state.dispose();
         }

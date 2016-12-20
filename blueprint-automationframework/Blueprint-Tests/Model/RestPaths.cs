@@ -128,6 +128,11 @@ namespace Model
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
                 }
+
+                public static class Users_id_
+                {
+                    public const string ICON                        = "svc/adminstore/users/{0}/icon";
+                }
             }
 
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

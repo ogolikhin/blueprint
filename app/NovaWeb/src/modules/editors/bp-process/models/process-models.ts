@@ -248,7 +248,7 @@ export class TaskShapeModel extends ProcessShapeModel implements ITaskShape {
     }
 }
 
-export class UserTaskShapeModel extends TaskShapeModel implements ITaskShape {
+export class UserTaskShapeModel extends TaskShapeModel implements IUserTaskShape {
     constructor(public id: number = 0,
                 public name: string = "",
                 public projectId: number = 0,

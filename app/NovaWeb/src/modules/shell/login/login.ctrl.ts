@@ -2,12 +2,18 @@
 import {ISettingsService} from "../../core/configuration/settings";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IDialogSettings, BaseDialogController} from "../../shared/widgets/bp-dialog/bp-dialog";
 
 export class ILoginInfo {
     public userName: string;
     public password: string;
     public loginSuccessful: boolean;
     public samlLogin: boolean;
+}
+
+export interface ILoginModalDialogData {
+    isChangePasswordScreenEnabled?: boolean;
+    changePasswordScreenMessage?: string;
 }
 
 export enum LoginState {
@@ -17,7 +23,7 @@ export enum LoginState {
     SamlLoginForm
 }
 
-export class LoginCtrl {
+export class LoginCtrl extends BaseDialogController {
 
     public isLabelErrorStyleShowing: boolean;
     public isTextFieldErrorStyleShowing: boolean;
@@ -70,13 +76,25 @@ export class LoginCtrl {
 
     public isLoginInProgress: boolean;
 
-    static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "settings"];
+    static $inject = [
+        "$uibModalInstance",
+        "dialogSettings",
+        "dialogData",
+        "localization",
+        "session",
+        "$timeout",
+        "settings"
+    ];
 
-    constructor(private localization: ILocalizationService,
-                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
+                dialogSettings: IDialogSettings,
+                public dialogData: ILoginModalDialogData,
+                private localization: ILocalizationService,
                 private session: ISession,
                 private $timeout: ng.ITimeoutService,
                 private settings: ISettingsService) {
+        super($instance, dialogSettings);
+
         this.currentFormState = LoginState.LoginForm;
         this.errorMessage = session.getLoginMessage();
         this.novaUserName = session.forceUsername();
@@ -86,8 +104,6 @@ export class LoginCtrl {
         this.forgetPasswordScreenMessage = localization.get("Login_Session_EnterUsername");
 
         this.isChangePasswordScreenEnabled = false;
-
-        this.changePasswordScreenMessage = localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
 
@@ -136,7 +152,7 @@ export class LoginCtrl {
                 let result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
-                this.$uibModalInstance.close(result);
+                this.$instance.close(result);
             },
             (error) => {
                 this.handleLoginErrors(error);
@@ -286,6 +302,7 @@ export class LoginCtrl {
                 this.errorMessage = this.localization.get("Login_Session_PasswordHasExpired");
                 this.isTextFieldErrorStyleShowing = false;
                 if (this.isChangePasswordScreenEnabled) {
+                    this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
                     this.transitionToState(LoginState.ChangePasswordForm);
                 }
                 this.isChangePasswordScreenEnabled = true;
@@ -316,7 +333,7 @@ export class LoginCtrl {
             }
             result.loginSuccessful = false;
 
-            this.$uibModalInstance.close(result);
+            this.$instance.close(result);
         } else if (error.statusCode === 400) {
             this.isTextFieldErrorStyleShowing = true;
             if (error.errorCode === 2004) {
@@ -352,15 +369,11 @@ export class LoginCtrl {
                 let result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
-                this.$uibModalInstance.close(result);
+                this.$instance.close(result);
             },
             (error) => {
                 this.isLoginInProgress = false;
                 this.handleLoginErrors(error);
             });
-    }
-
-    public cancel(): void {
-        this.$uibModalInstance.dismiss();
     }
 }

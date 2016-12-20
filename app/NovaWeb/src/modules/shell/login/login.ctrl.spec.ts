@@ -4,15 +4,20 @@ import {LoginCtrl, LoginState} from "./login.ctrl";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
 import {HttpStatusCode} from "../../core/http/http-status-code";
+import {IDialogSettings} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {DialogSettingsMock, DataMock} from "./login.ctrl.mock";
 
 describe("LoginCtrl", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        let dialogSettings: IDialogSettings = {};
         $provide.service("loginCtrl", LoginCtrl);
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("session", SessionSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("settings", SettingsMock);
+        $provide.service("dialogSettings", DialogSettingsMock);
+        $provide.service("dialogData", DataMock);
     }));
 
     describe("login", () => {

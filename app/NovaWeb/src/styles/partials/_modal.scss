@@ -526,3 +526,10 @@ $modal-open-project-height: 450px;
     }
     }
 }
+
+.modal.change-password {
+    .change-password__focus-stealer {
+        float: left;
+        margin: -2000px 0 0 -2000px;
+    }
+}

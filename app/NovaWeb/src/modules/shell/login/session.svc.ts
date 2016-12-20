@@ -1,8 +1,8 @@
 ﻿import "angular";
-import {IDialogService} from "../../shared/";
+import {IDialogService, IDialogSettings, BaseDialogController} from "../../shared/";
 import {IAuth, IUser} from "./auth.svc";
 import {SessionTokenHelper} from "./session.token.helper";
-import {LoginCtrl, ILoginInfo} from "./login.ctrl";
+import {LoginCtrl, ILoginInfo, ILoginModalDialogData} from "./login.ctrl";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface ISession {
@@ -35,8 +35,6 @@ export class SessionSvc implements ISession {
                 private localization: ILocalizationService,
                 private dialogService: IDialogService) {
     }
-
-    private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
 
     private _currentUser: IUser;
     private _loginMsg: string;
@@ -117,7 +115,7 @@ export class SessionSvc implements ISession {
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser || this._modalInstance) {
+        if (this._currentUser) {
             return this.$q.resolve();
         }
         const defer = this.$q.defer();
@@ -140,20 +138,17 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
-    private showLogin(done: ng.IDeferred<any>, error?: Error): void {
-        if (!this._modalInstance) {
-            this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-                template: require("./login.html"),
-                windowClass: "nova-login",
-                controller: LoginCtrl,
-                controllerAs: "ctrl",
-                keyboard: false, // cannot Escape ))
-                backdrop: false,
-                bindToController: true
-            });
-
-            this._modalInstance.result.then((result: ILoginInfo) => {
-
+    private showLogin = (done: ng.IDeferred<any>, error?: Error): void => {
+        this.dialogService.open(<IDialogSettings>{
+            template: require("./login.html"),
+            css: "nova-login",
+            controller: LoginCtrl,
+            controllerAs: "ctrl",
+            keyboard: false, // cannot Escape ))
+            backdrop: false,
+            bindToController: true
+        })
+            .then((result: ILoginInfo) => {
                 if (result) {
                     let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
@@ -203,11 +198,8 @@ export class SessionSvc implements ISession {
                 } else {
                     this.showLogin(done);
                 }
-            }).finally(() => {
-                this._modalInstance = null;
             });
-        }
-    }
+    };
 
     public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
         const defer = this.$q.defer();
@@ -222,5 +214,3 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 }
-
-

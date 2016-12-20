@@ -237,7 +237,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
                     editor.on("Blur", (e) => {
                         if (editor.editorContainer) {
-                            editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
+                            const parentElement = editor.editorContainer.parentElement as HTMLElement;
+                            parentElement.classList.add("tinymce-toolbar-hidden");
+                            (parentElement.querySelector("input.tinymce-focus-catcher") as HTMLElement).focus();
+                            (parentElement.querySelector("input.tinymce-focus-catcher") as HTMLElement).blur();
                         }
                     });
                 },

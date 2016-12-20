@@ -52,7 +52,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 selectionManager: ISelectionManager,
                 artifactService: IArtifactService,
                 artifactRelationships: IArtifactRelationships) {
-
         super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
 

@@ -39,7 +39,7 @@ export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifa
 
     //-------------------IStatefulArtifact-------------------
     lastSaveInvalid: boolean;
-
+    isDisposed: boolean;
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact

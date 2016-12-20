@@ -90,8 +90,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected selectionManager: ISelectionManager,
                 protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
-        $scope["modelValue"] = null; //$scope.model[$scope.options["key"]];
-
         this.currentArtifact = selectionManager.getArtifact();
         this.currentSubArtifact = selectionManager.getSubArtifact();
 
@@ -180,6 +178,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             if (formControl) {
                 formControl.$setValidity("requiredCustom", isValid, formControl);
                 $scope.to["isInvalid"] = !isValid;
+                $scope.options.validation["show"] = !isValid;
                 $scope.showError = !isValid;
             }
         });
@@ -202,7 +201,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         newContent = newContent || "";
 
         const $scope = this.$scope;
-        if ($scope.model[$scope.options["key"]] !== newContent) {
+        if (this.contentBuffer !== newContent) {
             this.isDirty = true;
             this.isLinkPopupOpen = false;
 
@@ -218,7 +217,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected prepRTF = (hasTables: boolean = false) => {
         const $scope = this.$scope;
-        $scope["modelValue"] = $scope.model[$scope.options["key"]];
+        this.mceEditor.setContent($scope.model[$scope.options["key"]] || "");
         this.isDirty = false;
         this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;

@@ -70,12 +70,41 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 201 Created when called with a valid token & supported image format!", ADD_IMAGE_PATH);
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareIds: false);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
 
             // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and compare the GUID returned with what's in the DB...
             // Then get the FileStore file GUID from the DB and get the file from FileStore and compare against what we added.
         }
 
         #endregion AddImage tests
+
+        #region GetImage tests
+
+        [TestCase(60, 40, JPEG, "image/jpeg")]
+        [TestCase(70, 50, PNG, "image/png")]
+        [TestRail(211535)]
+        [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
+            "and the same image that was uploaded is returned.")]
+        public void GetImage_AddedImage_ReturnsImage(int width, int height, string imageFormatName, string contentType)
+        {
+            // Setup:
+            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageFormatName]);
+            string filename = I18NHelper.FormatInvariant("random-file.{0}", imageFormatName);
+            var imageFile = FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
+
+            IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            IFile returnedFile = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                returnedFile = Helper.ArtifactStore.GetImage(addedFile.Guid);
+            }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+        }
+
+        #endregion GetImage tests
     }
 }

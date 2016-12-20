@@ -891,6 +891,13 @@ pagecontent, bp-properties-panel {
             .tinymce-group {
                 display: block;
                 width: 100%;
+
+                .tinymce-focus-catcher {
+                    left: -100px;
+                    position: absolute;
+                    top: 100px;
+                    width: 10px;
+                }
             }
 
             .mce-tinymce {

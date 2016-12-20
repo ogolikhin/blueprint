@@ -224,7 +224,8 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
             primitiveType: PrimitiveType.Text,
-            isRichText: true
+            isRichText: true,
+            isMultipleAllowed: true
         });
 
         switch (artifact.predefinedType) {
@@ -266,7 +267,8 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
             primitiveType: PrimitiveType.Text,
-            isRichText: true
+            isRichText: true,
+            isMultipleAllowed: true
         });
 
         if (subArtifact.predefinedType === ItemTypePredefined.Step) {

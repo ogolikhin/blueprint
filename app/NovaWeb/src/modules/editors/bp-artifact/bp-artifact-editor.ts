@@ -85,7 +85,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     }
 
     private onBeforeFieldCreatedCallback(context: IPropertyDescriptor) {
-        if (context.propertyTypePredefined === Models.PropertyTypePredefined.Description) {
+        if (context.isRichText && context.isMultipleAllowed) {
             context.allowAddImages = true;
         }
     }

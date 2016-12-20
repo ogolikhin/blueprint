@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.UI.WebControls;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -58,6 +61,48 @@ namespace AdminStore.Controllers
                 loginUser.LicenseType = session.LicenseLevel;
                 loginUser.IsSso = session.IsSso;
                 return Ok(loginUser);
+            }
+            catch (AuthenticationException)
+            {
+                return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceUsers, ex);
+                return InternalServerError();
+            }
+        }
+
+        /// <summary>
+        /// GetUserIcon
+        /// </summary>
+        /// <remarks>
+        /// Returns information about the user of the current session.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="204">No icon for user exists.</response>
+        /// <response code="401">Not Found. The user with the provided ID was not found.</response>
+        /// <response code="403">Forbidden. The provided user's icon is not accessible.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("{userId:int:min(1)}/icon"), SessionRequired]
+        [ResponseType(typeof(BitArray))]
+        public async Task<IHttpActionResult> GetUserIcon(int userId)
+        {
+            try
+            {
+                var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+                var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
+                if (loginUser == null)
+                {
+                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
+                }
+                if (loginUser.Image_ImageId == null)
+                {
+                    return StatusCode(HttpStatusCode.NoContent);
+                }
+
+                return Ok(loginUser.Image_ImageId);
             }
             catch (AuthenticationException)
             {

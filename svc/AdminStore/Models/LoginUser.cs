@@ -69,5 +69,10 @@ namespace AdminStore.Models
         /// The Instance Admin privliges of this user.
         /// </summary>
         public int InstanceAdminPrivileges { get; set; }
+
+        /// <summary>
+        /// The image ID for users's icon, if any.
+        /// </summary>
+        public int? Image_ImageId { get; set; }
     }
 }

@@ -120,6 +120,7 @@ describe("Artifact", () => {
     });
 
     describe("Save", () => {
+
         it("success", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
 
@@ -133,6 +134,7 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
+
         xit("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
 
@@ -173,7 +175,6 @@ describe("Artifact", () => {
             expect(error).toBeDefined();
 
         }));
-
 
         xit("error no changes", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
@@ -386,6 +387,23 @@ describe("Artifact", () => {
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
 
+        it("updateArtifact is called with process save url and contains process model",
+            inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+
+            let url: string;
+            let changes: Models.IArtifact;
+            const updateSpy = spyOn(artifactService, "updateArtifact").and.callFake((_url, _changes) => {
+                url = _url;
+                changes = _changes;
+                return $q.when(artifact);
+            });
+
+            artifact.save();
+            $rootScope.$digest();
+
+            expect(url).toBe("/svc/bpartifactstore/artifacts/22");
+            expect(changes).toBeDefined();
+        }));
     });
 
     //TODO: move to artifact-mamager.spec

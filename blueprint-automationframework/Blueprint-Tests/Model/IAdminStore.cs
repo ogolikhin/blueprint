@@ -226,5 +226,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Navigation Path.</returns>
         List<string> GetProjectNavigationPath(int projectId, IUser user, bool? includeProjectItself = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the User Icon for the specified User ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose icon you want to retrieve.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected,
+        ///     but 204 No Content is also valid if the user has no icon.</param>
+        /// <returns>The icon file.</returns>
+        IFile GetUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

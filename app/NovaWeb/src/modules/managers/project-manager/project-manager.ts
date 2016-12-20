@@ -42,6 +42,7 @@ export interface IProjectManager extends IDispose {
     triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
     calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
+    openProject(projectId: number): ng.IPromise<void>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -183,24 +184,20 @@ export class ProjectManager implements IProjectManager {
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
         }).then((projectId: number) => {
             if (projectId) {
-                const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-                let openProjects = _.map(this.projectCollection.getValue(), "model.id");
-
-                try {
-                    this.add(projectId)
-                        .finally(() => {
-                            //(eventCollection, action, label?, value?, custom?, jQEvent?
-                            const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                            this.analytics.trackEvent("open", "project", label, projectId, {
-                                openProjects: openProjects
-                            });
-                            this.loadingOverlayService.endLoading(openProjectLoadingId);
-                        });
-                } catch (err) {
-                    this.loadingOverlayService.endLoading(openProjectLoadingId);
-                    throw err;
-                }
+                this.openProject(projectId);
             }
+        });
+    }
+
+    public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
+        const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+        let openProjects = _.map(this.projectCollection.getValue(), "model.id");
+        return this.add(projectId).finally(() => {
+            const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+            this.analytics.trackEvent("open", "project", label, projectId, {
+                openProjects: openProjects
+            });
+            this.loadingOverlayService.endLoading(openProjectLoadingId);
         });
     }
 

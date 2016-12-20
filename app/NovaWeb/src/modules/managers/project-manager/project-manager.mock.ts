@@ -71,6 +71,11 @@ export class ProjectManagerMock implements IProjectManager {
         return this.$q.resolve(0);
     }
 
+    public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
+        return this.$q.resolve();
+
+    }
+
     public dispose(): void {
         return;
     }

@@ -82,25 +82,8 @@ export class ArtifactManager implements IArtifactManager {
         return artifact;
     }
 
-    private clearSelection(projectId?: number): void {
-        if (!projectId) {
-            this.selection.clearAll();
-            return;
-        }
-
-        const selectedArtifact = this.selection.getArtifact();
-        if (!selectedArtifact) {
-            return;
-        }
-
-        if (selectedArtifact.projectId === projectId) {
-            this.selection.clearAll();
-        }
-    }
 
     public removeAll(projectId?: number) {
-        this.clearSelection(projectId);
-
         for (const artifactKey in this.artifactDictionary) {
             const artifact = this.artifactDictionary[artifactKey];
 

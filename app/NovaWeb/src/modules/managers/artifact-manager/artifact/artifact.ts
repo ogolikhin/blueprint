@@ -49,6 +49,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         super(artifact, services);
         this.metadata = new MetaData(this);
         this.state = new ArtifactState(this);
+        this._isDisposed = false;
     }
     
     public get lastSaveInvalid(): boolean {

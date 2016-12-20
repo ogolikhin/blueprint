@@ -25,7 +25,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     delete(): ng.IPromise<Models.IArtifact[]>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
-    refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
+    refresh(): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
@@ -581,7 +581,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
     }
 
-    public refresh(allowCustomRefresh: boolean = true): ng.IPromise<IStatefulArtifact> {
+    public refresh(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 

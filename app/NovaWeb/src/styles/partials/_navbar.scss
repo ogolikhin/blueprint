@@ -46,15 +46,30 @@
         font-style: italic;
         font-weight: $font-weight-semibold;
         line-height: $navbar-height;
+    }
 
-        span {
-            font-style: normal;
-            font-weight: $font-weight-bold;
-            margin-left: 4px;
+    .navbar__account {
+        margin-left: 4px;
+
+        a {
+            display: flex;
+            flex-flow: row nowrap;
+            text-decoration: none;
         }
     }
 
+    .navbar__name {
+        color: $white;
+        display: block;
+        flex: none;
+        font-size: $font-size-normal;
+        font-style: normal;
+        font-weight: $font-weight-bold;
+        line-height: $navbar-height;
+    }
+
     .navbar__avatar {
+        flex: none;
         height: 24px;
         margin: 8px;
         width: 24px;

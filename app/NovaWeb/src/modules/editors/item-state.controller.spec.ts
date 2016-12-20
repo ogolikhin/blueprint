@@ -318,7 +318,7 @@ describe("Item State Controller tests", () => {
                 expect(navigationSpy).toHaveBeenCalledWith({id: 10, redirect: true});
             });
 
-            it("should not navigate to a project, should navigate to Main", () => {
+            it("should navigate to a project", () => {
                 // arrange
                 const artifactId = 10;
                 const isSubArtifactSpy = spyOn(itemInfoService, "isProject").and.callFake(() => true);

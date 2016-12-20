@@ -36,6 +36,7 @@ export interface IPropertyDescriptor {
     modelPropertyName: string | number;
     lookup: PropertyLookupEnum;
     isFresh?: boolean;
+    allowAddImages?: boolean;
 }
 
 export class PropertyDescriptor implements IPropertyDescriptor {
@@ -66,6 +67,7 @@ export class PropertyDescriptor implements IPropertyDescriptor {
     public modelPropertyName: string | number;
     public lookup: PropertyLookupEnum;
     public isFresh?: boolean;
+    public allowAddImages?: boolean;
 
     public static createFromPropertyType(type: IPropertyType) {
         const propertyContext = new PropertyDescriptor();
@@ -222,7 +224,8 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
             primitiveType: PrimitiveType.Text,
-            isRichText: true
+            isRichText: true,
+            isMultipleAllowed: true
         });
 
         switch (artifact.predefinedType) {
@@ -264,7 +267,8 @@ export class PropertyDescriptorBuilder implements IPropertyDescriptorBuilder {
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
             primitiveType: PrimitiveType.Text,
-            isRichText: true
+            isRichText: true,
+            isMultipleAllowed: true
         });
 
         if (subArtifact.predefinedType === ItemTypePredefined.Step) {

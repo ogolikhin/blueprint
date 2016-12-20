@@ -16,7 +16,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     public abstract nameOnBlur();
     public abstract getActiveHeader(): string;
     public abstract getPersonaLabel(): string;
-    
+
     protected abstract getAssociatedArtifact(): IArtifactReference;
     protected abstract setAssociatedArtifact(value: IArtifactReference);
     protected abstract getPersonaReference(): IArtifactReference;
@@ -148,14 +148,14 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             css: "nova-open-project",
             header: this.localization.get("ST_Select_Include_Artifact_Label")
         };
-        
+
         const subArtifact = this.getModel();
 
         const dialogOption: IArtifactPickerOptions = {
             selectableItemTypes: this.getIncludedArtifactTypes(),
             isItemSelectable: (item: Models.IArtifact) => {
-                        return item.id !== subArtifact.parentId && 
-                                item.id !== subArtifact.id && 
+                        return item.id !== subArtifact.parentId &&
+                                item.id !== subArtifact.id &&
                                 item.id > 0 &&
                                 !item.lockedByUser;
                     }
@@ -175,7 +175,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
         const dialogOption: IArtifactPickerOptions = {
             selectableItemTypes: [Models.ItemTypePredefined.Actor],
-            isItemSelectable: (item: Models.IArtifact) => {                
+            isItemSelectable: (item: Models.IArtifact) => {
                         return item.id > 0 &&
                                 !item.lockedByUser;
                     }

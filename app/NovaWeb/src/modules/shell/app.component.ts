@@ -94,7 +94,9 @@ export class AppController {
             css: "change-password",
             controller: LoginCtrl,
             controllerAs: "ctrl",
-            backdrop: true
+            backdrop: true,
+            okButton: this.localization.get("App_Button_Ok"),
+            cancelButton: this.localization.get("App_Button_Cancel")
         };
         const dialogData: ILoginModalDialogData = {
             isChangePasswordScreenEnabled: true,

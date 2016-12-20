@@ -103,7 +103,11 @@ export class LoginCtrl extends BaseDialogController {
 
         this.forgetPasswordScreenMessage = localization.get("Login_Session_EnterUsername");
 
-        this.isChangePasswordScreenEnabled = false;
+        if (dialogData) {
+            this.isChangePasswordScreenEnabled = dialogData.isChangePasswordScreenEnabled || false;
+        } else {
+            this.isChangePasswordScreenEnabled = false;
+        }
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
 

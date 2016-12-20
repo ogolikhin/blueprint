@@ -123,12 +123,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 this.handleLinks(this.editorBody.querySelectorAll("a"), true);
             }
 
-            // the followiong is to avoid TFS BUG 4330
+            // the following is to avoid TFS BUG 4330
             // The bug is caused by IE9-11 not being able to focus on other INPUT elements if the focus was
             // on a destroyed/removed from DOM element before. See also:
             // http://stackoverflow.com/questions/19581464
             // http://stackoverflow.com/questions/8978235
-            if (!this.isSingleLine && this.hasReceivedFocus) {
+            let isIE11 = false;
+            if (this.$window.navigator) {
+                const ua = this.$window.navigator.userAgent;
+                isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
+            }
+            if (isIE11 && !this.isSingleLine && this.hasReceivedFocus) {
                 const focusCatcher = this.$window.document.body.querySelector("input[type='text']") as HTMLElement;
                 if (focusCatcher) {
                     focusCatcher.focus();

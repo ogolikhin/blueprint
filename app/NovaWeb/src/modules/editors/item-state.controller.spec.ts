@@ -328,8 +328,12 @@ describe("Item State Controller tests", () => {
                     return deferred.promise;
                 });
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
-                const messageSpy = spyOn(messageService, "addError");
+                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => {
+                    const deferred = $q.defer();
+                    deferred.resolve();
+                    return deferred.promise;
+                });
+                const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
 
                 // act
                 ctrl = getItemStateController(artifactId.toString());
@@ -337,9 +341,9 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(navigationSpy).not.toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
-                expect(messageSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalledWith(10);
+                expect(reloadNavigationSpy).toHaveBeenCalled();
             });
         });
 

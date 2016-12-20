@@ -29,7 +29,7 @@ namespace ArtifactStoreTests
 
         private const string _fileType = "text/plain";
         private INovaFile _novaAttachmentFile = null;
-        private System.DateTime defaultExpireTime = System.DateTime.Now.AddDays(2);//Currently Nova set ExpireTime 2 days from today for newly uploaded file
+        private DateTime defaultExpireTime = DateTime.Now.AddDays(2);//Currently Nova set ExpireTime 2 days from today for newly uploaded file
 
         [SetUp]
         public void SetUp()
@@ -70,12 +70,13 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, viewerUser);
-            }, "'{0}' shouldn't return any error when passed a published artifact ID.",
+            }, "'GET {0}' shouldn't return any error when passed a published artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
-            Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+            Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]),
+                "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
             Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
@@ -84,7 +85,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146333)]
-        [Description("Create & save an artifact, add attachment, publish artifact, delete artifact, publish artifact, get attachments.  Verify 404 Not Found is returned.")]
+        [Description("Create & save an artifact, add attachment, publish artifact, delete artifact, publish artifact, get attachments.  " +
+            "Verify 404 Not Found is returned.")]
         public void GetAttachment_DeletedArtifactWithAttachment_NotFound()
         {
             // Setup:
@@ -98,13 +100,14 @@ namespace ArtifactStoreTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
-            }, "'{0}' should return 404 Not Found when passed a deleted artifact ID.",
+            }, "'GET {0}' should return 404 Not Found when passed a deleted artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
         [TestCase]
         [TestRail(146334)]
-        [Description("Create a Process artifact, add attachment, publish it, add a different attachment to User task & publish, get attachments for User task.  Verify attachment is returned.")]
+        [Description("Create a Process artifact, add attachment, publish it, add a different attachment to User task & publish, " +
+            "get attachments for User task.  Verify attachment is returned.")]
         public void GetAttachment_ArtifactAndSubArtifactWithAttachment_OnlyArtifactAttachmentIsReturned()
         {
             // Setup:
@@ -127,7 +130,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
-            }, "'{0}' shouldn't return any error.",
+            }, "'GET {0}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
@@ -202,7 +205,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, viewerUser, subArtifactId: subArtifacts[0].Id);
-            }, "'{0}?subArtifactId={1}' shouldn't return any error.",
+            }, "'GET {0}?subArtifactId={1}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[0].Id);
 
             // Verify:
@@ -241,7 +244,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
-            }, "'{0}?subArtifactId={1}' shouldn't return any error.",
+            }, "'GET {0}?subArtifactId={1}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifact.Id);
 
             // Verify:
@@ -270,13 +273,14 @@ namespace ArtifactStoreTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(fakeArtifact, _adminUser);
-            }, "'{0}' should return 404 Not Found if passed a sub-artifact ID instead of an artifact ID.",
+            }, "'GET {0}' should return 404 Not Found if passed a sub-artifact ID instead of an artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
         [TestCase]
         [TestRail(155622)]
-        [Description("Create & publish a Process artifact and an Actor artifact.  Try to get Attachments for the Process User Task but pass the Artifact ID of the Actor instead of the Process.  Verify 400 Bad Request is returned.")]
+        [Description("Create & publish a Process artifact and an Actor artifact.  Try to get Attachments for the Process User Task but pass the Artifact ID " +
+            "of the Actor instead of the Process.  Verify 400 Bad Request is returned.")]
         public void GetAttachmentWithSubArtifactId_SubArtifactIdFromDifferentArtifact_400BadRequest()
         {
             // Setup:
@@ -290,7 +294,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http400BadRequestException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact2, _adminUser, subArtifactId: userTask.Id);
-            }, "'{0}' should return 400 Bad Request if passed a sub-artifact ID that doesn't belong to the specified artifact ID.",
+            }, "'GET {0}' should return 400 Bad Request if passed a sub-artifact ID that doesn't belong to the specified artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
@@ -310,7 +314,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, addDrafts);
-            }, "'{0}{1}' shouldn't return any error.",
+            }, "'GET {0}{1}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT,
                 addDrafts == null ? string.Empty : "?addDrafts=" + addDrafts);
 
@@ -334,7 +338,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact, _adminUser, addDrafts: false);
-            }, "'{0}?addDrafts=false' should return 404 Not Found.",
+            }, "'GET {0}?addDrafts=false' should return 404 Not Found.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
@@ -353,7 +357,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, addDrafts: false);
-            }, "'{0}?addDrafts=false' shouldn't return any error.",
+            }, "'GET {0}?addDrafts=false' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
@@ -385,7 +389,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
-            }, "'{0}' shouldn't return any error when passed a published artifact ID.",
+            }, "'GET {0}' shouldn't return any error when passed a published artifact ID.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
@@ -400,7 +404,8 @@ namespace ArtifactStoreTests
                 Assert.NotNull(attachedFile, "Couldn't find file with ID '{0}' in the list of attached files!", openApiAttachment.Id);
                 Assert.IsTrue(openApiAttachment.Equals(attachedFile),
                     "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
-                Assert.AreEqual(artifactDetails.LastEditedOn, attachedFile.UploadedDate, "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
+                Assert.AreEqual(artifactDetails.LastEditedOn, attachedFile.UploadedDate,
+                    "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
             }
         }
 
@@ -418,7 +423,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(fakeArtifact, _adminUser);
-            }, "'{0}' should return 404 Not Found.",
+            }, "'GET {0}' should return 404 Not Found.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
@@ -435,7 +440,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifactId);
-            }, "'{0}?subArtifactId={1}' should return 404 Not Found.",
+            }, "'GET {0}?subArtifactId={1}' should return 404 Not Found.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifactId);
         }
 
@@ -452,7 +457,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser);
-            }, "'{0}' shouldn't return any error.",
+            }, "'GET {0}' shouldn't return any error.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
@@ -474,7 +479,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact, userWithoutPermission);
-            }, "'{0}' should return 403 Forbidden for a user without permission to the artifact.",
+            }, "'GET {0}' should return 403 Forbidden for a user without permission to the artifact.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
         }
 
@@ -501,7 +506,8 @@ namespace ArtifactStoreTests
             {
                 version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
                 version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
-            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
+            }, "'GET {0}?versionId=x' shouldn't return any error when passed a valid versionId.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
             Assert.AreEqual(0, version1attachment.AttachedFiles.Count, "List of attached files must be empty.");
@@ -531,7 +537,8 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
-            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
+            }, "'GET {0}?versionId=2' shouldn't return any error when passed a valid versionId.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "Artifact should have 1 attached file at this stage.");
@@ -552,7 +559,8 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
-            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
+            }, "'GET {0}?versionId=1' shouldn't return any error when passed a valid versionId.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
@@ -581,7 +589,8 @@ namespace ArtifactStoreTests
             {
                 version1attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
                 version2attachment = Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 2);
-            }, "GetAttachments shouldn't return any error when passed a valid versionId.");
+            }, "'GET {0}?versionId=x' shouldn't return any error when passed a valid versionId.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
 
             // Verify:
             Assert.AreEqual(1, version1attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
@@ -594,7 +603,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(182503)]
-        [Description("Create and publish artifact (admin), add attachment and publish (author), set artifact's permission to none for author, get attachments for version 1 should return 403 for author.")]
+        [Description("Create and publish artifact (admin), add attachment and publish (author), set artifact's permission to none for author, " +
+            "get attachments for version 1 should return 403 for author.")]
         public void GetAttachmentSpecifyVersion_UserHaveNoPermissionFromVersion2_Returns403()
         {
             // Setup:
@@ -614,7 +624,8 @@ namespace ArtifactStoreTests
                 Assert.Throws<Http403ForbiddenException>(() =>
                 {
                     Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: 1);
-                }, "GetAttachments should throw 403 exception for user with no access.");
+                }, "'GET {0}?versionId=1' should throw 403 exception for user with no access.",
+                    RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
             }
             finally
             {
@@ -649,7 +660,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetAttachments(artifact, _authorUser, subArtifactId: subArtifacts[0].Id);
-            }, "'{0}?subArtifactId={1}' should return 403 Forbidden if the user has no access to the artifact.",
+            }, "'GET {0}?subArtifactId={1}' should return 403 Forbidden if the user has no access to the artifact.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, subArtifacts[0].Id);
         }
 
@@ -676,7 +687,8 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetAttachments(artifact, _authorUser, versionId: versionId,
                     expectedServiceErrorMessage: errorMessage);
-            }, "GetAttachments should return 404 error when passed a non-existing valid versionId.");
+            }, "'GET {0}?versionId={1}' should return 404 error when passed a non-existing valid versionId.",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, versionId);
         }
 
         #endregion Attachments Versions tests

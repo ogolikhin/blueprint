@@ -40,6 +40,7 @@ export class SessionSvc implements ISession {
     private _loginMsg: string;
     private _prevLogin: string;
     private _isExpired: boolean;
+    private _isLoginModalOpen: boolean;
     private _isForceSameUsername: boolean;
 
     public get currentUser(): IUser {
@@ -115,7 +116,7 @@ export class SessionSvc implements ISession {
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser) {
+        if (this._currentUser || this._isLoginModalOpen) {
             return this.$q.resolve();
         }
         const defer = this.$q.defer();
@@ -149,6 +150,7 @@ export class SessionSvc implements ISession {
             bindToController: true
         })
             .then((result: ILoginInfo) => {
+                this._isLoginModalOpen = true;
                 if (result) {
                     let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                     if (result.loginSuccessful) {
@@ -198,6 +200,9 @@ export class SessionSvc implements ISession {
                 } else {
                     this.showLogin(done);
                 }
+            })
+            .finally(() => {
+                this._isLoginModalOpen = false;
             });
     };
 

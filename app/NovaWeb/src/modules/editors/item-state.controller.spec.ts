@@ -329,9 +329,7 @@ describe("Item State Controller tests", () => {
                 });
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve();
-                    return deferred.promise;
+                    return $q.resolve();
                 });
                 const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
 

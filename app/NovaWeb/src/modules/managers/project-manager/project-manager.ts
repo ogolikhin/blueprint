@@ -193,7 +193,6 @@ export class ProjectManager implements IProjectManager {
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
         let openProjects = _.map(this.projectCollection.getValue(), "model.id");
         return this.add(projectId).finally(() => {
-            //(eventCollection, action, label?, value?, custom?, jQEvent?
             const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
             this.analytics.trackEvent("open", "project", label, projectId, {
                 openProjects: openProjects

@@ -72,9 +72,8 @@ export class ProjectManagerMock implements IProjectManager {
     }
 
     public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
-        const deferred = this.$q.defer<void>();
-        deferred.resolve();
-        return deferred.promise;
+        return this.$q.resolve();
+
     }
 
     public dispose(): void {

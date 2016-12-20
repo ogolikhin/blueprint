@@ -230,6 +230,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     });
 
                     editor.on("Focus", (e) => {
+                        this.hasReceivedFocus = true;
                         if (editor.editorContainer) {
                             editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
                         }
@@ -237,10 +238,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
                     editor.on("Blur", (e) => {
                         if (editor.editorContainer) {
-                            const parentElement = editor.editorContainer.parentElement as HTMLElement;
-                            parentElement.classList.add("tinymce-toolbar-hidden");
-                            (parentElement.querySelector("input.tinymce-focus-catcher") as HTMLElement).focus();
-                            (parentElement.querySelector("input.tinymce-focus-catcher") as HTMLElement).blur();
+                            editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
                         }
                     });
                 },

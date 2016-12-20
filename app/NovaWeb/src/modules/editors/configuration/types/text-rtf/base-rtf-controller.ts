@@ -56,6 +56,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected isDirty: boolean;
     protected isLinkPopupOpen: boolean;
+    protected hasReceivedFocus: boolean;
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
     protected onChange: AngularFormly.IExpressionFunction;
@@ -102,6 +103,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         this.isDirty = false;
         this.isLinkPopupOpen = false;
+        this.hasReceivedFocus = false;
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -115,6 +117,19 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.removeObserver();
             if (this.editorBody) {
                 this.handleLinks(this.editorBody.querySelectorAll("a"), true);
+            }
+
+            // the followiong is to avoid TFS BUG 4330
+            // The bug is caused by IE9-11 not being able to focus on other INPUT elements if the focus was
+            // on a destroyed/removed from DOM element before. See also:
+            // http://stackoverflow.com/questions/19581464
+            // http://stackoverflow.com/questions/8978235
+            if (!this.isSingleLine && this.hasReceivedFocus) {
+                const focusCatcher = this.$window.document.body.querySelector("input[type='text']") as HTMLElement;
+                if (focusCatcher) {
+                    focusCatcher.focus();
+                    focusCatcher.blur();
+                }
             }
         });
     }

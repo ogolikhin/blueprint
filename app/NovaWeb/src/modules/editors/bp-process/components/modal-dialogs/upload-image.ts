@@ -87,10 +87,10 @@ export class UploadImageDirective implements ng.IDirective {
             }
         };
 
-        $scope.fileChanged = (element: any) => {
+        $scope.fileChanged = (files: File[], callback?: Function) => {
             $scope.typeError = false;
             $scope.sizeError = false;
-            const dataFile = element.files[0];
+            const dataFile = files[0];
             if (dataFile) { //datafile is defined only if the user selects a file, on delete it is null
                 let type = (dataFile.type || "").toLowerCase();
                 if (type.indexOf("/") > -1) {
@@ -116,6 +116,10 @@ export class UploadImageDirective implements ng.IDirective {
                     },
                     (error: any) => {
                         this.messageService.addError(error.message);
+                    }).finally(() => {
+                        if (callback) {
+                            callback();
+                        }
                     });
             }
         };

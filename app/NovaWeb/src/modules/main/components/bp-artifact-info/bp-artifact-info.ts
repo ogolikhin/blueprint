@@ -1,3 +1,4 @@
+import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
@@ -61,6 +62,7 @@ export class BpArtifactInfoController {
 
     protected subscribers: Rx.IDisposable[] = [];
     protected artifact: IStatefulArtifact;
+    public breadcrumbLinks: IBreadcrumbLink[];
     public isReadonly: boolean;
     public isChanged: boolean;
     public lockMessage: Message;
@@ -94,6 +96,8 @@ export class BpArtifactInfoController {
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected analytics: IAnalyticsProvider) {
         this.initProperties();
+
+        this.breadcrumbLinks = [];
     }
 
     public $onInit() {

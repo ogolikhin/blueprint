@@ -1,6 +1,7 @@
 import {Models} from "../../main/models";
 import {ReuseSettings} from "../../main/models/enums";
 import {Message, MessageType} from "../../core/messages/message";
+import {ProcessType} from "./models/enums";
 import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
 import {IHashMapOfPropertyValues, IVersionInfo, ItemTypePredefined} from "./models/process-models";
 import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
@@ -8,6 +9,12 @@ import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/
 import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {IProcessUpdateResult} from "./services/process.svc";
 import {IArtifactReference} from "./models/process-models";
+import {IState} from "../../managers/artifact-manager/state";
+import {ProcessModelProcessor} from "./services/process-model-processor";
+
+export interface INovaProcess extends Models.IArtifact {
+     process: IProcess;
+ }
 
 export interface IStatefulProcessArtifact extends IStatefulArtifact {
     processOnUpdate();
@@ -23,7 +30,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];
     public propertyValues: IHashMapOfPropertyValues;
-    public requestedVersionInfo: IVersionInfo;
 
     public userTaskPersonaReferenceList: IArtifactReference[];
     public systemTaskPersonaReferenceList: IArtifactReference[];
@@ -49,27 +55,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return this.services;
     }
 
-    protected getCustomArtifactPromisesForGetObservable(): angular.IPromise<IStatefulArtifact>[] {
-        this.loadProcessPromise = this.loadProcess();
-
-        return [this.loadProcessPromise];
-    }
-
-    protected getCustomArtifactPromiseForSave(): angular.IPromise<IStatefulArtifact> {
-        let saveProcessPromise;
-        if (this.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
-            return this.services.$q.when(this);
-        }
-        else {
-            saveProcessPromise = this.saveProcess();
-        }
-        return saveProcessPromise;
-    }
-
-    protected customHandleSaveFailed(): void {
-        this.notifySubscribers();
-    }
-
     protected runPostGetObservable() {
         this.loadProcessPromise = null;
     }
@@ -79,30 +64,25 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.services.messageService.addInfo("ST_ProcessType_RegenerateUS_Message");
     }
 
-    // Returns promises for operations that are needed to refresh this process artifact
-    public getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
-        const loadProcessPromise = this.loadProcess();
-
-        return [loadProcessPromise];
-    }
-
     protected isFullArtifactLoadedOrLoading(): boolean {
         return super.isFullArtifactLoadedOrLoading() || !!this.loadProcessPromise;
     }
 
-    private loadProcess(): ng.IPromise<IStatefulArtifact> {
-        const processDeffered = this.services.getDeferred<IStatefulArtifact>();
+    protected getArtifactModel(id: number, versionId: number): ng.IPromise<Models.IArtifact> {
+         const url = "/svc/bpartifactstore/process/" + id;
+         return this.services.artifactService.getArtifactModel<INovaProcess>(url, id, versionId);
+    }
 
-        this.services.processService.load(this.id.toString(), this.getEffectiveVersion())
-            .then((process: IProcess) => {
-                this.onLoad(process);
-                processDeffered.resolve(this);
-            })
-            .catch((err: any) => {
-                processDeffered.reject(err);
-            });
+    protected updateArtifact(changes: Models.IArtifact): ng.IPromise<Models.IArtifact> {
+        const url = `/svc/bpartifactstore/processupdate/${changes.id}`;
+        const processor = new ProcessModelProcessor();
+        (<INovaProcess>changes).process = processor.processModelBeforeSave(this);
+        return this.services.artifactService.updateArtifact(url, changes);
+    }
 
-        return processDeffered.promise;
+    protected initialize(artifact: Models.IArtifact): void {
+        super.initialize(artifact);
+        this.onLoad((<INovaProcess>artifact).process);
     }
 
     private onLoad(newProcess: IProcess) {
@@ -114,63 +94,8 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         currentProcess.links = newProcess.links;
         currentProcess.decisionBranchDestinationLinks = newProcess.decisionBranchDestinationLinks;
         currentProcess.propertyValues = newProcess.propertyValues;
-        currentProcess.requestedVersionInfo = newProcess.requestedVersionInfo;
         currentProcess.userTaskPersonaReferenceList = newProcess.userTaskPersonaReferenceList;
         currentProcess.systemTaskPersonaReferenceList = newProcess.systemTaskPersonaReferenceList;
-    }
-
-    private mapTempIdsAfterSave(tempIdMap: Models.IKeyValuePair[]) {
-        if (tempIdMap && tempIdMap.length > 0) {
-
-            for (let counter = 0; counter < tempIdMap.length; counter++) {
-
-                //update decisionBranchDestinationLinks temporary ids
-                if (this.decisionBranchDestinationLinks) {
-                    this.decisionBranchDestinationLinks.forEach((link) => {
-                        if (link.destinationId === tempIdMap[counter].key) {
-                            link.destinationId = tempIdMap[counter].value;
-                        }
-                        if (link.sourceId === tempIdMap[counter].key) {
-                            link.sourceId = tempIdMap[counter].value;
-                        }
-                    });
-
-                //Update shapes temporary ids
-                for (let sCounter = 0; sCounter < this.shapes.length; sCounter++) {
-                        const shape = this.shapes[sCounter];
-                        if (shape.id <= 0 && shape.id === tempIdMap[counter].key) {
-                            shape.id = tempIdMap[counter].value;
-                            break;
-                        }
-                    }
-                }
-
-                //Update links temporary ids
-                if (this.links) {
-                    this.links.forEach((link) => {
-                        if (link.destinationId === tempIdMap[counter].key) {
-                            link.destinationId = tempIdMap[counter].value;
-                        }
-                        if (link.sourceId === tempIdMap[counter].key) {
-                            link.sourceId = tempIdMap[counter].value;
-                        }
-                    });
-                }
-            }
-
-            //update sub artifact collection temporary ids
-            this.subArtifactCollection.list().forEach(item => {
-                if (item.id <= 0) {
-                    // subartifact id is temporary
-                    for (let i = 0; i < tempIdMap.length; i++) {
-                        if (item.id === tempIdMap[i].key) {
-                            item.id = tempIdMap[i].value;
-                            break;
-                        }
-                    }
-                }
-            });
-        }
     }
 
     private initializeSubArtifacts(newProcess: IProcess) {
@@ -186,29 +111,22 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         this.subArtifactCollection.initialise(statefulSubArtifacts);
     }
 
-    private saveProcess(): ng.IPromise<IStatefulArtifact> {
-        const deferred = this.services.getDeferred<IStatefulArtifact>();
-        if (!this.artifactState.readonly) {
-            this.services.processService.save(<IProcess>this)
-                .then((result: IProcessUpdateResult) => {
-                    this.mapTempIdsAfterSave(result.tempIdMap);
-                    deferred.resolve(this);
-                }).catch((error: any) => {
-                    // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
-                    if (error) {
-                        deferred.reject(this.handleSaveError(error));
-                    } else {
-                        deferred.reject(error);
-                    }
-                });
-        } else {
-            let message = new Message(MessageType.Error,
-                this.services.localizationService.get("ST_View_OpenedInReadonly_Message"));
-            this.services.messageService.addMessage(message);
-            deferred.reject();
-        }
-
-        return deferred.promise;
+    protected getArtifactToSave(changes: Models.IArtifact) {
+         const novaProcess: INovaProcess = changes as INovaProcess;
+         if (novaProcess) {
+             novaProcess.process = new ProcessModelProcessor().processModelBeforeSave(<IProcess>this);
+         }
+         return super.getArtifactToSave(changes);
     }
 
+    public get clientType(): ProcessType {
+        if (!this.propertyValues) {
+            return ProcessType.None;
+        }
+        return this.propertyValues["clientType"].value as ProcessType;
+    }
+
+    public set clientType(value: ProcessType) {
+        this.propertyValues["clientType"].value = value;
+    }
 }

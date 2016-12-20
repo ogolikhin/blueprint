@@ -956,31 +956,7 @@ describe("Artifact", () => {
             expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
         }));
     });
-
-    describe("refresh", () => {
-        it("invokes custom refresh if allowed", inject(() => {
-            // arrange
-            const customRefreshSpy = spyOn(artifact, "getCustomArtifactPromisesForRefresh");
-
-            // act
-            artifact.refresh();
-
-            // assert
-            expect(customRefreshSpy).toHaveBeenCalled();
-        }));
-
-        it("doesn't invoke custom refresh if not allowed", inject(() => {
-            // arrange
-            const customRefreshSpy = spyOn(artifact, "getCustomArtifactPromisesForRefresh");
-
-            // act
-            artifact.refresh(false);
-
-            // assert
-            expect(customRefreshSpy).not.toHaveBeenCalled();
-        }));
-    });
-
+    
     describe("Load", () => {
         it("error is deleted", inject(($rootScope: ng.IRootScopeService) => {
             // arrange

@@ -22,7 +22,8 @@ export class ItemStateController {
         "navigationService",
         "itemInfoService",
         "loadingOverlayService",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "$rootScope"
     ];
 
     constructor(private $state: angular.ui.IStateService,
@@ -32,22 +33,25 @@ export class ItemStateController {
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private $rootScope: ng.IRootScopeService) {
         const id: number = parseInt($state.params["id"], 10);
         const version = parseInt($state.params["version"], 10);
+        
+            if (_.isFinite(id)) {
+                this.clearStickyMessages();
 
-        if (_.isFinite(id)) {
-            this.clearStickyMessages();
+                const artifact = artifactManager.get(id);
 
-            const artifact = artifactManager.get(id);
-
-            if (artifact && !artifact.artifactState.deleted && !version) {
-                artifact.unload();
-                this.navigateToSubRoute(artifact);
-            } else {
-                this.getItemInfo(id, version);
-            }
-        }
+                this.$rootScope.$applyAsync(() => {
+                    if (artifact && !artifact.artifactState.deleted && !version) {
+                        artifact.unload();
+                        this.navigateToSubRoute(artifact);
+                    } else {
+                        this.getItemInfo(id, version);
+                    }
+                });
+            }        
     }
 
     private getItemInfo(id: number, version: number) {

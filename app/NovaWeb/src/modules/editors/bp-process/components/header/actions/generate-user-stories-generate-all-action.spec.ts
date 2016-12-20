@@ -241,7 +241,6 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
-            expect(refreshSpy).toHaveBeenCalledWith(false);
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
@@ -274,7 +273,6 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
-            expect(refreshSpy).toHaveBeenCalledWith(false);
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
             expect(projectManagerRefreshSpy).toHaveBeenCalledTimes(1);

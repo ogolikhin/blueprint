@@ -1,6 +1,6 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
-import {LoginCtrl, ILoginInfo, ILoginModalDialogData} from "./login/login.ctrl";
+import {LoginCtrl, ILoginModalDialogData} from "./login/login.ctrl";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
@@ -100,7 +100,7 @@ export class AppController {
         };
         const dialogData: ILoginModalDialogData = {
             isChangePasswordScreenEnabled: true,
-            changePasswordScreenMessage: "pippo"
+            changePasswordScreenMessage: "temp message to tell the user to change his password"
         };
 
         this.dialogService.open(dialogSettings, dialogData);

@@ -105,6 +105,7 @@ export class LoginCtrl extends BaseDialogController {
 
         if (dialogData) {
             this.isChangePasswordScreenEnabled = dialogData.isChangePasswordScreenEnabled || false;
+            this.changePasswordScreenMessage = dialogData.changePasswordScreenMessage || "";
         } else {
             this.isChangePasswordScreenEnabled = false;
         }

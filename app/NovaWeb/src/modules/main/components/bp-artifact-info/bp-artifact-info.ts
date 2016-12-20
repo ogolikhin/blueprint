@@ -101,14 +101,11 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        this.subscribers.push(
-            this.windowManager.mainWindow
-                .subscribeOnNext(this.onWidthResized, this)
-        );
-
         this.artifact = this.artifactManager.selection.getArtifact();
 
         if (this.artifact) {
+            this.createToolbarActions();
+
             this.subscribers.push(
                 this.artifact.getObservable()
                     .subscribeOnNext(this.onArtifactLoaded, this),
@@ -119,9 +116,12 @@ export class BpArtifactInfoController {
                     .distinctUntilChanged(changes => changes.item && changes.item.name)
                     .subscribeOnNext(this.onArtifactPropertyChanged, this)
             );
-
-            this.createToolbarActions();
         }
+
+        this.subscribers.push(
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this)
+        );
     }
 
     public $onDestroy() {

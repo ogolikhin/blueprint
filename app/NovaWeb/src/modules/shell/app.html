@@ -4,15 +4,18 @@
         <div class="navbar__brand">{{::$root.config.labels["App_Header_Name"]}}</div>
         <div class="navbar__right">
             <div class="navbar__welcome">
-                {{::$root.config.labels["App_Header_Welcome"]}} <span>{{app.currentUser.displayName}}</span>
+                {{::$root.config.labels["App_Header_Welcome"]}}
             </div>
             <div uib-dropdown class="navbar__account">
                 <a href="#" uib-dropdown-toggle>
-                    <bp-avatar class="navbar__avatar" name="{{::app.currentUser.displayName}}" color-base="{{::app.currentUser.displayName}}"></bp-avatar>
+                    <span class="navbar__name">{{app.currentUser.displayName}}</span>
+                    <bp-avatar class="navbar__avatar"
+                               name="{{::app.currentUser.displayName}}"
+                               color-base="{{::app.currentUser.id + app.currentUser.displayName}}"></bp-avatar>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right navbar__dropdown">
                     <li class="dropdown-menu-item">
-                        <button class="navbar__dropdown-btn" ng-click="app.navigateToHelpUrl($event)">{{::$root.config.labels['App_Header_ChangePassword']}}</button>
+                        <button class="navbar__dropdown-btn" ng-click="app.changePassword($event)">{{::$root.config.labels['App_Header_ChangePassword']}}</button>
                     </li>
                     <li class="dropdown-menu-item">
                         <button class="navbar__dropdown-btn" ng-click="app.logout($event)">{{::$root.config.labels['App_Header_Logout']}}</button>
@@ -20,10 +23,10 @@
                 </ul>
             </div>
             <div uib-dropdown class="navbar__help">
-                <a href="#" uib-dropdown-toggle><i class="fonticon fonticon2-help"></i><b class="caret dropdown-menu-caret"></b></a>
+                <a href="#" uib-dropdown-toggle><span class="navbar__question-mark">?</span><b class="caret dropdown-menu-caret"></b></a>
                 <ul class="dropdown-menu dropdown-menu-right navbar__dropdown">
                     <li class="dropdown-menu-item">
-                        <button class="navbar__dropdown-btn" ng-click="app.logout($event)">{{::$root.config.labels["App_Header_Help"]}}</button>
+                        <button class="navbar__dropdown-btn" ng-click="app.navigateToHelpUrl($event)">{{::$root.config.labels["App_Header_Help"]}}</button>
                     </li>
                     <li class="dropdown-menu-item">
                         <button class="navbar__dropdown-btn" ng-click="app.openTour($event)">{{::$root.config.labels['App_Header_Tour']}}</button>

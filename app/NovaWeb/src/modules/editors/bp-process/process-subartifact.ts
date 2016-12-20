@@ -1,4 +1,4 @@
-import {IProcessShape, ItemTypePredefined, IHashMapOfPropertyValues, IArtifactReference} from "./models/process-models";
+import {IArtifactReference, IHashMapOfPropertyValues, IProcessShape, ITaskFlags, ItemTypePredefined} from "./models/process-models";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
@@ -14,6 +14,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact implements I
     public associatedArtifact: IArtifactReference;
     public personaReference: IArtifactReference;
     public baseItemTypePredefined: ItemTypePredefined;
+    public flags: ITaskFlags;
     public typePrefix: string;
 
     constructor(artifact: IStatefulArtifact, subartifact: IProcessShape, services: IStatefulArtifactServices) {
@@ -22,6 +23,7 @@ export class StatefulProcessSubArtifact extends StatefulSubArtifact implements I
         this.propertyValues = subartifact.propertyValues;
         this.personaReference = subartifact.personaReference;
         this.associatedArtifact = subartifact.associatedArtifact;
+        this.flags = subartifact.flags;
         this.baseItemTypePredefined = subartifact.baseItemTypePredefined;
         this.typePrefix = subartifact.typePrefix;
     }

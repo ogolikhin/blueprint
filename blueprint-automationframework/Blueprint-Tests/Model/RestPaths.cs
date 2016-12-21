@@ -145,8 +145,8 @@ namespace Model
                 public const string GLOSSARY_id_                    = "svc/bpartifactstore/glossary/{0}";   // NovaGlossaryController.GetGlossary
                 public const string IMAGES                          = "svc/bpartifactstore/images";
                 public const string IMAGES_id_                      = "svc/bpartifactstore/images/{0}";
-                public const string PROCESS                         = "svc/bpartifactstore/process/{0}";    // NovaProcessController.GetNovaProcess
-                public const string PROCESSUPDATE                   = "svc/bpartifactstore/processupdate/{0}";  // NovaProcessController.UpdateNovaProcess
+                public const string PROCESS_id_                     = "svc/bpartifactstore/process/{0}";    // NovaProcessController.GetNovaProcess
+                public const string PROCESSUPDATE_id_               = "svc/bpartifactstore/processupdate/{0}";  // NovaProcessController.UpdateNovaProcess
                 public const string STATUS                          = "svc/artifactstore/status";
                 public const string USECASE_id_                     = "svc/bpartifactstore/usecase/{0}";    // NovaUseCaseController.GetUseCase
 

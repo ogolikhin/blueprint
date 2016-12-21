@@ -150,6 +150,28 @@ namespace ArtifactStoreTests
             // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
         }
 
+        [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
+        [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
+        [TestRail(211538)]
+        [Description("Try to upload a random image file to ArtifactStore that exceeds the FileStore size limit.  Verify 409 Conflict is returned.")]
+        public void AddImage_ValidImage_ExceedsFileSizeLimit_409Conflict(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 409 Conflict when called with images that exceed the FileStore size limit!", ADD_IMAGE_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+                "TODO: Fill this in when development is done.");
+
+            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+        }
+
         #endregion AddImage tests
 
         #region GetImage tests
@@ -206,11 +228,12 @@ namespace ArtifactStoreTests
         /// <param name="imageType">The type of image to create (ex. jpeg, png).</param>
         /// <param name="contentType">The MIME Content-Type.</param>
         /// <returns>The random image file.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
         private static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
         {
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
             string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType);
+            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType.ToStringInvariant().ToLowerInvariant());
 
             return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
         }

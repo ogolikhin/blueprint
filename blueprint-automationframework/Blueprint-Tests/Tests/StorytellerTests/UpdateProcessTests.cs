@@ -14,6 +14,7 @@ using System.Data.SqlClient;
 using Common;
 using System.Data;
 using System.Collections.Generic;
+using Model.Impl;
 using TestCommon;
 
 namespace StorytellerTests
@@ -891,38 +892,13 @@ namespace StorytellerTests
         /// <param name="imageId">the image Id that can be used to find image from the image table</param>
         private static void VerifyImageRowsFromDb(string imageId)
         {
+            string query = I18NHelper.FormatInvariant("SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = {0};", imageId);
+
             const int expectedImagerowCount = 1;
-            var resultCount = 0;
+            int resultCount = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(query, "counter");
 
-            using (var database = DatabaseFactory.CreateDatabase())
-            {
-                const string query = "SELECT COUNT (*) as counter FROM dbo.Images WHERE ImageId = @Image_Id;";
-                Logger.WriteDebug("Running: {0}", query);
-                using (var cmd = database.CreateSqlCommand(query))
-                {
-                    database.Open();
-                    cmd.Parameters.Add("@Image_Id", SqlDbType.Int).Value = imageId;
-                    cmd.CommandType = CommandType.Text;
-
-                    try
-                    {
-                        SqlDataReader reader;
-                        using (reader = cmd.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                reader.Read();
-                            }
-                            resultCount = Int32.Parse(reader["counter"].ToString(), CultureInfo.InvariantCulture);
-                        }
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Logger.WriteError("Upload Image didn't create a data entry. Exception details = {0}", ex);
-                    }
-                }
-            }
-            Assert.That(resultCount.Equals(expectedImagerowCount), "The total number of rows for the uploaded image is {0} but we expected {1}", resultCount, expectedImagerowCount);
+            Assert.AreEqual(expectedImagerowCount, resultCount, "The total number of rows for the uploaded image is {0} but we expected {1}",
+                resultCount, expectedImagerowCount);
         }
 
         #endregion Tests

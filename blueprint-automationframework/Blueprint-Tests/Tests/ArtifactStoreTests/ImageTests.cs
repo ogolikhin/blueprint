@@ -6,6 +6,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -72,10 +73,14 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 201 Created when called with a valid token & supported image format!", ADD_IMAGE_PATH);
 
             // Verify:
+            Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
 
-            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and compare the GUID returned with what's in the DB...
-            // Then get the FileStore file GUID from the DB and get the file from FileStore and compare against what we added.
+            // Get the file from FileStore and compare against what we uploaded.
+            var fileStoreFileId = returnedFile.Guid;
+            var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
         }
 
         [TestCase(20, 30, ImageType.JPEG, "text/plain")]
@@ -97,7 +102,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "TODO: Fill this in when development is done.");
 
-            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+            AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
         [TestCase("jpg", "image/jpeg")]
@@ -121,7 +126,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "TODO: Fill this in when development is done.");
 
-            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+            AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
         }
 
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
@@ -143,7 +148,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "TODO: Fill this in when development is done.");
 
-            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+            AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
         #endregion AddImage tests
@@ -176,6 +181,19 @@ namespace ArtifactStoreTests
         #endregion GetImage tests
 
         #region Private functions
+
+        /// <summary>
+        /// Asserts that the EmbeddedImages table contains no rows with the specified filename.
+        /// </summary>
+        /// <param name="filename">The filename to look for.</param>
+        private static void AssertFileNotInEmbeddedImagesTable(string filename)
+        {
+            string selectQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [dbo].[EmbeddedImages] WHERE [FileName] ='{0}'", filename);
+            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
+
+            Assert.AreEqual(0, numberOfRows,
+                "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
+        }
 
         /// <summary>
         /// Creates a random image file of the specified type and size.

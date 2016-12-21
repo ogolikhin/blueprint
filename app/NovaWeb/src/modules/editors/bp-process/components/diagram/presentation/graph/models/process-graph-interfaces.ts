@@ -230,7 +230,6 @@ export interface ITask extends IDiagramNode {
     description: string;
     associatedArtifact: IArtifactReference;
     personaReference: IArtifactReference;
-    activateButton(itemFlag: ItemIndicatorFlags): void;
 }
 
 export interface IUserStoryProperties {

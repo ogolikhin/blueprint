@@ -6,6 +6,7 @@ import {Models} from "../../../../main/models";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
@@ -38,7 +39,6 @@ export class BPFieldImageController extends BPFieldBaseController {
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
-        const maxAttachmentFilesizeDefault: number = 1048576; // 1 MB
         const maxNumberAttachmentsDefault: number = 1;
         const allowedExtensions = ["png", "jpg", "jpeg"];
 
@@ -69,7 +69,7 @@ export class BPFieldImageController extends BPFieldBaseController {
             };
             const dialogData: IUploadStatusDialogData = {
                 files: files,
-                maxAttachmentFilesize: maxAttachmentFilesizeDefault,
+                maxAttachmentFilesize: Helper.maxAttachmentFilesizeDefault,
                 maxNumberAttachments: maxNumberAttachmentsDefault,
                 allowedExtentions: allowedExtensions,
                 fileUploadAction: uploadFile

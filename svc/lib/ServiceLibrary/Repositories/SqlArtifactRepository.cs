@@ -207,7 +207,7 @@ namespace ServiceLibrary.Repositories
         private ArtifactVersion FindCoollectionsRoot(IEnumerable<ArtifactVersion> artifacts, int projectId)
         {
             return artifacts.FirstOrDefault(
-                        av => av?.ItemTypePredefined != null && av.VersionProjectId == projectId
+                        av => av?.ItemTypePredefined != null && av.ParentId == projectId
                         && av.ItemTypePredefined.Value == ItemTypePredefined.CollectionFolder);
         }
 

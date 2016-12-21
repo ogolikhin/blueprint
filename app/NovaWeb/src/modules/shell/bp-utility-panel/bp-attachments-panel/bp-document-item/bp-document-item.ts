@@ -69,6 +69,6 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
             && _.isFinite(this.docRefInfo.versionsCount)
             && this.docRefInfo.versionId !== this.docRefInfo.versionsCount
             // not draft version
-            && !(this.docRefInfo.versionsCount === 0 && this.docRefInfo.versionId === -1);
+            && !(this.docRefInfo.versionsCount === 0 && this.docRefInfo.versionId <= 0);
     }
 }

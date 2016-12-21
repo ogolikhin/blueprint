@@ -5,12 +5,18 @@ import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
-import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {Helper} from "../../../../shared/utils/helper";
+import {
+    BpFileUploadStatusController,
+    IUploadStatusDialogData, IUploadStatusResult
+} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import {IFileResult, IFileUploadService} from "../../../../core/file-upload/fileUploadService";
+import {ISettingsService} from "../../../../core/configuration/settings";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
@@ -38,6 +44,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         "dialogService",
         "selectionManager",
         "artifactService",
+        "fileUploadService",
+        "settings",
         "artifactRelationships"
     ];
 
@@ -52,6 +60,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 dialogService: IDialogService,
                 selectionManager: ISelectionManager,
                 artifactService: IArtifactService,
+                private fileUploadService: IFileUploadService,
+                private settingsService: ISettingsService,
                 artifactRelationships: IArtifactRelationships) {
 
         super($q, $scope, $window, navigationService, validationService, messageService,
@@ -318,13 +328,11 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
-                                const selectedImage = inputElement.files[0];
 
-                                this.uploadImage(selectedImage);
-
-                                // const imgSource =
-                                //      "http://1.bp.blogspot.com/-KDOldxM87mo/TcoHidaiAsI/AAAAAAAAADc/gg2ny9ms-_g/s1600/gir-gir-480869_500_512.jpg";
-                                // editor.selection.setContent("<img src='" + imgSource + "' />");
+                                this.uploadImage(inputElement.files[0]).then((uploadedImageUrl: string) => {
+                                    editor.selection.setContent(`<img src="${uploadedImageUrl}" />`);
+                                    this.triggerChange();
+                                });
                             });
 
                             input[0].click();
@@ -336,9 +344,44 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         _.assign($scope.to, to);
     }
 
-    // placeholder for TinyMCE add image US4104
-    private uploadImage(file: File): string {
-        this.$log.info(`Will upload and insert <img src='${file.name}' />`);
-        return;
+    private uploadImage(file: File): ng.IPromise<string> {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
+            controller: BpFileUploadStatusController,
+            css: "nova-file-upload-status",
+            header: this.localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
+            backdrop: false
+        };
+
+        const uploadFile = (file: File,
+                            progressCallback: (event: ProgressEvent) => void,
+                            cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
+
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 2);
+
+            // TODO: change service to 'imageUploadService' in US4118
+            return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
+        };
+
+        let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
+        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.maxAttachmentFilesizeDefault) {
+            filesize = Helper.maxAttachmentFilesizeDefault;
+        }
+
+        const dialogData: IUploadStatusDialogData = {
+            files: [file],
+            maxAttachmentFilesize: filesize,
+            maxNumberAttachments: 1,
+            fileUploadAction: uploadFile
+        };
+
+        return this.dialogService.open(dialogSettings, dialogData).then((uploadList: IUploadStatusResult[]) => {
+            if (uploadList && uploadList.length > 0) {
+                const uploadedFile = uploadList[0];
+                return uploadedFile.url;
+            }
+        });
     }
 }

@@ -48,7 +48,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public categoryFilter: number;
     public filesToUpload: any;
 
-    private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
     private subscribers: Rx.IDisposable[];
 
@@ -120,14 +119,14 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             };
 
             const curNumOfAttachments: number = this.attachmentsList && this.attachmentsList.length || 0;
-            let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", this.maxAttachmentFilesizeDefault);
+            let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
             let maxNumberAttachments: number = this.settingsService.getNumber("MaxNumberAttachments", this.maxNumberAttachmentsDefault);
 
             if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
                 maxNumberAttachments = this.maxNumberAttachmentsDefault;
             }
             if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-                maxAttachmentFilesize = this.maxAttachmentFilesizeDefault;
+                maxAttachmentFilesize = Helper.maxAttachmentFilesizeDefault;
             }
 
             const dialogData: IUploadStatusDialogData = {

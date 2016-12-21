@@ -18,6 +18,8 @@ import {IValidationService} from "../../../../managers/artifact-manager/validati
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
+import {SettingsServiceMock} from "../../../../core/configuration/settings.mock";
 
 describe("Formly Text RTF", () => {
     const fieldsDefinition = [
@@ -47,6 +49,8 @@ describe("Formly Text RTF", () => {
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
+        $provide.service("fileUploadService", FileUploadServiceMock);
+        $provide.service("settings", SettingsServiceMock);
         $provide.service("selectionManager", () => ({
             getArtifact: () => undefined,
             getSubArtifact: () => undefined

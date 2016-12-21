@@ -67,6 +67,8 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
     private isHistoricalVersion(docRefInfo: IArtifactDocRef): boolean {
         return _.isFinite(this.docRefInfo.versionId) 
             && _.isFinite(this.docRefInfo.versionsCount)
-            && this.docRefInfo.versionId !== this.docRefInfo.versionsCount;
+            && this.docRefInfo.versionId !== this.docRefInfo.versionsCount
+            // not draft version
+            && !(this.docRefInfo.versionsCount === 0 && this.docRefInfo.versionId === -1);
     }
 }

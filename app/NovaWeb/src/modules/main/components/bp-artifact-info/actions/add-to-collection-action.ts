@@ -27,18 +27,6 @@ export class AddToCollectionAction extends BPDropdownAction {
                 private loadingOverlayService: ILoadingOverlayService) {
         super();
 
-        if (!localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!projectManager) {
-            throw new Error("Project manager not provided or is null");
-        }
-
-        if (!dialogService) {
-            throw new Error("Dialog service not provided or is null");
-        }
-
         this.actions.push(
             new BPDropdownItemAction(
                 localization.get("Artifact_Add_To_Collection_Picker_Header"),
@@ -68,27 +56,19 @@ export class AddToCollectionAction extends BPDropdownAction {
         }
 
         loadProjectPromise
-            .catch((err) => this.messageService.addError(err))
             .then(() => {
                 this.openAddArtifactToCollectionDialog();
-            });
+            })
+            .catch((err) => this.messageService.addError(err));
     }
 
     private openAddArtifactToCollectionDialog(): ng.IPromise<void> {
-        //next - open the move to dialog
-        let okButtonLabel: string;
-        let headerLabel: string;
-
-        okButtonLabel = "App_Button_Add";
-        headerLabel = "Artifact_Add_To_Collection_Picker_Header";
-
-
         const dialogSettings = <IDialogSettings>{
-            okButton: this.localization.get(okButtonLabel),
+            okButton: this.localization.get("App_Button_Add"),
             template: require("../../../../main/components/dialogs/add-artifact-to-collection/add-artifact-to-collection-dialog.html"),
             controller: AddArtifactToCollectionDialogController,
             css: "nova-open-project",
-            header: this.localization.get(headerLabel)
+            header: this.localization.get("Artifact_Add_To_Collection_Picker_Header")
         };
 
 

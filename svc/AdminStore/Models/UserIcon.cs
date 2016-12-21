@@ -11,6 +11,7 @@ namespace AdminStore.Models
         /// <summary>
         /// The image binary data.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1819: Properties should not return arrays", Justification = "For JSON serialization, the property sometimes needs to be an array")]
         public byte[] Content { get; set; }
 
         /// <summary>

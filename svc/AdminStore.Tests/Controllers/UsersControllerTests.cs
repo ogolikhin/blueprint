@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -51,6 +52,77 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsInstanceOfType(controller._userRepository, typeof(SqlUserRepository));
             Assert.IsInstanceOfType(controller._log, typeof(ServiceLogRepository));
+        }
+
+        #endregion
+
+        #region GetUserIcon
+
+        [TestMethod]
+        public async Task GetUserIcon_RepositoryReturnsIcon_ReturnsIcon()
+        {
+            var userId = 1;
+            var content = new byte[] {0x20, 0x20, 0x20, 0x20};
+            var userIcon = new UserIcon {UserId = userId, Content = content };
+            _usersRepoMock
+                .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(userIcon);
+
+            // Act
+            var result = await _controller.GetUserIcon(userId) as OkNegotiatedContentResult<byte[]>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(content, result.Content);
+        }
+
+        [TestMethod]
+        public async Task GetUserIcon_RepositoryReturnsNull_NotFoundResult()
+        {
+            // Arrange
+            var userId = 1;
+            _usersRepoMock
+                .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(null);
+
+            // Act
+            IHttpActionResult result = await _controller.GetUserIcon(userId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task GetUserIcon_RepositoryReturnsEmptyContent_NoContentResult()
+        {
+            // Arrange
+            var userId = 1;
+            var userIcon = new UserIcon { UserId = userId, Content = null };
+            _usersRepoMock
+                .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
+                .ReturnsAsync(userIcon);
+
+            // Act
+            IHttpActionResult result = await _controller.GetUserIcon(userId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(StatusCodeResult));
+        }
+
+        [TestMethod]
+        public async Task GetUserIcon_RepositoryThrowsException_InternalServerErrorResult()
+        {
+            // Arrange
+            var userId = 1;
+            _usersRepoMock
+                .Setup(repo => repo.GetUserIconByUserIdAsync(It.IsAny<int>()))
+                .Throws(new Exception());
+
+            // Act
+            IHttpActionResult result = await _controller.GetUserIcon(userId);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
         #endregion

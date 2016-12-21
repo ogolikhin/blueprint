@@ -22,6 +22,13 @@ export class ArtifactRoutes {
                     saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
                 }
             })
+            .state("main.jobs", <ng.ui.IState>{
+                url: "/jobs",
+                template: "<unpublished></unpublished>",
+                resolve: {
+                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
+                }
+            })
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:navpath}",
                 template: "<div ui-view class='artifact-state'></div>",

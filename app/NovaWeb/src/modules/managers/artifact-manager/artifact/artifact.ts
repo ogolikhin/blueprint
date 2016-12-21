@@ -16,7 +16,7 @@ import {ErrorCode} from "../../../core/error/error-code";
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
     lastSaveInvalid: boolean;
-
+    isDisposed: boolean;
     subArtifactCollection: ISubArtifactCollection;
 
     // Unload full weight artifact
@@ -25,7 +25,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     delete(): ng.IPromise<Models.IArtifact[]>;
     publish(): ng.IPromise<void>;
     discardArtifact(): ng.IPromise<void>;
-    refresh(allowCustomRefresh?: boolean): ng.IPromise<IStatefulArtifact>;
+    refresh(): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
     move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
     copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
@@ -36,23 +36,34 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
 // TODO: explore the possibility of using an internal interface for services
 export interface IIStatefulArtifact extends IIStatefulItem {
 }
+
 export class StatefulArtifact extends StatefulItem implements IStatefulArtifact, IIStatefulArtifact {
     private state: IArtifactState;
+    private _isDisposed: boolean;
 
     protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
     protected _subArtifactCollection: ISubArtifactCollection;
-    protected hasCustomSave: boolean = false;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
         this.metadata = new MetaData(this);
         this.state = new ArtifactState(this);
+        this._isDisposed = false;
     }
+    
     public get lastSaveInvalid(): boolean {
         return this.artifact.lastSaveInvalid;
     }
+
+    public get isDisposed(): boolean {
+        return this._isDisposed;
+    }
+
     public dispose() {
+        this._isDisposed = true;
+
         super.dispose();
+        
         if (this.state) {
             this.state.dispose();
         }
@@ -93,11 +104,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading() && !this.isHeadVersionDeleted()) {
             this.loadPromise = this.load();
-            const customPromises = this.getCustomArtifactPromisesForGetObservable();
-
-            const promisesToExecute = [this.loadPromise].concat(customPromises);
-
-            this.getServices().$q.all(promisesToExecute).then(() => {
+            
+            this.loadPromise.then(() => {
                 this.subject.onNext(this);
                 this.propertyChange.onNext({item: this});
             }).catch((error) => {
@@ -421,22 +429,20 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }
 
         return promise.promise.then(() => {
-            return this.getCustomArtifactPromiseForSave();
-        }).then(() => {
             const changes = this.changes();
             return this.saveArtifact(changes, autoSave).catch((error) => {
-                if (this.hasCustomSave) {
-                    this.customHandleSaveFailed();
-                }
                 return this.services.$q.reject(error);
             });
         }).catch((error) => {
             return this.services.$q.reject(error);
         });
     }
-
+    protected updateArtifact(changes: Models.IArtifact): ng.IPromise<Models.IArtifact> {
+        const url = `/svc/bpartifactstore/artifacts/${changes.id}`;
+        return this.services.artifactService.updateArtifact(url, changes);
+    }
     private saveArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<IStatefulArtifact> {
-        return this.services.artifactService.updateArtifact(changes).catch((error) => {
+        return this.updateArtifact(changes).catch((error) => {
             // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
             if (error) {
                 return this.services.$q.reject(this.handleSaveError(error));
@@ -451,6 +457,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 return this.services.$q.reject(error);
             });
         });
+    }
+
+    protected getArtifactToSave(changes: Models.IArtifact) {
+        return changes;
     }
 
     protected handleSaveError(error: any): Error {
@@ -535,8 +545,14 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 deffered.resolve();
             })
             .catch((err) => {
-                if (err && err.statusCode === HttpStatusCode.Conflict && err.errorContent) {
-                    this.publishDependents(err.errorContent);
+                if (err && err.statusCode === HttpStatusCode.Conflict) {
+                    if (err.errorContent) {
+                        this.publishDependents(err.errorContent);
+                    }
+                    else if (err.errorCode === ErrorCode.CannotPublish) {
+                        this.services.messageService.addError(err, true);
+                        this.refresh();                        
+                    }
                 } else if (err && err.statusCode === HttpStatusCode.Unavailable && !err.message) {
                     this.services.messageService.addError("Publish_Artifact_Failure_Message");
                 } else {
@@ -583,7 +599,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             });
     }
 
-    public refresh(allowCustomRefresh: boolean = true): ng.IPromise<IStatefulArtifact> {
+    public refresh(): ng.IPromise<IStatefulArtifact> {
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
@@ -607,12 +623,6 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         //This is normally done to refresh custom property type changes (property types added/removed to artifacts)
         //Also see: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=3338&fullScreen=false
         //promisesToExecute.push(this.services.metaDataService.remove(this.projectId));
-
-        if (allowCustomRefresh) {
-            // get promises for custom artifact refresh operations
-            // this operation merges two arrays
-            Array.prototype.push.apply(promisesToExecute, this.getCustomArtifactPromisesForRefresh());
-        }
 
         this.getServices().$q.all(promisesToExecute)
             .then(() => {
@@ -673,24 +683,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(copyOverlayId);
         });
-    }
-
-    //Hook for subclasses to provide additional promises which should be run for obtaining data
-    protected getCustomArtifactPromisesForGetObservable(): ng.IPromise<IStatefulArtifact>[] {
-        return [];
-    }
-
-    protected getCustomArtifactPromisesForRefresh(): ng.IPromise<any>[] {
-        return [];
-    }
-
-    protected getCustomArtifactPromiseForSave(): ng.IPromise <IStatefulArtifact> {
-        return this.services.$q.when(this);
-    }
-
-    protected customHandleSaveFailed(): void {
-        ;
-    }
+    }    
 
     //Hook for subclasses to do some post processing
     protected runPostGetObservable() {

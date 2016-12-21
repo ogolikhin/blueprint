@@ -56,9 +56,10 @@ namespace ArtifactStore.Repositories
             int itemId = 1;
             int userId = 1;
             bool addDrafts = true;
+            int destinationProjectId = 3;
 
             var mockLinkInfoList = new List<LinkInfo>();
-            mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 2, DestinationItemId = 2, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 1, SourceItemId = 1, SourceProjectId = 0 });
+            mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 2, DestinationItemId = 2, DestinationProjectId = destinationProjectId, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 1, SourceItemId = 1, SourceProjectId = 0 });
 
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
@@ -69,6 +70,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(1, result.ManualTraces.Count);
             Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
             Assert.AreEqual(TraceDirection.To, result.ManualTraces[0].TraceDirection);
+            Assert.AreEqual(destinationProjectId, result.ManualTraces[0].ProjectId);
         }
 
         [TestMethod]
@@ -77,10 +79,11 @@ namespace ArtifactStore.Repositories
             // Arrange
             int itemId = 1;
             int userId = 1;
+            int sourceProjectId = 4;
             bool addDrafts = true;
 
             var mockLinkInfoList = new List<LinkInfo>();
-            mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 1, DestinationItemId = 1, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 2, SourceItemId = 2, SourceProjectId = 0 });
+            mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 1, DestinationItemId = 1, DestinationProjectId = 0, IsSuspect = false, LinkType = LinkType.Manual, SourceArtifactId = 2, SourceItemId = 2, SourceProjectId = sourceProjectId });
 
             _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
 
@@ -91,6 +94,7 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(1, result.ManualTraces.Count);
             Assert.AreEqual(LinkType.Manual, result.ManualTraces[0].TraceType);
             Assert.AreEqual(TraceDirection.From, result.ManualTraces[0].TraceDirection);
+            Assert.AreEqual(sourceProjectId, result.ManualTraces[0].ProjectId);
         }
 
         [TestMethod]
@@ -217,7 +221,7 @@ namespace ArtifactStore.Repositories
             try
             {
                 // Act
-                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, isDeleted);
+                await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
             }
             catch (ResourceNotFoundException e)
             {
@@ -252,7 +256,7 @@ namespace ArtifactStore.Repositories
             _cxn.SetupQueryAsync("GetItemDescription", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }}, descriptionResult);
             
             // Act
-            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, isDeleted);
+            var actual = await _relationshipsRepository.GetRelationshipExtendedInfo(artifactId, userId, null, isDeleted);
 
             //Assert
             Assert.AreEqual(artifactId, actual.ArtifactId);

@@ -1,5 +1,6 @@
 ﻿import "angular";
 import "angular-mocks";
+import "../../shell";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
 import {ProjectManager, IProjectManager, IArtifactNode} from "./project-manager";
@@ -72,7 +73,7 @@ describe("Project Manager Test", () => {
     }));
 
     describe("add project", () => {
-        xit("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
             // Arrange
 
             //Act
@@ -256,7 +257,7 @@ describe("Project Manager Test", () => {
      });
 
      describe("open project with dialog", () => {
-        xit("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, dialogService: DialogServiceMock) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, dialogService: DialogServiceMock) => {
             // Arrange
             spyOn(dialogService, "open").and.callFake(() => {
                 return $q.resolve(11);
@@ -271,6 +272,20 @@ describe("Project Manager Test", () => {
             expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(11);
             expect(projectManager.projectCollection.getValue()[1].model.id).toEqual(10);
         })));
+     });
+
+     describe("open project", () => {
+         it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+             // Arrange
+             const projectId = 10;
+             // Act
+             projectManager.openProject(projectId);
+             $rootScope.$digest();
+
+             // Assert            
+             expect(projectManager.projectCollection.getValue().length).toEqual(1);
+             expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(projectId);
+         })));
      });
 
      describe("refresh project", () => {

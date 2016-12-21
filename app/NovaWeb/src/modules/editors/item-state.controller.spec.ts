@@ -10,8 +10,10 @@ import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {IItemInfoService} from "../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
 import {IArtifactManager} from "../managers/artifact-manager/artifact-manager";
+import {IProjectManager} from "../managers/project-manager/project-manager";
 import {IStatefulArtifact} from "../managers/artifact-manager/artifact/artifact";
 import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
+import {ProjectManagerMock} from "../managers/project-manager/project-manager.mock";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./item-state.controller";
@@ -26,6 +28,7 @@ describe("Item State Controller tests", () => {
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         artifactManager: IArtifactManager,
+        projectManager: IProjectManager,
         localization: ILocalizationService,
         messageService: IMessageService,
         navigationService: INavigationService,
@@ -52,6 +55,7 @@ describe("Item State Controller tests", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("projectManager", ProjectManagerMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
@@ -62,6 +66,7 @@ describe("Item State Controller tests", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _artifactManager_: IArtifactManager,
+        _projectManager_: IProjectManager,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
@@ -73,6 +78,7 @@ describe("Item State Controller tests", () => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         artifactManager = _artifactManager_;
+        projectManager = _projectManager_;
         localization = _localization_;
         messageService = _messageService_;
         navigationService = _navigationService_;
@@ -96,12 +102,14 @@ describe("Item State Controller tests", () => {
         return new ItemStateController(
             $state,
             artifactManager,
+            projectManager,
             messageService,
             localization,
             navigationService,
             itemInfoService,
             loadingOverlayService,
-            statefulArtifactFactory);
+            statefulArtifactFactory,
+            $rootScope);
     }
 
     afterEach(() => {
@@ -310,7 +318,7 @@ describe("Item State Controller tests", () => {
                 expect(navigationSpy).toHaveBeenCalledWith({id: 10, redirect: true});
             });
 
-            it("should not navigate to a project, should navigate to Main", () => {
+            it("should navigate to a project", () => {
                 // arrange
                 const artifactId = 10;
                 const isSubArtifactSpy = spyOn(itemInfoService, "isProject").and.callFake(() => true);
@@ -320,8 +328,10 @@ describe("Item State Controller tests", () => {
                     return deferred.promise;
                 });
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
-                const messageSpy = spyOn(messageService, "addError");
+                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => {
+                    return $q.resolve();
+                });
+                const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
 
                 // act
                 ctrl = getItemStateController(artifactId.toString());
@@ -329,9 +339,9 @@ describe("Item State Controller tests", () => {
 
                 // assert
                 expect(navigationSpy).not.toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
-                expect(messageSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalledWith(10);
+                expect(reloadNavigationSpy).toHaveBeenCalled();
             });
         });
 

@@ -1,4 +1,3 @@
-import "lodash";
 import {Enums, Models} from "../../main";
 import {IStatefulItem, StatefulSubArtifact} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
@@ -6,7 +5,7 @@ import {BPLocale, ILocalizationService} from "../../core/localization/localizati
 import {IPropertyDescriptor} from "../configuration/property-descriptor-builder";
 import {IUserGroup} from "../configuration/types/user-picker/user-picker";
 
-export class PropertyEditor { 
+export class PropertyEditor {
 
     private _model: any;
     private _fields: AngularFormly.IFieldConfigurationObject[];
@@ -18,7 +17,7 @@ export class PropertyEditor {
         this.locale = localization.current;
     }
 
-    public convertToModelValue(field: AngularFormly.IFieldConfigurationObject, $viewValue: any): any {
+    public convertToModelValue(field: AngularFormly.IFieldConfigurationObject): any {
         if (!field) {
             return null;
         }
@@ -29,7 +28,7 @@ export class PropertyEditor {
         }
 
         const $modelValue: any = this.getModelValue(context.fieldPropertyName);
-        if (_.isUndefined($modelValue) && _.isUndefined($viewValue)) {
+        if (_.isUndefined($modelValue)) {
             return null;
         }
 
@@ -70,7 +69,7 @@ export class PropertyEditor {
 
             default:
                 if (context.isRichText) {
-                    return Helper.tagsContainText($viewValue) ? $viewValue : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                    return Helper.tagsContainText($modelValue) ? $modelValue : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
                 }
                 return $modelValue;
         }
@@ -117,7 +116,10 @@ export class PropertyEditor {
     }
 
 
-    public create(statefulItem: IStatefulItem, propertyDescriptors: IPropertyDescriptor[], force: boolean): boolean {
+    public create(statefulItem: IStatefulItem,
+                  propertyDescriptors: IPropertyDescriptor[],
+                  force: boolean,
+                  onBeforeFieldCreatedCallback?: (context: IPropertyDescriptor) => void): boolean {
 
         let fieldsupdated: boolean = false;
         this._model = {};
@@ -144,7 +146,7 @@ export class PropertyEditor {
         let allPropertiesReadOnlyDueToReuse = false;
         if (statefulItem instanceof StatefulSubArtifact) {
             allPropertiesReadOnlyDueToReuse = statefulItem.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts);
-        }        
+        }
 
         this.propertyContexts.forEach((propertyContext: IPropertyDescriptor) => {
             if (propertyContext.fieldPropertyName && propertyContext.modelPropertyName) {
@@ -195,6 +197,9 @@ export class PropertyEditor {
                 }
                 if (isModelSet) {
                     propertyContext.isFresh = true;
+                    if (_.isFunction(onBeforeFieldCreatedCallback)) {
+                        onBeforeFieldCreatedCallback(propertyContext);
+                    }
                     let field = this.createPropertyField(propertyContext, statefulItem);
                     this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                     if (fieldsupdated) {

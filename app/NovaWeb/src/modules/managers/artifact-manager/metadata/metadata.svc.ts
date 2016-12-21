@@ -235,7 +235,8 @@ export class MetaDataService implements IMetaDataService {
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
             primitiveType: PrimitiveType.Text,
-            isRichText: true
+            isRichText: true,
+            isMultipleAllowed: true
         });
 
         switch (itemType.predefinedType) {
@@ -282,7 +283,8 @@ export class MetaDataService implements IMetaDataService {
             name: this.localization.get("Label_Description"),
             propertyTypePredefined: PropertyTypePredefined.Description,
             primitiveType: PrimitiveType.Text,
-            isRichText: true
+            isRichText: true,
+            isMultipleAllowed: true
         });
 
         if (itemType.predefinedType === ItemTypePredefined.Step) {
@@ -363,5 +365,5 @@ export class MetaDataService implements IMetaDataService {
         }
         return properties;
     }
-    
+
 }

@@ -608,7 +608,7 @@
             function prevCharIsSpace() {
                 var start = ed.selection.getRng(true).startOffset,
 					text = ed.selection.getRng(true).startContainer.data || '',
-					charachter = text.substr(start - 1, 1);
+                    charachter = start > 0 ? text.substr(start - 1, 1) : '';
 
                 return (!!jsH.trim(charachter).length) ? false : true;
             }

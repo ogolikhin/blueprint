@@ -5,6 +5,7 @@ import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
@@ -18,13 +19,21 @@ export class BPFieldImage implements AngularFormly.ITypeOptions {
 }
 
 export class BPFieldImageController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "$window", "messageService", "dialogService"];
+    static $inject: [string] = [
+        "$scope",
+        "localization",
+        "$window",
+        "messageService",
+        "dialogService",
+        "fileUploadService"
+    ];
 
     constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private fileUploadService: IFileUploadService) {
         super();
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
@@ -40,7 +49,7 @@ export class BPFieldImageController extends BPFieldBaseController {
          }
          };*/
 
-        function chooseActorImage(files: File[], callback?: Function) {
+        const chooseActorImage = (files: File[], callback?: Function) => {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
                 template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
@@ -50,11 +59,20 @@ export class BPFieldImageController extends BPFieldBaseController {
                 backdrop: false
             };
 
+            const uploadFile = (file: File,
+                                progressCallback: (event: ProgressEvent) => void,
+                                cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
+
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 2);
+                return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
+            };
             const dialogData: IUploadStatusDialogData = {
                 files: files,
                 maxAttachmentFilesize: maxAttachmentFilesizeDefault,
                 maxNumberAttachments: maxNumberAttachmentsDefault,
-                allowedExtentions: allowedExtensions
+                allowedExtentions: allowedExtensions,
+                fileUploadAction: uploadFile
             };
 
             dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
@@ -79,7 +97,7 @@ export class BPFieldImageController extends BPFieldBaseController {
                     callback();
                 }
             });
-        }
+        };
 
         function getImageField(): any {
             if (!$scope.fields) {

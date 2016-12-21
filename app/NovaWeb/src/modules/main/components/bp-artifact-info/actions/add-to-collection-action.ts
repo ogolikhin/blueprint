@@ -46,10 +46,10 @@ export class AddToCollectionAction extends BPDropdownAction {
 
         this.actions.push(
             new BPDropdownItemAction(
-                "Add to Collection",
+                localization.get("Artifact_Add_To_Collection_Picker_Header"),
                 () => this.executeAdd(),
                 (): boolean => this.canAddToCollection(),
-                "fonticon2-move"
+                "fonticon fonticon2-add-artifact"
             )
         );
     }

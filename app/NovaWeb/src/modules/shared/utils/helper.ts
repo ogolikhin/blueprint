@@ -3,7 +3,7 @@ import {ItemTypePredefined} from "../../main/models/enums";
 
 export class Helper {
     static draftVersion = 2147483647;
-    static maxAttachmentFilesizeDefault = 1048576; // 10MB
+    static maxAttachmentFilesizeDefault = 10485760; // 10MB
 
     static get ELLIPSIS_SYMBOL() {
          return String.fromCharCode(8230);

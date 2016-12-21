@@ -4,23 +4,18 @@ import {IProjectManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
-    MoveCopyArtifactPickerDialogController,
-    MoveCopyArtifactResult,
-    MoveCopyArtifactInsertMethod,
-    IMoveCopyArtifactPickerOptions,
-    MoveCopyActionType
-} from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
+    AddArtifactToCollectionDialogController,
+    AddArtifactToCollectionResult
+} from "../../../../main/components/dialogs/add-artifact-to-collection";
+
 import {Models, Enums} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
-export enum AddToCollectionActionType {
-    Add
-}
-
 export class AddToCollectionAction extends BPDropdownAction {
-    private actionType: AddToCollectionActionType;
+
+    public addDescendants: boolean = false;
 
     constructor(private $q: ng.IQService,
                 private artifact: IStatefulArtifact,
@@ -47,20 +42,11 @@ export class AddToCollectionAction extends BPDropdownAction {
         this.actions.push(
             new BPDropdownItemAction(
                 localization.get("Artifact_Add_To_Collection_Picker_Header"),
-                () => this.executeAdd(),
+                () => this.loadProjectIfNeeded(),
                 (): boolean => this.canAddToCollection(),
                 "fonticon fonticon2-add-artifact"
             )
         );
-    }
-
-    public get tooltip(): string {
-        return "Add to collection";
-    }
-
-    public executeAdd() {
-        this.actionType = AddToCollectionActionType.Add;
-        this.loadProjectIfNeeded();
     }
 
     private canAddToCollection() {
@@ -69,7 +55,7 @@ export class AddToCollectionAction extends BPDropdownAction {
             ItemTypePredefined.ArtifactCollection
         ];
 
-        return invalidTypes.indexOf(this.artifact.predefinedType) === -1;
+        return invalidTypes.indexOf(this.artifact.predefinedType) === -1 && !this.artifact.artifactState.deleted;
     }
 
     private loadProjectIfNeeded() {
@@ -84,42 +70,43 @@ export class AddToCollectionAction extends BPDropdownAction {
         loadProjectPromise
             .catch((err) => this.messageService.addError(err))
             .then(() => {
-                this.openMoveCopyDialog();
+                this.openAddArtifactToCollectionDialog();
             });
     }
 
-    private openMoveCopyDialog(): ng.IPromise<void> {
+    private openAddArtifactToCollectionDialog(): ng.IPromise<void> {
         //next - open the move to dialog
         let okButtonLabel: string;
         let headerLabel: string;
 
         okButtonLabel = "App_Button_Add";
-        headerLabel = "Artifact_Collection_Add_Artifacts_Picker_Header";
+        headerLabel = "Artifact_Add_To_Collection_Picker_Header";
 
 
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get(okButtonLabel),
             template: require("../../../../main/components/dialogs/add-artifact-to-collection/add-artifact-to-collection-dialog.html"),
-            controller: MoveCopyArtifactPickerDialogController,
+            controller: AddArtifactToCollectionDialogController,
             css: "nova-open-project",
             header: this.localization.get(headerLabel)
         };
 
+
         const collectionTypes = [];
 
         const dialogData: any = {
-            showProjects: true,
+            showProjects: false,
             showArtifacts: false,
             showSubArtifacts: false,
             showCollections: true,
             selectionMode: "single",
             currentArtifact: this.artifact,
-            actionType: this.actionType,
             selectableItemTypes: [ItemTypePredefined.ArtifactCollection]
         };
 
-        return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {
-            console.log("MoveCopyArtifactResult");
+        return this.dialogService.open(dialogSettings, dialogData).then((result: AddArtifactToCollectionResult[]) => {
+            //this part will be implemented in US4214 [Collection] Artifact View - Add to a collection
+            console.log(result);
         });
     }
 }

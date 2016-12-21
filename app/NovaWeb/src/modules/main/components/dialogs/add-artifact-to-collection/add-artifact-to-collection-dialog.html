@@ -13,6 +13,12 @@
                         api="$ctrl.api"
                         on-double-click="$ctrl.onDoubleClick(vm)">
     </bp-artifact-picker>
+
+    <div class="add-descendants">
+        <i class="checkbox-field add-descendants-checkbox"
+           ng-class="{checked: $ctrl.addDescendants}"
+           ng-click="$ctrl.addAllDescendants()"></i> {{::$ctrl.localization.get("Artifact_Add_To_Collection_Include_Descendants")}}
+    </div>
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">

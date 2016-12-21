@@ -205,3 +205,23 @@ textarea[rows="2"].nova-form-control {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.checkbox-field {
+    display: inline-block;
+    height: 16px;
+    vertical-align: bottom;
+
+    &:before {
+        background-image: url(/novaweb/static/images/icons/checkboxes.gif);
+        background-position: -16px 0;
+        background-repeat: no-repeat;
+        content: ' ';
+        display: inline-block;
+        height: 16px;
+        width: 16px;
+    }
+
+    &.checked:before {
+        background-position: -16px -16px;
+    }
+}

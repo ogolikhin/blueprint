@@ -100,13 +100,13 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         });
     }
 
-    private uploadFile(file: File,
+    private uploadFile = (file: File,
                        progressCallback: (event: ProgressEvent) => void,
-                       cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> {
+                       cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
         const expiryDate = new Date();
         expiryDate.setDate(expiryDate.getDate() + 2);
         return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
-    }
+    };
 
     public onFileSelect(files: File[], callback?: Function) {
         const openUploadStatus = () => {

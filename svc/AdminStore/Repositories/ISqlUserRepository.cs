@@ -10,6 +10,8 @@ namespace AdminStore.Repositories
 
         Task<LoginUser> GetLoginUserByIdAsync(int userId);
 
+        Task<UserIcon> GetUserIconByUserIdAsync(int userId);
+
         Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds);
 
         Task<int> GetEffectiveUserLicenseAsync(int userId);

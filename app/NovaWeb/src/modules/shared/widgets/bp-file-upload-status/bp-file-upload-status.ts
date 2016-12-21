@@ -1,18 +1,16 @@
 import {IDialogSettings, BaseDialogController} from "../bp-dialog";
-import {FiletypeParser} from "../../../shared/utils/filetypeParser";
-import {IFileUploadService, IFileResult} from "../../../core/file-upload/fileUploadService";
+import {FiletypeParser} from "../../utils/filetypeParser";
+import {IFileResult} from "../../../core/file-upload/fileUploadService";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-
-export interface IBpFileUploadStatusController {
-    // propertyMap: any;
-    // selectedItem?: any;
-}
 
 export interface IUploadStatusDialogData {
     files: File[];
     maxNumberAttachments: number;
     maxAttachmentFilesize: number;
     allowedExtentions?: string[];
+    fileUploadAction: (file: File,
+                       progressCallback: (event: ProgressEvent) => void,
+                       cancelPromise: ng.IPromise<void>) => ng.IPromise<any>;
 }
 
 export interface IUploadStatusResult {
@@ -34,30 +32,26 @@ interface IFileUploadStatus {
     errorMessage: string;
 }
 
-export class BpFileUploadStatusController extends BaseDialogController implements IBpFileUploadStatusController {
+export class BpFileUploadStatusController extends BaseDialogController {
+    public files: IFileUploadStatus[];
+    public totalFailedFiles: number = 0;
+    public areFilesUploading: boolean = true;
+
     static $inject = [
         "$q",
         "localization",
-        "fileUploadService",
         "$filter",
         "$uibModalInstance",
         "dialogSettings",
         "dialogData"
     ];
 
-    public files: IFileUploadStatus[];
-    public totalFailedFiles: number = 0;
-
-    public areFilesUploading: boolean = true;
-
     constructor(private $q: ng.IQService,
                 private localization: ILocalizationService,
-                private fileUploadService: IFileUploadService,
                 private $filter: ng.IFilterService,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                private dialogData: IUploadStatusDialogData
-                ) {
+                private dialogData: IUploadStatusDialogData) {
 
         super($uibModalInstance, dialogSettings);
 
@@ -122,13 +116,11 @@ export class BpFileUploadStatusController extends BaseDialogController implement
 
     private uploadFile(f: IFileUploadStatus) {
         f.isUploading = true;
-        let expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 2);
 
-        this.fileUploadService.uploadToFileStore(f.file, expiryDate, (event: ProgressEvent) => {
+        this.dialogData.fileUploadAction(f.file, (event: ProgressEvent) => {
             f.progress = Math.floor((event.loaded / event.total) * 100);
-        }, f.timeout.promise).then(
-            (result: IFileResult) => {
+        }, f.timeout.promise)
+            .then((result: IFileResult) => {
                 f.progress = 100;
                 f.guid = result.guid;
                 f.filepath = result.uriToFile;
@@ -136,24 +128,24 @@ export class BpFileUploadStatusController extends BaseDialogController implement
                 f.isFailed = false;
 
                 return result;
-            },
-            (error: any) => {
+            })
+            .catch((error: any) => {
                 f.errorMessage = error && error.message || this.localization.get("App_UP_Attachments_Upload_Error", "Upload error.");
                 f.progress = 0;
                 f.isFailed = true;
                 f.isComplete = false;
-            }
-        ).finally(() => {
-            f.isUploading = false;
-            this.updateTotalFailedFiles();
-            if (this.files.filter(a => a.isUploading).length === 0) {
-                if (this.files.filter(a => a.isFailed).length === 0) {
-                    super.ok();
-                } else {
-                    this.areFilesUploading = false;
+            })
+            .finally(() => {
+                f.isUploading = false;
+                this.updateTotalFailedFiles();
+                if (this.files.filter(a => a.isUploading).length === 0) {
+                    if (this.files.filter(a => a.isFailed).length === 0) {
+                        super.ok();
+                    } else {
+                        this.areFilesUploading = false;
+                    }
                 }
-            }
-        });
+            });
     }
 
     private updateTotalFailedFiles() {

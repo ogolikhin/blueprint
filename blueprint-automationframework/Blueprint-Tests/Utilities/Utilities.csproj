@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -56,6 +57,7 @@
     <Compile Include="Factories\RandomGenerator.cs" />
     <Compile Include="Factories\WebExceptionFactory.cs" />
     <Compile Include="HashingUtilities.cs" />
+    <Compile Include="ImageUtilities.cs" />
     <Compile Include="StringUtilities.cs" />
     <Compile Include="ThrowIf.cs" />
     <Compile Include="WebExceptions.cs" />

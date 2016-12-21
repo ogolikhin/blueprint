@@ -189,12 +189,15 @@ describe("Component BPRelationshipsPanel", () => {
         }));
 
     it("should load data for a selected artifacts",
-        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory) => {
+        inject(($rootScope: ng.IRootScopeService, statefulArtifactFactory: IStatefulArtifactFactory,
+                $httpBackend: ng.IHttpBackendService) => {
 
             //Arrange
             vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
             vm.selectedTraces = {};
             vm.selectedTraces[22] = [traces[0]];
+
+            $httpBackend.whenPOST(`/svc/shared/artifacts/lock`, [22]).respond("");
 
             //Act
             vm.setSelectedDirection(2);
@@ -213,6 +216,8 @@ describe("Component BPRelationshipsPanel", () => {
             vm.item = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "AC"});
             vm.selectedTraces = {};
             vm.selectedTraces[22] = traces;
+
+            $httpBackend.whenPOST(`/svc/shared/artifacts/lock`, [22]).respond("");
 
             //Act
             vm.toggleFlag();

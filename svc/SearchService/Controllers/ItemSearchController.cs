@@ -8,6 +8,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Controllers
 {
@@ -24,11 +25,11 @@ namespace SearchService.Controllers
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
         private readonly CriteriaValidator _criteriaValidator;
 
-        public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration())
+        public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration(), new ServiceLogRepository())
         {
         }
 
-        internal ItemSearchController(IItemSearchRepository itemSearchRepo, ISearchConfiguration configuration)
+        internal ItemSearchController(IItemSearchRepository itemSearchRepo, ISearchConfiguration configuration, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
             ItemSearchRepo = itemSearchRepo;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);

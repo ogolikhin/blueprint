@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -10,6 +11,7 @@ using SearchService.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Controllers
 {
@@ -195,6 +197,37 @@ namespace SearchService.Controllers
             Assert.AreEqual(HttpStatusCode.Forbidden, httpResponseException.Response.StatusCode, "Forbidden should be provided as Status code");
         }
 
+        [TestMethod]
+        public async Task SearchName_RepoThrowsException_LogShouldBeCalled()
+        {
+            // Arrange
+            const int projectId = 10;
+            var searchCriteria = new SearchCriteria { Query = "Test" };
+            var project = new ProjectSearchResult { ItemId = projectId, Name = searchCriteria.Query };
+            var searchResult = new ProjectSearchResultSet { Items = new[] { project } };
+            var logMock = new Mock<IServiceLogRepository>();
+            logMock.Setup(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.Delay(1));
+            var exceptionToBeThrown = new Exception("MyException");
+
+            var controller = CreateControllerForExceptionCases(searchCriteria, logMock, exceptionToBeThrown, searchResult);
+            Exception actualException = null;
+
+            // Act
+            try
+            {
+                var result = await controller.SearchName(searchCriteria, 20);
+            }
+            catch (Exception ex)
+            {
+                actualException = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(actualException);
+            Assert.AreEqual(exceptionToBeThrown.Message, actualException.Message, "Incorrect message was thrown");
+            logMock.Verify(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()), Times.Exactly(1));
+        }
+
         #endregion SearchName
 
         public static ProjectSearchController CreateController(SearchCriteria searchCriteria, ProjectSearchResultSet result = null)
@@ -204,7 +237,23 @@ namespace SearchService.Controllers
 
             var request = new HttpRequestMessage();
             request.Properties.Add(ServiceConstants.SessionProperty, new Session { UserId = 1 });
-            return new ProjectSearchController(projectSearchRepository.Object)
+
+            var logMock = new Mock<IServiceLogRepository>();
+
+            return new ProjectSearchController(projectSearchRepository.Object, logMock.Object)
+            {
+                Request = request
+            };
+        }
+
+        public static ProjectSearchController CreateControllerForExceptionCases(SearchCriteria searchCriteria, Mock<IServiceLogRepository> logMock, Exception exceptionToBeThrown, ProjectSearchResultSet result = null)
+        {
+            var projectSearchRepository = new Mock<IProjectSearchRepository>();
+            projectSearchRepository.Setup(m => m.SearchName(1, searchCriteria, It.IsAny<int>(), "/")).ThrowsAsync(exceptionToBeThrown);
+
+            var request = new HttpRequestMessage();
+            request.Properties.Add(ServiceConstants.SessionProperty, new Session { UserId = 1 });
+            return new ProjectSearchController(projectSearchRepository.Object, logMock.Object)
             {
                 Request = request
             };

@@ -8,6 +8,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Controllers
 {
@@ -23,11 +24,11 @@ namespace SearchService.Controllers
 
         public override string LogSource => "SearchService.ProjectSearch";
 
-        public ProjectSearchController() : this(new SqlProjectSearchRepository())
+        public ProjectSearchController() : this(new SqlProjectSearchRepository(), new ServiceLogRepository())
         {
         }
 
-        public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
+        internal ProjectSearchController(IProjectSearchRepository projectSearchRepository, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
             _projectSearchRepository = projectSearchRepository;
         }

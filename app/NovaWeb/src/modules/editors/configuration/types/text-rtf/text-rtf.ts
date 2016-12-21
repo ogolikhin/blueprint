@@ -366,7 +366,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         };
 
         let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
-        if (!_.isFinite(filesize) || filesize < 0 && filesize > Helper.maxAttachmentFilesizeDefault) {
+        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.maxAttachmentFilesizeDefault) {
             filesize = Helper.maxAttachmentFilesizeDefault;
         }
 

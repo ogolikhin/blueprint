@@ -11,8 +11,6 @@ using Utilities.Facades;
 using Model.NovaModel;
 using Model.NovaModel.Impl;
 using System.Globalization;
-using Model.Factories;
-using System.Data.SqlClient;
 
 namespace Model.Impl
 {
@@ -52,12 +50,11 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             byte[] fileBytes = file.Content.ToArray();
-            byte[] chunk = fileBytes;
 
             // If we are chunking the file, get the first chunk ready.
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
-                chunk = fileBytes.Take((int)chunkSize).ToArray();
+                byte[] chunk = fileBytes.Take((int)chunkSize).ToArray();
                 file.Content = chunk;
             }
 
@@ -71,7 +68,7 @@ namespace Model.Impl
 
                 do
                 {
-                    chunk = rem.Take((int)chunkSize).ToArray();
+                    byte[] chunk = rem.Take((int)chunkSize).ToArray();
                     rem = rem.Skip((int)chunkSize).ToArray();
 
                     // Put each subsequent chunk of the file.
@@ -341,7 +338,7 @@ namespace Model.Impl
             return file;
         }
 
-        /// <seealso cref="INovaFile.AddFile(INovaFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IFileStore.AddFile(INovaFile, IUser, DateTime?, bool, uint, List{HttpStatusCode}, bool)"/>
         public INovaFile AddFile(INovaFile file,
             IUser user,
             DateTime? expireTime = null,
@@ -354,12 +351,11 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             byte[] fileBytes = file.Content.ToArray();
-            byte[] chunk = fileBytes;
 
             // If we are chunking the file, get the first chunk ready.
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
-                chunk = fileBytes.Take((int)chunkSize).ToArray();
+                byte[] chunk = fileBytes.Take((int)chunkSize).ToArray();
                 file.Content = chunk;
             }
 
@@ -373,7 +369,7 @@ namespace Model.Impl
 
                 do
                 {
-                    chunk = rem.Take((int)chunkSize).ToArray();
+                    byte[] chunk = rem.Take((int)chunkSize).ToArray();
                     rem = rem.Skip((int)chunkSize).ToArray();
 
                     // Put each subsequent chunk of the file.
@@ -385,7 +381,7 @@ namespace Model.Impl
             return postedFile;
         }
 
-        /// <seealso cref="INovaFile.PostFile(INovaFile, IUser, DateTime?, bool, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IFileStore.PostFile(INovaFile, IUser, DateTime?, bool, List{HttpStatusCode}, bool)"/>
         public INovaFile PostFile(INovaFile file, IUser user, DateTime? expireTime = null, bool useMultiPartMime = false,
             List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
@@ -625,43 +621,12 @@ namespace Model.Impl
         /// <seealso cref="IFileStore.GetSQLExpiredTime(string)"/>
         public DateTime? GetSQLExpiredTime(string fileId)
         {
-            string FILES_TABLE = "[FileStore].[Files]";
+            const string FILES_TABLE = "[FileStore].[Files]";
             string query = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM {0} WHERE FileId = '{1}'", FILES_TABLE, fileId);
-            DateTime? expiredTime = null;
 
-            using (IDatabase database = DatabaseFactory.CreateDatabase(databaseName: "FileStore"))
-            {
-                database.Open();
-                Logger.WriteDebug("Running: {0}", query);
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
-                using (var sqlDataReader = cmd.ExecuteReader())
-                {
-                    if (sqlDataReader.HasRows)
-                    {
-                        while (sqlDataReader.Read())
-                        {
-                            int expiredTimeOrdinal = sqlDataReader.GetOrdinal("ExpiredTime");
-                            var sqlExpiredTime = sqlDataReader.GetSqlDateTime(expiredTimeOrdinal);
-                            if (sqlExpiredTime.IsNull)
-                            {
-                                return null;
-                            }
-
-                            else
-                            {
-                                expiredTime = (DateTime)(sqlExpiredTime);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
-                    }
-                }
-            }
-
-            return expiredTime;
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<DateTime?>(query, "ExpiredTime", "FileStore");
         }
+
         #endregion Inherited from IFileStore
 
         #region Members inherited from IDisposable

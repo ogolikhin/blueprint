@@ -124,6 +124,32 @@ namespace ArtifactStoreTests
             // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
         }
 
+        [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "garbage-token")]
+        [TestCase(80, 80, ImageType.PNG, "image/png", "")]
+        [TestCase(50, 50, ImageType.PNG, "image/png", null)]
+        [TestRail(211547)]
+        [Description("Try to upload a random image file to ArtifactStore but use an invalid or missing token.  Verify 401 Unauthorized is returned.")]
+        public void AddImage_InvalidToken_401Unauthorized(int width, int height, ImageType imageType, string contentType, string token)
+        {
+            // Setup:
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            // Set the bad token.
+            _authorUser.SetToken(token);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", ADD_IMAGE_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
+                "TODO: Fill this in when development is done.");
+
+            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+        }
+
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
         [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
         [TestRail(211538)]
@@ -171,6 +197,23 @@ namespace ArtifactStoreTests
 
             // Verify:
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+        }
+
+        [TestCase("")]
+        [TestCase("abcd1234")]
+        [TestRail(211550)]
+        [Description("Try to get an image with an ImageId that doesn't exist.  Verify it returns 404 Not Found.")]
+        public void GetImage_NonExistingImage_404NotFound(string imageId)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetImage(imageId);
+            }, "'GET {0}' should return 404 Not Found when a non-existing image GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                "TODO: Fill this in when development is done.");
         }
 
         #endregion GetImage tests

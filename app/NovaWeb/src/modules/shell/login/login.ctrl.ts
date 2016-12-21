@@ -268,6 +268,9 @@ export class LoginCtrl extends BaseDialogController {
             } else if (error.errorCode === 4002) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCriteria");
                 this.isNewPasswordFieldErrorStyleShowing = true;
+            } else if (error.errorCode === 4003) {
+                this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordChangeCooldown");
+                this.isCurrentPasswordFieldErrorStyleShowing = true;
             } else {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }

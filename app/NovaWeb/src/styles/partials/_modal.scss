@@ -528,8 +528,27 @@ $modal-open-project-height: 450px;
 }
 
 .modal.change-password {
+    .modal-body {
+        padding: 15px 30px;
+    }
+
     .change-password__focus-stealer {
         float: left;
         margin: -2000px 0 0 -2000px;
+    }
+
+    .change-password__message {
+        box-sizing: content-box;
+        font-size: $font-size-normal;
+        padding: 0 0 25px;
+
+        &.error {
+            color: $brand-error;
+        }
+    }
+
+    .change-password__success {
+        font-size: $font-size-normal;
+        padding: 30px;
     }
 }

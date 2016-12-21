@@ -100,7 +100,7 @@ export class AppController {
         };
         const dialogData: ILoginModalDialogData = {
             isChangePasswordScreenEnabled: true,
-            changePasswordScreenMessage: "temp message to tell the user to change his password"
+            changePasswordScreenMessage: this.localization.get("Change_Password_Dialog_Message")
         };
 
         this.dialogService.open(dialogSettings, dialogData);

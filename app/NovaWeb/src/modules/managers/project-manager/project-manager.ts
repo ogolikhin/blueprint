@@ -284,6 +284,7 @@ export class ProjectManager implements IProjectManager {
 
     private processProjectTree(projectId: number, data: Models.IArtifact[], artifactToSelectId: number): ng.IPromise<void> {
         const oldProject = this.getProject(projectId);
+
         // if old project is opened
         if (oldProject) {
             this.artifactManager.removeAll(projectId);
@@ -321,6 +322,8 @@ export class ProjectManager implements IProjectManager {
                 this.openChildNodes(newProjectNode.children, data);
 
                 if (oldProject) {
+                    this.refreshSelectedArtifactIfDisposed(projectId);
+
                     //update project collection
                     this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(oldProject), 1, newProjectNode);
                     oldProject.unloadChildren();
@@ -328,12 +331,21 @@ export class ProjectManager implements IProjectManager {
                     this.projectCollection.getValue().unshift(newProjectNode);
                     this.projectCollection.onNext(this.projectCollection.getValue());
                 }
-
-                const artifactToSelect = this.artifactManager.get(artifactToSelectId);
-                if (artifactToSelect) {
-                    this.artifactManager.selection.setExplorerArtifact(artifactToSelect);
-                }
             });
+    }
+
+    private refreshSelectedArtifactIfDisposed(projectId: number): void {
+        const currentlySelectItem = this.artifactManager.selection.getArtifact();
+
+        if (currentlySelectItem && currentlySelectItem.projectId === projectId && currentlySelectItem.isDisposed) {
+            const updatedSelectedArtifact = this.artifactManager.get(currentlySelectItem.id);
+            
+            if (updatedSelectedArtifact && !updatedSelectedArtifact.isDisposed) {
+                this.artifactManager.selection.setArtifact(updatedSelectedArtifact);
+            } else {
+                this.artifactManager.selection.clearAll();
+            }
+        }
     }
 
     private clearProject(project: IArtifactNode) {

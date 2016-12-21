@@ -491,14 +491,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public canGenerateUserStory(): boolean {
         return true;
     }
-
-    public activateButton(flag: ItemIndicatorFlags) {
-        if (flag === ItemIndicatorFlags.HasComments && this.model) {
-            this.model.flags.hasComments = true;
-            this.commentsButton.activate();
-        }
-    }
-
+    
     public getNodeType() {
         return NodeType.UserTask;
     }

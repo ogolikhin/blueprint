@@ -454,13 +454,6 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         return this.bodyCell;
     }
 
-    public activateButton(flag: ItemIndicatorFlags) {
-        if (flag === ItemIndicatorFlags.HasComments && this.model) {
-            this.model.flags.hasComments = true;
-            this.commentsButton.activate();
-        }
-    }
-
     public getNodeType() {
         return NodeType.SystemTask;
     }

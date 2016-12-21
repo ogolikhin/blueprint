@@ -81,32 +81,31 @@ namespace AdminStore.Controllers
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="204">No icon for user exists.</response>
-        /// <response code="401">Not Found. The user with the provided ID was not found.</response>
-        /// <response code="403">Forbidden. The provided user's icon is not accessible.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not Found. The user with the provided ID was not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
         [Route("{userId:int:min(1)}/icon"), SessionRequired]
-        [ResponseType(typeof(BitArray))]
+        [ResponseType(typeof(byte[]))]
         public async Task<IHttpActionResult> GetUserIcon(int userId)
         {
             try
             {
-                var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-                var loginUser = await _userRepository.GetLoginUserByIdAsync(session.UserId);
-                if (loginUser == null)
+                var imageContent = await _userRepository.GetUserIconByUserIdAsync(userId);
+                if (imageContent == null)
                 {
-                    throw new AuthenticationException(string.Format("User does not exist with UserId: {0}", session.UserId));
+                    throw new ResourceNotFoundException($"User does not exist with UserId: {userId}");
                 }
-                if (loginUser.Image_ImageId == null)
+                if (imageContent.Content == null)
                 {
                     return StatusCode(HttpStatusCode.NoContent);
                 }
 
-                return Ok(loginUser.Image_ImageId);
+                return Ok(imageContent.Content);
             }
-            catch (AuthenticationException)
+            catch (ResourceNotFoundException)
             {
-                return Unauthorized();
+                return NotFound();
             }
             catch (Exception ex)
             {

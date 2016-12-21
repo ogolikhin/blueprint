@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import {BpFileUploadStatusController, IUploadStatusDialogData} from "./bp-file-upload-status";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {DialogServiceMock} from "../bp-dialog/bp-dialog";
+import {DialogServiceMock} from "../bp-dialog/bp-dialog.mock";
 import {SettingsService} from "../../../core/configuration/settings";
 import {MessageService} from "../../../core/messages/message.svc";
 

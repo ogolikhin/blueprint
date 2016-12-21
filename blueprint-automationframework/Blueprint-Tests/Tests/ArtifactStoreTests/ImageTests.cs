@@ -129,7 +129,7 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
         }
 
-        [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "garbage-token")]
+        [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
         [TestCase(80, 80, ImageType.PNG, "image/png", "")]
         [TestCase(50, 50, ImageType.PNG, "image/png", null)]
         [TestRail(211547)]
@@ -152,7 +152,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
                 "TODO: Fill this in when development is done.");
 
-            // TODO: Make a SQL call to the new EmbeddedImages table in the Raptor DB and verify the file was NOT added.
+            AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB

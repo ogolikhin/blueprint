@@ -330,17 +330,22 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
                                 const imageFile = inputElement.files[0];
+                                let dimensions;
 
                                 this.uploadImage(imageFile).then((uploadedImageUrl: string) => {
-                                    this.getImageDimensions(imageFile).then(dimensions => {
-                                        const imageContent = editor.dom.createHTML("img", {
-                                            src: uploadedImageUrl,
-                                            width: dimensions.width > 400 && dimensions.width > dimensions.height ? 400 : undefined,
-                                            height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
+                                    this.getImageDimensions(imageFile)
+                                        .then(dim => {
+                                            dimensions = dim;
+                                        })
+                                        .finally(() => {
+                                            const imageContent = editor.dom.createHTML("img", {
+                                                src: uploadedImageUrl,
+                                                width: dimensions.width > 400 && dimensions.width > dimensions.height ? 400 : undefined,
+                                                height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
+                                            });
+                                            editor.selection.setContent(imageContent);
+                                            this.triggerChange();
                                         });
-                                        editor.selection.setContent(imageContent);
-                                        this.triggerChange();
-                                    });
                                 });
                             });
 

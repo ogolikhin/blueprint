@@ -1,5 +1,6 @@
 ﻿using System;
-using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -69,11 +70,13 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(userIcon);
 
             // Act
-            var result = await _controller.GetUserIcon(userId) as OkNegotiatedContentResult<byte[]>;
+            var result = await _controller.GetUserIcon(userId);
 
             // Assert
+            var actualContent = await result.Content.ReadAsByteArrayAsync();
             Assert.IsNotNull(result);
-            Assert.AreEqual(content, result.Content);
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+            Assert.IsTrue(content.SequenceEqual(actualContent));
         }
 
         [TestMethod]
@@ -86,10 +89,10 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(null);
 
             // Act
-            IHttpActionResult result = await _controller.GetUserIcon(userId);
+            var result = await _controller.GetUserIcon(userId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+            Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
         }
 
         [TestMethod]
@@ -103,13 +106,14 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(userIcon);
 
             // Act
-            IHttpActionResult result = await _controller.GetUserIcon(userId);
+            var result = await _controller.GetUserIcon(userId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(StatusCodeResult));
+            Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
         }
 
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
         public async Task GetUserIcon_RepositoryThrowsException_InternalServerErrorResult()
         {
             // Arrange
@@ -119,10 +123,9 @@ namespace AdminStore.Controllers
                 .Throws(new Exception());
 
             // Act
-            IHttpActionResult result = await _controller.GetUserIcon(userId);
+            await _controller.GetUserIcon(userId);
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 
         #endregion

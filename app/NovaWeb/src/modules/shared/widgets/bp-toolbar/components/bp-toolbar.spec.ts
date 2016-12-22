@@ -4,6 +4,20 @@ import "../";
 import {BPToolbarController} from "./bp-toolbar";
 import {BPButtonAction} from "../actions";
 
+class TestButton extends BPButtonAction {
+    public icon: string;
+    public tooltip: string;
+    public disabled: boolean;
+
+    constructor() {
+        super();
+    }
+
+    public execute(): void {
+        return;
+    }
+}
+
 describe("BPToolbar", () => {
     let $compile: ng.ICompileService;
     let $scope: ng.IScope;
@@ -35,12 +49,8 @@ describe("BPToolbar", () => {
         // arrange
         const template = `<bp-toolbar-2 actions="actions"></bp-toolbar-2>`;
         const actions = [
-            new BPButtonAction(() => {
-                return;
-            }, () => true, "test1", "test1", "test1"),
-            new BPButtonAction(() => {
-                return;
-            }, () => true, "test2", "test2", "test2")
+            new TestButton(),
+            new TestButton()
         ];
         $scope["actions"] = actions;
         // act

@@ -7,67 +7,77 @@ import {ILocalizationService} from "../../../../core/localization/localizationSe
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 
 export class RefreshAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                projectManager: IProjectManager,
-                loadingOverlayService: ILoadingOverlayService,
-                metaDataService: IMetaDataService,
-                mainBreadcrumbService: IMainBreadcrumbService
-                ) {
-        if (!artifact) {
+    constructor(
+        private artifact: IStatefulArtifact,
+        private localization: ILocalizationService,
+        private projectManager: IProjectManager,
+        private loadingOverlayService: ILoadingOverlayService,
+        private metaDataService: IMetaDataService,
+        private mainBreadcrumbService: IMainBreadcrumbService
+    ) {
+        super();
+
+        if (!this.artifact) {
             throw new Error("Artifact not provided or is null");
         }
 
-        if (!localization) {
+        if (!this.localization) {
             throw new Error("Localization service not provided or is null");
         }
 
-        if (!projectManager) {
+        if (!this.projectManager) {
             throw new Error("Project manager not provided or is null");
         }
 
-        if (!loadingOverlayService) {
+        if (!this.loadingOverlayService) {
             throw new Error("Loading overlay service not provided or is null");
         }
 
-        if (!metaDataService) {
+        if (!this.metaDataService) {
             throw new Error("MetaData service not provided or is null");
         }
 
-        super(
-            (): void => {
-                const overlayId = loadingOverlayService.beginLoading();
+        if (!this.mainBreadcrumbService) {
+            throw new Error("Main breadcrumb service not provided or is null");
+        }
+    }
 
-                if (artifact.predefinedType === ItemTypePredefined.Project) {
-                    projectManager.refreshCurrent().finally(() => {
-                        projectManager.triggerProjectCollectionRefresh();
-                        loadingOverlayService.endLoading(overlayId);
-                    });
-                } else {
-                    //project is getting refreshed by listening to selection in bp-page-content
-                    mainBreadcrumbService.reloadBreadcrumbs(artifact);
-                    artifact.refresh().finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
-                }
-            },
-            (): boolean => {
+    public get icon(): string {
+        return "fonticon2-refresh-line";
+    }
 
-                const invalidTypes = [
-                    ItemTypePredefined.Collections
-                ];
-                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
-                    return false;
-                }
+    public get tooltip(): string {
+        return this.localization.get("App_Toolbar_Refresh");
+    }
 
-                if (artifact.artifactState.dirty) {
-                    return false;
-                }
+    public get disabled(): boolean {
+        const invalidTypes = [ItemTypePredefined.Collections];
 
-                return true;
-            },
-            "fonticon2-refresh-line",
-            localization.get("App_Toolbar_Refresh")
-        );
+        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
+            return true;
+        }
+
+        if (this.artifact.artifactState.dirty) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public execute(): void {
+        const overlayId = this.loadingOverlayService.beginLoading();
+
+        if (this.artifact.predefinedType === ItemTypePredefined.Project) {
+            this.projectManager.refreshCurrent()
+                .finally(() => {
+                    this.projectManager.triggerProjectCollectionRefresh();
+                    this.loadingOverlayService.endLoading(overlayId);
+                });
+        } else {
+            //project is getting refreshed by listening to selection in bp-page-content
+            this.mainBreadcrumbService.reloadBreadcrumbs(this.artifact);
+            this.artifact.refresh()
+                .finally(() => this.loadingOverlayService.endLoading(overlayId));
+        }
     }
 }

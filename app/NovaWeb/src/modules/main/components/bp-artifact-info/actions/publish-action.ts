@@ -5,40 +5,58 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class PublishAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) {
-        if (!localization) {
+    constructor(
+        private artifact: IStatefulArtifact,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private loadingOverlayService: ILoadingOverlayService
+    ) {
+        super();
+
+        if (!this.localization) {
             throw new Error("Localization service not provided or is null");
         }
 
-        super(
-            (): void => {
-                let overlayId: number = loadingOverlayService.beginLoading();
+        if (!this.messageService) {
+            throw new Error("Message service not provided or is null");
+        }
 
-                try {
-                    artifact.publish()
-                    .catch((err) => {
-                        if (err) {
-                            messageService.addError(err);
-                        }
-                    })
-                    .finally(() => {
-                        loadingOverlayService.endLoading(overlayId);
-                    });
-                } catch (err) {
-                    loadingOverlayService.endLoading(overlayId);
+        if (!this.loadingOverlayService) {
+            throw new Error("Loading overlay service not provided or is null");
+        }
+    }
 
+    public get icon(): string {
+        return "fonticon2-publish-line";
+    }
+
+    public get tooltip(): string {
+        return this.localization.get("App_Toolbar_Publish");
+    }
+
+    public get disabled(): boolean {
+        return !this.artifact 
+            || !this.artifact.canBePublished();
+    }
+
+    public execute(): void {
+        let overlayId: number = this.loadingOverlayService.beginLoading();
+
+        try {
+            this.artifact.publish()
+                .catch((err) => {
                     if (err) {
-                        messageService.addError(err);
-                        throw err;
+                        this.messageService.addError(err);
                     }
-                }
-            },
-            (): boolean => artifact ? artifact.canBePublished() : false,
-            "fonticon2-publish-line",
-            localization.get("App_Toolbar_Publish")
-        );
+                })
+                .finally(() => this.loadingOverlayService.endLoading(overlayId));
+        } catch (err) {
+            this.loadingOverlayService.endLoading(overlayId);
+
+            if (err) {
+                this.messageService.addError(err);
+                throw err;
+            }
+        }
     }
 }

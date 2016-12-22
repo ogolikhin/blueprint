@@ -83,7 +83,7 @@ namespace AdminStore.Controllers
         /// <response code="404">Not Found. The user with the provided ID was not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("{userId:int:min(1)}/icon"), SessionRequired]
+        [Route("{userId:int:min(1)}/icon"), SessionRequired(true)]
         [ResponseType(typeof(byte[]))]
         public async Task<HttpResponseMessage> GetUserIcon(int userId)
         {

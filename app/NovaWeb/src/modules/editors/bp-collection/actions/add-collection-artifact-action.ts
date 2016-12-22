@@ -58,7 +58,7 @@ export class AddCollectionArtifactAction extends BPButtonAction {
                 return true;
             },
             "fonticon fonticon2-add-artifact",
-            "Add artifact to collection"
+            localization.get("Artifact_Add_To_Collection_Picker_Header")
         );
     }
 }

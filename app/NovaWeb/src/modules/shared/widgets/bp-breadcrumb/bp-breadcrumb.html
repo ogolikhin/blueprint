@@ -1,8 +1,8 @@
-<ul class="breadcrumbs process-breadcrumbs" ng-if="$ctrl.links">
+<ul class="breadcrumbs process-breadcrumbs" ng-if="$ctrl.breadcrumbs">
     <!-- no 'track by' because of single time binding inside -->
-    <li ng-repeat="link in $ctrl.links" bp-tooltip="{{::link.name }}" bp-tooltip-truncated="true">
+    <li ng-repeat="link in $ctrl.breadcrumbs" bp-tooltip="{{::link.name }}" bp-tooltip-truncated="true">
         <a ng-if="link.isEnabled" ui-sref="main.item(::$ctrl.getNavigationParams(link, $index))">{{::link.name }}</a>
         <span ng-if="!link.isEnabled" class="nova-breadcrumbs-inaccessible">{{::link.name }}</span>
     </li>
-    <span ng-if="$ctrl.links.length > 0">&nbsp;&gt;&nbsp;</span>
+    <span ng-if="$ctrl.breadcrumbs.length > 0">&nbsp;&gt;&nbsp;</span>
 </ul>

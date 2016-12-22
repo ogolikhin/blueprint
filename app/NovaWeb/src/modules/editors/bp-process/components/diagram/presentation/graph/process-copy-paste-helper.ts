@@ -245,14 +245,14 @@ export class ProcessCopyPasteHelper {
         return copyGroupNodes;
     }
 
-    private isInBaseNodes(id, baseNodes: IDiagramNode[]): boolean {
-        return _.filter(baseNodes, (node) => {
+    private isInBaseNodes(id: number, baseNodes: IDiagramNode[]): boolean {
+        return _.filter(baseNodes, (node: IDiagramNode) => {
             return node.model.id === id;
         }).length > 0;
     }
 
     private createDecisionPointRefs(baseNodes: IDiagramNode[], decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
-        _.each(baseNodes, (node) => {
+        _.each(baseNodes, (node: IDiagramNode) => {
             if (node instanceof UserDecision || node instanceof SystemDecision) {
                 const nextShapeIds: number[] = this.processGraph.viewModel.getNextShapeIds(node.model.id);
                 for (let i: number = 0; i <  nextShapeIds.length; i++) {
@@ -276,7 +276,7 @@ export class ProcessCopyPasteHelper {
     private addTasksAndDecisionsToClipboardData(data: PreprocessorData, baseNodes: IDiagramNode[], 
                                                 decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         let prevId = "UNDEFINED";
-        _.each(baseNodes, (node) => {
+        _.each(baseNodes, (node: IDiagramNode) => {
             if (node instanceof UserTask) {
                 this.addUserAndSystemTasks(prevId, data, baseNodes, node, decisionPointRefs, ++data.numberOfSubTrees);
             } else if (node instanceof UserDecision) { // user decision

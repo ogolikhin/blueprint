@@ -2,7 +2,7 @@
     <div class="reply-separator"></div>
     <div ng-if="$ctrl.editing === false">
         <div>
-            <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
+            <bp-avatar ng-class="{ 'avatar--guest': $ctrl.replyInfo.isGuest}"
                        user-id="{{ $ctrl.replyInfo.userId }}"
                        user-name="{{ $ctrl.replyInfo.userName }}">
             </bp-avatar>

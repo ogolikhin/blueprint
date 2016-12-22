@@ -135,44 +135,35 @@ export class ProcessCopyPasteHelper {
         }
         
         const  data: PreprocessorData = new PreprocessorData();
-        
-        // Currently baseNodes are the selected/highlighted UserTasks only. 
-        // Later algorithm will be simplified to use all selected/highlighted nodes.
-        let  baseNodes = _.filter(this.processGraph.getCopyNodes(), (node) => { 
-            return node instanceof UserTask; 
-        });
+        let  baseNodes = this.processGraph.getCopyNodes();
 
         try {
-            // 1. Find all User Decisions
+
+            // create decision pointer references
             let decisionPointRefs: Models.IHashMap<DecisionPointRef> = {};
-
-            this.findUserDecisions(baseNodes, decisionPointRefs);
+            this.createDecisionPointRefs(baseNodes, decisionPointRefs);
                     
-            // 2. add user decisions to base nodes
-
-            this.addUserDecisionsToBasenodes(baseNodes, decisionPointRefs);
-
-            // 4. sort base nodes
+            // sort base nodes
             baseNodes = _.sortBy(baseNodes, (node: IDiagramNode) => node.model.propertyValues["x"].value * 1000 + 
                                                                                                       node.model.propertyValues["y"].value);
 
             data.numberOfSubTrees = -1;
 
-            // 5. add user tasks, system tasks and user decisions to clipboard process data
+            // add user tasks, system tasks and user decisions to clipboard process data
             this.addTasksAndDecisionsToClipboardData(data, baseNodes, decisionPointRefs);
 
-            // 6. connect all subtrees together
+            // connect all subtrees together
             this.connectAllSubtrees(data);
 
-            // 7. add branch links
+            // add branch links
             this.addBranchLinks(data, decisionPointRefs);
 
             const processClipboardData = new ProcessClipboardData(this.createProcessModel(data, decisionPointRefs));
 
-            // 8. add logic to determine is pastable
+            //  add logic to determine is pastable
             processClipboardData.isPastableAfterUserDecision = this.isPastableAfterUserDecision(data);    
 
-            // 9. set clipboard data          
+            // set clipboard data          
             this.copySystemTaskSavedImages(data.systemShapeImageIds, processClipboardData).then(
                 (resultClipboardData) => {
                     this.clipboard.setData(resultClipboardData);
@@ -183,6 +174,7 @@ export class ProcessCopyPasteHelper {
             this.$log.error(error);
         }
     };
+
     private copySystemTaskSavedImages(systemTaskIds: number[], clipboardData: ProcessClipboardData): ng.IPromise<ProcessClipboardData> {
         if (systemTaskIds.length > 0) {
             const expirationDate = new Date();
@@ -253,46 +245,42 @@ export class ProcessCopyPasteHelper {
         return copyGroupNodes;
     }
 
-    private findUserDecisions(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
-        _.each(baseNodes, (node) => {
-            if (node instanceof UserTask) {
-                const previousShapeIds: number[] = this.processGraph.viewModel.getPrevShapeIds(node.model.id);
-                const shape = this.processGraph.viewModel.getShapeById(previousShapeIds[0]);
+    private isInBaseNodes(id: number, baseNodes: IDiagramNode[]): boolean {
+        return _.filter(baseNodes, (node: IDiagramNode) => {
+            return node.model.id === id;
+        }).length > 0;
+    }
 
-                if (shape.propertyValues["clientType"].value === NodeType.UserDecision) {
-                    const link: IProcessLink = this.processGraph.getLink(shape.id, node.id);
-
-                    const userDecisionPointRef = decisionPointRefs[shape.id.toString()];
-                    if (userDecisionPointRef) {
-                        userDecisionPointRef.branches.push(new Branch(node.id, link.label, link.orderindex));
+    private createDecisionPointRefs(baseNodes: IDiagramNode[], decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
+        _.each(baseNodes, (node: IDiagramNode) => {
+            if (node instanceof UserDecision || node instanceof SystemDecision) {
+                const nextShapeIds: number[] = this.processGraph.viewModel.getNextShapeIds(node.model.id);
+                for (let i: number = 0; i <  nextShapeIds.length; i++) {
+                    const nextShapeId = nextShapeIds[i];
+                    if (!this.isInBaseNodes(nextShapeId, baseNodes)) {
+                        continue;
+                    }
+                    const link: IProcessLink = this.processGraph.getLink(node.model.id, nextShapeId);
+                    const decisionPointRef = decisionPointRefs[node.model.id.toString()];
+                    if (decisionPointRef) {
+                        decisionPointRef.branches.push(new Branch(nextShapeId.toString(), link.label, link.orderindex));
                     } else {
-                        decisionPointRefs[shape.id.toString()] = new DecisionPointRef(shape.id.toString(), node.id, link.label, link.orderindex);
+                        decisionPointRefs[node.model.id.toString()] = new DecisionPointRef(node.model.id.toString(), 
+                                                                                                        nextShapeId.toString(), link.label, link.orderindex);
                     } 
                 }
             }
         });
     }    
 
-    private addUserDecisionsToBasenodes(baseNodes: any, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
-        _.forOwn(decisionPointRefs, (node) => {
-            if (!!node && node.branches.length > 1) {
-                // sort branches by orderindex 
-                node.branches = _.sortBy(node.branches, (branch: any) => branch.orderindex);
-                baseNodes.push(this.layout.getNodeById(node.decisionId));
-            }
-        });        
-    }
-
-    private addTasksAndDecisionsToClipboardData(data: PreprocessorData, baseNodes, 
+    private addTasksAndDecisionsToClipboardData(data: PreprocessorData, baseNodes: IDiagramNode[], 
                                                 decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         let prevId = "UNDEFINED";
-        _.each(baseNodes, (node) => {
+        _.each(baseNodes, (node: IDiagramNode) => {
             if (node instanceof UserTask) {
                 this.addUserAndSystemTasks(prevId, data, baseNodes, node, decisionPointRefs, ++data.numberOfSubTrees);
             } else if (node instanceof UserDecision) { // user decision
                 this.addUserDecisionAndTasks(prevId, data, baseNodes, node, decisionPointRefs, ++data.numberOfSubTrees);
-            } else {
-                throw new Error("Unsupported copy/paste type");
             }
         });
         
@@ -393,21 +381,12 @@ export class ProcessCopyPasteHelper {
                                         decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number, baseNode) {
         const systemDecisionShape = this.createSystemDecisionShape(node);
         const systemDecisionId: string = systemDecisionShape.id.toString();
-        let nextId = "";
 
         data.shapes[systemDecisionId] = systemDecisionShape;
 
         const shapes = node.getNextNodes();
         const shapeIds: string[] = []; 
         _.each(shapes, (shape) => {
-
-            const link: IProcessLink = this.processGraph.getLink(systemDecisionShape.id, shape.model.id);
-            if (!decisionPointRefs[systemDecisionId]) {
-                decisionPointRefs[systemDecisionId] = new DecisionPointRef(systemDecisionId, shape.model.id.toString(), link.label, link.orderindex);
-            } else {
-                decisionPointRefs[systemDecisionId].branches.push(new Branch(shape.model.id.toString(), link.label, link.orderindex));
-            }
-
             shapeIds.push(shape.model.id.toString());
             if (shape instanceof  SystemTask) {
                 this.addSystemTask(systemDecisionId, data, shape, subTreeId, baseNode, decisionPointRefs);
@@ -424,7 +403,7 @@ export class ProcessCopyPasteHelper {
     }    
 
     private addSystemTask(prevId: string, data: PreprocessorData, node: SystemTask, subTreeId: number, 
-                                baseNodes, decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
+                                baseNodes: IDiagramNode[], decisionPointRefs: Models.IHashMap<DecisionPointRef>) {
         const systemTaskShape = this.createSystemTask(node);
         let nextId = this.processGraph.viewModel.getNextShapeIds(systemTaskShape.id)[0].toString();
         if (this.processGraph.viewModel.getPrevShapeIds(_.toNumber(nextId)).length > 1) {
@@ -446,7 +425,7 @@ export class ProcessCopyPasteHelper {
         }
     }
 
-    private  addUserAndSystemTasks(prevId: string, data: PreprocessorData, baseNodes, node: UserTask, 
+    private  addUserAndSystemTasks(prevId: string, data: PreprocessorData, baseNodes: IDiagramNode[], node: UserTask, 
                                                     decisionPointRefs: Models.IHashMap<DecisionPointRef>, subTreeId: number) {
 
         if (!!data.preprocessorTree[node.id]) {
@@ -479,7 +458,7 @@ export class ProcessCopyPasteHelper {
         }
     }
 
-    private addNextNode(baseNodes, 
+    private addNextNode(baseNodes: IDiagramNode[], 
                                   nodeId: string, 
                                   nextId: string, 
                                   data: PreprocessorData, 
@@ -487,19 +466,15 @@ export class ProcessCopyPasteHelper {
                                   subTreeId: number) {
         const nextNode = _.find(baseNodes, (node: IDiagramNode) =>  { return node.model.id.toString() === nextId; }); //data.preprocessorTree[nextId];
         
-        if (!!nextNode && !data.preprocessorTree[nextId]) { // there is next selected user task or user decision 
+        // proceed if the next user task or user/system decision is not processed
+        if (!!nextNode && !data.preprocessorTree[nextId]) {  
             if (nextNode instanceof UserTask) {
-                //const nextUserTask = <UserTask>this.layout.getNodeById(nextId);
                 this.addUserAndSystemTasks(nodeId, data, baseNodes, nextNode, decisionPointRefs, subTreeId);
             } else if (nextNode instanceof  UserDecision) {
-                //const nextUserDecision = <UserDecision>this.layout.getNodeById(nextId);
                 this.addUserDecisionAndTasks(nodeId, data, baseNodes, nextNode, decisionPointRefs, subTreeId);
             } else if (nextNode instanceof  SystemDecision) {
-                //const nextUserDecision = <UserDecision>this.layout.getNodeById(nextId);
                 this.addSystemDecisionAndTasks(nodeId, data, nextNode, decisionPointRefs, subTreeId, baseNodes);
             }
-        } else {
-            return;
         }
     }
 
@@ -614,22 +589,21 @@ export class ProcessCopyPasteHelper {
         let connectionStartId = null;
         if (this.layout.viewModel.isWithinShapeLimit(data.shapes.length)) {
             
-            // 1. create idMap and update shape ids and projectId and insert shapes
+            // create idMap and update shape ids and projectId and insert shapes
             this.pasteAndUpdateShapes(data, idMap);
 
-            // 2. connect the original graph to link to the start of pasted model
+            // connect the original graph to link to the start of pasted model
             connectionStartId = data.shapes[0].id;
             this.connectToPastedShapesStart(connectionStartId, data, destinationId, sourceIds);
 
-            // 3. update original branch destination ids
+            // update original branch destination ids
             this.updateOriginalDecisionBranchDestinationLinks(destinationId, connectionStartId, sourceIds);
 
-            // 4. insert links with new shapes id
+            // insert links with new shapes id
             this.pasteAndUpdateLinks(data, idMap, destinationId);
 
-            // 5. insert new branch destination ids
+            // insert new branch destination ids
             this.pasteAndIpdateDecisionBranchDestinationLinks(data, idMap, destinationId);
-
         }
 
         this.layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(_.toNumber(connectionStartId)); 

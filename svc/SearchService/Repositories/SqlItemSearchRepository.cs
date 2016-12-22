@@ -191,7 +191,8 @@ namespace SearchService.Repositories
                 param.Add("@predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));
             if (searchCriteria.ItemTypeIds != null && searchCriteria.ItemTypeIds.Any())
                 param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value"));
-            param.Add("@excludedPredefineds", PrimitiveItemTypePredefineds);
+            if (searchCriteria.PredefinedTypeIds == null || !searchCriteria.PredefinedTypeIds.Any())
+                param.Add("@excludedPredefineds", PrimitiveItemTypePredefineds);
             param.Add("@startOffset", startOffset);
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);

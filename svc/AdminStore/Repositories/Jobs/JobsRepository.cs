@@ -30,11 +30,11 @@ namespace AdminStore.Repositories.Jobs
         {
             var param = new DynamicParameters();
 
-            param.Add("@hidden", DBNull.Value);
-            param.Add("@userId", userId.HasValue && userId.Value > 0 ? userId.Value : (object)DBNull.Value);
-            param.Add("@projectId", DBNull.Value);
+            param.Add("@hidden", null);
+            param.Add("@userId", userId.Value);
+            param.Add("@projectId", null);
             param.Add("@addFinished", true);
-            param.Add("@receiverJobServiceId", DBNull.Value);
+            param.Add("@receiverJobServiceId", null);
             param.Add("@doNotFetchResult", false);
             param.Add("@offsetId", offsetId ?? int.MaxValue);
             param.Add("@minId", minId ?? 1);

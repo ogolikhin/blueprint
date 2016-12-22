@@ -8,6 +8,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Web.Http.Description;
 
 namespace AdminStore.Controllers
 {
@@ -21,10 +22,9 @@ namespace AdminStore.Controllers
 
         public override string LogSource => "AdminStore.JobsService";
 
-        public JobsController(IJobsRepository jobsRepository) :
-            this(jobsRepository, new ServiceLogRepository())
+        public JobsController() :
+            this(new JobsRepository(), new ServiceLogRepository())
         {
-            _jobsRepository = jobsRepository;
         }
 
         internal JobsController(IJobsRepository jobsRepository, 
@@ -33,6 +33,16 @@ namespace AdminStore.Controllers
             _jobsRepository = jobsRepository;
         }
 
+        /// <summary>
+        /// GetLatestJobs
+        /// </summary>
+        /// <remarks>
+        /// Returns the latest jobs.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        [HttpGet]
+        [Route("latest"), SessionRequired]
+        [ResponseType(typeof(IEnumerable<JobInfo>))]
         public async Task<IList<JobInfo>> GetLatestJobs(int? minId = null, int ? offsetId = null, int? limit = null)
         {
             var userId = ValidateAndExtractUserId();

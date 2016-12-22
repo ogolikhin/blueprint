@@ -1,4 +1,5 @@
 import * as angular from "angular";
+import "rx";
 import "angular-mocks";
 import "script!mxClient";
 import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
@@ -295,20 +296,18 @@ describe("ProcessCopyPasteHelper tests", () => {
         */
         it("copy 2 User Task in inifinite loop succeeded", () => {
             // Arrange
-            const userDecisionId = "30";
             const userTaskId1 = "80";
             const systemTaskId1 = "90";
             const userTaskId2 = "120";
             const systemTaskId2 = "130";
-            let userDecisionNode, userTaskNode1, userTaskNode2;
+            let userTaskNode1, userTaskNode2;
             let resultModel: ProcessModels.IProcess;
             process = TestModels.createUserDecisionInfiniteLoopModelWithoutXAndY();
             initializeCopyPasteHelperAndRenderGraph();
             
-            userDecisionNode = graph.getNodeById(userDecisionId);
             userTaskNode1 = graph.getNodeById(userTaskId1);
             userTaskNode2 = graph.getNodeById(userTaskId2);
-            spyOn(graph, "getSelectedNodes").and.returnValue([userDecisionNode, userTaskNode1, userTaskNode2]);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
 
             // Act
             copyPasteHelper.copySelectedShapes();
@@ -338,20 +337,18 @@ describe("ProcessCopyPasteHelper tests", () => {
         */
         it("copy 2 User Task in different loop", () => {
             // Arrange
-            const userDecisionId = "30";
             const userTaskId1 = "60";
             const systemTaskId1 = "70";
             const userTaskId2 = "110";
             const systemTaskId2 = "120";
-            let userDecisionNode, userTaskNode1, userTaskNode2;
+            let userTaskNode1, userTaskNode2;
             let resultModel: ProcessModels.IProcess;
             process = TestModels.createLoopFromDIfferentUserDecisionModelWithoutXAndY();
             initializeCopyPasteHelperAndRenderGraph();
             
-            userDecisionNode = graph.getNodeById(userDecisionId);
             userTaskNode1 = graph.getNodeById(userTaskId1);
             userTaskNode2 = graph.getNodeById(userTaskId2);
-            spyOn(graph, "getSelectedNodes").and.returnValue([userDecisionNode, userTaskNode1, userTaskNode2]);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
 
             // Act
             copyPasteHelper.copySelectedShapes();
@@ -423,7 +420,6 @@ describe("ProcessCopyPasteHelper tests", () => {
         */
         it("copy 2 User Task in different loop and insert before second user decision", () => {
             // Arrange
-            const userDecisionId = "30";
             const userTaskId1 = "60";
             const userTaskId2 = "110";
             const systemTaskId1 = 50;
@@ -432,15 +428,14 @@ describe("ProcessCopyPasteHelper tests", () => {
             const tempUserTaskId1 = -1;
             const tempSystemTaskId2 = -4;
 
-            let userDecisionNode, userTaskNode1, userTaskNode2;
+            let userTaskNode1, userTaskNode2;
             process = TestModels.createLoopFromDIfferentUserDecisionModelWithoutXAndY();
             initializeCopyPasteHelperAndRenderGraph();
             graph.layout.setTempShapeId(0);
             
-            userDecisionNode = graph.getNodeById(userDecisionId);
             userTaskNode1 = graph.getNodeById(userTaskId1);
             userTaskNode2 = graph.getNodeById(userTaskId2);
-            spyOn(graph, "getSelectedNodes").and.returnValue([userDecisionNode, userTaskNode1, userTaskNode2]);
+            spyOn(graph, "getSelectedNodes").and.returnValue([userTaskNode1, userTaskNode2]);
             spyOn(viewModel, "addToSubArtifactCollection");
 
             // Act
@@ -559,7 +554,7 @@ describe("ProcessCopyPasteHelper tests", () => {
             // Assert       
             expect(viewModel.shapes.length).toEqual(11);
             expect(viewModel.links.length).toEqual(12);     
-            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(2);
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(1);
 
             const insertedLinks1 = viewModel.links.filter(
                 l => l.sourceId === tempSystemTaskId1 && l.destinationId === endId
@@ -599,7 +594,7 @@ describe("ProcessCopyPasteHelper tests", () => {
             // Assert       
             expect(viewModel.shapes.length).toEqual(19);
             expect(viewModel.links.length).toEqual(23);     
-            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(5);
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(3);
 
             const insertedLinks1 = viewModel.links.filter(
                 l => l.sourceId === tempSystemTaskId1 && l.destinationId === endId
@@ -640,7 +635,7 @@ describe("ProcessCopyPasteHelper tests", () => {
             // Assert       
             expect(viewModel.shapes.length).toEqual(11);
             expect(viewModel.links.length).toEqual(12);     
-            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(2);
+            expect(viewModel.decisionBranchDestinationLinks.length).toEqual(1);
 
             const insertedLinks1 = viewModel.links.filter(
                 l => l.sourceId === tempSystemTaskId1 && l.destinationId === endId

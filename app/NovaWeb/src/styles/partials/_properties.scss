@@ -792,7 +792,7 @@ pagecontent, bp-properties-panel {
                         margin: 6px 2px;
                         width: #{$user-picker-choice-size - 12px};
 
-                        .avatar-placeholder .initials {
+                        .avatar__initials {
                             font-size: $font-size-smaller;
                         }
                     }

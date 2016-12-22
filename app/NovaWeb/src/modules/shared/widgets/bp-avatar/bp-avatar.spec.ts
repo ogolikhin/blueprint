@@ -12,9 +12,8 @@ describe("Component BPAvatar", () => {
     let bindings: any;
     let template = `
         <bp-avatar 
-            icon="" 
-            name="{{displayName}}"
-            color-base="{{userId + displayName}}">
+            user-id="{{userId}}" 
+            user-name="{{displayName}}">
         </bp-avatar>
     `;
 
@@ -34,7 +33,7 @@ describe("Component BPAvatar", () => {
         let ctrl: BPAvatarController = directiveTest.createComponent(bindings);
 
         //Assert
-        expect(directiveTest.element.find(".avatar-placeholder").length).toBe(1);
+        expect(directiveTest.element.find(".avatar__wrapper").length).toBe(1);
         expect(ctrl.initials).toBe("A");
     });
 

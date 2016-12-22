@@ -3,8 +3,8 @@
     <div ng-if="$ctrl.editing === false">
         <div>
             <bp-avatar ng-class="{ 'guest': $ctrl.replyInfo.isGuest}"
-                       name="{{ $ctrl.replyInfo.userName }}"
-                       color-base="{{ $ctrl.replyInfo.userId + $ctrl.replyInfo.userName }}">
+                       user-id="{{ $ctrl.replyInfo.userId }}"
+                       user-name="{{ $ctrl.replyInfo.userName }}">
             </bp-avatar>
             <div class="author"
                  bp-tooltip-truncated="true"

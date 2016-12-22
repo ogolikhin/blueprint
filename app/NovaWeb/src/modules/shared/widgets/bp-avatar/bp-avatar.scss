@@ -1,0 +1,41 @@
+@import '../../../../styles/settings/typography';
+@import "../../../../styles/settings/colors";
+
+bp-avatar {
+    display: block;
+
+    .avatar__wrapper {
+        border: 2px solid $gray-lighter;
+        border-radius: 50%;
+        font-size: $font-size-bigger;
+        height: 100%;
+        position: relative;
+        text-align: center;
+        text-transform: uppercase;
+        width: 100%;
+    }
+
+    .avatar__img,
+    .avatar__initials {
+        border: 0;
+        border-radius: 50%;
+        display: block;
+        height: calc(100% - 4px);
+        left: 2px;
+        line-height: 200%;
+        position: absolute;
+        top: 2px;
+        width: calc(100% - 4px);
+    }
+
+    .avatar__img + .avatar__initials {
+        display: none;
+    }
+
+    &.guest .avatar__initials {
+        background-image: url('/novaweb/static/images/guest.png') !important;
+        background-color: transparent !important;
+        background-size: cover;
+        text-indent: -99999px;
+    }
+}

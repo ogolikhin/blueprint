@@ -7,6 +7,7 @@ import {AppController} from "./app.component";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {UnpublishedArtifactsServiceMock} from "../editors/unpublished/unpublished.svc.mock";
+import {IUser} from "./login/auth.svc";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
@@ -40,10 +41,27 @@ describe("Component AppComponent", () => {
             const vm: AppController = componentTest.createComponent({});
 
             //Act
-            const user = vm.currentUser;
+            const user: IUser = vm.currentUser;
 
             //Assert
-            expect(user).toEqual("MyCurrentUser");
+            expect(user).toBeDefined();
+            expect(user.id).toEqual(1);
+            expect(user.displayName).toEqual("MyCurrentUser");
+
+        }));
+    });
+
+    describe("isDatabaseUser", () => {
+        it("should return if the user is database or Windows/SAML", inject((session: SessionSvcMock) => {
+
+            //Arrange
+            const vm: AppController = componentTest.createComponent({});
+
+            //Act
+            const isDB: boolean = vm.isDatabaseUser();
+
+            //Assert
+            expect(isDB).toEqual(true);
 
         }));
     });
@@ -123,7 +141,15 @@ class SessionSvcMock {
     constructor(private $q: ng.IQService) {
     }
 
-    public currentUser = "MyCurrentUser";
+    public currentUser: IUser = {
+        id: 1,
+        displayName: "MyCurrentUser",
+        login: "user",
+        isFallbackAllowed: false,
+        isSso: false,
+        source: 0,
+        licenseType: 3
+    };
 
     public logout() {
         return this.$q.when([]);

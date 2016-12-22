@@ -1,6 +1,6 @@
 ﻿import {ISession} from "./login/session.svc";
 import {IUser} from "./login/auth.svc";
-import {LoginCtrl, ILoginInfo} from "./login/login.ctrl";
+import {LoginCtrl, ILoginModalDialogData} from "./login/login.ctrl";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings";
 import {INavigationService} from "../core/navigation/navigation.svc";
@@ -65,6 +65,10 @@ export class AppController {
         return this.session.currentUser;
     }
 
+    public isDatabaseUser(): boolean {
+        return this.session.currentUser.source === 0;
+    }
+
     public logout(evt: ng.IAngularEvent) {
         const id = this.loadingOverlayService.beginLoading();
         if (evt) {
@@ -88,13 +92,22 @@ export class AppController {
         if (evt) {
             evt.preventDefault();
         }
-        this.dialogService.open(<IDialogSettings>{
+
+        const dialogSettings: IDialogSettings = {
             template: require("./login/changePassword.html"),
-            css: "nova-login",
+            css: "change-password",
             controller: LoginCtrl,
             controllerAs: "ctrl",
-            backdrop: true
-        });
+            backdrop: true,
+            okButton: this.localization.get("App_Button_Ok"),
+            cancelButton: this.localization.get("App_Button_Cancel")
+        };
+        const dialogData: ILoginModalDialogData = {
+            isChangePasswordScreenEnabled: true,
+            changePasswordScreenMessage: this.localization.get("Change_Password_Dialog_Message")
+        };
+
+        this.dialogService.open(dialogSettings, dialogData);
     }
 
     public navigateToHelpUrl(evt: ng.IAngularEvent) {

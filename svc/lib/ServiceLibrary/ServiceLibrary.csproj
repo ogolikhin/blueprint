@@ -118,6 +118,7 @@
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
+    <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />

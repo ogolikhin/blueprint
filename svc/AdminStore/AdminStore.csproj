@@ -107,6 +107,7 @@
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
+    <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
@@ -144,6 +145,8 @@
     <Compile Include="Repositories\ISqlInstanceRepository.cs" />
     <Compile Include="Repositories\ISqlSettingsRepository.cs" />
     <Compile Include="Repositories\ISqlUserRepository.cs" />
+    <Compile Include="Repositories\Jobs\IJobsRepository.cs" />
+    <Compile Include="Repositories\Jobs\JobsRepository.cs" />
     <Compile Include="Repositories\LdapRepository.cs" />
     <Compile Include="Repositories\SqlInstanceRepository.cs" />
     <Compile Include="Repositories\SqlSettingsRepository.cs" />

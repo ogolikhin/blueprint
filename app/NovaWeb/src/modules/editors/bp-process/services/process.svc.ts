@@ -11,7 +11,6 @@ export interface IProcessService {
 
 export interface IProcessUpdateResult {
     messages: IOperationMessageResult[];
-    result: ProcessModels.IProcess;
     tempIdMap: Models.IKeyValuePair[];
 }
 

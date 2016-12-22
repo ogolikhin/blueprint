@@ -184,6 +184,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                 traces[i].traceDirection = direction;
             }
         }
+        this.item.relationships.updateManual(this.manualTraces);
+
     }
 
     public toggleFlag() {
@@ -213,6 +215,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                 }
             }
         }
+        this.item.relationships.updateManual(this.manualTraces);
     }
 
     public deleteTraces(artifacts: Relationships.IRelationship[]): void {

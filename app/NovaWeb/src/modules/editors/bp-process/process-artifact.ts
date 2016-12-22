@@ -24,8 +24,6 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     private loadProcessPromise: ng.IPromise<IStatefulArtifact>;
     private artifactPropertyTypes: {} = null;
 
-    protected hasCustomSave: boolean = true;
-
     public shapes: IProcessShape[];
     public links: IProcessLink[];
     public decisionBranchDestinationLinks: IProcessLink[];

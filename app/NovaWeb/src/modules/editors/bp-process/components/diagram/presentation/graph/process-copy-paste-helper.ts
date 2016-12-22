@@ -589,22 +589,21 @@ export class ProcessCopyPasteHelper {
         let connectionStartId = null;
         if (this.layout.viewModel.isWithinShapeLimit(data.shapes.length)) {
             
-            // 1. create idMap and update shape ids and projectId and insert shapes
+            // create idMap and update shape ids and projectId and insert shapes
             this.pasteAndUpdateShapes(data, idMap);
 
-            // 2. connect the original graph to link to the start of pasted model
+            // connect the original graph to link to the start of pasted model
             connectionStartId = data.shapes[0].id;
             this.connectToPastedShapesStart(connectionStartId, data, destinationId, sourceIds);
 
-            // 3. update original branch destination ids
+            // update original branch destination ids
             this.updateOriginalDecisionBranchDestinationLinks(destinationId, connectionStartId, sourceIds);
 
-            // 4. insert links with new shapes id
+            // insert links with new shapes id
             this.pasteAndUpdateLinks(data, idMap, destinationId);
 
-            // 5. insert new branch destination ids
+            // insert new branch destination ids
             this.pasteAndIpdateDecisionBranchDestinationLinks(data, idMap, destinationId);
-
         }
 
         this.layout.viewModel.communicationManager.processDiagramCommunication.modelUpdate(_.toNumber(connectionStartId)); 

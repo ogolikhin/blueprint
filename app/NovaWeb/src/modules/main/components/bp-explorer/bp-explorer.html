@@ -1,13 +1,4 @@
-﻿<div style="overflow:hidden;display:inline-block">
-    <button class="btn btn-link btn-small explorer__unpublished-changes"
-            ng-click="$ctrl.navigateToUnpublishedChanges()">
-        Unpublished Changes
-    </button>
-    <button class="btn btn-link btn-small explorer__jobs"
-            ng-click="$ctrl.navigateToJobs()">
-       Jobs
-    </button>
-</div>
+﻿
 <bp-tree-view class="explorer__tree"
               api="$ctrl.treeApi"
               ng-show="$ctrl.isProjectTreeVisible()"
@@ -16,7 +7,16 @@
               on-select="$ctrl.onSelect(vm, isSelected)"
               on-grid-reset="$ctrl.onGridReset(isExpanding)">
 </bp-tree-view>
-
 <div ng-if="!$ctrl.isProjectTreeVisible()" class="explorer__empty-state">
     <p class="explorer__empty-state-text">{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
+</div>
+<div style="overflow:hidden;display:inline-block;background:#e7ebf2">
+    <button class="btn btn-link btn-small explorer__unpublished-changes"
+            ng-click="$ctrl.navigateToUnpublishedChanges()">
+        Unpublished Changes
+    </button>
+    <button class="btn btn-link btn-small explorer__jobs"
+            ng-click="$ctrl.navigateToJobs()">
+        Jobs
+    </button>
 </div>

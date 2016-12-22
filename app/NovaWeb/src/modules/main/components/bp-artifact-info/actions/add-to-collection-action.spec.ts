@@ -102,4 +102,48 @@ describe("AddToCollectionAction", () => {
             // assert
             expect(menuAction.disabled).toBe(false);
         }));
+
+    it("is enabled when artifact is an Actor",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Actor
+                });
+
+            // act
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
+
+            // assert
+            expect(menuAction.disabled).toBe(true);
+        }));
+
+    it("is disabled when artifact is Project",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.Actor
+                });
+
+            // act
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
+
+            // assert
+            expect(menuAction.disabled).toBe(true);
+        }));
 });

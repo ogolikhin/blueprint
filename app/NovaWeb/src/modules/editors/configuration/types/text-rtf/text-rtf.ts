@@ -49,10 +49,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         "artifactRelationships"
     ];
 
-    constructor($q: ng.IQService,
+    constructor(protected $q: ng.IQService,
                 private $log: ng.ILogService,
                 $scope: AngularFormly.ITemplateScope,
-                $window: ng.IWindowService,
+                protected $window: ng.IWindowService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
                 messageService: IMessageService,
@@ -96,7 +96,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 p { margin: 0 0 8px; }`,
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
-                invalid_elements: "img,frame,iframe,script",
+                invalid_elements: "frame,iframe,script",
                 invalid_styles: {
                     "*": "background-image"
                 },
@@ -144,6 +144,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
+                    Helper.stripHtmlTags(args.node, ["img"]);
                     this.normalizeHtml(args.node, true);
                     Helper.removeAttributeFromNode(args.node, "id");
                 },
@@ -328,10 +329,23 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
+                                const imageFile = inputElement.files[0];
+                                let dimensions;
 
-                                this.uploadImage(inputElement.files[0]).then((uploadedImageUrl: string) => {
-                                    editor.selection.setContent(`<img src="${uploadedImageUrl}" />`);
-                                    this.triggerChange();
+                                this.uploadImage(imageFile).then((uploadedImageUrl: string) => {
+                                    this.getImageDimensions(imageFile)
+                                        .then(dim => {
+                                            dimensions = dim;
+                                        })
+                                        .finally(() => {
+                                            const imageContent = editor.dom.createHTML("img", {
+                                                src: uploadedImageUrl,
+                                                width: dimensions.width > 400 && dimensions.width > dimensions.height ? 400 : undefined,
+                                                height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
+                                            });
+                                            editor.selection.setContent(imageContent);
+                                            this.triggerChange();
+                                        });
                                 });
                             });
 
@@ -342,6 +356,21 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             }
         };
         _.assign($scope.to, to);
+    }
+
+    private getImageDimensions(imageFile: File): ng.IPromise<{width: number, height: number}> {
+        const deferred = this.$q.defer<{width: number, height: number}>();
+
+        const tempImage: any = new Image();
+        tempImage.onload = function(this: HTMLImageElement, event: Event) {
+            deferred.resolve({width: this.naturalWidth, height: this.naturalHeight});
+        };
+        tempImage.onerror = function() {
+            deferred.reject();
+        };
+        tempImage.src = this.$window.URL.createObjectURL(imageFile);
+
+        return deferred.promise;
     }
 
     private uploadImage(file: File): ng.IPromise<string> {

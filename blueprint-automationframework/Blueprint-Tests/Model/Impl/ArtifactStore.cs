@@ -912,7 +912,7 @@ namespace Model.Impl
             Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
                 project.Name, baseArtifactType);
 
-            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            var jsonBody = new NovaArtifactDetails
             {
                 Name = name,
                 ProjectId = project.Id,

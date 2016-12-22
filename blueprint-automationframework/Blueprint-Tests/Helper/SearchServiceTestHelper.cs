@@ -215,7 +215,7 @@ namespace Helper
 
             SetProperty(propertyToUpdate, value, ref artifactDetails);
 
-            NovaArtifactDetails updateResult = null;
+            INovaArtifactDetails updateResult = null;
 
             Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: testHelper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
@@ -249,7 +249,7 @@ namespace Helper
                 SetProperty(kvp.Key, kvp.Value, ref artifactDetails);
             }
 
-            NovaArtifactDetails updateResult = null;
+            INovaArtifactDetails updateResult = null;
 
             Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: testHelper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);

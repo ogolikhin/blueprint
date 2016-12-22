@@ -461,7 +461,7 @@ namespace Model.ArtifactModel.Impl
 
             string tokenValue = user.Token?.AccessControlToken;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactToUpdate.Id);
-            NovaArtifactDetails artifactChanges = artifactDetailsChanges;
+            var artifactChanges = artifactDetailsChanges;
 
             if (artifactChanges == null)
             {

@@ -43,7 +43,8 @@ export class AddToCollectionAction extends BPDropdownAction {
             ItemTypePredefined.ArtifactCollection
         ];
 
-        return invalidTypes.indexOf(this.artifact.predefinedType) === -1 && !this.artifact.artifactState.deleted;
+        return invalidTypes.indexOf(this.artifact.predefinedType) === -1 && !this.artifact.artifactState.deleted
+            && !this.artifact.artifactState.historical;
     }
 
     private loadProjectIfNeeded() {

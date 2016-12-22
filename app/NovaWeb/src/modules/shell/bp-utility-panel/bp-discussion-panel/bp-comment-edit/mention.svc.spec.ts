@@ -18,11 +18,11 @@ describe("Mention Service Test", () => {
             mentions["query"] = "test"; // emulating mention plugin internal query value
             // Arrange
             const person = new UserOrGroupInfo("test name", "a@a.com", false, false);
-            person.id = "id";
+            person.id = "1";
             //Act
             const result = mentions.render(person).innerHTML;
             //Assert
-            expect(result.indexOf(`<bp-avatar icon="" name="test name"`) >= 0).toBeTruthy();
+            expect(result.indexOf(`<bp-avatar user-id="1" user-name="test name"`) >= 0).toBeTruthy();
         }));
     it("Mentions Service Test Render User Unauthorize Icon", inject(($compile: ng.ICompileService, userService: IUsersAndGroupsService, $rootScope: ng.IRootScopeService, localization: ILocalizationService) => {
         mentions = new MentionService(userService, $rootScope, localization, $compile).create(true);

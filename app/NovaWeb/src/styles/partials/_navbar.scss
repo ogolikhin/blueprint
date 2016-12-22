@@ -74,11 +74,11 @@
         margin: 8px;
         width: 24px;
 
-        .avatar-placeholder {
+        .avatar__wrapper {
             border-color: $white;
         }
 
-        .initials {
+        .avatar__initials {
             font-size: $font-size-smallest;
             height: 100%;
             left: 0;

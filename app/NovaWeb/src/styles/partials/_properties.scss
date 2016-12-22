@@ -792,7 +792,7 @@ pagecontent, bp-properties-panel {
                         margin: 6px 2px;
                         width: #{$user-picker-choice-size - 12px};
 
-                        .avatar-placeholder .initials {
+                        .avatar__initials {
                             font-size: $font-size-smaller;
                         }
                     }
@@ -843,6 +843,10 @@ pagecontent, bp-properties-panel {
                                 line-height: $user-picker-choice-size;
                                 text-align: center;
                                 width: #{$user-picker-choice-size - 8px};
+                            }
+
+                            .ui-select-choice-avatar {
+                                display: block;
                             }
                         }
                     }

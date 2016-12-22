@@ -17,10 +17,20 @@
   border: 0;
   border-radius: 50%;
   display: block;
+  position: absolute;
+}
+
+.avatar__img {
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.avatar__initials {
   height: calc(100% - 4px);
   left: 2px;
   line-height: 200%;
-  position: absolute;
   top: 2px;
   width: calc(100% - 4px);
 }
@@ -29,7 +39,7 @@
   display: none;
 }
 
-.avatar--guest .avatar__initials {
+.avatar__initials--guest {
   background-image: url('/novaweb/static/images/guest.png') !important;
   background-color: transparent !important;
   background-size: cover;

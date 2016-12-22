@@ -1,61 +1,36 @@
-export class BPAvatar implements ng.IComponentOptions {
+export class BPAvatarComponent implements ng.IComponentOptions {
     public template: string = require("./bp-avatar.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPAvatarController;
     public bindings: any = {
-        userId: "@",
-        userName: "@"
+        userId: "<",
+        userName: "@",
+        isGuest: "<?"
     };
 }
 
 export class BPAvatarController {
-    public static $inject: [string] = ["$log"];
-
     // bindings vars
     private userId: number;
     private userName: string;
+    private isGuest: boolean;
 
     public icon: string;
     public name: string;
+    public guest: boolean;
     public background: string;
     public initials: string;
     public initialsColor: string;
 
-    constructor(private $log: ng.ILogService) {
-        const colorBase: string = this.userId.toString() + this.userName;
+    constructor() {
+        const id = this.userId ? this.userId.toString() : "";
+        const colorBase: string = id + this.userName;
         this.name = this.userName;
         this.icon = `/svc/adminstore/users/${this.userId}/icon`;
+        this.guest = !!this.isGuest;
         this.background = this.getAvatarBg(colorBase);
         this.initials = this.getAvatarInitials(this.name);
         this.initialsColor = this.getAvatarInitialsColor(colorBase);
     }
-
-
-
-    // public getCurrentUser(): ng.IPromise<IUser> {
-    //     const defer = this.$q.defer<IUser>();
-    //     const config = this.createRequestConfig();
-    //
-    //     this.$http.get<IUser>("/svc/adminstore/users/loginuser", config)
-    //         .then((result: ng.IHttpPromiseCallbackArg<IUser>) => {
-    //             defer.resolve(result.data);
-    //         }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-    //
-    //             result.data.message = result.data.message || this.localization.get("Login_Auth_CannotGetUser");
-    //             if (this.settings.getBoolean("DisableWindowsIntegratedSignIn") === false && !this._loggedOut) {
-    //                 this.$http.post<any>("/Login/WinLogin.aspx", "", config)
-    //                     .then((winLoginResult: ng.IHttpPromiseCallbackArg<string>) => {
-    //                         this.onTokenSuccess(winLoginResult.data, defer, false, "");
-    //                     }, () => {
-    //                         defer.reject(result.data);
-    //                     });
-    //
-    //             } else {
-    //                 defer.reject(result.data);
-    //             }
-    //         });
-    //
-    //     return defer.promise;
-    // }
 
     public getAvatarBg(name: string): string {
         return "#" + this.stringToHex(name);

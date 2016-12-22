@@ -844,6 +844,10 @@ pagecontent, bp-properties-panel {
                                 text-align: center;
                                 width: #{$user-picker-choice-size - 8px};
                             }
+
+                            .ui-select-choice-avatar {
+                                display: block;
+                            }
                         }
                     }
                 }

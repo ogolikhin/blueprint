@@ -8,8 +8,8 @@
         </div>-->
 
         <div>
-            <bp-avatar ng-class="{ 'avatar--guest': $ctrl.discussionInfo.isGuest}"
-                       user-id="{{ $ctrl.discussionInfo.userId }}"
+            <bp-avatar is-guest="$ctrl.discussionInfo.isGuest"
+                       user-id="$ctrl.discussionInfo.userId"
                        user-name="{{ $ctrl.discussionInfo.userName }}">
             </bp-avatar>
             <div class="author"

@@ -25,3 +25,7 @@ export {
 export {
     MoveCopyAction
 } from "./move-copy-action";
+
+export {
+    AddToCollectionAction
+} from "./add-to-collection-action";

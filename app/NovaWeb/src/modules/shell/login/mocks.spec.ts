@@ -146,8 +146,9 @@ export class ModalServiceMock implements ng.ui.bootstrap.IModalService {
         const controller: any = <any>options.controller;
 
         const ctrl = new controller(
-            new LocalizationServiceMock(this.$rootScope),
             this.instanceMock,
+            null, null,
+            new LocalizationServiceMock(this.$rootScope),
             new SessionSvcMock(this.$q),
             this.$timeout,
             new SettingsMock()

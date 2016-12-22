@@ -65,6 +65,10 @@ export class AppController {
         return this.session.currentUser;
     }
 
+    public isDatabaseUser(): boolean {
+        return this.session.currentUser.source === 0;
+    }
+
     public logout(evt: ng.IAngularEvent) {
         const id = this.loadingOverlayService.beginLoading();
         if (evt) {

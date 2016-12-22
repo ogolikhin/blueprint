@@ -233,4 +233,11 @@ export class Helper {
             }
         });
     };
+
+    public static stripHtmlTags(content: HTMLElement, tags: string[]) {
+        const ngContent = angular.element(content);
+        tags.forEach(tag => {
+            ngContent.find(tag).remove();
+        });
+    }
 }

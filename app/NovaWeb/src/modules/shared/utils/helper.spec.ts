@@ -1,4 +1,5 @@
-﻿import {Helper} from "./helper";
+﻿import * as angular from "angular";
+import {Helper} from "./helper";
 
 describe("to and from HTML", () => {
     let html = `<div><h3 class="heading" style="font-family: Wingdings">Labels</h3>
@@ -248,5 +249,25 @@ describe("Remove Attribute From Node", () => {
         expect(innerDivId).toBe("childDiv");
         expect(innerDiv.hasAttribute("id")).toBe(false);
     });
+});
+
+describe("Remove tags from an HTML element", () => {
+    const html = angular.element(`
+            <div>
+                <p>Test</p>
+                <span>Another</span>
+                <img src="test.png" />
+                <img src="test2.png" />
+            </div>`).val();
+
+    it("should remove all 'img' tags", () => {
+        // Act
+        Helper.stripHtmlTags(html, ["span"]);
+
+        // Assert
+        const result = angular.element(html);
+        expect(result.find("img").length).toBe(0);
+    });
+
 });
 

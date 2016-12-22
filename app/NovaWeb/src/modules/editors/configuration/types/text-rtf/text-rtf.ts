@@ -144,7 +144,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    this.stripHtmlTags(args.node, ["img"]);
+                    Helper.stripHtmlTags(args.node, ["img"]);
                     this.normalizeHtml(args.node, true);
                     Helper.removeAttributeFromNode(args.node, "id");
                 },
@@ -366,13 +366,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         tempImage.src = this.$window.URL.createObjectURL(imageFile);
 
         return deferred.promise;
-    }
-
-    private stripHtmlTags(content: HTMLElement, tags: string[]) {
-        const ngContent = angular.element(content);
-        tags.forEach(tag => {
-            ngContent.find(tag).remove();
-        });
     }
 
     private uploadImage(file: File): ng.IPromise<string> {

@@ -111,6 +111,9 @@ describe("Formly Text RTF Inline", () => {
         getContent: () => {
             return tinymceBody.innerHTML;
         },
+        setContent: (content?: string) => {
+            return;
+        },
         on: (eventName: string, callBack: Function) => {
             callBack.call(null);
         },

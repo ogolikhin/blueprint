@@ -24,7 +24,7 @@
                         src="/novaweb/static/images/icons/user-unauthorize.svg" height="25" width="25"/></div>
                     <div class="ui-select-choice-icon" ng-if="!option.isGroup && option.isLoginEnabled">
                         <bp-avatar icon="" name="{{option[to.labelProp]}}"
-                                   color-base="{{option[to.labelProp]}}"></bp-avatar>
+                                   color-base="{{option[to.valueProp].id + option[to.labelProp]}}"></bp-avatar>
                     </div>
                     <div class="ui-select-choice-info">
                         <div class="ui-select-choice-item-name"

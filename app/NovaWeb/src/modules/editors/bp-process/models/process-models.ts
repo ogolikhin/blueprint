@@ -76,7 +76,8 @@ export interface IProcessShape {
     baseItemTypePredefined: ItemTypePredefined;
     propertyValues: IHashMapOfPropertyValues;
     associatedArtifact: IArtifactReference;
-    personaReference: IArtifactReference;
+    flags: ITaskFlags;
+    personaReference: IArtifactReference;    
 }
 
 export interface IPropertyValueInformation {
@@ -122,7 +123,6 @@ export interface IProcessLinkModel extends IProcessLink {
 }
 
 export interface IUserTaskShape extends ITaskShape {
-    flags: ITaskFlags;
 }
 
 export interface ITaskShape extends IProcessShape {
@@ -134,7 +134,6 @@ export interface ITaskFlags {
 }
 
 export interface ISystemTaskShape extends ITaskShape {
-    flags: ITaskFlags;
 }
 
 export interface IArtifactReferenceLink {
@@ -241,6 +240,7 @@ export class TaskShapeModel extends ProcessShapeModel implements ITaskShape {
                 public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
                 public associatedArtifact: IArtifactReference = null,
                 public personaReference: IArtifactReference = null,
+                public flags: ITaskFlags = <ITaskFlags>{},
                 public propertyValues: IHashMapOfPropertyValues = {}) {
         super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, personaReference, propertyValues);
     }
@@ -255,8 +255,9 @@ export class UserTaskShapeModel extends TaskShapeModel implements IUserTaskShape
                 public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
                 public associatedArtifact: IArtifactReference = null,
                 public personaReference: IArtifactReference = null,
+                public flags: ITaskFlags = <ITaskFlags>{},
                 public propertyValues: IHashMapOfPropertyValues = {}) {
-        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, personaReference, propertyValues);
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, personaReference, flags, propertyValues);
     }
 }
 
@@ -269,8 +270,9 @@ export class SystemTaskShapeModel extends TaskShapeModel implements ISystemTaskS
                 public baseItemTypePredefined: ItemTypePredefined = ItemTypePredefined.PROShape,
                 public associatedArtifact: IArtifactReference = null,
                 public personaReference: IArtifactReference = null,
+                public flags: ITaskFlags = <ITaskFlags>{},
                 public propertyValues: IHashMapOfPropertyValues = {}) {
-        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, personaReference, propertyValues);
+        super(id, name, projectId, typePrefix, parentId, baseItemTypePredefined, associatedArtifact, personaReference, flags, propertyValues);
     }
 }
 

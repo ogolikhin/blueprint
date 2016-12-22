@@ -1,7 +1,7 @@
 <div class="tinymce-group has-messages tinymce-toolbar-hidden">
     <div class="tinymce-body"
          ui-tinymce="to.tinymceOptions"
-         ng-model="modelValue"></div>
+         ng-model="dummyVar"></div>
     <div ng-messages="fc.$error" ng-if="showError" class="error-messages">
         <div id="{{::id}}-{{::name}}" ng-message="{{::name}}"
              ng-repeat="(name, message) in ::options.validation.messages" class="message">{{ message(fc.$viewValue)}}

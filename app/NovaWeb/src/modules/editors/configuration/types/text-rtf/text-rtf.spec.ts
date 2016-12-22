@@ -111,6 +111,9 @@ describe("Formly Text RTF", () => {
         getContent: () => {
             return tinymceBody.innerHTML;
         },
+        setContent: (content?: string) => {
+            return;
+        },
         on: (eventName: string, callBack: Function) => {
             callBack.call(null);
         },
@@ -130,7 +133,7 @@ describe("Formly Text RTF", () => {
                 compile = $compile;
                 scope = rootScope.$new();
                 scope.model = {};
-                scope.options = {};
+                scope.options = {data: {}};
                 scope.to = {};
                 scope.tinymceBody = tinymceBody;
                 controller = $controller(BpFieldTextRTFController, {

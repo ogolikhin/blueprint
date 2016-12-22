@@ -1,5 +1,5 @@
 import {Models} from "../main/models";
-import {IArtifactManager} from "../managers";
+import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
 import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
@@ -17,6 +17,7 @@ export class ItemStateController {
     public static $inject = [
         "$state",
         "artifactManager",
+        "projectManager",
         "messageService",
         "localization",
         "navigationService",
@@ -28,6 +29,7 @@ export class ItemStateController {
 
     constructor(private $state: angular.ui.IStateService,
                 private artifactManager: IArtifactManager,
+                private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
@@ -63,10 +65,9 @@ export class ItemStateController {
                 this.navigationService.navigateTo({id: result.id, redirect: true});
 
             } else if (this.itemInfoService.isProject(result)) {
-                // TODO: implement project navigation in the future US
-                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
-                this.navigationService.navigateToMain(true);
-
+                this.projectManager.openProject(result.id).then(() => {
+                    this.navigationService.reloadCurrentState();
+                });
             } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {
                 const artifact: Models.IArtifact = {
                     id: result.id,

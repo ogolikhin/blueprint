@@ -88,9 +88,7 @@ export class DialogService implements IDialogService {
 
     public open(dialogSettings?: IDialogSettings, dialogData?): ng.IPromise<any> {
         this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
-        if (dialogData) {
-            this.dialogData = dialogData;
-        }
+        this.dialogData = dialogData ? dialogData : undefined;
         return this.openInternal().result;
     }
 

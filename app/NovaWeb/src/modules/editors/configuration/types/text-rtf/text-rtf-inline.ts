@@ -18,7 +18,6 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
-            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;

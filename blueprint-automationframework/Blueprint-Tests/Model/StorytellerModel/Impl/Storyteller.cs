@@ -250,20 +250,13 @@ namespace Model.StorytellerModel.Impl
             return response;
         }
 
-        public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetProcess));
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetNovaProcess));
 
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESS_id_, artifactId);
 
@@ -283,7 +276,7 @@ namespace Model.StorytellerModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                shouldControlJsonChanges: true);
 
             return response;
         }
@@ -375,21 +368,14 @@ namespace Model.StorytellerModel.Impl
             return updateProcessResult.Result;
         }
 
-        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcess));
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
 
             ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, novaProcess.Id);
             var restApi = new RestApiFacade(Address, tokenValue);
@@ -401,7 +387,6 @@ namespace Model.StorytellerModel.Impl
                 RestRequestMethod.PATCH,
                 novaProcess,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
                 shouldControlJsonChanges: true);
 
             return restResponse;

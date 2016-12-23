@@ -563,7 +563,7 @@ namespace ArtifactStoreTests
             var expectedProjects = new List<IProject> { _project };
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == artifact.Id), artifactDetails);
         }
 
@@ -595,7 +595,7 @@ namespace ArtifactStoreTests
             expectedProjects.Add(_project);
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionFolder.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionFolder.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionFolder.Id), artifactDetails);
             artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionArtifact.Id), artifactDetails);
@@ -635,7 +635,7 @@ namespace ArtifactStoreTests
             expectedProjects.Add(_project);
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
@@ -653,7 +653,7 @@ namespace ArtifactStoreTests
 
             INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
 
-            NovaArtifactDetails novaArtifact = Helper.ArtifactStore.GetArtifactDetails(author, defaultCollectionFolder.Id);
+            var novaArtifact = Helper.ArtifactStore.GetArtifactDetails(author, defaultCollectionFolder.Id);
 
             IArtifact artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
 
@@ -675,7 +675,7 @@ namespace ArtifactStoreTests
             expectedProjects.Add(_project);
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
@@ -823,7 +823,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             //This is needed to suppress 501 error
             artifactDetails.ItemTypeId = null;
@@ -863,7 +863,7 @@ namespace ArtifactStoreTests
             List<IArtifact> artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
             artifactList[index].Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
 
             //This is needed to suppress 501 error
             artifactDetails.ItemTypeId = null;

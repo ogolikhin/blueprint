@@ -1,13 +1,13 @@
 ﻿using Model;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Factories;
 
@@ -209,25 +209,16 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Update the process using UpdateProcess
-            var processReturnedFromUpdate = storyteller.UpdateProcess(user, processToVerify);
-
-            Assert.IsNotNull(processReturnedFromUpdate, "UpdateProcess() returned a null process.");
-
-            // Assert that process returned from the UpdateProcess method is identical to the process sent with the UpdateProcess method
-            // Allow negative shape ids in the process being verified
-            AssertProcessesAreEqual(processToVerify, processReturnedFromUpdate, allowNegativeShapeIds: true);
-
-            // Assert that the decision branch destination links are in sync during the update opertation
-            AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromUpdate);
+            storyteller.UpdateProcess(user, processToVerify);
 
             // Get the process using GetProcess
             var processReturnedFromGet = storyteller.GetProcess(user, processToVerify.Id);
 
             Assert.IsNotNull(processReturnedFromGet, "GetProcess() returned a null process.");
 
-            // Assert that the process returned from the GetProcess method is identical to the process returned from the UpdateProcess method
-            // Don't allow and negative shape ids
-            AssertProcessesAreEqual(processReturnedFromUpdate, processReturnedFromGet);
+            // Assert that the process returned from the GetProcess method is identical to the process sent with the UpdateProcess method
+            // Allow negative shape ids in the process being verified
+            AssertProcessesAreEqual(processToVerify, processReturnedFromGet, allowNegativeShapeIds: true);
 
             // Assert that the decision branch destination links are in sync during the get opertations
             AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromGet);

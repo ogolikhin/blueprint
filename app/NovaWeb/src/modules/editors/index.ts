@@ -7,6 +7,7 @@ import "./bp-diagram";
 import "./bp-process";
 import "./bp-collection";
 import "./unpublished";
+import "./jobs";
 import {ArtifactRoutes} from "./editors.router";
 import {
     IPropertyDescriptor,
@@ -22,7 +23,8 @@ angular.module("bp.editors", [
         "bp.editors.diagram",
         "bp.editors.process",
         "bp.editors.collection",
-        "bp.editors.unpublished"
+        "bp.editors.unpublished",
+        "bp.editors.jobs"
     ])
     .service("propertyDescriptorBuilder", PropertyDescriptorBuilder)
     .config(ArtifactRoutes);

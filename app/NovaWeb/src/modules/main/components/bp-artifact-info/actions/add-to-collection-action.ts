@@ -5,7 +5,7 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
     AddArtifactToCollectionDialogController,
-    AddArtifactToCollectionResult
+    IAddArtifactToCollectionResult
 } from "../../../../main/components/dialogs/add-artifact-to-collection";
 
 import {Models, Enums} from "../../../../main/models";
@@ -39,6 +39,8 @@ export class AddToCollectionAction extends BPDropdownAction {
 
     private canAddToCollection() {
         const invalidTypes = [
+            ItemTypePredefined.Project,
+            ItemTypePredefined.Collections,
             ItemTypePredefined.CollectionFolder,
             ItemTypePredefined.ArtifactCollection
         ];
@@ -85,9 +87,8 @@ export class AddToCollectionAction extends BPDropdownAction {
             selectableItemTypes: [ItemTypePredefined.ArtifactCollection]
         };
 
-        return this.dialogService.open(dialogSettings, dialogData).then((result: AddArtifactToCollectionResult[]) => {
+        return this.dialogService.open(dialogSettings, dialogData).then((result: IAddArtifactToCollectionResult) => {
             //this part will be implemented in US4214 [Collection] Artifact View - Add to a collection
-            console.log(result);
         });
     }
 }

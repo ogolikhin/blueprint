@@ -10,8 +10,8 @@
                 <a href="#" uib-dropdown-toggle>
                     <span class="navbar__name">{{app.currentUser.displayName}}</span>
                     <bp-avatar class="navbar__avatar"
-                               name="{{::app.currentUser.displayName}}"
-                               color-base="{{::app.currentUser.id + app.currentUser.displayName}}"></bp-avatar>
+                               user-id="::app.currentUser.id"
+                               user-name="{{::app.currentUser.displayName}}"></bp-avatar>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-right navbar__dropdown">
                     <li class="dropdown-menu-item" ng-if="app.isDatabaseUser()">

@@ -1,14 +1,12 @@
-﻿
-using System.Collections.Generic;
+﻿using Common;
 using CustomAttributes;
+using Helper;
 using Model;
 using Model.Factories;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using Helper;
-using System.Net;
-using Common;
 using TestCommon;
+using Utilities;
 
 namespace StorytellerTests
 {
@@ -18,8 +16,6 @@ namespace StorytellerTests
     {
         private IUser _user;
         private IProject _project;
-
-        public static readonly string MinimumNumberBranchValidationFormat = "Decision shape with Id {0} contains less than the minimum of 2 outgoing links.";
 
         #region Setup and Cleanup
 
@@ -86,18 +82,20 @@ namespace StorytellerTests
             // Delete the specified system decision branch
             returnedProcess.DeleteSystemDecisionBranch(systemDecisionForDeletionProcess, defaultUserTaskOutgoingProcessLink.Orderindex + 1, branchEndPoint);
 
-            // Get and deserialize response
-            var response = Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            // Get and deserialize response 
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () => Helper.Storyteller.UpdateProcessReturnResponseOnly( _user, returnedProcess)
+                );
 
-            var expectedMessage = I18NHelper.FormatInvariant(MinimumNumberBranchValidationFormat,
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                ProcessValidationResponse.MinimumNumberBranchValidationFormat,
                 systemDecisionForDeletionProcess.Id);
 
             // Assert that the response error message that the current process shape to be saved contains 
             // less than the mininum of 2 outgoing links
-            Assert.That(response.Contains(expectedMessage),
-                "Expected response message: {0} => Actual response message {1}", expectedMessage, response
-                );
-
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
         }
 
         [TestCase]
@@ -141,21 +139,38 @@ namespace StorytellerTests
             // Delete the specified user decision branch - work in progress
             returnedProcess.DeleteUserDecisionBranch(userDecisionForDeletionProcess, preconditionOutgoingLink.Orderindex + 1, branchEndPoint);
 
-            // Get and deserialize response
-            var response = Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess, expectedStatusCodes: new List<HttpStatusCode> { HttpStatusCode.BadRequest });
+            // Get and deserialize response 
+            var ex = Assert.Throws<Http400BadRequestException>(
+                () => Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess)
+                );
 
-            var expectedMessage = I18NHelper.FormatInvariant(MinimumNumberBranchValidationFormat,
+            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+
+            var expectedValidationResponseContent = I18NHelper.FormatInvariant(
+                ProcessValidationResponse.MinimumNumberBranchValidationFormat,
                 userDecisionForDeletionProcess.Id);
 
             // Assert that the response error message that the current process shape to be saved contains 
             // less than the mininum of 2 outgoing links
-            Assert.That(response.Contains(expectedMessage),
-                "Expected response message: {0} => Actual response message {1}", expectedMessage, response
-                );
-
+            AssertValidationResponse(deserializedResponse, expectedValidationResponseContent);
         }
 
         #endregion Tests
 
+        #region Private Methods
+
+        private static void AssertValidationResponse(ProcessValidationResponse deserializedResponse, string expectedContent)
+        {
+            ThrowIf.ArgumentNull(deserializedResponse, nameof(deserializedResponse));
+            ThrowIf.ArgumentNull(expectedContent, nameof(expectedContent));
+
+            Assert.That(
+                deserializedResponse.Message.Contains(expectedContent),
+                "Response message should have included: {0} => But Actual response message was: {1}",
+                expectedContent,
+                deserializedResponse.Message);
+        }
+
+        #endregion Private Methods
     }
 }

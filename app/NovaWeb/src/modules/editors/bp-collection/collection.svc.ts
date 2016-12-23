@@ -3,6 +3,7 @@ import {ILocalizationService} from "../../core/localization/localizationService"
 
 export interface ICollectionService {
     getCollection(id: number): ng.IPromise<ICollection>;
+    addArtifactToCollection(artifactId: number, collectionId: number, addChildren: boolean): ng.IPromise<number>;
 }
 
 export class CollectionService implements ICollectionService {
@@ -39,5 +40,24 @@ export class CollectionService implements ICollectionService {
             });
 
         return defer.promise;
+    }    
+
+    public addArtifactToCollection(artifactId: number, collectionId: number, addChildren: boolean): ng.IPromise<number> {
+        const url = `svc/bpartifactstore/collection/${collectionId}/add/${artifactId}`;
+
+        const requestObj: ng.IRequestConfig = {
+            url: url,
+            method: "POST",
+            data: angular.toJson(addChildren)
+        };
+
+        return this.$http(requestObj).then(
+            (result: ng.IHttpPromiseCallbackArg<number>) => {
+                return result.data;
+            },
+            (result: ng.IHttpPromiseCallbackArg<any>) => {
+                return this.$q.reject(result.data);
+            }
+        );
     }
 }

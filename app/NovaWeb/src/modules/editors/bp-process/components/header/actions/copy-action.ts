@@ -18,15 +18,15 @@ export class CopyAction extends BPButtonAction {
     ) {
         super();
 
-        if (!process) {
+        if (!this.process) {
             throw new Error("Process is not provided or is null");
         }
 
-        if (!communicationManager) {
+        if (!this.communicationManager) {
             throw new Error("Communication manager is not provided or is null");
         }
 
-        if (!localization) {
+        if (!this.localization) {
             throw new Error("Localization service is not provided or is null");
         }
 
@@ -43,23 +43,21 @@ export class CopyAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return this.process.artifactState.historical || !this.hasValidSelection;
+        return !this.process 
+            || this.process.artifactState.historical
+            || !this.hasValidSelection;
     }
 
-    public get execute(): () => void {
-        return this.copy;
-    }
-
-    public dispose(): void {
-        this.communicationManager.processDiagramCommunication.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
-    }
-
-    private copy(): void {
+    public execute(): void {
         if (this.disabled) {
             return;
         }
 
         this.communicationManager.toolbarCommunicationManager.copySelection();
+    }
+
+    public dispose(): void {
+        this.communicationManager.processDiagramCommunication.unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandle);
     }
 
     private onSelectionChanged = (elements: IDiagramNode[]) => {

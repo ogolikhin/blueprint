@@ -7,42 +7,70 @@ import {ILocalizationService} from "../../../../core/localization/localizationSe
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
 export class DiscardAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                projectManager: IProjectManager,
-                loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService) {
-        if (!localization) {
+    constructor(
+        private artifact: IStatefulArtifact,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private projectManager: IProjectManager,
+        private loadingOverlayService: ILoadingOverlayService,
+        private navigationService: INavigationService
+    ) {
+        super();
+
+        if (!this.localization) {
             throw new Error("Localization service not provided or is null");
         }
-        super(
-            (): void => {
-                artifact.discardArtifact()
-                .then(() => {
-                    if (projectManager.projectCollection.getValue().length > 0) {
-                        projectManager.refresh(artifact.projectId).then(() => {
-                            projectManager.triggerProjectCollectionRefresh();
-                        });
+
+        if (!this.messageService) {
+            throw new Error("Message service not provided or is null");
+        }
+
+        if (!this.projectManager) {
+            throw new Error("Project manager not provided or is null");
+        }
+
+        if (!this.loadingOverlayService) {
+            throw new Error("Loading overlay service not provided or is null");
+        }
+
+        if (!this.navigationService) {
+            throw new Error("Navigation service not provided or is null");
+        }
+    }
+
+    public get icon(): string {
+        return "fonticon2-discard-line";
+    }
+
+    public get tooltip(): string {
+        return this.localization.get("App_Toolbar_Discard");
+    }
+
+    public get disabled(): boolean {
+        return !this.artifact 
+            || !this.artifact.canBePublished();
+    }
+
+    public execute(): void {
+        this.artifact.discardArtifact()
+            .then(() => {
+                if (this.projectManager.projectCollection.getValue().length > 0) {
+                    this.projectManager.refresh(this.artifact.projectId)
+                        .then(() => this.projectManager.triggerProjectCollectionRefresh());
+                } else {
+                    // If artifact has never been published, navigate back to the main page;
+                    // otherwise, refresh the artifact
+                    if (this.artifact.version === -1) {
+                        this.navigationService.navigateToMain(true);
                     } else {
-                        // If artifact has never been published, navigate back to the main page;
-                        // otherwise, refresh the artifact
-                        if (artifact.version === -1) {
-                            navigationService.navigateToMain(true);
-                        } else {
-                            artifact.refresh();
-                        }
+                        this.artifact.refresh();
                     }
-                })
-                .catch((err) => {
-                    if (err) {
-                        messageService.addError(err);
-                    }
-                });
-            },
-            (): boolean => artifact ? artifact.canBePublished() : false,
-            "fonticon2-discard-line",
-            localization.get("App_Toolbar_Discard")
-        );
+                }
+            })
+            .catch((err) => {
+                if (err) {
+                    this.messageService.addError(err);
+                }
+            });
     }
 }

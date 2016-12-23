@@ -27,8 +27,8 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
         return !this.canOpenImpactAnalysis();
     }
 
-    public get execute(): () => void {
-        return this.openImpactAnalysis;
+    public execute(): void {
+        this.openImpactAnalysis();
     }
 
     protected canOpenImpactAnalysis(): boolean {

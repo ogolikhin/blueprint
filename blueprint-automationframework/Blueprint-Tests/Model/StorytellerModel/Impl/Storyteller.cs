@@ -1,16 +1,16 @@
-﻿using System;
+﻿using Common;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
+using Model.Factories;
+using Model.Impl;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Common;
-using Model.Factories;
-using Model.Impl;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
-using Newtonsoft.Json;
-using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -363,9 +363,9 @@ namespace Model.StorytellerModel.Impl
             }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
-            var updateProcessResult = JsonConvert.DeserializeObject<UpdateResult<Process>>(restResponse.Content);
+            var updatedProcess = JsonConvert.DeserializeObject<Process>(restResponse.Content);
 
-            return updateProcessResult.Result;
+            return updatedProcess;
         }
 
         public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null)
@@ -691,15 +691,25 @@ namespace Model.StorytellerModel.Impl
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
 
-            var restResponse = restApi.SendRequestAndGetResponse(
+            var processBodyObject = (Process)process;
+
+            restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
-                bodyObject: (Process)process,
+                bodyObject: processBodyObject,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
             // Mark artifact in artifact list as saved
             MarkArtifactAsSaved(process.Id);
+
+            // Get restResponse using get process
+            var restResponse = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                bodyObject: processBodyObject,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
 
             return restResponse;
         }

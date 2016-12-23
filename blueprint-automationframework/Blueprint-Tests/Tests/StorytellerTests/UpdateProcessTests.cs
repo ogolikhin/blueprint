@@ -1,20 +1,20 @@
-﻿using System;
-using System.Globalization;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Globalization;
+using TestCommon;
 using Utilities;
 using Utilities.Factories;
-using System.Data.SqlClient;
-using Common;
-using System.Data;
-using System.Collections.Generic;
-using TestCommon;
 
 namespace StorytellerTests
 {
@@ -465,7 +465,9 @@ namespace StorytellerTests
             defaultPreconditionShape.PropertyValues[PropertyTypeName.ImageId.ToString().LowerCaseFirstCharacter()].Value = deserialzedUploadResult.Guid;
 
             // Save the process with the updated properties
-            returnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+
+            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
 
             // Publish the process
             Helper.Storyteller.PublishProcess(_user, returnedProcess);
@@ -872,7 +874,9 @@ namespace StorytellerTests
             returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
 
             // Save changes without publishing
-            returnedProcess = Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+            Helper.Storyteller.UpdateProcess(_user, returnedProcess);
+
+            returnedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
 
             // Get newly added User Task
             var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);

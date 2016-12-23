@@ -16,6 +16,7 @@ import {
 } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {IFileResult, IFileUploadService} from "../../../../core/file-upload/fileUploadService";
 import {ISettingsService} from "../../../../core/configuration/settings";
+import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";

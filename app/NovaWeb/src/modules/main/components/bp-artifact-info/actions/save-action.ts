@@ -6,74 +6,79 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
 export class SaveAction extends BPButtonAction {
-    constructor(artifact: IStatefulArtifact,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) {
-        if (!localization) {
+    constructor(
+        private artifact: IStatefulArtifact,
+        private localization: ILocalizationService,
+        private messageService: IMessageService,
+        private loadingOverlayService: ILoadingOverlayService
+    ) {
+        super();
+
+        if (!this.localization) {
             throw new Error("Localization service not provided or is null");
         }
 
-        if (!messageService) {
+        if (!this.messageService) {
             throw new Error("Message service not provided or is null");
         }
 
-        if (!loadingOverlayService) {
+        if (!this.loadingOverlayService) {
             throw new Error("Loading overlay service not provided or is null");
         }
+    }
 
-        super(
-            (): void => {
-                let overlayId: number = loadingOverlayService.beginLoading();
+    public get icon(): string {
+        return "fonticon2-save-line";
+    }
 
-                try {
-                    artifact.save()
-                        .then(() => {
-                            messageService.addInfo("App_Save_Artifact_Error_200");
-                        })
-                        .catch((err) => {
-                            if (err) {
-                                messageService.addError(err);
-                            }
-                        })
-                        .finally(() => {
-                            loadingOverlayService.endLoading(overlayId);
-                        });
-                } catch (err) {
-                    loadingOverlayService.endLoading(overlayId);
+    public get tooltip(): string {
+        return this.localization.get("App_Toolbar_Save");
+    }
 
+    public get disabled(): boolean {
+        if (!this.artifact) {
+            return true;
+        }
+
+        const invalidTypes = [
+            ItemTypePredefined.Project,
+            ItemTypePredefined.Collections
+        ];
+
+        if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
+            return true;
+        }
+
+        if (this.artifact.artifactState.readonly) {
+            return true;
+        }
+
+        if (!this.artifact.artifactState.dirty) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public execute(): void {
+        let overlayId: number = this.loadingOverlayService.beginLoading();
+
+        try {
+            this.artifact.save()
+                .then(() => this.messageService.addInfo("App_Save_Artifact_Error_200"))
+                .catch((err) => {
                     if (err) {
-                        messageService.addError(err);
-                        throw err;
+                        this.messageService.addError(err);
                     }
-                }
-            },
-            (): boolean => {
-                if (!artifact) {
-                    return false;
-                }
+                })
+                .finally(() => this.loadingOverlayService.endLoading(overlayId));
+        } catch (err) {
+            this.loadingOverlayService.endLoading(overlayId);
 
-                const invalidTypes = [
-                    ItemTypePredefined.Project,
-                    ItemTypePredefined.Collections
-                ];
-
-                if (invalidTypes.indexOf(artifact.predefinedType) >= 0) {
-                    return false;
-                }
-
-                if (artifact.artifactState.readonly) {
-                    return false;
-                }
-
-                if (!artifact.artifactState.dirty) {
-                    return false;
-                }
-
-                return true;
-            },
-            "fonticon2-save-line",
-            localization.get("App_Toolbar_Save")
-        );
+            if (err) {
+                this.messageService.addError(err);
+                throw err;
+            }
+        }
     }
 }

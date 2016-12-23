@@ -21,6 +21,7 @@ import {ISettingsService} from "../../../core/configuration/settings";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {IFileUploadService, IFileResult} from "../../../core/file-upload/fileUploadService";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -37,7 +38,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         "session",
         "settings",
         "dialogService",
-        "messageService"
+        "messageService",
+        "fileUploadService"
     ];
 
     public attachmentsList: IArtifactAttachment[];
@@ -46,7 +48,6 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public categoryFilter: number;
     public filesToUpload: any;
 
-    private maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
     private maxNumberAttachmentsDefault: number = 50;
     private subscribers: Rx.IDisposable[];
 
@@ -55,7 +56,8 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                 private session: ISession,
                 private settingsService: ISettingsService,
                 private dialogService: IDialogService,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private fileUploadService: IFileUploadService) {
         super($q);
 
         this.subscribers = [];
@@ -98,6 +100,14 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         });
     }
 
+    private uploadFile = (file: File,
+                       progressCallback: (event: ProgressEvent) => void,
+                       cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 2);
+        return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
+    };
+
     public onFileSelect(files: File[], callback?: Function) {
         const openUploadStatus = () => {
             const dialogSettings = <IDialogSettings>{
@@ -109,20 +119,21 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
             };
 
             const curNumOfAttachments: number = this.attachmentsList && this.attachmentsList.length || 0;
-            let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", this.maxAttachmentFilesizeDefault);
+            let maxAttachmentFilesize: number = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
             let maxNumberAttachments: number = this.settingsService.getNumber("MaxNumberAttachments", this.maxNumberAttachmentsDefault);
 
             if (maxNumberAttachments < 0 || !Helper.isInt(maxNumberAttachments)) {
                 maxNumberAttachments = this.maxNumberAttachmentsDefault;
             }
             if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-                maxAttachmentFilesize = this.maxAttachmentFilesizeDefault;
+                maxAttachmentFilesize = Helper.maxAttachmentFilesizeDefault;
             }
 
             const dialogData: IUploadStatusDialogData = {
                 files: files,
                 maxAttachmentFilesize: maxAttachmentFilesize,
-                maxNumberAttachments: maxNumberAttachments - curNumOfAttachments
+                maxNumberAttachments: maxNumberAttachments - curNumOfAttachments,
+                fileUploadAction: this.uploadFile
             };
 
             this.dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {

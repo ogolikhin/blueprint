@@ -129,9 +129,10 @@ export class BPDiagramController extends BpBaseEditor {
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
-            if (this.isDestroyed) {
+            if (this.isDestroyed || !this.artifact || this.artifact.isDisposed) {
                 return;
             }
+
             if (elements && elements.length > 0) {
                 const element = elements[0];
                 if (diagramType === Diagrams.USECASE_DIAGRAM && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
@@ -143,6 +144,7 @@ export class BPDiagramController extends BpBaseEditor {
                             const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
                             this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                         }
+                        
                         if (artifactPromise) {
                             artifactPromise.then((artifact) => {
                                 artifact.unload();

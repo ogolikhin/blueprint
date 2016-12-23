@@ -14,6 +14,7 @@ export interface IUser {
     isFallbackAllowed: boolean;
     isSso: boolean;
     licenseType: LicenseTypeEnum;
+    source: number;
 }
 
 export interface IAuth {

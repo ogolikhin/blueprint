@@ -5,11 +5,18 @@ import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
-import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IMessageService} from "../../../../core/messages/message.svc";
+import {
+    BpFileUploadStatusController,
+    IUploadStatusDialogData, IUploadStatusResult
+} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
+import {IFileResult, IFileUploadService} from "../../../../core/file-upload/fileUploadService";
+import {ISettingsService} from "../../../../core/configuration/settings";
+import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
@@ -18,7 +25,6 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
-            ($scope["options"] as AngularFormly.IFieldConfigurationObject).validation.show = ($scope["fc"] as ng.IFormController).$invalid;
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
@@ -27,6 +33,7 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = [
         "$q",
+        "$log",
         "$scope",
         "$window",
         "navigationService",
@@ -36,12 +43,15 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         "dialogService",
         "selectionManager",
         "artifactService",
+        "fileUploadService",
+        "settings",
         "artifactRelationships"
     ];
 
-    constructor($q: ng.IQService,
+    constructor(protected $q: ng.IQService,
+                private $log: ng.ILogService,
                 $scope: AngularFormly.ITemplateScope,
-                $window: ng.IWindowService,
+                protected $window: ng.IWindowService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
                 messageService: IMessageService,
@@ -49,6 +59,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 dialogService: IDialogService,
                 selectionManager: ISelectionManager,
                 artifactService: IArtifactService,
+                private fileUploadService: IFileUploadService,
+                private settingsService: ISettingsService,
                 artifactRelationships: IArtifactRelationships) {
         super($q, $scope, $window, navigationService, validationService, messageService,
             localization, dialogService, selectionManager, artifactService, artifactRelationships);
@@ -62,10 +74,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
         this.allowedFonts = ["Open Sans", "Arial", "Cambria", "Calibri", "Courier New", "Times New Roman", "Trebuchet MS", "Verdana"];
 
+        const addImagesToolbar = $scope.options["data"]["allowAddImages"] ? " uploadimage" : "";
+
         const to: AngularFormly.ITemplateOptions = {
             tinymceOptions: { // this will go to ui-tinymce directive
                 menubar: false,
-                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table",
+                toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table" + addImagesToolbar,
                 statusbar: false,
                 content_style: `html { height: 100%; overflow: auto !important; }
                 body.mce-content-body { background: transparent; font-family: 'Open Sans', sans-serif; font-size: 12pt; min-height: 100px;
@@ -80,7 +94,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 p { margin: 0 0 8px; }`,
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",
-                invalid_elements: "img,frame,iframe,script",
+                invalid_elements: "frame,iframe,script",
                 invalid_styles: {
                     "*": "background-image"
                 },
@@ -182,9 +196,99 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                         icon: "link",
                         menu: this.linksMenu(editor)
                     });
+
+                    editor.addButton("uploadimage", {
+                        title: "Upload Image",
+                        text: "",
+                        icon: "image",
+                        onclick: () => {
+                            const input = angular.element(`<input type="file" name="image_file"
+                                    accept=".jpeg,.jpg,.png,image/jpeg,image/jpeg,image/png" style="display: none">`);
+
+                            input.one("change", (event: Event) => {
+                                const inputElement = <HTMLInputElement>event.currentTarget;
+                                const imageFile = inputElement.files[0];
+                                let dimensions;
+
+                                this.uploadImage(imageFile).then((uploadedImageUrl: string) => {
+                                    this.getImageDimensions(imageFile)
+                                        .then(dim => {
+                                            dimensions = dim;
+                                        })
+                                        .finally(() => {
+                                            const imageContent = editor.dom.createHTML("img", {
+                                                src: uploadedImageUrl,
+                                                width: dimensions.width > 400 && dimensions.width > dimensions.height ? 400 : undefined,
+                                                height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
+                                            });
+                                            editor.selection.setContent(imageContent);
+                                            this.triggerChange();
+                                        });
+                                });
+                            });
+
+                            input[0].click();
+                        }
+                    });
                 }
             }
         };
         _.assign($scope.to, to);
+    }
+
+    private getImageDimensions(imageFile: File): ng.IPromise<{width: number, height: number}> {
+        const deferred = this.$q.defer<{width: number, height: number}>();
+
+        const tempImage: any = new Image();
+        tempImage.onload = function(this: HTMLImageElement, event: Event) {
+            deferred.resolve({width: this.naturalWidth, height: this.naturalHeight});
+        };
+        tempImage.onerror = function() {
+            deferred.reject();
+        };
+        tempImage.src = this.$window.URL.createObjectURL(imageFile);
+
+        return deferred.promise;
+    }
+
+    private uploadImage(file: File): ng.IPromise<string> {
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Button_Ok", "OK"),
+            template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
+            controller: BpFileUploadStatusController,
+            css: "nova-file-upload-status",
+            header: this.localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
+            backdrop: false
+        };
+
+        const uploadFile = (file: File,
+                            progressCallback: (event: ProgressEvent) => void,
+                            cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
+
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 2);
+
+            // TODO: change service to 'imageUploadService' in US4118
+            return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
+        };
+
+        let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
+        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.maxAttachmentFilesizeDefault) {
+            filesize = Helper.maxAttachmentFilesizeDefault;
+        }
+
+        const dialogData: IUploadStatusDialogData = {
+            files: [file],
+            maxAttachmentFilesize: filesize,
+            maxNumberAttachments: 1,
+            fileUploadAction: uploadFile
+        };
+
+        return this.dialogService.open(dialogSettings, dialogData).then((uploadList: IUploadStatusResult[]) => {
+            if (uploadList && uploadList.length > 0) {
+                const uploadedFile = uploadList[0];
+                return uploadedFile.url;
+            }
+        });
     }
 }

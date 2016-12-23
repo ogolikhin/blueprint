@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using SearchService.Helpers;
@@ -9,6 +8,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Controllers
 {
@@ -21,17 +21,17 @@ namespace SearchService.Controllers
         internal const int MaxResultCount = 101;
         private const string DefaultSeparator = "/";
 
-        internal readonly IItemSearchRepository _itemSearchRepository;
+        internal readonly IItemSearchRepository ItemSearchRepo;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
         private readonly CriteriaValidator _criteriaValidator;
 
-        public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration())
+        public ItemSearchController() : this(new SqlItemSearchRepository(), new SearchConfiguration(), new ServiceLogRepository())
         {
         }
 
-        internal ItemSearchController(IItemSearchRepository itemSearchRepository, ISearchConfiguration configuration)
+        internal ItemSearchController(IItemSearchRepository itemSearchRepo, ISearchConfiguration configuration, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
-            _itemSearchRepository = itemSearchRepository;
+            ItemSearchRepo = itemSearchRepo;
             _searchConfigurationProvider = new SearchConfigurationProvider(configuration);
             _criteriaValidator = new CriteriaValidator();
         }
@@ -53,16 +53,26 @@ namespace SearchService.Controllers
         [Route("fulltext")]
         public async Task<FullTextSearchResultSet> SearchFullText([FromBody] FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null)
         {
-            // get the UserId from the session
+            
+                // get the UserId from the session
             var userId = ValidateAndExtractUserId();
 
-            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria, ServiceConstants.MinSearchQueryCharLimit);
+            _criteriaValidator.Validate(SearchOption.FullTextSearch, ModelState.IsValid, searchCriteria,
+                ServiceConstants.MinSearchQueryCharLimit);
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
             int searchPage = GetStartCounter(page, 1, 1);
 
-            return await _itemSearchRepository.SearchFullText(userId, searchCriteria, searchPage, searchPageSize);
+            try
+            {
+                return await ItemSearchRepo.SearchFullText(userId, searchCriteria, searchPage, searchPageSize);
+            }
+            catch (Exception ex)
+            {
+                await Log.LogError(LogSource, ex);
+                throw;
+            }
         }
 
         #endregion SearchFullText
@@ -89,12 +99,22 @@ namespace SearchService.Controllers
 
             int searchPageSize = GetPageSize(_searchConfigurationProvider, pageSize);
 
-            var results = await _itemSearchRepository.FullTextMetaData(userId, searchCriteria);
+            try
+            {
+                var results = await ItemSearchRepo.FullTextMetaData(userId, searchCriteria);
 
-            results.PageSize = searchPageSize;
-            results.TotalPages = results.TotalCount >= 0 ? (int)Math.Ceiling((double)results.TotalCount / searchPageSize) : -1;
+                results.PageSize = searchPageSize;
+                results.TotalPages = results.TotalCount >= 0
+                    ? (int) Math.Ceiling((double) results.TotalCount/searchPageSize)
+                    : -1;
 
-            return results;
+                return results;
+            }
+            catch (Exception ex)
+            {
+                await Log.LogError(LogSource, ex);
+                throw;
+            }
         }
 
         #endregion FullTextMetaData
@@ -127,14 +147,25 @@ namespace SearchService.Controllers
 
             int searchStartOffset = GetStartCounter(startOffset, 0, 0);
 
-            var results = await _itemSearchRepository.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
-            foreach (var searchItem in results.Items)
+            try
             {
-                searchItem.LockedByUser = searchItem.LockedByUserId.HasValue ? new UserGroup { Id = searchItem.LockedByUserId } : null;
-            }
+                var results = await ItemSearchRepo.SearchName(userId, searchCriteria, searchStartOffset, searchPageSize);
 
-            return results;
+                foreach (var searchItem in results.Items)
+                {
+                    searchItem.LockedByUser = searchItem.LockedByUserId.HasValue
+                        ? new UserGroup {Id = searchItem.LockedByUserId}
+                        : null;
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                await Log.LogError(LogSource, ex);
+                throw;
+            }
         }
 
         #endregion SearchName

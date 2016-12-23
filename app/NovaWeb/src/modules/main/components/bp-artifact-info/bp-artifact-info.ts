@@ -27,7 +27,8 @@ import {
     RefreshAction,
     DeleteAction,
     OpenImpactAnalysisAction,
-    MoveCopyAction
+    MoveCopyAction,
+    AddToCollectionAction
 } from "./actions";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {Message, MessageType} from "../../../core/messages/message";
@@ -101,14 +102,11 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        this.subscribers.push(
-            this.windowManager.mainWindow
-                .subscribeOnNext(this.onWidthResized, this)
-        );
-
         this.artifact = this.artifactManager.selection.getArtifact();
 
         if (this.artifact) {
+            this.createToolbarActions();
+
             this.subscribers.push(
                 this.artifact.getObservable()
                     .subscribeOnNext(this.onArtifactLoaded, this),
@@ -119,9 +117,12 @@ export class BpArtifactInfoController {
                     .distinctUntilChanged(changes => changes.item && changes.item.name)
                     .subscribeOnNext(this.onArtifactPropertyChanged, this)
             );
-
-            this.createToolbarActions();
         }
+
+        this.subscribers.push(
+            this.windowManager.mainWindow
+                .subscribeOnNext(this.onWidthResized, this)
+        );
     }
 
     public $onDestroy() {
@@ -283,14 +284,17 @@ export class BpArtifactInfoController {
             this.metadataService, this.mainBreadcrumbService);
         const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
+        const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+            this.dialogService, this.navigationService, this.loadingOverlayService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar
-        this.toolbarActions.push(moveCopyAction, buttonGroup);
+        this.toolbarActions.push(moveCopyAction, addToCollectionAction, buttonGroup);
 
         // collapsed toolbar
         this.collapsedToolbarActions.push(buttonGroup);
         this.additionalMenuActions.push(...this.getNestedDropdownActions(moveCopyAction));
+        this.additionalMenuActions.push(...this.getNestedDropdownActions(addToCollectionAction));
 
         this.createCustomToolbarActions(buttonGroup);
 

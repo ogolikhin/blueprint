@@ -82,6 +82,7 @@ export class ArtifactManager implements IArtifactManager {
         return artifact;
     }
 
+
     public removeAll(projectId?: number) {
         for (const artifactKey in this.artifactDictionary) {
             const artifact = this.artifactDictionary[artifactKey];
@@ -93,6 +94,7 @@ export class ArtifactManager implements IArtifactManager {
                 }
             }
         }
+        
         if (projectId) {
             this.metadataService.remove(projectId);
         }

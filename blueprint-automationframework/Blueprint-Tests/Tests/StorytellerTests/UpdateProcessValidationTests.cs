@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using Common;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Globalization;
 using TestCommon;
 using Utilities;
 
@@ -256,7 +256,7 @@ namespace StorytellerTests
 
         #endregion Tests
 
-            #region Private Methods
+        #region Private Methods
 
         private static void AssertValidationResponse(ProcessValidationResponse deserializedResponse, string expectedContent)
         {
@@ -291,6 +291,8 @@ namespace StorytellerTests
         public static readonly string ArtifactAlreadyLocked = "Artifact locked by another user.";
 
         public static readonly string ArtifactLimitExceeded = "The Process cannot be saved or published. It has exceeded the maximum {0} shapes. Please refactor it and move more detailed user tasks to included Processes.";
+
+        public static readonly string MinimumNumberBranchValidationFormat = "Decision shape with Id {0} contains less than the minimum of 2 outgoing links.";
 
         // The message returned in the update process validation response
         public string Message { get; set; }

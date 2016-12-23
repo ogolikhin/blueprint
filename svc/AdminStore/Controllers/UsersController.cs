@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -67,6 +68,49 @@ namespace AdminStore.Controllers
             {
                 await _log.LogError(WebApiConfig.LogSourceUsers, ex);
                 return InternalServerError();
+            }
+        }
+
+        /// <summary>
+        /// GetUserIcon
+        /// </summary>
+        /// <remarks>
+        /// Returns information about the user of the current session.
+        /// </remarks>
+        /// <response code="200">OK. Returns the specified user's icon.</response>
+        /// <response code="204">No Content. No icon for user exists.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not Found. The user with the provided ID was not found.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("{userId:int:min(1)}/icon"), SessionRequired(true)]
+        [ResponseType(typeof(byte[]))]
+        public async Task<HttpResponseMessage> GetUserIcon(int userId)
+        {
+            try
+            {
+                var imageContent = await _userRepository.GetUserIconByUserIdAsync(userId);
+                if (imageContent == null)
+                {
+                    throw new ResourceNotFoundException($"User does not exist with UserId: {userId}");
+                }
+                if (imageContent.Content == null)
+                {
+                    return Request.CreateResponse(HttpStatusCode.NoContent);
+                }
+
+                var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
+                httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(imageContent.Content);
+                return httpResponseMessage;
+            }
+            catch (ResourceNotFoundException)
+            {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceUsers, ex);
+                throw;
             }
         }
 

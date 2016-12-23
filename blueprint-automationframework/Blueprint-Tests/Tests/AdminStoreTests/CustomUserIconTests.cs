@@ -47,7 +47,9 @@ namespace AdminStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase()]
+        #region Positive tests
+
+        [TestCase]
         [TestRail(211540)]
         [Description("Create a user without a custom icon. Get the user icon. Verify 204 No Content with empty body returned")]
         public void CustomUserIcon_GetUserIcon_NoIconExistsForThisUser_204NoContent()
@@ -104,7 +106,7 @@ namespace AdminStoreTests
             // Execute:
             IFile iconFile = null;
 
-            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(viewerUser.Id, _user),
+            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(viewerUser.Id, viewerUser),
                 "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
 
             // Verify:
@@ -113,5 +115,67 @@ namespace AdminStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(expectedFile, iconFile);
         }
+
+        #endregion Positive tests
+
+        #region Negative tests
+
+        [TestCase]
+        [TestRail(211707)]
+        [Description("Create user with bad token.  User tries to get user icon.  Verify response returns code 401 Unauthorized.")]
+        public void CustomUserIcon_UserWithBadToken_401Unauthorized()
+        {
+            // Setup:
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.GetCustomUserIcon(userWithBadToken.Id, userWithBadToken);
+            }, "'GET {0}' should return 401 Unauthorized when called with an invalid token!", SVC_PATH);
+
+            // Verify:
+            const string expectedExceptionMessage = "Token is invalid.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} should be found when token is invalid!", expectedExceptionMessage);
+        }
+
+        [TestCase]
+        [TestRail(211708)]
+        [Description("Create user.  User tries to get user icon with the call without the token.  Verify response returns code 401 Unauthorized.")]
+        public void CustomUserIcon_CallWithoutToken_401Unauthorized()
+        {
+            // Setup:
+            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.GetCustomUserIcon(viewerUser.Id, user: null);
+            }, "'GET {0}' should return 401 Unauthorized when called without the token!", SVC_PATH);
+
+            // Verify:
+            const string expectedExceptionMessage = "Token is missing or malformed.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message when get user icon called with no token!", expectedExceptionMessage);
+        }
+
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [TestRail(211709)]
+        [Description("User tries to get user icon from non-existing user.  Verify response returns code 404 Not Found.")]
+        public void CustomUserIcon_CallWithNonExistingUser_404NotFound(int nonExistingUserId)
+        {
+            // Setup:
+            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.GetCustomUserIcon(nonExistingUserId, viewerUser);
+            }, "'GET {0}' should return 404 Not Found when get user icon called for non-existing user!", SVC_PATH);
+        }
+
+        #endregion Negative tests
     }
 }

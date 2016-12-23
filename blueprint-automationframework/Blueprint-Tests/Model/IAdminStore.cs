@@ -235,6 +235,6 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected,
         ///     but 204 No Content is also valid if the user has no icon.</param>
         /// <returns>The icon file.</returns>
-        IFile GetUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

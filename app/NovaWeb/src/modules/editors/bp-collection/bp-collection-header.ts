@@ -13,6 +13,7 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
+import {ISession} from "../../shell/login/session.svc";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -27,6 +28,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "$element",
         "artifactManager",
         "localization",
+        "session",
         "messageService",
         "dialogService",
         "windowManager",
@@ -43,6 +45,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 $element: ng.IAugmentedJQuery,
                 artifactManager: IArtifactManager,
                 localization: ILocalizationService,
+                session: ISession,
                 messageService: IMessageService,
                 dialogService: IDialogService,
                 windowManager: IWindowManager,
@@ -58,6 +61,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             $element,
             artifactManager,
             localization,
+            session,
             messageService,
             dialogService,
             windowManager,

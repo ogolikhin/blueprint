@@ -51,6 +51,59 @@ namespace Model.StorytellerModel
         List<IArtifact> CreateAndPublishProcessArtifacts(IProject project, IUser user, int numberOfArtifacts);
 
         /// <summary>
+        /// Create and Save a Nova Process artifact
+        /// </summary>
+        /// <param name="project">The project where the Nova process artifact is to be added</param>
+        /// <param name="user">The user credentials for the request to create the Nova process artifact</param>
+        /// <param name="parentId">(optional) The ID of the parent of the Nova process artifact to be created.</param>
+        /// <param name="orderIndex">(optional) The Order Index to assign to the new Nova Process artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status code for this call. By default, only '201 Success' is expected.</param>
+        /// <returns>The saved Nova process artifact object</returns>
+        NovaProcess CreateAndSaveNovaProcessArtifact(IProject project, 
+            IUser user, 
+            int? parentId = null,
+            double? orderIndex = null, 
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Create and Save Multiple Nova Process Artifacts
+        /// </summary>
+        /// <param name="project">The project where the Nova process artifacts are to be added</param>
+        /// <param name="user">The user credentials for the request to create the Nova process artifacts</param>
+        /// <param name="numberOfArtifacts">The number of Nova process artifacts to create</param>
+        /// <param name="parentId">(optional) The ID of the parent of the Nova process artifact to be created.</param>
+        /// <param name="orderIndex">(optional) The Order Index to assign to the new Nova Process artifact.</param>
+        /// <returns>The list of the saved Nova process artifact objects</returns>
+        List<NovaProcess> CreateAndSaveNovaProcessArtifacts(IProject project, 
+            IUser user, 
+            int numberOfArtifacts,
+            int? parentId = null,
+            double? orderIndex = null);
+
+        /// <summary>
+        /// Create and Publish a single Process Artifact
+        /// </summary>
+        /// <param name="project">The project where the Nova process artifact is to be added</param>
+        /// <param name="user">The user credentials for the request to create the Nova process artifacts</param>
+        /// <returns>the published artifact object</returns>
+        NovaProcess CreateAndPublishNovaProcessArtifact(IProject project, IUser user);
+
+        /// <summary>
+        /// Create and Publish Multiple Nova Process Artifacts
+        /// </summary>
+        /// <param name="project">The project where the Nova process artifacts are to be added</param>
+        /// <param name="user">The user credentials for the request to create the Nova process artifacts</param>
+        /// <param name="numberOfArtifacts">The number of Nova process artifacts to create</param>
+        /// <param name="parentId">(optional) The ID of the parent of the Nova process artifact to be created.</param>
+        /// <param name="orderIndex">(optional) The Order Index to assign to the new Nova Process artifact.</param>
+        /// <returns>The list of the published Nova process artifact objects</returns>
+        List<NovaProcess> CreateAndPublishNovaProcessArtifacts(IProject project, 
+            IUser user, 
+            int numberOfArtifacts,
+            int? parentId = null,
+            double? orderIndex = null);
+
+        /// <summary>
         /// Generate or Update User Stories for the Process Artifact.
         /// </summary>
         /// <param name="user">The user credentials for the request to generate the user stories</param>
@@ -138,10 +191,9 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="user">The user credentials for the request to update a Nova process</param>
         /// <param name="novaProcess">The Nova process to update</param>
-        /// <param name="lockArtifactBeforeUpdate">(optional) Flag indicating whether or not the Nova process artifact should be locked before update (Default: true)</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The updated Nova process result</returns>
-        NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null);
+        NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Update a Process but only return the JSON response as a string. (Used only when a response other than a process object

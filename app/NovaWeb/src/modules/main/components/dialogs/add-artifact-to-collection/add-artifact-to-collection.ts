@@ -37,6 +37,6 @@ export class AddArtifactToCollectionDialogController extends  ArtifactPickerDial
     }
 
     public get returnValue(): any {
-        return {addDescendants: this.addDescendants, collectionId: this.selectedVMs[0] && this.selectedVMs[0].model.id};
+        return <IAddArtifactToCollectionResult>{addDescendants: this.addDescendants, collectionId: this.selectedVMs[0] && this.selectedVMs[0].model.id};
     };
 }

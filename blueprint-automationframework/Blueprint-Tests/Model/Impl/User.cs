@@ -152,7 +152,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="userId">User Id to which icon will be added</param>
         /// <param name="value">Icon raw data</param>
-        public void setUserIcon(int userId, byte[] value)
+        public void SetUserIcon(int userId, byte[] value)
         {
             string query = "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)";
             int rowsAffected = ExecuteInsertBinarySqlQuery(query, value);
@@ -162,9 +162,9 @@ namespace Model.Impl
             int imageId = ExecuteSelectBinarySqlQuery(query, value);
             Assert.IsTrue(imageId > 0, "The record was not inserted!");
 
-            string selectQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, userId);
-            rowsAffected = ExecuteUpdateBinarySqlQuery(selectQuery);
-            Assert.IsTrue(rowsAffected == 1, "Updated more than one raw in Users table!");
+            query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, userId);
+            rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            Assert.IsTrue(rowsAffected == 1, "Updated more than one row in Users table!");
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Executes insert binary data into raw and verifies the raw was inserted
-        /// INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)
+        /// Example: "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)"
         /// </summary>
         /// <param name="insertQuery">SQL query to insert data</param>
         /// <param name="value">Actual binary data to insert</param>
@@ -261,7 +261,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Executes select query using binary content to find out image id
-        /// SELECT ImageId FROM [Blueprint].[dbo].[Images] WHERE Content = @Content
+        /// Example: "SELECT ImageId FROM [Blueprint].[dbo].[Images] WHERE Content = @Content"
         /// </summary>
         /// <param name="selectQuery">SQL select query</param>
         /// <param name="content">Binary content to request</param>
@@ -295,9 +295,9 @@ namespace Model.Impl
 
         /// <summary>
         /// Executes update query and returns number of raws affected
-        /// UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}
+        /// Example: "UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}"
         /// </summary>
-        /// <param name="updatetQuery">SQL select query</param>
+        /// <param name="updatetQuery">SQL update query</param>
         /// <returns>Amount of records affected</returns>
         public static int ExecuteUpdateBinarySqlQuery(string updateQuery)
         {

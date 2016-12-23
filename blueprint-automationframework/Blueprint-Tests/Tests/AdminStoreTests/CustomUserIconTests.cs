@@ -71,7 +71,7 @@ namespace AdminStoreTests
 
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width: 480, height: 640, imageFormat: ImageFormatMap[imageType]);
 
-            viewerUser.setUserIcon(viewerUser.Id, imageBytes);
+            viewerUser.SetUserIcon(viewerUser.Id, imageBytes);
             
             // Execute:
             IFile iconFile = null;
@@ -97,7 +97,7 @@ namespace AdminStoreTests
 
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width: 480, height: 640, imageFormat: ImageFormatMap[imageType]);
 
-            viewerUser.setUserIcon(viewerUser.Id, imageBytes);
+            viewerUser.SetUserIcon(viewerUser.Id, imageBytes);
 
             viewerUser.DeleteUser();
 

@@ -47,10 +47,12 @@ namespace AdminStoreTests
             Helper?.Dispose();
         }
 
-        [TestCase()]
+        #region Positive tests
+
+        [TestCase]
         [TestRail(211540)]
         [Description("Create a user without a custom icon. Get the user icon. Verify 204 No Content with empty body returned")]
-        public void CustomUserIcon_GetUserIcon_NoIconExistsForThisUser_204NoContent()
+        public void GetCustomUserIcon_NoIconExistsForThisUser_204NoContent()
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -64,7 +66,7 @@ namespace AdminStoreTests
         [TestCase(ImageType.PNG, "image/png")]
         [TestRail(211541)]
         [Description("Create user with generated custom icon. Get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
-        public void CustomUserIcon_GetUserIcon_ReturnsIcon(ImageType imageType, string contentType)
+        public void GetCustomUserIcon_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -90,7 +92,7 @@ namespace AdminStoreTests
         [TestCase(ImageType.PNG, "image/png")]
         [TestRail(211542)]
         [Description("Create user with generated custom icon. Delete user and get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
-        public void CustomUserIcon_GetUserIconOfDeletedUser_ReturnsIcon(ImageType imageType, string contentType)
+        public void GetCustomUserIcon_DeletedUser_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -104,7 +106,7 @@ namespace AdminStoreTests
             // Execute:
             IFile iconFile = null;
 
-            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(viewerUser.Id, _user),
+            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(viewerUser.Id, viewerUser),
                 "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
 
             // Verify:
@@ -113,5 +115,46 @@ namespace AdminStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(expectedFile, iconFile);
         }
+
+        #endregion Positive tests
+
+        #region Negative tests
+
+        [TestCase("00000000-0000-0000-0000-000000000000", "Token is invalid.")]
+        [TestCase(null, "Token is missing or malformed.")]
+        [TestRail(211707)]
+        [Description("Create user with bad token.  User tries to get user icon.  Verify response returns code 401 Unauthorized.")]
+        public void GetCustomUserIcon_UserWithMissingOrBadToken_401Unauthorized(string token, string expectedMessage)
+        {
+            // Setup:
+            _user.Token.AccessControlToken = token;
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.GetCustomUserIcon(_user.Id, _user);
+            }, "'GET {0}' should return 401 Unauthorized when called with an invalid token!", SVC_PATH);
+
+            // Verify:
+            Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "{0} should be found when token is invalid!", expectedMessage);
+        }
+
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [TestRail(211709)]
+        [Description("User tries to get user icon from non-existing user.  Verify response returns code 404 Not Found.")]
+        public void GetCustomUserIcon_NonExistingUser_404NotFound(int nonExistingUserId)
+        {
+            // Setup:
+            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.GetCustomUserIcon(nonExistingUserId, viewerUser);
+            }, "'GET {0}' should return 404 Not Found when get user icon called for non-existing user!", SVC_PATH);
+        }
+
+        #endregion Negative tests
     }
 }

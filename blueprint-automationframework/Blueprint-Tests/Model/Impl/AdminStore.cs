@@ -422,11 +422,9 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
         public IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             IFile file = null;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.ICON, userId);
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var response = restApi.SendRequestAndGetResponse(
                 path,

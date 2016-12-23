@@ -1,19 +1,14 @@
-﻿using Common;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Drawing.Imaging;
 using System.Net;
 using TestCommon;
 using Utilities;
-using Utilities.Factories;
 
 namespace AdminStoreTests
 {

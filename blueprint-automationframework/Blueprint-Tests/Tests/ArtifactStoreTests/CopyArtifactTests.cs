@@ -77,7 +77,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, sourceArtifactType);
             var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, targetArtifactType);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -105,7 +105,7 @@ namespace ArtifactStoreTests
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, author, parentArtifactType);
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, sourceArtifactType, parentArtifact, numberOfVersions: 2);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -127,7 +127,7 @@ namespace ArtifactStoreTests
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType, parentArtifact, numberOfVersions: 2);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -148,7 +148,7 @@ namespace ArtifactStoreTests
             // Setup:
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -184,7 +184,7 @@ namespace ArtifactStoreTests
                 ++expectedVersionOfOriginalArtifact;
             }
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -253,7 +253,7 @@ namespace ArtifactStoreTests
                 expectedVersionOfOriginalArtifact = 1;
             }
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -352,7 +352,7 @@ namespace ArtifactStoreTests
             var reuseTracesBefore = sourceBeforeCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
             Assert.NotNull(reuseTracesBefore, "No Reuse traces were found in the reused artifact before the copy!");
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -404,7 +404,7 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Add custom properties to the source artifact.
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
             CustomProperty property = null;
 
             if (propertyType == PropertyPrimitiveType.User)
@@ -432,7 +432,7 @@ namespace ArtifactStoreTests
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);
 
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
@@ -452,7 +452,7 @@ namespace ArtifactStoreTests
             var artifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _user, sourceArtifactType, numberOfArtifacts, parentFolder);
             var sourceArtifact = artifacts[sourceArtifactIndex];
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -489,7 +489,7 @@ namespace ArtifactStoreTests
 
             var sourceArtifact = artifacts[sourceArtifactIndex][0];
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -519,7 +519,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = artifactChain[0];
             var targetArtifact = artifactChain[1];
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -556,7 +556,7 @@ namespace ArtifactStoreTests
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -590,7 +590,7 @@ namespace ArtifactStoreTests
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -639,7 +639,7 @@ namespace ArtifactStoreTests
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, preCreatedArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -680,7 +680,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = CreateComplexProcessAndGenerateUserStories(_user, out userStories);
             var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -728,7 +728,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(sourceUserStories.Count, sourceChildrenBefore.Count,
                 "Wrong number of children under the source Process artifact!");
 
-            NovaArtifactDetails sourceArtifactDetailsBefore = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetailsBefore = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
@@ -748,7 +748,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(3, copiedUserStories.Count, "There should be 3 User Stories generated!");
 
             // Verify:
-            NovaArtifactDetails sourceArtifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(sourceArtifactDetailsBefore, sourceArtifactDetailsAfter, skipIdAndVersion: true, skipPublishedProperties: true);
 
             // Verify the original User Stories didn't get modified by generating User Stories on the copied Process.
@@ -791,7 +791,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id.Equals(sourceProcess.Id));
             var targetFolder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
-            NovaArtifactDetails sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;

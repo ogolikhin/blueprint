@@ -34,7 +34,7 @@ describe("BPBreadcrumbComponent", () => {
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
 
         // assert
-        expect(controller.links).toEqual([]);
+        expect(controller.breadcrumbs).toEqual([]);
     });
 
     it("correctly binds properties and events", () => {
@@ -47,20 +47,20 @@ describe("BPBreadcrumbComponent", () => {
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
 
         // assert
-        expect(controller.links).toEqual(links);
+        expect(controller.breadcrumbs).toEqual(links);
     });
 
     it("correctly disposes the bound properties and events", () => {
         // arrange
         const template = `<bp-breadcrumb></bp-breadcrumb>`;
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
-        controller.links = [];
+        controller.breadcrumbs = [];
 
         // act
         controller.$onDestroy();
 
         // assert
-        expect(controller.links).toBeUndefined();
+        expect(controller.breadcrumbs).toBeUndefined();
     });
 
     it("navigates to enabled links", inject(($state: ng.ui.IStateService, $timeout: ng.ITimeoutService) => {

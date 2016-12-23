@@ -5,6 +5,7 @@ import {ItemTypePredefined} from "../../main/models/enums";
 
 export class Helper {
     static draftVersion = 2147483647;
+    static maxAttachmentFilesizeDefault = 10485760; // 10MB
 
     static get ELLIPSIS_SYMBOL() {
         return String.fromCharCode(8230);
@@ -232,6 +233,13 @@ export class Helper {
             if (element.removeAttribute && element.hasAttribute(attribute)) {
                 element.removeAttribute(attribute);
             }
+        });
+    }
+
+    public static stripHtmlTags(content: HTMLElement, tags: string[]) {
+        const ngContent = angular.element(content);
+        tags.forEach(tag => {
+            ngContent.find(tag).remove();
         });
     }
 

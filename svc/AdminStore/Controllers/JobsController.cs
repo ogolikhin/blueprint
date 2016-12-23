@@ -42,14 +42,16 @@ namespace AdminStore.Controllers
         /// </remarks>
         /// <response code="200">OK.</response>
         [HttpGet]
-        [Route("latest"), SessionRequired]
+        [Route(""), SessionRequired]
         [ResponseType(typeof(IEnumerable<JobInfo>))]
-        public async Task<IList<JobInfo>> GetLatestJobs(int? minId = null, int ? offsetId = null, int? limit = null)
+        public async Task<IList<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = 10)
         {
+            // TODO: validate page and pageSize to be positive.
+            // Validate()
             var userId = ValidateAndExtractUserId();
             try
             {
-                return await _jobsRepository.GetVisibleJobs(userId, minId, offsetId, limit);
+                return await _jobsRepository.GetVisibleJobs(userId, (page - 1) * pageSize, pageSize);
             }
             catch (Exception exception)
             {

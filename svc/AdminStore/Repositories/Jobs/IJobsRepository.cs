@@ -6,6 +6,6 @@ namespace AdminStore.Repositories.Jobs
 {
     public interface IJobsRepository
     {
-        Task<IList<JobInfo>> GetVisibleJobs(int? userId, int? minId = null, int? offsetId = null, int? limit = null);
+        Task<IList<JobInfo>> GetVisibleJobs(int? userId, int? offset = null, int? limit = null);
     }
 }

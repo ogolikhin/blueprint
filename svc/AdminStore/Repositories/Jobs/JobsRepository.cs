@@ -26,7 +26,7 @@ namespace AdminStore.Repositories.Jobs
             ConnectionWrapper = connectionWrapper;
         }
 
-        public async Task<IList<JobInfo>> GetVisibleJobs(int? userId, int? offsetId, int? minId, int? limit)
+        public async Task<IList<JobInfo>> GetVisibleJobs(int? userId, int? offset, int? limit)
         {
             var param = new DynamicParameters();
 
@@ -36,13 +36,12 @@ namespace AdminStore.Repositories.Jobs
             param.Add("@addFinished", true);
             param.Add("@receiverJobServiceId", null);
             param.Add("@doNotFetchResult", false);
-            param.Add("@offsetId", offsetId ?? int.MaxValue);
-            param.Add("@minId", minId ?? 1);
-            param.Add("@limit", limit ?? int.MaxValue);
+            param.Add("@offset", offset ?? 0);
+            param.Add("@limit", limit ?? 10);
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<JobInfo>("GetJobMessages", param, commandType: CommandType.StoredProcedure)).ToList();
+                return (await ConnectionWrapper.QueryAsync<JobInfo>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
             }
             catch (SqlException sqlException)
             {

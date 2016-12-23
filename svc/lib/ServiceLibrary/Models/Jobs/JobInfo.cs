@@ -65,7 +65,7 @@ namespace ServiceLibrary.Models.Jobs
 
     public class JobInfo
     {
-        public int JobId { get; set; }
+        public int JobMessageId { get; set; }
 
         public JobStatus Status { get; set; }
 

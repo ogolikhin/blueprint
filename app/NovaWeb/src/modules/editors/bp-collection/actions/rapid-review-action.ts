@@ -11,7 +11,7 @@ export class RapidReviewAction extends BPButtonAction {
         private artifact: IStatefulCollectionArtifact,
         private localization: ILocalizationService,
         private dialogService: IDialogService
-        ) {
+    ) {
         super();
 
         if (!this.localization) {
@@ -32,12 +32,17 @@ export class RapidReviewAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.artifact 
+        return !this.artifact
             || this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection
             || this.artifact.artifactState.readonly
             || this.artifact.rapidReviewCreated
             || !this.artifact.artifacts
-            || this.artifact.artifacts.length === 0;
+            || this.artifact.artifacts.length === 0
+            || !this.hasRequiredPermissions(this.artifact);
+    }
+
+    protected hasRequiredPermissions(artifact: IStatefulCollectionArtifact): boolean {
+        return Helper.hasDesiredPermissions(artifact, Enums.RolePermissions.CreateRapidReview);
     }
 
     public execute(): void {
@@ -47,36 +52,21 @@ export class RapidReviewAction extends BPButtonAction {
 
         if (!this.artifact.artifactState.published) {
             const message = this.localization.get(
-                            "Confirm_Publish_Collection",
-                            "Please publish your changes before entering the review. Would you like to proceed?"
+                "Confirm_Publish_Collection",
+                "Please publish your changes before entering the review. Would you like to proceed?"
             );
 
             this.dialogService.confirm(message)
-                .then( () => this.artifact.publish())
+                .then(() => this.artifact.publish())
                 .then(() => this.openRapidReview(this.artifact.id));
-                } else {
+        } else {
             this.openRapidReview(this.artifact.id);
-                }
-            },
-            (): boolean => {
-                if (
-                    !artifact
-                    || artifact.predefinedType !== ItemTypePredefined.ArtifactCollection
-                    || artifact.artifactState.readonly
-                    || artifact.rapidReviewCreated
-                    || !artifact.artifacts
-                    || artifact.artifacts.length === 0
-                    || !this.hasRequiredPermissions(artifact)
-                    ) {
-                        return false;
-                }
+        }
+
+    }
 
     private openRapidReview(id: number): void {
         const url = `Web/#/RapidReview/${id}/edit`;
         window.open(url);
-    }
-
-    protected hasRequiredPermissions(artifact: IStatefulCollectionArtifact): boolean {
-        return Helper.hasDesiredPermissions(artifact, Enums.RolePermissions.CreateRapidReview);
     }
 }

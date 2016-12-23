@@ -64,7 +64,7 @@ namespace ArtifactStoreTests
             // Setup:
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
-            IFile returnedFile = null;
+            EmbeddedImageFile returnedFile = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -75,6 +75,9 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
+                "The EmbeddedImageId should not be the same as the FileStore FileId!");
 
             // Get the file from FileStore and compare against what we uploaded.
             var fileStoreFileId = returnedFile.Guid;

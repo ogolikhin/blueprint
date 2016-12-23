@@ -52,7 +52,7 @@ namespace AdminStoreTests
         [TestCase]
         [TestRail(211540)]
         [Description("Create a user without a custom icon. Get the user icon. Verify 204 No Content with empty body returned")]
-        public void GetCustomUserIcon_GetUserIcon_NoIconExistsForThisUser_204NoContent()
+        public void GetCustomUserIcon_NoIconExistsForThisUser_204NoContent()
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -66,7 +66,7 @@ namespace AdminStoreTests
         [TestCase(ImageType.PNG, "image/png")]
         [TestRail(211541)]
         [Description("Create user with generated custom icon. Get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
-        public void GetCustomUserIcon_GetUserIcon_ReturnsIcon(ImageType imageType, string contentType)
+        public void GetCustomUserIcon_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -92,7 +92,7 @@ namespace AdminStoreTests
         [TestCase(ImageType.PNG, "image/png")]
         [TestRail(211542)]
         [Description("Create user with generated custom icon. Delete user and get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
-        public void GetCustomUserIcon_GetUserIconOfDeletedUser_ReturnsIcon(ImageType imageType, string contentType)
+        public void GetCustomUserIcon_DeletedUser_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -143,7 +143,7 @@ namespace AdminStoreTests
         [TestCase(int.MaxValue)]
         [TestRail(211709)]
         [Description("User tries to get user icon from non-existing user.  Verify response returns code 404 Not Found.")]
-        public void GetCustomUserIcon_CallWithNonExistingUser_404NotFound(int nonExistingUserId)
+        public void GetCustomUserIcon_NonExistingUser_404NotFound(int nonExistingUserId)
         {
             // Setup:
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);

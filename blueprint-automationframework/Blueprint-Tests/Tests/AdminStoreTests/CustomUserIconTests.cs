@@ -83,7 +83,7 @@ namespace AdminStoreTests
             IFile expectedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
             expectedFile.FileName = null;
 
-            FileStoreTestHelper.AssertFilesAreIdentical(iconFile, expectedFile);
+            FileStoreTestHelper.AssertFilesAreIdentical(expectedFile, iconFile);
         }
 
         [TestCase(ImageType.JPEG, "image/jpeg")]
@@ -111,7 +111,7 @@ namespace AdminStoreTests
             IFile expectedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
             expectedFile.FileName = null;
 
-            FileStoreTestHelper.AssertFilesAreIdentical(iconFile, expectedFile);
+            FileStoreTestHelper.AssertFilesAreIdentical(expectedFile, iconFile);
         }
     }
 }

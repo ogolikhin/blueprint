@@ -89,7 +89,7 @@ namespace AdminStoreTests
         [TestCase(ImageType.JPEG, "image/jpeg")]
         [TestCase(ImageType.PNG, "image/png")]
         [TestRail(211542)]
-        [Description("Create user with generated custom icon. Get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
+        [Description("Create user with generated custom icon. Delete user and get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
         public void CustomUserIcon_GetUserIconOfDeletedUser_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:

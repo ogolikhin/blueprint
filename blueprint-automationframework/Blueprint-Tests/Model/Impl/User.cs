@@ -151,7 +151,7 @@ namespace Model.Impl
         ///  Adds an icon for user
         /// </summary>
         /// <param name="userId">User Id to which icon will be added</param>
-        /// <param name="value">Icon raw data</param>
+        /// <param name="value">Icon row data</param>
         public void SetUserIcon(int userId, byte[] value)
         {
             string query = "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)";
@@ -226,7 +226,7 @@ namespace Model.Impl
         #region Private functions
 
         /// <summary>
-        /// Executes insert binary data into raw and verifies the raw was inserted
+        /// Executes insert binary data into row and verifies the row was inserted
         /// Example: "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)"
         /// </summary>
         /// <param name="insertQuery">SQL query to insert data</param>
@@ -294,7 +294,7 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Executes update query and returns number of raws affected
+        /// Executes update query and returns number of rows affected
         /// Example: "UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}"
         /// </summary>
         /// <param name="updatetQuery">SQL update query</param>

@@ -256,7 +256,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UnsupportedArtifactType_400BadRequest(ItemTypePredefined artifactType)
         {
             // Setup:
-            NovaArtifactDetails artifact = new NovaArtifactDetails
+            var artifact = new NovaArtifactDetails
             {
                 ItemTypeId = _project.GetItemTypeIdForPredefinedType(artifactType),
                 Name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
@@ -734,7 +734,7 @@ namespace ArtifactStoreTests
             string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
-            INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
+            var createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
             Helper.WrapNovaArtifact(createdArtifact, project, user, baseType);
 
@@ -780,7 +780,7 @@ namespace ArtifactStoreTests
             int? parentId = null,
             double? orderIndex = null)
         {
-            INovaArtifactDetails artifactDetails = new NovaArtifactDetails
+            var artifactDetails = new NovaArtifactDetails
             {
                 Name = artifactName,
                 ProjectId = projectId,

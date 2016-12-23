@@ -64,13 +64,13 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock(author);
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Execute:
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, artifactDetailsAfter);
         }
@@ -91,7 +91,7 @@ namespace ArtifactStoreTests
             UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", description, author);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             Assert.IsNotNull(artifactDetailsAfter.Description);
             Assert.AreEqual(description, artifactDetailsAfter.Description);
@@ -117,7 +117,7 @@ namespace ArtifactStoreTests
             UpdateArtifact_CanGetArtifact(artifact, BaseArtifactType.Process, "Name", newName, user);
 
             // Verify:
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             Assert.AreEqual(newName, artifactDetails.Name);
         }
@@ -164,7 +164,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
 
             // Update custom property in artifact.
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             CustomProperty property = null;
 
@@ -185,7 +185,7 @@ namespace ArtifactStoreTests
             artifact.Save();
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
@@ -219,7 +219,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForCustomArtifactType(project, author, itemType);
 
             // Update custom property in artifact.
-            INovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
             var subArtifact = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
             var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, subArtifact.Id);
 
@@ -600,7 +600,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
             artifactDetails.Name = string.Empty;
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
@@ -826,7 +826,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
@@ -841,7 +841,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
@@ -870,7 +870,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
@@ -884,7 +884,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
@@ -907,7 +907,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
             string changedValue = "value\":" + newNumberValue;
@@ -920,7 +920,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
@@ -956,7 +956,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
-            NovaArtifactDetails artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
@@ -984,7 +984,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
 
@@ -1034,11 +1034,11 @@ namespace ArtifactStoreTests
         private void UpdateArtifact_CanGetArtifact<T>(IArtifact artifact, BaseArtifactType artifactType, string propertyToChange, T value, IUser user)
         {
             // Setup:
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             SetProperty(propertyToChange, value, ref artifactDetails);
 
-            NovaArtifactDetails updateResult = null;
+            INovaArtifactDetails updateResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: Helper.BlueprintServer.Address),
@@ -1063,7 +1063,7 @@ namespace ArtifactStoreTests
         /// <param name="artifact">The artifact that the target sub artifact resides</param>
         /// <param name="artifactCustomPropertyName">custom property name for the artifact to update</param>
         /// <param name="artifactCustomPropertyValue">custom property value for the artifact to update</param>
-        /// <returns>NovaArtifactDetails that contains the change for the artifact</returns>
+        /// <returns>INovaArtifactDetails that contains the change for the artifact</returns>
         private NovaArtifactDetails CreateArtifactChangeSet(IUser user, IProject project, IArtifact artifact, string artifactCustomPropertyName, object artifactCustomPropertyValue)
         {
             var artifactDetailsChangeSet = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);

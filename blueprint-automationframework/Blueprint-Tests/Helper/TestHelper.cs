@@ -654,11 +654,14 @@ namespace Helper
         /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
         /// <param name="subArtifacts">(optional) The subartifacts to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null, List<NovaSubArtifact> subArtifacts = null)
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails,
+            List<CustomProperty> customProperties = null,
+            List<CustomProperty> specificProperties = null,
+            List<NovaSubArtifact> subArtifacts = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 
-            NovaArtifactDetails changesetDetails = new NovaArtifactDetails
+            var changesetDetails = new NovaArtifactDetails
             {
                 Id = artifactDetails.Id,
                 ProjectId = artifactDetails.ProjectId

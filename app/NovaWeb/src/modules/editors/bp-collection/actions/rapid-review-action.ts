@@ -1,5 +1,7 @@
+import {Helper} from "../../../shared/utils/helper";
 import {BPButtonAction} from "../../../shared";
 import {ItemTypePredefined} from "../../../main/models/enums";
+import {Enums} from "../../../main/models";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IDialogService} from "../../../shared";
@@ -30,12 +32,17 @@ export class RapidReviewAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.artifact 
+        return !this.artifact
             || this.artifact.predefinedType !== ItemTypePredefined.ArtifactCollection
             || this.artifact.artifactState.readonly
             || this.artifact.rapidReviewCreated
             || !this.artifact.artifacts
-            || this.artifact.artifacts.length === 0;
+            || this.artifact.artifacts.length === 0
+            || !this.hasRequiredPermissions(this.artifact);
+    }
+
+    protected hasRequiredPermissions(artifact: IStatefulCollectionArtifact): boolean {
+        return Helper.hasDesiredPermissions(artifact, Enums.RolePermissions.CreateRapidReview);
     }
 
     public execute(): void {
@@ -45,16 +52,17 @@ export class RapidReviewAction extends BPButtonAction {
 
         if (!this.artifact.artifactState.published) {
             const message = this.localization.get(
-                "Confirm_Publish_Collection", 
+                "Confirm_Publish_Collection",
                 "Please publish your changes before entering the review. Would you like to proceed?"
             );
 
             this.dialogService.confirm(message)
-                .then( () => this.artifact.publish())
+                .then(() => this.artifact.publish())
                 .then(() => this.openRapidReview(this.artifact.id));
         } else {
             this.openRapidReview(this.artifact.id);
         }
+
     }
 
     private openRapidReview(id: number): void {

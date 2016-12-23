@@ -20,6 +20,7 @@ import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/r
 import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
 import {SettingsServiceMock} from "../../../../core/configuration/settings.mock";
+import {ImageUploadService} from "../../../../core/image-upload/image-upload.svc";
 
 describe("Formly Text RTF", () => {
     const fieldsDefinition = [
@@ -49,7 +50,7 @@ describe("Formly Text RTF", () => {
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-        $provide.service("fileUploadService", FileUploadServiceMock);
+        $provide.service("imageUploadService", ImageUploadService);
         $provide.service("settings", SettingsServiceMock);
         $provide.service("selectionManager", () => ({
             getArtifact: () => undefined,

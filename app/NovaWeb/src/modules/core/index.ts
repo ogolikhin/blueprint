@@ -1,6 +1,7 @@
 import "./configuration";
 import "./error";
 import "./file-upload";
+import "./image-upload";
 import "./http";
 import "./loading-overlay";
 import "./localization";
@@ -15,6 +16,7 @@ angular.module("bp.core", [
 
     "bp.core.configuration",
     "bp.core.fileUpload",
+    "bp.core.imageUpload",
     "bp.core.loadingOverlay",
     "bp.core.localization",
     "bp.core.messages",

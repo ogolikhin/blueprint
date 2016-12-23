@@ -421,8 +421,8 @@ namespace Model.Impl
             return project;
         }
 
-        /// <seealso cref="IAdminStore.GetUserIcon(int, IUser, List{HttpStatusCode})"/>
-        public IFile GetUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
+        public IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 

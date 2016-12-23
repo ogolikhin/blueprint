@@ -105,25 +105,6 @@ namespace AdminStoreTests
         }
 
         #region Private functions
-        /*
-                        /// <summary>
-                /// Creates a random image file of the specified type and size.
-                /// </summary>
-                /// <param name="width">The image width.</param>
-                /// <param name="height">The image height.</param>
-                /// <param name="imageType">The type of image to create (ex. jpeg, png).</param>
-                /// <param name="contentType">The MIME Content-Type.</param>
-                /// <returns>The random image file.</returns>
-                [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
-                private static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
-                {
-                    byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
-                    string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-                    string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType.ToStringInvariant().ToLowerInvariant());
-
-                    return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
-                }
-        */
 
         /// <summary>
         /// Executes insert row and verifies the raw was inserted

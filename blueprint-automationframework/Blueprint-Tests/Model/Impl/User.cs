@@ -5,7 +5,6 @@ using System.Linq;
 using Common;
 using Model.Factories;
 using Utilities;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Data;
 

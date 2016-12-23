@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
-using System.Web;
 using Common;
 using Newtonsoft.Json;
 using NUnit.Framework;

@@ -1,11 +1,13 @@
-﻿import {Models} from "../../main";
+﻿import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {Artifact} from "../../main/models/models";
+import {Models, Enums} from "../../main";
 import {ItemTypePredefined} from "../../main/models/enums";
 
 export class Helper {
     static draftVersion = 2147483647;
 
     static get ELLIPSIS_SYMBOL() {
-         return String.fromCharCode(8230);
+        return String.fromCharCode(8230);
     }
 
     static get UID(): string {
@@ -143,8 +145,8 @@ export class Helper {
                             let isFontAllowed = false;
                             allowedFonts.forEach(function (allowedFont) {
                                 isFontAllowed = isFontAllowed || fontFamily.split(",").some(function (font) {
-                                        return font.toLowerCase().trim().indexOf(allowedFont.toLowerCase()) !== -1;
-                                    });
+                                    return font.toLowerCase().trim().indexOf(allowedFont.toLowerCase()) !== -1;
+                                });
                             });
                             if (!isFontAllowed) {
                                 fontFamily += ",'Open Sans'";
@@ -231,5 +233,12 @@ export class Helper {
                 element.removeAttribute(attribute);
             }
         });
-    };
+    }
+
+    public static hasDesiredPermissions(artifact: IStatefulArtifact, permissions: Enums.RolePermissions): boolean {
+        if ((artifact.permissions & permissions) !== permissions) {
+            return false;
+        }
+        return true;
+    }
 }

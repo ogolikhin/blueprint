@@ -1,5 +1,7 @@
+import {Helper} from "../../../shared/utils/helper";
 import {BPButtonAction} from "../../../shared";
 import {ItemTypePredefined} from "../../../main/models/enums";
+import {Enums} from "../../../main/models";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IDialogService} from "../../../shared";
@@ -9,7 +11,7 @@ export class RapidReviewAction extends BPButtonAction {
         private artifact: IStatefulCollectionArtifact,
         private localization: ILocalizationService,
         private dialogService: IDialogService
-    ) {
+        ) {
         super();
 
         if (!this.localization) {
@@ -45,20 +47,36 @@ export class RapidReviewAction extends BPButtonAction {
 
         if (!this.artifact.artifactState.published) {
             const message = this.localization.get(
-                "Confirm_Publish_Collection", 
-                "Please publish your changes before entering the review. Would you like to proceed?"
+                            "Confirm_Publish_Collection",
+                            "Please publish your changes before entering the review. Would you like to proceed?"
             );
 
             this.dialogService.confirm(message)
                 .then( () => this.artifact.publish())
                 .then(() => this.openRapidReview(this.artifact.id));
-        } else {
+                } else {
             this.openRapidReview(this.artifact.id);
-        }
-    }
+                }
+            },
+            (): boolean => {
+                if (
+                    !artifact
+                    || artifact.predefinedType !== ItemTypePredefined.ArtifactCollection
+                    || artifact.artifactState.readonly
+                    || artifact.rapidReviewCreated
+                    || !artifact.artifacts
+                    || artifact.artifacts.length === 0
+                    || !this.hasRequiredPermissions(artifact)
+                    ) {
+                        return false;
+                }
 
     private openRapidReview(id: number): void {
         const url = `Web/#/RapidReview/${id}/edit`;
         window.open(url);
+    }
+
+    protected hasRequiredPermissions(artifact: IStatefulCollectionArtifact): boolean {
+        return Helper.hasDesiredPermissions(artifact, Enums.RolePermissions.CreateRapidReview);
     }
 }

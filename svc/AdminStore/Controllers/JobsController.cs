@@ -10,6 +10,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories.ConfigControl;
 using System.Web.Http.Description;
+using ServiceLibrary.Repositories;
 
 namespace AdminStore.Controllers
 {
@@ -20,18 +21,21 @@ namespace AdminStore.Controllers
     public class JobsController : LoggableApiController
     {
         private readonly IJobsRepository _jobsRepository;
+        private readonly IUsersRepository _sqlUserRepository;
 
         public override string LogSource => "AdminStore.JobsService";
 
         public JobsController() :
-            this(new JobsRepository(), new ServiceLogRepository())
+            this(new JobsRepository(), new ServiceLogRepository(), new SqlUsersRepository())
         {
         }
 
         internal JobsController(IJobsRepository jobsRepository, 
-            IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
+            IServiceLogRepository serviceLogRepository,
+            IUsersRepository sqlUserRepository) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
+            _sqlUserRepository = sqlUserRepository;
         }
 
         /// <summary>
@@ -48,9 +52,15 @@ namespace AdminStore.Controllers
         {
             // TODO: validate page and pageSize to be positive.
             // Validate()
-            var userId = ValidateAndExtractUserId();
+            int? userId = ValidateAndExtractUserId();
             try
             {
+                // Always passing false for parameter contextUser, talked to Alex G. and he told me just to use false for my case. It was added from refactoring some stored procs.
+                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
+                if (isUserInstanceAdmin)
+                {
+                    userId = null;
+                }
                 return await _jobsRepository.GetVisibleJobs(userId, (page - 1) * pageSize, pageSize);
             }
             catch (Exception exception)

@@ -37,5 +37,14 @@ namespace ServiceLibrary.Repositories
             userInfosPrm.Add("@GuestsOnly", guestsOnly);
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUsersByEmail", userInfosPrm, commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
+        {
+            //
+            var prm = new DynamicParameters();
+            prm.Add("@contextUser", contextUser);
+            prm.Add("@userId", sessionUserId);
+            return (await _connectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+        }
     }
 }

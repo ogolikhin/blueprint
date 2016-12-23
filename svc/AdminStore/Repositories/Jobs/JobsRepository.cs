@@ -31,7 +31,7 @@ namespace AdminStore.Repositories.Jobs
             var param = new DynamicParameters();
 
             param.Add("@hidden", null);
-            param.Add("@userId", userId.Value);
+            param.Add("@userId", userId);
             param.Add("@projectId", null);
             param.Add("@addFinished", true);
             param.Add("@receiverJobServiceId", null);

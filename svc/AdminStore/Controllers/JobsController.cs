@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using AdminStore.Repositories.Jobs;
@@ -46,7 +47,15 @@ namespace AdminStore.Controllers
         public async Task<IList<JobInfo>> GetLatestJobs(int? minId = null, int ? offsetId = null, int? limit = null)
         {
             var userId = ValidateAndExtractUserId();
-            return await _jobsRepository.GetVisibleJobs(userId, minId, offsetId, limit);
+            try
+            {
+                return await _jobsRepository.GetVisibleJobs(userId, minId, offsetId, limit);
+            }
+            catch (Exception exception)
+            {
+                await Log.LogError(LogSource, exception);
+                throw;
+            }
         }
 
         private int ValidateAndExtractUserId()

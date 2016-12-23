@@ -21,6 +21,18 @@ export class CollectionServiceMock implements ICollectionService {
         return defer.promise;
     }
 
+    public addArtifactToCollection(artifactId: number, collectionId: number, addChildren: boolean): ng.IPromise<number> {
+        const defer = this.$q.defer<number>();
+
+        if (artifactId > 0 && collectionId > 0) {
+            defer.resolve(1);
+        } else {
+            defer.reject("Error");
+        }
+
+        return defer.promise;
+    }
+
     public static createCollection(id: number): ICollection {
         /* tslint:disable:max-line-length */
         const collection: ICollection = {            

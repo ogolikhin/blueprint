@@ -42,7 +42,6 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 private settings: ISettingsService,
                 private fileUploadService: IFileUploadService) {
         super();
-        const maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
         const maxNumberAttachments: number = 1;
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
@@ -50,9 +49,9 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
 
         let guid: number; //we use this to download newly added files (prior to saving).
 
-        let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
+        let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
         if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
+            maxAttachmentFilesize = Helper.maxAttachmentFilesizeDefault;
         }
 
         this.$scope["getFilename"] = () => {

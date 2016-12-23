@@ -88,6 +88,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
+    public navigateToJobs() {
+        if (this.$state.current.name === "main.jobs") {
+            this.navigationService.reloadCurrentState();
+        } else {
+            this.$state.go("main.jobs");
+        }
+    }
+
     /**
      * If this method is called after onLoadProject, but before onGridReset, the artifact will be
      * selected in onGridReset. This allows code that refreshes explorer, then naviages to a new

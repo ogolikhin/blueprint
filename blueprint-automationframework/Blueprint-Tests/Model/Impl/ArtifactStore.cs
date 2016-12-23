@@ -16,6 +16,7 @@ using Model.Factories;
 
 namespace Model.Impl
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // TODO: Maybe refactor later.
     public class ArtifactStore : NovaServiceBase, IArtifactStore
     {
         private IUser _userForFiles = null;
@@ -36,7 +37,7 @@ namespace Model.Impl
         #region Members inherited from IArtifactStore
 
         /// <seealso cref="IArtifactStore.AddImage(IUser, IFile, List{HttpStatusCode})"/>
-        public IFile AddImage(IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
+        public EmbeddedImageFile AddImage(IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var addedImage = AddImage(Address, user, imageFile, expectedStatusCodes);
 
@@ -52,9 +53,9 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetImage(string, List{HttpStatusCode})"/>
-        public IFile GetImage(string imageId, List<HttpStatusCode> expectedStatusCodes = null)
+        public EmbeddedImageFile GetImage(string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetImage(Address, imageId, expectedStatusCodes);
+            return GetImage(Address, embeddedImageId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.CopyArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
@@ -684,7 +685,7 @@ namespace Model.Impl
         /// <param name="imageFile">The image file to upload.  Valid image formats are:  JPG and PNG.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
         /// <returns>The uploaded file with the GUID identification.</returns>
-        public static IFile AddImage(string address, IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
+        public static EmbeddedImageFile AddImage(string address, IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(imageFile, nameof(imageFile));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -721,26 +722,39 @@ namespace Model.Impl
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
-            imageFile.Guid = response.Content.Replace("\"", "");
-            
-            return imageFile;
+            string embeddedImageId = response.Content.Replace("\"", "");
+            imageFile.Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId);
+
+            var embeddedImageFile = new EmbeddedImageFile
+            {
+                ArtifactId = null,
+                Content = imageFile.Content.ToArray(),
+                EmbeddedImageId = embeddedImageId,
+                ExpireTime = null,
+                FileName = imageFile.FileName,
+                FileType = imageFile.FileType,
+                Guid = imageFile.Guid,
+                LastModifiedDate = imageFile.LastModifiedDate
+            };
+
+            return embeddedImageFile;
         }
 
         /// <summary>
         /// Gets an image that was uploaded to artifact store.  No authentication is required.
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="imageId">The GUID of the file you want to retrieve.</param>
+        /// <param name="embeddedImageId">The GUID of the file you want to retrieve.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The file that was requested.</returns>
-        public static IFile GetImage(string address, string imageId, List<HttpStatusCode> expectedStatusCodes = null)
+        public static EmbeddedImageFile GetImage(string address, string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(imageId, nameof(imageId));
+            ThrowIf.ArgumentNull(embeddedImageId, nameof(embeddedImageId));
 
-            IFile file = null;
+            EmbeddedImageFile file = null;
 
             var restApi = new RestApiFacade(address);
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.IMAGES_id_, imageId);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.IMAGES_id_, embeddedImageId);
 
             var response = restApi.SendRequestAndGetResponse(
                 path,
@@ -756,15 +770,16 @@ namespace Model.Impl
 
                 string filename = HttpUtility.UrlDecode(contentDisposition.FileName);
 
-                file = new File
+                file = new EmbeddedImageFile
                 {
                     Content = response.RawBytes.ToArray(),
-                    Guid = imageId,
+                    EmbeddedImageId = embeddedImageId,
+                    FileType = response.ContentType,
+                    FileName = filename,
+                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId),
                     LastModifiedDate =
                         DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null),
-                    FileType = response.ContentType,
-                    FileName = filename
+                            null)
                 };
             }
 
@@ -897,7 +912,7 @@ namespace Model.Impl
             Assert.NotNull(itemType, "No custom artifact type was found in project '{0}' for ItemTypePredefined: {1}!",
                 project.Name, baseArtifactType);
 
-            NovaArtifactDetails jsonBody = new NovaArtifactDetails
+            var jsonBody = new NovaArtifactDetails
             {
                 Name = name,
                 ProjectId = project.Id,

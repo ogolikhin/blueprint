@@ -83,23 +83,25 @@ namespace AdminStoreTests
 
             string query = "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)";
             int rowsAffected = ExecuteInsertBinarySqlQuery(query, imageBytes);
-            Assert.IsTrue(rowsAffected > 0, "The record was not inserted!");
+            Assert.IsTrue(rowsAffected == 1, "The record was not inserted!");
 
             query = "SELECT ImageId FROM [Blueprint].[dbo].[Images] WHERE Content = @Content";
             int imageId = ExecuteSelectBinarySqlQuery(query, imageBytes);
             Assert.IsTrue(imageId > 0, "The record was not inserted!");
 
             string selectQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, user.Id);
-            ExecuteUpdateBinarySqlQuery(selectQuery);
+            rowsAffected = ExecuteUpdateBinarySqlQuery(selectQuery);
+            Assert.IsTrue(rowsAffected == 1, "Updated more than one raw in Users table!");
 
             // Execute:
             IFile iconFile = null;
 
-            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(1004, _user),
+            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(user.Id, _user),
                 "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
 
             // Verify:
             IFile returnedFile = FileFactory.CreateFile("tmp", "image/png", DateTime.Now, imageBytes);
+            returnedFile.FileName = null;
 
             FileStoreTestHelper.AssertFilesAreIdentical(iconFile, returnedFile);
         }

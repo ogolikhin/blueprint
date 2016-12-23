@@ -763,23 +763,12 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var contentDisposition = new ContentDisposition(
-                    response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString());
-
-                Assert.NotNull(contentDisposition, "The Content-Disposition shouldn't be null!");
-
-                string filename = HttpUtility.UrlDecode(contentDisposition.FileName);
-
                 file = new EmbeddedImageFile
                 {
                     Content = response.RawBytes.ToArray(),
                     EmbeddedImageId = embeddedImageId,
                     FileType = response.ContentType,
-                    FileName = filename,
-                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId),
-                    LastModifiedDate =
-                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null)
+                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId)
                 };
             }
 

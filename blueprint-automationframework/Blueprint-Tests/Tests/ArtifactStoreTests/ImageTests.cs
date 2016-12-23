@@ -14,7 +14,6 @@ using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // Ignore all tests in this class until development is done.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class ImageTests : TestBase
@@ -55,6 +54,7 @@ namespace ArtifactStoreTests
 
         #region AddImage tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg")]
         [TestCase(80, 80, ImageType.PNG, "image/png")]
         [TestRail(211529)]
@@ -83,6 +83,7 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(20, 30, ImageType.JPEG, "text/plain")]
         [TestCase(80, 80, ImageType.PNG, "application/json")]
         [TestRail(211536)]
@@ -105,6 +106,7 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase("jpg", "image/jpeg")]
         [TestCase("png", "image/png")]
         [TestRail(211537)]
@@ -140,7 +142,7 @@ namespace ArtifactStoreTests
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
             // Set the bad token.
-            _authorUser.SetToken(token);
+            _authorUser.Token.AccessControlToken = token;
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
@@ -149,12 +151,12 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
-                "TODO: Fill this in when development is done.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
         [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
         [TestRail(211538)]
@@ -181,6 +183,7 @@ namespace ArtifactStoreTests
 
         #region GetImage tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
         [TestCase(70, 50, ImageType.PNG, "image/png")]
         [TestRail(211535)]
@@ -201,10 +204,11 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
         }
 
-        [TestCase("")]
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
+        [TestCase("", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/7Gewk3Ck  Returns 401 instead of 404.
         [TestCase("abcd1234")]
         [TestRail(211550)]
         [Description("Try to get an image with an ImageId that doesn't exist.  Verify it returns 404 Not Found.")]
@@ -231,8 +235,8 @@ namespace ArtifactStoreTests
         /// <param name="filename">The filename to look for.</param>
         private static void AssertFileNotInEmbeddedImagesTable(string filename)
         {
-            string selectQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [dbo].[EmbeddedImages] WHERE [FileName] ='{0}'", filename);
-            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
+            string fileIdQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [FileStore].[Files] WHERE [FileName] ='{0}'", filename);
+            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, "FileId", databaseName: "FileStore");
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);

@@ -17,7 +17,6 @@ using Utilities.Factories;
 
 namespace AdminStoreTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // Ignore all tests in this class until development is done.
     [TestFixture]
     [Category(Categories.AdminStore)]
     public class CustomUserIconTests : TestBase
@@ -64,14 +63,13 @@ namespace AdminStoreTests
             // Execute:
             Assert.DoesNotThrow(() => Helper.AdminStore.GetCustomUserIcon(user.Id, _user, new List<HttpStatusCode> { HttpStatusCode.NoContent }),
                 "'GET {0}' should return 204 No Content when user has no custom icon in his/her profile.", SVC_PATH);
-
         }
 
-        [TestCase(ImageType.JPEG)]
-        [TestCase(ImageType.PNG)]
+        [TestCase(ImageType.JPEG, "image/jpeg")]
+        [TestCase(ImageType.PNG, "image/png")]
         [TestRail(211541)]
-        [Description("Use pre-created active or removed user with and icon. Get the user icon. Verify returned 200 OK and icon is not empty")]
-        public void CustomUserIcon_GetUserIcon_ReturnsIcon(ImageType imageType)
+        [Description("Create user with generated custom icon. Get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
+        public void CustomUserIcon_GetUserIcon_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
             const int WIDTH = 480;
@@ -100,20 +98,36 @@ namespace AdminStoreTests
                 "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
 
             // Verify:
-            IFile returnedFile = FileFactory.CreateFile("tmp", "image/png", DateTime.Now, imageBytes);
+            IFile returnedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
             returnedFile.FileName = null;
 
             FileStoreTestHelper.AssertFilesAreIdentical(iconFile, returnedFile);
         }
 
+        [Category(Categories.GoldenData)]
+        [TestCase(1005)]
+        [TestRail(211542)]
+        [Description("Create user with generated custom icon. Get the user icon. Verify returned 200 OK and icon is the same as saved in database")]
+        public void CustomUserIcon_GetUserIconOfDeletedUser_ReturnsIcon(int userId)
+        {
+            // Execute:
+            IFile iconFile = null;
+
+            Assert.DoesNotThrow(() => iconFile = Helper.AdminStore.GetCustomUserIcon(userId, _user),
+                "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
+
+            // Verify
+            Assert.IsNotNull(iconFile, "The file is not returned!");
+        }
+
         #region Private functions
 
         /// <summary>
-        /// Executes insert row and verifies the raw was inserted
+        /// Executes insert binary data into raw and verifies the raw was inserted
         /// </summary>
-        /// <param name="table">Table to insert into</param>
-        /// <param name="columns">Column/s in which value will be inserted</param>
-        /// <param name="value">Actual value that will be inserted into specific columns</param>
+        /// <param name="insertQuery">SQL query to insert data</param>
+        /// <param name="value">Actual binary data to insert</param>
+        /// <returns>Amount of records inserted<</returns>
         public static int ExecuteInsertBinarySqlQuery(string insertQuery, byte[] value)
         {
             using (var database = DatabaseFactory.CreateDatabase())
@@ -141,10 +155,14 @@ namespace AdminStoreTests
             }
         }
 
-        public static int ExecuteSelectBinarySqlQuery(string selectQuery/*valueToSearch, string table, string columns*/, byte[] content)
+        /// <summary>
+        /// Executes select query using binary content to find out image id
+        /// </summary>
+        /// <param name="selectQuery">SQL select query</param>
+        /// <param name="content">Binary content to insert</param>
+        /// <returns>Image id</returns>
+        public static int ExecuteSelectBinarySqlQuery(string selectQuery, byte[] content)
         {
-            //            string selectQuery = I18NHelper.FormatInvariant("SELECT {0} FROM [Blueprint].[dbo].[{1}] WHERE {2} = @{2}", valueToSearch, table, columns);
-
             using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
@@ -170,15 +188,20 @@ namespace AdminStoreTests
             }
         }
 
-        public static int ExecuteUpdateBinarySqlQuery(string selectQuery)
+        /// <summary>
+        /// Executes update query and returns amount of raw affected
+        /// </summary>
+        /// <param name="updatetQuery">SQL select query</param>
+        /// <returns>Amount of records affected</returns>
+        public static int ExecuteUpdateBinarySqlQuery(string updateQuery)
         {
             using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
-                Logger.WriteDebug("Running: {0}", selectQuery);
+                Logger.WriteDebug("Running: {0}", updateQuery);
 
-                using (var cmd = database.CreateSqlCommand(selectQuery))
+                using (var cmd = database.CreateSqlCommand(updateQuery))
                 {
                     cmd.ExecuteNonQuery();
 
@@ -186,7 +209,7 @@ namespace AdminStoreTests
                     {
                         if (sqlDataReader.RecordsAffected <= 0)
                         {
-                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", selectQuery));
+                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
                         }
                         return sqlDataReader.RecordsAffected;
                     }

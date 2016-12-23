@@ -55,6 +55,13 @@ namespace Model
         void DeleteUser(bool deleteFromDatabase = false);
 
         /// <summary>
+        ///  Adds an icon for user
+        /// </summary>
+        /// <param name="userId">User Id to which icon will be added</param>
+        /// <param name="value">Icon raw data</param>
+        void setUserIcon(int userId, byte[] value);
+
+        /// <summary>
         /// Sets the token for this user.
         /// </summary>
         /// <param name="token">The token string.</param>

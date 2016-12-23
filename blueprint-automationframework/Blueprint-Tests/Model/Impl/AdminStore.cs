@@ -446,7 +446,7 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
-                Assert.IsEmpty(response.Content, "Response contains an image!");
+                Assert.IsEmpty(response.Content, "Response body contains data, even though Status Code was 204 No Content!");
             }
 
             return file;

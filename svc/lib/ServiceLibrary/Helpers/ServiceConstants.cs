@@ -36,5 +36,7 @@ namespace ServiceLibrary.Helpers
         public const int MaxSearchQueryCharLimit = 250;
 
         public const int DefaultSearchTimeout = 120;
+
+        public const int JobsDetailsPageSize = 10;
     }
 }

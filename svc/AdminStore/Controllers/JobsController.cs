@@ -45,10 +45,10 @@ namespace AdminStore.Controllers
         /// Returns the latest jobs.
         /// </remarks>
         /// <response code="200">OK.</response>
-        [HttpGet]
+        [HttpGet, NoCache]
         [Route(""), SessionRequired]
         [ResponseType(typeof(IEnumerable<JobInfo>))]
-        public async Task<IList<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = 10)
+        public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
         {
             // TODO: validate page and pageSize to be positive.
             // Validate()
@@ -61,7 +61,9 @@ namespace AdminStore.Controllers
                 {
                     userId = null;
                 }
-                return await _jobsRepository.GetVisibleJobs(userId, (page - 1) * pageSize, pageSize);
+                int jobPageSize = GetPageSize(pageSize);
+                int offset = (page.GetValueOrDefault(1) - 1) * jobPageSize;
+                return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
             }
             catch (Exception exception)
             {
@@ -69,7 +71,15 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
-
+        private int GetPageSize(int? pageSize)
+        {
+            var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);
+            if (jobPageSize <= 0)
+            {
+                return WebApiConfig.JobDetailsPageSize;
+            }
+            return jobPageSize;
+        }
         private int ValidateAndExtractUserId()
         {
             // get the UserId from the session

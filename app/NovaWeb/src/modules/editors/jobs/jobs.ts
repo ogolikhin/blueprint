@@ -45,7 +45,7 @@ export class JobsController {
     };
 
     public noJobs(): boolean {
-        return true;
+        return this.jobs.length === 0;
     }
      
 

@@ -86,7 +86,7 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (_.isFinite(version)) {
                     if (result.versionCount < version) {
-                        this.messageService.addError(this.localization.get("Artifact_Version_NotFound"), true);
+                        this.messageService.addError("Artifact_Version_NotFound", true);
                         this.navigationService.navigateToMain(true);
                         return;
                     }
@@ -102,7 +102,7 @@ export class ItemStateController {
 
                 this.navigateToSubRoute(statefulArtifact, version);
             } else {
-                this.messageService.addError(this.localization.get("Artifact_GoTo_NotAvailable"), true);
+                this.messageService.addError("Artifact_GoTo_NotAvailable", true);
             }
         }).catch(error => {
             this.navigationService.navigateToMain(true);

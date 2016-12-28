@@ -17,6 +17,7 @@ namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("users")]
+    [BaseExceptionFilter]
     public class UsersController : ApiController
     {
         internal readonly IAuthenticationRepository _authenticationRepository;
@@ -102,10 +103,6 @@ namespace AdminStore.Controllers
                 var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
                 httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(imageContent.Content);
                 return httpResponseMessage;
-            }
-            catch (ResourceNotFoundException)
-            {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
             catch (Exception ex)
             {

@@ -437,6 +437,7 @@ describe("BpArtifactInfo", () => {
                 stateSubject.onNext(updatedState);
 
                 // assert
+                expect(controller.isLocked).toEqual(false);
                 expect(controller.lockedMessage).toBeNull();
             });
 
@@ -450,6 +451,7 @@ describe("BpArtifactInfo", () => {
                 stateSubject.onNext(updatedState);
 
                 // assert
+                expect(controller.isLocked).toEqual(true);
                 expect(controller.selfLocked).toEqual(true);
             });
 
@@ -478,6 +480,7 @@ describe("BpArtifactInfo", () => {
                 stateSubject.onNext(updatedState);
 
                 // assert
+                expect(controller.isLocked).toEqual(true);
                 expect(controller.selfLocked).toEqual(false);
             });
 

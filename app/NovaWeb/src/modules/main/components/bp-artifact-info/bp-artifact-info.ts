@@ -233,7 +233,6 @@ export class BpArtifactInfoController {
         this.artifactTypeId = artifact.itemTypeId;
         this.artifactTypeIconId = artifact.itemTypeIconId;
         this.hasCustomIcon = _.isFinite(artifact.itemTypeIconId);
-
         this.noPermissions = (artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
 
         this.isLegacy = artifact.predefinedType === ItemTypePredefined.Storyboard ||

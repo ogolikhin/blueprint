@@ -21,7 +21,7 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
-import {ItemTypePredefined, LockedByEnum} from "../../../main/models/enums";
+import {ItemTypePredefined, LockedByEnum, RolePermissions} from "../../../main/models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {SessionSvcMock} from "../../../shell/login/mocks.spec";
 
@@ -386,6 +386,30 @@ describe("BpArtifactInfo", () => {
 
                 // assert
                 expect(controller.isLegacy).toEqual(false);
+            });
+
+            it("sets noPermissions to false if current user has permissions to edit", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.permissions = 8159;
+
+                // act
+                artifactSubject.onNext(artifact);
+
+                // assert
+                expect(controller.noPermissions).toEqual(false);
+            });
+
+            it("sets noPermissions to true if current user has no permissions to edit", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                artifact.permissions = 9;
+
+                // act
+                artifactSubject.onNext(artifact);
+
+                // assert
+                expect(controller.noPermissions).toEqual(true);
             });
         });
 

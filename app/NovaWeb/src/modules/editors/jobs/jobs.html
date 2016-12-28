@@ -1,54 +1,79 @@
-<div class='artifact-state'>
-    <div class="page-content">
-        <div class="page-heading">
-            <div class="responsive-header">
-                <div class="artifact-heading">
-                    <div class="artifact-heading-group1">
-                        <div class="artifact-heading-group2">
+<div class="jobs__results--content">
+    <div class="page-heading">
+    <div class="responsive-header">
+        
+            <div class="artifact-heading">
+                <div class="artifact-heading-group1">                        
+                    <div class="artifact-heading-group2">
+                        <div class="col-md-11">
                             <div class="name">Jobs</div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="icon-container">
+                                    <i class="fonticon fonticon2-refresh-line"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <bp-toolbar-2 actions="::$ctrl.toolbarActions"></bp-toolbar-2>
             </div>
         </div>
-        <div class="page-body-wrapper">
-            <div class="page-body">
-                <div ng-if="$ctrl.isLoading" class="app-loading">
-                    <span class="glyphicon glyphicon-refresh spin"></span>
-                    {{::$ctrl.localization.get('App_LoadingMsg') }}
+    </div>
+    <div class="jobs-ul" ng-if="!$ctrl.noJobsHistory()">
+        <ul class="list-unstyled">
+            <li class="jobs__results--item"
+                ng-repeat="item in $ctrl.jobs track by $index">
+                <div class="row small-gutter">
+                    <div class="col-md-1 text-center">
+                        <div class="icon jobs__results--large-font font-blue">
+                            <i class="icon-document"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-11">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="font-blue margin-bottom--none jobs__text--no-wrap">
+                                    <a class="jobs__results--link" ui-sref="main.item({id: item.artifactId})">
+                                        {{item.itemId}}
+                                    </a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels[Jobs_Author"]}} </strong>
+                                <span>{{item.UserDisplayName}}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_Project"]}} </strong>
+                                <span>{{item.Project}}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_Status"]}} </strong>
+                                <span> {{item.Status}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_SubmittedTime"]}} </strong>
+                                <span>{{item.SubmittedDateTime|momentDate:'MMMM DD, YYYY'}}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_StartTime"]}} </strong>
+                                <span>{{item.JobStartDateTime|momentDate:'MMMM DD, YYYY'}}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_EndTime"]}} </strong>
+                                <span> {{item.JobEndDateTime|momentDate:'MMMM DD, YYYY'}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <table class="jobs" ng-if="!$ctrl.isLoading">
-                    <thead class="jobs__header">
-                    <tr>
-                        <th class="jobs__icon-col">&nbsp;</th>
-                        <th class="jobs__id-col">ID</th>
-                        <th class="jobs__name-col">Name</th>
-                        <th class="jobs__project-col">Project</th>
-                    </tr>
-                    </thead>
-                    <tbody class="jobs__body">
-                    <tr ng-repeat="job in $ctrl.jobs track by job.id"
-                        class="jobs__row"
-                        ng-class="{'jobs__row--selected': $ctrl.isSelected(artifact)}">
-                        <td class="jobs__icon-col">
-                            <bp-item-type-icon
-                                item-type-id="::artifact.itemTypeId"
-                                item-type-icon-id="::artifact.itemTypeIconId"
-                                predefined-type="::artifact.predefinedType"
-                                fallback="::true" class="bp-artifact-list__icon"></bp-item-type-icon>
-                        </td>
-                        <td class="jobs__id-col"><span>{{::job.id}} </span></td>
-                        <td class="jobs__name-col">{{::job.name}}</td>
-                        <td class="jobs__project-col">{{::job.projectName}}</td>
-                    </tr>
-                    <tr class="jobs__empty-row" ng-if="!$ctrl.jobsArtifacts.length">
-                        <td colspan="4" class="jobs__empty-message">{{::$ctrl.localization.get('Jobs_Empty') }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            </li>
+        </ul>                
+    </div>
+    <div class="Job__response" ng-if="$ctrl.noJobsHistory()">
+        <div class="center-item font-larger">
+            <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
         </div>
     </div>
 </div>

@@ -16,7 +16,7 @@ import {
     IUploadStatusDialogData, IUploadStatusResult
 } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {ISettingsService} from "../../../../core/configuration/settings";
-import {IImageUploadService, IImageResult} from "../../../../core/image-upload/image-upload.svc";
+import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
@@ -44,7 +44,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         "dialogService",
         "selectionManager",
         "artifactService",
-        "imageUploadService",
+        "fileUploadService",
         "settings",
         "artifactRelationships"
     ];
@@ -60,7 +60,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 dialogService: IDialogService,
                 selectionManager: ISelectionManager,
                 artifactService: IArtifactService,
-                private imageUploadService: IImageUploadService,
+                private fileUploadService: IFileUploadService,
                 private settingsService: ISettingsService,
                 artifactRelationships: IArtifactRelationships) {
 
@@ -385,9 +385,9 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
         const uploadFile = (file: File,
                             progressCallback: (event: ProgressEvent) => void,
-                            cancelPromise: ng.IPromise<void>): ng.IPromise<IImageResult> => {
+                            cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
 
-            return this.imageUploadService.uploadToFileStore(file, progressCallback, cancelPromise);
+            return this.fileUploadService.uploadImageToFileStore(file, progressCallback, cancelPromise);
         };
 
         let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);

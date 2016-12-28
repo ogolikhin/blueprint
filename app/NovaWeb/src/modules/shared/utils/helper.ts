@@ -166,8 +166,13 @@ export class Helper {
         }
     };
 
+    static hasNonTextTags(htmlText: string): boolean {
+        const nonTextTags = new RegExp(/<(img|table)>*/gi);
+        return nonTextTags.test(htmlText || "");
+    }
+
     static tagsContainText(htmlText: string): boolean {
-        let div = document.createElement("div");
+        const div = document.createElement("div");
         div.innerHTML = (htmlText || "").toString();
         let content = div.innerText.trim();
         content = content.replace(/\s/gi, ""); // remove any "spacing" characters

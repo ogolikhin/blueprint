@@ -126,6 +126,12 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;
                 selected.push(currentItemModel);
+
+                if (currentItem["parentArtifact"]) {
+                    currentItemModel.artifactTypePrefix = currentItem["parentArtifact"].prefix;
+                    currentItemModel.artifactId = currentItem["parentArtifact"].id;
+                    currentItemModel.artifactName = currentItem["parentArtifact"].name;
+                }
             }
         }
 

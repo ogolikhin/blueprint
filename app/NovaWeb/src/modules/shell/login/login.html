@@ -23,7 +23,8 @@
                            ng-attr-required='{{::$root.config.labels["Input_Required"]}}'><i class="fonticon-lock"></i>{{::$root.config.labels["Login_Password"]}}</label>
                 </div>
                 <div class="nova-form-group nova-form-beneath" ng-if="ctrl.isForgetPasswordScreenEnabled">
-                    <a href="#" ng-click="ctrl.goToForgetPasswordScreen()">{{::$root.config.labels["Login_ForgotPassword"]}}</a>
+                    <button class="btn btn-link" type="button"
+                            ng-click="ctrl.goToForgetPasswordScreen()">{{::$root.config.labels["Login_ForgotPassword"]}}</button>
                 </div>
                 <div class="nova-form-group nova-form-buttons">
                     <button class="btn btn-primary" type="button"
@@ -34,8 +35,8 @@
                     <button class="btn btn-promoted-action" type="submit" ng-disabled="ctrl.isLoginInProgress"><span
                         class="glyphicon glyphicon-refresh spin" ng-if="ctrl.isLoginInProgress"></span>{{::$root.config.labels["Login_LoginButton"]}}
                     </button>
-                    <div class="nova-login-to" ng-if="ctrl.isFederatedAuthenticationEnabled"><a href="#"
-                                                                                                ng-click="ctrl.goToSAMLScreen()">{{ctrl.samlPrompt}}</a>
+                    <div class="nova-login-to" ng-if="ctrl.isFederatedAuthenticationEnabled">
+                        <button class="btn btn-link" type="button" ng-click="ctrl.goToSAMLScreen()">{{ctrl.samlPrompt}}</button>
                     </div>
                 </div>
             </form>
@@ -52,12 +53,10 @@
                         class="fonticon-bp-actor"></i>{{::$root.config.labels["Login_Username"]}}</label>
                 </div>
                 <div class="nova-form-group nova-form-beneath">
-                    <a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_GoBackToLogin"]}}</a>
+                    <button class="btn btn-link" type="button" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_GoBackToLogin"]}}</button>
                 </div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-promoted-action" type="submit">
-                        {{::$root.config.labels["Login_ResetPassword"]}}
-                    </button>
+                    <button class="btn btn-promoted-action" type="submit">{{::$root.config.labels["Login_ResetPassword"]}}</button>
                 </div>
             </form>
         </div>
@@ -65,11 +64,9 @@
             <form name="novaLoginSAML" role="form">
                 <div class="nova-login-message"><span ng-bind-html="ctrl.SAMLScreenMessage"></span></div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-promoted-action" ng-click="ctrl.doSamlLogin()">
-                        {{::$root.config.labels["Login_Retry"]}}
-                    </button>
-                    <div class="nova-login-to"><a href="#" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_LoginPrompt"]}}</a>
-                    </div>
+                    <button class="btn btn-promoted-action" type="button" ng-click="ctrl.doSamlLogin()">{{::$root.config.labels["Login_Retry"]}}</button>
+                    <div class="nova-login-to"><button class="btn btn-link" type="button"
+                                                       ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["Login_LoginPrompt"]}}</button></div>
                 </div>
             </form>
         </div>
@@ -103,11 +100,8 @@
                     &nbsp;
                 </div>
                 <div class="nova-form-group nova-form-buttons">
-                    <button class="btn btn-primary" type="button" ng-click="ctrl.goToLoginScreen()">
-                        {{::$root.config.labels["App_Button_Cancel"]}}
-                    </button>
-                    <button class="btn btn-promoted-action" type="submit">{{::$root.config.labels["App_Button_Ok"]}}
-                    </button>
+                    <button class="btn btn-primary" type="button" ng-click="ctrl.goToLoginScreen()">{{::$root.config.labels["App_Button_Cancel"]}}</button>
+                    <button class="btn btn-promoted-action" type="submit">{{::$root.config.labels["App_Button_Ok"]}}</button>
                 </div>
             </form>
         </div>

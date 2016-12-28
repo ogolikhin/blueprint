@@ -167,7 +167,7 @@ export class BpArtifactInfoController {
         if (this.noPermissions) {
             return InfoBannerEnum.NoPermissions;
         }
-        if (this.isLocked) {
+        if (this.isLocked && !this.selfLocked) {
             return InfoBannerEnum.Locked;
         }
 

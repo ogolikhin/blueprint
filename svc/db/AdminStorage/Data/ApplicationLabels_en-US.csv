@@ -356,6 +356,17 @@ Artifact_Lock_DoesNotExist, "The artifact has been deleted or moved.<br />The Ex
 Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
 Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
 Artifact_Lock_Refresh,"This artifact has been changed on the server and will now be refreshed to the most recent version."
+Artifact_Version_NotFound,"The specified artifact version does not exist."
+Artifact_GoTo_NotAvailable,"This artifact type cannot be opened directly using the Go To feature."
+
+Artifact_InfoBanner_NoPermissions,"You have no permissions to edit this artifact."
+Artifact_InfoBanner_Locked,"Locked."
+Artifact_InfoBanner_LockedBy,"Locked by {0}."
+Artifact_InfoBanner_LockedOn,"Locked on {0}."
+Artifact_InfoBanner_LockedByOn,"Locked by {0} on {1}."
+Artifact_InfoBanner_DeletedOn,"Deleted on {0}."
+Artifact_InfoBanner_DeletedByOn,"Deleted by {0} on {1}."
+Artifact_InfoBanner_Historical,"Version {0}, published by {1} on {2}."
 
 Label_Name,"Name"
 Label_Type,"Type"

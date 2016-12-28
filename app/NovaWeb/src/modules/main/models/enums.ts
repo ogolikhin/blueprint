@@ -193,11 +193,11 @@ export enum TraceType {
     Reuse = 8
 }
 
-// Must keep enum values insync with RolePermissions enum in Raptor solution 
+// Must keep enum values insync with RolePermissions enum in Raptor solution
 // ~\blueprint-current\Source\BluePrintSys.RC.Data.AccessAPI\Model\RolePermissions.cs
 export enum RolePermissions {
     // No privileges
-    None = 0,  // = 0 | 0x0 
+    None = 0,  // = 0 | 0x0
 
     // Allows the viewing of an artifact
     Read = 1 << 0, // = 1 | 0x1

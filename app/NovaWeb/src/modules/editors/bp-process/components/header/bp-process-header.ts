@@ -19,6 +19,7 @@ import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {ISession} from "../../../../shell/login/session.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -32,6 +33,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "$element",
         "artifactManager",
         "localization",
+        "session",
         "messageService",
         "dialogService",
         "windowManager",
@@ -52,6 +54,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 $element: ng.IAugmentedJQuery,
                 artifactManager: IArtifactManager,
                 localization: ILocalizationService,
+                session: ISession,
                 messageService: IMessageService,
                 dialogService: IDialogService,
                 windowManager: IWindowManager,
@@ -71,6 +74,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             $element,
             artifactManager,
             localization,
+            session,
             messageService,
             dialogService,
             windowManager,

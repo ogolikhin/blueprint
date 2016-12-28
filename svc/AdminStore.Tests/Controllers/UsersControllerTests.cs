@@ -80,6 +80,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         public async Task GetUserIcon_RepositoryReturnsNull_NotFoundResult()
         {
             // Arrange
@@ -89,10 +90,16 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(null);
 
             // Act
-            var result = await _controller.GetUserIcon(userId);
-
-            // Assert
-            Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+            try
+            {
+                var result = await _controller.GetUserIcon(userId);
+            }
+            catch (Exception ex)
+            {
+                // Assert
+                Assert.IsInstanceOfType(ex, typeof(ResourceNotFoundException));
+                throw;
+            }
         }
 
         [TestMethod]

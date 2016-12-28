@@ -167,7 +167,7 @@ export class Helper {
     };
 
     static hasNonTextTags(htmlText: string): boolean {
-        const nonTextTags = new RegExp(/<(img|table)>*/gi);
+        const nonTextTags = new RegExp(/<(img|table)>?/gi);
         return nonTextTags.test(htmlText || "");
     }
 

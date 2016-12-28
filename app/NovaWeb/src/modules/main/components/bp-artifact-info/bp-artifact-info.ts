@@ -220,6 +220,7 @@ export class BpArtifactInfoController {
         this.isChanged = false;
         this.noPermissions = false;
         this.isDeleted = false;
+        this.deletedMessage = null;
         this.isLocked = false;
         this.selfLocked = false;
         this.lockedMessage = null;

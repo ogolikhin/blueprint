@@ -401,6 +401,19 @@ describe("BpArtifactInfo", () => {
                 expect(spy).not.toHaveBeenCalled();
             });
 
+            it("doesn't add lockedMessage if artifact is not locked", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.None;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockedMessage).toBeNull();
+            });
+
             it("sets selfLocked to true if locked by current user", () => {
                 // arrange
                 const artifact = artifactManager.selection.getArtifact();
@@ -414,6 +427,21 @@ describe("BpArtifactInfo", () => {
                 expect(controller.selfLocked).toEqual(true);
             });
 
+            it("doesn't add lockedMessage if artifact locked by current user", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.CurrentUser;
+                updatedState.lockDateTime = new Date();
+                updatedState.lockOwner = "Current User";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockedMessage).toBeNull();
+            });
+
             it("sets selfLocked to false if locked by another user", () => {
                 // arrange
                 const artifact = artifactManager.selection.getArtifact();
@@ -425,6 +453,66 @@ describe("BpArtifactInfo", () => {
 
                 // assert
                 expect(controller.selfLocked).toEqual(false);
+            });
+
+            it("adds lockedMessage if artifact locked by another user", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.OtherUser;
+                updatedState.lockDateTime = new Date();
+                updatedState.lockOwner = "Another User";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockedMessage).toBeDefined();
+                expect(controller.lockedMessage).toBe("Artifact_InfoBanner_LockedByOn");
+            });
+
+            it("adds lockedMessage if artifact locked by another user (no datetime info)", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.OtherUser;
+                updatedState.lockOwner = "Another User";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockedMessage).toBeDefined();
+                expect(controller.lockedMessage).toBe("Artifact_InfoBanner_LockedBy");
+            });
+
+            it("adds lockedMessage if artifact locked by another user (no user info)", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.OtherUser;
+                updatedState.lockDateTime = new Date();
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockedMessage).toBeDefined();
+                expect(controller.lockedMessage).toBe("Artifact_InfoBanner_LockedOn");
+            });
+
+            it("adds lockedMessage if artifact locked by another user (no additional info)", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.lockedBy = LockedByEnum.OtherUser;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.lockedMessage).toBeDefined();
+                expect(controller.lockedMessage).toBe("Artifact_InfoBanner_Locked");
             });
 
             it("sets isReadonly to true if artifact is read-only", () => {
@@ -453,6 +541,79 @@ describe("BpArtifactInfo", () => {
                 expect(controller.isReadonly).toEqual(false);
             });
 
+            it("sets isDeleted to true if artifact has been deleted", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.deleted = true;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.isDeleted).toEqual(true);
+            });
+
+            it("adds deletedMessage if artifact has been deleted (other user)", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.deleted = true;
+                updatedState.deletedById = 10;
+                updatedState.deletedDateTime = new Date();
+                updatedState.deletedByDisplayName = "Another User";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.deletedMessage).toBeDefined();
+                expect(controller.deletedMessage).toBe("Artifact_InfoBanner_DeletedByOn");
+            });
+
+            it("adds deletedMessage if artifact has been deleted (same user)", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.deleted = true;
+                updatedState.deletedById = 1;
+                updatedState.deletedDateTime = new Date();
+                updatedState.deletedByDisplayName = "Default Instance Admin";
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.deletedMessage).toBeDefined();
+                expect(controller.deletedMessage).toBe("Artifact_InfoBanner_DeletedOn");
+            });
+
+            it("sets isDeleted to false if artifact has not been deleted", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.deleted = false;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.isDeleted).toEqual(false);
+            });
+
+            it("doesn't add deletedMessage if artifact has not been deleted", () => {
+                // arrange
+                const artifact = artifactManager.selection.getArtifact();
+                const updatedState = artifact.artifactState;
+                updatedState.deleted = false;
+
+                // act
+                stateSubject.onNext(updatedState);
+
+                // assert
+                expect(controller.deletedMessage).toBeNull();
+            });
+
             it("sets isChanged to true if artifact is dirty", () => {
                 // arrange
                 const artifact = artifactManager.selection.getArtifact();
@@ -478,49 +639,6 @@ describe("BpArtifactInfo", () => {
                 // assert
                 expect(controller.isChanged).toEqual(false);
             });
-
-            // it("adds lockMessage if artifact locked by another user", () => {
-            //     // arrange
-            //     const artifact = artifactManager.selection.getArtifact();
-            //     const updatedState = artifact.artifactState;
-            //     updatedState.lockedBy = LockedByEnum.OtherUser;
-            //     updatedState.lockDateTime = new Date();
-            //     updatedState.lockOwner = "Another User";
-            //
-            //     // act
-            //     stateSubject.onNext(updatedState);
-            //
-            //     // assert
-            //     expect(controller.lockMessage).toBeDefined();
-            // });
-            //
-            // it("doesn't add lockMessage if artifact locked by current user", () => {
-            //     // arrange
-            //     const artifact = artifactManager.selection.getArtifact();
-            //     const updatedState = artifact.artifactState;
-            //     updatedState.lockedBy = LockedByEnum.CurrentUser;
-            //     updatedState.lockDateTime = new Date();
-            //     updatedState.lockOwner = "Current User";
-            //
-            //     // act
-            //     stateSubject.onNext(updatedState);
-            //
-            //     // assert
-            //     expect(controller.lockMessage).not.toBeDefined();
-            // });
-            //
-            // it("doesn't add lockMessage if artifact is not locked", () => {
-            //     // arrange
-            //     const artifact = artifactManager.selection.getArtifact();
-            //     const updatedState = artifact.artifactState;
-            //     updatedState.lockedBy = LockedByEnum.None;
-            //
-            //     // act
-            //     stateSubject.onNext(updatedState);
-            //
-            //     // assert
-            //     expect(controller.lockMessage).not.toBeDefined();
-            // });
         });
 
         describe("on property change", () => {

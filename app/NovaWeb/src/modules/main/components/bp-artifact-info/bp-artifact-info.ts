@@ -35,6 +35,7 @@ import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {ISession} from "../../../shell/login/session.svc";
 import {Enums} from "../../models";
 
@@ -68,7 +69,8 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics"
+        "analytics",
+        "collectionService"
     ];
 
     protected subscribers: Rx.IDisposable[] = [];
@@ -113,7 +115,8 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected analytics: IAnalyticsProvider) {
+                protected analytics: IAnalyticsProvider,
+                protected collectionService: ICollectionService) {
         this.initProperties();
 
         this.breadcrumbLinks = [];
@@ -352,7 +355,7 @@ export class BpArtifactInfoController {
         const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
         const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
-            this.dialogService, this.navigationService, this.loadingOverlayService);
+            this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar

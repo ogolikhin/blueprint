@@ -23,6 +23,7 @@ import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
 import {ItemTypePredefined, LockedByEnum, RolePermissions} from "../../../main/models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
+import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
 import {SessionSvcMock} from "../../../shell/login/mocks.spec";
 
 describe("BpArtifactInfo", () => {
@@ -102,6 +103,7 @@ describe("BpArtifactInfo", () => {
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("analytics", () => analytics);
+        $provide.service("collectionService", CollectionServiceMock);
     }));
 
     beforeEach(inject((

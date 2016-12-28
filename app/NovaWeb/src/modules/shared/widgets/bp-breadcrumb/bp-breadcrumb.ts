@@ -12,12 +12,12 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
 }
 
 export interface IBPBreadcrumbController {
-    links: IBreadcrumbLink[];
+    breadcrumbs: IBreadcrumbLink[];
     trackPath: boolean;
 }
 
 export class BPBreadcrumbController implements IBPBreadcrumbController {
-    public links: IBreadcrumbLink[];
+    public breadcrumbs: IBreadcrumbLink[];
     public trackPath: boolean;
 
     public static $inject: [string] = [
@@ -27,12 +27,12 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
     constructor(private navigationService: INavigationService) {
     }
 
-    public $onInit() {
-        this.links = angular.isDefined(this.links) ? this.links : [];
+    public $onDestroy() {
+        this.breadcrumbs = undefined;
     }
 
-    public $onDestroy() {
-        this.links = undefined;
+    public $onChanges(changesObj: any) {
+        this.breadcrumbs = changesObj && changesObj.links && changesObj.links.currentValue || [];
     }
 
     public getNavigationParams(link: IBreadcrumbLink, pathIndex: number): INavigationState {

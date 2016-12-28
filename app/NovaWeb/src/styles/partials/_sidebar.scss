@@ -155,6 +155,27 @@ bp-sidebar-layout {
     }
 }
 
+.explorer__jobs {
+    background-color: $blue-lightest;
+    text-align: left;
+    border-radius: 0;
+    height: 33px;
+    line-height: 33px;
+    padding: 0 10px;
+
+    &:focus, &:active:focus, &:hover {
+        color: $link-color;
+        text-decoration: none;
+        outline: none;
+        background: $blue-lightest;
+        outline-offset: initial;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
 .explorer__empty-state {
     padding: 30px 10px;
     text-align: center;

@@ -1,4 +1,4 @@
-import {BPButtonAction, IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
+import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";

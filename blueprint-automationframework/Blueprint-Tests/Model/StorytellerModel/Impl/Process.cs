@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -1511,8 +1512,8 @@ namespace Model.StorytellerModel.Impl
             PropertyValues = new Dictionary<string, PropertyValueInformation>();
         }
 
-        /// <seealso cref="IProcessShape.AddAssociatedArtifact(NovaArtifactDetails)"/>
-        public ArtifactReference AddAssociatedArtifact(NovaArtifactDetails artifact)
+        /// <seealso cref="IProcessShape.AddAssociatedArtifact(INovaArtifactDetails)"/>
+        public ArtifactReference AddAssociatedArtifact(INovaArtifactDetails artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -1533,8 +1534,8 @@ namespace Model.StorytellerModel.Impl
             return AssociatedArtifact;
         }
 
-        /// <seealso cref="IProcessShape.AddPersonaReference(NovaArtifactDetails)"/>
-        public ArtifactReference AddPersonaReference(NovaArtifactDetails artifact = null)
+        /// <seealso cref="IProcessShape.AddPersonaReference(INovaArtifactDetails)"/>
+        public ArtifactReference AddPersonaReference(INovaArtifactDetails artifact = null)
         {
             if (artifact?.PredefinedType != null && artifact.ProjectId != null)
             {

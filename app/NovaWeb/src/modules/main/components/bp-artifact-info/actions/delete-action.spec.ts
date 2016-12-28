@@ -331,7 +331,6 @@ describe("DeleteAction", () => {
                 return deferred.promise;
             });
 
-
             deleteAction.execute();
             $scope.$digest();
 

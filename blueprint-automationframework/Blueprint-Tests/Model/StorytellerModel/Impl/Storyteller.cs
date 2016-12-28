@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -42,10 +41,11 @@ namespace Model.StorytellerModel.Impl
         public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
+            var artifactIds = deletedArtifactIds as int[] ?? deletedArtifactIds.ToArray();
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(Storyteller.NotifyArtifactDeletion), string.Join(", ", deletedArtifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactDeletion), string.Join(", ", artifactIds));
 
-            foreach (var deletedArtifactId in deletedArtifactIds)
+            foreach (var deletedArtifactId in artifactIds)
             {
                 Artifacts.ForEach(a =>
                 {
@@ -65,10 +65,11 @@ namespace Model.StorytellerModel.Impl
         public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
+            var artifactIds = publishedArtifactIds as int[] ?? publishedArtifactIds.ToArray();
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(Storyteller.NotifyArtifactPublish), String.Join(", ", publishedArtifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactPublish), String.Join(", ", artifactIds));
 
-            foreach (var publishedArtifactId in publishedArtifactIds)
+            foreach (var publishedArtifactId in artifactIds)
             {
                 Artifacts.ForEach(a =>
                 {
@@ -162,7 +163,7 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -194,9 +195,8 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
-            List<StorytellerUserStory> userstoryResults = null;
 
-            userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+            var userstoryResults =  restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
                 path,
                 RestRequestMethod.POST,
                 additionalHeaders: additionalHeaders,
@@ -521,19 +521,10 @@ namespace Model.StorytellerModel.Impl
         {
             get
             {
-                using (IDatabase database = DatabaseFactory.CreateDatabase())
-                {
-                    database.Open();
-                    string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'",
+                string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'",
                         Storyteller.APPLICATION_SETTINGS_TABLE, Storyteller.STORYTELLER_LIMIT_KEY);
-
-                    Logger.WriteDebug("Running: {0}", query);
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        var result = cmd.ExecuteScalar();
-                        return ParseStorytellerLimitFromDb(result);
-                    }
-                }
+                var result = DatabaseHelper.ExecuteSingleValueSqlQuery<object>(query, "Value");
+                return ParseStorytellerLimitFromDb(result);
             }
         }
 
@@ -626,7 +617,7 @@ namespace Model.StorytellerModel.Impl
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcessArtifacts));
 
-            return Artifact.PublishArtifacts(
+            return ArtifactBase.PublishArtifacts(
                 artifactsToPublish, 
                 address, 
                 user, 
@@ -713,7 +704,7 @@ namespace Model.StorytellerModel.Impl
 
             return restResponse;
         }
-
+        
         /// <summary>
         /// Parses the result from the database to an int value for Storyteller shape limit
         /// </summary>
@@ -733,6 +724,7 @@ namespace Model.StorytellerModel.Impl
                     STORYTELLER_LIMIT_KEY, APPLICATION_SETTINGS_TABLE);
             throw new ArgumentNullException(errorMessage);
         }
+        
         #endregion Private Methods
 
     }

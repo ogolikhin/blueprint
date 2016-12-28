@@ -18,6 +18,7 @@ import {ILocalizationService} from "../../core/localization/localizationService"
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
+import {Enums} from "../../main/models";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -222,7 +223,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                     const vm = params.data as CollectionNodeVM;
                     const prefix = Helper.escapeHTMLText(vm.model.prefix);
                     const icon = vm.getIcon();
-                    return `${icon} <a ui-sref="main.item({id: ${vm.model.id}})" ui-sref-opts="{inherit: false}" 
+                    return `${icon} <a ui-sref="main.item({id: ${vm.model.id}})" ui-sref-opts="{inherit: false}"
                                        class="collection__link">${prefix}${vm.model.id}</a>`;
                 }
             },
@@ -338,6 +339,10 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             collectionArtifact.removeArtifacts(artifactsToBeDeleted);
             this.selectedVMs.length = 0;
         });
+    }
+
+    public hasRequiredPermissions(): boolean {
+        return Helper.hasDesiredPermissions(this.artifact, Enums.RolePermissions.CreateRapidReview);
     }
 }
 

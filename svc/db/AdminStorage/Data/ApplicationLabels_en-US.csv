@@ -359,7 +359,7 @@ Artifact_Lock_Refresh,"This artifact has been changed on the server and will now
 Artifact_Version_NotFound,"The specified artifact version does not exist."
 Artifact_GoTo_NotAvailable,"This artifact type cannot be opened directly using the Go To feature."
 
-Artifact_InfoBanner_NoPermissions,"You have no permissions to edit this artifact."
+Artifact_InfoBanner_NoPermissions,"You do not have permission to edit this artifact."
 Artifact_InfoBanner_Locked,"Locked."
 Artifact_InfoBanner_LockedBy,"Locked by {0}."
 Artifact_InfoBanner_LockedOn,"Locked on {0}."

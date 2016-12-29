@@ -1253,7 +1253,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Fail
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Refresh', 'en-US', N'This artifact has been changed on the server and will now be refreshed to the most recent version.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Version_NotFound', 'en-US', N'The specified artifact version does not exist.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_GoTo_NotAvailable', 'en-US', N'This artifact type cannot be opened directly using the Go To feature.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_NoPermissions', 'en-US', N'You have no permissions to edit this artifact.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_NoPermissions', 'en-US', N'You do not have permission to edit this artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_Locked', 'en-US', N'Locked.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedBy', 'en-US', N'Locked by {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedOn', 'en-US', N'Locked on {0}.')

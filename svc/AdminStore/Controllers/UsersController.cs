@@ -93,7 +93,7 @@ namespace AdminStore.Controllers
                 var imageContent = await _userRepository.GetUserIconByUserIdAsync(userId);
                 if (imageContent == null)
                 {
-                    throw new ResourceNotFoundException($"User does not exist with UserId: {userId}");
+                    throw new ResourceNotFoundException($"User does not exist with UserId: {userId}", ErrorCodes.ResourceNotFound);
                 }
                 if (imageContent.Content == null)
                 {

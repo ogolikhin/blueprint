@@ -549,7 +549,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetJobs(IUser, int?, int?, JobType?, List{HttpStatusCode})"/>
-        public List<IJobInfo> GetJobs (IUser user, int? page, int? pageSize, JobType? jobType, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<IJobInfo> GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobs));
 

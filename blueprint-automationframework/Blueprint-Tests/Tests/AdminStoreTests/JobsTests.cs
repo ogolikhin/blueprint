@@ -16,7 +16,7 @@ namespace CommonServiceTests
     {
         private IProject _project = null;
         private IUser _adminUser = null;
-        //private IUser _authorUser = null;
+        //private IUser _authorUser = null; // TODO add test cases using this
 
         #region Setup and Cleanup
 
@@ -28,6 +28,7 @@ namespace CommonServiceTests
             _project = ProjectFactory.GetProject(_adminUser);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
             //_authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            // TODO add test cases using this
         }
 
         [TestFixtureTearDown]
@@ -55,11 +56,17 @@ namespace CommonServiceTests
             // Create a change summary job
             OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, projectCustomData, baselineArtifactId, almTarget.Id);
 
-            // Execute:
+            // Execute: TODO add proper handling
             Helper.AdminStore.GetJobs(_adminUser, page: null, pageSize: null, jobType: null/*Model.JobModel.Enums.JobType.HpAlmRestChangeSummary*/);
-            // Verify:
+            // Verify: TODO add proper validation
         }
 
         #endregion 200 OK Tests
+
+        #region private functions
+        
+
+        #endregion private functions
+
     }
 }

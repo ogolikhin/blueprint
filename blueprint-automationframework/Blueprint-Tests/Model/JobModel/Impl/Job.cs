@@ -21,7 +21,7 @@ namespace Model.JobModel.Impl
         public int? UserId { get; set; }
         public string UserDisplayName { get; set; }
         public string JobServerName { get; set; }
-        public string Progress { get; set; } //decimal
+        public string Progress { get; set; }
         public string JobOutput { get; set; }
         public bool IsJobMarkedForCancellation { get; set; }
         public int? ProjectId { get; set; }
@@ -62,9 +62,9 @@ namespace Model.JobModel.Impl
         #region properties
         public int JobId { get; set; }
 
-        public JobStatus Status { get; set; } //JobStatus
+        public JobStatus Status { get; set; }
 
-        public JobType JobType { get; set; } //JobType
+        public JobType JobType { get; set; }
 
         public string Project { get; set; }
 
@@ -80,7 +80,7 @@ namespace Model.JobModel.Impl
 
         public string Server { get; set; }
 
-        public string Progress { get; set; } //decimal
+        public string Progress { get; set; }
 
         public string Output { get; set; }
 
@@ -98,10 +98,19 @@ namespace Model.JobModel.Impl
     {
         #region Constructors
 
+        /// <summary>
+        /// Constructor needed to deserialize it as generic type.
+        /// </summary>
         public AlmJob()
         {
-            // this is for deserialization
         }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="address">The URI address of the artifact.</param>
+        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
+        /// <param name="project">The project where ALM Job belong to.</param>
 
         public AlmJob(AlmJobType almJobType, int baselineOrReviewId, IProject project)
         {

@@ -18,11 +18,17 @@ namespace Model.Impl
         public Uri Url { get; set; }
         public string Domain { get; set; }
         public string Project { get; set; }
-        
+
         #endregion projerties
 
         #region static methods
 
+        /// <summary>
+        /// Get available ALM targets available from the project using the specified user.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the ALM targets exist.</param>
+        /// <returns>The ALM targets available for the project authenticated to the specified user.</returns>
         public static List<IAlmTarget> GetAlmTargets (string address,
             IUser user,
             IProject project,

@@ -18,7 +18,7 @@
             </div>
         </div>
     </div>
-    <div class="jobs-ul" ng-if="!$ctrl.noJobsHistory()">
+    <div class="jobs-ul" ng-if="!$ctrl.isJobsEmpty()">
         <ul class="list-unstyled">
             <li class="jobs__results--item"
                 ng-repeat="item in $ctrl.jobs track by $index">
@@ -71,7 +71,7 @@
             </li>
         </ul>                
     </div>
-    <div class="Job__response" ng-if="$ctrl.noJobsHistory()">
+    <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
         <div class="center-item font-larger">
             <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
         </div>

@@ -44,7 +44,7 @@ export class JobsController {
         this.isLoading = false;
     };
 
-    public noJobs(): boolean {
+    public isJobsEmpty(): boolean {
         return this.jobs.length === 0;
     }
      

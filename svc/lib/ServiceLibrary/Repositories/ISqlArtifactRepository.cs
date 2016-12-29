@@ -20,5 +20,7 @@ namespace ServiceLibrary.Repositories
             bool includeArtifactItself = true,
             int? revisionId = null,
             bool addDraft = true);
+
+        Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIds(IEnumerable<int> projectIds);
     }
 }

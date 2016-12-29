@@ -534,7 +534,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="project">The project where the artifact exists.</param>
         /// <param name="user">A user to authenticate with.</param>
         /// <param name="skipNullValues">(optional) If true (the default) it doesn't replace properties if the value of the sourceArtifact property is null.</param>
-        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(NovaArtifactDetails sourceArtifact,
+        public void ReplacePropertiesWithPropertiesFromSourceArtifactDetails(INovaArtifactDetails sourceArtifact,
             IProject project,
             IUser user,
             bool skipNullValues = true)

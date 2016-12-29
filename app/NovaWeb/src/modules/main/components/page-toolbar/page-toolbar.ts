@@ -46,6 +46,7 @@ export class PageToolbarController implements IPageToolbarController {
 
     static $inject = [
         "$q",
+        "$state",
         "localization",
         "dialogService",
         "projectManager",
@@ -58,6 +59,7 @@ export class PageToolbarController implements IPageToolbarController {
     ];
 
     constructor(private $q: ng.IQService,
+                private $state: ng.ui.IStateService,
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
@@ -313,8 +315,11 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     private confirmPublishAll(data: Models.IPublishResultSet) {
-        const selectedProjectId: number = this.projectManager.getSelectedProjectId();
-        this.dialogService.open(<IDialogSettings>{
+        if (this.$state.current.name === "main.unpublished") {
+            this.publishAllInternal(data);
+        } else {
+            const selectedProjectId: number = this.projectManager.getSelectedProjectId();
+            this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Publish_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
                 message: this.localization.get("Publish_All_Dialog_Message"),
@@ -331,6 +336,7 @@ export class PageToolbarController implements IPageToolbarController {
             .then(() => {
                 this.publishAllInternal(data);
             });
+        }
     }
 
     private closeProjectInternal(currentProjectId: number): ng.IPromise<any> {
@@ -417,9 +423,9 @@ export class PageToolbarController implements IPageToolbarController {
 
                 // If the current artifact has never been published, navigate back to the main page;
                 // otherwise, refresh all
-                if (!this.isProjectOpened && statefulArtifact.version === -1) {
+                if (!this.isProjectOpened && statefulArtifact && statefulArtifact.version === -1) {
                     this.navigationService.navigateToMain(true);
-                } else {          
+                } else {
                     this.refreshAll();
                 }
 

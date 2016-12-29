@@ -424,14 +424,12 @@ namespace Model.Impl
             return project;
         }
 
-        /// <seealso cref="IAdminStore.GetUserIcon(int, IUser, List{HttpStatusCode})"/>
-        public IFile GetUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
+        public IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             IFile file = null;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.ICON, userId);
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var response = restApi.SendRequestAndGetResponse(
                 path,
@@ -440,19 +438,16 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var contentDisposition = new ContentDisposition(
-                    response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString());
-                string filename = HttpUtility.UrlDecode(contentDisposition.FileName);
-
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
-                    LastModifiedDate =
-                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null),
-                    FileType = response.ContentType,
-                    FileName = filename
+                    FileType = response.ContentType
                 };
+            }
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Assert.IsEmpty(response.Content, "Response body contains data, even though Status Code was 204 No Content!");
             }
 
             return file;

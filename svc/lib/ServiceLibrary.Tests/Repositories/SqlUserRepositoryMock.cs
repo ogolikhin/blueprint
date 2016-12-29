@@ -48,5 +48,9 @@ namespace ServiceLibrary.Repositories
                                 IsGuest = false
                            }});
         }
+        public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
+        {
+            return await Task.FromResult(true);
+        }
     }
 }

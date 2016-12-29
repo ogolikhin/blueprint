@@ -125,7 +125,7 @@ export class MentionService implements IMentionService, ITinyMceMentionOptions<I
             iconToRender = `<img src="/novaweb/static/images/icons/user-email.svg" height="25" width="25"/>`;
             boldName = true;
         } else {
-            iconToRender = `<bp-avatar icon="" name="${person.name}" color-base="${person.id}${person.name}"></bp-avatar>`;
+            iconToRender = `<bp-avatar user-id="${person.id}" user-name="${person.name}"></bp-avatar>`;
             boldName = true;
         }
         if (person.id) {

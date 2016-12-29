@@ -654,11 +654,14 @@ namespace Helper
         /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
         /// <param name="subArtifacts">(optional) The subartifacts to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null, List<NovaSubArtifact> subArtifacts = null)
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails,
+            List<CustomProperty> customProperties = null,
+            List<CustomProperty> specificProperties = null,
+            List<NovaSubArtifact> subArtifacts = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 
-            NovaArtifactDetails changesetDetails = new NovaArtifactDetails
+            var changesetDetails = new NovaArtifactDetails
             {
                 Id = artifactDetails.Id,
                 ProjectId = artifactDetails.ProjectId
@@ -1109,26 +1112,7 @@ namespace Helper
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
 
-            using (var database = DatabaseFactory.CreateDatabase())
-            {
-                database.Open();
-                string query = selectQuery;
-
-                Logger.WriteDebug("Running: {0}", query);
-
-                using (var cmd = database.CreateSqlCommand(query))
-                using (var sqlDataReader = cmd.ExecuteReader())
-                {
-                    if (sqlDataReader.Read())
-                    {
-                        string value = DatabaseUtilities.GetValueOrDefault<string>(sqlDataReader, "Value");
-                        Logger.WriteInfo("Read database ApplicationSetting key='{0}': value='{1}'", key, value);
-                        return value;
-                    }
-
-                    throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
-                }
-            }
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "Value");
         }
 
         /// <summary>

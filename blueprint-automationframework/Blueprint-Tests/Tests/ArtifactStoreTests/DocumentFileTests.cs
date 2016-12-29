@@ -119,7 +119,7 @@ namespace ArtifactStoreTests
         private void UpdateDocumentFile_CanGetAttachment(IUser user, IArtifact artifact, INovaFile file)
         {
             // Setup:
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
             DocumentFileValue testFileValue = new DocumentFileValue();
 
             testFileValue.FileExtension = "xls";//TODO - replace with param
@@ -128,7 +128,7 @@ namespace ArtifactStoreTests
             testFileValue.FilePath = file.UriToFile.OriginalString;
             artifactDetails.DocumentFile = testFileValue;
 
-            NovaArtifactDetails updateResult = null;
+            INovaArtifactDetails updateResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, address: Helper.BlueprintServer.Address),
@@ -148,11 +148,11 @@ namespace ArtifactStoreTests
         private void DeleteDocumentFile_CheckAttachmentIsEmpty(IUser user, IArtifact artifact)
         {
             // Setup:
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
             DocumentFileValue testFileValue = null;
             artifactDetails.DocumentFile = testFileValue;
 
-            NovaArtifactDetails updateResult = null;
+            INovaArtifactDetails updateResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails,

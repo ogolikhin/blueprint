@@ -17,6 +17,7 @@ namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("users")]
+    [BaseExceptionFilter]
     public class UsersController : ApiController
     {
         internal readonly IAuthenticationRepository _authenticationRepository;
@@ -83,7 +84,7 @@ namespace AdminStore.Controllers
         /// <response code="404">Not Found. The user with the provided ID was not found.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("{userId:int:min(1)}/icon"), SessionRequired]
+        [Route("{userId:int:min(1)}/icon"), SessionRequired(true)]
         [ResponseType(typeof(byte[]))]
         public async Task<HttpResponseMessage> GetUserIcon(int userId)
         {
@@ -92,7 +93,7 @@ namespace AdminStore.Controllers
                 var imageContent = await _userRepository.GetUserIconByUserIdAsync(userId);
                 if (imageContent == null)
                 {
-                    throw new ResourceNotFoundException($"User does not exist with UserId: {userId}");
+                    throw new ResourceNotFoundException($"User does not exist with UserId: {userId}", ErrorCodes.ResourceNotFound);
                 }
                 if (imageContent.Content == null)
                 {
@@ -102,10 +103,6 @@ namespace AdminStore.Controllers
                 var httpResponseMessage = Request.CreateResponse(HttpStatusCode.OK);
                 httpResponseMessage.Content = ImageHelper.CreateByteArrayContent(imageContent.Content);
                 return httpResponseMessage;
-            }
-            catch (ResourceNotFoundException)
-            {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
             }
             catch (Exception ex)
             {

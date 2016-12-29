@@ -1,0 +1,64 @@
+@import "./../../../styles/settings/colors";
+
+.jobs {
+    width: 100%;
+    border-left: 1px solid $gray-lighter;
+    border-right: 1px solid $gray-lighter;
+    font-size: 1.2rem;
+}
+
+.jobs__checkbox-col {
+    padding: 8px 25px;
+    width: 20px;
+}
+
+.jobs__icon-col {
+    padding: 8px 0;
+    width: 10px;
+}
+
+.jobs__id-col {
+    padding: 8px 0;
+    white-space: nowrap;
+}
+
+.jobs__name-col,
+.jobs__project-col {
+    padding: 8px 25px;
+}
+
+.jobs__header {
+    background: $gray-dark;
+    color: $white;
+}
+
+.jobs__body {
+    background: $white;
+}
+
+.jobs__row {
+    border-bottom: 1px solid $gray-lighter;
+}
+
+.jobs__row--selected {
+    background: $tree-hover-background;
+}
+
+.jobs__empty-row {
+    color: $gray-light;
+    text-align: center;
+    @extend .jobs__row;
+}
+
+.jobs__empty-message {
+    padding: 8px 25px;
+}
+
+.jobs__response {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: $gray-dark;
+    overflow: auto;
+}

@@ -15,6 +15,8 @@ import {IArtifact} from "../../../models/models";
 import {DiscardArtifactsAction} from "./discard-artifacts-action";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
+import {IDialogService} from "../../../../shared/";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 
 describe("DiscardArtifactsAction", () => {
     let $q: ng.IQService;
@@ -24,6 +26,7 @@ describe("DiscardArtifactsAction", () => {
     let messageService: IMessageService;
     let publishService: IUnpublishedArtifactsService;
     let projectManager: IProjectManager;
+    let dialogService: IDialogService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("publishService", UnpublishedArtifactsService);
@@ -31,6 +34,7 @@ describe("DiscardArtifactsAction", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("dialogService", DialogServiceMock);
     }));
 
     beforeEach(inject((_$q_: ng.IQService,
@@ -39,7 +43,8 @@ describe("DiscardArtifactsAction", () => {
                        _publishService_: IUnpublishedArtifactsService,
                        _loadingOverlayService_: ILoadingOverlayService,
                        _projectManager_: IProjectManager,
-                       _$timeout_: ng.ITimeoutService) => {
+                       _$timeout_: ng.ITimeoutService,
+                       _dialogService_: IDialogService) => {
         $q = _$q_;
         $timeout = _$timeout_;
         messageService = _messageService_;
@@ -47,17 +52,18 @@ describe("DiscardArtifactsAction", () => {
         publishService = _publishService_;
         projectManager = _projectManager_;
         loadingOverlayService = _loadingOverlayService_;
+        dialogService = _dialogService_;
     }));
 
     it("throws exception when localization is null", () => {
-        expect(() => new DiscardArtifactsAction(publishService, null, messageService, loadingOverlayService, projectManager))
+        expect(() => new DiscardArtifactsAction(publishService, null, messageService, loadingOverlayService, projectManager, dialogService))
             .toThrow(new Error("Localization service not provided or is null"));
     });
 
     it("is disabled when no artifacts are provided", () => {
         // arrange
         const artifacts = [];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, dialogService);
 
         // act
         action.updateList(artifacts);
@@ -69,7 +75,7 @@ describe("DiscardArtifactsAction", () => {
     it("is enabled when artifacts are provided", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, dialogService);
 
         // act
         action.updateList(artifacts);
@@ -81,7 +87,7 @@ describe("DiscardArtifactsAction", () => {
     it("calls discard and refreshes projects (if project loaded) when successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, dialogService);
         action.updateList(artifacts);
 
         const discardSpy = spyOn(publishService, "discardArtifacts").and.returnValue($q.resolve({
@@ -107,7 +113,7 @@ describe("DiscardArtifactsAction", () => {
     it("calls discard and doesn't refresh projects (if no project loaded) when successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, dialogService);
         action.updateList(artifacts);
 
         const discardSpy = spyOn(publishService, "discardArtifacts").and.returnValue($q.resolve({
@@ -133,7 +139,7 @@ describe("DiscardArtifactsAction", () => {
     it("reloads unpublished artifacts and shows error when un-successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager);
+        const action = new DiscardArtifactsAction(publishService, localization, messageService, loadingOverlayService, projectManager, dialogService);
         action.updateList(artifacts);
 
         const publishSpy = spyOn(publishService, "discardArtifacts").and.returnValue($q.reject("error"));

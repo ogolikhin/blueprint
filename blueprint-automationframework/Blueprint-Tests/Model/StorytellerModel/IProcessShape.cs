@@ -79,14 +79,14 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="artifact">The Nova artifact to add</param>
         /// <returns>The artifact reference to the associated artifact</returns>
-        ArtifactReference AddAssociatedArtifact(NovaArtifactDetails artifact);
+        ArtifactReference AddAssociatedArtifact(INovaArtifactDetails artifact);
 
         /// <summary>
         /// Add Persona Reference to Process Shape
         /// </summary>
         /// <param name="artifact">The Nova artifact to add</param>
         /// <returns>The artifact reference to the persona</returns>
-        ArtifactReference AddPersonaReference(NovaArtifactDetails artifact);
+        ArtifactReference AddPersonaReference(INovaArtifactDetails artifact);
 
         /// <summary>
         /// Adds a default Persona reference (User or System).

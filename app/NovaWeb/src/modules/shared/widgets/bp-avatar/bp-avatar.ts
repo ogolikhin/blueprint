@@ -1,30 +1,35 @@
-export class BPAvatar implements ng.IComponentOptions {
+export class BPAvatarComponent implements ng.IComponentOptions {
     public template: string = require("./bp-avatar.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPAvatarController;
     public bindings: any = {
-        icon: "@?",
-        name: "@",
-        // use this string to generate bg-color
-        colorBase: "@?"
+        userId: "<",
+        userName: "@",
+        isGuest: "<?"
     };
 }
 
 export class BPAvatarController {
-    public static $inject: [string] = ["$log"];
-
     // bindings vars
+    private userId: number;
+    private userName: string;
+    private isGuest: boolean;
+
     public icon: string;
     public name: string;
-    public colorBase: string;
-
+    public guest: boolean;
     public background: string;
     public initials: string;
     public initialsColor: string;
 
-    constructor(private $log: ng.ILogService) {
-        this.background = this.getAvatarBg(this.colorBase || this.name);
+    constructor() {
+        const id = this.userId ? this.userId.toString() : "";
+        const colorBase: string = id + this.userName;
+        this.name = this.userName;
+        this.icon = `/svc/adminstore/users/${this.userId}/icon`;
+        this.guest = !!this.isGuest;
+        this.background = this.getAvatarBg(colorBase);
         this.initials = this.getAvatarInitials(this.name);
-        this.initialsColor = this.getAvatarInitialsColor(this.colorBase || this.name);
+        this.initialsColor = this.getAvatarInitialsColor(colorBase);
     }
 
     public getAvatarBg(name: string): string {
@@ -32,7 +37,7 @@ export class BPAvatarController {
     }
 
     public getAvatarInitials(name: string): string {
-        let userNames: string[] = name.trim().split(" ");
+        const userNames: string[] = name.trim().split(" ");
         let user: string = "";
 
         // only keep first and last words in the name, remove middle names

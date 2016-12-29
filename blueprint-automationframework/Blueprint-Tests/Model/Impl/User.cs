@@ -5,7 +5,8 @@ using System.Linq;
 using Common;
 using Model.Factories;
 using Utilities;
-using Newtonsoft.Json;
+using NUnit.Framework;
+using System.Data;
 
 namespace Model.Impl
 {
@@ -147,6 +148,26 @@ namespace Model.Impl
         }
 
         /// <summary>
+        ///  Adds an icon for user
+        /// </summary>
+        /// <param name="userId">User Id to which icon will be added</param>
+        /// <param name="value">Icon row data</param>
+        public void SetUserIcon(int userId, byte[] value)
+        {
+            string query = "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)";
+            int rowsAffected = ExecuteInsertBinarySqlQuery(query, value);
+            Assert.IsTrue(rowsAffected == 1, "The record was not inserted!");
+
+            query = "SELECT ImageId FROM [Blueprint].[dbo].[Images] WHERE Content = @Content";
+            int imageId = ExecuteSelectBinarySqlQuery(query, value);
+            Assert.IsTrue(imageId > 0, "The record was not inserted!");
+
+            query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, userId);
+            rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            Assert.IsTrue(rowsAffected == 1, "Updated more than one row in Users table!");
+        }
+
+        /// <summary>
         /// Returns this object as a string.
         /// </summary>
         /// <returns>A string representation of this object.</returns>
@@ -201,6 +222,107 @@ namespace Model.Impl
         }
 
         #endregion Methods
+
+        #region Private functions
+
+        /// <summary>
+        /// Executes insert binary data into row and verifies the row was inserted
+        /// Example: "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)"
+        /// </summary>
+        /// <param name="insertQuery">SQL query to insert data</param>
+        /// <param name="value">Actual binary data to insert</param>
+        /// <returns>Amount of records inserted<</returns>
+        private static int ExecuteInsertBinarySqlQuery(string insertQuery, byte[] value)
+        {
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                Logger.WriteDebug("Running: {0}", insertQuery);
+
+                using (var cmd = database.CreateSqlCommand(insertQuery))
+                {
+                    SqlParameter param = cmd.Parameters.Add("@Content", SqlDbType.VarBinary);
+                    param.Value = value;
+
+                    cmd.ExecuteNonQuery();
+
+                    using (var sqlDataReader = cmd.ExecuteReader())
+                    {
+                        if (sqlDataReader.RecordsAffected <= 0)
+                        {
+                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", insertQuery));
+                        }
+                        return sqlDataReader.RecordsAffected;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Executes select query using binary content to find out image id
+        /// Example: "SELECT ImageId FROM [Blueprint].[dbo].[Images] WHERE Content = @Content"
+        /// </summary>
+        /// <param name="selectQuery">SQL select query</param>
+        /// <param name="content">Binary content to request</param>
+        /// <returns>Image id</returns>
+        public static int ExecuteSelectBinarySqlQuery(string selectQuery, byte[] content)
+        {
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                Logger.WriteDebug("Running: {0}", selectQuery);
+
+                using (var cmd = database.CreateSqlCommand(selectQuery))
+                {
+                    SqlParameter param = cmd.Parameters.Add("@Content", SqlDbType.VarBinary);
+                    param.Value = content;
+
+                    cmd.ExecuteNonQuery();
+
+                    using (var sqlDataReader = cmd.ExecuteReader())
+                    {
+                        if (sqlDataReader.Read())
+                        {
+                            return DatabaseUtilities.GetValueOrDefault<int>(sqlDataReader, "ImageId");
+                        }
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", selectQuery));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Executes update query and returns number of rows affected
+        /// Example: "UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}"
+        /// </summary>
+        /// <param name="updatetQuery">SQL update query</param>
+        /// <returns>Amount of records affected</returns>
+        public static int ExecuteUpdateBinarySqlQuery(string updateQuery)
+        {
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                Logger.WriteDebug("Running: {0}", updateQuery);
+
+                using (var cmd = database.CreateSqlCommand(updateQuery))
+                {
+                    cmd.ExecuteNonQuery();
+
+                    using (var sqlDataReader = cmd.ExecuteReader())
+                    {
+                        if (sqlDataReader.RecordsAffected <= 0)
+                        {
+                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
+                        }
+                        return sqlDataReader.RecordsAffected;
+                    }
+                }
+            }
+        }
+        #endregion Private function
     }
 
     public class DatabaseUser : User, IDatabaseUser
@@ -383,7 +505,6 @@ namespace Model.Impl
             return str;
         }
     }
-
 
     public class WindowsUser : User, IWindowsUser
     {

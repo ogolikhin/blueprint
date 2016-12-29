@@ -223,8 +223,8 @@ namespace ArtifactStoreTests
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, author, artifactType, numberOfArtifacts); 
   
             for (int i = 0; i < numberOfArtifacts; i++) 
-            { 
-                NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, publishedArtifacts[i].Id);
+            {
+                var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, publishedArtifacts[i].Id);
 
                 string requestBody = JsonConvert.SerializeObject(artifactDetails);
                 requestBody = requestBody.Replace(toChange, changeTo);
@@ -267,7 +267,7 @@ namespace ArtifactStoreTests
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, author, artifactType, numberOfArtifacts);
             IArtifact firstArtifact = (IArtifact)publishedArtifacts[0];
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, firstArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, firstArtifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
             requestBody = requestBody.Replace(toChange, changeTo);

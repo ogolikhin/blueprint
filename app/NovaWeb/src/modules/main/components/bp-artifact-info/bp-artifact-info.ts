@@ -31,11 +31,20 @@ import {
     AddToCollectionAction
 } from "./actions";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {Message, MessageType} from "../../../core/messages/message";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
+import {Enums} from "../../models";
+
+enum InfoBannerEnum {
+    None = 0,
+    Historical = 1,
+    Deleted = 2,
+    Locked = 3,
+    NoPermissions = 4
+}
 
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
@@ -58,17 +67,26 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics"
+        "analytics",
+        "collectionService"
     ];
 
     protected subscribers: Rx.IDisposable[] = [];
     protected artifact: IStatefulArtifact;
     public breadcrumbLinks: IBreadcrumbLink[];
-    public isReadonly: boolean;
-    public isChanged: boolean;
-    public lockMessage: Message;
-    public selfLocked: boolean;
+
     public isLegacy: boolean;
+    public isReadonly: boolean;
+    public noPermissions: boolean;
+    public isDeleted: boolean;
+    public deletedMessage: string;
+    public isChanged: boolean;
+    public isLocked: boolean;
+    public selfLocked: boolean;
+    public lockedMessage: string;
+    public isHistorical: boolean;
+    public historicalMessage: string;
+
     public artifactName: string;
     public artifactType: string;
     public artifactClass: string;
@@ -80,7 +98,6 @@ export class BpArtifactInfoController {
     public collapsedToolbarActions: IBPAction[] = [];
     public additionalMenuActions: IBPButtonOrDropdownAction[] = [];
     public isToolbarCollapsed: boolean = true;
-    public historicalMessage: string;
 
     constructor(public $q: ng.IQService,
                 public $scope: ng.IScope,
@@ -95,7 +112,8 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected analytics: IAnalyticsProvider) {
+                protected analytics: IAnalyticsProvider,
+                protected collectionService: ICollectionService) {
         this.initProperties();
 
         this.breadcrumbLinks = [];
@@ -136,14 +154,34 @@ export class BpArtifactInfoController {
         this.artifact = undefined;
     }
 
+    public get infoBanner(): InfoBannerEnum {
+        if (this.isHistorical) {
+            return InfoBannerEnum.Historical;
+        }
+        if (this.isDeleted) {
+            return InfoBannerEnum.Deleted;
+        }
+        if (this.noPermissions) {
+            return InfoBannerEnum.NoPermissions;
+        }
+        if (this.isLocked && !this.selfLocked) {
+            return InfoBannerEnum.Locked;
+        }
+
+        return InfoBannerEnum.None;
+    }
+
     protected onArtifactLoaded(): void {
         if (this.artifact) {
             this.updateProperties(this.artifact);
 
             if (this.artifact.artifactState.historical && !this.artifact.artifactState.deleted) {
-                const publishedDate = this.localization.current.formatShortDateTime(this.artifact.lastEditedOn);
-                const publishedBy = this.artifact.lastEditedBy.displayName;
-                this.historicalMessage = `Version ${this.artifact.version}, published by ${publishedBy} on ${publishedDate}`;
+                this.isHistorical = true;
+                let msg = this.localization.get("Artifact_InfoBanner_Historical");
+                msg = msg.replace("{0}", this.artifact.version.toString());
+                msg = msg.replace("{1}", this.artifact.lastEditedBy.displayName);
+                msg = msg.replace("{2}", this.localization.current.formatShortDateTime(this.artifact.lastEditedOn));
+                this.historicalMessage = msg;
             }
         }
     };
@@ -171,6 +209,8 @@ export class BpArtifactInfoController {
         this.artifactTypeDescription = null;
         this.artifactClass = null;
         this.isLegacy = false;
+        this.isHistorical = false;
+        this.historicalMessage = null;
 
         this.initStateProperties();
     }
@@ -178,12 +218,12 @@ export class BpArtifactInfoController {
     private initStateProperties() {
         this.isReadonly = false;
         this.isChanged = false;
+        this.noPermissions = false;
+        this.isDeleted = false;
+        this.deletedMessage = null;
+        this.isLocked = false;
         this.selfLocked = false;
-
-        if (this.lockMessage) {
-            this.messageService.deleteMessageById(this.lockMessage.id);
-            this.lockMessage = null;
-        }
+        this.lockedMessage = null;
     }
 
     private updateProperties(artifact: IStatefulArtifact): void {
@@ -193,6 +233,7 @@ export class BpArtifactInfoController {
         this.artifactTypeId = artifact.itemTypeId;
         this.artifactTypeIconId = artifact.itemTypeIconId;
         this.hasCustomIcon = _.isFinite(artifact.itemTypeIconId);
+        this.noPermissions = (artifact.permissions & Enums.RolePermissions.Edit) !== Enums.RolePermissions.Edit;
 
         this.isLegacy = artifact.predefinedType === ItemTypePredefined.Storyboard ||
             artifact.predefinedType === ItemTypePredefined.GenericDiagram ||
@@ -219,18 +260,38 @@ export class BpArtifactInfoController {
         this.isReadonly = state.readonly;
         this.isChanged = state.dirty;
 
+        this.isDeleted = state.deleted;
+        if (this.isDeleted) {
+            let msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
+            msg = msg.replace("{0}", state.deletedByDisplayName);
+            msg = msg.replace("{1}", this.localization.current.formatShortDateTime(state.deletedDateTime));
+            this.deletedMessage = msg;
+        }
+
         switch (state.lockedBy) {
             case LockedByEnum.CurrentUser:
+                this.isLocked = true;
                 this.selfLocked = true;
                 break;
 
             case LockedByEnum.OtherUser:
-                let msg = state.lockOwner ? "Locked by " + state.lockOwner : "Locked ";
-                if (state.lockDateTime) {
-                    msg += " on " + this.localization.current.formatShortDateTime(state.lockDateTime);
+                this.isLocked = true;
+                this.selfLocked = false;
+                let msg: string;
+                if (state.lockOwner && state.lockDateTime) {
+                    msg = this.localization.get("Artifact_InfoBanner_LockedByOn");
+                    msg = msg.replace("{0}", state.lockOwner);
+                    msg = msg.replace("{1}", this.localization.current.formatShortDateTime(state.lockDateTime));
+                } else if (state.lockOwner) {
+                    msg = this.localization.get("Artifact_InfoBanner_LockedBy");
+                    msg = msg.replace("{0}", state.lockOwner);
+                } else if (state.lockDateTime) {
+                    msg = this.localization.get("Artifact_InfoBanner_LockedOn");
+                    msg = msg.replace("{0}", this.localization.current.formatShortDateTime(state.lockDateTime));
+                } else {
+                    msg = this.localization.get("Artifact_InfoBanner_Locked");
                 }
-                msg += ".";
-                this.messageService.addMessage(this.lockMessage = new Message(MessageType.Lock, msg));
+                this.lockedMessage = msg;
                 break;
 
             default:
@@ -285,7 +346,7 @@ export class BpArtifactInfoController {
         const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
         const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
-            this.dialogService, this.navigationService, this.loadingOverlayService);
+            this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar

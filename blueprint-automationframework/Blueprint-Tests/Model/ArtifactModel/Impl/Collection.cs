@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Model.ArtifactModel.Impl.PredefinedProperties;
 
 namespace Model.ArtifactModel.Impl
 {
+    /// <summary>
+    /// See:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaCollection.cs
+    /// </summary>
     public class Collection : NovaArtifactDetails
     {
         public string ReviewName { get; set; }
@@ -23,7 +23,7 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifactsIdsToAdd">List of artifact's Id to add to Collection.</param>
         /// <param name="artifactsIdsToRemove">List of artifact's Id to remove from Collection.</param>
-        public void UpdateArtifacts (List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
+        public void UpdateArtifacts(List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
             CollectionContentValue collectionContentValue = new CollectionContentValue();
 

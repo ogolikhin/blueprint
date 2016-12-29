@@ -5,13 +5,14 @@ import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {
     AddArtifactToCollectionDialogController,
-    AddArtifactToCollectionResult
+    IAddArtifactToCollectionResult
 } from "../../../../main/components/dialogs/add-artifact-to-collection";
 
 import {Models, Enums} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
 
 export class AddToCollectionAction extends BPDropdownAction {
 
@@ -24,7 +25,8 @@ export class AddToCollectionAction extends BPDropdownAction {
                 private projectManager: IProjectManager,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
-                private loadingOverlayService: ILoadingOverlayService) {
+                private loadingOverlayService: ILoadingOverlayService,
+                private collectionService: ICollectionService) {
         super();
 
         this.actions.push(
@@ -39,6 +41,8 @@ export class AddToCollectionAction extends BPDropdownAction {
 
     private canAddToCollection() {
         const invalidTypes = [
+            ItemTypePredefined.Project,
+            ItemTypePredefined.Collections,
             ItemTypePredefined.CollectionFolder,
             ItemTypePredefined.ArtifactCollection
         ];
@@ -85,9 +89,18 @@ export class AddToCollectionAction extends BPDropdownAction {
             selectableItemTypes: [ItemTypePredefined.ArtifactCollection]
         };
 
-        return this.dialogService.open(dialogSettings, dialogData).then((result: AddArtifactToCollectionResult[]) => {
-            //this part will be implemented in US4214 [Collection] Artifact View - Add to a collection
-            console.log(result);
+        return this.dialogService.open(dialogSettings, dialogData).then((result: IAddArtifactToCollectionResult) => {
+            const loader = this.loadingOverlayService.beginLoading();
+            this.collectionService.addArtifactToCollection(this.artifact.id, result.collectionId, result.addDescendants).then((artifactsAdded: number) => {
+                this.messageService.addInfo(`${artifactsAdded} artifacts succesfully added to collection`);
+            }).catch((error: any) => {
+                //ignore authentication errors here
+                if (error) {
+                    this.messageService.addError(error["message"] || "Error occured during adding artifacts to collection.");
+                }
+                }).finally(() => {
+                    this.loadingOverlayService.endLoading(loader);
+            });
         });
     }
 }

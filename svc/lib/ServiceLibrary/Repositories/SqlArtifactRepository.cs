@@ -651,5 +651,15 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion
+
+        #region GetProjectNamesById
+        public async Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIds(IEnumerable<int> projectIds)
+        {
+            var param = new DynamicParameters();
+            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds, "Int32Collection", "Int32Value"));
+            
+            return (await _connectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));            
+        }
+        #endregion
     }
 }

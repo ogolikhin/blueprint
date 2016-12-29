@@ -254,7 +254,7 @@ export class Helper {
         angular.forEach(images, image => {
             const url = image.getAttribute("src");
             if (externalUrl.test(url)) {
-                image.remove();
+                angular.element(image).remove();
             }
         });
     }

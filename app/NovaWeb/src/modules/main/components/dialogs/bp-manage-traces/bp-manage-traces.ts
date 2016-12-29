@@ -10,7 +10,7 @@ export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationshipView[];
 }
 
-interface ISelectedTrace extends TreeModels.ITreeNodeVM<any> {
+interface ISelectedItem extends TreeModels.ITreeNodeVM<any> {
     parentArtifact?: Models.IArtifact;
     project?: any;
 }
@@ -105,7 +105,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         for (let i = 0; i < selectedVMsLength; i++) {
 
-            let currentItem = selectedVMs[i] as ISelectedTrace,
+            let currentItem = selectedVMs[i] as ISelectedItem,
                 currentItemModel = (currentItem.model) as Relationships.IRelationshipView;
 
             currentItemModel.itemId = currentItemModel.id;

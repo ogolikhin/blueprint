@@ -59,7 +59,8 @@ namespace AdminStore.Controllers
                     userId = null;
                 }
                 int jobPageSize = GetPageSize(pageSize);
-                int offset = (page.GetValueOrDefault(1) - 1) * jobPageSize;
+                int jobPage = GetPage(page, 1, 1);
+                int offset = (jobPage - 1) * jobPageSize;
                 return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
             }
             catch (Exception exception)
@@ -76,6 +77,12 @@ namespace AdminStore.Controllers
                 return WebApiConfig.JobDetailsPageSize;
             }
             return jobPageSize;
+        }
+
+        private int GetPage(int? requestedPage, int minPage, int defaultPage)
+        {
+            int page = requestedPage.GetValueOrDefault(defaultPage);
+            return page < minPage ? defaultPage : page;
         }
         private int ValidateAndExtractUserId()
         {

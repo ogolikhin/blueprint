@@ -1258,7 +1258,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanne
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedBy', 'en-US', N'Locked by {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedOn', 'en-US', N'Locked on {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedByOn', 'en-US', N'Locked by {0} on {1}.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_DeletedOn', 'en-US', N'Deleted on {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_DeletedByOn', 'en-US', N'Deleted by {0} on {1}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_Historical', 'en-US', N'Version {0}, published by {1} on {2}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Name', 'en-US', N'Name')

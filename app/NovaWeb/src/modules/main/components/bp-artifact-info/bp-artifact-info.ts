@@ -36,7 +36,6 @@ import {ILocalizationService} from "../../../core/localization/localizationServi
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
-import {ISession} from "../../../shell/login/session.svc";
 import {Enums} from "../../models";
 
 enum InfoBannerEnum {
@@ -60,7 +59,6 @@ export class BpArtifactInfoController {
         "$element",
         "artifactManager",
         "localization",
-        "session",
         "messageService",
         "dialogService",
         "windowManager",
@@ -106,7 +104,6 @@ export class BpArtifactInfoController {
                 private $element: ng.IAugmentedJQuery,
                 protected artifactManager: IArtifactManager,
                 protected localization: ILocalizationService,
-                protected session: ISession,
                 protected messageService: IMessageService,
                 protected dialogService: IDialogService,
                 protected windowManager: IWindowManager,
@@ -265,15 +262,9 @@ export class BpArtifactInfoController {
 
         this.isDeleted = state.deleted;
         if (this.isDeleted) {
-            let msg: string;
-            if (state.deletedById === this.session.currentUser.id) {
-                msg = this.localization.get("Artifact_InfoBanner_DeletedOn");
-                msg = msg.replace("{0}", this.localization.current.formatShortDateTime(state.deletedDateTime));
-            } else {
-                msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
-                msg = msg.replace("{0}", state.deletedByDisplayName);
-                msg = msg.replace("{1}", this.localization.current.formatShortDateTime(state.deletedDateTime));
-            }
+            let msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
+            msg = msg.replace("{0}", state.deletedByDisplayName);
+            msg = msg.replace("{1}", this.localization.current.formatShortDateTime(state.deletedDateTime));
             this.deletedMessage = msg;
         }
 

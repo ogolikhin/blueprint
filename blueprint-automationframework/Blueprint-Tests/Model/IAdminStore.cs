@@ -1,4 +1,6 @@
 ﻿using Model.Impl;
+using Model.JobModel;
+using Model.JobModel.Enums;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -236,5 +238,17 @@ namespace Model
         ///     but 204 No Content is also valid if the user has no icon.</param>
         /// <returns>The icon file.</returns>
         IFile GetUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get jobs available for user
+        /// </summary>
+        /// <param name="user">A user that authenticate with</param>
+        /// <param name="page">(optional)An index to a subset of search results the length of which is determined 
+        /// by the pageSize argument</param>
+        /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
+        /// <param name="jobType">(optional) The job type that use can filter with. If null, returns all jobs without filtering</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
+        /// <returns>List of JobInfo</returns>
+        List<IJobInfo> GetJobs(IUser user, int? page, int? pageSize, JobType? jobType, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

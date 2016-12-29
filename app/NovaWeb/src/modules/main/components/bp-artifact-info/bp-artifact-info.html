@@ -46,7 +46,7 @@
     <bp-toolbar-2 class="page-toolbar__container" ng-if="!$ctrl.isToolbarCollapsed" actions="$ctrl.toolbarActions"></bp-toolbar-2>
     <bp-toolbar-2 class="page-toolbar__container" ng-if="$ctrl.isToolbarCollapsed" actions="$ctrl.collapsedToolbarActions"></bp-toolbar-2>
 </div>
-<div class="load-project" ng-if="$ctrl.canLoadProject">
+<div class="load-project" ng-if="$ctrl.canLoadProject && !$ctrl.isDeleted">
     <label bp-tooltip="{{::$ctrl.localization.get('App_Explorer_LoadProject_ButtonTooltip') }}" class="btn btn-load-project btn-secondary btn-small" ng-click="$ctrl.loadProject()">
         {{::$ctrl.localization.get('App_Explorer_LoadProject_ButtonLabel')}}
     </label>

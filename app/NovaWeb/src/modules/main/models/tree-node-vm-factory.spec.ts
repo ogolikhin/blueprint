@@ -693,7 +693,7 @@ describe("TreeNodeVMFactory", () => {
                 vm.loadChildrenAsync().then(c => {
 
                     // Assert
-                    expect(c).toEqual(children.map(child => factory.createSubArtifactNodeVM(project, child)));
+                    expect(c).toEqual(children.map(child => factory.createSubArtifactNodeVM(project, child, model)));
                     done();
                 }).catch(done.fail);
                 $rootScope.$digest(); // Resolves promises
@@ -711,7 +711,7 @@ describe("TreeNodeVMFactory", () => {
             model.children = [{id: 123}, {id: 456, children: [{id: 789}]}] as Models.ISubArtifactNode[];
 
             // Act
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -719,7 +719,7 @@ describe("TreeNodeVMFactory", () => {
             expect(vm.group).toEqual(true);
             expect(vm.expanded).toEqual(false);
             expect(vm.selectable).toEqual(true);
-            expect(vm.children).toEqual(model.children.map(child => factory.createSubArtifactNodeVM(project, child)));
+            expect(vm.children).toEqual(model.children.map(child => factory.createSubArtifactNodeVM(project, child, null)));
         });
 
         it("getCellClass, when has children, returns correct result", () => {
@@ -728,7 +728,7 @@ describe("TreeNodeVMFactory", () => {
                 id: 100,
                 hasChildren: true
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Act
             const result = vm.getCellClass();
@@ -744,7 +744,7 @@ describe("TreeNodeVMFactory", () => {
                 id: 100,
                 predefinedType: Models.ItemTypePredefined.GDShape
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Act
             const result = vm.getCellClass();
@@ -756,7 +756,7 @@ describe("TreeNodeVMFactory", () => {
         it("getIcon returns correct result", () => {
             // Arrange
             const model = {} as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Act
             const result = vm.getIcon();
@@ -772,7 +772,7 @@ describe("TreeNodeVMFactory", () => {
                 prefix: "SHP",
                 displayName: "label"
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Act
             const result = vm.getLabel();
@@ -787,7 +787,7 @@ describe("TreeNodeVMFactory", () => {
             const model = {
                 predefinedType: Models.ItemTypePredefined.BPConnector
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Act
             const result = vm.selectable;
@@ -802,7 +802,7 @@ describe("TreeNodeVMFactory", () => {
             const model = {
                 predefinedType: Models.ItemTypePredefined.GDShape
             } as Models.ISubArtifactNode;
-            const vm = factory.createSubArtifactNodeVM(project, model);
+            const vm = factory.createSubArtifactNodeVM(project, model, null);
 
             // Act
             const result = vm.selectable;

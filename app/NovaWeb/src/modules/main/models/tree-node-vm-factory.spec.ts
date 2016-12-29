@@ -704,6 +704,12 @@ describe("TreeNodeVMFactory", () => {
     describe("SubArtifactNodeVM", () => {
         it("constructor sets correct property values", () => {
             // Arrange
+            const parentArtifact = {
+                prefix: "AC",
+                id: 5,
+                name: "Artifact"
+            } as Models.IArtifact;
+
             const model = {
                 id: 100,
                 hasChildren: true
@@ -711,7 +717,7 @@ describe("TreeNodeVMFactory", () => {
             model.children = [{id: 123}, {id: 456, children: [{id: 789}]}] as Models.ISubArtifactNode[];
 
             // Act
-            const vm = factory.createSubArtifactNodeVM(project, model, null);
+            const vm = factory.createSubArtifactNodeVM(project, model, parentArtifact);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -719,7 +725,7 @@ describe("TreeNodeVMFactory", () => {
             expect(vm.group).toEqual(true);
             expect(vm.expanded).toEqual(false);
             expect(vm.selectable).toEqual(true);
-            expect(vm.children).toEqual(model.children.map(child => factory.createSubArtifactNodeVM(project, child, null)));
+            expect(vm.children).toEqual(model.children.map(child => factory.createSubArtifactNodeVM(project, child, parentArtifact)));
         });
 
         it("getCellClass, when has children, returns correct result", () => {

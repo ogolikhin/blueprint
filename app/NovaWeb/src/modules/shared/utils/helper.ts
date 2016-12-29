@@ -247,7 +247,7 @@ export class Helper {
     }
 
     public static stripExternalImages(content: HTMLElement) {
-        const externalUrl = new RegExp("^(?:[a-z]+:)?//", "i");
+        const externalUrl = new RegExp("^(?:[a-z]+:)?\/\/", "i");
         const ngContent = angular.element(content);
 
         const images = ngContent.find("img");

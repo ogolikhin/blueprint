@@ -284,6 +284,7 @@ describe("Remove external images", () => {
     html.innerHTML = `<p>Test</p>
                       <span>Another</span>
                       <img src="http://www.blah.com/test.png" />
+                      <img src="file:///Users/test/Downloads/longcat.gif" />
                       <img src="https://www.blah.com/test.png" />
                       <img src="https://www.blah.com/test.png" />
                       <img src="https://blah.com/test.png" />

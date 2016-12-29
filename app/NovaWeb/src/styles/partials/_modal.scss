@@ -547,6 +547,7 @@ $modal-open-project-height: 450px;
         box-sizing: content-box;
         font-size: $font-size-normal;
         padding: 0 0 25px;
+        text-align: center;
 
         &.error {
             color: $brand-error;

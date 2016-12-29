@@ -30,21 +30,31 @@ namespace Model.JobModel.Impl
 
         #region static methods
 
-        public static IJobBase AddAlmChangeSummaryJob (string address,
+        /// <summary>
+        /// Add ALM ChangeSummary Job using OpenAPI.
+        /// </summary>
+        /// <param name="address">The base url of the API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="project">The project to have the ALM ChangeSummary job.</param>
+        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
+        /// <param name="almTarget">The ALM target</param>"
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring</returns>
+        public static IJobBase AddAlmChangeSummaryJob(string address,
             IUser user,
             IProject project,
-            int baselineArtifactId,
-            int targetId,
+            int baselineOrReviewId,
+            IAlmTarget almTarget,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
 
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Targets_id_.JOBS, project.Id,targetId);
-
-            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineArtifactId, project);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Targets_id_.JOBS, project.Id, almTarget.Id);
+            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId, almTarget);
             var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
                 path,
                 RestRequestMethod.POST,
@@ -60,6 +70,7 @@ namespace Model.JobModel.Impl
     public class JobInfo : IJobInfo
     {
         #region properties
+
         public int JobId { get; set; }
 
         public JobStatus Status { get; set; }
@@ -103,6 +114,7 @@ namespace Model.JobModel.Impl
         /// </summary>
         public AlmJob()
         {
+
         }
 
         /// <summary>
@@ -110,11 +122,11 @@ namespace Model.JobModel.Impl
         /// </summary>
         /// <param name="address">The URI address of the artifact.</param>
         /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
-        /// <param name="project">The project where ALM Job belong to.</param>
+        /// <param name="almTarget">The ALM Target</param>
 
-        public AlmJob(AlmJobType almJobType, int baselineOrReviewId, IProject project)
+        public AlmJob(AlmJobType almJobType, int baselineOrReviewId, IAlmTarget almTarget)
         {
-            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
 
             this.AlmJobType = almJobType.ToString();
             this.JobParameters = new JobParameters()
@@ -123,8 +135,8 @@ namespace Model.JobModel.Impl
                 IsImageGenerationRequired = false,
                 IsFirstPush = true,
                 BaselineOrReviewId = baselineOrReviewId,
-                AlmRootPathId = project.Id,
-                AlmRootPath = project.Name
+                AlmRootPathId = almTarget.Id,
+                AlmRootPath = almTarget.Project
             };
 
         }
@@ -136,7 +148,7 @@ namespace Model.JobModel.Impl
         public string AlmJobType { get; set; }
 
         public JobParameters JobParameters { get; set; }
-        
+
         #endregion properties
 
     }

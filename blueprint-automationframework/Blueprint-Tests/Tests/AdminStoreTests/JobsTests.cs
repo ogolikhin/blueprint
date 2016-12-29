@@ -43,7 +43,7 @@ namespace CommonServiceTests
 
         // TODO: Create the dedicated baseline artifact for creating ALM ChangeSummary Job
         [Category(Categories.CustomData)]
-        [TestCase(157)]
+        [TestCase(407)]
         [TestRail(0)]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Create an ALM job. Verify that the job information gets retrieved with GET Jobs.")]
@@ -54,7 +54,7 @@ namespace CommonServiceTests
             // Get the ALM Target that will be used for a sample job
             var almTarget = AlmTarget.GetAlmTargets(Helper.ArtifactStore.Address, _adminUser, projectCustomData).First();
             // Create a change summary job
-            OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, projectCustomData, baselineArtifactId, almTarget.Id);
+            OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, projectCustomData, baselineArtifactId, almTarget);
 
             // Execute: TODO add proper handling
             Helper.AdminStore.GetJobs(_adminUser, page: null, pageSize: null, jobType: null/*Model.JobModel.Enums.JobType.HpAlmRestChangeSummary*/);
@@ -64,7 +64,7 @@ namespace CommonServiceTests
         #endregion 200 OK Tests
 
         #region private functions
-        
+
 
         #endregion private functions
 

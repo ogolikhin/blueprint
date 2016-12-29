@@ -1,4 +1,5 @@
 import {BPButtonAction} from "../../../../shared";
+import {IDialogService} from "../../../../shared";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
@@ -14,7 +15,8 @@ export class DiscardArtifactsAction extends BPButtonAction {
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private loadingOverlayService: ILoadingOverlayService,
-        private projectManager: IProjectManager
+        private projectManager: IProjectManager,
+        private dialogService: IDialogService
     ) {
         super();
 
@@ -53,13 +55,17 @@ export class DiscardArtifactsAction extends BPButtonAction {
     }
 
     public execute(): void {
-        const overlayId: number = this.loadingOverlayService.beginLoading();
         const artifactIds = this.artifactList.map(artifact => artifact.id);
-
-        this.publishService.discardArtifacts(artifactIds)
+        const message = artifactIds.length === 1 ? 
+        this.localization.get("Discard_Single_Artifact_Confirm") : 
+        this.localization.get("Discard_Multiple_Artifacts_Confirm").replace("{0}", artifactIds.length.toString());
+        this.dialogService.alert(message, "Confirm Discard", "Discard", "Cancel").then(() => {
+            const overlayId: number = this.loadingOverlayService.beginLoading();
+            
+            this.publishService.discardArtifacts(artifactIds)
             .then((result: IPublishResultSet) => {
                 this.messageService.addInfo("Discard_All_Success_Message", result.artifacts.length);
-
+                
                 if (this.projectManager.projectCollection.getValue().length > 0) {
                     this.projectManager.refreshAll();
                 }
@@ -69,6 +75,7 @@ export class DiscardArtifactsAction extends BPButtonAction {
                 this.messageService.addError(error);
             })
             .finally(() => this.loadingOverlayService.endLoading(overlayId));
+        });
     }
 
     public updateList(artifactList: IArtifact[]) {

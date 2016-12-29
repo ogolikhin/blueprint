@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
@@ -154,7 +155,8 @@ namespace AdminStoreTests
             }, "'GET {0}' should return 404 Not Found when get user icon called for non-existing user!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "Unauthorized call.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+                I18NHelper.FormatInvariant("User does not exist with UserId: {0}", nonExistingUserId));
         }
 
         [TestCase(0)]

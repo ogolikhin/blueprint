@@ -245,4 +245,17 @@ export class Helper {
             ngContent.find(tag).remove();
         });
     }
+
+    public static stripExternalImages(content: HTMLElement) {
+        const externalUrl = new RegExp("^(?:[a-z]+:)?\/\/", "i");
+        const ngContent = angular.element(content);
+
+        const images = ngContent.find("img");
+        angular.forEach(images, image => {
+            const url = image.getAttribute("src");
+            if (externalUrl.test(url)) {
+                image.remove();
+            }
+        });
+    }
 }

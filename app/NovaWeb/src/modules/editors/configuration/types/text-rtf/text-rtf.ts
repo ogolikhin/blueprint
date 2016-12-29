@@ -144,8 +144,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    Helper.stripHtmlTags(args.node, ["img"]);
                     this.normalizeHtml(args.node, true);
+                    Helper.stripExternalImages(args.node);
                     Helper.removeAttributeFromNode(args.node, "id");
                 },
                 init_instance_callback: (editor) => {
@@ -320,12 +320,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     });
 
                     editor.addButton("uploadimage", {
-                        title: "Upload Image",
+                        title: "Insert Image",
                         text: "",
                         icon: "image",
                         onclick: () => {
                             const input = angular.element(`<input type="file" name="image_file"
-                                    accept=".jpeg,.jpg,.png,image/jpeg,image/jpeg,image/png" style="display: none">`);
+                                    accept=".jpeg,.jpg,.png" style="display: none">`);
 
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;

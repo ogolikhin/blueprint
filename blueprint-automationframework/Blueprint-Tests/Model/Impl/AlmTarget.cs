@@ -19,7 +19,7 @@ namespace Model.Impl
         public string Domain { get; set; }
         public string Project { get; set; }
 
-        #endregion projerties
+        #endregion properties
 
         #region static methods
 

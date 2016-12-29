@@ -12,6 +12,8 @@ import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import createSpy = jasmine.createSpy;
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {ItemTypePredefined} from "../../main/models/enums";
+import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
+
 
 describe("Controller: Unpublished", () => {
     let controller: UnpublishedController;
@@ -27,6 +29,7 @@ describe("Controller: Unpublished", () => {
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("dialogService", DialogServiceMock);
     }));
 
     beforeEach(inject(($controller: ng.IControllerService,

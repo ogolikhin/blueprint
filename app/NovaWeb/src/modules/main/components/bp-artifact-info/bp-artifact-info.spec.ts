@@ -91,7 +91,6 @@ describe("BpArtifactInfo", () => {
         };
 
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("session", SessionSvcMock);
         $provide.service("windowManager", () => windowManager);
         $provide.service("artifactManager", () => artifactManager);
         $provide.service("localization", LocalizationServiceMock);
@@ -583,7 +582,7 @@ describe("BpArtifactInfo", () => {
                 expect(controller.isDeleted).toEqual(true);
             });
 
-            it("adds deletedMessage if artifact has been deleted (other user)", () => {
+            it("adds deletedMessage if artifact has been deleted", () => {
                 // arrange
                 const artifact = artifactManager.selection.getArtifact();
                 const updatedState = artifact.artifactState;
@@ -598,23 +597,6 @@ describe("BpArtifactInfo", () => {
                 // assert
                 expect(controller.deletedMessage).toBeDefined();
                 expect(controller.deletedMessage).toBe("Artifact_InfoBanner_DeletedByOn");
-            });
-
-            it("adds deletedMessage if artifact has been deleted (same user)", () => {
-                // arrange
-                const artifact = artifactManager.selection.getArtifact();
-                const updatedState = artifact.artifactState;
-                updatedState.deleted = true;
-                updatedState.deletedById = 1;
-                updatedState.deletedDateTime = new Date();
-                updatedState.deletedByDisplayName = "Default Instance Admin";
-
-                // act
-                stateSubject.onNext(updatedState);
-
-                // assert
-                expect(controller.deletedMessage).toBeDefined();
-                expect(controller.deletedMessage).toBe("Artifact_InfoBanner_DeletedOn");
             });
 
             it("sets isDeleted to false if artifact has not been deleted", () => {

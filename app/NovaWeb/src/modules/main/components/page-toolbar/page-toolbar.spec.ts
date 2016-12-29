@@ -125,17 +125,16 @@ describe("Page Toolbar:", () => {
         it("refresh successful: project is opened", 
             inject((projectManager: IProjectManager) => {
             // Arrange
-            //spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
+            spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
 
-            //const refreshAllSpy = spyOn(projectManager, "refreshAll").and.callFake(() => { return _$q.resolve(); });
+            const refreshAllSpy = spyOn(projectManager, "refreshAll").and.callFake(() => { return _$q.resolve(); });
 
             // Act
-            //toolbarCtrl.refreshAll();
-            //$scope.$digest();
+            toolbarCtrl.refreshAll();
+            $scope.$digest();
 
             // Assert
-            //expect(refreshAllSpy).toHaveBeenCalled();
-            expect(1).toBe(1);
+            expect(refreshAllSpy).toHaveBeenCalled();
         }));
 
         it("refresh successful: no opened project, but artifact is selected", 

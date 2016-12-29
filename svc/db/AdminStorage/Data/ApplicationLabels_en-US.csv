@@ -557,4 +557,8 @@ GO_TO_tooltip, "Enter Artifact ID"
 #Copy Image
 Copy_Images_Failed, "Images were not copied into clipboard."
 
+#Jobs
 Jobs_Empty, "No Jobs Available"
+Jobs_Author, "Author"
+Jobs_Project, "Project"
+Jobs_Status, "Status"

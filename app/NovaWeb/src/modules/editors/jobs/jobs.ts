@@ -43,6 +43,10 @@ export class JobsController {
     public $onInit() {
         this.isLoading = false;
     };
+
+    public isJobsEmpty(): boolean {
+        return this.jobs.length === 0;
+    }
      
 
     public $onDestroy() {

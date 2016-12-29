@@ -53,3 +53,12 @@
 .jobs__empty-message {
     padding: 8px 25px;
 }
+
+.jobs__response {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: $gray-dark;
+    overflow: auto;
+}

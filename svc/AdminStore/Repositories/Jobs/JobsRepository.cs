@@ -17,8 +17,8 @@ namespace AdminStore.Repositories.Jobs
     public class JobsRepository : IJobsRepository
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
-        private readonly ISqlArtifactRepository _sqlArtifactRepository;
-        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        internal readonly ISqlArtifactRepository _sqlArtifactRepository;
+        internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public JobsRepository() : 
             this(
@@ -37,6 +37,8 @@ namespace AdminStore.Repositories.Jobs
             _sqlArtifactRepository = sqlArtifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
         }
+
+        #region Public Methods
         public async Task<IEnumerable<JobInfo>> GetVisibleJobs(int? userId, int? offset, int? limit, JobType? jobType = JobType.None)
         {
             var dJobMessages = await GetJobMessages(userId, offset, limit, jobType, false);
@@ -45,6 +47,9 @@ namespace AdminStore.Repositories.Jobs
                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value).Distinct(), userId);
             return dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
         }
+        #endregion
+
+        #region Private Methods
         private async Task<IEnumerable<DJobMessage>> GetJobMessages(
             int? userId, 
             int? offset, 
@@ -81,6 +86,7 @@ namespace AdminStore.Repositories.Jobs
                 throw;
             }
         }
+
         private JobInfo GetJobInfo(
             DJobMessage jobMessage, 
             IDictionary<int, List<SystemMessage>> systemMessageMap, 
@@ -147,5 +153,6 @@ namespace AdminStore.Repositories.Jobs
             }
             return projectNameIdDictionary;
         }
+        #endregion
     }
 }

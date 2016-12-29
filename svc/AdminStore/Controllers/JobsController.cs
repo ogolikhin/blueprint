@@ -20,8 +20,8 @@ namespace AdminStore.Controllers
 
     public class JobsController : LoggableApiController
     {
-        private readonly IJobsRepository _jobsRepository;
-        private readonly IUsersRepository _sqlUserRepository;
+        internal readonly IJobsRepository _jobsRepository;
+        internal readonly IUsersRepository _sqlUserRepository;
 
         public override string LogSource => "AdminStore.JobsService";
 
@@ -50,12 +50,9 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<JobInfo>))]
         public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
         {
-            // TODO: validate page and pageSize to be positive.
-            // Validate()
             int? userId = ValidateAndExtractUserId();
             try
             {
-                // Always passing false for parameter contextUser, talked to Alex G. and he told me just to use false for my case. It was added from refactoring some stored procs.
                 bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
                 if (isUserInstanceAdmin)
                 {

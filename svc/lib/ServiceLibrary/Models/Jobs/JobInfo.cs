@@ -52,7 +52,7 @@ namespace ServiceLibrary.Models.Jobs
 
         QcExportTests = 0x200,
 
-        HpAlmRetExportTests = 0x400,
+        HpAlmRestExportTests = 0x400,
 
         ExcelImport = 0x800,
 

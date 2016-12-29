@@ -6,7 +6,9 @@
         }">
         <div class="modal-panel" id="modal-login-form">
             <form name="novaLoginForm" ng-submit="ctrl.login()" role="form"
-                  onsubmit="this.querySelectorAll('button[type=submit]')[0].focus();" autocomplete="off">
+                  onsubmit="var fields=this.querySelectorAll('input[type=password]');
+                  for(var i=0; i<fields.length; i++) {fields[i].value=fields[i].value;}
+                  this.querySelector('button[type=submit]').focus();" autocomplete="off">
                 <div class="nova-login-message" ng-class="{error: ctrl.isLabelErrorStyleShowing}"><span
                     ng-bind-html="ctrl.errorMessage"></span></div>
                 <div class="nova-form-group nova-floating-label" ng-class="{error: ctrl.isTextFieldErrorStyleShowing}">

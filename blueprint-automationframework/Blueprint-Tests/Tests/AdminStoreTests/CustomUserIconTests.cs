@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
@@ -74,7 +75,7 @@ namespace AdminStoreTests
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width: 480, height: 640, imageFormat: ImageFormatMap[imageType]);
 
             viewerUser.SetUserIcon(viewerUser.Id, imageBytes);
-            
+
             // Execute:
             IFile iconFile = null;
 
@@ -139,7 +140,6 @@ namespace AdminStoreTests
             Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "{0} should be found when token is invalid!", expectedMessage);
         }
 
-        [TestCase(0)]
         [TestCase(int.MaxValue)]
         [TestRail(211709)]
         [Description("User tries to get user icon from non-existing user.  Verify response returns code 404 Not Found.")]
@@ -149,10 +149,29 @@ namespace AdminStoreTests
             IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
-            Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.AdminStore.GetCustomUserIcon(nonExistingUserId, viewerUser);
             }, "'GET {0}' should return 404 Not Found when get user icon called for non-existing user!", SVC_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+                I18NHelper.FormatInvariant("User does not exist with UserId: {0}", nonExistingUserId));
+        }
+
+        [TestCase(0)]
+        [TestRail(213032)]
+        [Description("User tries to get user icon from user with user id 0.  Verify response returns code 404 Not Found.")]
+        public void GetCustomUserIcon_UserId0_404NotFound(int UserId0)
+        {
+            // Setup:
+            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.AdminStore.GetCustomUserIcon(UserId0, viewerUser);
+            }, "'GET {0}' should return 404 Not Found when get user icon called for user with user id 0!", SVC_PATH);
         }
 
         #endregion Negative tests

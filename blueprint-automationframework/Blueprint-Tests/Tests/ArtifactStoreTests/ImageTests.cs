@@ -85,8 +85,6 @@ namespace ArtifactStoreTests
             var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
 
             FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
-
-//            DeleteFileFromDB(returnedFile.Guid);
         }
 
         [TestCase(20, 30, ImageType.GIF, "image/gif")]
@@ -133,6 +131,25 @@ namespace ArtifactStoreTests
                 "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
+        }
+
+        [TestCase(80, 80, ImageType.PNG, "image/png")]
+        [TestRail(213049)]
+        [Description("Upload a random image file to ArtifactStore.  Make sure filename parameter is not set. Verify 400 Bad Request is returned.")]
+        public void AddImage_ValidImageWithNotSetFileName_404BadRequest(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            imageFile.FileName = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 400 Bad Request when called with filename parameter set in a header as null!", ADD_IMAGE_PATH);
+
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
         }
 
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
@@ -237,7 +254,6 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetImage(imageId);
             }, "'GET {0}' should return 404 Not Found when passed image GUID for non existing image!", GET_IMAGE_PATH);
-
         }
 
         [TestCase("00000000-0000-0000-0000-000000000000")]
@@ -303,16 +319,6 @@ namespace ArtifactStoreTests
 
             return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
         }
-/*
-        private static int DeleteFileFromDB(string fileGuid)
-        {
-            string selectQuery = I18NHelper.FormatInvariant("DELETE FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileId] ='{0}'", fileGuid);
-            int rowsAffected = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
-
-            Assert.IsNotNull(rowsAffected, "Image GUID cannot be found in EmbeddedImages table!");
-
-            return rowsAffected;
-        }*/
 
         #endregion Private functions
     }

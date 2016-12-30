@@ -41,7 +41,8 @@ namespace Model.Impl
         {
             var addedImage = AddImage(Address, user, imageFile, expectedStatusCodes);
 
-//            Files.Add(addedImage);
+            // TODO: Properly manage dispose
+            //Files.Add(addedImage);
 
             // We'll use this user in Dispose() to delete the files.
             if (_userForFiles == null)

@@ -232,7 +232,7 @@ namespace ArtifactStoreTests
 
         [TestCase("abcd1234")]
         [TestRail(211550)]
-        [Description("Try to get an image with an malformed ImageId GUID.  Verify it returns 404 Not Found.")]
+        [Description("Try to get an image with malformed ImageId GUID.  Verify it returns 404 Not Found.")]
         public void GetImage_MalformedImageGuid_400BadRequest(string imageId)
         {
             // Execute:

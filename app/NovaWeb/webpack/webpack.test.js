@@ -12,20 +12,14 @@ var postLoaders = [
     {
         test: /^((?!\.(spec)|(mock)\.ts).)*.ts$/,
         exclude: [/node_modules/, /bower_components/, /storyteller/],
-        loader: 'istanbul-instrumenter',
-        include: [
-            path.join(__dirname, "../src")
-        ]
+        loader: 'istanbul-instrumenter'
     }
 ];
 var preLoaders = [
     {
         test: /\.ts$/,
         loader: 'tslint-loader',
-        exclude: [/node_modules/, /storyteller/],
-        include: [
-            path.join(__dirname, "../src")
-        ]
+        exclude: [/node_modules/, /storyteller/]
     }
 ];
 function isDebug(argument) {

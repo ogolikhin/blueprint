@@ -86,7 +86,7 @@ namespace ArtifactStoreTests
 
             FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
 
-            DeleteFileFromDB(returnedFile.Guid);
+//            DeleteFileFromDB(returnedFile.Guid);
         }
 
         [TestCase(20, 30, ImageType.GIF, "image/gif")]
@@ -303,7 +303,7 @@ namespace ArtifactStoreTests
 
             return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
         }
-
+/*
         private static int DeleteFileFromDB(string fileGuid)
         {
             string selectQuery = I18NHelper.FormatInvariant("DELETE FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileId] ='{0}'", fileGuid);
@@ -312,7 +312,7 @@ namespace ArtifactStoreTests
             Assert.IsNotNull(rowsAffected, "Image GUID cannot be found in EmbeddedImages table!");
 
             return rowsAffected;
-        }
+        }*/
 
         #endregion Private functions
     }

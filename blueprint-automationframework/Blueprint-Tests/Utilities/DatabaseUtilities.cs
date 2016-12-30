@@ -14,7 +14,7 @@ namespace Utilities
         /// <param name="reader">The SqlDataReader that holds the query results.</param>
         /// <param name="name">The name of the field to get.</param>
         /// <returns>The field value or the default value for the specified type.</returns>
-        public static T GetValueOrDefault<T>(SqlDataReader reader, string name/*, bool isGuid = false*/)
+        public static T GetValueOrDefault<T>(SqlDataReader reader, string name)
         {
             ThrowIf.ArgumentNull(reader, nameof(reader));
             ThrowIf.ArgumentNull(name, nameof(name));

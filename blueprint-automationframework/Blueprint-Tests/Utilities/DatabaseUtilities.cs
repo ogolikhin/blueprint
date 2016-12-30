@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using Common;
+using System.ComponentModel;
 
 namespace Utilities
 {
@@ -13,7 +14,7 @@ namespace Utilities
         /// <param name="reader">The SqlDataReader that holds the query results.</param>
         /// <param name="name">The name of the field to get.</param>
         /// <returns>The field value or the default value for the specified type.</returns>
-        public static T GetValueOrDefault<T>(SqlDataReader reader, string name)
+        public static T GetValueOrDefault<T>(SqlDataReader reader, string name/*, bool isGuid = false*/)
         {
             ThrowIf.ArgumentNull(reader, nameof(reader));
             ThrowIf.ArgumentNull(name, nameof(name));
@@ -27,7 +28,7 @@ namespace Utilities
                     return default(T);
                 }
 
-                return (T)reader.GetValue(ordinal);
+                return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(reader.GetValue(ordinal).ToString());
             }
             catch (IndexOutOfRangeException e)
             {

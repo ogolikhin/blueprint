@@ -47,9 +47,44 @@ namespace AdminStore.Repositories.Jobs
                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value).Distinct(), userId);
             return dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
         }
+
+        public async Task<JobInfo> GetJob(int jobId, int? userId)
+        {
+            var job = await GetJobMessage(jobId);
+            if (job == null)
+            {
+                return null;
+            }
+
+            var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });
+            var projectNameMappings = job.ProjectId.HasValue ? await GetProjectNamesForUserMapping(new[] { job.ProjectId.Value }, userId)
+                                                             : new Dictionary<int, string>();           
+
+            return GetJobInfo(job, systemMessageMap, projectNameMappings);
+
+        }
         #endregion
 
         #region Private Methods
+        private async Task<DJobMessage> GetJobMessage(int jobId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@jobMessageId", jobId);
+            try
+            {
+                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            }
+            catch (SqlException sqlException)
+            {
+                switch (sqlException.Number)
+                {
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+                throw;
+            }
+        }
         private async Task<IEnumerable<DJobMessage>> GetJobMessages(
             int? userId, 
             int? offset, 
@@ -126,7 +161,7 @@ namespace AdminStore.Repositories.Jobs
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
-        private async Task<IDictionary<int, string>> GetProjectNamesForUserMapping(IEnumerable<int> projectIds, int? userId)
+        private async Task<Dictionary<int, string>> GetProjectNamesForUserMapping(IEnumerable<int> projectIds, int? userId)
         {
             var projectNameIdDictionary = (await _sqlArtifactRepository.GetProjectNameByIds(projectIds)).ToDictionary(x => x.ItemId, x => x.Name);
             if (userId.HasValue)

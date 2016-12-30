@@ -6,7 +6,6 @@ import "angular-sanitize";
 import "angular-messages";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import "bootstrap/dist/css/bootstrap.css";
 import "ag-grid";
 import "ag-grid-enterprise";
 import "ag-grid/dist/styles/ag-grid.css";

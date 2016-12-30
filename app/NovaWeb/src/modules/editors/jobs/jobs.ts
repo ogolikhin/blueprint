@@ -54,6 +54,14 @@ export class JobsController {
         this.loadPage(this.page + 1);
     }
 
+   public canDownload() {
+        return true;
+    }
+
+    public canRefresh() {
+        return true;
+    }
+
     private loadPage(page: number) {
         this.isLoading = true;
         this.page = page;

@@ -39,7 +39,7 @@ export class ItemStateController {
                 private $rootScope: ng.IRootScopeService) {
         const id: number = parseInt($state.params["id"], 10);
         const version = parseInt($state.params["version"], 10);
-        
+
             if (_.isFinite(id)) {
                 this.clearStickyMessages();
 
@@ -53,7 +53,7 @@ export class ItemStateController {
                         this.getItemInfo(id, version);
                     }
                 });
-            }        
+            }
     }
 
     private getItemInfo(id: number, version: number) {
@@ -86,25 +86,23 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (_.isFinite(version)) {
                     if (result.versionCount < version) {
-                        this.messageService.addError("The specified artifact version does not exist", true);
+                        this.messageService.addError("Artifact_Version_NotFound", true);
                         this.navigationService.navigateToMain(true);
                         return;
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
                 } else if (result.isDeleted) {
-
                     statefulArtifact.artifactState.deleted = true;
+                    statefulArtifact.artifactState.deletedDateTime = result.deletedDateTime;
+                    statefulArtifact.artifactState.deletedById = result.deletedByUser.id;
+                    statefulArtifact.artifactState.deletedByDisplayName = result.deletedByUser.displayName;
                     statefulArtifact.artifactState.historical = true;
-
-                    const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
-                    this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 
                 this.navigateToSubRoute(statefulArtifact, version);
             } else {
-                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
+                this.messageService.addError("Artifact_GoTo_NotAvailable", true);
             }
         }).catch(error => {
             this.navigationService.navigateToMain(true);

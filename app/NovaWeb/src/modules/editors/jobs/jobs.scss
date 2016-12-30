@@ -53,3 +53,35 @@
 .jobs__empty-message {
     padding: 8px 25px;
 }
+
+.jobs__response {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: $gray-dark;
+    overflow: auto;
+}
+
+.jobs__results--content {
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 30px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.jobs__results--item {
+    padding: 0 15px 10px;
+    margin: 1px auto 0;
+    background: white;
+    border-bottom: 1px solid $gray-lightest;
+    &:focus, &:hover {
+        background: $tree-hover-background;
+    }
+}
+
+.jobs__results--icon {
+    font-size: 30px;
+    padding-left: 50px;
+}

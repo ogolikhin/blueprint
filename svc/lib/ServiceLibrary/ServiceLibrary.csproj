@@ -119,6 +119,11 @@
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
+    <Compile Include="Models\Jobs\DJobMessage.cs" />
+    <Compile Include="Models\Jobs\JobInfo.cs" />
+    <Compile Include="Models\Messaging\SystemJobCommand.cs" />
+    <Compile Include="Models\Messaging\SystemMessage.cs" />
+    <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\RolePermissions.cs" />
     <Compile Include="Models\SQLTraceLogModel.cs" />

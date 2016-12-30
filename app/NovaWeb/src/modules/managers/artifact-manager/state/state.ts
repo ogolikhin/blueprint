@@ -10,6 +10,9 @@ export interface IState {
     readonly?: boolean;
     dirty?: boolean;
     deleted?: boolean;
+    deletedById?: number;
+    deletedByDisplayName?: string;
+    deletedDateTime?: Date;
     historical?: boolean;
     misplaced?: boolean;
     invalid?: boolean;
@@ -71,7 +74,7 @@ export class ArtifactState implements IArtifactState {
                 changed = true;
             }
         });
-        
+
         if (changed && notifyChange) {
             this.notifyStateChange();
         }
@@ -210,9 +213,9 @@ export class ArtifactState implements IArtifactState {
                 lockDateTime: artifact.lockedDateTime,
                 deleted: deleted,
                 historical: historical,
-                readonly: deleted || 
-                            historical || 
-                            lockedBy === Enums.LockedByEnum.OtherUser || 
+                readonly: deleted ||
+                            historical ||
+                            lockedBy === Enums.LockedByEnum.OtherUser ||
                             noEditPermission
             };
 
@@ -220,8 +223,8 @@ export class ArtifactState implements IArtifactState {
         } else {
             this.currentState.deleted = deleted;
             this.currentState.historical = historical;
-            this.currentState.readonly = deleted || 
-                                            historical || 
+            this.currentState.readonly = deleted ||
+                                            historical ||
                                             noEditPermission;
         }
     }

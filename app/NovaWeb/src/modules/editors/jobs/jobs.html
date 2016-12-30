@@ -48,10 +48,10 @@
                                         <strong>...</strong>
                                     </span>
                                     <ul class="dropdown-menu dropdown-menu-right">
-                                        <li ng-click="$ctrl.addDocRef() "ng-class="{disabled: !$ctrl.canDownload()}">
+                                        <li ng-click="$ctrl.addDocRef() "ng-class="{disabled: !$ctrl.canDownload(item.status)}">
                                             <a>Download</a>
                                         </li>
-                                        <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canRefresh()}">
+                                        <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canRefresh(item.status)}">
                                             <a>Refresh</a>
                                         </li>
                                     </ul>

@@ -54,12 +54,15 @@ export class JobsController {
         this.loadPage(this.page + 1);
     }
 
-   public canDownload() {
-        return true;
+   public canDownload(status: JobStatus): boolean {
+        return status === JobStatus.Completed;
     }
 
-    public canRefresh() {
-        return true;
+    public canRefresh(status: JobStatus): boolean {
+        return status === JobStatus.Cancelling ||
+               status === JobStatus.Running ||
+               status === JobStatus.Scheduled ||
+               status === JobStatus.Suspending;
     }
 
     private loadPage(page: number) {
@@ -153,6 +156,10 @@ export class JobsController {
 
         this.$log.error(`Unknown Job Type, (${typeId})`);
         return "Unknown";
+    }
+
+    public isJobsEmpty(): boolean {
+        return this.jobs.length === 0;
     }
 
     public $onDestroy() {

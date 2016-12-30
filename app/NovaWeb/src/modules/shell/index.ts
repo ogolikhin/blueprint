@@ -76,7 +76,7 @@ angular.module("app.shell", [
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {
     $httpProvider.interceptors.push("sessionTokenInterceptor");
     $httpProvider.interceptors.push("httpErrorInterceptor");
-    $httpProvider.useLegacyPromiseExtensions(false);
+    //$httpProvider.useLegacyPromiseExtensions(false);
 }
 
 initializeInterceptors.$inject = ["$httpProvider"];

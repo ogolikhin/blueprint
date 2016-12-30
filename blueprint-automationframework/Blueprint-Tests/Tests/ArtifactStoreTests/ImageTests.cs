@@ -58,7 +58,6 @@ namespace ArtifactStoreTests
 
         #region AddImage tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg")]
         [TestCase(80, 80, ImageType.PNG, "image/png")]
         [TestRail(211529)]
@@ -112,7 +111,6 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase("jpg", "image/jpeg")]
         [TestCase("png", "image/png")]
         [TestRail(211537)]
@@ -181,7 +179,6 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
         [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
         [TestRail(211538)]
@@ -208,7 +205,6 @@ namespace ArtifactStoreTests
 
         #region GetImage tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
         [TestCase(70, 50, ImageType.PNG, "image/png")]
         [TestRail(211535)]

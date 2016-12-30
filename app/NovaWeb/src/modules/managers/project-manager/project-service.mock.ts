@@ -67,7 +67,7 @@ export class ProjectServiceMock implements IProjectService {
 
     public getProject(id?: number): ng.IPromise<AdminStoreModels.IInstanceItem> {
         const deferred = this.$q.defer<AdminStoreModels.IInstanceItem>();
-        const item: AdminStoreModels.IInstanceItem = {id: 1, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
+        const item: AdminStoreModels.IInstanceItem = {id: id, name: "test", type: 1, parentFolderId: 0, hasChildren: false};
         deferred.resolve(item);
         return deferred.promise;
     }

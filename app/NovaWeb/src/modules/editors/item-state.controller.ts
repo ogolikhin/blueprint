@@ -1,5 +1,5 @@
 import {Models} from "../main/models";
-import {IArtifactManager} from "../managers";
+import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
 import {IItemInfoService, IItemInfoResult} from "../core/navigation/item-info.svc";
@@ -17,37 +17,43 @@ export class ItemStateController {
     public static $inject = [
         "$state",
         "artifactManager",
+        "projectManager",
         "messageService",
         "localization",
         "navigationService",
         "itemInfoService",
         "loadingOverlayService",
-        "statefulArtifactFactory"
+        "statefulArtifactFactory",
+        "$rootScope"
     ];
 
     constructor(private $state: angular.ui.IStateService,
                 private artifactManager: IArtifactManager,
+                private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private statefulArtifactFactory: IStatefulArtifactFactory) {
+                private statefulArtifactFactory: IStatefulArtifactFactory,
+                private $rootScope: ng.IRootScopeService) {
         const id: number = parseInt($state.params["id"], 10);
         const version = parseInt($state.params["version"], 10);
 
-        if (_.isFinite(id)) {
-            this.clearStickyMessages();
+            if (_.isFinite(id)) {
+                this.clearStickyMessages();
 
-            const artifact = artifactManager.get(id);
+                const artifact = artifactManager.get(id);
 
-            if (artifact && !artifact.artifactState.deleted && !version) {
-                artifact.unload();
-                this.navigateToSubRoute(artifact);
-            } else {
-                this.getItemInfo(id, version);
+                this.$rootScope.$applyAsync(() => {
+                    if (artifact && !artifact.artifactState.deleted && !version) {
+                        artifact.unload();
+                        this.navigateToSubRoute(artifact);
+                    } else {
+                        this.getItemInfo(id, version);
+                    }
+                });
             }
-        }
     }
 
     private getItemInfo(id: number, version: number) {
@@ -59,10 +65,9 @@ export class ItemStateController {
                 this.navigationService.navigateTo({id: result.id, redirect: true});
 
             } else if (this.itemInfoService.isProject(result)) {
-                // TODO: implement project navigation in the future US
-                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
-                this.navigationService.navigateToMain(true);
-
+                this.projectManager.openProject(result.id).then(() => {
+                    this.navigationService.reloadCurrentState();
+                });
             } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {
                 const artifact: Models.IArtifact = {
                     id: result.id,
@@ -81,25 +86,23 @@ export class ItemStateController {
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
                 if (_.isFinite(version)) {
                     if (result.versionCount < version) {
-                        this.messageService.addError("The specified artifact version does not exist", true);
+                        this.messageService.addError("Artifact_Version_NotFound", true);
                         this.navigationService.navigateToMain(true);
                         return;
                     }
                     artifact.version = version;
                     statefulArtifact.artifactState.historical = true;
                 } else if (result.isDeleted) {
-
                     statefulArtifact.artifactState.deleted = true;
+                    statefulArtifact.artifactState.deletedDateTime = result.deletedDateTime;
+                    statefulArtifact.artifactState.deletedById = result.deletedByUser.id;
+                    statefulArtifact.artifactState.deletedByDisplayName = result.deletedByUser.displayName;
                     statefulArtifact.artifactState.historical = true;
-
-                    const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                    const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
-                    this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
                 }
 
                 this.navigateToSubRoute(statefulArtifact, version);
             } else {
-                this.messageService.addError("This artifact type cannot be opened directly using the Go To feature.", true);
+                this.messageService.addError("Artifact_GoTo_NotAvailable", true);
             }
         }).catch(error => {
             this.navigationService.navigateToMain(true);

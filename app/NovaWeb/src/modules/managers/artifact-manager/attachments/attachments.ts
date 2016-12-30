@@ -61,9 +61,12 @@ export class ArtifactAttachments implements IArtifactAttachments {
         } else {
             this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
                 deferred.resolve(result.attachments);
-                this.isLoaded = true;
+                this.attachments = result.attachments;
+                this.subject.onNext(this.attachments);
             }, (error) => {
                 deferred.reject(error);
+            }).finally(() => {
+                this.isLoaded = true;
             });
         }
 
@@ -75,6 +78,7 @@ export class ArtifactAttachments implements IArtifactAttachments {
             this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
                 .catch(error => {
                     this.error.onNext(error);
+                    this.isLoaded = true;
                 }).finally(() => {
                     this.loadPromise = null;
                 });

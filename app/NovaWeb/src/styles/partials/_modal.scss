@@ -491,13 +491,9 @@ $modal-open-project-height: 450px;
         }
 
         .nova-form-beneath {
+            color: $gray-dark;
+            font-size: $font-size-normal;
             margin-top: -12px;
-
-            a {
-                color: $gray-dark;
-                font-size: $font-size-normal;
-                text-decoration: none;
-            }
 
             a:hover {
                 color: $brand-secondary;
@@ -509,13 +505,23 @@ $modal-open-project-height: 450px;
             color: $brand-secondary;
             font-size: $font-size-normal;
             margin-top: 4px;
-    }
+        }
+
+        .btn-link {
+            color: inherit;
+            font-size: inherit;
+            padding: 0;
+        }
+
+        .btn-link:hover {
+            color: $brand-secondary;
+        }
     }
 
     .modal-footer {
-        padding: 0;
         display: table;
         min-height: 60px;
+        padding: 0;
 
         div {
             display: table-cell;
@@ -524,5 +530,32 @@ $modal-open-project-height: 450px;
             text-align: center;
             vertical-align: middle;
     }
+    }
+}
+
+.modal.change-password {
+    .modal-body {
+        padding: 15px 30px;
+    }
+
+    .change-password__focus-stealer {
+        float: left;
+        margin: -2000px 0 0 -2000px;
+    }
+
+    .change-password__message {
+        box-sizing: content-box;
+        font-size: $font-size-normal;
+        padding: 0 0 25px;
+        text-align: center;
+
+        &.error {
+            color: $brand-error;
+        }
+    }
+
+    .change-password__success {
+        font-size: $font-size-normal;
+        padding: 30px;
     }
 }

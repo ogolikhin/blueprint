@@ -62,9 +62,12 @@ export class DocumentRefs implements IDocumentRefs {
         } else {
             this.statefulItem.getAttachmentsDocRefs().then((result: IArtifactAttachmentsResultSet) => {
                 deferred.resolve(result.documentReferences);
-                this.isLoaded = true;
+                this.docrefs = result.documentReferences;
+                this.subject.onNext(this.docrefs);
             }, (error) => {
                 deferred.reject(error);
+            }).finally(() => {
+                this.isLoaded = true;
             });
         }
 
@@ -76,6 +79,7 @@ export class DocumentRefs implements IDocumentRefs {
             this.loadPromise = this.statefulItem.getAttachmentsDocRefs()
                 .catch(error => {
                     this.error.onNext(error);
+                    this.isLoaded = true;
                 }).finally(() => {
                     this.loadPromise = undefined;
                 });

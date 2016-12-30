@@ -8,9 +8,9 @@
         </div>-->
 
         <div>
-            <bp-avatar ng-class="{ 'guest': $ctrl.discussionInfo.isGuest}"
-                       name="{{ $ctrl.discussionInfo.userName }}"
-                       color-base="{{ $ctrl.discussionInfo.userId + $ctrl.discussionInfo.userName }}">
+            <bp-avatar is-guest="$ctrl.discussionInfo.isGuest"
+                       user-id="$ctrl.discussionInfo.userId"
+                       user-name="{{ $ctrl.discussionInfo.userName }}">
             </bp-avatar>
             <div class="author"
                  bp-tooltip-truncated="true"

@@ -484,11 +484,15 @@ namespace SearchService.Repositories
                 {"userId", UserId},
                 {"query", searchCriteria.Query},
                 {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value")},
-                {"excludedPredefineds", SqlItemSearchRepository.PrimitiveItemTypePredefineds},
                 {"maxSearchableValueStringSize", MaxSearchableValueStringSize},
                 {"startOffset", StartOffset},
                 {"pageSize", PageSize}
             };
+            if (searchCriteria.PredefinedTypeIds == null || !searchCriteria.PredefinedTypeIds.Any())
+            {
+                parameters.Add("excludedPredefineds", SqlItemSearchRepository.PrimitiveItemTypePredefineds);
+            }
+
             if (searchCriteria.PredefinedTypeIds != null)
             {
                 parameters.Add("predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));

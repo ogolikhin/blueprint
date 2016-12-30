@@ -3,6 +3,8 @@ import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers"
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
+import {IMessageService} from "../core/messages/message.svc";
+import {MessageType} from "../core/messages/message";
 
 
 export class AppRoutes {
@@ -84,7 +86,8 @@ export class MainStateController {
         "isServerLicenseValid",
         "session",
         "projectManager",
-        "navigationService"
+        "navigationService",
+        "messageService"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
@@ -95,7 +98,8 @@ export class MainStateController {
                 private isServerLicenseValid: boolean,
                 private session: ISession,
                 private projectManager: IProjectManager,
-                private navigation: INavigationService) {
+                private navigation: INavigationService,
+                private messageService: IMessageService) {
 
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
         $rootScope.$on("$stateChangeSuccess", this.stateChangeSuccess);
@@ -116,6 +120,13 @@ export class MainStateController {
         }
 
         this.updateAppTitle();
+        if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
+            this.messageService.clearMessages(true);
+        } else if (toState.name === "main") { // initial state with no project open
+            this.messageService.clearMessages(false, [MessageType.Deleted]);
+        } else {
+            this.messageService.clearMessages();
+        }
     };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
@@ -151,8 +162,8 @@ public static $inject = [
         "$log",
         "session",
         "projectManager",
-    "navigationService",
-    "clipboardService"
+        "navigationService",
+        "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,

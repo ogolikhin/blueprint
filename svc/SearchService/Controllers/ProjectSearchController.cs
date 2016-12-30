@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -7,6 +8,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Controllers
 {
@@ -22,11 +24,11 @@ namespace SearchService.Controllers
 
         public override string LogSource => "SearchService.ProjectSearch";
 
-        public ProjectSearchController() : this(new SqlProjectSearchRepository())
+        public ProjectSearchController() : this(new SqlProjectSearchRepository(), new ServiceLogRepository())
         {
         }
 
-        public ProjectSearchController(IProjectSearchRepository projectSearchRepository)
+        internal ProjectSearchController(IProjectSearchRepository projectSearchRepository, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
             _projectSearchRepository = projectSearchRepository;
         }
@@ -78,11 +80,19 @@ namespace SearchService.Controllers
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
-            return await _projectSearchRepository.SearchName(
-                session.UserId, 
-                searchCriteria, 
-                resultCount.Value,
-                separatorString);
+            try
+            {
+                return await _projectSearchRepository.SearchName(
+                    session.UserId,
+                    searchCriteria,
+                    resultCount.Value,
+                    separatorString);
+            }
+            catch (Exception ex)
+            {
+                await Log.LogError(LogSource, ex);
+                throw;
+            }
         }
     }
 }

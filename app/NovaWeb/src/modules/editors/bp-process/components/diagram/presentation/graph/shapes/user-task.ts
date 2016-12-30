@@ -91,7 +91,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.commentsButton.setHoverImage(this.getImageSource("/comments-active.svg"));
 
         if (this.commentsButton.isEnabled) {
-            if (this.model["artifact"] && this.model["artifact"].flags && this.model["artifact"].flags.hasComments) {
+            if (this.model && this.model.flags && this.model.flags.hasComments) {
                 this.commentsButton.activate();
             }
         }
@@ -435,13 +435,12 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.processDiagramManager.action(ProcessEvents.NavigateToAssociatedArtifact, {
             id: this.associatedArtifact.id,
             version: this.associatedArtifact.version,
-            enableTracking: true
+            enableTracking: true,
+            isAccessible: this.associatedArtifact.typePrefix !== this.rootScope.config.labels["ST_Breadcrumb_InaccessibleArtifact"]
         });
     }
 
     private openDialog(dialogType: ModalDialogType) {
-        window.console.log(`UserTask.openDialog, ${dialogType}`);
-
         this.dialogManager.openDialog(this.model.id, dialogType);
 
         // #TODO use new dialog communication mechanism to open modal dialog
@@ -492,14 +491,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public canGenerateUserStory(): boolean {
         return true;
     }
-
-    public activateButton(flag: ItemIndicatorFlags) {
-        if (flag === ItemIndicatorFlags.HasComments && this.model["artifact"]) {
-            this.model["artifact"].flags.hasComments = true;
-            this.commentsButton.activate();
-        }
-    }
-
+    
     public getNodeType() {
         return NodeType.UserTask;
     }

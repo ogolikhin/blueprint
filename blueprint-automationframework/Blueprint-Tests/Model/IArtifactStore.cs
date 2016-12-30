@@ -26,6 +26,23 @@ namespace Model
         string Address { get; }
 
         /// <summary>
+        /// Uploads a new image to artifact store that could later be embedded in artifacts.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="imageFile">The image file to upload.  Valid image formats are:  JPG and PNG.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The uploaded file with the GUID identification.</returns>
+        EmbeddedImageFile AddImage(IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets an image that was uploaded to artifact store.  No authentication is required.
+        /// </summary>
+        /// <param name="embeddedImageId">The GUID of the file you want to retrieve.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The file that was requested.</returns>
+        EmbeddedImageFile GetImage(string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Copies an artifact to a new parent.
         /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/copyTo/{newParentId}?orderIndex={orderIndex})
         /// </summary>

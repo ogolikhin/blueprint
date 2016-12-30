@@ -16,7 +16,8 @@ abstract class TreeNodeVM<T> implements ITreeNodeVM<T>, ITreeNode {
                 public key: string,
                 public group: boolean,
                 public expanded: boolean,
-                public selectable: boolean) {
+                public selectable: boolean,
+                public parentArtifact?: Models.IArtifact) {
     }
 
     public getCellClass(): string[] {
@@ -65,8 +66,9 @@ export class TreeNodeVMFactory {
         return new SubArtifactContainerNodeVM(this, project, model, name);
     }
 
-    public createSubArtifactNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.ISubArtifactNode): SubArtifactNodeVM {
-        return new SubArtifactNodeVM(this, project, model, this.isSelectable(model));
+    public createSubArtifactNodeVM(project: AdminStoreModels.IInstanceItem, model: Models.ISubArtifactNode,
+                                   parentArtifact: Models.IArtifact): SubArtifactNodeVM {
+        return new SubArtifactNodeVM(this, project, model, this.isSelectable(model), parentArtifact);
     }
 
     public static processChildArtifacts(children: Models.IArtifact[], artifactPath: string[],
@@ -289,7 +291,11 @@ export class SubArtifactContainerNodeVM extends TreeNodeVM<Models.IArtifact> {
 
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         return this.factory.projectService.getSubArtifactTree(this.model.id, this.factory.timeout).then((children: Models.ISubArtifactNode[]) => {
-            return children.map(child => this.factory.createSubArtifactNodeVM(this.project, child));
+            children.forEach(child => {
+                child.artifactName = this.model.name;
+                child.artifactTypePrefix = this.model.prefix;
+            });
+            return children.map(child => this.factory.createSubArtifactNodeVM(this.project, child, this.model));
         });
     }
 }
@@ -298,9 +304,10 @@ export class SubArtifactNodeVM extends TreeNodeVM<Models.ISubArtifactNode> {
     constructor(private factory: TreeNodeVMFactory,
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.ISubArtifactNode,
-                isSelectable: boolean) {
-        super(model, String(model.id), model.hasChildren, false, isSelectable);
-        this.children = model.children ? model.children.map(child => factory.createSubArtifactNodeVM(project, child)) : [];
+                isSelectable: boolean,
+                parentArtifact: Models.IArtifact) {
+        super(model, String(model.id), model.hasChildren, false, isSelectable, parentArtifact);
+        this.children = model.children ? model.children.map(child => factory.createSubArtifactNodeVM(project, child, parentArtifact)) : [];
     }
 
     public getCellClass(): string[] {

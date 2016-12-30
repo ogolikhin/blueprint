@@ -92,21 +92,29 @@ describe("Component BPHistoryPanel", () => {
             expect(vm.artifactHistoryList.length).toBe(11);
         }));
 
-    it("should get more historical versions along with a draft", inject(($timeout: ng.ITimeoutService) => {
+    it("should get more historical versions along with a draft",
+        inject(($timeout: ng.ITimeoutService, artifactHistory: IArtifactHistory) => {
+
         //Arrange
+        const historySpy = spyOn(artifactHistory, "getArtifactHistory")
+            .and.returnValue($q.resolve([{
+                versionId: 1
+            }]));
         vm.artifactHistoryList = [{
-            "versionId": 52,
-            "userId": 1,
-            "displayName": "admin",
-            "hasUserIcon": false,
-            "timestamp": "2016-06-06T13:58:24.557",
-            "artifactState": ArtifactStateEnum.Published
+            versionId: 2,
+            userId: 1,
+            displayName: "admin",
+            hasUserIcon: false,
+            timestamp: "2016-06-06T13:58:24.557",
+            artifactState: ArtifactStateEnum.Published
         }];
+
+        // Act
         vm.loadMoreHistoricalVersions();
         $timeout.flush();
 
         //Assert
-        expect(vm.artifactHistoryList.length).toBe(12);
+        expect(vm.artifactHistoryList.length).toBe(2);
     }));
 
     it("should get empty list because it already has version 1", inject(($timeout: ng.ITimeoutService) => {

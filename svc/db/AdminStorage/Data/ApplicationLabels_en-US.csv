@@ -27,8 +27,11 @@ App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this applicati
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
-Tooltip_App_Header_Help,"Help"
-Tooltip_App_Header_Logout,"Log out"
+App_Header_ChangePassword,"Change password"
+App_Header_Logout,"Log out"
+App_Header_Help,"Help"
+App_Header_Tour,"Tour"
+
 Tooltip_Artifact_Header_LegacyArtifact,"Blueprint artifact"
 Tooltip_Browse_Actor, "Browse Actor"
 
@@ -210,7 +213,7 @@ App_Save_Artifact_Error_400,"An error has occurred and the artifact {0} is no lo
 App_Save_Artifact_Error_404,"Sorry, but the artifact {0} cannot be saved because it has been deleted or moved. Please Refresh All."
 App_Save_Artifact_Error_409,"There was a conflict while saving the artifact {0}."
 App_Save_Artifact_Error_400_114,"The artifact {0} cannot be saved. Please ensure all values are correct."
-App_Save_Artifact_Error_409_115,"The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost."
+App_Save_Artifact_Error_409_115,"The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh, any changes you have made will be lost."
 App_Save_Artifact_Error_409_116,"The artifact {0} cannot be saved. Changes were made to an artifact you do not have permission to access, or has read-only properties."
 App_Save_Artifact_Error_409_117,"A property type is out of date."
 App_Save_Artifact_Error_409_123,"The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All."
@@ -246,6 +249,9 @@ Discard_All_Success_Message,"Changes have been discarded for all artifacts ({0})
 Discard_Single_Dialog_Message,"This artifact will be restored to its last published version. If it has never been published, it will be deleted."
 Discard_Dependents_Dialog_Message,"If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:"
 Discard_Success_Message,"Changes have been discarded."
+Discard_No_Changes, "This artifact has no changes to discard and will now be refreshed to the most recent version."
+Discard_Single_Artifact_Confirm, "This artifact will be restored to its last published version. If it has never been published, it will be deleted."
+Discard_Multiple_Artifacts_Confirm, "Artifacts with unpublished changes: {0}<br/> Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions."
 
 Move_Artifacts_Picker_Header,"Move to..."
 Copy_Artifacts_Picker_Header,"Copy to..."
@@ -279,9 +285,11 @@ Artifact_Collection_Confirmation_Delete_Item,"Please confirm the deletion of the
 Artifact_Collection_Confirmation_Delete_Items,"Please confirm the deletion of the selected items ({0})."
 Artifact_Collection_No_Artifacts_In_Collection,"No artifacts available in this collection"
 Artifact_Collection_Add_Artifacts_Picker_Header,"Add artifacts to collection"
+Artifact_Add_To_Collection_Picker_Header,"Add artifact to collection"
+Artifact_Add_To_Collection_Include_Descendants, "Include artifact descendants"
 
-
-
+Change_Password_Dialog_Header,"Change Password"
+Change_Password_Dialog_Message,"Use the form below to change your password"
 
 Confirmation_Delete_Comment,"Are you sure you want to permanently delete the selected comment?"
 Confirmation_Delete_Comment_Thread,"Are you sure you want to permanently delete all comments in this discussion?"
@@ -331,6 +339,7 @@ Login_Session_NewPasswordMaxLength,"Your new password cannot be longer than 128 
 Login_Session_NewPasswordMinLength,"Your new password must be at least 8 characters long."
 Login_Session_NewPasswordCannotBeEmpty,"New password cannot be empty."
 Login_Session_NewPasswordSameAsOld,"Ensure your new password is different <br>from the current one."
+Login_Session_PasswordChangeCooldown,"Your password has not been updated. It can be changed <br> once every 24 hours. Please try again later."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
 Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 Login_Session_InvalidLicense,"Your license does not include access to this application."
@@ -349,6 +358,16 @@ Artifact_Lock_DoesNotExist, "The artifact has been deleted or moved.<br />The Ex
 Artifact_Lock_AccessDenied, "Cannot establish the artifact lock. Access denied."
 Artifact_Lock_Failure, "Cannot establish the artifact lock due to general failure"
 Artifact_Lock_Refresh,"This artifact has been changed on the server and will now be refreshed to the most recent version."
+Artifact_Version_NotFound,"The specified artifact version does not exist."
+Artifact_GoTo_NotAvailable,"This artifact type cannot be opened directly using the Go To feature."
+
+Artifact_InfoBanner_NoPermissions,"You do not have permission to edit this artifact."
+Artifact_InfoBanner_Locked,"Locked."
+Artifact_InfoBanner_LockedBy,"Locked by {0}."
+Artifact_InfoBanner_LockedOn,"Locked on {0}."
+Artifact_InfoBanner_LockedByOn,"Locked by {0} on {1}."
+Artifact_InfoBanner_DeletedByOn,"Deleted by {0} on {1}."
+Artifact_InfoBanner_Historical,"Version {0}, published by {1} on {2}."
 
 Label_Name,"Name"
 Label_Type,"Type"
@@ -538,3 +557,9 @@ GO_TO_tooltip, "Enter Artifact ID"
 
 #Copy Image
 Copy_Images_Failed, "Images were not copied into clipboard."
+
+#Jobs
+Jobs_Empty, "No Jobs Available"
+Jobs_Author, "Author"
+Jobs_Project, "Project"
+Jobs_Status, "Status"

@@ -5,7 +5,7 @@ import {Message, MessageType} from "./message";
 import {SettingsService} from "../configuration/settings";
 
 describe("messageService", () => {
-    
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageService);
         $provide.service("settings", SettingsService);
@@ -84,7 +84,7 @@ describe("messageService", () => {
             expect(result[0].messageType).toEqual(MessageType.Warning);
             expect(result[0].parameters).toBeUndefined();
         }));
-    
+
     it("addWarning with parameters",
         inject((messageService: IMessageService) => {
             // Arrange
@@ -132,6 +132,63 @@ describe("messageService", () => {
             // Assert
             expect(result.length).toEqual(1);
             expect(result[0]).toBe(message);
+        }));
+
+
+    it("clearMessages, ignores persistent messages",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            const infoMsg = new Message(MessageType.Info, "Info Message");
+            const errorMsg = new Message(MessageType.Error, "Error Message", true);
+            messageService.addMessage(infoMsg);
+            messageService.addMessage(errorMsg);
+
+            // Act
+            const result = messageService.messages;
+            messageService.clearMessages();
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0]).toBe(errorMsg);
+        }));
+
+
+    it("clearMessages, clears persistent messages also",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            const infoMsg = new Message(MessageType.Info, "Info Message");
+            const errorMsg = new Message(MessageType.Error, "Error Message", true);
+            messageService.addMessage(infoMsg);
+            messageService.addMessage(errorMsg);
+
+            // Act
+            const result = messageService.messages;
+            messageService.clearMessages(true);
+
+            // Assert
+            expect(result.length).toEqual(0);
+        }));
+
+
+    it("clearMessages, clears specific message types even if persistent",
+        inject((messageService: IMessageService) => {
+            // Arrange
+            const infoMsg = new Message(MessageType.Info, "Info Message");
+            const errorMsg = new Message(MessageType.Error, "Error Message", true);
+            const deletedMessage = new Message(MessageType.Deleted, "Deleted Message", true);
+            const lockMessage = new Message(MessageType.Lock, "Lock Message", true);
+            messageService.addMessage(infoMsg);
+            messageService.addMessage(errorMsg);
+            messageService.addMessage(deletedMessage);
+            messageService.addMessage(lockMessage);
+
+            // Act
+            const result = messageService.messages;
+            messageService.clearMessages(false, [MessageType.Deleted, MessageType.Lock]);
+
+            // Assert
+            expect(result.length).toEqual(1);
+            expect(result[0]).toBe(errorMsg);
         }));
 
 

@@ -137,54 +137,48 @@ describe("UploadImage Directive", () => {
 
     it("fileChanged", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
         //Arrange
-        const fileMock = {
-            files: {
-                [0]: {
-                    type: "image/jpeg",
-                    name: "test.jpg",
-                    size: 10000
-                }
+        const files = {
+            [0]: {
+                type: "image/jpeg",
+                name: "test.jpg",
+                size: 10000
             }
         };
         spyOn(fileUploadService, "uploadToFileStore").and.callThrough();
         //Act
-        isolatedScope["fileChanged"](fileMock);
+        isolatedScope["fileChanged"](files);
         //Assert
         expect(fileUploadService.uploadToFileStore).toHaveBeenCalled();
     }));
 
     it("fileChanged, size over 2mb", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
         //Arrange
-        const fileMock = {
-            files: {
-                [0]: {
-                    type: "image/jpeg",
-                    name: "test.jpg",
-                    size: 2097153
-                }
+        const files = {
+            [0]: {
+                type: "image/jpeg",
+                name: "test.jpg",
+                size: 2097153
             }
         };
         spyOn(fileUploadService, "uploadToFileStore").and.callThrough();
         //Act
-        isolatedScope["fileChanged"](fileMock);
+        isolatedScope["fileChanged"](files);
         //Assert
         expect(isolatedScope["sizeError"]).toBeTruthy();
     }));
 
     it("fileChanged, file type not image", inject(($injector: ng.auto.IInjectorService, fileUploadService: IFileUploadService) => {
         //Arrange
-        const fileMock = {
-            files: {
-                [0]: {
-                    type: "application/pdf",
-                    name: "test.pdf",
-                    size: 1000
-                }
+        const files = {
+            [0]: {
+                type: "application/pdf",
+                name: "test.pdf",
+                size: 1000
             }
         };
         spyOn(fileUploadService, "uploadToFileStore").and.callThrough();
         //Act
-        isolatedScope["fileChanged"](fileMock);
+        isolatedScope["fileChanged"](files);
         //Assert
         expect(isolatedScope["typeError"]).toBeTruthy();
     }));

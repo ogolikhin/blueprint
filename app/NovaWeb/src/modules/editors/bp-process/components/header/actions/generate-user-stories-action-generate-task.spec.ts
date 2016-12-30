@@ -538,7 +538,7 @@ describe("GenerateUserStoriesAction", () => {
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
                     return $q.resolve(userStories);
                 });
-            const refreshSpy = spyOn(process, "refresh").and.callFake(() => {
+            spyOn(process, "refresh").and.callFake(() => {
                     return $q.resolve();
                 });
             const notifySpy = spyOn(processDiagramCommunication, "action");
@@ -553,7 +553,6 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_From_UserTask_Success_Message"));
-            expect(refreshSpy).toHaveBeenCalledWith(false);
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
         });
@@ -588,7 +587,6 @@ describe("GenerateUserStoriesAction", () => {
             // assert
             expect(notifySpy).toHaveBeenCalledWith(ProcessEvents.UserStoriesGenerated, userStories);
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_From_UserTask_Success_Message"));
-            expect(refreshSpy).toHaveBeenCalledWith(false);
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
             expect(projectManagerRefreshSpy).toHaveBeenCalledTimes(1);

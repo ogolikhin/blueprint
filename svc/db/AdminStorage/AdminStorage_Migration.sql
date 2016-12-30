@@ -877,6 +877,25 @@ set noexec off
 
 
 -- -----------------------------------------------------------------------------------------------
+-- Migration 7.4.1.0
+-- -----------------------------------------------------------------------------------------------
+IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'7.4.1') <> 0) 
+	set noexec on
+Print 'Migrating 7.4.1.0 ...'
+-- -----------------------------------------------------------------------------------------------
+
+
+-- -----------------------------------------------------------------------------------------------
+-- Always add your code just above this comment block
+-- -----------------------------------------------------------------------------------------------
+IF ([dbo].[IsSchemaVersionLessOrEqual](N'7.4.1') <> 0)
+	EXEC [dbo].[SetSchemaVersion] @value = N'7.4.1';
+GO
+set noexec off
+-- -----------------------------------------------------------------------------------------------
+
+
+-- -----------------------------------------------------------------------------------------------
 -- Migration 8.0.0.0
 -- -----------------------------------------------------------------------------------------------
 IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'8.0.0') <> 0) 
@@ -940,8 +959,10 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_PrerequisiteMs
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Name', 'en-US', N'Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_SignedInAs', 'en-US', N'Signed in as')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Welcome', 'en-US', N'Welcome')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Help', 'en-US', N'Help')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_App_Header_Logout', 'en-US', N'Log out')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_ChangePassword', 'en-US', N'Change password')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Logout', 'en-US', N'Log out')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Help', 'en-US', N'Help')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Tour', 'en-US', N'Tour')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Artifact_Header_LegacyArtifact', 'en-US', N'Blueprint artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Tooltip_Browse_Actor', 'en-US', N'Browse Actor')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Left', 'en-US', N'Explorer')
@@ -1106,7 +1127,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_404', 'en-US', N'Sorry, but the artifact {0} cannot be saved because it has been deleted or moved. Please Refresh All.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409', 'en-US', N'There was a conflict while saving the artifact {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_400_114', 'en-US', N'The artifact {0} cannot be saved. Please ensure all values are correct.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_115', 'en-US', N'The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh the artifact. Any changes you have made will be lost.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_115', 'en-US', N'The artifact {0} cannot be saved because your lock on it was stolen by another user. Please Refresh, any changes you have made will be lost.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_116', 'en-US', N'The artifact {0} cannot be saved. Changes were made to an artifact you do not have permission to access, or has read-only properties.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_117', 'en-US', N'A property type is out of date.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All.')
@@ -1135,6 +1156,9 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_All_Succes
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Single_Dialog_Message', 'en-US', N'This artifact will be restored to its last published version. If it has never been published, it will be deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Dependents_Dialog_Message', 'en-US', N'If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Success_Message', 'en-US', N'Changes have been discarded.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_No_Changes', 'en-US', N'This artifact has no changes to discard and will now be refreshed to the most recent version.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Single_Artifact_Confirm', 'en-US', N'This artifact will be restored to its last published version. If it has never been published, it will be deleted.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Multiple_Artifacts_Confirm', 'en-US', N'Artifacts with unpublished changes: {0}<br/> Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Header', 'en-US', N'Move to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Artifacts_Picker_Header', 'en-US', N'Copy to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Insert_Label', 'en-US', N'Insert:')
@@ -1161,6 +1185,10 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collectio
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Confirmation_Delete_Items', 'en-US', N'Please confirm the deletion of the selected items ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_No_Artifacts_In_Collection', 'en-US', N'No artifacts available in this collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Add_Artifacts_Picker_Header', 'en-US', N'Add artifacts to collection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add artifact to collection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Include_Descendants', 'en-US', N'Include artifact descendants')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Header', 'en-US', N'Change Password')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Message', 'en-US', N'Use the form below to change your password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment', 'en-US', N'Are you sure you want to permanently delete the selected comment?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment_Thread', 'en-US', N'Are you sure you want to permanently delete all comments in this discussion?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Comment_Deleted', 'en-US', N'This comment has been deleted. Please refresh.')
@@ -1208,6 +1236,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewP
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordMinLength', 'en-US', N'Your new password must be at least 8 characters long.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCannotBeEmpty', 'en-US', N'New password cannot be empty.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordSameAsOld', 'en-US', N'Ensure your new password is different <br>from the current one.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_PasswordChangeCooldown', 'en-US', N'Your password has not been updated. It can be changed <br> once every 24 hours. Please try again later.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCriteria', 'en-US', N'Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_Timeout', 'en-US', N'​Your session has expired or was overridden.<br>Please log in to continue.​')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_InvalidLicense', 'en-US', N'Your license does not include access to this application.')
@@ -1224,6 +1253,15 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Does
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AccessDenied', 'en-US', N'Cannot establish the artifact lock. Access denied.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Failure', 'en-US', N'Cannot establish the artifact lock due to general failure')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Refresh', 'en-US', N'This artifact has been changed on the server and will now be refreshed to the most recent version.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Version_NotFound', 'en-US', N'The specified artifact version does not exist.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_GoTo_NotAvailable', 'en-US', N'This artifact type cannot be opened directly using the Go To feature.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_NoPermissions', 'en-US', N'You do not have permission to edit this artifact.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_Locked', 'en-US', N'Locked.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedBy', 'en-US', N'Locked by {0}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedOn', 'en-US', N'Locked on {0}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedByOn', 'en-US', N'Locked by {0} on {1}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_DeletedByOn', 'en-US', N'Deleted by {0} on {1}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_Historical', 'en-US', N'Version {0}, published by {1} on {2}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Type', 'en-US', N'Type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_CreatedBy', 'en-US', N'Created by')
@@ -1384,6 +1422,10 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_Res
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Unpublished_Empty', 'en-US', N'No Unpublished Changes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('GO_TO_tooltip', 'en-US', N'Enter Artifact ID')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Images_Failed', 'en-US', N'Images were not copied into clipboard.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Empty', 'en-US', N'No Jobs Available')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Author', 'en-US', N'Author')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Project', 'en-US', N'Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status', 'en-US', N'Status')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

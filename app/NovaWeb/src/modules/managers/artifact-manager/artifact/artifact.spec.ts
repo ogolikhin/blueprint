@@ -1,5 +1,7 @@
+/* tslint:disable:max-file-line-count */
 import * as angular from "angular";
 import "angular-mocks";
+import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {Models, Enums} from "../../../main/models";
 import {IStatefulArtifact} from "./artifact";
@@ -24,12 +26,16 @@ import {ApplicationError} from "../../../core/error/applicationError";
 import {ValidationServiceMock} from "../validation/validation.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {ErrorCode} from "../../../core/error/error-code";
+import {SessionSvcMock} from "./../../../shell/login/mocks.spec";
+import {ItemInfoServiceMock} from "./../../../core/navigation/item-info.svc.mock";
+import {LoadingOverlayServiceMock} from "./../../../core/loading-overlay/loading-overlay.svc.mock";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
     let $q: ng.IQService;
     let validateSpy: jasmine.Spy;
-    beforeEach(angular.mock.module("app.shell"));
+    //beforeEach(angular.mock.module("app.shell"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
@@ -46,6 +52,9 @@ describe("Artifact", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
+        $provide.service("session", SessionSvcMock);
+        $provide.service("itemInfoService", ItemInfoServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
     }));
 
     beforeEach(inject((
@@ -111,6 +120,7 @@ describe("Artifact", () => {
     });
 
     describe("Save", () => {
+
         it("success", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
 
@@ -124,6 +134,7 @@ describe("Artifact", () => {
             // assert
             expect(returnedArtifact).toBeDefined();
         }));
+
         xit("success (skip validation)", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
 
@@ -164,7 +175,6 @@ describe("Artifact", () => {
             expect(error).toBeDefined();
 
         }));
-
 
         xit("error no changes", inject(($rootScope: ng.IRootScopeService) => {
             // arrange
@@ -377,6 +387,23 @@ describe("Artifact", () => {
             expect(error.message).toEqual("App_Save_Artifact_Error_Other" + HttpStatusCode.ServerError);
         }));
 
+        it("updateArtifact is called with process save url and contains process model",
+            inject(($rootScope: ng.IRootScopeService, artifactService: ArtifactServiceMock, $q: ng.IQService) => {
+
+            let url: string;
+            let changes: Models.IArtifact;
+            const updateSpy = spyOn(artifactService, "updateArtifact").and.callFake((_url, _changes) => {
+                url = _url;
+                changes = _changes;
+                return $q.when(artifact);
+            });
+
+            artifact.save();
+            $rootScope.$digest();
+
+            expect(url).toBe("/svc/bpartifactstore/artifacts/22");
+            expect(changes).toBeDefined();
+        }));
     });
 
     //TODO: move to artifact-mamager.spec
@@ -610,6 +637,34 @@ describe("Artifact", () => {
             // assert
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
+        }));
+        
+        it("discards changes and resolves promise when no changes error is thrown from server",
+            inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
+                                               messageService: IMessageService, $q: ng.IQService) => {
+            // arrange
+            spyOn(publishService, "discardArtifacts").and.callFake((artifactIds: number[]) => {
+                let defer = $q.defer<Models.IPublishResultSet>();
+                defer.reject({
+                    errorContent: undefined,
+                    statusCode: HttpStatusCode.Conflict,
+                    errorCode: ErrorCode.NoChanges
+                });
+                return defer.promise;
+            });
+            const spyDiscard = spyOn(artifact, "discard").and.callThrough();
+
+            // act
+            let isResolved: boolean = false;
+            artifact.discardArtifact().then(() => {
+                isResolved = true;
+            });
+            $rootScope.$digest();
+
+            // assert
+            expect(messageService.messages.length).toEqual(1);
+            expect(spyDiscard).toHaveBeenCalled();  
+            expect(isResolved).toBe(true);
         }));
     });
 
@@ -919,31 +974,7 @@ describe("Artifact", () => {
             expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
         }));
     });
-
-    describe("refresh", () => {
-        it("invokes custom refresh if allowed", inject(() => {
-            // arrange
-            const customRefreshSpy = spyOn(artifact, "getCustomArtifactPromisesForRefresh");
-
-            // act
-            artifact.refresh();
-
-            // assert
-            expect(customRefreshSpy).toHaveBeenCalled();
-        }));
-
-        it("doesn't invoke custom refresh if not allowed", inject(() => {
-            // arrange
-            const customRefreshSpy = spyOn(artifact, "getCustomArtifactPromisesForRefresh");
-
-            // act
-            artifact.refresh(false);
-
-            // assert
-            expect(customRefreshSpy).not.toHaveBeenCalled();
-        }));
-    });
-
+    
     describe("Load", () => {
         it("error is deleted", inject(($rootScope: ng.IRootScopeService) => {
             // arrange

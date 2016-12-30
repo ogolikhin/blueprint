@@ -1,6 +1,7 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {Models} from "../../models";
+import {Models, AdminStoreModels} from "../../models";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {InstanceItemType} from "../../models/admin-store-models";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
@@ -22,6 +23,7 @@ export interface IArtifactPickerOptions {
 export class ArtifactPickerDialogController extends BaseDialogController implements IArtifactPickerDialogController {
     public hasCloseButton: boolean = true;
     public selectedVMs: Models.IViewModel<any>[];
+    public disableOkButton: boolean = true;
 
     static $inject = [
         "$uibModalInstance",
@@ -48,6 +50,10 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
 
     public onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): void {
         this.selectedVMs = selectedVMs;
+
+        const selectedVm = _.find(this.selectedVMs, vm => vm.model.type === AdminStoreModels.InstanceItemType.Folder);
+
+        this.disableOkButton = this.selectedVMs && !this.selectedVMs.length || !!selectedVm;
     }
 
     public onDoubleClick(vm: Models.IViewModel<any>): void {

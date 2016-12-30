@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Common;
 using Newtonsoft.Json;
@@ -418,6 +419,35 @@ namespace Model.Impl
             return project;
         }
 
+        /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
+        public IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            IFile file = null;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.ICON, userId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    FileType = response.ContentType
+                };
+            }
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Assert.IsEmpty(response.Content, "Response body contains data, even though Status Code was 204 No Content!");
+            }
+
+            return file;
+        }
+
         /// <summary>
         /// Executes the REST request and returns the response.
         /// </summary>
@@ -510,7 +540,7 @@ namespace Model.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-                return navigationPath;
+            return navigationPath;
         }
 
         #endregion Members inherited from IAdminStore

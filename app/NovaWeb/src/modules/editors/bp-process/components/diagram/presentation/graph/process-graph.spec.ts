@@ -25,6 +25,7 @@ import * as TestShapes from "../../../../models/test-shape-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {FileUploadServiceMock} from "../../../../../../core/file-upload/file-upload.svc.mock";
+import {MessageType, Message} from "../../../../../../core/messages/message";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
@@ -78,8 +79,17 @@ describe("ProcessGraph", () => {
             "ST_New_System_Task_Persona": "System",
             "ST_Delete_CannotDelete_UD_AtleastTwoConditions": "Decision points should have at least two conditions",
             "ST_Add_CannotAdd_MaximumConditionsReached": "Cannot add any more conditions because the maximum number of conditions has been reached.",
-            "ST_Auto_Insert_Task": "The task and its associated shapes have been moved. Another task has been created at the old location."
+            "ST_Auto_Insert_Task": "The task and its associated shapes have been moved. Another task has been created at the old location.",
+            "ST_Eighty_Percent_of_Shape_Limit_Reached": 
+                "The Process now has {0} of the maximum {1} shapes. Please consider refactoring it to move more detailed tasks to included Processes.",
+            "ST_Shape_Limit_Exceeded": 
+             "The shape cannot be added. The Process will exceed the maximum {0} shapes. Please refactor it and move more detailed tasks to included Processes."
         };
+        $rootScope["config"].settings = {
+            StorytellerShapeLimit: "100", 
+            StorytellerIsSMB: "false"
+        };
+
         localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
         shapesFactory = new ShapesFactory(rootScope, _statefulArtifactFactory_);
     }));
@@ -1166,6 +1176,67 @@ describe("ProcessGraph", () => {
                     expect(spy).not.toHaveBeenCalled();
                     expect(addErrorSpy).toHaveBeenCalledWith(rootScope.config.labels["ST_Add_CannotAdd_MaximumConditionsReached"]);
                 });
+
+                it("succeed if conditions being added are at the limit of number of shapes", () => {
+                    // Arrange
+                    const messageServiceMock = new MessageServiceMock();
+                    const graph = createGraph(TestModels.createUserDecisionWithFourShapesLessThanMaximumShapesModel(), messageServiceMock);
+                    const decisionId = 50;
+                    const endId = 160;
+                    const mergeNode = <IDiagramNode>{
+                        model: {
+                            id: endId
+                        }
+                    };
+                    const condition1 = new Condition(decisionId, 999, 0, "", mergeNode, []);
+                    const condition2 = new Condition(decisionId, 999, 0, "", mergeNode, []);
+                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const messageText = 
+                        "The Process now has 14 of the maximum 14 shapes. Please consider refactoring it to move more detailed tasks to included Processes.";
+                    const message = new Message(MessageType.Warning, messageText);
+                    const addMessageSpy = spyOn(messageServiceMock, "addMessage").and.callThrough();
+
+                    graph.viewModel.shapeLimit = 14;
+
+                    // Act
+                    graph.addDecisionBranches(decisionId, [condition1, condition2]);
+                    graph.viewModel.shapeLimit = 100;
+
+                    // Assert
+                    expect(spy).toHaveBeenCalled();
+                    expect(addMessageSpy).toHaveBeenCalledWith(message);
+                });
+
+                it("fails if conditions being added are more than the limit of number of shapes", () => {
+                    // Arrange
+                    const messageServiceMock = new MessageServiceMock();
+                    const graph = createGraph(TestModels.createUserDecisionWithFourShapesLessThanMaximumShapesModel(), messageServiceMock);
+                    const decisionId = 50;
+                    const endId = 160;
+                    const mergeNode = <IDiagramNode>{
+                        model: {
+                            id: endId
+                        }
+                    };
+                    const condition1 = new Condition(decisionId, 999, 0, "", mergeNode, []);
+                    const condition2 = new Condition(decisionId, 999, 0, "", mergeNode, []);
+                    const condition3 = new Condition(decisionId, 999, 0, "", mergeNode, []);
+                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const messageText = 
+            "The shape cannot be added. The Process will exceed the maximum 14 shapes. Please refactor it and move more detailed tasks to included Processes.";
+                    const message = new Message(MessageType.Error, messageText);
+                    const addMessageSpy = spyOn(messageServiceMock, "addMessage").and.callThrough();
+
+                    graph.viewModel.shapeLimit = 14;
+
+                    // Act
+                    graph.addDecisionBranches(decisionId, [condition1, condition2, condition3]);
+                    graph.viewModel.shapeLimit = 100;
+
+                    // Assert
+                    expect(spy).not.toHaveBeenCalled();
+                    expect(addMessageSpy).toHaveBeenCalledWith(message);
+                });
             });
 
             describe("to system decision", () => {
@@ -1817,7 +1888,7 @@ describe("ProcessGraph", () => {
 
     function createGraph(process: ProcessModels.IProcess, messageService?: IMessageService): ProcessGraph {
         let clientModel = new ProcessGraphModel(process);
-        let viewModel = new ProcessViewModel(clientModel, communicationManager);
+        let viewModel = new ProcessViewModel(clientModel, communicationManager, rootScope, localScope, messageService);
 
         //bypass testing stateful shapes logic here
         spyOn(viewModel, "removeStatefulShape").and.returnValue(null);

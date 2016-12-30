@@ -893,6 +893,24 @@ set noexec off
 -- --------------------------------------------------
 
 -- --------------------------------------------------
+-- Migration 7.4.1.0
+-- --------------------------------------------------
+IF NOT ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.1') <> 0) 
+	set noexec on
+Print 'Migrating 7.4.1.0 ...'
+-- --------------------------------------------------
+
+
+-- --------------------------------------------------
+-- Always add your code just above this comment block
+-- --------------------------------------------------
+IF ([FileStore].[IsSchemaVersionLessOrEqual](N'7.4.1') <> 0)
+ 	EXEC [FileStore].[SetSchemaVersion] @value = N'7.4.1';
+GO
+set noexec off
+-- --------------------------------------------------
+
+-- --------------------------------------------------
 -- Migration 8.0.0.0
 -- --------------------------------------------------
 IF NOT ([FileStore].[IsSchemaVersionLessOrEqual](N'8.0.0') <> 0) 

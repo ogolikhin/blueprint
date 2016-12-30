@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SqlClient;
-using System.Net;
 using System.Runtime.Serialization;
 
 namespace Model.Impl

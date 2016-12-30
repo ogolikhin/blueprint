@@ -1,4 +1,3 @@
-import * as _ from "lodash";
 import {Models} from "../../main";
 import {
     IArtifactManager,
@@ -15,6 +14,11 @@ import {PanelType, IUtilityPanelContext, IUtilityPanelController, UtilityPanelSe
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BPUtilityPanelController;
+}
+
+interface IActivePanel {
+    isActive: boolean;
+    panelType: PanelType;
 }
 
 export class BPUtilityPanelController implements IUtilityPanelController {
@@ -35,7 +39,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     public itemTypeIconId: number;
     public hasCustomIcon: boolean;
     public isAnyPanelVisible: boolean;
-   
+
 
     constructor(private localization: ILocalizationService,
                 private artifactManager: IArtifactManager,
@@ -58,10 +62,11 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             for (let panelType = 0; panelType <  accordionCtrl.getPanels().length; panelType++) {
                 let panelCtrl = accordionCtrl.getPanels()[panelType];
                 this._subscribers.push(panelCtrl.isActiveObservable
-                    .filter(isActive => isActive)
-                    .map((isActive) => { return panelType; })
+                    .map(isActive => {
+                        return {panelType: panelType, isActive: isActive};
+                    })
                     .subscribeOnNext(this.activatePanel));
-            }  
+            }
         }
     }
 
@@ -174,22 +179,26 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         }
     }
 
-    private activatePanel = (panelType: PanelType) => {
+    private activatePanel = (panel: IActivePanel) => {
         this.activePanelContexts = this.activePanelContexts || [];
-        const context: IUtilityPanelContext = {
-            artifact: this.selection.artifact,
-            subArtifact: this.selection.subArtifact,
-            panelType: panelType
-        };
-        this.activePanelContexts.push(context);
-    }
+        if (panel.isActive) {
+            const context: IUtilityPanelContext = {
+                artifact: this.selection.artifact,
+                subArtifact: this.selection.subArtifact,
+                panelType: panel.panelType
+            };
+            this.activePanelContexts.push(context);
+        } else {
+            _.remove(this.activePanelContexts, context => context.panelType === panel.panelType);
+        }
+    };
 
     private hidePanels() {
         this.hidePanel(PanelType.Discussions);
         this.hidePanel(PanelType.Files);
         this.hidePanel(PanelType.History);
         this.hidePanel(PanelType.Properties);
-        this.hidePanel(PanelType.Relationships); 
+        this.hidePanel(PanelType.Relationships);
         this.isAnyPanelVisible = false;
     }
 
@@ -219,10 +228,9 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     }
 
     private togglePropertiesPanel(selection: ISelection) {
-            
-        const artifact = selection.artifact;        
+        const artifact = selection.artifact;
         const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
-        
+
         if (artifact && (selection.subArtifact
             || artifact.predefinedType === ItemTypePredefined.Glossary
             || artifact.predefinedType === ItemTypePredefined.GenericDiagram

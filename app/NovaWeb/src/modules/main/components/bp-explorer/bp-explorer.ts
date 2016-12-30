@@ -88,6 +88,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
+    public navigateToJobs() {
+        if (this.$state.current.name === "main.jobs") {
+            this.navigationService.reloadCurrentState();
+        } else {
+            this.$state.go("main.jobs");
+        }
+    }
+
     /**
      * If this method is called after onLoadProject, but before onGridReset, the artifact will be
      * selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
@@ -145,7 +153,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public isProjectTreeVisible(): boolean {
         return this.projects && this.projects.length > 0;
     }
-    
+
     private isMainAreaSelectedArtifactBelongsToOpeningProject(): boolean {
         return this.selectionManager.getArtifact().projectId === this.projects[0].model.id;
     }
@@ -194,10 +202,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
         if (_.isFinite(navigateToId)) {
             if (navigateToId !== selectedArtifactId) {
                 this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
-                this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
             } else {
                 this.navigationService.reloadParentState();
             }
+
+            this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
         } else {
             this.treeApi.deselectAll();
             this.selected = undefined;

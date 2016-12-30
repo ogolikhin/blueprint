@@ -9,8 +9,7 @@ import {TabSliderController} from "./tabSlider.controller";
  *      active-class="active"
  *      transition-delay="500"  // ms, to be used if changing the transition delay in CSS
  *      responsive="true"
- *      slide-select="$ctrl.setActive
- *      slides-collection="$ctrl.richTextFields">
+ *      slide-select="$ctrl.setActive">
  * </tab-slider>
  */
 
@@ -24,8 +23,7 @@ export class TabSliderComponent implements ng.IComponentOptions {
         activeClass: "@?",
         transitionDelay: "<?",
         responsive: "<?",
-        slideSelect: "&?",
-        slidesCollection: "<?"
+        slideSelect: "&?"
     };
 }
 

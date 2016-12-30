@@ -1,16 +1,26 @@
 import {BPButtonGroupAction} from "./bp-button-group-action";
 import {BPButtonAction} from "./bp-button-action";
 
+class TestButton extends BPButtonAction {
+    public icon: string;
+    public tooltip: string;
+    public disabled: boolean;
+
+    constructor() {
+        super();
+    }
+
+    public execute(): void {
+        return;
+    }
+}
+
 describe("BPButtonGroupAction", () => {
     it("initializes properties and methods successfully", () => {
         // arrange
         const type = "buttongroup";
-        const button1 = new BPButtonAction(() => {
-            return;
-        }, () => true, "test1", "test1", "test1");
-        const button2 = new BPButtonAction(() => {
-            return;
-        }, () => false, "test2");
+        const button1 = new TestButton();
+        const button2 = new TestButton();
 
         // act
         const buttonGroupAction = new BPButtonGroupAction(button1, button2);

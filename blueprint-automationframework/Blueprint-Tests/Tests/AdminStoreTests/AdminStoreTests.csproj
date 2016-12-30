@@ -53,12 +53,14 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessControlDoubleTests.cs" />
+    <Compile Include="CustomUserIconTests.cs" />
     <Compile Include="InstanceFolderTests.cs" />
     <Compile Include="InstanceProjectTests.cs" />
     <Compile Include="LicensesTests.cs" />

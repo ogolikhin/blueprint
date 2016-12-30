@@ -27,6 +27,8 @@ import {
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {createDefaultProcessModel} from "../../../editors/bp-process/models/test-model-factory";
+import {INovaProcess} from "../../../editors/bp-process/process-artifact";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -181,7 +183,9 @@ describe("Component BPPropertiesPanel", () => {
 
     it("load properties for artifact",
         inject(($rootScope: ng.IRootScopeService,
-                statefulArtifactFactory: IStatefulArtifactFactory) => {
+                $q: ng.IQService,
+                statefulArtifactFactory: IStatefulArtifactFactory,
+                artifactService: ArtifactServiceMock) => {
             //Arrange
             const artifactModel = {
                 id: 22,
@@ -194,6 +198,10 @@ describe("Component BPPropertiesPanel", () => {
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
             onChangesObj.context.currentValue.artifact = artifact;
 
+            const processArtifactReturn: INovaProcess = ArtifactServiceMock.createArtifact(1);
+            processArtifactReturn.process = createDefaultProcessModel();
+            const getArtifactModelSpy = spyOn(artifactService, "getArtifactModel").
+                                    and.returnValue($q.when(processArtifactReturn));
             // Act
             ctrl.$onChanges(onChangesObj);
             $rootScope.$digest();

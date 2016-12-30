@@ -44,6 +44,13 @@ namespace AdminStore.Repositories
             return (await _connectionWrapper.QueryAsync<LoginUser>("GetLoginUserById", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
 
+        public async Task<UserIcon> GetUserIconByUserIdAsync(int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", userId);
+            return (await _connectionWrapper.QueryAsync<UserIcon>("GetUserIconByUserId", prm, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+        }
+
         public async Task<IEnumerable<LicenseTransactionUser>> GetLicenseTransactionUserInfoAsync(IEnumerable<int> userIds)
         {
             var prm = new DynamicParameters();

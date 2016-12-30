@@ -33,7 +33,6 @@ module.exports = {
     },
     output: {
         publicPath: "/",
-        path: path.resolve(_APP + '../dist/novaweb/'),
         filename: '[name].bundle.js'
     },
     devServer: {

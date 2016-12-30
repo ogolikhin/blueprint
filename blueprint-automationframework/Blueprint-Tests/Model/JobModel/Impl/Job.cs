@@ -54,7 +54,7 @@ namespace Model.JobModel.Impl
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
 
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Targets_id_.JOBS, project.Id, almTarget.Id);
-            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId, almTarget);
+            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
             var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
                 path,
                 RestRequestMethod.POST,
@@ -72,33 +72,19 @@ namespace Model.JobModel.Impl
         #region properties
 
         public int JobId { get; set; }
-
         public JobStatus Status { get; set; }
-
         public JobType JobType { get; set; }
-
         public string Project { get; set; }
-
         public DateTime SubmittedDateTime { get; set; }
-
         public DateTime? JobStartDateTime { get; set; }
-
         public DateTime? JobEndDateTime { get; set; }
-
         public int? UserId { get; set; }
-
         public string UserDisplayName { get; set; }
-
         public string Server { get; set; }
-
         public string Progress { get; set; }
-
         public string Output { get; set; }
-
         public bool StatusChanged { get; set; }
-
         public bool HasCancelJob { get; set; }
-
         public int? ProjectId { get; set; }
 
         #endregion properties
@@ -107,6 +93,13 @@ namespace Model.JobModel.Impl
     }
     public class AlmJob
     {
+        #region Constants
+
+        private const string ALMROOTPATH = "Requirements/BP Airways";
+        private const int ALMROOTPATHID = 12;
+
+        #endregion Constants
+
         #region Constructors
 
         /// <summary>
@@ -124,19 +117,17 @@ namespace Model.JobModel.Impl
         /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
         /// <param name="almTarget">The ALM Target</param>
 
-        public AlmJob(AlmJobType almJobType, int baselineOrReviewId, IAlmTarget almTarget)
+        public AlmJob(AlmJobType almJobType, int baselineOrReviewId)
         {
-            ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
-
-            this.AlmJobType = almJobType;
+            this.AlmJobType = almJobType.ToString();
             this.JobParameters = new JobParameters()
             {
                 Type = "ChangeSummaryParameters",
                 IsImageGenerationRequired = false,
                 IsFirstPush = true,
                 BaselineOrReviewId = baselineOrReviewId,
-                AlmRootPathId = almTarget.Id,
-                AlmRootPath = almTarget.Project
+                AlmRootPathId = ALMROOTPATHID,
+                AlmRootPath = ALMROOTPATH
             };
 
         }
@@ -145,7 +136,7 @@ namespace Model.JobModel.Impl
 
         #region properties
 
-        public AlmJobType AlmJobType { get; set; }
+        public string AlmJobType { get; set; }
 
         public JobParameters JobParameters { get; set; }
 

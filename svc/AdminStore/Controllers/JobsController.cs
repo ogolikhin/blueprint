@@ -37,7 +37,7 @@ namespace AdminStore.Controllers
             _jobsRepository = jobsRepository;
             _sqlUserRepository = sqlUserRepository;
         }
-
+        #region public methods
         /// <summary>
         /// GetLatestJobs
         /// </summary>
@@ -69,6 +69,36 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
+
+        /// <summary>
+        /// GetJob
+        /// </summary>
+        /// <remarks>
+        /// GetJob
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        [HttpGet, NoCache]
+        [Route("{jobId:int:min(1)}"), SessionRequired]
+        [ResponseType(typeof(JobInfo))]
+        public async Task<JobInfo> GetJob(int jobId)
+        {
+            int? userId = ValidateAndExtractUserId();
+            try
+            {
+                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
+                if (isUserInstanceAdmin)
+                {
+                    userId = null;
+                }
+                return await _jobsRepository.GetJob(jobId, userId);
+            }
+            catch (Exception exception)
+            {
+                await Log.LogError(LogSource, exception);
+                throw;
+            }
+        }
+        #endregion
         private int GetPageSize(int? pageSize)
         {
             var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);

@@ -28,7 +28,7 @@ module.exports = {
     output: {
         publicPath: "/novaweb",
         path: path.resolve(_DIST + '/novaweb/'),
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.[chunkhash].js'
     },
     plugins: [
         failPlugin,
@@ -45,21 +45,18 @@ module.exports = {
             }
         }),
         new ExtractTextPlugin('[name].bundle.[chunkhash].css', {allChunks: true}),
-
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,
                 drop_console: true
             },
-            //mangle: true,
-            //beautify: false,
             sourceMap: isDebug
         }),
-        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
+        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.[chunkhash].js"),
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: './web.config'},
-            {from: './favicon**', to: '../'},
+            {from: './favicon**', to:'../'},
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},

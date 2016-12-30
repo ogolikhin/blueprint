@@ -128,7 +128,7 @@ namespace Model.JobModel.Impl
         {
             ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
 
-            this.AlmJobType = almJobType.ToString();
+            this.AlmJobType = almJobType;
             this.JobParameters = new JobParameters()
             {
                 Type = "ChangeSummaryParameters",
@@ -145,7 +145,7 @@ namespace Model.JobModel.Impl
 
         #region properties
 
-        public string AlmJobType { get; set; }
+        public AlmJobType AlmJobType { get; set; }
 
         public JobParameters JobParameters { get; set; }
 

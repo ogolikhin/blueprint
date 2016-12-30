@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.JobModel.Enums;
+using System;
 
 namespace Model
 {
@@ -9,7 +10,7 @@ namespace Model
         int Id { get; set; }
         string Name { get; set; }
         int BlueprintProjectId { get; set; }
-        string AlmType { get; set; }
+        AlmType AlmType { get; set; }
         Uri Url { get; set; }
         string Domain { get; set; }
         string Project { get; set; }

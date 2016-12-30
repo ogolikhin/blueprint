@@ -43,7 +43,7 @@ namespace CommonServiceTests
 
         // TODO: Create the dedicated baseline artifact for creating ALM ChangeSummary Job
         [Category(Categories.CustomData)]
-        [TestCase(407)]
+        [TestCase(8415)]
         [TestRail(0)]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Create an ALM job. Verify that the job information gets retrieved with GET Jobs.")]

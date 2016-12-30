@@ -1,4 +1,5 @@
 ﻿using Common;
+using Model.JobModel.Enums;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -14,7 +15,7 @@ namespace Model.Impl
         public int Id { get; set; }
         public string Name { get; set; }
         public int BlueprintProjectId { get; set; }
-        public string AlmType { get; set; }
+        public AlmType AlmType { get; set; }
         public Uri Url { get; set; }
         public string Domain { get; set; }
         public string Project { get; set; }

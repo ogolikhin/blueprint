@@ -59,9 +59,18 @@
         GenerateTests = 0x4000
     }
 
+    public enum AlmType
+    {
+        Unknown,
+        Raptor,
+        QC,
+        TFS,
+        HpAlmRest
+    }
+
     public enum AlmJobType
     {
-        ChangeSummary,
-        AlmExport
+        ChangeSummary = 0,
+        AlmExport = 1
     }
 }

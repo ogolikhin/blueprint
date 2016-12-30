@@ -39,8 +39,8 @@ namespace Model.JobModel.Impl
         /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
         /// <param name="almTarget">The ALM target</param>"
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>List of first 10 artifacts with name containing searchSubstring</returns>
-        public static IJobBase AddAlmChangeSummaryJob(string address,
+        /// <returns>OpenAPIJob that contains information for ALM ChangeSummary Job.</returns>
+        public static IOpenAPIJob AddAlmChangeSummaryJob(string address,
             IUser user,
             IProject project,
             int baselineOrReviewId,

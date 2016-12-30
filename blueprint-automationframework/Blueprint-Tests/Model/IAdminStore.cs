@@ -243,10 +243,9 @@ namespace Model
         /// Get jobs available for user
         /// </summary>
         /// <param name="user">A user that authenticate with</param>
-        /// <param name="page">(optional)An index to a subset of job results the length of which is determined 
-        /// by the pageSize argument</param>
-        /// <param name="pageSize">(optional)The number of job results to return in a single request.</param>
-        /// <param name="jobType">(optional) The job type that use can filter with. If null, returns all jobs without filtering</param>
+        /// <param name="page">(optional) page index of job results. The length of which is determined by the pageSize argument</param>
+        /// <param name="pageSize">(optional) The maximum number of jobs on each page.</param>
+        /// <param name="jobType">(optional) The job type that user can filter with. If null, returns all jobs without filtering</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
         /// <returns>List of JobInfo</returns>
         List<IJobInfo> GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);

@@ -136,7 +136,7 @@ namespace ArtifactStoreTests
         [TestCase(80, 80, ImageType.PNG, "image/png")]
         [TestRail(213049)]
         [Description("Upload a random image file to ArtifactStore.  Make sure filename parameter is not set. Verify 400 Bad Request is returned.")]
-        public void AddImage_ValidImageWithNotSetFileName_404BadRequest(int width, int height, ImageType imageType, string contentType)
+        public void AddImage_ValidImageWithNotSetFileName_400BadRequest(int width, int height, ImageType imageType, string contentType)
         {
             // Setup:
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);

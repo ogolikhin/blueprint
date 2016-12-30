@@ -78,6 +78,7 @@ module.exports = {
 
             {from: '../assets', to: './novaweb/static'},
             {from: './unsupported-browser', to: './novaweb/static'},
+            {from: './polyfills', to: './novaweb/static'},
 
             {from: '../node_modules/bootstrap-sass/assets/fonts', to: './novaweb/fonts'},
             {from: '../src/fonts', to: './novaweb/fonts'},
@@ -85,9 +86,6 @@ module.exports = {
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './novaweb/static/bp-process/images'},
             {from: '../src/images/icons', to: './novaweb/static/images/icons'}
-        ]),
-            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
-            {from: '../src/images/icons', to: './static/images/icons'}
         ], {
             ignore: ['*.spec.js']
         }),

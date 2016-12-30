@@ -85,7 +85,9 @@ module.exports = {
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
             {from: '../src/images/icons', to: './static/images/icons'}
-        ]),
+        ], {
+            ignore: ['*.spec.js']
+        }),
         new webpack.DefinePlugin({
             KEEN_PROJECT_ID: undefined,
             KEEN_WRITE_KEY: undefined,

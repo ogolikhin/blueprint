@@ -176,12 +176,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", ADD_IMAGE_PATH);
 
             // Verify:
-//<<<<<<< HEAD
-//            string expectedMessage = "Unauthorized call";
-//            Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "{0} should be found when no image id is provided!", expectedMessage);
-//=======
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
-//>>>>>>> 9cd9737805d913025921991f82b7d04608b2cc78
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -290,13 +285,8 @@ namespace ArtifactStoreTests
         /// <param name="filename">The filename to look for.</param>
         private static void AssertFileNotInEmbeddedImagesTable(string filename)
         {
-//<<<<<<< HEAD
-//            string selectQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileName] ='{0}'", filename);
-//            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
-//=======
             string fileIdQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [FileStore].[Files] WHERE [FileName] ='{0}'", filename);
             int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, "FileId", databaseName: "FileStore");
-//>>>>>>> 9cd9737805d913025921991f82b7d04608b2cc78
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);

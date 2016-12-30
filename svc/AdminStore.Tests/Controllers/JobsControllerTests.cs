@@ -89,6 +89,64 @@ namespace AdminStore.Controllers
             jobsRepositoryMock.Verify(
                 a => a.GetVisibleJobs(userId, It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<JobType>()), Times.Once());
         }
+
+
+        [TestMethod]
+        public async Task GetLatestJobs_NegativePage_UsesMinimumOffset()
+        {
+            // Arrange
+            var userId = 1;
+            var session = new Session { UserName = "admin", UserId = userId };
+            var token = Guid.NewGuid().ToString();
+
+            var sqlUserRepositoryMock = new Mock<IUsersRepository>();
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            sqlUserRepositoryMock.Setup(a => a.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).
+                Returns(Task.FromResult(true));
+
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object, sqlUserRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Headers.Add("Session-Token", token);
+            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            await controller.GetLatestJobs(-5);
+
+            // Assert
+            jobsRepositoryMock.Verify(
+                a => a.GetVisibleJobs(It.IsAny<int?>(), 0, It.IsAny<int?>(), It.IsAny<JobType>()), Times.Once());
+        }
+        [TestMethod]
+        public async Task GetLatestJobs_NegativePageSize_UsesDefaultLimit()
+        {
+            // Arrange
+            var userId = 1;
+            var session = new Session { UserName = "admin", UserId = userId };
+            var token = Guid.NewGuid().ToString();
+
+            var sqlUserRepositoryMock = new Mock<IUsersRepository>();
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            sqlUserRepositoryMock.Setup(a => a.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).
+                Returns(Task.FromResult(true));
+
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object, sqlUserRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Headers.Add("Session-Token", token);
+            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            await controller.GetLatestJobs(null, -10);
+
+            // Assert
+            jobsRepositoryMock.Verify(
+                a => a.GetVisibleJobs(It.IsAny<int?>(), It.IsAny<int?>(), 10, It.IsAny<JobType>()), Times.Once());
+        }
         #endregion
     }
 }

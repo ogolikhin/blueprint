@@ -7,8 +7,13 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=2"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="mobile-web-app-capable" content="yes"/>
+    <script src="/novaweb/static/redirect-silverlight-links.js"></script>
+    <script src="/svc/adminstore/config/config.js"></script>
+    
     <title>Storyteller</title>
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
+    <link rel="stylesheet" href="/novaweb/vendor.css">
+    <link rel="stylesheet" href="/novaweb/app.css">
 </head>
 <body>
 <div id="webfont-tester">Webfont tester<!-- This element will be removed at runtime --></div>
@@ -48,10 +53,16 @@
 <script type="text/javascript">
     mxBasePath = "./novaweb/libs/mxClient";
 </script>
-<script src="/novaweb/static/redirect-silverlight-links.js"></script>
-<script src="/svc/adminstore/config/config.js"></script>
+
+<!--<script src="/novaweb/libs/mxClient/js/mxClient.min.js"></script>-->
+
+<!--[if gt IE 9]>-->
+<script src="/novaweb/vendor.bundle.js"></script>
+<!-- <![endif]-->
+
 <script src="/novaweb/static/bowser.js"></script>
 <script src="/novaweb/static/unsupported-browser.js"></script>
+
 <!--[if lte IE 9]>
 <script>
     if (window.appBootstrap) {
@@ -59,6 +70,9 @@
     }
 </script>
 <![endif]-->
+<!--[if gt IE 9]> -->
+<script src="/novaweb/app.bundle.js"></script>
+<!-- <![endif]-->
 
 </body>
 </html>

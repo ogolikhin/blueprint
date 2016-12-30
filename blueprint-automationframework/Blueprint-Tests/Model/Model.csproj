@@ -92,7 +92,12 @@
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
+    <Compile Include="IAlmTarget.cs" />
+    <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />
+    <Compile Include="JobModel\Enums\JobType.cs" />
+    <Compile Include="JobModel\IJob.cs" />
+    <Compile Include="JobModel\Impl\Job.cs" />
     <Compile Include="SearchServiceModel\Impl\ItemSearchResult.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />

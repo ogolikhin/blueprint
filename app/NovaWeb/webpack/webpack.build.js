@@ -26,7 +26,7 @@ module.exports = {
         vendor: ['./../src/vendor.ts']
     },
     output: {
-        publicPath: "/",
+        publicPath: "/novaweb",
         path: path.resolve(_DIST + '/novaweb/'),
         filename: '[name].bundle.[chunkhash].js'
     },
@@ -37,14 +37,14 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',
-            inject: false,
+            inject: true,
             minify: {
                 collapseWhitespace: true,
                 removeComments: true,
                 caseSensitive: true
             }
         }),
-        new ExtractTextPlugin('[name].bundle.[chunkhash]css', {allChunks: true}),
+        new ExtractTextPlugin('[name].bundle.[chunkhash].css', {allChunks: true}),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,
@@ -57,31 +57,31 @@ module.exports = {
             // {output}/file.txt
             {from: './web.config'},
             {from: './favicon**', to:'../'},
-            {from: '../node_modules/tinymce/plugins', to: './novaweb/libs/tinymce/plugins'},
-            {from: '../node_modules/tinymce/themes', to: './novaweb/libs/tinymce/themes'},
-            {from: '../node_modules/tinymce/skins', to: './novaweb/libs/tinymce/skins'},
-            {from: '../node_modules/bowser/bowser.js', to: './novaweb/static/bowser.js'},
-            {from: '../src/redirect/silverlight-links.js', to: './novaweb/static/redirect-silverlight-links.js'},
+            {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
+            {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
+            {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
+            {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
+            {from: '../src/redirect/silverlight-links.js', to: './static/redirect-silverlight-links.js'},
 
-            {from: '../libs/tinymce/plugins/tinymce-mention', to: './novaweb/libs/tinymce/plugins/mention'},
+            {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
 
-            {from: '../libs/mxClient/icons', to: './novaweb/libs/mxClient/icons'},
-            {from: '../libs/mxClient/images', to: './novaweb/libs/mxClient/images'},
-            {from: '../libs/mxClient/stencils', to: './novaweb/libs/mxClient/stencils'},
-            {from: '../libs/mxClient/resources', to: './novaweb/libs/mxClient/resources'},
-            {from: '../libs/mxClient/css', to: './novaweb/libs/mxClient/css'},
-            {from: '../libs/mxClient/js', to: './novaweb/libs/mxClient/js'},
+            {from: '../libs/mxClient/icons', to: './libs/mxClient/icons'},
+            {from: '../libs/mxClient/images', to: './libs/mxClient/images'},
+            {from: '../libs/mxClient/stencils', to: './libs/mxClient/stencils'},
+            {from: '../libs/mxClient/resources', to: './libs/mxClient/resources'},
+            {from: '../libs/mxClient/css', to: './libs/mxClient/css'},
+            {from: '../libs/mxClient/js', to: './libs/mxClient/js'},
 
-            {from: '../assets', to: './novaweb/static'},
-            {from: './unsupported-browser', to: './novaweb/static'},
+            {from: '../assets', to: './static'},
+            {from: './unsupported-browser', to: './static'},
 
-            {from: '../node_modules/bootstrap-sass/assets/fonts', to: './novaweb/fonts'},
+            {from: '../node_modules/bootstrap-sass/assets/fonts', to: './fonts'},
 
-            {from: '../src/fonts', to: './novaweb/fonts'},
-            {from: '../src/images', to: './novaweb/static/images'},
+            {from: '../src/fonts', to: './fonts'},
+            {from: '../src/images', to: './static/images'},
 
-            {from: '../src/modules/editors/bp-process/styles/images', to: './novaweb/static/bp-process/images'},
-            {from: '../src/images/icons', to: './novaweb/static/images/icons'}
+            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
+            {from: '../src/images/icons', to: './static/images/icons'}
         ]),
         new webpack.DefinePlugin({
             KEEN_PROJECT_ID: undefined,

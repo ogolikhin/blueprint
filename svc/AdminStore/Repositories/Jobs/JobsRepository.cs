@@ -114,7 +114,7 @@ namespace AdminStore.Repositories.Jobs
         // Copied from raptor JobMessageDataProvider
         private async Task<IDictionary<int, List<SystemMessage>>> GetRelevantUnfinishCancelSystemJobSystemMessageMap(IEnumerable<int> jobIds, bool? doNotFetchResult = false)
         {
-            var allUnfinishSystemJobs = await GetJobMessages(null, null, null, JobType.System, true, false, doNotFetchResult);
+            var allUnfinishSystemJobs = await GetJobMessages(null, 0, Int32.MaxValue, JobType.System, true, false, doNotFetchResult);
             return allUnfinishSystemJobs
                 .Where(j => j.Parameters != null)
                 .Where(j => j.Type == JobType.System)
@@ -147,7 +147,7 @@ namespace AdminStore.Repositories.Jobs
                 {
                     if(!projectIdPermissionsDictionary.ContainsKey(projectId) || !projectIdPermissionsDictionary[projectId].HasFlag(RolePermissions.Read))
                     {
-                        projectNameIdDictionary[projectId] = "<No Permission>";
+                        projectNameIdDictionary[projectId] = ServiceConstants.NoPermissions;
                     }
                 }
             }

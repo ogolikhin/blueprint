@@ -69,18 +69,15 @@ module.exports = [
     },
     {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: "url?limit=10000&mimetype=application/font-woff&name=fonts/[name].[hash].[ext]",
+        loader: "url?limit=10000&mimetype=application/font-woff",
         include: [
+            path.join(__dirname, "../src/fonts"),
             path.join(__dirname, "../node_modules")
         ]
     },
     {
         test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: "file",
-        query: {
-            name: '/fonts/[name].[hash].[ext]', // note this line still uses `assets` in path to create the right public directory
-            publicPath: '/' // this overwrites the `publicPath` that's mentioned at the top or else you'd have `assets/assets/image/slkfdjskldf.png` in your css url(..)
-        }
+        loader: "file"
     },
     {
         test: /\.jpg$/,
@@ -89,21 +86,8 @@ module.exports = [
     },
     {
         test: /\.gif$/,
-        include: [
-            path.join(__dirname, "../src/images")
-        ],
+        exclude: /node_modules/,
         loader: "file"
-    },
-    {
-        test: /\.gif$/,
-        include: [
-            path.join(__dirname, "../libs")
-        ],
-        loader: "file",
-        query: {
-            name: '/assets/[name].[hash].[ext]', // note this line still uses `assets` in path to create the right public directory
-            publicPath: '/' // this overwrites the `publicPath` that's mentioned at the top or else you'd have `assets/assets/image/slkfdjskldf.png` in your css url(..)
-        }
     },
     {
         test: /\.png$/,

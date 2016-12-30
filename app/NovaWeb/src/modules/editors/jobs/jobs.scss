@@ -62,3 +62,11 @@
     color: $gray-dark;
     overflow: auto;
 }
+
+.jobs__results--content {
+    align-items: center;
+    justify-content: center;
+    height: calc(100% - 30px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}

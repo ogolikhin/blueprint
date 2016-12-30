@@ -770,7 +770,7 @@ namespace Model.Impl
                     Content = response.RawBytes.ToArray(),
                     EmbeddedImageId = embeddedImageId,
                     FileType = response.ContentType,
-                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId),
+                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId)
                 };
             }
 

@@ -15,35 +15,42 @@ namespace Helper
         /// <summary>
         /// Asserts that the two files are identical.
         /// </summary>
-        /// <param name="file1">First file to compare.</param>
-        /// <param name="file2">Second file to compare.</param>
+        /// <param name="expectedFile">The expected file to compare.</param>
+        /// <param name="actualFile">The actual file to compare.</param>
         /// <param name="compareIds">(optional) Pass false if you don't want to include the File IDs in the comparisons.</param>
         /// <param name="compareContent">(optional) Pass false if you don't want to compare file content (i.e. if you are only comparing meta-data).</param>
-        /// <param name="compareFileName">(optional) Pass false if you don't want to compare file names.</param>
+        /// <param name="compareFileNames">(optional) Pass false if you don't want to compare the FileName's.</param>
         /// <exception cref="AssertionException">If file1 is not identical to file2.</exception>
-        public static void AssertFilesAreIdentical(IFile file1, IFile file2, bool compareIds = true, bool compareContent = true, bool compareFileName = true)
+        public static void AssertFilesAreIdentical(IFile expectedFile, IFile actualFile,
+            bool compareIds = true, bool compareContent = true, bool compareFileNames = true)
         {
-            ThrowIf.ArgumentNull(file1, nameof(file1));
-            ThrowIf.ArgumentNull(file2, nameof(file2));
+            ThrowIf.ArgumentNull(expectedFile, nameof(expectedFile));
+            ThrowIf.ArgumentNull(actualFile, nameof(actualFile));
 
-            if (compareFileName)
+            if (compareFileNames)
             {
-                Assert.AreEqual(file1.FileName, file2.FileName,
+                Assert.AreEqual(expectedFile.FileName, actualFile.FileName,
                 "The file name of the files don't match!");
             }
 
-            Assert.AreEqual(file1.FileType, file2.FileType,
+            Assert.AreEqual(expectedFile.FileType, actualFile.FileType,
                 "The file type of the files don't match!");
+
+            if (compareFileNames)
+            {
+                Assert.AreEqual(expectedFile.FileName, actualFile.FileName,
+                    "The file name of the files don't match!");
+            }
 
             if (compareContent)
             {
-                Assert.AreEqual(file1.Content, file2.Content,
+                Assert.AreEqual(expectedFile.Content, actualFile.Content,
                     "The file content of the files don't match!");
             }
 
             if (compareIds)
             {
-                Assert.AreEqual(file1.Guid, file2.Guid,
+                Assert.AreEqual(expectedFile.Guid, actualFile.Guid,
                     "The file Id of the files don't match!");
             }
         }

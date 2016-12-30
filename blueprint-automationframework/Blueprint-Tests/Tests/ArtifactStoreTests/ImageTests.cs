@@ -14,7 +14,6 @@ using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // Ignore all tests in this class until development is done.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class ImageTests : TestBase
@@ -59,6 +58,7 @@ namespace ArtifactStoreTests
 
         #region AddImage tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg")]
         [TestCase(80, 80, ImageType.PNG, "image/png")]
         [TestRail(211529)]
@@ -68,7 +68,7 @@ namespace ArtifactStoreTests
             // Setup:
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
-            IFile returnedFile = null;
+            EmbeddedImageFile returnedFile = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -79,6 +79,9 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
+                "The EmbeddedImageId should not be the same as the FileStore FileId!");
 
             // Get the file from FileStore and compare against what we uploaded.
             var fileStoreFileId = returnedFile.Guid;
@@ -109,6 +112,7 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase("jpg", "image/jpeg")]
         [TestCase("png", "image/png")]
         [TestRail(211537)]
@@ -172,12 +176,17 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", ADD_IMAGE_PATH);
 
             // Verify:
-            string expectedMessage = "Unauthorized call";
-            Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "{0} should be found when no image id is provided!", expectedMessage);
+//<<<<<<< HEAD
+//            string expectedMessage = "Unauthorized call";
+//            Assert.That(ex.RestResponse.Content.Contains(expectedMessage), "{0} should be found when no image id is provided!", expectedMessage);
+//=======
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
+//>>>>>>> 9cd9737805d913025921991f82b7d04608b2cc78
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
         [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
         [TestRail(211538)]
@@ -204,6 +213,7 @@ namespace ArtifactStoreTests
 
         #region GetImage tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
         [TestCase(70, 50, ImageType.PNG, "image/png")]
         [TestRail(211535)]
@@ -226,7 +236,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileName: false);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
         }
 
         [TestCase("abcd1234")]
@@ -280,8 +290,13 @@ namespace ArtifactStoreTests
         /// <param name="filename">The filename to look for.</param>
         private static void AssertFileNotInEmbeddedImagesTable(string filename)
         {
-            string selectQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileName] ='{0}'", filename);
-            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
+//<<<<<<< HEAD
+//            string selectQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileName] ='{0}'", filename);
+//            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
+//=======
+            string fileIdQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [FileStore].[Files] WHERE [FileName] ='{0}'", filename);
+            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, "FileId", databaseName: "FileStore");
+//>>>>>>> 9cd9737805d913025921991f82b7d04608b2cc78
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);

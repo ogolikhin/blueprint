@@ -166,8 +166,13 @@ export class Helper {
         }
     };
 
+    static hasNonTextTags(htmlText: string): boolean {
+        const nonTextTags = new RegExp(/<(img|table)>?/gi);
+        return nonTextTags.test(htmlText || "");
+    }
+
     static tagsContainText(htmlText: string): boolean {
-        let div = document.createElement("div");
+        const div = document.createElement("div");
         div.innerHTML = (htmlText || "").toString();
         let content = div.innerText.trim();
         content = content.replace(/\s/gi, ""); // remove any "spacing" characters
@@ -238,6 +243,19 @@ export class Helper {
         const ngContent = angular.element(content);
         tags.forEach(tag => {
             ngContent.find(tag).remove();
+        });
+    }
+
+    public static stripExternalImages(content: HTMLElement) {
+        const externalUrl = new RegExp("^(?:[a-z]+:)?\/\/", "i");
+        const ngContent = angular.element(content);
+
+        const images = ngContent.find("img");
+        angular.forEach(images, image => {
+            const url = image.getAttribute("src");
+            if (externalUrl.test(url)) {
+                angular.element(image).remove();
+            }
         });
     }
 }

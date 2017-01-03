@@ -79,6 +79,14 @@
     &:focus, &:hover {
         background: $tree-hover-background;
     }
+
+    
+    [class^="fonticon-"]::before,
+    [class*=" fonticon-"]::before,
+    [class*="fonticon-"]::after,
+    [class*=" fonticon-"]::after{
+        font-size: 1.2rem;
+    }
 }
 
 .jobs__results--icon {

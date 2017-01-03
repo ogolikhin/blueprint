@@ -50,6 +50,10 @@ export class SessionSvcMock implements ISession {
         return "";
     }
 
+    public forceDisplayname(): string {
+        return "";
+    }
+
     public ensureAuthenticated() {
         const deferred = this.$q.defer<any>();
         this.currentUser = <IUser>{displayName: "Default Instance Admin", login: "admin"};

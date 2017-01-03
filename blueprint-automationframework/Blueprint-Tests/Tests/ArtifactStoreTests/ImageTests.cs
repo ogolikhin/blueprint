@@ -11,6 +11,8 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -248,7 +250,7 @@ namespace ArtifactStoreTests
         [TestCase("")]
         [TestRail(213022)]
         [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
-        public void GetImage_NonImageIdSpecified_404NotFound(string imageId)
+        public void GetImage_NoImageIdSpecified_404NotFound(string imageId)
         {
             // Execute:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -272,6 +274,55 @@ namespace ArtifactStoreTests
         }
 
         #endregion GetImage tests
+
+        #region Other tests
+
+        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ImageType.PNG, "image/png")]
+        [TestRail(0)]
+        [Description("Create & publish artifact. Upload a random image file to ArtifactStore, then update artifact with this image.  " +
+            "Verify 200 OK is returned by the GET call and the same image that was uploaded is returned.")]
+        public void AddImage_SaveArtifact_ReturnsImage(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            BaseArtifactType artifactType = BaseArtifactType.Process;
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            artifact.Lock(_authorUser);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            IFile returnedFile = null;
+
+            string imageGuid = GetImageGuidFromFileGuid(addedFile.Guid);
+
+            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(imageGuid);
+
+            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
+
+            INovaArtifactDetails updateResult = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                // Execute:
+                Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address),
+                    "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
+            }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
+        }
+/*
+        private void SetProperty(object propertyToChange, object value, ref NovaArtifactDetails artifactDetails)
+        {
+            throw new NotImplementedException();
+        }
+*/
+        #endregion Other tests
 
         #region Private functions
 

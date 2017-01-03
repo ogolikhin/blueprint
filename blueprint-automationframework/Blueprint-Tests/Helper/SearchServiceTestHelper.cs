@@ -213,7 +213,7 @@ namespace Helper
 
             var artifactDetails = testHelper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
-            SetProperty(propertyToUpdate, value, ref artifactDetails);
+            CSharpUtilities.SetProperty(propertyToUpdate, value, artifactDetails);
 
             INovaArtifactDetails updateResult = null;
 
@@ -246,7 +246,7 @@ namespace Helper
 
             foreach (var kvp in propertiesToUpdate)
             {
-                SetProperty(kvp.Key, kvp.Value, ref artifactDetails);
+                CSharpUtilities.SetProperty(kvp.Key, kvp.Value, artifactDetails);
             }
 
             INovaArtifactDetails updateResult = null;
@@ -261,7 +261,7 @@ namespace Helper
 
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
-
+/*
         #region private methods
 
         /// <summary>
@@ -275,6 +275,6 @@ namespace Helper
             objectToUpdate.GetType().GetProperty(propertyName).SetValue(objectToUpdate, propertyValue, null);
         }
 
-        #endregion private methods
+        #endregion private methods */
     }
 }

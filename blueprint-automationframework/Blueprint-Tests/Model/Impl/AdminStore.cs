@@ -1,16 +1,19 @@
-﻿using System;
+﻿using Common;
+using Model.ArtifactModel;
+using Model.Factories;
+using Model.JobModel;
+using Model.JobModel.Enums;
+using Model.JobModel.Impl;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Web;
-using Common;
-using Newtonsoft.Json;
-using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
-using Model.Factories;
-using Model.ArtifactModel;
 
 namespace Model.Impl
 {
@@ -421,14 +424,12 @@ namespace Model.Impl
             return project;
         }
 
-        /// <seealso cref="IAdminStore.GetUserIcon(int, IUser, List{HttpStatusCode})"/>
-        public IFile GetUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
+        public IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             IFile file = null;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.ICON, userId);
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var response = restApi.SendRequestAndGetResponse(
                 path,
@@ -437,19 +438,16 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var contentDisposition = new ContentDisposition(
-                    response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString());
-                string filename = HttpUtility.UrlDecode(contentDisposition.FileName);
-
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
-                    LastModifiedDate =
-                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null),
-                    FileType = response.ContentType,
-                    FileName = filename
+                    FileType = response.ContentType
                 };
+            }
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Assert.IsEmpty(response.Content, "Response body contains data, even though Status Code was 204 No Content!");
             }
 
             return file;
@@ -548,6 +546,45 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             return navigationPath;
+        }
+
+        /// <seealso cref="IAdminStore.GetJobs(IUser, int?, int?, JobType?, List{HttpStatusCode})"/>
+        public List<IJobInfo> GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobs));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var path = RestPaths.Svc.AdminStore.JOBS;
+
+            var queryParams = new Dictionary<string, string>();
+
+            if (page != null)
+            {
+                queryParams.Add("page", page.ToString());
+            }
+
+            if (pageSize != null)
+            {
+                queryParams.Add("pageSize", pageSize.ToString());
+            }
+
+            if (jobType != null)
+            {
+                queryParams.Add("jobType", jobType.ToString());
+            }
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var restResponse = restApi.SendRequestAndDeserializeObject<List<JobInfo>>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return restResponse.ConvertAll(o => (IJobInfo)o);
         }
 
         #endregion Members inherited from IAdminStore

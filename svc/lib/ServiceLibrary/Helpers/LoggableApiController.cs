@@ -5,11 +5,11 @@ namespace ServiceLibrary.Helpers
 {
     public abstract class LoggableApiController : ApiController, ILoggable
     {
-        public LoggableApiController() : this(new ServiceLogRepository())
+        protected LoggableApiController() : this(new ServiceLogRepository())
         {
         }
 
-        public LoggableApiController(IServiceLogRepository log)
+        protected LoggableApiController(IServiceLogRepository log)
         {
             Log = log;
         }

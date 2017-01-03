@@ -1,54 +1,95 @@
-<div class='artifact-state'>
-    <div class="page-content">
-        <div class="page-heading">
-            <div class="responsive-header">
-                <div class="artifact-heading">
-                    <div class="artifact-heading-group1">
-                        <div class="artifact-heading-group2">
+<div class="jobs__results--content">
+    <div class="page-heading">
+    <div class="responsive-header">
+        
+            <div class="artifact-heading">
+                <div class="artifact-heading-group1">                        
+                    <div class="artifact-heading-group2">
+                        <div class="col-md-2">
                             <div class="name">Jobs</div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="icon-container jobs__fr">
+                                    <i class="fonticon fonticon2-refresh-line" ng-click="$ctrl.loadPage(1)"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="icon-container">
+                                    <i class="fonticon fonticon2-arrow-right" ng-click="$ctrl.loadNextPage()"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <bp-toolbar-2 actions="::$ctrl.toolbarActions"></bp-toolbar-2>
             </div>
         </div>
-        <div class="page-body-wrapper">
-            <div class="page-body">
-                <div ng-if="$ctrl.isLoading" class="app-loading">
-                    <span class="glyphicon glyphicon-refresh spin"></span>
-                    {{::$ctrl.localization.get('App_LoadingMsg') }}
+    </div>
+    <div class="jobs-ul" ng-if="!$ctrl.isJobsEmpty()">
+        <ul class="list-unstyled">
+            <li class="jobs__results--item"
+                ng-repeat="item in $ctrl.jobs track by $index">
+                <div class="row small-gutter">
+                    <div class="col-md-1 text-center">
+                        <h2 class="font-blue margin-top--none jobs__text--no-wrap">
+                            <i class="icon-document"></i>
+                        </h2>
+                    </div>
+                    <div class="col-md-11">
+                        <div class="row">
+                            <div class="col-md-11">
+                                <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
+                                    <a class="jobs__results--link" ui-sref="main.item({id: item.artifactId})">
+                                        {{item.id}}
+                                    </a>
+                                </h5>
+                            </div>
+                            <div class="col-md-1">
+                                <div uib-dropdown>
+                                    <span uib-dropdown-toggle>
+                                        <strong>...</strong>
+                                    </span>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li ng-click="$ctrl.addDocRef() "ng-class="{disabled: !$ctrl.canDownload(item.status)}">
+                                            <a>Download</a>
+                                        </li>
+                                        <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canRefresh(item.status)}">
+                                            <a>Refresh</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_Author"]}}: </strong>
+                                <span>{{item.author}}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
+                                <span>{{item.type}}</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
+                                <span> {{item.status}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
+                                <span>{{$ctrl.getDate(item.startedOn)}}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
+                                <span> {{$ctrl.getDate(item.completedOn)}}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <table class="jobs" ng-if="!$ctrl.isLoading">
-                    <thead class="jobs__header">
-                    <tr>
-                        <th class="jobs__icon-col">&nbsp;</th>
-                        <th class="jobs__id-col">ID</th>
-                        <th class="jobs__name-col">Name</th>
-                        <th class="jobs__project-col">Project</th>
-                    </tr>
-                    </thead>
-                    <tbody class="jobs__body">
-                    <tr ng-repeat="job in $ctrl.jobs track by job.id"
-                        class="jobs__row"
-                        ng-class="{'jobs__row--selected': $ctrl.isSelected(artifact)}">
-                        <td class="jobs__icon-col">
-                            <bp-item-type-icon
-                                item-type-id="::artifact.itemTypeId"
-                                item-type-icon-id="::artifact.itemTypeIconId"
-                                predefined-type="::artifact.predefinedType"
-                                fallback="::true" class="bp-artifact-list__icon"></bp-item-type-icon>
-                        </td>
-                        <td class="jobs__id-col"><span>{{::job.id}} </span></td>
-                        <td class="jobs__name-col">{{::job.name}}</td>
-                        <td class="jobs__project-col">{{::job.projectName}}</td>
-                    </tr>
-                    <tr class="jobs__empty-row" ng-if="!$ctrl.jobsArtifacts.length">
-                        <td colspan="4" class="jobs__empty-message">{{::$ctrl.localization.get('Jobs_Empty') }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+            </li>
+        </ul>                
+    </div>
+    <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
+        <div class="center-item font-larger">
+            <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
         </div>
     </div>
 </div>

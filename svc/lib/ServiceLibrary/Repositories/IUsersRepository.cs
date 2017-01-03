@@ -17,5 +17,9 @@ namespace ServiceLibrary.Repositories
         /// <param name="guestsOnly"></param>
         /// <returns></returns>
         Task<IEnumerable<UserInfo>> GetUsersByEmail(string email, bool? guestsOnly = false);
+
+
+
+        Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId);
     }
 }

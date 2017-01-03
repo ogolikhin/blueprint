@@ -1,4 +1,6 @@
-﻿import {BpArtifactInfo} from "./bp-artifact-info";
+﻿import "./bp-artifact-info.scss";
+
+import {BpArtifactInfo} from "./bp-artifact-info";
 import {BPManageTracesItem} from "../dialogs/bp-manage-traces/bp-manage-traces-item";
 
 angular.module("bp.components.artifactinfo", [])

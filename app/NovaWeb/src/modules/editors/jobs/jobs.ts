@@ -54,10 +54,10 @@ export class JobsController {
         this.loadPage(this.page + 1);
     }
 
-    public canDownload(status: JobStatus): boolean {
+   public canDownload(status: JobStatus): boolean {
         return status === JobStatus.Completed;
     }
-    
+
     public canRefresh(status: JobStatus): boolean {
         return status === JobStatus.Cancelling ||
                status === JobStatus.Running ||
@@ -70,7 +70,7 @@ export class JobsController {
             const index = _.indexOf(this.jobs, _.find(this.jobs, {id: result.jobId}));
             const newJob = {
                 id: result.jobId,
-                displayId: "JOB" + result.jobId,
+                displayId: "JOB" + result.jobId + "(" + result.project + ")",
                 author: result.userDisplayName,
                 startedOn: result.jobStartDateTime,
                 type: this.getType(result.jobType),
@@ -91,8 +91,9 @@ export class JobsController {
             for (let item of result) {
                 this.jobs.push({
                     id: item.jobId,
-                    displayId: "JOB" + item.jobId,
+                    displayId: "JOB" + item.jobId + "(" + item.project + ")",
                     author: item.userDisplayName,
+                    submittedOn: item.submittedDateTime,
                     startedOn: item.jobStartDateTime,
                     type: this.getType(item.jobType),
                     completedOn: item.jobEndDateTime,

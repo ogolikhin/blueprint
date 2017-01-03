@@ -91,6 +91,8 @@ namespace Helper
 
         public const int NameCannotBeEmpty = 130;
 
+        public const int ImageTypeNotSupported = 131;
+
         //--------------------------------
 
         public const int Ok = 200;

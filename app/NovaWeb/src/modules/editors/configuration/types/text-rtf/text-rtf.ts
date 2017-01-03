@@ -14,8 +14,8 @@ import {
     BpFileUploadStatusController,
     IUploadStatusDialogData, IUploadStatusResult
 } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import {IFileResult, IFileUploadService} from "../../../../core/file-upload/fileUploadService";
 import {ISettingsService} from "../../../../core/configuration/settings";
+import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
 import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
@@ -198,12 +198,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     });
 
                     editor.addButton("uploadimage", {
-                        title: "Upload Image",
+                        title: "Insert Image",
                         text: "",
                         icon: "image",
                         onclick: () => {
                             const input = angular.element(`<input type="file" name="image_file"
-                                    accept=".jpeg,.jpg,.png,image/jpeg,image/jpeg,image/png" style="display: none">`);
+                                    accept=".jpeg,.jpg,.png" style="display: none">`);
 
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
@@ -265,11 +265,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             progressCallback: (event: ProgressEvent) => void,
                             cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
 
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + 2);
-
-            // TODO: change service to 'imageUploadService' in US4118
-            return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
+            return this.fileUploadService.uploadImageToFileStore(file, progressCallback, cancelPromise);
         };
 
         let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
@@ -281,13 +277,14 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             files: [file],
             maxAttachmentFilesize: filesize,
             maxNumberAttachments: 1,
+            allowedExtentions: ["png", "jpeg", "jpg"],
             fileUploadAction: uploadFile
         };
 
         return this.dialogService.open(dialogSettings, dialogData).then((uploadList: IUploadStatusResult[]) => {
             if (uploadList && uploadList.length > 0) {
                 const uploadedFile = uploadList[0];
-                return uploadedFile.url;
+                return `/${uploadedFile.url}`;
             }
         });
     }

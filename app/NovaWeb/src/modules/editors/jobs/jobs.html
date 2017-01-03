@@ -72,10 +72,10 @@
                     </div>
                     <div class="col-md-1">
                         <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
-                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="Download">
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
                                 <i class="fonticon-download"></i>
                             </button>
-                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="Refresh">
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
                                 <i class="fonticon-refresh"></i>
                             </button>
                             <i ng-if="$ctrl.isJobError(item.status)" class="fonticon-error"></i>

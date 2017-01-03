@@ -74,7 +74,6 @@ module.exports = {
 
             {from: '../assets', to: './static'},
             {from: './unsupported-browser', to: './static'},
-            {from: './polyfills', to: './novaweb/static'},
 
             {from: '../node_modules/bootstrap-sass/assets/fonts', to: './fonts'},
 

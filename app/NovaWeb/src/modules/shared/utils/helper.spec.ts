@@ -278,3 +278,30 @@ describe("Remove tags from an HTML element", () => {
     });
 });
 
+describe("Remove external images", () => {
+    const parser = new DOMParser();
+    const html = document.createElement("div");
+    html.innerHTML = `<p>Test</p>
+                      <span>Another</span>
+                      <img src="http://www.blah.com/test.png" />
+                      <img src="file:///Users/test/Downloads/longcat.gif" />
+                      <img src="https://www.blah.com/test.png" />
+                      <img src="https://www.blah.com/test.png" />
+                      <img src="https://blah.com/test.png" />
+                      <img src="https://cdn.blah.com/test.png" />
+                      <img src="//cdn.blah.com/test.png" />
+                      <img src="//localhost/test.png" />
+                      <img src="//localhost:8000/test.png" />
+                      <img src="test2.png" />
+                      <img src="/test2.png" />`;
+
+    it("only keep 2 images that are internal", () => {
+        // Act
+        Helper.stripExternalImages(html);
+
+        // Assert
+        const result = angular.element(html);
+        expect(result.find("img").length).toBe(2);
+    });
+});
+

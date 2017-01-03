@@ -24,7 +24,9 @@ namespace ArtifactStoreTests
         private static Dictionary<ImageType, ImageFormat> ImageFormatMap = new Dictionary<ImageType, ImageFormat>
         {
             { ImageType.JPEG, ImageFormat.Jpeg },
-            { ImageType.PNG, ImageFormat.Png }
+            { ImageType.PNG, ImageFormat.Png },
+            { ImageType.GIF, ImageFormat.Gif },
+            { ImageType.TIFF, ImageFormat.Tiff }
         };
 
         private IUser _adminUser = null;
@@ -34,7 +36,9 @@ namespace ArtifactStoreTests
         public enum ImageType
         {
             JPEG,
-            PNG
+            PNG,
+            GIF,
+            TIFF
         }
 
         [SetUp]
@@ -54,7 +58,6 @@ namespace ArtifactStoreTests
 
         #region AddImage tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg")]
         [TestCase(80, 80, ImageType.PNG, "image/png")]
         [TestRail(211529)]
@@ -86,9 +89,8 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
-        [TestCase(20, 30, ImageType.JPEG, "text/plain")]
-        [TestCase(80, 80, ImageType.PNG, "application/json")]
+        [TestCase(20, 30, ImageType.GIF, "image/gif")]
+        [TestCase(80, 80, ImageType.TIFF, "image/tiff")]
         [TestRail(211536)]
         [Description("Try to upload a random image file to ArtifactStore but use the wrong Content-Type.  Verify 400 Bad Request is returned.")]
         public void AddImage_ValidImage_InvalidContentType_400BadRequest(int width, int height, ImageType imageType, string contentType)
@@ -103,13 +105,12 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with a Content-Type of '{1}'!", ADD_IMAGE_PATH, contentType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
-                "TODO: Fill this in when development is done.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
+                "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase("jpg", "image/jpeg")]
         [TestCase("png", "image/png")]
         [TestRail(211537)]
@@ -128,10 +129,29 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with data that's not in JPEG or PNG format!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
-                "TODO: Fill this in when development is done.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
+                "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
+        }
+
+        [TestCase(80, 80, ImageType.PNG, "image/png")]
+        [TestRail(213049)]
+        [Description("Upload a random image file to ArtifactStore.  Make sure filename parameter is not set. Verify 400 Bad Request is returned.")]
+        public void AddImage_ValidImageWithNotSetFileName_400BadRequest(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            imageFile.FileName = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 400 Bad Request when called with filename parameter set in a header as null!", ADD_IMAGE_PATH);
+
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
         }
 
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
@@ -159,7 +179,6 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
         [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
         [TestRail(211538)]
@@ -176,8 +195,8 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 409 Conflict when called with images that exceed the FileStore size limit!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
-                "TODO: Fill this in when development is done.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
+                "Specified image size is over limit.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -186,7 +205,6 @@ namespace ArtifactStoreTests
 
         #region GetImage tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
         [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
         [TestCase(70, 50, ImageType.PNG, "image/png")]
         [TestRail(211535)]
@@ -200,32 +218,57 @@ namespace ArtifactStoreTests
             IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
             IFile returnedFile = null;
 
+            string imageGuid = GetImageGuidFromFileGuid(addedFile.Guid);
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                returnedFile = Helper.ArtifactStore.GetImage(addedFile.Guid);
+                returnedFile = Helper.ArtifactStore.GetImage(imageGuid);
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/637FcwhK  Adding an image returns 400 instead of 409
-        [TestCase("", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/7Gewk3Ck  Returns 401 instead of 404.
         [TestCase("abcd1234")]
         [TestRail(211550)]
-        [Description("Try to get an image with an ImageId that doesn't exist.  Verify it returns 404 Not Found.")]
+        [Description("Try to get an image with malformed ImageId GUID.  Verify it returns 400 Bad Request.")]
+        public void GetImage_MalformedImageGuid_400BadRequest(string imageId)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetImage(imageId);
+            }, "'GET {0}' should return 400 Bad request when bad GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid format of specified image id.");
+        }
+
+        [TestCase("")]
+        [TestRail(213022)]
+        [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
+        public void GetImage_NonImageIdSpecified_404NotFound(string imageId)
+        {
+            // Execute:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetImage(imageId);
+            }, "'GET {0}' should return 404 Not Found when passed image GUID for non existing image!", GET_IMAGE_PATH);
+        }
+
+        [TestCase("00000000-0000-0000-0000-000000000000")]
+        [TestRail(213039)]
+        [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
         public void GetImage_NonExistingImage_404NotFound(string imageId)
         {
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetImage(imageId);
-            }, "'GET {0}' should return 404 Not Found when a non-existing image GUID is passed!", GET_IMAGE_PATH);
+            }, "'GET {0}' should return 404 Not Found when a image GUID not provided!", GET_IMAGE_PATH);
 
-            // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
-                "TODO: Fill this in when development is done.");
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "The image with the given GUID does not exist");
         }
 
         #endregion GetImage tests
@@ -243,6 +286,21 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
+        }
+
+        /// <summary>
+        /// Finds image GUID by file GUID
+        /// </summary>
+        /// <param name="fileGuid">File GUID to find image GUID</param>
+        /// <returns>Image GUID</returns>
+        private static string GetImageGuidFromFileGuid(string fileGuid)
+        {
+            string selectQuery = I18NHelper.FormatInvariant("SELECT EmbeddedImageId FROM [Blueprint].[dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", fileGuid);
+            string imageGuid = DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "EmbeddedImageId");
+
+            Assert.IsNotNullOrEmpty(imageGuid, "Image GUID cannot be found in EmbeddedImages table!");
+
+            return imageGuid;
         }
 
         /// <summary>

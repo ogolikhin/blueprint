@@ -27,6 +27,12 @@ namespace Helper
             ThrowIf.ArgumentNull(expectedFile, nameof(expectedFile));
             ThrowIf.ArgumentNull(actualFile, nameof(actualFile));
 
+            if (compareFileNames)
+            {
+                Assert.AreEqual(expectedFile.FileName, actualFile.FileName,
+                "The file name of the files don't match!");
+            }
+
             Assert.AreEqual(expectedFile.FileType, actualFile.FileType,
                 "The file type of the files don't match!");
 

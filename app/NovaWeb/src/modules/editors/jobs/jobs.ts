@@ -77,7 +77,7 @@ export class JobsController {
     public canDownload(status: JobStatus): boolean {
         return this.getJobAction(status) === JobAction.Completed;
     }
-    
+
     public canRefresh(status: JobStatus): boolean {
         return this.getJobAction(status) === JobAction.Running;
     }

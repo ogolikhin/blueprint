@@ -11,13 +11,13 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
     };
 }
 
-export interface IBPBreadcrumbController {
-    breadcrumbs: IBreadcrumbLink[];
+export interface IBPBreadcrumbController extends ng.IComponentController {
+    links: IBreadcrumbLink[];
     trackPath: boolean;
 }
 
 export class BPBreadcrumbController implements IBPBreadcrumbController {
-    public breadcrumbs: IBreadcrumbLink[];
+    public links: IBreadcrumbLink[];
     public trackPath: boolean;
 
     public static $inject: [string] = [
@@ -28,11 +28,7 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
     }
 
     public $onDestroy() {
-        this.breadcrumbs = undefined;
-    }
-
-    public $onChanges(changesObj: any) {
-        this.breadcrumbs = changesObj && changesObj.links && changesObj.links.currentValue || [];
+        this.links = undefined;
     }
 
     public getNavigationParams(link: IBreadcrumbLink, pathIndex: number): INavigationState {

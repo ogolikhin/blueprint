@@ -69,7 +69,8 @@ export class PropertyEditor {
 
             default:
                 if (context.isRichText) {
-                    return Helper.tagsContainText($modelValue) ? $modelValue : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                    // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                    return Helper.tagsContainText($modelValue) || Helper.hasNonTextTags($modelValue) ? $modelValue : "";
                 }
                 return $modelValue;
         }

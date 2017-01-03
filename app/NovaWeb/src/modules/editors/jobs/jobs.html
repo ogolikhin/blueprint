@@ -45,7 +45,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Jobs_Author"]}}: </strong>
+                                <strong>{{::$root.config.labels["Jobs_User"]}}: </strong>
                                 <span>{{item.userDisplayName}}</span>
                             </div>
                             <div class="col-md-4">
@@ -67,6 +67,10 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
+                                <span>{{$ctrl.getDate(item.submittedOn)}}</span>
+                            </div>
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
                                 <span>{{$ctrl.getDate(item.jobStartDateTime)}}</span>

@@ -130,5 +130,34 @@ namespace AccessControl.Controllers
                 return InternalServerError();
             }
         }
+
+        /// <summary>
+        /// Provides license usage information 
+        /// </summary>
+        /// <remarks>
+        /// Returns license usage for the given <paramref name="month" /> and <paramref name="year" />.
+        /// </remarks>
+        /// <param name="month">The number of the month to get usage for.</param>
+        /// <param name="year">The number of the year to get usage for</param>
+        /// <response code="200">OK.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("usage")]
+        [ResponseType(typeof(IEnumerable<LicenseUsage>))]
+        public async Task<IHttpActionResult> GetLicenseUsage(int month, int year)
+        {
+            try
+            {
+                var usage = await _repo.GetLicenseUsage(month, year);
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, usage);
+                return ResponseMessage(response);
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
+                return InternalServerError();
+            }
+        }
     }
 }

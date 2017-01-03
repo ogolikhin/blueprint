@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using Common;
+using System.ComponentModel;
 
 namespace Utilities
 {
@@ -27,7 +28,7 @@ namespace Utilities
                     return default(T);
                 }
 
-                return (T)reader.GetValue(ordinal);
+                return (T)TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(reader.GetValue(ordinal).ToString());
             }
             catch (IndexOutOfRangeException e)
             {

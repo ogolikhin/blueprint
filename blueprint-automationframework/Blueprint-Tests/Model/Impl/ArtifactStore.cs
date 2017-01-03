@@ -41,7 +41,8 @@ namespace Model.Impl
         {
             var addedImage = AddImage(Address, user, imageFile, expectedStatusCodes);
 
-            Files.Add(addedImage);
+            // TODO: Properly manage dispose
+            //Files.Add(addedImage);
 
             // We'll use this user in Dispose() to delete the files.
             if (_userForFiles == null)
@@ -687,6 +688,8 @@ namespace Model.Impl
         /// <returns>The uploaded file with the GUID identification.</returns>
         public static EmbeddedImageFile AddImage(string address, IUser user, IFile imageFile, List<HttpStatusCode> expectedStatusCodes = null)
         {
+            const int GUID_SIZE = 36;
+
             ThrowIf.ArgumentNull(imageFile, nameof(imageFile));
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -700,9 +703,7 @@ namespace Model.Impl
 
             if (!string.IsNullOrEmpty(imageFile.FileName))
             {
-                additionalHeaders.Add("Content-Disposition",
-                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
-                        HttpUtility.UrlEncode(imageFile.FileName, System.Text.Encoding.UTF8)));
+                additionalHeaders.Add("filename", imageFile.FileName);
             }
 
             if (expectedStatusCodes == null)
@@ -722,7 +723,8 @@ namespace Model.Impl
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
-            string embeddedImageId = response.Content.Replace("\"", "");
+            string embeddedImageId = System.Text.RegularExpressions.Regex.Replace(response.Content, "{\"guid\":\"", "");
+            embeddedImageId = embeddedImageId.Substring(0, GUID_SIZE);
             imageFile.Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId);
 
             var embeddedImageFile = new EmbeddedImageFile
@@ -763,23 +765,12 @@ namespace Model.Impl
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var contentDisposition = new ContentDisposition(
-                    response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString());
-
-                Assert.NotNull(contentDisposition, "The Content-Disposition shouldn't be null!");
-
-                string filename = HttpUtility.UrlDecode(contentDisposition.FileName);
-
                 file = new EmbeddedImageFile
                 {
                     Content = response.RawBytes.ToArray(),
                     EmbeddedImageId = embeddedImageId,
                     FileType = response.ContentType,
-                    FileName = filename,
-                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId),
-                    LastModifiedDate =
-                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null)
+                    Guid = DatabaseHelper.GetFileStoreIdForEmbeddedImage(embeddedImageId)
                 };
             }
 

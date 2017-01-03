@@ -1238,6 +1238,23 @@ namespace Helper
         }
 
         /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        public static void ValidateServiceError(RestResponse restResponse, string expectedErrorMessage)
+        {
+            string errorMessage = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                errorMessage = JsonConvert.DeserializeObject<string>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a string!");
+
+            Assert.AreEqual(expectedErrorMessage, errorMessage, "The error message received doesn't match what we expected!");
+        }
+
+        /// <summary>
         /// Creates new rich text that includes inline trace(s)
         /// </summary>
         /// <param name="artifacts">The artifacts being added as inline trace(s)</param>

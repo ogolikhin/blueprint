@@ -197,12 +197,14 @@ export class LoginCtrl extends BaseDialogController {
             this.hasChangePasswordScreenError = true;
             this.isCurrentPasswordFieldErrorStyleShowing = true;
             return;
-        } else if (this.novaNewPassword.length < 8) {
+        }
+        if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             return;
-        } else if (this.novaNewPassword.length > 128) {
+        }
+        if (this.novaNewPassword.length > 128) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMaxLength");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
@@ -213,6 +215,13 @@ export class LoginCtrl extends BaseDialogController {
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             this.isConfirmPasswordFieldErrorStyleShowing = true;
+            return;
+        }
+        if (this.novaNewPassword === this.novaUserName) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
+            this.hasChangePasswordScreenError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
             return;
         }
 

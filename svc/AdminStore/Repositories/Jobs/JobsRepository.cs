@@ -135,7 +135,7 @@ namespace AdminStore.Repositories.Jobs
             jobInfo.JobEndDateTime = jobMessage.EndTimestamp;
             jobInfo.JobType = jobMessage.Type;
             jobInfo.Progress = jobMessage.Progress;
-            jobInfo.Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : null;
+            jobInfo.Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel;
             jobInfo.Server = jobMessage.ExecutorJobServiceId;
             jobInfo.Status = jobMessage.Status.Value;
             jobInfo.UserId = jobMessage.UserId;

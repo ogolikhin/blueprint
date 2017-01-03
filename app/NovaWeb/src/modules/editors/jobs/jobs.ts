@@ -70,7 +70,7 @@ export class JobsController {
             const index = _.indexOf(this.jobs, _.find(this.jobs, {id: result.jobId}));
             const newJob = {
                 id: result.jobId,
-                displayId: "JOB" + result.jobId,
+                displayId: "JOB" + result.jobId + "(" + result.project + ")",
                 author: result.userDisplayName,
                 startedOn: result.jobStartDateTime,
                 type: this.getType(result.jobType),

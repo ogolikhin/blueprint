@@ -251,7 +251,7 @@ namespace Helper
             // Allow negative shape ids in the process being verified
             AssertProcessesAreEqual(novaProcessToVerify.Process, novaProcessReturnedFromGet.Process, allowNegativeShapeIds: true);
 
-            // Assert that the decision branch destination links are in sync during the get opertations
+            // Assert that the decision branch destination links are in sync during the get operations
             AssertDecisionBranchDestinationLinksAreInsync(novaProcessReturnedFromGet.Process);
 
             return novaProcessReturnedFromGet;

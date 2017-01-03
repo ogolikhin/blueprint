@@ -590,6 +590,28 @@ namespace Model.StorytellerModel.Impl
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
             return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie, deleteChildren: deleteChildren);
         }
+
+        public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
+
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+
+            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+        }
         
         public int GetStorytellerShapeLimitFromDb
         {

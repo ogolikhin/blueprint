@@ -34,6 +34,14 @@ namespace StorytellerTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
+            if (Helper?.Storyteller != null)
+            {
+                foreach (var novaProcess in Helper.Storyteller.NovaProcesses)
+                {
+                    Helper.Storyteller.DeleteNovaProcessArtifact(_user, novaProcess);
+                }
+            }
+
             Helper?.Dispose();
         }
 
@@ -46,7 +54,7 @@ namespace StorytellerTests
         [Description("Update the process type of the process and verify that the returned Nova process " +
                      "has the updated process type. This verifies that the process type toggle in the" +
                      "process diagram is working.")]
-        public void ModifyProcessType_VerifyReturnedNovaProcess()
+        public void UpdateNovaProcess_ModifyProcessType_VerifyReturnedNovaProcess()
         {
             // Setup:
             // Create and get the default Nova process
@@ -54,7 +62,7 @@ namespace StorytellerTests
             var process = novaProcess.Process;
             var processType = process.ProcessType;
 
-            Assert.IsTrue(processType == ProcessType.BusinessProcess);
+            Assert.IsTrue(processType == ProcessType.BusinessProcess, "Process type should be Business Process but is not!");
 
             // Modify default process Type
             process.ProcessType = ProcessType.UserToSystemProcess;
@@ -71,7 +79,7 @@ namespace StorytellerTests
         [TestRail(211706)]
         [Description("Add a new user task after the precondition and verify that the returned Nova process " +
                      "has the new user task in the correct position and has the correct properties.")]
-        public void AddUserTaskAfterPrecondition_VerifyReturnedNovaProcess()
+        public void UpdateNovaProcess_AddUserTaskAfterPrecondition_VerifyReturnedNovaProcess()
         {
             // Setup:
             // Create and get the default Nova process

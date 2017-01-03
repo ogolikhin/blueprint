@@ -15,6 +15,11 @@ namespace Model.StorytellerModel
         List<IArtifact> Artifacts { get; }
 
         /// <summary>
+        /// List of created Nova Process artifacts.
+        /// </summary>
+        List<NovaProcess> NovaProcesses { get; }
+
+        /// <summary>
         /// Create and Save a Process artifact
         /// </summary>
         /// <param name="project">The project where the process artifact is to be added</param>
@@ -238,6 +243,16 @@ namespace Model.StorytellerModel
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool? deleteChildren = null);
+
+        /// <summary>
+        /// Delete a Nova process artifact
+        /// svc/bpartifactstore/artifacts/{0}
+        /// </summary>
+        /// <param name="user">The user credentials for the request to delete a Nova process</param>
+        /// <param name="novaProcess">The Nova process artifact to delete</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The list of Nova Artifacts that were deleted.</returns>
+        List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Retrieves the Storyteller limit from the ApplicationSettings table

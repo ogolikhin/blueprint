@@ -52,18 +52,23 @@ namespace CommonServiceTests
 
         #region 200 OK Tests
 
-        // TODO: Create the dedicated baseline artifact for creating ALM ChangeSummary Job
         [Category(Categories.CustomData)]
-        [TestCase(DEFAULT_BASELINEORREVIEWID)]
+        [TestCase(DEFAULT_BASELINEORREVIEWID, 2)]
         [TestRail(213053)]
         [Explicit(IgnoreReasons.UnderDevelopment)]
         [Description("Add ALM jobs. Execute GET Jobs - Verify that the returned JobResult.")]
-        public void GetJobs_AddJobs_VerifyJobResult(int baselineArtifactId)
+        public void GetJobs_AddJobs_VerifyJobResult(int baselineArtifactId, int numberOfJobsCreated)
         {
             // Setup: Create an ALM ChangeSummary job using the prepared ALM target
             IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var almTarget = AlmTarget.GetAlmTargets(Helper.ArtifactStore.Address, _adminUser, projectCustomData).First();
-            OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, projectCustomData, baselineArtifactId, almTarget);
+            Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", projectCustomData.Name);
+            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
+            for (int i = 0; i < numberOfJobsCreated; i++)
+            {
+                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, projectCustomData, baselineArtifactId, almTarget);
+                jobsToBeFound.Add(openAPIJob);
+            }
 
             // Execute: Execute GetJobs without using any optional parameters (page, pageSize, and jobType)
             List<IJobInfo> jobResult = null;
@@ -71,10 +76,9 @@ namespace CommonServiceTests
                 "GET {0} call failed when using it without using any optional parameter!", JOBS_PATH);
 
             // Validation: Verify that jobResult uses DefaultPage, DefaultPageSize
-            JobResultValidation(jobResult: jobResult, page: DEFAULT_PAGE_VALUE, pageSize: DEFAULT_PAGESIZE_VALUE);
+            JobResultValidation(jobResult: jobResult, jobsToBeFound: jobsToBeFound, page: DEFAULT_PAGE_VALUE, pageSize: DEFAULT_PAGESIZE_VALUE);
         }
 
-        // TODO: Create the dedicated baseline artifact for creating ALM ChangeSummary Job
         [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID)]
         [TestRail(213052)]
@@ -151,7 +155,7 @@ namespace CommonServiceTests
         /// <param name="page"> (optional) page value that represents displaying page number of the jobResult</param>
         /// <param name="pageSize"> (optional) pageSize value that indicates number of items that get displayed per page</param>
         private static void JobResultValidation(List<IJobInfo> jobResult,
-            List<IJobInfo> jobsToBeFound = null,
+            List<IOpenAPIJob> jobsToBeFound = null,
             int? page = null,
             int? pageSize = null
             )
@@ -159,7 +163,7 @@ namespace CommonServiceTests
             ThrowIf.ArgumentNull(jobResult, nameof(jobResult));
 
             // Setup: Set comparison values
-            jobsToBeFound = jobsToBeFound ?? new List<IJobInfo>();
+            jobsToBeFound = jobsToBeFound ?? new List<IOpenAPIJob>();
             page = page ?? DEFAULT_PAGE_VALUE;
             pageSize = pageSize ?? DEFAULT_PAGESIZE_VALUE;
 

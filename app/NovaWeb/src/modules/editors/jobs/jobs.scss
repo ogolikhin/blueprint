@@ -79,6 +79,14 @@
     &:focus, &:hover {
         background: $tree-hover-background;
     }
+
+    
+    [class^="fonticon-"]::before,
+    [class*=" fonticon-"]::before,
+    [class*="fonticon-"]::after,
+    [class*=" fonticon-"]::after{
+        font-size: 1.5rem;
+    }
 }
 
 .jobs__results--icon {
@@ -88,4 +96,8 @@
 
 .jobs__fr {
     float: right;
+}
+.jobs__action-items--center {
+    display: block;
+    text-align: center
 }

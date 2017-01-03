@@ -953,6 +953,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Move', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Copy', 'en-US', N'Copy')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_ConfirmCloseProject', 'en-US', N'Close Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Proceed', 'en-US', N'Proceed')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Download', 'en-US', N'Download')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Refresh', 'en-US', N'Refresh')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading ...')

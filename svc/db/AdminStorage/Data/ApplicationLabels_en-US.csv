@@ -18,6 +18,8 @@ App_Button_Move,"Move"
 App_Button_Copy,"Copy"
 App_Button_ConfirmCloseProject,"Close Project"
 App_Button_Proceed,"Proceed"
+App_Button_Download, "Download"
+App_Button_Refresh, "Refresh"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"

@@ -1,3 +1,5 @@
+import "./bp-toolbar.scss";
+
 export {
     BPToolbar
 } from "./bp-toolbar";

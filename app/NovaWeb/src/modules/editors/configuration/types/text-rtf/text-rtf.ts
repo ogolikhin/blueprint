@@ -344,7 +344,6 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                                                 height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
                                             });
                                             editor.insertContent(`<span>${imageContent}</span>`);
-                                            this.triggerChange();
                                         });
                                 });
                             });

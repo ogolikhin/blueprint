@@ -30,6 +30,7 @@ export class LoginCtrl extends BaseDialogController {
 
     public errorMessage: string;
     public novaUserName: string;
+    public novaDisplayName: string;
     public novaPassword: string;
 
     public novaCurrentPassword: string;
@@ -98,6 +99,7 @@ export class LoginCtrl extends BaseDialogController {
         this.currentFormState = LoginState.LoginForm;
         this.errorMessage = session.getLoginMessage();
         this.novaUserName = session.forceUsername();
+        this.novaDisplayName = session.forceDisplayname();
 
         this.isForgetPasswordScreenEnabled = false;
 
@@ -219,6 +221,13 @@ export class LoginCtrl extends BaseDialogController {
         }
         if (this.novaNewPassword === this.novaUserName) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
+            this.hasChangePasswordScreenError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
+            return;
+        }
+        if (this.novaNewPassword === this.novaDisplayName) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             this.isConfirmPasswordFieldErrorStyleShowing = false;

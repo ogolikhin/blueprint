@@ -3,7 +3,6 @@ import {Models, TreeModels} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IProjectService} from "../../../../../modules/managers/project-manager";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact"
 
 export interface IAddArtifactToCollectionOptions extends IArtifactPickerOptions {
     currentArtifact?: any;

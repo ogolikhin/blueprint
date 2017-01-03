@@ -54,15 +54,32 @@ export class JobsController {
         this.loadPage(this.page + 1);
     }
 
-   public canDownload(status: JobStatus): boolean {
+    public canDownload(status: JobStatus): boolean {
         return status === JobStatus.Completed;
     }
-
+    
     public canRefresh(status: JobStatus): boolean {
         return status === JobStatus.Cancelling ||
                status === JobStatus.Running ||
                status === JobStatus.Scheduled ||
                status === JobStatus.Suspending;
+    }
+
+    public refreshJob(jobId: number) {
+        this.jobsService.getJob(jobId).then((result: IJobInfo) => {
+            const index = _.indexOf(this.jobs, _.find(this.jobs, {id: result.jobId}));
+            const newJob = {
+                id: result.jobId,
+                displayId: "JOB" + result.jobId,
+                author: result.userDisplayName,
+                startedOn: result.jobStartDateTime,
+                type: this.getType(result.jobType),
+                completedOn: result.jobEndDateTime,
+                status: this.getStatus(result.status),
+                project: result.project
+            };
+            this.jobs.splice(index, 1, newJob);
+        });
     }
 
     private loadPage(page: number) {
@@ -73,7 +90,8 @@ export class JobsController {
         .then((result: IJobInfo[]) => {
             for (let item of result) {
                 this.jobs.push({
-                    id: "JOB" + item.jobId,
+                    id: item.jobId,
+                    displayId: "JOB" + item.jobId,
                     author: item.userDisplayName,
                     startedOn: item.jobStartDateTime,
                     type: this.getType(item.jobType),

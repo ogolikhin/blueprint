@@ -33,7 +33,7 @@
                             <i class="icon-document"></i>   
                         </h2>
                     </div>
-                    <div class="col-md-11">
+                    <div class="col-md-10">
                         <div class="row">
                             <div class="col-md-11">
                                 <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
@@ -53,16 +53,7 @@
                             <div class="col-md-3">
                                 <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
                                 <span> {{$ctrl.getStatus(item.status)}}</span>
-                            </div>
-                            <div class="col-md-1">
-                                <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="Download">
-                                    <i class="fonticon-download"></i>
-                                </button>
-                                <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="Refresh">
-                                    <i class="fonticon-refresh"></i>
-                                </button>
-                                <i ng-if="$ctrl.isJobError(item.status)" class="fonticon-error"></i>
-                            </div>
+                            </div>                           
                         </div>
                         <div class="row">
                             <div class="col-md-4">
@@ -78,6 +69,17 @@
                                 <span> {{$ctrl.getDate(item.jobEndDateTime)}}</span>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-md-1">
+                        <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="Download">
+                                <i class="fonticon-download"></i>
+                            </button>
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="Refresh">
+                                <i class="fonticon-refresh"></i>
+                            </button>
+                            <i ng-if="$ctrl.isJobError(item.status)" class="fonticon-error"></i>
+                        <h2>
                     </div>
                 </div>
             </li>

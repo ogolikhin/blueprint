@@ -85,7 +85,7 @@
     [class*=" fonticon-"]::before,
     [class*="fonticon-"]::after,
     [class*=" fonticon-"]::after{
-        font-size: 1.2rem;
+        font-size: 1.5rem;
     }
 }
 
@@ -96,4 +96,8 @@
 
 .jobs__fr {
     float: right;
+}
+.jobs__action-items--center {
+    display: block;
+    text-align: center
 }

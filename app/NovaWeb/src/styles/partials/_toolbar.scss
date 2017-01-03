@@ -131,12 +131,3 @@ page-toolbar {
         }
     }
 }
-
-bp-toolbar-toggle {
-    > .btn-group .btn-primary {
-        &.active, &:active, &.active:hover {
-            background-color: $gray-dark;
-            color: #fff;
-        }
-    }
-}

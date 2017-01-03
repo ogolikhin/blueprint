@@ -18,16 +18,26 @@ export class FileUploadServiceMock implements IFileUploadService {
                              progress?: (ev: ProgressEvent) => any,
                              cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
 
-        const deferred = this.$q.defer<IFileResult>();
         const result: IFileResult = {
             guid: "guid" + file.name,
             uriToFile: "uri-" + file.name
         };
 
-        deferred.resolve(result);
-
-        return deferred.promise;
+        return this.$q.resolve(result);
     }
+
+    public uploadImageToFileStore(file: File,
+                                  progress?: (ev: ProgressEvent) => any,
+                                  cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
+
+        const result: IFileResult = {
+            guid: "guid" + file.name,
+            uriToFile: "uri-" + file.name
+        };
+
+        return this.$q.resolve(result);
+    }
+
     public copyArtifactImagesToFilestore(artifactIds: number[],
                                          expirationDate?: Date): ng.IPromise<ICopyImageResult[]> {
         return this.$q.when(null);

@@ -213,7 +213,7 @@ describe("BpArtifactInfo", () => {
             scope.$digest();
 
             // assert
-            expect(element[0].querySelectorAll(".page-toolbar__container").length).toBeGreaterThan(0);
+            expect(element[0].querySelectorAll(".toolbar__container").length).toBeGreaterThan(0);
         });
 
         it("doesn't show the artifact toolbar for deleted artifact", () => {
@@ -230,7 +230,7 @@ describe("BpArtifactInfo", () => {
             scope.$digest();
 
             // assert
-            expect(element[0].querySelectorAll(".page-toolbar__container").length).toBe(0);
+            expect(element[0].querySelectorAll(".toolbar__container").length).toBe(0);
         });
     });
 

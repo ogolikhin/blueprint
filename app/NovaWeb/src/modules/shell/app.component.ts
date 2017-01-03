@@ -95,7 +95,7 @@ export class AppController {
 
         const dialogSettings: IDialogSettings = {
             template: require("./login/changePassword.html"),
-            css: "change-password",
+            css: "nova-login change-password",
             controller: LoginCtrl,
             controllerAs: "ctrl",
             backdrop: true,

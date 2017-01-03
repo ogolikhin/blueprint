@@ -1,4 +1,4 @@
-<div ng-if="getHasFile()">
+<div class="input-file__container" ng-if="getHasFile()">
     <span class="input-group has-messages">
         <span class="input-group-addon">
             <div class="thumb {{getExtension()}}"></div>
@@ -14,7 +14,7 @@
         </span>
         <span class="input-group-addon">
             <label class="btn btn-primary btn-small" ng-disabled="to.disabled||to.isReadOnly">
-                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input"
+                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="multiple" class="file-input"
                        ng-disabled="to.disabled || to.isReadOnly">
                 {{::changeLabelText}}
             </label>
@@ -25,7 +25,7 @@
         </span>
     </span>
 </div>
-<div ng-if="!getHasFile()">
+<div class="input-file__container" ng-if="!getHasFile()">
     <span class="input-group has-messages">
         <span class="input-group-addon">
             <div class="thumb fonticon2-attachment"></div>
@@ -35,7 +35,7 @@
         </span>
         <span class="input-group-addon">
             <label class="btn btn-secondary btn-small" ng-disabled="to.disabled||to.isReadOnly">
-                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="1" class="file-input"
+                <input bp-file-upload="onFileSelect(files, callback)" type="file" multiple="multiple" class="file-input"
                        ng-disabled="to.disabled||to.isReadOnly">
                 {{::uploadLabelText}}
             </label>

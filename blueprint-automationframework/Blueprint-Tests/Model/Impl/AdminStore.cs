@@ -10,8 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
-using System.Web;
 using Utilities;
 using Utilities.Facades;
 
@@ -552,8 +550,6 @@ namespace Model.Impl
         public List<IJobInfo> GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobs));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
 
             var path = RestPaths.Svc.AdminStore.JOBS;
 

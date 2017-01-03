@@ -662,7 +662,7 @@ namespace Helper
         {
             Assert.IsNotNullOrEmpty(imageGUID, "Image GUID should not be null or empty!");
 
-            return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\"", imageGUID);
+            return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
         }
 
         /// <summary>

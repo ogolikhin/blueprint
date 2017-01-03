@@ -1,5 +1,5 @@
 export enum JobAction {
-    Running,
-    Completed,
+    Refresh,
+    Download,
     Error
 }

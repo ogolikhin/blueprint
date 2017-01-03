@@ -59,13 +59,13 @@ export class JobsController {
         let jobAction = JobAction.Error;
         switch (status) {
             case JobStatus.Completed:
-                jobAction = JobAction.Completed;
+                jobAction = JobAction.Download;
                 break;
             case JobStatus.Cancelling:
             case JobStatus.Running:
             case JobStatus.Scheduled:
             case JobStatus.Suspending:
-                jobAction = JobAction.Running;
+                jobAction = JobAction.Refresh;
                 break;
             default:
                 jobAction = JobAction.Error;
@@ -75,11 +75,11 @@ export class JobsController {
     }
 
     public canDownload(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Completed;
+        return this.getJobAction(status) === JobAction.Download;
     }
 
     public canRefresh(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Running;
+        return this.getJobAction(status) === JobAction.Refresh;
     }
 
     public isJobError(status: JobStatus): boolean {

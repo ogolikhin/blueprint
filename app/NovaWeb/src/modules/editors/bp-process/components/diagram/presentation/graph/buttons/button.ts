@@ -156,8 +156,14 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
     }
 
     private raiseButtonUpdatedEvent() {
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("buttonUpdated", true, true, {id: this.getId()});
+        const eventArguments = {
+            bubbles: true, //https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+            cancelable: true, //https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+            detail: {
+                id: this.getId()
+            }
+        };
+        const evt = new CustomEvent("buttonUpdated", eventArguments);
         window.dispatchEvent(evt);
     }
 

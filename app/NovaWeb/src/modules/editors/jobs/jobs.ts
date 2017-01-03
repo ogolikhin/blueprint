@@ -73,8 +73,9 @@ export class JobsController {
         .then((result: IJobInfo[]) => {
             for (let item of result) {
                 this.jobs.push({
-                    id: "JOB" + item.jobId,
+                    id: "JOB" + item.jobId + "(" + item.project + ")",
                     author: item.userDisplayName,
+                    submittedOn: item.submittedDateTime,
                     startedOn: item.jobStartDateTime,
                     type: this.getType(item.jobType),
                     completedOn: item.jobEndDateTime,

@@ -287,6 +287,7 @@ Artifact_Collection_Confirmation_Delete_Items,"Please confirm the deletion of th
 Artifact_Collection_No_Artifacts_In_Collection,"No artifacts available in this collection"
 Artifact_Collection_Add_Artifacts_Picker_Header,"Add artifacts to collection"
 Artifact_Add_To_Collection_Picker_Header,"Add artifact to collection"
+Artifact_Add_To_Collection,"Add to collection"
 Artifact_Add_To_Collection_Include_Descendants, "Include artifact descendants"
 
 Change_Password_Dialog_Header,"Change Password"

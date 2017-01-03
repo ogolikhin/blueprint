@@ -942,13 +942,11 @@ namespace ArtifactStoreTests
 
             int thisYear = DateTime.Now.Year;
 
-            string toChange = "value\":\"" + thisYear;
-
-            int yearOutPropertyRange = thisYear + 100;
+            string toChange = "value\":\"2016";
 
             string requestBody = JsonConvert.SerializeObject(Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id));
 
-            requestBody = requestBody.Replace(toChange, "value\":\"" + yearOutPropertyRange);
+            requestBody = requestBody.Replace(toChange, "value\":\"" + thisYear);
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
@@ -965,8 +963,8 @@ namespace ArtifactStoreTests
 
             DateTime newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
 
-            Assert.AreEqual(yearOutPropertyRange, newDate.Year,
-                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
+            Assert.AreEqual(thisYear, newDate.Year,
+                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, thisYear, newDate.Year);
         }
 
         private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";

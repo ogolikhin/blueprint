@@ -199,6 +199,39 @@ describe("BpArtifactInfo", () => {
             // assert
             expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toBeGreaterThan(0);
         });
+
+        it("shows the artifact toolbar for live artifact", () => {
+            // arrange
+            const artifact = artifactManager.selection.getArtifact();
+            artifact.predefinedType = ItemTypePredefined.TextualRequirement;
+            const template = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+
+            // act
+            const element: ng.IAugmentedJQuery = $compile(template)(scope);
+            const controller = element.controller("bpArtifactInfo") as BpArtifactInfoController;
+            scope.$digest();
+
+            // assert
+            expect(element[0].querySelectorAll(".page-toolbar__container").length).toBeGreaterThan(0);
+        });
+
+        it("doesn't show the artifact toolbar for deleted artifact", () => {
+            // arrange
+            const artifact = artifactManager.selection.getArtifact();
+            artifact.predefinedType = ItemTypePredefined.TextualRequirement;
+            artifact.artifactState.deleted = true;
+            const template = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+
+            // act
+            const element: ng.IAugmentedJQuery = $compile(template)(scope);
+            const controller = element.controller("bpArtifactInfo") as BpArtifactInfoController;
+            scope.$digest();
+
+            // assert
+            expect(element[0].querySelectorAll(".page-toolbar__container").length).toBe(0);
+        });
     });
 
     describe("once initialized", () => {

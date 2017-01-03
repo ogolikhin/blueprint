@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Model.ArtifactModel.Enums;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -99,6 +101,8 @@ namespace Model.StorytellerModel.Impl
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
 
+        public List<NovaProcess> NovaProcesses { get; } = new List<NovaProcess>();
+
         public IArtifact CreateAndSaveProcessArtifact(IProject project, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveProcessArtifact));
@@ -163,7 +167,77 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
-        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, bool)"/>
+        public NovaProcess CreateAndSaveNovaProcessArtifact(IProject project, IUser user, int? parentId = null,
+            double? orderIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            parentId = parentId ?? project.Id;
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var novaArtifact = ArtifactStore.CreateArtifact(Address, user, ItemTypePredefined.Process, artifactName,
+                project, parentId, orderIndex, expectedStatusCodes);
+
+            var novaProcess = GetNovaProcess(user, novaArtifact.Id);
+            UpdateNovaProcess(user, novaProcess,expectedStatusCodes);
+            NovaProcesses.Add(novaProcess);
+
+            return novaProcess;
+        }
+
+        public List<NovaProcess> CreateAndSaveNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
+            double? orderIndex = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveNovaProcessArtifacts));
+
+            var novaProcesses = new List<NovaProcess>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var novaProcess = CreateAndSaveNovaProcessArtifact(project, user, parentId, orderIndex);
+                novaProcesses.Add(novaProcess);
+            }
+            return novaProcesses;
+        }
+
+        public NovaProcess CreateAndPublishNovaProcessArtifact(IProject project, IUser user)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishNovaProcessArtifact));
+
+            var publishedNovaProcessList = CreateAndPublishNovaProcessArtifacts(project, user, 1);
+
+            Assert.That(publishedNovaProcessList.Count().Equals(1), "The expected number of published artifact" +
+                  " was 1 but response object contains {0} artifacts", publishedNovaProcessList.Count());
+            return publishedNovaProcessList[0];
+        }
+
+        public List<NovaProcess> CreateAndPublishNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
+            double? orderIndex = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishNovaProcessArtifacts));
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var novaProcesses = new List<NovaProcess>();
+            var artifacts = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var novaProcess = CreateAndSaveNovaProcessArtifact(project, user, parentId, orderIndex);
+                novaProcesses.Add(novaProcess);
+
+                var artifact = new Artifact(Address, novaProcess.Id, project.Id);
+                artifacts.Add(artifact);
+            }
+
+            ArtifactStore.PublishArtifacts(Address, artifacts, user);
+
+            return novaProcesses;
+        }
+
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -276,7 +350,7 @@ namespace Model.StorytellerModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                shouldControlJsonChanges: false);
 
             return response;
         }
@@ -368,7 +442,7 @@ namespace Model.StorytellerModel.Impl
             return updatedProcess;
         }
 
-        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null)
+        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
 
@@ -377,7 +451,7 @@ namespace Model.StorytellerModel.Impl
 
             string tokenValue = user.Token?.AccessControlToken;
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, novaProcess.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESSUPDATE_id_, novaProcess.Id);
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
@@ -515,6 +589,28 @@ namespace Model.StorytellerModel.Impl
 
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
             return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie, deleteChildren: deleteChildren);
+        }
+
+        public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
+
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+
+            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb

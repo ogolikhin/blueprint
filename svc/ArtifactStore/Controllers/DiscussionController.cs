@@ -70,6 +70,7 @@ namespace ArtifactStore.Controllers
             }
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
+            var projectPermissions = await _artifactPermissionsRepository.GetProjectPermissions(itemInfo.ProjectId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
@@ -81,14 +82,17 @@ namespace ArtifactStore.Controllers
 
             foreach (var discussion in discussions)
             {
-                discussion.CanDelete = permissions.TryGetValue(artifactId, out permission) &&
+                discussion.CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled)
+                          && permissions.TryGetValue(artifactId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId));
-                discussion.CanEdit = permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
+                discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) 
+                          && permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
             }
             
             var result = new DiscussionResultSet
             {
-                CanDelete = permission.HasFlag(RolePermissions.DeleteAnyComment) && revisionId == int.MaxValue,
+                CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled) 
+                          && permission.HasFlag(RolePermissions.DeleteAnyComment) && revisionId == int.MaxValue,
                 CanCreate = permission.HasFlag(RolePermissions.Comment) && revisionId == int.MaxValue,
                 Discussions = discussions,
                 EmailDiscussionsEnabled = await _discussionsRepository.AreEmailDiscussionsEnabled(itemInfo.ProjectId)
@@ -131,6 +135,7 @@ namespace ArtifactStore.Controllers
             }
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);
+            var projectPermissions = await _artifactPermissionsRepository.GetProjectPermissions(itemInfo.ProjectId);
 
             RolePermissions permission = RolePermissions.None;
             if (!permissions.TryGetValue(artifactId, out permission) || !permission.HasFlag(RolePermissions.Read))
@@ -140,9 +145,10 @@ namespace ArtifactStore.Controllers
             var result = await _discussionsRepository.GetReplies(discussionId, itemInfo.ProjectId);
             foreach (var reply in result)
             {
-                reply.CanDelete = permissions.TryGetValue(artifactId, out permission) &&
+                reply.CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled) && permissions.TryGetValue(artifactId, out permission) &&
                     (permission.HasFlag(RolePermissions.DeleteAnyComment) || (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId));
-                reply.CanEdit = permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
+                reply.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) &&
+                    permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && reply.UserId == session.UserId);
             }
 
             return result;

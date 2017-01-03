@@ -20,3 +20,4 @@ import "ui-select";
 import "es6-shim";
 import "angular-animate";
 import "angular-vs-repeat";
+import "custom-event-polyfill";

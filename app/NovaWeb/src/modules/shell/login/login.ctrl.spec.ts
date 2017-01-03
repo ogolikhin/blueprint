@@ -472,7 +472,7 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.hasChangePasswordScreenError).toBe(false);
         }));
 
-        it("respond with password confirm missmatch error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+        it("respond with password confirm mismatch error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
             loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
@@ -485,6 +485,39 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_PasswordConfirmMismatch");
+        }));
+
+        it("respond with password equals to username error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+            // Arrange
+            loginCtrl.novaUserName = "Username<1>";
+            loginCtrl.novaCurrentPassword = "changeme";
+            loginCtrl.novaNewPassword = "Username<1>";
+            loginCtrl.novaConfirmNewPassword = "Username<1>";
+
+            // Act
+            loginCtrl.changePassword();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeUsername");
+        }));
+
+        it("respond with password equals to display name error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+            // Arrange
+            loginCtrl.novaUserName = "Username<1>";
+            loginCtrl.novaDisplayName = "Displayname<1>";
+            loginCtrl.novaCurrentPassword = "changeme";
+            loginCtrl.novaNewPassword = "Displayname<1>";
+            loginCtrl.novaConfirmNewPassword = "Displayname<1>";
+
+            // Act
+            loginCtrl.changePassword();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeDisplayname");
         }));
 
         it("respond with password min length error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {

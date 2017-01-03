@@ -2,22 +2,21 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Web.Http.Description;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("jobs")]
     [BaseExceptionFilter]
-
     public class JobsController : LoggableApiController
     {
         internal readonly IJobsRepository _jobsRepository;
@@ -30,14 +29,19 @@ namespace AdminStore.Controllers
         {
         }
 
-        internal JobsController(IJobsRepository jobsRepository, 
+        internal JobsController
+        (
+            IJobsRepository jobsRepository, 
             IServiceLogRepository serviceLogRepository,
-            IUsersRepository sqlUserRepository) : base(serviceLogRepository)
+            IUsersRepository sqlUserRepository
+        ) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
             _sqlUserRepository = sqlUserRepository;
         }
+
         #region public methods
+
         /// <summary>
         /// GetLatestJobs
         /// </summary>
@@ -61,6 +65,7 @@ namespace AdminStore.Controllers
                 int jobPageSize = GetPageSize(pageSize);
                 int jobPage = GetPage(page, 1, 1);
                 int offset = (jobPage - 1) * jobPageSize;
+
                 return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
             }
             catch (Exception exception)
@@ -90,6 +95,7 @@ namespace AdminStore.Controllers
                 {
                     userId = null;
                 }
+
                 return await _jobsRepository.GetJob(jobId, userId);
             }
             catch (Exception exception)
@@ -98,7 +104,9 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
+
         #endregion
+
         private int GetPageSize(int? pageSize)
         {
             var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);
@@ -106,6 +114,7 @@ namespace AdminStore.Controllers
             {
                 return WebApiConfig.JobDetailsPageSize;
             }
+
             return jobPageSize;
         }
 
@@ -114,6 +123,7 @@ namespace AdminStore.Controllers
             int page = requestedPage.GetValueOrDefault(defaultPage);
             return page < minPage ? defaultPage : page;
         }
+
         private int ValidateAndExtractUserId()
         {
             // get the UserId from the session
@@ -122,6 +132,7 @@ namespace AdminStore.Controllers
             {
                 throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }
+
             return ((Session)sessionValue).UserId;
         }
     }

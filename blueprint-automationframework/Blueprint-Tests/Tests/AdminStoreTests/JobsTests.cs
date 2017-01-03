@@ -17,6 +17,7 @@ namespace CommonServiceTests
 {
     [TestFixture]
     [Category(Categories.AdminStore)]
+    [Category(Categories.CustomData)]
     public class JobsTests : TestBase
     {
         protected const string JOBS_PATH = RestPaths.Svc.AdminStore.JOBS;
@@ -52,10 +53,9 @@ namespace CommonServiceTests
 
         #region 200 OK Tests
 
-        [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2)]
         [TestRail(213053)]
-        [Description("GET Jobs without using optional parameters. Verify that the returned JobResult.")]
+        [Description("GET Jobs without using optional parameters. Verify that the returned JobResult uses default page and pageSize values.")]
         public void GetJobs_GetJobsWithoutOptionalParameters_VerifyJobResult(int baselineOrReviewId, int numberOfJobsToBeCreated)
         {
             // Setup: Create an ALM Change Summary job using the prepared ALM target
@@ -66,11 +66,10 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(_adminUser),
                 "GET {0} call failed when using it without using any optional parameter!", JOBS_PATH);
 
-            // Validation: Verify that jobResult uses DefaultPage, DefaultPageSize
+            // Validation: Verify that jobResult uses DefaultPage and DefaultPageSize
             JobResultValidation(jobResult: jobResult, jobsToBeFound: jobsToBeFound, page: DEFAULT_PAGE_VALUE, pageSize: DEFAULT_PAGESIZE_VALUE);
         }
 
-        [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1 )]
         [TestRail(227081)]
         [Description("GET Jobs using page and pageSize parameters. Verify that the returned JobResult use page and pageSize parameters.")]
@@ -93,7 +92,6 @@ namespace CommonServiceTests
             JobResultValidation(jobResult: jobResult, jobsToBeFound: jobsToBeFound, page: page, pageSize: pageSize);
         }
 
-        [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2)]
         [TestRail(227082)]
         [Description("GET Jobs using the jobType that doesn't match with jobs created for the test. Verify that the returned empty JobResult.")]
@@ -115,7 +113,6 @@ namespace CommonServiceTests
 
         }
 
-        [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, -1, -1)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 0, 0)]
         [TestRail(227083)]
@@ -139,7 +136,6 @@ namespace CommonServiceTests
             JobResultValidation(jobResult: jobResult, jobsToBeFound: jobsToBeFound, page: DEFAULT_PAGE_VALUE,pageSize: DEFAULT_PAGESIZE_VALUE);
         }
 
-        [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2)]
         [TestRail(227084)]
         [Description("GET Jobs using the author user after creating jobs with admin. Verify that the returned jobResult contains jobs belong to the user which is nothing.")]
@@ -160,7 +156,6 @@ namespace CommonServiceTests
             JobResultValidation(jobResult);
         }
 
-        [Category(Categories.CustomData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID)]
         [TestRail(213052)]
         [Description("GET Jobs using a user doesn't have permission to projects. Verify that the returned empty JobResult.")]
@@ -226,7 +221,6 @@ namespace CommonServiceTests
         #endregion 401 Unauthorized Tests
 
         #region private functions
-
 
         /// <summary>
         /// Create ALM Change Summary Jobs as a setup for testing Nova GET Jobs API calls

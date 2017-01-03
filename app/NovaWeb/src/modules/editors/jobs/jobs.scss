@@ -79,13 +79,18 @@
     &:focus, &:hover {
         background: $tree-hover-background;
     }
-
     
     [class^="fonticon-"]::before,
     [class*=" fonticon-"]::before,
     [class*="fonticon-"]::after,
     [class*=" fonticon-"]::after{
         font-size: 1.5rem;
+    }    
+    .fonticon-refresh,
+    .fonticon-download {       
+        &:focus, &:hover {
+            color: $brand-secondary;
+        }
     }
 }
 

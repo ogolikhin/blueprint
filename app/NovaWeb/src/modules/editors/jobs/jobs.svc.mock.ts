@@ -8,4 +8,8 @@ export class JobsServiceMock implements IJobsService {
     public getJobs(page?: number, pageSize?: number): ng.IPromise<IJobInfo[]> {
         return this.$q.resolve<IJobInfo[]>(<IJobInfo[]>{});
     }
+    
+    public getJob(jobId: number): ng.IPromise<IJobInfo> {
+        return this.$q.resolve<IJobInfo>(<IJobInfo>{});
+    }
 }

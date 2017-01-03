@@ -65,6 +65,23 @@ export class JobsController {
                status === JobStatus.Suspending;
     }
 
+    public refreshJob(jobId: number) {
+        this.jobsService.getJob(jobId).then((result: IJobInfo) => {
+            const index = _.indexOf(this.jobs, _.find(this.jobs, {id: result.jobId}));
+            const newJob = {
+                id: result.jobId,
+                displayId: "JOB" + result.jobId,
+                author: result.userDisplayName,
+                startedOn: result.jobStartDateTime,
+                type: this.getType(result.jobType),
+                completedOn: result.jobEndDateTime,
+                status: this.getStatus(result.status),
+                project: result.project
+            };
+            this.jobs.splice(index, 1, newJob);
+        });
+    }
+
     private loadPage(page: number) {
         this.isLoading = true;
         this.page = page;
@@ -73,7 +90,8 @@ export class JobsController {
         .then((result: IJobInfo[]) => {
             for (let item of result) {
                 this.jobs.push({
-                    id: "JOB" + item.jobId + "(" + item.project + ")",
+                    id: item.jobId,
+                    displayId: "JOB" + item.jobId + "(" + item.project + ")",
                     author: item.userDisplayName,
                     submittedOn: item.submittedDateTime,
                     startedOn: item.jobStartDateTime,

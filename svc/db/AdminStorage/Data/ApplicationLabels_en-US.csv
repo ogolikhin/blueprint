@@ -149,6 +149,7 @@ App_UP_Discussions_Introduction_Message,"You may collaborate with others using t
 App_UP_Discussions_Start_Discussion,"+ Start a new discussion"
 App_UP_Discussions_New_Discussion,"+ New comment"
 App_UP_Discussions_No_Artifact,"The item you selected has no information to display or you do not have access to view it."
+App_UP_Discussions_No_Artifact_Id,"You may collaborate with others using this discussion panel to add comments to any selected published sub-artifact."
 App_UP_Discussions_New_Post_Button_Text,"Post comment"
 App_UP_Discussions_New_Cancel_Button_Text,"Cancel"
 App_UP_Discussions_New_Comment_Place_Holder,"Add a new comment..."

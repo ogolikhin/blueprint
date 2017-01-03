@@ -38,7 +38,7 @@
                             <div class="col-md-11">
                                 <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
                                     <a class="jobs__results--link" ui-sref="main.item({id: item.artifactId})">
-                                        {{item.id}}
+                                        {{item.displayId}}
                                     </a>
                                 </h5>
                             </div>
@@ -51,7 +51,7 @@
                                         <li ng-click="$ctrl.addDocRef() "ng-class="{disabled: !$ctrl.canDownload(item.status)}">
                                             <a>Download</a>
                                         </li>
-                                        <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canRefresh(item.status)}">
+                                        <li ng-click="$ctrl.refreshJob(item.id)" ng-class="{disabled: !$ctrl.canRefresh(item.status)}">
                                             <a>Refresh</a>
                                         </li>
                                     </ul>

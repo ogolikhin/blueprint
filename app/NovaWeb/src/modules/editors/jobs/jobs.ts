@@ -138,16 +138,9 @@ export class JobsController {
     } 
 
     private isValidStatus(statusId: JobStatus): boolean {
-        switch (statusId) {
-            case JobStatus.Failed:
-            case JobStatus.Terminated:
-            case JobStatus.Cancelling:
-            case JobStatus.Suspended:
-            case JobStatus.Suspending:
-                return false;
-            default:
-                return true;
-        }
+        return statusId === JobStatus.Scheduled ||
+               statusId === JobStatus.Completed ||
+               statusId === JobStatus.Running;
     }
 
     private getType(typeId: JobType): string {

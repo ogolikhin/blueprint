@@ -291,7 +291,7 @@ Artifact_Collection_Add_Artifacts_Picker_Header,"Add artifacts to collection"
 Artifact_Add_To_Collection_Picker_Header,"Add Artifact to Collection"
 Artifact_Add_To_Collection,"Add to collection"
 Artifact_Add_To_Collection_Include_Descendants, "Include artifact descendants"
-Artifact_Add_To_Collection_Success,"Artifact successfully added to collection"
+Artifact_Add_To_Collection_Success,"The artifact has been added to the collection."
 
 Change_Password_Dialog_Header,"Change Password"
 Change_Password_Dialog_Message,"Use the form below to change your password"

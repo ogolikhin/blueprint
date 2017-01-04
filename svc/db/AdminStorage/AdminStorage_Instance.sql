@@ -1192,7 +1192,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collectio
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add Artifact to Collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection', 'en-US', N'Add to collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Include_Descendants', 'en-US', N'Include artifact descendants')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Success', 'en-US', N'Artifact successfully added to collection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Success', 'en-US', N'The artifact has been added to the collection.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Header', 'en-US', N'Change Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Message', 'en-US', N'Use the form below to change your password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment', 'en-US', N'Are you sure you want to permanently delete the selected comment?')

@@ -8,6 +8,7 @@ using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Files;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Models.Messaging;
 using ServiceLibrary.Repositories;
@@ -20,6 +21,7 @@ namespace AdminStore.Repositories.Jobs
         internal readonly ISqlArtifactRepository _sqlArtifactRepository;
         internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         internal readonly IUsersRepository _usersRepository;
+        internal readonly IFileRepository _fileRepository;
 
         public JobsRepository() : 
             this
@@ -27,7 +29,8 @@ namespace AdminStore.Repositories.Jobs
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlUsersRepository()
+                new SqlUsersRepository(),
+                new FileRepository(new Uri("filestore/files/", UriKind.Relative))
             )
         {
         }
@@ -37,7 +40,8 @@ namespace AdminStore.Repositories.Jobs
             ISqlConnectionWrapper connectionWrapper, 
             ISqlArtifactRepository sqlArtifactRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IUsersRepository userRepository
+            IUsersRepository userRepository,
+            IFileRepository fileRepository
         )
         {
             ConnectionWrapper = connectionWrapper;
@@ -81,6 +85,35 @@ namespace AdminStore.Repositories.Jobs
                 new Dictionary<int, string>();
 
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
+        }
+
+        public async Task<File> GetJobResultFile(int jobId, int userId, string sessionToken)
+        {
+            var job = await GetJob(jobId, userId);
+            if (job == null)
+            {
+                throw new ResourceNotFoundException();
+            }
+
+            if (job.Status == JobStatus.Completed)
+            {
+                throw new BadRequestException();
+            }
+
+            if (string.IsNullOrEmpty(job.Result))
+            {
+                throw new ResourceNotFoundException();
+            }
+
+            switch (job.JobType)
+            {
+                case JobType.ProjectExport:
+                    var projectExportTaskStatus = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
+                    return await _fileRepository.GetFileAsync(projectExportTaskStatus.Details.FileGuid, sessionToken);
+
+                default:
+                    throw new BadRequestException();
+            }
         }
 
         #endregion
@@ -179,6 +212,7 @@ namespace AdminStore.Repositories.Jobs
                 StatusChanged = jobMessage.StatusChangedTimestamp != null,
                 HasCancelJob = systemMessageMap.ContainsKey(jobMessage.JobMessageId),
                 ProjectId = jobMessage.ProjectId,
+                Result = jobMessage.Result
             };
         }
 

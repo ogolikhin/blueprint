@@ -12,7 +12,7 @@ using FileInfo = ServiceLibrary.Models.Files.FileInfo;
 
 namespace ServiceLibrary.Repositories
 {
-    public class FileRepository
+    public class FileRepository : IFileRepository
     {
         private const string DefaultFileName = "BlueprintFile";
         private Uri fileStoreUri;

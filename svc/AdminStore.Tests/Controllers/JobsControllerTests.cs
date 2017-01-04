@@ -125,5 +125,26 @@ namespace AdminStore.Controllers
         }
 
         #endregion GetJob
+
+        #region GetJobResultFile
+
+        [TestMethod]
+        [ExpectedException(typeof(AuthenticationException))]
+        public async Task GetJobResultFile_UnauthenticatedUser_ThrowsAuthenticationException()
+        {
+            // Arrange
+            var jobId = 1;
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+
+            // Act
+            await controller.GetJobResultFile(jobId);
+        }
+
+        #endregion GetJobResultFile
     }
 }

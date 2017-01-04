@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -18,6 +21,8 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class JobsController : LoggableApiController
     {
+        private const string ContentDispositionType = "attachment";
+
         internal readonly IJobsRepository _jobsRepository;
 
         public override string LogSource => "AdminStore.JobsService";
@@ -47,11 +52,12 @@ namespace AdminStore.Controllers
         {
             try
             {
+                var session = GetAuthenticatedSessionFromRequest();
                 int jobPageSize = GetPageSize(pageSize);
                 int jobPage = GetPage(page, 1, 1);
                 int offset = (jobPage - 1) * jobPageSize;
 
-                return await _jobsRepository.GetVisibleJobs(GetAuthenticatedUserIdFromSession(), offset, jobPageSize, jobType);
+                return await _jobsRepository.GetVisibleJobs(session.UserId, offset, jobPageSize, jobType);
             }
             catch (Exception exception)
             {
@@ -74,13 +80,32 @@ namespace AdminStore.Controllers
         {
             try
             {
-                return await _jobsRepository.GetJob(jobId, GetAuthenticatedUserIdFromSession());
+                var session = GetAuthenticatedSessionFromRequest();
+                return await _jobsRepository.GetJob(jobId, session.UserId);
             }
             catch (Exception exception)
             {
                 await Log.LogError(LogSource, exception);
                 throw;
             }
+        }
+
+        [HttpGet, NoCache]
+        [Route("{jobId:int:min(1)}/result/file"), SessionRequired]
+        public async Task<HttpResponseMessage> GetJobResultFile(int jobId)
+        {
+            var session = GetAuthenticatedSessionFromRequest();
+            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, session.SessionId.ToStringInvariant());
+
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StreamContent(file.ContentStream);
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(ContentDispositionType);
+            response.Content.Headers.ContentDisposition.FileName = file.Info.Name;
+            response.Content.Headers.ContentDisposition.FileNameStar = file.Info.Name;
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.Info.Type);
+            response.Content.Headers.ContentLength = file.Info.Size;
+
+            return response;
         }
 
         #endregion
@@ -102,7 +127,7 @@ namespace AdminStore.Controllers
             return page < minPage ? defaultPage : page;
         }
 
-        private int GetAuthenticatedUserIdFromSession()
+        private Session GetAuthenticatedSessionFromRequest()
         {
             object sessionValue;
             if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
@@ -110,7 +135,7 @@ namespace AdminStore.Controllers
                 throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }
 
-            return ((Session)sessionValue).UserId;
+            return (Session)sessionValue;
         }
     }
 }

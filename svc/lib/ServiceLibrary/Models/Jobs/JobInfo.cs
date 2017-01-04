@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Jobs
 {
@@ -94,10 +95,12 @@ namespace ServiceLibrary.Models.Jobs
         public bool HasCancelJob { get; set; }
 
         public int? ProjectId { get; set; }
+
+        [JsonIgnore]
+        public string Result { get; set; }
     }
 
     public class JobResult : List<JobInfo>
     {
-        
     }
 }

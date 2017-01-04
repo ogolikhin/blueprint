@@ -80,23 +80,22 @@
         background: $tree-hover-background;
     }
     
-    [class^="fonticon2-"]::before,
-    [class*=" fonticon2-"]::before,
-    [class*="fonticon2-"]::after,
-    [class*=" fonticon2-"]::after{
+    .jobs__icon--size::before,
+    .jobs__icon--size::after {
         font-size: 1.5rem;
-    }    
-    .fonticon2-refresh-line,
-    .fonticon2-download {       
-        color: $text-color;
-        
-        &:focus, &:hover {
-            color: $brand-secondary;
-        }
     }
-    .fonticon2-error {
-        color: #ccc;
+}
+
+.jobs__action-icons--color {
+    color: $text-color;      
+      
+    &:focus, &:hover {
+        color: $brand-secondary;
     }
+}
+
+.jobs__error-icon--color {
+    color: #ccc;
 }
 
 .jobs__results--icon {

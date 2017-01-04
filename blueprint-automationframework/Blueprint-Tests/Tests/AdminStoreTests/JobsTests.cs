@@ -95,7 +95,7 @@ namespace CommonServiceTests
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2)]
         [TestRail(227082)]
         [Description("GET Jobs using the jobType that doesn't match with jobs created for the test. Verify that the returned empty JobResult.")]
-        public void GetJobs_GetJobsWithJobTypeThanJobsStarted_VerifyEmptyJobResult(
+        public void GetJobs_GetJobsWithJobTypeDifferentThanJobsStarted_VerifyEmptyJobResult(
             int baselineOrReviewId,
             int numberOfJobsToBeCreated
             )

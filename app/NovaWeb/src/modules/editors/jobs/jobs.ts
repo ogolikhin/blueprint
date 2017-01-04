@@ -107,9 +107,9 @@ export class JobsController {
         });
     } 
     
-    private getDate(date: Date): string {
+    private getDateTime(date: Date): string {
         if (!!date) {
-            return moment(date).format("MMMM DD, YYYY");
+            return moment(date).format("MMMM DD, YYYY h:mm:ss a");
         }
         return "--";
     }

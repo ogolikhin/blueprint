@@ -58,15 +58,15 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                <span>{{$ctrl.getDate(item.submittedDateTime)}}</span>
+                                <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
                             </div>
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                <span>{{$ctrl.getDate(item.jobStartDateTime)}}</span>
+                                <span>{{$ctrl.getDateTime(item.jobStartDateTime)}}</span>
                             </div>
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                <span> {{$ctrl.getDate(item.jobEndDateTime)}}</span>
+                                <span> {{$ctrl.getDateTime(item.jobEndDateTime)}}</span>
                             </div>
                         </div>
                     </div>

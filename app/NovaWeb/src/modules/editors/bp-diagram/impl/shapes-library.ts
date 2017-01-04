@@ -237,8 +237,20 @@ export class SvgImageShape extends mxActor {
             let sX = (w / nbbox.width) * this.scale;
             let sY = (h / nbbox.height) * this.scale;
 
-            let tX = x * this.scale - nbbox.x * sX;
-            let tY = y * this.scale - nbbox.y * sY;
+            let tX: number = 0;
+            let tY: number = 0;
+
+            if (!isFinite(sX)) {
+                sX = 1;
+                tX = w / 2;
+            }
+            if (!isFinite(sY)) {
+                sY = 1;
+                tY = h / 2;
+            }
+
+            tX += x * this.scale - nbbox.x * sX;
+            tY += y * this.scale - nbbox.y * sY;
 
             if (isFinite(sX) && isFinite(sY)) {
                 canvas.node.setAttribute("transform", "translate(" + tX + ", " + tY + ") scale(" + sX + ", " + sY + ")");

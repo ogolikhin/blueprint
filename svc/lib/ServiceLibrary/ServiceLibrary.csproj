@@ -115,6 +115,8 @@
     <Compile Include="Models\ClientLogModel.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Files\File.cs" />
+    <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
@@ -142,6 +144,7 @@
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
+    <Compile Include="Repositories\FileRepository.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />
@@ -161,6 +164,8 @@
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
+    <Compile Include="Web\NetworkContentStream.cs" />
+    <Compile Include="Web\WebHeaderCollectionExtensions.cs" />
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>

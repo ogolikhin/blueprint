@@ -91,6 +91,42 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
         }
 
+        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ImageType.PNG, "image/png")]
+        [TestRail(227091)]
+        [Description("Create & publish artifact. Upload a random image file and then update artifact with this image.  " +
+            "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+        public void AddImage_UpdateArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            BaseArtifactType artifactType = BaseArtifactType.Process;
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            artifact.Lock(_authorUser);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+
+            string imageGuid = GetImageGuidFromFileGuid(addedFile.Guid);
+
+            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(imageGuid);
+
+            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
+
+            // Execute:
+            Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
+
+            // Verify:
+            string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint].[dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+
+            selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+        }
+
         [TestCase(20, 30, ImageType.GIF, "image/gif")]
         [TestCase(80, 80, ImageType.TIFF, "image/tiff")]
         [TestRail(211536)]
@@ -274,55 +310,6 @@ namespace ArtifactStoreTests
         }
 
         #endregion GetImage tests
-
-        #region Other tests
-
-        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
-        [TestCase(70, 50, ImageType.PNG, "image/png")]
-        [TestRail(0)]
-        [Description("Create & publish artifact. Upload a random image file to ArtifactStore, then update artifact with this image.  " +
-            "Verify 200 OK is returned by the GET call and the same image that was uploaded is returned.")]
-        public void AddImage_SaveArtifact_ReturnsImage(int width, int height, ImageType imageType, string contentType)
-        {
-            // Setup:
-            BaseArtifactType artifactType = BaseArtifactType.Process;
-
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
-            artifact.Lock(_authorUser);
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
-
-            IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
-            IFile returnedFile = null;
-
-            string imageGuid = GetImageGuidFromFileGuid(addedFile.Guid);
-
-            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(imageGuid);
-
-            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
-
-            INovaArtifactDetails updateResult = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                // Execute:
-                Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address),
-                    "Exception caught while trying to update an artifact of type: '{0}'!", artifactType);
-            }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
-
-            // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
-        }
-/*
-        private void SetProperty(object propertyToChange, object value, ref NovaArtifactDetails artifactDetails)
-        {
-            throw new NotImplementedException();
-        }
-*/
-        #endregion Other tests
 
         #region Private functions
 

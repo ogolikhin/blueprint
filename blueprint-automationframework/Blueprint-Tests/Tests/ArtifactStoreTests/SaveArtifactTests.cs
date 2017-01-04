@@ -67,7 +67,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, nameof(NovaArtifactDetails.Description), "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -88,7 +88,7 @@ namespace ArtifactStoreTests
             string description = StringUtilities.WrapInHTML("NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", description, author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, nameof(NovaArtifactDetails.Description), description, author);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);

@@ -57,7 +57,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: "Description",
+                    propertyName: nameof(NovaArtifactDetails.Description),
                     propertyValue: "Testing Set Property Value"
                     )
                 );
@@ -87,7 +87,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: "Description",
+                    propertyName: nameof(NovaArtifactDetails.Description),
                     propertyValue: "DescriptionValue"
                     )
                 );
@@ -121,7 +121,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: "Description",
+                    propertyName: nameof(NovaArtifactDetails.Description),
                     propertyValue: "DescriptionValue"
                     )
                 );
@@ -158,7 +158,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: "Description",
+                    propertyName: nameof(NovaArtifactDetails.Description),
                     propertyValue: text
                     )
                 );

@@ -10,6 +10,7 @@
         /// <param name="objectToUpdate">Object that contains the property to be changed.</param>
         public static void SetProperty<T>(string propertyName, T propertyValue, object objectToUpdate)
         {
+            ThrowIf.ArgumentNull(objectToUpdate, nameof(objectToUpdate));
             objectToUpdate.GetType().GetProperty(propertyName).SetValue(objectToUpdate, propertyValue, null);
         }
     }

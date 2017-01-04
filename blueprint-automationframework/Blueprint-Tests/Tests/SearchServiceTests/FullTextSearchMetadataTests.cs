@@ -26,6 +26,7 @@ namespace SearchServiceTests
         private static List<IArtifactBase> _artifacts;
 
         const int DEFAULT_PAGE_SIZE_VALUE = 10;
+        const string DESCRIPTION = "Description";
 
         [TestFixtureSetUp]
         public void TestFixtureSetUp()

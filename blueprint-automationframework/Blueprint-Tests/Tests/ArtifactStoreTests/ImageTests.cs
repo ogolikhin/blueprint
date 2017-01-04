@@ -296,7 +296,7 @@ namespace ArtifactStoreTests
 
             string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
 
-            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
+            CSharpUtilities.SetProperty(nameof(NovaArtifactDetails.Description), propertyContent, artifactDetails);
 
             // Execute:
             Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);

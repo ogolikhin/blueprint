@@ -167,7 +167,7 @@ export class SessionSvc implements ISession {
                     done.resolve();
                 } else if (result.samlLogin) {
                     this.dialogService
-                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
                         .then(() => {
                             this.loginWithSaml(true).then(
                                 () => {

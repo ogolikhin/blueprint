@@ -110,7 +110,10 @@ namespace ArtifactStore.Repositories
                 referencedArtifact.UserName = userInfo.DisplayName;
                 referencedArtifact.ArtifactName = linkedArtifactInfo.ArtifactName;
                 referencedArtifact.ItemTypePrefix = linkedArtifactInfo.ItemTypePrefix;
-                referencedArtifact.ReferencedDate = DateTime.SpecifyKind(referencedArtifact.ReferencedDate, DateTimeKind.Utc);
+                if (referencedArtifact.ReferencedDate != null)
+                {
+                    referencedArtifact.ReferencedDate = DateTime.SpecifyKind(referencedArtifact.ReferencedDate.Value, DateTimeKind.Utc);
+                }
             }
 
             var result = new FilesInfo(attachments, referencedArtifacts)

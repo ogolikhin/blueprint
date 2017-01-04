@@ -1,7 +1,5 @@
-<div class="jobs__results--content">
-    <div class="page-heading">
-    <div class="responsive-header">
-        
+    <div class="page-content">
+        <div class="page-heading">
             <div class="artifact-heading">
                 <div class="artifact-heading-group1">                        
                     <div class="artifact-heading-group2">
@@ -9,8 +7,10 @@
                             <div class="name">Jobs</div>
                         </div>
                         <div class="col-md-10">
-                            <div class="icon-container jobs__fr">
-                                    <i class="fonticon fonticon2-refresh-line" ng-click="$ctrl.loadPage(1)"></i>
+                            <div class="pull-right">
+                                <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Next page" ng-click="$ctrl.loadNextPage()">
+                                        <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span> 
+                                </button>
                             </div>
                         </div>
                         <div class="col-md-1">

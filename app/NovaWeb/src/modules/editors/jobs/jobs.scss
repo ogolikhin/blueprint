@@ -63,14 +63,6 @@
     overflow: auto;
 }
 
-.jobs__results--content {
-    align-items: center;
-    justify-content: center;
-    height: calc(100% - 30px);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
 .jobs__results--item {
     padding: 0 15px 10px;
     margin: 1px auto 0;
@@ -103,9 +95,6 @@
     padding-left: 50px;
 }
 
-.jobs__fr {
-    float: right;
-}
 .jobs__action-items--center {
     display: block;
     text-align: center

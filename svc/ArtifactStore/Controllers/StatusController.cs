@@ -5,11 +5,11 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using ArtifactStore;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace ArtifactStore.Controllers
 {

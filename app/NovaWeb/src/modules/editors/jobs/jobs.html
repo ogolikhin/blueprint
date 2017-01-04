@@ -1,7 +1,5 @@
-<div class="jobs__results--content">
-    <div class="page-heading">
-    <div class="responsive-header">
-        
+    <div class="page-content">
+        <div class="page-heading">
             <div class="artifact-heading">
                 <div class="artifact-heading-group1">                        
                     <div class="artifact-heading-group2">
@@ -9,8 +7,10 @@
                             <div class="name">Jobs</div>
                         </div>
                         <div class="col-md-10">
-                            <div class="icon-container jobs__fr">
-                                    <i class="fonticon fonticon2-refresh-line" ng-click="$ctrl.loadPage(1)"></i>
+                            <div class="pull-right">
+                                <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Next page" ng-click="$ctrl.loadNextPage()">
+                                        <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span> 
+                                </button>
                             </div>
                         </div>
                         <div class="col-md-1">
@@ -36,8 +36,8 @@
                     <div class="col-md-10">
                         <div class="row">
                             <div class="col-md-11">
-                                <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
-                                    JOB{{item.jobId}}({{item.project}})
+                                <h5 class="font-blue margin-bottom--none jobs__title" bp-tooltip="{{item.project}}">
+                                    JOB{{item.jobId}} (Project: {{item.project}})
                                 </h5>
                             </div>                            
                         </div>
@@ -47,38 +47,38 @@
                                 <span>{{item.userDisplayName}}</span>
                             </div>
                             <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
-                                <span>{{$ctrl.getType(item.jobType)}}</span>
-                            </div>
-                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
+                                <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
+                            </div>     
+                            <div class="col-md-3" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
                                 <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
                                 <span> {{$ctrl.getStatus(item.status)}}</span>
                             </div>                           
                         </div>
-                        <div class="row">
+                        <div class="row">                       
                             <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                <span>{{$ctrl.getDate(item.submittedDateTime)}}</span>
+                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
+                                <span>{{$ctrl.getType(item.jobType)}}</span>
                             </div>
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                <span>{{$ctrl.getDate(item.jobStartDateTime)}}</span>
+                                <span>{{$ctrl.getDateTime(item.jobStartDateTime)}}</span>
                             </div>
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                <span> {{$ctrl.getDate(item.jobEndDateTime)}}</span>
+                                <span> {{$ctrl.getDateTime(item.jobEndDateTime)}}</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-1">
                         <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
                             <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
-                                <i class="fonticon-download"></i>
+                                <i class="fonticon2-download jobs__action-icons--color jobs__icon--size"></i>
                             </button>
                             <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
-                                <i class="fonticon-refresh"></i>
+                                <i class="fonticon2-refresh-line jobs__action-icons--color jobs__icon--size"></i>
                             </button>
-                            <i ng-if="$ctrl.isJobError(item.status)" class="fonticon-error"></i>
+                            <i ng-if="$ctrl.isJobError(item.status)" class="fonticon2-error jobs__error-icon--color jobs__icon--size" bp-tooltip="{{$ctrl.localization.get('Jobs_Error_Label')}}"></i>
                         <h2>
                     </div>
                 </div>

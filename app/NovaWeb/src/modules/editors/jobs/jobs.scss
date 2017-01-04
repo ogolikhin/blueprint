@@ -63,14 +63,6 @@
     overflow: auto;
 }
 
-.jobs__results--content {
-    align-items: center;
-    justify-content: center;
-    height: calc(100% - 30px);
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
 .jobs__results--item {
     padding: 0 15px 10px;
     margin: 1px auto 0;
@@ -79,14 +71,23 @@
     &:focus, &:hover {
         background: $tree-hover-background;
     }
-
     
-    [class^="fonticon-"]::before,
-    [class*=" fonticon-"]::before,
-    [class*="fonticon-"]::after,
-    [class*=" fonticon-"]::after{
+    .jobs__icon--size::before,
+    .jobs__icon--size::after {
         font-size: 1.5rem;
     }
+}
+
+.jobs__action-icons--color {
+    color: $text-color;      
+      
+    &:focus, &:hover {
+        color: $brand-secondary;
+    }
+}
+
+.jobs__error-icon--color {
+    color: #ccc;
 }
 
 .jobs__results--icon {
@@ -94,10 +95,18 @@
     padding-left: 50px;
 }
 
-.jobs__fr {
-    float: right;
-}
 .jobs__action-items--center {
     display: block;
     text-align: center
+}
+
+.jobs__title {
+    width: 500px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.job__invalidStatus {
+    color: red;
 }

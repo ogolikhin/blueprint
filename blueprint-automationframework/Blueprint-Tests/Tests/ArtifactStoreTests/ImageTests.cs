@@ -11,6 +11,8 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests
 {
@@ -215,15 +217,13 @@ namespace ArtifactStoreTests
             // Setup:
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
-            IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
             IFile returnedFile = null;
-
-            string imageGuid = GetImageGuidFromFileGuid(addedFile.Guid);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                returnedFile = Helper.ArtifactStore.GetImage(imageGuid);
+                returnedFile = Helper.ArtifactStore.GetImage(addedFile.EmbeddedImageId);
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
@@ -248,7 +248,7 @@ namespace ArtifactStoreTests
         [TestCase("")]
         [TestRail(213022)]
         [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
-        public void GetImage_NonImageIdSpecified_404NotFound(string imageId)
+        public void GetImage_NoImageIdSpecified_404NotFound(string imageId)
         {
             // Execute:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -273,6 +273,44 @@ namespace ArtifactStoreTests
 
         #endregion GetImage tests
 
+        #region Other tests
+
+        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ImageType.PNG, "image/png")]
+        [TestRail(227091)]
+        [Description("Create & publish artifact. Upload a random image file and then update artifact with this image.  " +
+        "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+        public void UpdateArtifact_AddImageToArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            BaseArtifactType artifactType = BaseArtifactType.Process;
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            artifact.Lock(_authorUser);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+
+            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+
+            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
+
+            // Execute:
+            Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
+
+            // Verify:
+            string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint].[dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+
+            selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+        }
+
+        #endregion Other tests
+
         #region Private functions
 
         /// <summary>
@@ -286,21 +324,6 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
-        }
-
-        /// <summary>
-        /// Finds image GUID by file GUID
-        /// </summary>
-        /// <param name="fileGuid">File GUID to find image GUID</param>
-        /// <returns>Image GUID</returns>
-        private static string GetImageGuidFromFileGuid(string fileGuid)
-        {
-            string selectQuery = I18NHelper.FormatInvariant("SELECT EmbeddedImageId FROM [Blueprint].[dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", fileGuid);
-            string imageGuid = DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "EmbeddedImageId");
-
-            Assert.IsNotNullOrEmpty(imageGuid, "Image GUID cannot be found in EmbeddedImages table!");
-
-            return imageGuid;
         }
 
         /// <summary>

@@ -98,7 +98,7 @@ export class JobsController {
         this.isLoading = true;
         this.page = page;
         this.jobs = [];
-        this.jobsService.getJobs(page)
+        this.jobsService.getJobs(page, this.pageLength)
         .then((result: IJobInfo[]) => {
             this.jobs = result;
         })
@@ -107,9 +107,9 @@ export class JobsController {
         });
     } 
     
-    private getDate(date: Date): string {
+    private getDateTime(date: Date): string {
         if (!!date) {
-            return moment(date).format("MMMM DD, YYYY");
+            return moment(date).format("MMMM DD, YYYY h:mm:ss a");
         }
         return "--";
     }
@@ -136,6 +136,12 @@ export class JobsController {
         this.$log.error(`Unknown Job Status, (${statusId})`);
         return "Unknown Status";
     } 
+
+    private isValidStatus(statusId: JobStatus): boolean {
+        return statusId === JobStatus.Scheduled ||
+               statusId === JobStatus.Completed ||
+               statusId === JobStatus.Running;
+    }
 
     private getType(typeId: JobType): string {
         switch (typeId) {

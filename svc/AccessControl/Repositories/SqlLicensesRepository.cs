@@ -53,7 +53,7 @@ namespace AccessControl.Repositories
             return _connectionWrapper.QueryAsync<LicenseTransaction>("GetLicenseTransactions", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public Task<IEnumerable<LicenseUsage>> GetLicenseUsage(int month, int year)
+        public Task<IEnumerable<LicenseUsage>> GetLicenseUsage(int? month, int? year)
         {
             var prm = new DynamicParameters();
             prm.Add("@month", month);

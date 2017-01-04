@@ -847,8 +847,8 @@ GO
 
 CREATE PROCEDURE [dbo].[GetLicenseUsage]
 (
-	@month int,
-	@year int
+	@month int = null,
+	@year int = null
 )
 AS
 BEGIN

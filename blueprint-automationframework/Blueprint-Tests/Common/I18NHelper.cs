@@ -52,6 +52,21 @@ namespace Common
             return s.StartsWith(value, StringComparison.Ordinal);
         }
 
+        /// <summary>
+        /// Determines whether this string ends with the specified string.
+        /// </summary>
+        /// <param name="s">The string whose contents to check.</param>
+        /// <param name="value">The string to search for.</param>
+        /// <returns>True if this string ends with the specified value.</returns>
+        public static bool EndsWithOrdinal(this string s, string value)
+        {
+            if (s == null)
+            {
+                throw new ArgumentNullException("s");
+            }
+            return s.EndsWith(value, StringComparison.Ordinal);
+        }
+
         public static bool EqualsOrdinalIgnoreCase(this string s, string value)
         {
             if (s == null)

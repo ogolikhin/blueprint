@@ -244,10 +244,12 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user updating the artifact</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="updateWithRandomDescription">(optional) Pass true if you want to generate a new random Description, or false to use the existing Description.</param>
         public static void UpdateArtifact(IArtifactBase artifactToUpdate,
-        IUser user,
-        List<HttpStatusCode> expectedStatusCodes = null,
-        bool sendAuthorizationAsCookie = false)
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false,
+            bool updateWithRandomDescription = true)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
@@ -266,7 +268,21 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
 
             //TODO: Remove this when solution to have the property to update configurable
-            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
+            OpenApiProperty propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
+
+            var newDescriptionValue = new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = propertyToUpdate.PropertyTypeId
+            };
+
+            if (updateWithRandomDescription)
+            {
+                newDescriptionValue.TextOrChoiceValue = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+            }
+            else
+            {
+                newDescriptionValue.TextOrChoiceValue = propertyToUpdate.TextOrChoiceValue;
+            }
 
             // TODO: Expand this to have the properties to update configurable
             // Create a copy of the artifact to update that only includes the properties to be updated
@@ -275,11 +291,7 @@ namespace Model.ArtifactModel.Impl
                 Id = artifactToUpdate.Id,
                 Properties = new List<OpenApiPropertyForUpdate>
                 {
-                    new OpenApiPropertyForUpdate
-                    {
-                        PropertyTypeId = propertyToUpdate.PropertyTypeId,
-                        TextOrChoiceValue = "NewDescription_"+ RandomGenerator.RandomAlphaNumeric(5)
-                    }
+                    newDescriptionValue
                 }
             };
 
@@ -299,8 +311,12 @@ namespace Model.ArtifactModel.Impl
             {
                 Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}, Message: {2}", updateResult.ArtifactId, updateResult.ResultCode, updateResult.Message);
 
-                // Copy updated property into original artifact
-                propertyToUpdate.TextOrChoiceValue = artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
+                if (updateWithRandomDescription)
+                {
+                    // Copy updated property into original artifact
+                    propertyToUpdate.TextOrChoiceValue =
+                        artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
+                }
 
                 artifactToUpdate.IsSaved = true;
 
@@ -431,6 +447,8 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
+
+            returnedArtifact.Address = baseAddress;
 
             return returnedArtifact;
         }

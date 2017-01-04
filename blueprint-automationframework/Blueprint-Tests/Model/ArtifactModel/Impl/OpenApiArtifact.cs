@@ -268,8 +268,7 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
 
             //TODO: Remove this when solution to have the property to update configurable
-            OpenApiProperty propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
-
+            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == nameof(NovaArtifactDetails.Description));
             var newDescriptionValue = new OpenApiPropertyForUpdate
             {
                 PropertyTypeId = propertyToUpdate.PropertyTypeId

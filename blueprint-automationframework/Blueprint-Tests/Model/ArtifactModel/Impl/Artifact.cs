@@ -519,7 +519,7 @@ namespace Model.ArtifactModel.Impl
                         artifactBaseToUpdate.Id = artifactToUpdate.Id;
                         artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
                         artifactBaseToUpdate.Version = artifactToUpdate.Version;
-                        artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty("Description", artifactChanges.Description, project, user);
+                        artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty(nameof(NovaArtifactDetails.Description), artifactChanges.Description, project, user);
                     }
                     else
                     {

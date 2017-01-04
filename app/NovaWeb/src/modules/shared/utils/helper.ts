@@ -239,11 +239,15 @@ export class Helper {
         });
     };
 
-    public static stripHtmlTags(content: HTMLElement, tags: string[]) {
+    public static stripHtmlTags(content: string, tags: string[]): string {
         const ngContent = angular.element(content);
         tags.forEach(tag => {
             ngContent.find(tag).remove();
         });
+        const div = document.createElement("div");
+        div.appendChild(ngContent[0]);
+
+        return div.innerHTML;
     }
 
     public static stripExternalImages(content: HTMLElement) {

@@ -9,7 +9,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -20,24 +19,16 @@ namespace AdminStore.Controllers
     public class JobsController : LoggableApiController
     {
         internal readonly IJobsRepository _jobsRepository;
-        internal readonly IUsersRepository _sqlUserRepository;
 
         public override string LogSource => "AdminStore.JobsService";
 
-        public JobsController() :
-            this(new JobsRepository(), new ServiceLogRepository(), new SqlUsersRepository())
+        public JobsController() : this(new JobsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal JobsController
-        (
-            IJobsRepository jobsRepository, 
-            IServiceLogRepository serviceLogRepository,
-            IUsersRepository sqlUserRepository
-        ) : base(serviceLogRepository)
+        internal JobsController(IJobsRepository jobsRepository, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
-            _sqlUserRepository = sqlUserRepository;
         }
 
         #region public methods
@@ -54,19 +45,13 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<JobInfo>))]
         public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
         {
-            int? userId = ValidateAndExtractUserId();
             try
             {
-                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
-                if (isUserInstanceAdmin)
-                {
-                    userId = null;
-                }
                 int jobPageSize = GetPageSize(pageSize);
                 int jobPage = GetPage(page, 1, 1);
                 int offset = (jobPage - 1) * jobPageSize;
 
-                return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
+                return await _jobsRepository.GetVisibleJobs(GetAuthenticatedUserIdFromSession(), offset, jobPageSize, jobType);
             }
             catch (Exception exception)
             {
@@ -87,16 +72,9 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(JobInfo))]
         public async Task<JobInfo> GetJob(int jobId)
         {
-            int? userId = ValidateAndExtractUserId();
             try
             {
-                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
-                if (isUserInstanceAdmin)
-                {
-                    userId = null;
-                }
-
-                return await _jobsRepository.GetJob(jobId, userId);
+                return await _jobsRepository.GetJob(jobId, GetAuthenticatedUserIdFromSession());
             }
             catch (Exception exception)
             {
@@ -124,9 +102,8 @@ namespace AdminStore.Controllers
             return page < minPage ? defaultPage : page;
         }
 
-        private int ValidateAndExtractUserId()
+        private int GetAuthenticatedUserIdFromSession()
         {
-            // get the UserId from the session
             object sessionValue;
             if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
             {

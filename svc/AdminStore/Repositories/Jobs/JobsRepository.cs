@@ -103,7 +103,7 @@ namespace AdminStore.Repositories.Jobs
             param.Add("@receiverJobServiceId", null);
             param.Add("@doNotFetchResult", doNotFetchResult);
             param.Add("@offset", offset ?? 0);
-            param.Add("@limit", limit ?? WebApiConfig.JobDetailsPageSize);
+            param.Add("@limit", limit ?? ServiceConstants.JobsDefaultPageSize);
             param.Add("@jobTypeFilter", jobType != JobType.None ? jobType : null);
 
             try

@@ -261,19 +261,19 @@ describe("Remove tags from an HTML element", () => {
 
     it("should remove all 'img' tags", () => {
         // Act
-        Helper.stripHtmlTags(html, ["img"]);
+        const res = Helper.stripHtmlTags(html.outerHTML, ["img"]);
 
         // Assert
-        const result = angular.element(html);
+        const result = angular.element(res);
         expect(result.find("img").length).toBe(0);
     });
 
     it("should remove all 'span' tags", () => {
         // Act
-        Helper.stripHtmlTags(html, ["span"]);
+        const res = Helper.stripHtmlTags(html.outerHTML, ["span"]);
 
         // Assert
-        const result = angular.element(html);
+        const result = angular.element(res);
         expect(result.find("span").length).toBe(0);
     });
 });

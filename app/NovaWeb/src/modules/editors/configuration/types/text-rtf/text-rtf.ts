@@ -144,9 +144,16 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    this.normalizeHtml(args.node, true);
-                    Helper.stripExternalImages(args.node);
-                    Helper.removeAttributeFromNode(args.node, "id");
+                    let content = args.node.outerHTML;
+                    let filteredContent = Helper.stripHtmlTags(content, ["img"]);
+
+                    if (Helper.hasNonTextTags(filteredContent) || Helper.tagsContainText(filteredContent)) {
+                        this.normalizeHtml(args.node, true);
+                        Helper.stripExternalImages(args.node);
+                        Helper.removeAttributeFromNode(args.node, "id");
+                    } else {
+                        args.preventDefault();
+                    }
                 },
                 init_instance_callback: (editor) => {
                     this.mceEditor = editor;
@@ -340,7 +347,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                                         .finally(() => {
                                             const imageContent = editor.dom.createHTML("img", {
                                                 src: uploadedImageUrl,
-                                                width: dimensions.width > 400 && dimensions.width > dimensions.height ? 400 : undefined,
+                                                width: dimensions.width > 400 && dimensions.width >= dimensions.height ? 400 : undefined,
                                                 height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
                                             });
                                             editor.insertContent(`<span>${imageContent}</span>`);

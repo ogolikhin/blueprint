@@ -1459,6 +1459,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_Generate
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_SubmittedDate', 'en-US', N'Submitted on')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_StartDate', 'en-US', N'Started on')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_EndDate', 'en-US', N'Ended on')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Error_Label', 'en-US', N'Error')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

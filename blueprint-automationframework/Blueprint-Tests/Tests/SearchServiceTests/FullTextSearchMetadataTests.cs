@@ -203,7 +203,7 @@ namespace SearchServiceTests
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             // Setup: 
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
+            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
 
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
 
@@ -221,7 +221,7 @@ namespace SearchServiceTests
                 searchCriteria.Query);
 
             // Validation:
-            ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, "Description");
+            ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, DESCRIPTION);
         }
 
         #region Permissions Tests
@@ -399,7 +399,7 @@ namespace SearchServiceTests
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             // Setup: 
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
+            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
 
             // Search for Description property value which is common to all artifacts
@@ -437,7 +437,7 @@ namespace SearchServiceTests
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             // Setup:
-            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == "Description");
+            var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
 
             // Search for Description property value which is common to all artifacts

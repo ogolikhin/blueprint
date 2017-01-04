@@ -16,22 +16,26 @@ namespace ArtifactStore.Controllers
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {
-        internal readonly StatusControllerHelper statusControllerHelper;
+        internal readonly IStatusControllerHelper _statusControllerHelper;
+        internal readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this(new StatusControllerHelper(
-                        new List<IStatusRepository> {   new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage")},
+                        new List<IStatusRepository> {   /* new SqlStatusRepository(WebApiConfig.ArtifactStorage, "ArtifactStorage"), //ArtifactStorage db is currently unused */
+                                                        new SqlStatusRepository(ServiceConstants.RaptorMain, "RaptorDB")},
                         "ArtifactStore",
                         new ServiceLogRepository(),
                         WebApiConfig.LogSourceStatus
-                    )
+                    ), 
+                    WebApiConfig.StatusCheckPreauthorizedKey
                   )
         {
         }
 
-        internal StatusController(StatusControllerHelper scHelper)
+        internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
-            statusControllerHelper = scHelper;
+            _statusControllerHelper = scHelper;
+            _expectedPreAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
@@ -45,9 +49,22 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route(""), NoSessionRequired]
         [ResponseType(typeof(ServiceStatus))]
-        public async Task<IHttpActionResult> GetStatus()
+        public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
-            ServiceStatus serviceStatus = await statusControllerHelper.GetStatus();
+            //Check pre-authorized key
+            // Refactoring for shorter status as per US955
+
+            if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)
+            {
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized, "Unauthorized", new MediaTypeHeaderValue("application/json")));
+
+            }
+
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+            if (preAuthorizedKey == null)
+            {
+                serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
+            }
 
             if (serviceStatus.NoErrors)
             {

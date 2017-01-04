@@ -144,8 +144,8 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                     args.content = content;
                 },
                 paste_postprocess: (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-                    let content = args.node.outerHTML;
-                    let filteredContent = Helper.stripHtmlTags(content, ["img"]);
+                    const content = args.node.outerHTML;
+                    const filteredContent = Helper.stripHtmlTags(content, ["img"]);
 
                     if (Helper.hasNonTextTags(filteredContent) || Helper.tagsContainText(filteredContent)) {
                         this.normalizeHtml(args.node, true);

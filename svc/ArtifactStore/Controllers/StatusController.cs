@@ -13,6 +13,7 @@ using System.Net.Http.Headers;
 
 namespace ArtifactStore.Controllers
 {
+    [ApiControllerJsonConfig]
     [RoutePrefix("status")]
     public class StatusController : ApiController
     {

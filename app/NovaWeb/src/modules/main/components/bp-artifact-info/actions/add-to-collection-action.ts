@@ -92,7 +92,7 @@ export class AddToCollectionAction extends BPDropdownAction {
         return this.dialogService.open(dialogSettings, dialogData).then((result: IAddArtifactToCollectionResult) => {
             const loader = this.loadingOverlayService.beginLoading();
             this.collectionService.addArtifactToCollection(this.artifact.id, result.collectionId, result.addDescendants).then((artifactsAdded: number) => {
-                this.messageService.addInfo(`${artifactsAdded} artifacts succesfully added to collection`);
+                this.messageService.addInfo(this.localization.get("Artifact_Add_To_Collection_Success"));
             }).catch((error: any) => {
                 //ignore authentication errors here
                 if (error) {

@@ -50,7 +50,7 @@
                                 <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
                                 <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
                             </div>     
-                            <div class="col-md-3">
+                            <div class="col-md-3" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
                                 <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
                                 <span> {{$ctrl.getStatus(item.status)}}</span>
                             </div>                           

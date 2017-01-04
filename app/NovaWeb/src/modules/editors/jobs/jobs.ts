@@ -137,6 +137,12 @@ export class JobsController {
         return "Unknown Status";
     } 
 
+    private isValidStatus(statusId: JobStatus): boolean {
+        return statusId === JobStatus.Scheduled ||
+               statusId === JobStatus.Completed ||
+               statusId === JobStatus.Running;
+    }
+
     private getType(typeId: JobType): string {
         switch (typeId) {
             case JobType.None:

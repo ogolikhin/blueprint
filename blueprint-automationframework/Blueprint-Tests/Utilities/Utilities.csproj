@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSharpUtilities.cs" />
     <Compile Include="DatabaseUtilities.cs" />
     <Compile Include="DateTimeUtilities.cs" />
     <Compile Include="Deserialization.cs" />

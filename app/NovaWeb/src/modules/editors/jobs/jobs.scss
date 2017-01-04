@@ -72,18 +72,22 @@
         background: $tree-hover-background;
     }
     
-    [class^="fonticon-"]::before,
-    [class*=" fonticon-"]::before,
-    [class*="fonticon-"]::after,
-    [class*=" fonticon-"]::after{
+    .jobs__icon--size::before,
+    .jobs__icon--size::after {
         font-size: 1.5rem;
-    }    
-    .fonticon-refresh,
-    .fonticon-download {       
-        &:focus, &:hover {
-            color: $brand-secondary;
-        }
     }
+}
+
+.jobs__action-icons--color {
+    color: $text-color;      
+      
+    &:focus, &:hover {
+        color: $brand-secondary;
+    }
+}
+
+.jobs__error-icon--color {
+    color: #ccc;
 }
 
 .jobs__results--icon {
@@ -94,4 +98,11 @@
 .jobs__action-items--center {
     display: block;
     text-align: center
+}
+
+.jobs__title{
+    width: 500px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

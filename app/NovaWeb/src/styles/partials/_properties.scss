@@ -141,7 +141,7 @@ pagecontent, bp-properties-panel {
                 z-index: auto;
             }
 
-            label {
+            .formly-label {
                 color: $gray-dark;
                 display: inline-flex;
                 font-size: $font-size-normal;
@@ -1220,36 +1220,17 @@ pagecontent, bp-properties-panel {
 
         .formly-field-bpDocumentFile {
             width: 100% !important;
+
             .input-group-addon {
-                padding: 0;
                 background-color: transparent;
-                border: none;
+                border: 0;
+                padding: 0;
+
                 label {
-                    padding: 5px 9px;
-                    min-width: 20px;
-                    text-align: center;
-                    width: auto !important;
-                    margin: 5px 5px 5px;
-                    font-size: $font-size-big;
+                    margin: 5px;
+
                     input[type=file] {
                         display: none;
-                    }
-                    &.btn-small {
-                        padding: 5px 10px;
-                        min-width: 20px;
-                        font-size: 1.2rem;
-                    }
-                    &.btn-primary {
-                        background-color: transparent;
-                        border: 1px solid $gray-light;
-                        color: $gray-light;
-                        &:hover,
-                        &:focus,
-                        &:active {
-                            background-color: transparent;
-                            border-color: $brand-secondary;
-                            color: $brand-secondary;
-                        }
                     }
                 }
 

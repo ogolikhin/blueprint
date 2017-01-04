@@ -12,84 +12,82 @@
                                         <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span> 
                                 </button>
                             </div>
-                            <div class="pull-right">
-                                <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Reload jobs" ng-click="$ctrl.loadPage(1)">
-                                        <span class="toolbar-button__icon ng-scope fonticon2-refresh-line"></span> 
-                                </button>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="icon-container">
+                                    <i class="fonticon fonticon2-arrow-right" ng-click="$ctrl.loadNextPage()"></i>
                             </div>
-                        </div>                    
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="page-body-wrapper">
-            <div class="page-body">
-                <ul class="list-unstyled">
-                    <li class="jobs__results--item"
-                        ng-repeat="item in $ctrl.jobs track by $index">
-                        <div class="row small-gutter">
-                            <div class="col-md-1 text-center">
-                                <h2 class="font-blue margin-top--none jobs__text--no-wrap">
-                                    <i class="icon-document"></i>   
-                                </h2>
+    </div>
+    <div class="jobs-ul" ng-if="!$ctrl.isJobsEmpty()">
+        <ul class="list-unstyled">
+            <li class="jobs__results--item"
+                ng-repeat="item in $ctrl.jobs track by $index">
+                <div class="row small-gutter">
+                    <div class="col-md-1 text-center">
+                        <h2 class="font-blue margin-top--none jobs__text--no-wrap">
+                            <i class="icon-document"></i>   
+                        </h2>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row">
+                            <div class="col-md-11">
+                                <h5 class="font-blue margin-bottom--none jobs__title" bp-tooltip="{{item.project}}">
+                                    JOB{{item.jobId}} (Project: {{item.project}})
+                                </h5>
+                            </div>                            
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_User"]}}: </strong>
+                                <span>{{item.userDisplayName}}</span>
                             </div>
-                            <div class="col-md-10">
-                                <div class="row">
-                                    <div class="col-md-11">
-                                        <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
-                                            JOB{{item.jobId}}({{item.project}})
-                                        </h5>
-                                    </div>                            
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>{{::$root.config.labels["Jobs_User"]}}: </strong>
-                                        <span>{{item.userDisplayName}}</span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
-                                        <span>{{$ctrl.getType(item.jobType)}}</span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
-                                        <span> {{$ctrl.getStatus(item.status)}}</span>
-                                    </div>                           
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                        <span>{{$ctrl.getDate(item.submittedDateTime)}}</span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                        <span>{{$ctrl.getDate(item.jobStartDateTime)}}</span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                        <span> {{$ctrl.getDate(item.jobEndDateTime)}}</span>
-                                    </div>
-                                </div>
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
+                                <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
+                            </div>     
+                            <div class="col-md-3">
+                                <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
+                                <span> {{$ctrl.getStatus(item.status)}}</span>
+                            </div>                           
+                        </div>
+                        <div class="row">                       
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
+                                <span>{{$ctrl.getType(item.jobType)}}</span>
                             </div>
-                            <div class="col-md-1">
-                                <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
-                                    <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
-                                        <i class="fonticon-download"></i>
-                                    </button>
-                                    <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
-                                        <i class="fonticon-refresh"></i>
-                                    </button>
-                                    <i ng-if="$ctrl.isJobError(item.status)" class="fonticon-error"></i>
-                                <h2>
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
+                                <span>{{$ctrl.getDateTime(item.jobStartDateTime)}}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
+                                <span> {{$ctrl.getDateTime(item.jobEndDateTime)}}</span>
                             </div>
                         </div>
-                    </li>
-                </ul>                
-            </div>
-        </div>
-        <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
-            <div class="center-item font-larger">
-                <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
-            </div>
+                    </div>
+                    <div class="col-md-1">
+                        <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
+                                <i class="fonticon2-download jobs__action-icons--color jobs__icon--size"></i>
+                            </button>
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
+                                <i class="fonticon2-refresh-line jobs__action-icons--color jobs__icon--size"></i>
+                            </button>
+                            <i ng-if="$ctrl.isJobError(item.status)" class="fonticon2-error jobs__error-icon--color jobs__icon--size" bp-tooltip="{{$ctrl.localization.get('Jobs_Error_Label')}}"></i>
+                        <h2>
+                    </div>
+                </div>
+            </li>
+        </ul>                
+    </div>
+    <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
+        <div class="center-item font-larger">
+            <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
         </div>
     </div>
+</div>

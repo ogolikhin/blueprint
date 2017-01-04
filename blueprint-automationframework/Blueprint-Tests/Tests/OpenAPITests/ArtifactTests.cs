@@ -18,6 +18,7 @@ namespace OpenAPITests
         private IUser _user;
         private IProject _project;
         private IOpenApiArtifact _artifact;
+        private const string DESCRIPTION = "Description";
 
         #region Setup and Cleanup
 
@@ -57,7 +58,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: nameof(NovaArtifactDetails.Description),
+                    propertyName: DESCRIPTION,
                     propertyValue: "Testing Set Property Value"
                     )
                 );
@@ -87,7 +88,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: nameof(NovaArtifactDetails.Description),
+                    propertyName: DESCRIPTION,
                     propertyValue: "DescriptionValue"
                     )
                 );
@@ -121,7 +122,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: nameof(NovaArtifactDetails.Description),
+                    propertyName: DESCRIPTION,
                     propertyValue: "DescriptionValue"
                     )
                 );
@@ -158,7 +159,7 @@ namespace OpenAPITests
                     _project,
                     _user,
                     baseArtifactType: BaseArtifactType.Actor,
-                    propertyName: nameof(NovaArtifactDetails.Description),
+                    propertyName: DESCRIPTION,
                     propertyValue: text
                     )
                 );

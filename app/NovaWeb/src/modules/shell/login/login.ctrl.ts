@@ -222,14 +222,14 @@ export class LoginCtrl extends BaseDialogController {
             this.isConfirmPasswordFieldErrorStyleShowing = true;
             return;
         }
-        if (this.novaNewPassword === this.novaUserName) {
+        if (_.toLower(this.novaNewPassword) === _.toLower(this.novaUserName)) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             this.isConfirmPasswordFieldErrorStyleShowing = false;
             return;
         }
-        if (this.novaNewPassword === this.novaDisplayName) {
+        if (this.novaDisplayName && _.toLower(this.novaNewPassword) === _.toLower(this.novaDisplayName)) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;

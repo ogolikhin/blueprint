@@ -121,6 +121,7 @@
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
+    <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />

@@ -98,7 +98,7 @@ export class JobsController {
         this.isLoading = true;
         this.page = page;
         this.jobs = [];
-        this.jobsService.getJobs(page)
+        this.jobsService.getJobs(page, this.pageLength)
         .then((result: IJobInfo[]) => {
             this.jobs = result;
         })

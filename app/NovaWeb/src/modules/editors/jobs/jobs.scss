@@ -106,3 +106,10 @@
     display: block;
     text-align: center
 }
+
+.jobs__title{
+    width: 500px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

@@ -36,7 +36,7 @@
                     <div class="col-md-10">
                         <div class="row">
                             <div class="col-md-11">
-                                <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
+                                <h5 class="font-blue margin-bottom--none jobs__title">
                                     JOB{{item.jobId}} (Project: {{item.project}})
                                 </h5>
                             </div>                            
@@ -47,18 +47,18 @@
                                 <span>{{item.userDisplayName}}</span>
                             </div>
                             <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
-                                <span>{{$ctrl.getType(item.jobType)}}</span>
-                            </div>
+                                <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
+                                <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
+                            </div>     
                             <div class="col-md-3">
                                 <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
                                 <span> {{$ctrl.getStatus(item.status)}}</span>
                             </div>                           
                         </div>
-                        <div class="row">
+                        <div class="row">                       
                             <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
+                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
+                                <span>{{$ctrl.getType(item.jobType)}}</span>
                             </div>
                             <div class="col-md-4">
                                 <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>

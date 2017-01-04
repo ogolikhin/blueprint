@@ -107,9 +107,13 @@
     text-align: center
 }
 
-.jobs__title{
+.jobs__title {
     width: 500px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.job__invalidStatus {
+    color: red;
 }

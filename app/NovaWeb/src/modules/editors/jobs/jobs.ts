@@ -137,6 +137,19 @@ export class JobsController {
         return "Unknown Status";
     } 
 
+    private isValidStatus(statusId: JobStatus): boolean {
+        switch (statusId) {
+            case JobStatus.Failed:
+            case JobStatus.Terminated:
+            case JobStatus.Cancelling:
+            case JobStatus.Suspended:
+            case JobStatus.Suspending:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     private getType(typeId: JobType): string {
         switch (typeId) {
             case JobType.None:

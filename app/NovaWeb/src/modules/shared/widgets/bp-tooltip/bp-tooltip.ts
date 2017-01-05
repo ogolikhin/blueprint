@@ -1,21 +1,19 @@
 import * as angular from "angular";
 
-interface IBPTooltipScope extends ng.IScope {
-    bpTooltip: string;
-    bpTooltipTruncated: boolean;
-    bpTooltipLimit: number;
-}
-
 export class BPTooltip implements ng.IDirective {
     public restrict = "A";
 
-    public scope = {
-        bpTooltip: "@",
-        bpTooltipTruncated: "<?",
-        bpTooltipLimit: "<?"
-    };
+    // Cannot have isolated scope, as the directive can be placed on other components/elements with additional
+    // directives and that will generate errors => [$compile:multidir] Multiple directives
+    // public scope = {
+    //     bpTooltip: "@",
+    //     bpTooltipTruncated: "<?",
+    //     bpTooltipLimit: "<?"
+    // };
 
-    public link: Function = ($scope: IBPTooltipScope, $element: ng.IAugmentedJQuery): void => {
+    public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
+        const defaultLimit = 250; // default limit after which the tooltip will get automatically truncated
+
         let observer;
 
         const tooltip = document.createElement("DIV");
@@ -58,15 +56,15 @@ export class BPTooltip implements ng.IDirective {
                 });
             }
 
-            const tooltipLimit = _.toLength($scope.bpTooltipLimit);
-            let tooltipText = $scope.bpTooltip;
-            if (tooltipLimit > 0 && tooltipLimit < tooltipText.length) {
-                tooltipText = $scope.bpTooltip.substr(0, tooltipLimit) + "&#8230;";
+            const tooltipLimit = _.toLength($element.attr("bp-tooltip-limit")) || defaultLimit;
+            let tooltipText = $element.attr("bp-tooltip");
+            if (tooltipLimit < tooltipText.length) {
+                tooltipText = tooltipText.slice(0, tooltipLimit) + "&#8230;";
             }
 
             // shouldDisplayTooltipForTruncated() only checks if tooltip should be displayed initially.
             // Doesn't account for edge case where text changes when mouse is already over the element
-            if (tooltipText !== "" && shouldDisplayTooltipForTruncated(angular.element(this))) {
+            if (tooltipText !== "" && shouldDisplayTooltipForTruncated()) {
                 let tooltipContent = document.createElement("DIV");
                 tooltipContent.className = "bp-tooltip-content";
                 tooltipContent.textContent = tooltipText;
@@ -93,9 +91,9 @@ export class BPTooltip implements ng.IDirective {
         }
 
         // only checks the immediate text or the immediate (and only) child, not nested HTML elements
-        function shouldDisplayTooltipForTruncated(element: ng.IAugmentedJQuery) {
-            if ($scope.bpTooltipTruncated) {
-                const elem = element[0];
+        function shouldDisplayTooltipForTruncated() {
+            if ($element.attr("bp-tooltip-truncated") === "true") {
+                const elem = $element[0];
 
                 let clientRect = elem.getBoundingClientRect();
                 const width = clientRect.width;

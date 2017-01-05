@@ -7,8 +7,10 @@ using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
@@ -54,7 +56,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs();
+            await controller.GetLatestJobs(1, 10);
 
             // Assert
             jobsRepositoryMock.Verify(
@@ -83,7 +85,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs();
+            await controller.GetLatestJobs(1, 10);
 
             // Assert
             jobsRepositoryMock.Verify(
@@ -92,7 +94,7 @@ namespace AdminStore.Controllers
 
 
         [TestMethod]
-        public async Task GetLatestJobs_NegativePage_UsesMinimumOffset()
+        public async Task GetLatestJobs_NegativePage_ThrowsBadRequest()
         {
             // Arrange
             var userId = 1;
@@ -113,14 +115,15 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(-5);
+            var response = await controller.GetLatestJobs(-5);
 
             // Assert
-            jobsRepositoryMock.Verify(
-                a => a.GetVisibleJobs(It.IsAny<int?>(), 0, It.IsAny<int?>(), It.IsAny<JobType>()), Times.Once());
+            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
+            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
+                             "Page value must be provided and be greater than 0");
         }
         [TestMethod]
-        public async Task GetLatestJobs_NegativePageSize_UsesDefaultLimit()
+        public async Task GetLatestJobs_NullPage_ThrowsBadRequest()
         {
             // Arrange
             var userId = 1;
@@ -141,14 +144,15 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(null, -10);
+            var response = await controller.GetLatestJobs();
 
             // Assert
-            jobsRepositoryMock.Verify(
-                a => a.GetVisibleJobs(It.IsAny<int?>(), It.IsAny<int?>(), 10, It.IsAny<JobType>()), Times.Once());
+            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
+            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
+                             "Page value must be provided and be greater than 0");
         }
         [TestMethod]
-        public async Task GetLatestJobs_ExceededMaxPageSize_UsesMaximumSize()
+        public async Task GetLatestJobs_NullPageSize_ThrowsBadRequest()
         {
             // Arrange
             var userId = 1;
@@ -169,11 +173,71 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(null, 201);
+            var response = await controller.GetLatestJobs(1, null);
 
             // Assert
-            jobsRepositoryMock.Verify(
-                a => a.GetVisibleJobs(It.IsAny<int?>(), It.IsAny<int?>(), 200, It.IsAny<JobType>()), Times.Once());
+            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
+            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
+                             "Page Size value must be provided and value between 1 and 200");
+        }
+        [TestMethod]
+        public async Task GetLatestJobs_NegativePageSize_ThrowsBadRequest()
+        {
+            // Arrange
+            var userId = 1;
+            var session = new Session { UserName = "admin", UserId = userId };
+            var token = Guid.NewGuid().ToString();
+
+            var sqlUserRepositoryMock = new Mock<IUsersRepository>();
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            sqlUserRepositoryMock.Setup(a => a.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).
+                Returns(Task.FromResult(true));
+
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object, sqlUserRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Headers.Add("Session-Token", token);
+            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            var response = await controller.GetLatestJobs(1, -10);
+            // Assert
+            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
+            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
+                             "Page Size value must be provided and value between 1 and 200");
+
+        }
+        [TestMethod]
+        public async Task GetLatestJobs_ExceededMaxPageSize_ThrowsBadRequest()
+        {
+            // Arrange
+            var userId = 1;
+            var session = new Session { UserName = "admin", UserId = userId };
+            var token = Guid.NewGuid().ToString();
+
+            var sqlUserRepositoryMock = new Mock<IUsersRepository>();
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            sqlUserRepositoryMock.Setup(a => a.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).
+                Returns(Task.FromResult(true));
+
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object, sqlUserRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Headers.Add("Session-Token", token);
+            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            var response = await controller.GetLatestJobs(1, 201);
+
+            // Assert
+
+            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
+            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
+                             "Page Size value must be provided and value between 1 and 200");
         }
         #endregion
     }

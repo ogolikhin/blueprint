@@ -19,6 +19,7 @@ import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -44,7 +45,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "communicationManager",
         "breadcrumbService",
         "userStoryService",
-        "collectionService"
+        "collectionService",
+        "itemInfoService"
     ];
 
     constructor($q: ng.IQService,
@@ -64,7 +66,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 private communicationManager: ICommunicationManager,
                 private breadcrumbService: IBreadcrumbService,
                 private userStoryService: IUserStoryService,
-                collectionService: ICollectionService) {
+                collectionService: ICollectionService,
+                public itemInfoService: IItemInfoService) {
         super(
             $q,
             $scope,
@@ -80,7 +83,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             metadataService,
             mainBreadcrumbService,
             analytics,
-            collectionService
+            collectionService,
+            itemInfoService
         );
     }
 

@@ -91,11 +91,11 @@ namespace AdminStore.Controllers
         }
 
         [HttpGet, NoCache]
-        [Route("{jobId:int:min(1)}/result/file"), SessionRequired]
+        [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
         public async Task<HttpResponseMessage> GetJobResultFile(int jobId)
         {
             var session = GetAuthenticatedSessionFromRequest();
-            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, session.SessionId.ToStringInvariant());
+            var file = await _jobsRepository.GetJobResultFile(Request.RequestUri, jobId, session.UserId, Session.Convert(session.SessionId));
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = new StreamContent(file.ContentStream);
@@ -109,6 +109,17 @@ namespace AdminStore.Controllers
         }
 
         #endregion
+
+        private Session GetAuthenticatedSessionFromRequest()
+        {
+            object sessionValue;
+            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
+            {
+                throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
+            }
+
+            return (Session)sessionValue;
+        }
 
         private int GetPageSize(int? pageSize)
         {
@@ -125,17 +136,6 @@ namespace AdminStore.Controllers
         {
             int page = requestedPage.GetValueOrDefault(defaultPage);
             return page < minPage ? defaultPage : page;
-        }
-
-        private Session GetAuthenticatedSessionFromRequest()
-        {
-            object sessionValue;
-            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
-            {
-                throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
-            }
-
-            return (Session)sessionValue;
         }
     }
 }

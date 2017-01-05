@@ -30,7 +30,7 @@ namespace AdminStore.Repositories.Jobs
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
                 new SqlUsersRepository(),
-                new FileRepository(new Uri("filestore/files/", UriKind.Relative))
+                new FileRepository()
             )
         {
         }
@@ -48,6 +48,7 @@ namespace AdminStore.Repositories.Jobs
             _sqlArtifactRepository = sqlArtifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _usersRepository = userRepository;
+            _fileRepository = fileRepository;
         }
 
         #region Public Methods
@@ -87,32 +88,38 @@ namespace AdminStore.Repositories.Jobs
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
         }
 
-        public async Task<File> GetJobResultFile(int jobId, int userId, string sessionToken)
+        public async Task<File> GetJobResultFile(Uri baseUri, int jobId, int userId, string sessionToken)
         {
             var job = await GetJob(jobId, userId);
             if (job == null)
             {
-                throw new ResourceNotFoundException();
+                throw new ResourceNotFoundException("Job is not found", ErrorCodes.ResourceNotFound);
             }
 
-            if (job.Status == JobStatus.Completed)
+            if (job.Status != JobStatus.Completed)
             {
-                throw new BadRequestException();
+                throw new BadRequestException("Job is not completed", ErrorCodes.JobNotCompleted);
             }
 
             if (string.IsNullOrEmpty(job.Result))
             {
-                throw new ResourceNotFoundException();
+                throw new ResourceNotFoundException("Job doesn't have a result", ErrorCodes.ResourceNotFound);
             }
 
             switch (job.JobType)
             {
                 case JobType.ProjectExport:
                     var projectExportTaskStatus = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
-                    return await _fileRepository.GetFileAsync(projectExportTaskStatus.Details.FileGuid, sessionToken);
+                    var file = await _fileRepository.GetFileAsync(baseUri, projectExportTaskStatus.Details.FileGuid, sessionToken);
+                    if (file == null)
+                    {
+                        throw new ResourceNotFoundException("Job doesn't have a result file", ErrorCodes.ResourceNotFound);
+                    }
+
+                    return file;
 
                 default:
-                    throw new BadRequestException();
+                    throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.JobResultFileNotSupported);
             }
         }
 

@@ -6,8 +6,8 @@ namespace ServiceLibrary.Repositories
 {
     public interface IFileRepository
     {
-        Task<FileInfo> GetFileInfoAsync(Guid fileId, string sessionToken = null, int? timeout = null);
+        Task<FileInfo> GetFileInfoAsync(Uri baseUri, Guid fileId, string sessionToken = null, int? timeout = null);
 
-        Task<File> GetFileAsync(Guid fileId, string sessionToken = null);
+        Task<File> GetFileAsync(Uri baseUri, Guid fileId, string sessionToken = null);
     }
 }

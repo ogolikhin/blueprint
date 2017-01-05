@@ -138,7 +138,10 @@ namespace AdminStore.Controllers
             var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
             var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object)
             {
-                Request = new HttpRequestMessage()
+                Request = new HttpRequestMessage
+                {
+                    RequestUri = new Uri("http://bptest.com/")
+                }
             };
 
             // Act

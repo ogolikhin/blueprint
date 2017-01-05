@@ -1,21 +1,20 @@
 <div class="jobs__results--content">
     <div class="page-heading">
     <div class="responsive-header">
-        
             <div class="artifact-heading">
-                <div class="artifact-heading-group1">                        
+                <div class="artifact-heading-group1">
                     <div class="artifact-heading-group2">
                         <div class="col-md-2">
                             <div class="name">Jobs</div>
                         </div>
                         <div class="col-md-10">
                             <div class="icon-container jobs__fr">
-                                    <i class="fonticon fonticon2-refresh-line" ng-click="$ctrl.loadPage(1)"></i>
+                                <i class="fonticon fonticon2-refresh-line" ng-click="$ctrl.loadPage(1)"></i>
                             </div>
                         </div>
                         <div class="col-md-1">
                             <div class="icon-container">
-                                    <i class="fonticon fonticon2-arrow-right" ng-click="$ctrl.loadNextPage()"></i>
+                                <i class="fonticon fonticon2-arrow-right" ng-click="$ctrl.loadNextPage()"></i>
                             </div>
                         </div>
                     </div>
@@ -30,7 +29,7 @@
                 <div class="row small-gutter">
                     <div class="col-md-1 text-center">
                         <h2 class="font-blue margin-top--none jobs__text--no-wrap">
-                            <i class="icon-document"></i>   
+                            <i class="icon-document"></i>
                         </h2>
                     </div>
                     <div class="col-md-10">
@@ -39,7 +38,7 @@
                                 <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
                                     JOB{{item.jobId}}({{item.project}})
                                 </h5>
-                            </div>                            
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">
@@ -53,7 +52,7 @@
                             <div class="col-md-3">
                                 <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
                                 <span> {{$ctrl.getStatus(item.status)}}</span>
-                            </div>                           
+                            </div>
                         </div>
                         <div class="row">
                             <div class="col-md-4">
@@ -72,7 +71,7 @@
                     </div>
                     <div class="col-md-1">
                         <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
-                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
+                            <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
                                 <i class="fonticon-download"></i>
                             </button>
                             <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
@@ -83,7 +82,7 @@
                     </div>
                 </div>
             </li>
-        </ul>                
+        </ul>
     </div>
     <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
         <div class="center-item font-larger">

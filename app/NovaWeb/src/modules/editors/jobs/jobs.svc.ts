@@ -68,18 +68,19 @@ export class JobsService implements IJobsService {
     private appendParameters(url: string, page: number, pageSize: number): string {
         if (page) {
             url = url + `?page=${page}`;
+
             if (pageSize) {
                 url = url + `&pageSize=${pageSize}`;
             }
         } else if (pageSize) {
             url = url + `?pageSize=${pageSize}`;
         }
+
         return url;
     }
 
-    private getUrl(page: number, pageSize: number): string {
-        const url = `/svc/adminstore/jobs/`;
-        return this.appendParameters(url, page, pageSize);
+    private getUrl(): string {
+        return `/svc/adminstore/jobs/`;
     }
 
     public getJobs(page: number = null, pageSize: number = null, timeout?: ng.IPromise<void>): ng.IPromise<IJobInfo[]> {
@@ -87,7 +88,7 @@ export class JobsService implements IJobsService {
         const deferred = this.$q.defer();
         const request: ng.IRequestConfig = {
             method: "GET",
-            url: this.getUrl(page, pageSize),
+            url: this.appendParameters(this.getUrl(), page, pageSize),
             params: {},
             timeout: timeout
         };
@@ -103,13 +104,13 @@ export class JobsService implements IJobsService {
         return deferred.promise;
     }
 
-    public getJob(jobId: number, timeout?: ng.IPromise<void>): ng.IPromise<IJobInfo> {        
+    public getJob(jobId: number, timeout?: ng.IPromise<void>): ng.IPromise<IJobInfo> {
         this.$log.debug(`getting job info for job id ${jobId}`);
         const deferred = this.$q.defer();
 
         const request: ng.IRequestConfig = {
             method: "GET",
-            url: this.getUrl(null, null) + jobId,
+            url: `${this.getUrl()}${jobId}`,
             params: {},
             timeout: timeout
         };

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using ServiceLibrary.Models.Files;
 using ServiceLibrary.Models.Jobs;
@@ -17,6 +18,6 @@ namespace AdminStore.Repositories.Jobs
 
         Task<JobInfo> GetJob(int jobId, int userId);
 
-        Task<File> GetJobResultFile(int jobId, int userId, string sessionToken);
+        Task<File> GetJobResultFile(Uri baseUri, int jobId, int userId, string sessionToken);
     }
 }

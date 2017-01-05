@@ -15,27 +15,19 @@ namespace ServiceLibrary.Repositories
     public class FileRepository : IFileRepository
     {
         private const string DefaultFileName = "BlueprintFile";
-        private Uri fileStoreUri;
 
-        public FileRepository(Uri fileStoreUri)
+        public FileRepository()
         {
-            if (fileStoreUri == null)
-            {
-                throw new ArgumentNullException(nameof(fileStoreUri));
-            }
-
-            this.fileStoreUri = fileStoreUri;
-
             // Making calls to FileStore with SSL (HTTPS) requires certificate validation.
             // This will make it accept all certificates. It's safe because FileStore is an internal service.
             // If it becomes public we must have a valid trusted certificate installed on the server.
             ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(AcceptAllCertifications);
         }
 
-        public async Task<FileInfo> GetFileInfoAsync(Guid fileId, string sessionToken = null, int? timeout = null)
+        public async Task<FileInfo> GetFileInfoAsync(Uri baseUri, Guid fileId, string sessionToken = null, int? timeout = null)
         {
-            var uri = new Uri(fileStoreUri, string.Format("/{0}", fileId));
-            var request = CreateHttpWebRequest(fileStoreUri, "Head", sessionToken, timeout);
+            var uri = new Uri(baseUri, string.Format("/svc/filestore/files/{0}", fileId));
+            var request = CreateHttpWebRequest(uri, "Head", sessionToken, timeout);
 
             using (var response = await GetHttpWebResponseAsync(request))
             {
@@ -60,33 +52,43 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        public async Task<File> GetFileAsync(Guid fileId, string sessionToken = null)
+        public async Task<File> GetFileAsync(Uri baseUri, Guid fileId, string sessionToken = null)
         {
+            var info = await GetFileInfoAsync(baseUri, fileId, sessionToken);
+            if (info == null)
+            {
+                return null;
+            }
+
+            var stream = await GetFileContentStream(baseUri, fileId, sessionToken);
+            if (stream == null)
+            {
+                return null;
+            }
+
             return new File
             {
-                Info = await GetFileInfoAsync(fileId, sessionToken),
-                ContentStream = await GetFileContentStream(fileId, sessionToken)
+                Info = info,
+                ContentStream = stream
             };
         }
 
-        private async Task<Stream> GetFileContentStream(Guid fileId, string sessionToken = null, int? timeout = null)
+        private async Task<Stream> GetFileContentStream(Uri baseUri, Guid fileId, string sessionToken = null, int? timeout = null)
         {
-            var uri = new Uri(fileStoreUri, string.Format("/{0}", fileId));
-            var request = CreateHttpWebRequest(fileStoreUri, "Get", sessionToken, timeout);
+            var uri = new Uri(baseUri, string.Format("/svc/filestore/files/{0}", fileId));
+            var request = CreateHttpWebRequest(uri, "Get", sessionToken, timeout);
+            var response = await GetHttpWebResponseAsync(request);
 
-            using (var response = await GetHttpWebResponseAsync(request))
+            switch (response.StatusCode)
             {
-                switch (response.StatusCode)
-                {
-                    case HttpStatusCode.OK:
-                        return new NetworkFileStream(response.GetResponseStream(), response.ContentLength);
+                case HttpStatusCode.OK:
+                    return new NetworkFileStream(response.GetResponseStream(), response.ContentLength);
 
-                    case HttpStatusCode.NotFound:
-                        return null;
+                case HttpStatusCode.NotFound:
+                    return null;
 
-                    default:
-                        throw new Exception(string.Format("Failed to get file content for id '{0}': Unexpected status code '{1}'.", fileId, response.StatusCode));
-                }
+                default:
+                    throw new Exception(string.Format("Failed to get file content for id '{0}': Unexpected status code '{1}'.", fileId, response.StatusCode));
             }
         }
 

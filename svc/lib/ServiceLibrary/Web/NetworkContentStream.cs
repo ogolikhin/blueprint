@@ -3,10 +3,14 @@ using System.IO;
 
 namespace ServiceLibrary.Web
 {
+    // The default stream System.Net.ConnectStream from File Storage API
+    // returns a stream that does not support Seek (Position, Length, Seek()).
+    // Since we have access to file content from the HTTP response header we can
+    // use this class as a wrapper for the original stream which returns the actual Length
     public class NetworkFileStream : Stream
     {
-        private Stream stream;
-        private long length;
+        private Stream _stream;
+        private long _length;
 
         public NetworkFileStream(Stream stream, long length)
         {
@@ -20,15 +24,15 @@ namespace ServiceLibrary.Web
                 throw new ArgumentOutOfRangeException("length");
             }
 
-            this.stream = stream;
-            this.length = length;
+            _stream = stream;
+            _length = length;
         }
 
         public override bool CanRead
         {
             get
             {
-                return stream.CanRead;
+                return _stream.CanRead;
             }
         }
 
@@ -36,7 +40,7 @@ namespace ServiceLibrary.Web
         {
             get
             {
-                return stream.CanSeek;
+                return _stream.CanSeek;
             }
         }
 
@@ -44,7 +48,7 @@ namespace ServiceLibrary.Web
         {
             get
             {
-                return stream.CanWrite;
+                return _stream.CanWrite;
             }
         }
 
@@ -52,12 +56,12 @@ namespace ServiceLibrary.Web
         {
             get
             {
-                if (stream.CanSeek)
+                if (_stream.CanSeek)
                 {
-                    return stream.Length;
+                    return _stream.Length;
                 }
 
-                return length;
+                return _length;
             }
         }
 
@@ -65,38 +69,38 @@ namespace ServiceLibrary.Web
         {
             get
             {
-                return stream.Position;
+                return _stream.Position;
             }
 
             set
             {
-                stream.Position = value;
+                _stream.Position = value;
             }
         }
 
         public override void Flush()
         {
-            stream.Flush();
+            _stream.Flush();
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return stream.Read(buffer, offset, count);
+            return _stream.Read(buffer, offset, count);
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return stream.Seek(offset, origin);
+            return _stream.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
         {
-            stream.SetLength(value);
+            _stream.SetLength(value);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            stream.Write(buffer, offset, count);
+            _stream.Write(buffer, offset, count);
         }
     }
 }

@@ -82,8 +82,7 @@
                                 </button>
                                 <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
                                     <i class="fonticon2-refresh-line jobs__action-icons--color jobs__icon--size"></i>
-                                </button>
-                                <i ng-if="$ctrl.isJobError(item.status)" class="fonticon2-error jobs__error-icon--color jobs__icon--size" bp-tooltip="{{$ctrl.localization.get('Jobs_Error_Label')}}"></i>
+                                </button>                                
                             <h2>
                         </div>
                     </div>

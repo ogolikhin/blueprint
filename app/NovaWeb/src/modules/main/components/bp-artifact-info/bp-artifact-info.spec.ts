@@ -24,7 +24,7 @@ import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/chang
 import {ItemTypePredefined, LockedByEnum, RolePermissions} from "../../../main/models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
-import {SessionSvcMock} from "../../../shell/login/mocks.spec";
+import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -103,6 +103,7 @@ describe("BpArtifactInfo", () => {
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("analytics", () => analytics);
         $provide.service("collectionService", CollectionServiceMock);
+        $provide.service("itemInfoService", ItemInfoServiceMock);
     }));
 
     beforeEach(inject((
@@ -110,12 +111,14 @@ describe("BpArtifactInfo", () => {
         _$q_: ng.IQService,
         _$rootScope_: ng.IRootScopeService,
         _projectManager_: IProjectManager,
-        _loadingOverlayService_: ILoadingOverlayService
+        _loadingOverlayService_: ILoadingOverlayService,
+        _itemInfoService_: ItemInfoServiceMock
         ) => {
         $compile = _$compile_;
         $q = _$q_;
         $rootScope = _$rootScope_;
         projectManager = _projectManager_;
+        loadingOverlayService = _loadingOverlayService_;
         loadingOverlayService = _loadingOverlayService_;
     }));
 

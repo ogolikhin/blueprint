@@ -9,16 +9,20 @@ using Model.NovaModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Net;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace Helper
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
+    [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
     public static class ArtifactStoreHelper
     {
         #region Custom Asserts
@@ -653,6 +657,106 @@ namespace Helper
 
         #endregion Custom Asserts
 
+        public enum ImageType
+        {
+            JPEG,
+            PNG,
+            GIF,
+            TIFF
+        }
+
+        #region Image Functions
+
+        private static Dictionary<ImageType, ImageFormat> ImageFormatMap = new Dictionary<ImageType, ImageFormat>
+        {
+            { ImageType.JPEG, ImageFormat.Jpeg },
+            { ImageType.PNG, ImageFormat.Png },
+            { ImageType.GIF, ImageFormat.Gif },
+            { ImageType.TIFF, ImageFormat.Tiff }
+        };
+
+        /// <summary>
+        /// Creates a random image and adds it to a property of the specified artifact.  Artifact will be locked and saved.
+        /// </summary>
+        /// <param name="artifact">The artifact where the image will be embedded.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="width">(optional) The image width.</param>
+        /// <param name="height">(optional) The image height.</param>
+        /// <param name="imageType">(optional) The image type.</param>
+        /// <param name="contentType">(optional) The Content-Type.</param>
+        /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
+        /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(IArtifactBase artifact,
+            IUser user,
+            IArtifactStore artifactStore,
+            int width = 100,
+            int height = 100,
+            ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg",
+            string propertyName = nameof(NovaArtifactDetails.Description))
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
+            return AddRandomImageToArtifactProperty(artifactDetails, artifact.Project, user, artifactStore,
+                width, height, imageType, contentType, propertyName);
+        }
+
+        /// <summary>
+        /// Creates a random image and adds it to a property of the specified artifact.  Artifact will be locked and saved.
+        /// </summary>
+        /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
+        /// <param name="project">The project where the artifact exists.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="width">(optional) The image width.</param>
+        /// <param name="height">(optional) The image height.</param>
+        /// <param name="imageType">(optional) The image type.</param>
+        /// <param name="contentType">(optional) The Content-Type.</param>
+        /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
+        /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
+            IProject project,
+            IUser user,
+            IArtifactStore artifactStore,
+            int width = 100,
+            int height = 100,
+            ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg",
+            string propertyName = nameof(NovaArtifactDetails.Description))
+        {
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var addedFile = artifactStore.AddImage(user, imageFile);
+            string propertyContent = CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+
+            CSharpUtilities.SetProperty(propertyName, propertyContent, artifactDetails);
+
+            return artifactStore.UpdateArtifact(user, project, artifactDetails);
+        }
+
+        /// <summary>
+        /// Creates a random image file of the specified type and size.
+        /// </summary>
+        /// <param name="width">The image width.</param>
+        /// <param name="height">The image height.</param>
+        /// <param name="imageType">The type of image to create (ex. jpeg, png).</param>
+        /// <param name="contentType">The MIME Content-Type.</param>
+        /// <returns>The random image file.</returns>
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
+        public static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
+        {
+            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
+            string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType.ToStringInvariant().ToLowerInvariant());
+
+            return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
+        }
+
         /// <summary>
         /// Creates Embedded Image html for the artifact property
         /// </summary>
@@ -664,6 +768,8 @@ namespace Helper
 
             return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
         }
+
+        #endregion Image Functions
 
         /// <summary>
         /// Gets the custom data project.
@@ -779,7 +885,7 @@ namespace Helper
 
                     if (newValue.GetType().IsArray)
                     {
-                        values = ((System.Collections.IEnumerable) newValue)
+                        values = ((IEnumerable) newValue)
                             .Cast<object>()
                             .Select(x => x.ToString())
                             .ToArray();
@@ -1440,7 +1546,7 @@ namespace Helper
 
         public class ChoiceValues
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("validValues")]
             public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
 
@@ -1450,7 +1556,7 @@ namespace Helper
 
         public class UserGroupValues
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+            [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("usersGroups")]
             public List<Identification> UsersGroups { get; set; }
 

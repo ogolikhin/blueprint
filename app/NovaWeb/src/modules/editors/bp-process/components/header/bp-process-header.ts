@@ -19,7 +19,7 @@ import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
-import {IItemInfoService, IItemInfoResult} from "../../../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");

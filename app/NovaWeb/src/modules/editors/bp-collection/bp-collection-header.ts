@@ -14,7 +14,7 @@ import {ILocalizationService} from "../../core/localization/localizationService"
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 import {ICollectionService} from "../../editors/bp-collection/collection.svc";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../core/navigation/item-info.svc";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");

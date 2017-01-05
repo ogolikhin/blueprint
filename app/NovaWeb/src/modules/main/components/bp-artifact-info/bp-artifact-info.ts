@@ -37,7 +37,7 @@ import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
-import {IItemInfoService, IItemInfoResult} from "../../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../../core/navigation/item-info.svc";
 
 enum InfoBannerEnum {
     None = 0,

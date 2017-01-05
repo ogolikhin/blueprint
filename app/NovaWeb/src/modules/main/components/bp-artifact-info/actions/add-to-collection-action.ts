@@ -100,7 +100,7 @@ export class AddToCollectionAction extends BPDropdownAction {
                 //ignore authentication errors here
                 if (error && error.errorCode === ErrorCode.LockedByOtherUser) {
                     return this.itemInfoService.get(result.collectionId)
-                        .then((collection) => {
+                        .then((collection: IItemInfoResult) => {
                             let error = this.localization.get("Artifact_Add_To_Collection_Filed_Because_Lock");
                             this.messageService.addError(error.replace("{userName}", collection.lockedByUser.displayName));
                         });

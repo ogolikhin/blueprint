@@ -115,7 +115,15 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(-5);
+            try { 
+                await controller.GetLatestJobs(-5);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageNullOrNegative);
+                throw ex;
+            }
         }
 
         [TestMethod]
@@ -141,7 +149,17 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs();
+            try
+            {
+                await controller.GetLatestJobs();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageNullOrNegative);
+                throw ex;
+            }
+
         }
 
         [TestMethod]
@@ -167,7 +185,15 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(1, null);
+            try { 
+                await controller.GetLatestJobs(1, null);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);
+                throw ex;
+            }
         }
 
         [TestMethod]
@@ -193,7 +219,15 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(1, -10);
+            try { 
+                await controller.GetLatestJobs(1, -10);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);
+                throw ex;
+            }
         }
 
         [TestMethod]
@@ -219,7 +253,16 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(1, 201);
+            try
+            {
+                await controller.GetLatestJobs(1, 201);
+            }
+            catch(Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);
+                throw ex;
+            }
         }
         #endregion
     }

@@ -11,11 +11,13 @@ namespace AdminStore.Helpers
         {
             if (!ValidateGetPage(page))
             {
-                throw new BadRequestException("Page value must be provided and be greater than 0");
+                throw new BadRequestException("Page value must be provided and be greater than 0", ErrorCodes.PageNullOrNegative);
             }
             if (!ValidatePageSize(pageSize))
             {
-                throw new BadRequestException(String.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize));
+                throw new BadRequestException(
+                    String.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize), 
+                    ErrorCodes.PageSizeNullOrOutOfRange);
             }
         }
         private bool ValidatePageSize(int? pageSize)

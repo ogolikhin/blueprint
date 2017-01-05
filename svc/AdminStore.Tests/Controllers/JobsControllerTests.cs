@@ -1,6 +1,7 @@
 ﻿using AdminStore.Repositories.Jobs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
@@ -91,8 +92,8 @@ namespace AdminStore.Controllers
                 a => a.GetVisibleJobs(userId, It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<JobType>()), Times.Once());
         }
 
-
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetLatestJobs_NegativePage_ThrowsBadRequest()
         {
             // Arrange
@@ -114,14 +115,11 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var response = await controller.GetLatestJobs(-5);
-
-            // Assert
-            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
-            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
-                             "Page value must be provided and be greater than 0");
+            await controller.GetLatestJobs(-5);
         }
+
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetLatestJobs_NullPage_ThrowsBadRequest()
         {
             // Arrange
@@ -143,14 +141,11 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var response = await controller.GetLatestJobs();
-
-            // Assert
-            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
-            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
-                             "Page value must be provided and be greater than 0");
+            await controller.GetLatestJobs();
         }
+
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetLatestJobs_NullPageSize_ThrowsBadRequest()
         {
             // Arrange
@@ -172,14 +167,11 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var response = await controller.GetLatestJobs(1, null);
-
-            // Assert
-            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
-            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
-                             "Page Size value must be provided and value between 1 and 200");
+            await controller.GetLatestJobs(1, null);
         }
+
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetLatestJobs_NegativePageSize_ThrowsBadRequest()
         {
             // Arrange
@@ -201,14 +193,11 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var response = await controller.GetLatestJobs(1, -10);
-            // Assert
-            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
-            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
-                             "Page Size value must be provided and value between 1 and 200");
-
+            await controller.GetLatestJobs(1, -10);
         }
+
         [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
         public async Task GetLatestJobs_ExceededMaxPageSize_ThrowsBadRequest()
         {
             // Arrange
@@ -230,13 +219,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            var response = await controller.GetLatestJobs(1, 201);
-
-            // Assert
-
-            Assert.IsInstanceOfType(response, typeof(BadRequestErrorMessageResult));
-            Assert.AreEqual(((BadRequestErrorMessageResult)response).Message,
-                             "Page Size value must be provided and value between 1 and 200");
+            await controller.GetLatestJobs(1, 201);
         }
         #endregion
     }

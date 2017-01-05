@@ -66,11 +66,7 @@ namespace AdminStore.Controllers
                 }
 
                 JobsValidationHelper jobsHelper = new JobsValidationHelper();
-                var validationMessage = jobsHelper.Validate(page, pageSize);
-                if (!String.IsNullOrEmpty(validationMessage))
-                {
-                    return BadRequest(validationMessage);
-                }
+                jobsHelper.Validate(page, pageSize);
 
                 int offset = (page.Value - 1) * pageSize.Value;
 

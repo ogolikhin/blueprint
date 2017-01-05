@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Helpers;
+﻿using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using System;
 using System.Globalization;
 
@@ -6,17 +7,16 @@ namespace AdminStore.Helpers
 {
     public class JobsValidationHelper
     {
-        public string Validate(int? page, int? pageSize)
+        public void Validate(int? page, int? pageSize)
         {
             if (!ValidateGetPage(page))
             {
-                return "Page value must be provided and be greater than 0";
+                throw new BadRequestException("Page value must be provided and be greater than 0");
             }
             if (!ValidatePageSize(pageSize))
             {
-                return String.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize);
+                throw new BadRequestException(String.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize));
             }
-            return null;
         }
         private bool ValidatePageSize(int? pageSize)
         {

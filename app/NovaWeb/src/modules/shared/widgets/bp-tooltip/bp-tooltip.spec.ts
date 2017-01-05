@@ -76,7 +76,7 @@ describe("Directive BP-Tooltip", () => {
                 // Assert
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).toContain("show");
-                expect(tooltip.textContent).toBe(tooltipContent.slice(0, limit) + "&#8230;");
+                expect(tooltip.textContent).toBe(tooltipContent.slice(0, limit) + "…");
             }
         )
     );
@@ -107,7 +107,7 @@ describe("Directive BP-Tooltip", () => {
                 // Assert
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).toContain("show");
-                expect(tooltip.textContent).toBe(tooltipContent.slice(0, defaultLimit) + "&#8230;");
+                expect(tooltip.textContent).toBe(tooltipContent.slice(0, defaultLimit) + "…");
             }
         )
     );

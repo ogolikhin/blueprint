@@ -59,7 +59,7 @@ export class BPTooltip implements ng.IDirective {
             const tooltipLimit = _.toLength($element.attr("bp-tooltip-limit")) || defaultLimit;
             let tooltipText = $element.attr("bp-tooltip");
             if (tooltipLimit < tooltipText.length) {
-                tooltipText = tooltipText.slice(0, tooltipLimit) + "&#8230;";
+                tooltipText = tooltipText.slice(0, tooltipLimit) + "…";
             }
 
             // shouldDisplayTooltipForTruncated() only checks if tooltip should be displayed initially.

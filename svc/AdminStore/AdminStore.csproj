@@ -110,6 +110,7 @@
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
+    <Compile Include="Helpers\JobsValidationHelper.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />

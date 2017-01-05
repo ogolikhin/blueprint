@@ -11,6 +11,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using AdminStore.Helpers;
 
 namespace AdminStore.Controllers
 {
@@ -23,7 +24,7 @@ namespace AdminStore.Controllers
         internal readonly IUsersRepository _sqlUserRepository;
 
         public override string LogSource => "AdminStore.JobsService";
-
+        
         public JobsController() :
             this(new JobsRepository(), new ServiceLogRepository(), new SqlUsersRepository())
         {
@@ -49,10 +50,11 @@ namespace AdminStore.Controllers
         /// Returns the latest jobs.
         /// </remarks>
         /// <response code="200">OK.</response>
+        /// <response code="400">BadRequest.</response>
         [HttpGet, NoCache]
         [Route(""), SessionRequired]
         [ResponseType(typeof(IEnumerable<JobInfo>))]
-        public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
+        public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
             int? userId = ValidateAndExtractUserId();
             try
@@ -62,11 +64,13 @@ namespace AdminStore.Controllers
                 {
                     userId = null;
                 }
-                int jobPageSize = GetPageSize(pageSize);
-                int jobPage = GetPage(page);
-                int offset = (jobPage - 1) * jobPageSize;
 
-                return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
+                JobsValidationHelper jobsHelper = new JobsValidationHelper();
+                jobsHelper.Validate(page, pageSize);
+
+                int offset = (page.Value - 1) * pageSize.Value;
+
+                return Ok(await _jobsRepository.GetVisibleJobs(userId, offset, pageSize, jobType));
             }
             catch (Exception exception)
             {
@@ -85,7 +89,7 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("{jobId:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(JobInfo))]
-        public async Task<JobInfo> GetJob(int jobId)
+        public async Task<IHttpActionResult> GetJob(int jobId)
         {
             int? userId = ValidateAndExtractUserId();
             try
@@ -96,7 +100,7 @@ namespace AdminStore.Controllers
                     userId = null;
                 }
 
-                return await _jobsRepository.GetJob(jobId, userId);
+                return Ok(await _jobsRepository.GetJob(jobId, userId));
             }
             catch (Exception exception)
             {
@@ -107,27 +111,6 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        private int GetPageSize(int? pageSize)
-        {
-            var jobPageSize = pageSize.GetValueOrDefault(ServiceConstants.JobsDefaultPageSize);
-            if (jobPageSize <= 0)
-            {
-                return ServiceConstants.JobsDefaultPageSize;
-            }
-
-            if (jobPageSize > ServiceConstants.JobsMaxPageSize)
-            {
-                return ServiceConstants.JobsMaxPageSize;
-            }
-
-            return jobPageSize;
-        }
-
-        private int GetPage(int? requestedPage)
-        {
-            int page = requestedPage.GetValueOrDefault(ServiceConstants.JobsDefaultPage);
-            return page < 1 ? ServiceConstants.JobsDefaultPage : page;
-        }
 
         private int ValidateAndExtractUserId()
         {

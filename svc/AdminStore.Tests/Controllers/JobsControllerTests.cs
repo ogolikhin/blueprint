@@ -1,6 +1,7 @@
 ﻿using AdminStore.Repositories.Jobs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
@@ -9,6 +10,7 @@ using ServiceLibrary.Repositories.ConfigControl;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web.Http.Results;
 
 namespace AdminStore.Controllers
 {
@@ -54,7 +56,7 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs();
+            await controller.GetLatestJobs(1, 10);
 
             // Assert
             jobsRepositoryMock.Verify(
@@ -83,16 +85,16 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs();
+            await controller.GetLatestJobs(1, 10);
 
             // Assert
             jobsRepositoryMock.Verify(
                 a => a.GetVisibleJobs(userId, It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<JobType>()), Times.Once());
         }
 
-
         [TestMethod]
-        public async Task GetLatestJobs_NegativePage_UsesMinimumOffset()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetLatestJobs_NegativePage_ThrowsBadRequest()
         {
             // Arrange
             var userId = 1;
@@ -113,14 +115,20 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(-5);
-
-            // Assert
-            jobsRepositoryMock.Verify(
-                a => a.GetVisibleJobs(It.IsAny<int?>(), 0, It.IsAny<int?>(), It.IsAny<JobType>()), Times.Once());
+            try { 
+                await controller.GetLatestJobs(-5);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageNullOrNegative);
+                throw ex;
+            }
         }
+
         [TestMethod]
-        public async Task GetLatestJobs_NegativePageSize_UsesDefaultLimit()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetLatestJobs_NullPage_ThrowsBadRequest()
         {
             // Arrange
             var userId = 1;
@@ -141,14 +149,22 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(null, -10);
+            try
+            {
+                await controller.GetLatestJobs();
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageNullOrNegative);
+                throw ex;
+            }
 
-            // Assert
-            jobsRepositoryMock.Verify(
-                a => a.GetVisibleJobs(It.IsAny<int?>(), It.IsAny<int?>(), 10, It.IsAny<JobType>()), Times.Once());
         }
+
         [TestMethod]
-        public async Task GetLatestJobs_ExceededMaxPageSize_UsesMaximumSize()
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetLatestJobs_NullPageSize_ThrowsBadRequest()
         {
             // Arrange
             var userId = 1;
@@ -169,11 +185,84 @@ namespace AdminStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = session;
 
             // Act
-            await controller.GetLatestJobs(null, 201);
+            try { 
+                await controller.GetLatestJobs(1, null);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);
+                throw ex;
+            }
+        }
 
-            // Assert
-            jobsRepositoryMock.Verify(
-                a => a.GetVisibleJobs(It.IsAny<int?>(), It.IsAny<int?>(), 200, It.IsAny<JobType>()), Times.Once());
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetLatestJobs_NegativePageSize_ThrowsBadRequest()
+        {
+            // Arrange
+            var userId = 1;
+            var session = new Session { UserName = "admin", UserId = userId };
+            var token = Guid.NewGuid().ToString();
+
+            var sqlUserRepositoryMock = new Mock<IUsersRepository>();
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            sqlUserRepositoryMock.Setup(a => a.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).
+                Returns(Task.FromResult(true));
+
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object, sqlUserRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Headers.Add("Session-Token", token);
+            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            try { 
+                await controller.GetLatestJobs(1, -10);
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);
+                throw ex;
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task GetLatestJobs_ExceededMaxPageSize_ThrowsBadRequest()
+        {
+            // Arrange
+            var userId = 1;
+            var session = new Session { UserName = "admin", UserId = userId };
+            var token = Guid.NewGuid().ToString();
+
+            var sqlUserRepositoryMock = new Mock<IUsersRepository>();
+            var jobsRepositoryMock = new Mock<IJobsRepository>();
+            var serviceLogRepositoryMock = new Mock<IServiceLogRepository>();
+            sqlUserRepositoryMock.Setup(a => a.IsInstanceAdmin(It.IsAny<bool>(), It.IsAny<int>())).
+                Returns(Task.FromResult(true));
+
+            var controller = new JobsController(jobsRepositoryMock.Object, serviceLogRepositoryMock.Object, sqlUserRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Headers.Add("Session-Token", token);
+            controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+
+            // Act
+            try
+            {
+                await controller.GetLatestJobs(1, 201);
+            }
+            catch(Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(BadRequestException));
+                Assert.AreEqual(((ExceptionWithErrorCode)ex).ErrorCode, ErrorCodes.PageSizeNullOrOutOfRange);
+                throw ex;
+            }
         }
         #endregion
     }

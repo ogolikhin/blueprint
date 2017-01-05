@@ -42,6 +42,8 @@ App_Sidebar_Right,"Utility Panel"
 App_Explorer_EmptyMessage,"You have no projects loaded in the Explorer"
 App_Explorer_LoadProject_ButtonLabel,"Load project"
 App_Explorer_LoadProject_ButtonTooltip,"Load project in Explorer"
+App_Explorer_BottomBar_UnpublishedChanges, "Unpublished Changes"
+App_Explorer_BottomBar_Jobs, "Jobs"
 
 App_Project,"Project"
 App_Project_Open,"Open Project"
@@ -292,6 +294,7 @@ Artifact_Add_To_Collection_Picker_Header,"Add Artifact to Collection"
 Artifact_Add_To_Collection,"Add to collection"
 Artifact_Add_To_Collection_Include_Descendants, "Include artifact descendants"
 Artifact_Add_To_Collection_Success,"The artifact has been added to the collection."
+Artifact_Add_To_Collection_Filed_Because_Lock,"The artifact could not be added to the collection. The collection is locked by {userName}."
 
 Change_Password_Dialog_Header,"Change Password"
 Change_Password_Dialog_Message,"Use the form below to change your password"
@@ -598,3 +601,5 @@ Jobs_SubmittedDate, "Submitted on"
 Jobs_StartDate, "Started on"
 Jobs_EndDate, "Ended on"
 Jobs_Error_Label, "Error"
+
+

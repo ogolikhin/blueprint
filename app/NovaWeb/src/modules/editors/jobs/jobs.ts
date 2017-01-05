@@ -56,7 +56,7 @@ export class JobsController {
     }
     
     private getJobAction(status: JobStatus): JobAction {
-        let jobAction = JobAction.Error;
+        let jobAction = JobAction.None;
         switch (status) {
             case JobStatus.Completed:
                 jobAction = JobAction.Download;
@@ -68,7 +68,7 @@ export class JobsController {
                 jobAction = JobAction.Refresh;
                 break;
             default:
-                jobAction = JobAction.Error;
+                jobAction = JobAction.None;
                 break;            
         }
         return jobAction;
@@ -80,10 +80,6 @@ export class JobsController {
 
     public canRefresh(status: JobStatus): boolean {
         return this.getJobAction(status) === JobAction.Refresh;
-    }
-
-    public isJobError(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Error;
     }
 
     public refreshJob(jobId: number) {
@@ -181,6 +177,13 @@ export class JobsController {
 
         this.$log.error(`Unknown Job Type, (${typeId})`);
         return "Unknown";
+    }
+
+    public isJobRunning(status: JobStatus): boolean {
+        if (status === JobStatus.Running) {
+            return true;
+        }
+        return false;
     }
 
     public isJobsEmpty(): boolean {

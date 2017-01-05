@@ -137,6 +137,7 @@ bp-sidebar-layout {
     width: 100%;
     background-color: $gray-lightest;
     display: flex;
+    padding: 0 5px;
 }
 .explorer__bottom-navbar-button{
     border-radius: 0;
@@ -159,7 +160,6 @@ bp-sidebar-layout {
 }
 .explorer__bottom-navbar-icons:before {
     font-size: 2.2rem;
-    height: 25px;
 }
 .explorer__bottom-navbar-button-label {
     font-size: $font-size-smaller;

@@ -7,7 +7,6 @@ using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using System;
-using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http.Results;

@@ -24,7 +24,12 @@
     </div>
     <div class="page-body-wrapper">
         <div class="page-body">
-            <ul class="list-unstyled">
+            <div ng-if="$ctrl.isLoading" class="app-loading">
+                <span class="glyphicon glyphicon-refresh spin"></span>
+                {{::$ctrl.localization.get('App_LoadingMsg') }}
+            </div>
+
+            <ul class="list-unstyled" ng-if="!$ctrl.isLoading">
                 <li class="jobs__results--item"
                     ng-repeat="item in $ctrl.jobs track by $index">
                     <div class="row small-gutter">
@@ -85,7 +90,7 @@
                 </li>
             </ul>                
         </div>
-        <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
+        <div class="jobs__response" ng-if="$ctrl.isJobsEmpty() && !$ctrl.isLoading">
             <div class="center-item font-larger">
                 <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
             </div>

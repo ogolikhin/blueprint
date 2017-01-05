@@ -686,6 +686,7 @@ namespace Helper
         /// <param name="imageType">(optional) The image type.</param>
         /// <param name="contentType">(optional) The Content-Type.</param>
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
+        /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
         public static INovaArtifactDetails AddRandomImageToArtifactProperty(IArtifactBase artifact,
             IUser user,
@@ -694,7 +695,8 @@ namespace Helper
             int height = 100,
             ImageType imageType = ImageType.JPEG,
             string contentType = "image/jpeg",
-            string propertyName = nameof(NovaArtifactDetails.Description))
+            string propertyName = nameof(NovaArtifactDetails.Description),
+            int numberOfImagesToAdd = 1)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
@@ -702,7 +704,7 @@ namespace Helper
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
             return AddRandomImageToArtifactProperty(artifactDetails, artifact.Project, user, artifactStore,
-                width, height, imageType, contentType, propertyName);
+                width, height, imageType, contentType, propertyName, numberOfImagesToAdd);
         }
 
         /// <summary>
@@ -717,6 +719,7 @@ namespace Helper
         /// <param name="imageType">(optional) The image type.</param>
         /// <param name="contentType">(optional) The Content-Type.</param>
         /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
+        /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
         public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
             IProject project,
@@ -726,17 +729,27 @@ namespace Helper
             int height = 100,
             ImageType imageType = ImageType.JPEG,
             string contentType = "image/jpeg",
-            string propertyName = nameof(NovaArtifactDetails.Description))
+            string propertyName = nameof(NovaArtifactDetails.Description),
+            int numberOfImagesToAdd = 1)
         {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
-            var addedFile = artifactStore.AddImage(user, imageFile);
-            string propertyContent = CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+            var imageTags = new List<string>();
 
+            for (int i = 0; i < numberOfImagesToAdd; ++i)
+            {
+                var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+                var addedFile = artifactStore.AddImage(user, imageFile);
+                string imageTag = CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+                imageTags.Add(imageTag);
+            }
+
+            string propertyContent = string.Join("<br/>", imageTags);
             CSharpUtilities.SetProperty(propertyName, propertyContent, artifactDetails);
 
-            return artifactStore.UpdateArtifact(user, project, artifactDetails);
+            artifactStore.UpdateArtifact(user, project, artifactDetails);
+            return artifactStore.GetArtifactDetails(user, artifactDetails.Id);
         }
 
         /// <summary>

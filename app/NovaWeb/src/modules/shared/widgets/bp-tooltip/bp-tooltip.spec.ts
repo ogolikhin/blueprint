@@ -17,7 +17,7 @@ describe("Directive BP-Tooltip", () => {
 
     const tooltipTriggerTruncatedNested2x = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"><div>
                                              <div style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div>
-                                             </div></div></div>`;
+                                        </div></div></div>`;
 
     beforeEach(angular.mock.module("app.shared"));
 

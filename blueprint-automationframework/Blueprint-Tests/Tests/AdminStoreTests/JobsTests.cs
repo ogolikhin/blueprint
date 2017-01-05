@@ -13,7 +13,7 @@ using System.Linq;
 using TestCommon;
 using Utilities;
 
-namespace CommonServiceTests
+namespace AdminStoreTests
 {
     [TestFixture]
     [Category(Categories.AdminStore)]
@@ -23,6 +23,7 @@ namespace CommonServiceTests
         protected const string JOBS_PATH = RestPaths.Svc.AdminStore.JOBS;
         protected const int DEFAULT_PAGE_VALUE = 1;
         protected const int DEFAULT_PAGESIZE_VALUE = 10;
+        protected const int MAXIMUM_PAGESIZE_VALUE = 200;
         protected const int DEFAULT_BASELINEORREVIEWID = 83;
 
         private List<IProject> _allProjects = null;

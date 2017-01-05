@@ -834,6 +834,63 @@ GO
 
 
 
+/******************************************************************************************************************************
+Name:			GetLicenseUsage
+
+Description:	Returns license usage information 
+
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseUsage]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLicenseUsage]
+GO
+
+CREATE PROCEDURE [dbo].[GetLicenseUsage]
+(
+	@month int = null,
+	@year int = null
+)
+AS
+BEGIN
+	DECLARE @currentDate datetime = GETUTCDATE();
+	DECLARE @startMonth date = DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
+	DECLARE @currentMonth date = DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
+
+	WITH L
+	AS (
+		-- Client: 1, Analytics: 2, REST: 3
+		-- Viewer: 1, Collaborator: 2, Author: 3
+		SELECT	 YEAR(la.[TimeStamp]) AS ActivityYear
+				,MONTH(la.[TimeStamp]) AS ActivityMonth
+				,la.UserId as UserId
+				,la.ConsumerType AS Consumer
+				,la.UserLicenseType AS License
+				,da.LicenseType AS CountLicense
+				,da.[Count] AS [Count]
+		FROM LicenseActivities AS la WITH (NOLOCK) 
+			LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+		ON la.LicenseActivityId = da.LicenseActivityId
+		WHERE (@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth)
+				AND la.[TimeStamp] < @currentMonth
+				)
+		SELECT 
+			 L.ActivityYear 
+			,L.ActivityMonth
+			,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS UniqueAuthors
+			,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS UniqueCollaborators
+			,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS UniqueViews
+			,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
+			,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
+			,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
+			,COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE NULL END) AS LoggedInUsersFromAnalytics
+			,COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE NULL END) AS LoggedInUsersFromRestApi
+		FROM L
+		GROUP BY L.ActivityYear, L.ActivityMonth;
+END
+
+GO 
+
+
 
 DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
 DECLARE @jobId BINARY(16), @cmd varchar(2000)
@@ -1192,6 +1249,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collectio
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add Artifact to Collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection', 'en-US', N'Add to collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Include_Descendants', 'en-US', N'Include artifact descendants')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Success', 'en-US', N'The artifact has been added to the collection.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Header', 'en-US', N'Change Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Message', 'en-US', N'Use the form below to change your password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment', 'en-US', N'Are you sure you want to permanently delete the selected comment?')

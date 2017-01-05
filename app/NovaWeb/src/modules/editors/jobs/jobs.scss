@@ -76,6 +76,18 @@
     .jobs__icon--size::after {
         font-size: 1.5rem;
     }
+        
+    .progress {
+        max-width: 270px;
+        box-shadow: none;
+        background-color: $gray-lightest;
+        margin-bottom: 0;
+
+        .progress-bar {
+            border-radius: 4px;
+            background-color: $brand-secondary;
+        }
+    }
 }
 
 .jobs__action-icons--color {
@@ -109,4 +121,8 @@
 
 .job__invalidStatus {
     color: red;
+}
+
+.jobs__status-label--left {
+    float: left;
 }

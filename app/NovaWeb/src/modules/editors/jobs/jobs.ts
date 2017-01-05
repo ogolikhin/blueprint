@@ -179,6 +179,13 @@ export class JobsController {
         return "Unknown";
     }
 
+    public isJobRunning(status: JobStatus): boolean {
+        if (status === JobStatus.Running) {
+            return true;
+        }
+        return false;
+    }
+
     public isJobsEmpty(): boolean {
         return this.jobs.length === 0;
     }

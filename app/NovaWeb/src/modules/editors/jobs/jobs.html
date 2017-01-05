@@ -55,9 +55,10 @@
                                     <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
                                     <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
                                 </div>     
-                                <div class="col-md-3" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
-                                    <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
-                                    <span> {{$ctrl.getStatus(item.status)}}</span>
+                                <div class="col-md-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
+                                    <strong class="jobs__status-label--left">{{::$root.config.labels["Jobs_Status"]}}: </strong>
+                                    <span ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>
+                                    <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress">{{item.progress}}%</uib-progressbar>
                                 </div>                           
                             </div>
                             <div class="row">                       

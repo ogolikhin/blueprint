@@ -9,7 +9,7 @@
      bp-tooltip-truncated="true">{{::$ctrl.localization.get('App_UP_Attachments_Uploaded_By') }} {{
     $ctrl.docRefInfo.userName }}
 </div>
-<div class="timestamp"><i class="icon fonticon-clock"></i>{{ $ctrl.docRefInfo.referencedDate | date:'medium' }}</div>
+<div class="timestamp"><i class="icon fonticon-clock" ng-if="$ctrl.docRefInfo.referencedDate"></i>{{ $ctrl.docRefInfo.referencedDate | date:'medium' }}</div>
 <div class="button-bar">
     <i class="icon fonticon-download" ng-click="$ctrl.downloadItem()"
        bp-tooltip="{{::$ctrl.localization.get('App_UP_Attachments_Download') }}"></i>

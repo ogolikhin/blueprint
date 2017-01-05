@@ -103,7 +103,7 @@ namespace AdminStore.Repositories.Jobs
             param.Add("@receiverJobServiceId", null);
             param.Add("@doNotFetchResult", doNotFetchResult);
             param.Add("@offset", offset ?? 0);
-            param.Add("@limit", limit ?? WebApiConfig.JobDetailsPageSize);
+            param.Add("@limit", limit ?? ServiceConstants.JobsDefaultPageSize);
             param.Add("@jobTypeFilter", jobType != JobType.None ? jobType : null);
 
             try
@@ -135,7 +135,7 @@ namespace AdminStore.Repositories.Jobs
             jobInfo.JobEndDateTime = jobMessage.EndTimestamp;
             jobInfo.JobType = jobMessage.Type;
             jobInfo.Progress = jobMessage.Progress;
-            jobInfo.Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : null;
+            jobInfo.Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel;
             jobInfo.Server = jobMessage.ExecutorJobServiceId;
             jobInfo.Status = jobMessage.Status.Value;
             jobInfo.UserId = jobMessage.UserId;

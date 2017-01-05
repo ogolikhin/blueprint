@@ -487,12 +487,12 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_PasswordConfirmMismatch");
         }));
 
-        it("respond with password equals to username error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+        it("respond with password equals to username error (case insensitive)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
-            loginCtrl.novaUserName = "Username<1>";
+            loginCtrl.novaUserName = "username<1>";
             loginCtrl.novaCurrentPassword = "changeme";
-            loginCtrl.novaNewPassword = "Username<1>";
-            loginCtrl.novaConfirmNewPassword = "Username<1>";
+            loginCtrl.novaNewPassword = "UserName<1>";
+            loginCtrl.novaConfirmNewPassword = "UserName<1>";
 
             // Act
             loginCtrl.changePassword();
@@ -503,13 +503,13 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeUsername");
         }));
 
-        it("respond with password equals to display name error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+        it("respond with password equals to display name error (case insensitive)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
             loginCtrl.novaUserName = "Username<1>";
-            loginCtrl.novaDisplayName = "Displayname<1>";
+            loginCtrl.novaDisplayName = "displayname<1>";
             loginCtrl.novaCurrentPassword = "changeme";
-            loginCtrl.novaNewPassword = "Displayname<1>";
-            loginCtrl.novaConfirmNewPassword = "Displayname<1>";
+            loginCtrl.novaNewPassword = "DisplayName<1>";
+            loginCtrl.novaConfirmNewPassword = "DisplayName<1>";
 
             // Act
             loginCtrl.changePassword();

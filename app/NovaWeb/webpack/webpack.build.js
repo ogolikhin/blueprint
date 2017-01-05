@@ -63,7 +63,7 @@ module.exports = {
             {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
             {from: '../src/redirect/silverlight-links.js', to: './static/redirect-silverlight-links.js'},
 
-            {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
+            {from: '../libs/tinymce/**', to: './libs'},
 
             {from: '../libs/mxClient/icons', to: './libs/mxClient/icons'},
             {from: '../libs/mxClient/images', to: './libs/mxClient/images'},

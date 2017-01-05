@@ -63,7 +63,7 @@ namespace AdminStore.Controllers
                     userId = null;
                 }
                 int jobPageSize = GetPageSize(pageSize);
-                int jobPage = GetPage(page, 1, 1);
+                int jobPage = GetPage(page);
                 int offset = (jobPage - 1) * jobPageSize;
 
                 return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
@@ -109,19 +109,24 @@ namespace AdminStore.Controllers
 
         private int GetPageSize(int? pageSize)
         {
-            var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);
+            var jobPageSize = pageSize.GetValueOrDefault(ServiceConstants.JobsDefaultPageSize);
             if (jobPageSize <= 0)
             {
-                return WebApiConfig.JobDetailsPageSize;
+                return ServiceConstants.JobsDefaultPageSize;
+            }
+
+            if (jobPageSize > ServiceConstants.JobsMaxPageSize)
+            {
+                return ServiceConstants.JobsMaxPageSize;
             }
 
             return jobPageSize;
         }
 
-        private int GetPage(int? requestedPage, int minPage, int defaultPage)
+        private int GetPage(int? requestedPage)
         {
-            int page = requestedPage.GetValueOrDefault(defaultPage);
-            return page < minPage ? defaultPage : page;
+            int page = requestedPage.GetValueOrDefault(ServiceConstants.JobsDefaultPage);
+            return page < 1 ? ServiceConstants.JobsDefaultPage : page;
         }
 
         private int ValidateAndExtractUserId()

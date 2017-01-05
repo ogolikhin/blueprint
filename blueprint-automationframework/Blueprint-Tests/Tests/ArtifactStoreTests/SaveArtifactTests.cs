@@ -1034,7 +1034,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
-            SetProperty(propertyToChange, value, ref artifactDetails);
+            CSharpUtilities.SetProperty(propertyToChange, value, artifactDetails);
 
             INovaArtifactDetails updateResult = null;
 
@@ -1185,17 +1185,6 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// Set one primary property to specific value.
-        /// </summary>
-        /// <param name="propertyName">Name of the property in which value will be changed.</param>
-        /// <param name="propertyValue">The value to set the property to.</param>
-        /// <param name="objectToUpdate">Object that contains the property to be changed.</param>
-        private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpdate)
-        {
-            objectToUpdate.GetType().GetProperty(propertyName).SetValue(objectToUpdate, propertyValue, null);
-        }
-
-        /// <summary>
         /// Gets sub-property using property name and propertytypeId
         /// </summary>
         /// <param name="objectToSearchCustomProperty">Object in which to look sub-property</param>
@@ -1237,7 +1226,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
-
+        
         #endregion Private functions
     }
 }

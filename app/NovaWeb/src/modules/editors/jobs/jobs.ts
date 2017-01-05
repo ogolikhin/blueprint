@@ -10,6 +10,7 @@ import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IJobsService, IJobInfo, JobStatus, JobType} from "./jobs.svc";
+import {JobAction} from "./jobAction";
 
 export class JobsComponent implements ng.IComponentOptions {
     public template: string = require("./jobs.html");
@@ -28,7 +29,7 @@ export class JobsController {
         "projectManager"
     ];
 
-    public jobs: any[];
+    public jobs: IJobInfo[];
     public toolbarActions: IBPAction[];
     public isLoading: boolean;
     public page: number;
@@ -53,32 +54,43 @@ export class JobsController {
     private loadNextPage() {
         this.loadPage(this.page + 1);
     }
+    
+    private getJobAction(status: JobStatus): JobAction {
+        let jobAction = JobAction.Error;
+        switch (status) {
+            case JobStatus.Completed:
+                jobAction = JobAction.Download;
+                break;
+            case JobStatus.Cancelling:
+            case JobStatus.Running:
+            case JobStatus.Scheduled:
+            case JobStatus.Suspending:
+                jobAction = JobAction.Refresh;
+                break;
+            default:
+                jobAction = JobAction.Error;
+                break;            
+        }
+        return jobAction;
+    }
 
-   public canDownload(status: JobStatus): boolean {
-        return status === JobStatus.Completed;
+    public canDownload(status: JobStatus): boolean {
+        return this.getJobAction(status) === JobAction.Download;
     }
 
     public canRefresh(status: JobStatus): boolean {
-        return status === JobStatus.Cancelling ||
-               status === JobStatus.Running ||
-               status === JobStatus.Scheduled ||
-               status === JobStatus.Suspending;
+        return this.getJobAction(status) === JobAction.Refresh;
+    }
+
+    public isJobError(status: JobStatus): boolean {
+        return this.getJobAction(status) === JobAction.Error;
     }
 
     public refreshJob(jobId: number) {
         this.jobsService.getJob(jobId).then((result: IJobInfo) => {
-            const index = _.indexOf(this.jobs, _.find(this.jobs, {id: result.jobId}));
-            const newJob = {
-                id: result.jobId,
-                displayId: "JOB" + result.jobId + "(" + result.project + ")",
-                author: result.userDisplayName,
-                startedOn: result.jobStartDateTime,
-                type: this.getType(result.jobType),
-                completedOn: result.jobEndDateTime,
-                status: this.getStatus(result.status),
-                project: result.project
-            };
-            this.jobs.splice(index, 1, newJob);
+            const index = _.indexOf(this.jobs, _.find(this.jobs, {jobId: result.jobId}));
+            result.userDisplayName = undefined;
+            _.merge(this.jobs[index], result);
         });
     }
 
@@ -86,30 +98,18 @@ export class JobsController {
         this.isLoading = true;
         this.page = page;
         this.jobs = [];
-        this.jobsService.getJobs(page)
+        this.jobsService.getJobs(page, this.pageLength)
         .then((result: IJobInfo[]) => {
-            for (let item of result) {
-                this.jobs.push({
-                    id: item.jobId,
-                    displayId: "JOB" + item.jobId + "(" + item.project + ")",
-                    author: item.userDisplayName,
-                    submittedOn: item.submittedDateTime,
-                    startedOn: item.jobStartDateTime,
-                    type: this.getType(item.jobType),
-                    completedOn: item.jobEndDateTime,
-                    status: this.getStatus(item.status), 
-                    project: item.project
-                });
-            }
+            this.jobs = result;
         })
         .finally(() => {
             this.isLoading = false;
         });
     } 
     
-    private getDate(date: Date): string {
+    private getDateTime(date: Date): string {
         if (!!date) {
-            return moment(date).format("MMMM DD, YYYY");
+            return moment(date).format("MMMM DD, YYYY h:mm:ss a");
         }
         return "--";
     }
@@ -136,6 +136,12 @@ export class JobsController {
         this.$log.error(`Unknown Job Status, (${statusId})`);
         return "Unknown Status";
     } 
+
+    private isValidStatus(statusId: JobStatus): boolean {
+        return statusId === JobStatus.Scheduled ||
+               statusId === JobStatus.Completed ||
+               statusId === JobStatus.Running;
+    }
 
     private getType(typeId: JobType): string {
         switch (typeId) {

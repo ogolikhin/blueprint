@@ -131,8 +131,8 @@ namespace AdminStore.Repositories.Jobs
             jobInfo.UserDisplayName = jobMessage.DisplayName;
             jobInfo.JobId = jobMessage.JobMessageId;
             jobInfo.SubmittedDateTime = DateTime.SpecifyKind(jobMessage.SubmittedTimestamp.Value, DateTimeKind.Utc);
-            jobInfo.JobStartDateTime = DateTime.SpecifyKind(jobMessage.StartTimestamp.Value, DateTimeKind.Utc);
-            jobInfo.JobEndDateTime = DateTime.SpecifyKind(jobMessage.EndTimestamp.Value, DateTimeKind.Utc);
+            jobInfo.JobStartDateTime = jobMessage.StartTimestamp == null ? jobMessage.StartTimestamp : DateTime.SpecifyKind(jobMessage.StartTimestamp.Value, DateTimeKind.Utc);
+            jobInfo.JobEndDateTime = jobMessage.EndTimestamp == null ? jobMessage.EndTimestamp :  DateTime.SpecifyKind(jobMessage.EndTimestamp.Value, DateTimeKind.Utc);
             jobInfo.JobType = jobMessage.Type;
             jobInfo.Progress = jobMessage.Progress;
             jobInfo.Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel;

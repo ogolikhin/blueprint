@@ -292,6 +292,7 @@ Artifact_Add_To_Collection_Picker_Header,"Add Artifact to Collection"
 Artifact_Add_To_Collection,"Add to collection"
 Artifact_Add_To_Collection_Include_Descendants, "Include artifact descendants"
 Artifact_Add_To_Collection_Success,"The artifact has been added to the collection."
+Artifact_Add_To_Collection_Filed_Because_Lock,"The artifact could not be added to the collection. The collection is locked by {userName}."
 
 Change_Password_Dialog_Header,"Change Password"
 Change_Password_Dialog_Message,"Use the form below to change your password"

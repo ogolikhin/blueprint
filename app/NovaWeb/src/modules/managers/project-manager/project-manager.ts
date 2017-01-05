@@ -182,14 +182,16 @@ export class ProjectManager implements IProjectManager {
             template: require("../../main/components/dialogs/open-project/open-project.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((projectId: number) => {
-            if (projectId) {
-                this.openProject(projectId);
+        }).then((project) => {
+            if (project && project.hasOwnProperty("id")) {
+                this.openProject(project.id);
             }
         });
     }
 
     public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
+        /*fixme: this function should change.
+        what it needs to do is just to insert the project into the tree as a root node. Expanding it shall be done else-ware*/
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
         let openProjects = _.map(this.projectCollection.getValue(), "model.id");
         return this.add(projectId).finally(() => {
@@ -340,7 +342,7 @@ export class ProjectManager implements IProjectManager {
 
         if (currentlySelectItem && currentlySelectItem.projectId === projectId && currentlySelectItem.isDisposed) {
             const updatedSelectedArtifact = this.artifactManager.get(currentlySelectItem.id);
-            
+
             if (updatedSelectedArtifact && !updatedSelectedArtifact.isDisposed) {
                 this.artifactManager.selection.setArtifact(updatedSelectedArtifact);
             } else {
@@ -479,7 +481,7 @@ export class ProjectManager implements IProjectManager {
         return found ? found.model : null;
     };
 
-    public getDescendantsToBeDeleted(artifact: IStatefulArtifact):  ng.IPromise<Models.IArtifactWithProject[]> {
+    public getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]> {
         let projectName: string;
         return this.projectService.getProject(artifact.projectId).then((project: AdminStoreModels.IInstanceItem) => {
             projectName = project.name;

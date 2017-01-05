@@ -13,6 +13,8 @@ import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {ErrorCode} from "../../../../core/error/error-code";
+import {IItemInfoService, IItemInfoResult} from "../../../../core/navigation/item-info.svc";
 
 export class AddToCollectionAction extends BPDropdownAction {
 
@@ -26,7 +28,8 @@ export class AddToCollectionAction extends BPDropdownAction {
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private collectionService: ICollectionService) {
+                private collectionService: ICollectionService,
+                private itemInfoService: IItemInfoService) {
         super();
 
         this.actions.push(
@@ -95,7 +98,13 @@ export class AddToCollectionAction extends BPDropdownAction {
                 this.messageService.addInfo(this.localization.get("Artifact_Add_To_Collection_Success"));
             }).catch((error: any) => {
                 //ignore authentication errors here
-                if (error) {
+                if (error && error.errorCode === ErrorCode.LockedByOtherUser) {
+                    return this.itemInfoService.get(result.collectionId)
+                        .then((collection) => {
+                            let error = this.localization.get("Artifact_Add_To_Collection_Filed_Because_Lock");
+                            this.messageService.addError(error.replace("{userName}", collection.lockedByUser.displayName));
+                        });
+                } else if (error) {
                     this.messageService.addError(error["message"] || "Error occured during adding artifacts to collection.");
                 }
                 }).finally(() => {

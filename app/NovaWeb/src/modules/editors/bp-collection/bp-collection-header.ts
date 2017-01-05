@@ -14,6 +14,7 @@ import {ILocalizationService} from "../../core/localization/localizationService"
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 import {ICollectionService} from "../../editors/bp-collection/collection.svc";
+import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -37,7 +38,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "metadataService",
         "mainbreadcrumbService",
         "analytics",
-        "collectionService"
+        "collectionService",
+        "itemInfoService"
     ];
 
     constructor($q: ng.IQService,
@@ -54,7 +56,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
                 analytics: IAnalyticsProvider,
-                collectionService: ICollectionService) {
+                collectionService: ICollectionService,
+                itemInfoService: IItemInfoService) {
         super(
             $q,
             $scope,
@@ -70,7 +73,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             metadataService,
             mainBreadcrumbService,
             analytics,
-            collectionService
+            collectionService,
+            itemInfoService
         );
     }
 

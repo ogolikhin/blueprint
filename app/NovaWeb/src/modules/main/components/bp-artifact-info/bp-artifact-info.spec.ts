@@ -119,7 +119,6 @@ describe("BpArtifactInfo", () => {
         $rootScope = _$rootScope_;
         projectManager = _projectManager_;
         loadingOverlayService = _loadingOverlayService_;
-        loadingOverlayService = _loadingOverlayService_;
     }));
 
     describe("on initialization", () => {

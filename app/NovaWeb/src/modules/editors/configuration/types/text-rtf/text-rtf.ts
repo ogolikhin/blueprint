@@ -31,6 +31,11 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
 }
 
+interface ISize {
+    width: number;
+    height: number;
+}
+
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = [
         "$q",
@@ -337,18 +342,18 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
                                 const imageFile = inputElement.files[0];
-                                let dimensions;
+                                let dimensions: ISize;
 
                                 this.uploadImage(imageFile).then((uploadedImageUrl: string) => {
                                     this.getImageDimensions(imageFile)
                                         .then(dim => {
-                                            dimensions = dim;
+                                            dimensions = this.getScaledDimensions(dim);
                                         })
                                         .finally(() => {
                                             const imageContent = editor.dom.createHTML("img", {
                                                 src: uploadedImageUrl,
-                                                width: dimensions.width > 400 && dimensions.width >= dimensions.height ? 400 : undefined,
-                                                height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
+                                                width: dimensions.width,
+                                                height: dimensions.height
                                             });
                                             editor.insertContent(`<span>${imageContent}</span>`);
                                         });
@@ -364,7 +369,18 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         _.assign($scope.to, to);
     }
 
-    private getImageDimensions(imageFile: File): ng.IPromise<{width: number, height: number}> {
+    private getScaledDimensions(dimensions: ISize): ISize {
+        const max = 400;
+        if (dimensions.width && dimensions.height && Math.max(dimensions.width, dimensions.height) > max) {
+            const ratio = Math.min(max / dimensions.width, max / dimensions.height);
+            return {width: Math.round(dimensions.width * ratio), height: Math.round(dimensions.height * ratio)};
+
+        } else {
+            return dimensions;
+        }
+    }
+
+    private getImageDimensions(imageFile: File): ng.IPromise<ISize> {
         const deferred = this.$q.defer<{width: number, height: number}>();
 
         const tempImage: any = new Image();

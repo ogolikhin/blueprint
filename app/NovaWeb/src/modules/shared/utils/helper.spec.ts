@@ -333,7 +333,7 @@ describe("replaceImgSrc", () => {
 </html>`;
 
         // Act
-        const result = Helper.replaceImgSrc(html);
+        const result = Helper.replaceImgSrc(html, true);
 
         // Assert
         expect(result).toBe(expected);
@@ -376,7 +376,7 @@ describe("replaceImgSrc", () => {
         let html;
 
         // Act
-        const result = Helper.replaceImgSrc(html);
+        const result = Helper.replaceImgSrc(html, true);
 
         // Assert
         expect(result).toBe(html);

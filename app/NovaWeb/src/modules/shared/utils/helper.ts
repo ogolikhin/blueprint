@@ -36,7 +36,7 @@ export class Helper {
 
     static stripHTMLTags = (stringToSanitize: string): string => {
         const stringSanitizer = document.createElement("DIV");
-        stringSanitizer.innerHTML = Helper.replaceImgSrc(stringToSanitize);
+        stringSanitizer.innerHTML = Helper.replaceImgSrc(stringToSanitize, true);
         return stringSanitizer.textContent || stringSanitizer.innerText || "";
     };
 
@@ -172,7 +172,7 @@ export class Helper {
 
     static tagsContainText(htmlText: string): boolean {
         const div = document.createElement("div");
-        div.innerHTML = Helper.replaceImgSrc((htmlText || "").toString());
+        div.innerHTML = Helper.replaceImgSrc((htmlText || "").toString(), true);
         let content = div.innerText.trim();
         content = _.replace(content, /\s/gi, ""); // remove any "spacing" characters
         content = _.replace(content, /[^\x00-\x7F]/gi, ""); // remove non ASCII characters
@@ -198,7 +198,7 @@ export class Helper {
         content = _.replace(content, /(<a [^>]*linkassemblyqualifiedname[^>]*>.*<\/a>)/gi, `<span class="mceNonEditable">$1</span>`);
 
         const div = document.createElement("div");
-        div.innerHTML = Helper.replaceImgSrc(content);
+        div.innerHTML = Helper.replaceImgSrc(content, true);
         return Helper.replaceImgSrc(div.innerHTML, false);
     }
 
@@ -265,14 +265,14 @@ export class Helper {
         return true;
     }
 
-    public static replaceImgSrc(imgTag: string, toTemp: boolean = true): string {
+    public static replaceImgSrc(imgTag: string, cloakSrc: boolean): string {
         if (!_.isString(imgTag)) {
             return imgTag;
         }
         // We exploit the dataset property to avoid requesting images while working with in-memory DOM elements
         // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset
-        const replaceFrom = toTemp ? " src=" : " data-temp-src=";
-        const replaceTo = toTemp ? " data-temp-src=" : " src=";
+        const replaceFrom = cloakSrc ? " src=" : " data-temp-src=";
+        const replaceTo = cloakSrc ? " data-temp-src=" : " src=";
         const re = new RegExp("<(img.*)" + replaceFrom + "(.*)>", "gi");
         return _.replace(imgTag, re, "<$1" + replaceTo + "$2>");
     }

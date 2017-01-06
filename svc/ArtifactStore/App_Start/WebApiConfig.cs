@@ -15,6 +15,8 @@ namespace ArtifactStore
 
         public static string ArtifactStorage = ConfigurationManager.ConnectionStrings["ArtifactStorage"].ConnectionString;
 
+        public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];
+
         internal static string LogSourceStatus = "ArtifactStore.Status";
     }
 }

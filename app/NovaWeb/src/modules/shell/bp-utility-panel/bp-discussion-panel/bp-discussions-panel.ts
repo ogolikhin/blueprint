@@ -1,11 +1,9 @@
 ﻿import {
-    IArtifactManager,
     IStatefulArtifact,
     IStatefulSubArtifact
 } from "../../../managers/artifact-manager";
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 import {IDialogService} from "../../../shared";
-import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Message, MessageType} from "../../../core/messages/message";
 import {Helper} from "../../../shared/utils/helper";
@@ -33,8 +31,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
     private subArtifact: IStatefulSubArtifact;
 
     public artifactDiscussionList: IDiscussion[] = [];
-    //public sortOptions: ISortOptions[];
-    //public sortAscending: boolean = false;
     public isLoading: boolean = false;
     public canCreate: boolean = false;
     public canDelete: boolean = false;
@@ -52,11 +48,6 @@ export class BPDiscussionPanelController extends BPBaseUtilityPanelController {
         super($q);
 
         this.subscribers = [];
-
-        //this.sortOptions = [
-        //    { value: false, label: this.localization.get("App_UP_Filter_SortByLatest") },
-        //    { value: true, label: this.localization.get("App_UP_Filter_SortByEarliest") },
-        //];
     }
 
     public $onDestroy() {

@@ -50,6 +50,7 @@ export interface IJobInfo {
 
 export interface IJobsService {
     getJobs(page?: number, pageSize?: number): ng.IPromise<IJobInfo[]>;
+    getJob(jobId: number): ng.IPromise<IJobInfo>;
 }
 
 export class JobsService implements IJobsService {
@@ -90,6 +91,29 @@ export class JobsService implements IJobsService {
             params: {},
             timeout: timeout
         };
+
+        this.$http(request).then((result) => {
+                deferred.resolve(result.data);
+            },
+            (error) => {
+                deferred.reject(error);
+            }
+        );
+
+        return deferred.promise;
+    }
+
+    public getJob(jobId: number, timeout?: ng.IPromise<void>): ng.IPromise<IJobInfo> {        
+        this.$log.debug(`getting job info for job id ${jobId}`);
+        const deferred = this.$q.defer();
+
+        const request: ng.IRequestConfig = {
+            method: "GET",
+            url: this.getUrl(null, null) + jobId,
+            params: {},
+            timeout: timeout
+        };
+        
 
         this.$http(request).then((result) => {
                 deferred.resolve(result.data);

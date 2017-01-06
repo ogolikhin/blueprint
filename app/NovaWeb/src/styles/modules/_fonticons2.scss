@@ -121,13 +121,14 @@ $fonticon2-process-objective: '\e845'; /* '' */
 $fonticon2-process-title: '\e846'; /* '' */
 $fonticon2-process-persona: '\e847'; /* '' */
 $fonticon2-project: '\e903'; /* '' */
-$fonticon2-artifact-deleted: '\e919';  /* '' */
-$fonticon2-move: '\e84b'; /* '' */
-$fonticon2-copy: '\e84a'; /* '' */
-$fonticon2-copy-shapes: '\e84d'; /* '' */
+$fonticon2-artifact-deleted: '\e904';  /* '' */
+$fonticon2-move: '\e84e'; /* '' */
+$fonticon2-copy: '\e84f'; /* '' */
+$fonticon2-copy-shapes: '\e850'; /* '' */
 $fonticon2-add: '\e84c'; /* '' */
-$fonticon2-actor-add: '\e84f'; /* '' */
-$fonticon2-more-menu: '\e850'; /* '' */
+$fonticon2-more-menu: '\e84d'; /* '' */
+$fonticon2-unpublished: '\e852';
+$fonticon2-jobs: '\e848';
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -503,13 +504,14 @@ $fonticon2-more-menu: '\e850'; /* '' */
 .fonticon2-add:before {
     content: $fonticon2-add;
 }
-
-.fonticon2-actor-add:before {
-    content: $fonticon2-actor-add;
-}
-
 .fonticon2-more-menu:before {
     content: $fonticon2-more-menu;
+}
+.fonticon2-unpublished:before {
+    content: $fonticon2-unpublished;
+}
+.fonticon2-jobs:before {
+    content: $fonticon2-jobs;
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;

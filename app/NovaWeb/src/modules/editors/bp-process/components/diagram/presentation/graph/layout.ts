@@ -268,17 +268,20 @@ export class Layout implements ILayout {
 
     public updateProcessChangedState(id: number, change: NodeChange = NodeChange.Add, redraw: boolean = false) {
         const eventArguments = {
-            processId: this.viewModel.id,
-            nodeChanges: [
-                {
-                    nodeId: id,
-                    change: change,
-                    redraw: redraw
-                }
-            ]
+            bubbles: true, //https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+            cancelable: true, //https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+            detail: {
+                processId: this.viewModel.id,
+                nodeChanges: [
+                    {
+                        nodeId: id,
+                        change: change,
+                        redraw: redraw
+                    }
+                ]
+            }
         };
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("graphUpdated", true, true, eventArguments);
+        const evt = new CustomEvent("graphUpdated", eventArguments);
         window.dispatchEvent(evt);
     }
 
@@ -504,8 +507,8 @@ export class Layout implements ILayout {
 
         if (sourceNode !== null && targetNode !== null) {
             let edgeGeo = new EdgeGeo();
-            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode, 
-                                            true,  
+            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode,
+                                            true,
                                             link.label, null);
             this.edgesGeo.push(edgeGeo);
         }

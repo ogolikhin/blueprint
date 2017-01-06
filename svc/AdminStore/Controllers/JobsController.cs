@@ -2,42 +2,47 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories.ConfigControl;
-using System.Web.Http.Description;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.ConfigControl;
+using AdminStore.Helpers;
 
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("jobs")]
     [BaseExceptionFilter]
-
     public class JobsController : LoggableApiController
     {
         internal readonly IJobsRepository _jobsRepository;
         internal readonly IUsersRepository _sqlUserRepository;
 
         public override string LogSource => "AdminStore.JobsService";
-
+        
         public JobsController() :
             this(new JobsRepository(), new ServiceLogRepository(), new SqlUsersRepository())
         {
         }
 
-        internal JobsController(IJobsRepository jobsRepository, 
+        internal JobsController
+        (
+            IJobsRepository jobsRepository, 
             IServiceLogRepository serviceLogRepository,
-            IUsersRepository sqlUserRepository) : base(serviceLogRepository)
+            IUsersRepository sqlUserRepository
+        ) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
             _sqlUserRepository = sqlUserRepository;
         }
+
         #region public methods
+
         /// <summary>
         /// GetLatestJobs
         /// </summary>
@@ -45,10 +50,11 @@ namespace AdminStore.Controllers
         /// Returns the latest jobs.
         /// </remarks>
         /// <response code="200">OK.</response>
+        /// <response code="400">BadRequest.</response>
         [HttpGet, NoCache]
         [Route(""), SessionRequired]
         [ResponseType(typeof(IEnumerable<JobInfo>))]
-        public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
+        public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
             int? userId = ValidateAndExtractUserId();
             try
@@ -58,10 +64,13 @@ namespace AdminStore.Controllers
                 {
                     userId = null;
                 }
-                int jobPageSize = GetPageSize(pageSize);
-                int jobPage = GetPage(page, 1, 1);
-                int offset = (jobPage - 1) * jobPageSize;
-                return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
+
+                JobsValidationHelper jobsHelper = new JobsValidationHelper();
+                jobsHelper.Validate(page, pageSize);
+
+                int offset = (page.Value - 1) * pageSize.Value;
+
+                return Ok(await _jobsRepository.GetVisibleJobs(userId, offset, pageSize, jobType));
             }
             catch (Exception exception)
             {
@@ -80,7 +89,7 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("{jobId:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(JobInfo))]
-        public async Task<JobInfo> GetJob(int jobId)
+        public async Task<IHttpActionResult> GetJob(int jobId)
         {
             int? userId = ValidateAndExtractUserId();
             try
@@ -90,7 +99,8 @@ namespace AdminStore.Controllers
                 {
                     userId = null;
                 }
-                return await _jobsRepository.GetJob(jobId, userId);
+
+                return Ok(await _jobsRepository.GetJob(jobId, userId));
             }
             catch (Exception exception)
             {
@@ -98,22 +108,10 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
-        #endregion
-        private int GetPageSize(int? pageSize)
-        {
-            var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);
-            if (jobPageSize <= 0)
-            {
-                return WebApiConfig.JobDetailsPageSize;
-            }
-            return jobPageSize;
-        }
 
-        private int GetPage(int? requestedPage, int minPage, int defaultPage)
-        {
-            int page = requestedPage.GetValueOrDefault(defaultPage);
-            return page < minPage ? defaultPage : page;
-        }
+        #endregion
+
+
         private int ValidateAndExtractUserId()
         {
             // get the UserId from the session
@@ -122,6 +120,7 @@ namespace AdminStore.Controllers
             {
                 throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }
+
             return ((Session)sessionValue).UserId;
         }
     }

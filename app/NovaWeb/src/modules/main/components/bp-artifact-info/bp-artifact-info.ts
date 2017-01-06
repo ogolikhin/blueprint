@@ -37,6 +37,7 @@ import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
+import {IItemInfoService} from "../../../core/navigation/item-info.svc";
 
 enum InfoBannerEnum {
     None = 0,
@@ -68,7 +69,8 @@ export class BpArtifactInfoController {
         "metadataService",
         "mainbreadcrumbService",
         "analytics",
-        "collectionService"
+        "collectionService",
+        "itemInfoService"
     ];
 
     protected subscribers: Rx.IDisposable[] = [];
@@ -113,7 +115,8 @@ export class BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected analytics: IAnalyticsProvider,
-                protected collectionService: ICollectionService) {
+                protected collectionService: ICollectionService,
+                public itemInfoService: IItemInfoService) {
         this.initProperties();
 
         this.breadcrumbLinks = [];
@@ -346,7 +349,7 @@ export class BpArtifactInfoController {
         const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
         const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
-            this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService);
+            this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService, this.itemInfoService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
         // expanded toolbar
@@ -388,7 +391,7 @@ export class BpArtifactInfoController {
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
             const pageHeading = document.querySelector(".page-heading") as HTMLElement;
-            const pageToolbar = document.querySelector(".page-heading .page-toolbar__container") as HTMLElement;
+            const pageToolbar = document.querySelector(".page-heading .toolbar__container") as HTMLElement;
 
             // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR
             // if (pageHeading && pageToolbar) {

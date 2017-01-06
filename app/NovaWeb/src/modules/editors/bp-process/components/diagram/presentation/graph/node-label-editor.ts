@@ -26,7 +26,7 @@ export class NodeLabelEditor {
     }
 
     private onMouseOver = (e) => {
-        let element = this.getLabel(e);
+        const element = this.getLabel(e);
 
         if (this.currentDiv != null && this.currentDiv !== element) {
             this.fireCustomEvent(this.currentDiv, "labelmouseout");
@@ -37,7 +37,7 @@ export class NodeLabelEditor {
             this.fireCustomEvent(element, "labelmouseover");
             this.currentDiv = element;
         }
-    }
+    };
 
     public init() {
         this.divs = this.container.getElementsByClassName("processEditorCustomLabel");
@@ -89,13 +89,12 @@ export class NodeLabelEditor {
     }
 
     private getCellIndex(x: number, y: number): string {
-        let value = Math.floor(x / 200).toString() + ";" + Math.floor(y / 200).toString();
-        return value;
+        return Math.floor(x / 200).toString() + ";" + Math.floor(y / 200).toString();
     }
 
     private isIe11(): boolean {
-        let myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
-        let ver = parseInt(myBrowser.version, 10);
+        const myBrowser = this.executionEnvironmentDetector.getBrowserInfo();
+        const ver = parseInt(myBrowser.version, 10);
         return (myBrowser.msie && (ver === 11));
     }
 
@@ -108,32 +107,34 @@ export class NodeLabelEditor {
                 }
             }
         }
-    }
+    };
 
     private containerDblClick = (e) => {
-        let element = this.getLabel(e);
+        const element = this.getLabel(e);
         if (element && element.className === "processEditorCustomLabel") {
             this.fireCustomEvent(element, "labeldblclick");
         }
 
         this.cancelDefaultAction(e);
-    }
+    };
 
     private getLabel(e) {
-        let x = 0;
-        let y = 0;
-
         e = e || window.event;
 
         if (e.target && e.target.contentEditable === "true") {
             return null;
         }
 
-        x = e.offsetX;
-        y = e.offsetY;
-
-        let index = this.getCellIndex(x, y);
-        let cell = this.divIndex[index];
+        // In IE and Chrome offsetX/Y return the horizontal/vertical coordinates of the mouse pointer between the event and
+        // the padding edge of the SVG container. In Firefox they return the coordinates relative to the current target node.
+        // In IE and Chrome layerX/Y return the same values as offsetX/Y +1, as they take into account the SVG border. In
+        // Firefox they work like offsetX/Y in IE/Chrome. Therefore if layerX/Y - offsetX/Y > 1 we know that offsetX is actually
+        // returning coordinates relative to the current target node and not the SVG container, so we use layerX/Y instead. We
+        // also _.round as IE seems to return float at times for layerX/Y
+        const x = _.round(e.layerX - e.offsetX) > 1 ? e.layerX : e.offsetX;
+        const y = _.round(e.layerY - e.offsetY) > 1 ? e.layerY : e.offsetY;
+        const index = this.getCellIndex(x, y);
+        const cell = this.divIndex[index];
         if (cell != null) {
             for (let div of cell) {
                 if (this.hitTest(div, x, y)) {
@@ -164,8 +165,10 @@ export class NodeLabelEditor {
     }
 
     public fireCustomEvent(element, eventName: string) {
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent(eventName, true, true, null);
+        const evt = new CustomEvent(eventName, {
+            bubbles: true,
+            cancelable: true
+        });
         element.dispatchEvent(evt);
     }
 

@@ -227,6 +227,37 @@ namespace Helper
         }
 
         /// <summary>
+        /// Updates and verifies a Nova Process
+        /// </summary>
+        /// <param name="novaProcessToVerify">The Nova process to verify</param>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="user">The user that updates the Nova process</param>
+        /// <returns> The Nova process returned from GetNovaProcess </returns>
+        public static NovaProcess UpdateAndVerifyNovaProcess(NovaProcess novaProcessToVerify, IStoryteller storyteller, IUser user)
+        {
+            ThrowIf.ArgumentNull(novaProcessToVerify, nameof(novaProcessToVerify));
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Update the process using UpdateNovaProcess
+            storyteller.UpdateNovaProcess(user, novaProcessToVerify);
+
+            // Get the process using GetNovaProcess
+            var novaProcessReturnedFromGet = storyteller.GetNovaProcess(user, novaProcessToVerify.Id);
+
+            Assert.IsNotNull(novaProcessReturnedFromGet, "GetNovaProcess() returned a null Nova process.");
+
+            // Assert that the process returned from the GetNovaProcess method is identical to the process sent with the UpdateNovaProcess method
+            // Allow negative shape ids in the process being verified
+            AssertProcessesAreEqual(novaProcessToVerify.Process, novaProcessReturnedFromGet.Process, allowNegativeShapeIds: true);
+
+            // Assert that the decision branch destination links are in sync during the get operations
+            AssertDecisionBranchDestinationLinksAreInsync(novaProcessReturnedFromGet.Process);
+
+            return novaProcessReturnedFromGet;
+        }
+
+        /// <summary>
         /// Updates, verifies and publishes the process returned from UpdateProcess and GetProcess
         /// </summary>
         /// <param name="processToVerify">The process to verify</param>
@@ -340,6 +371,34 @@ namespace Helper
             Assert.IsNotNull(process, "The process returned from GetProcess() was null.");
 
             return process;
+        }
+
+        /// <summary>
+        /// Create and Get the Default Nova Process
+        /// </summary>
+        /// <param name="storyteller">The storyteller instance</param>
+        /// <param name="project">The project where the Nova process artifact is created</param>
+        /// <param name="user">The user creating the Nova process artifact</param>
+        /// <returns>The created Nova process</returns>
+        public static NovaProcess CreateAndGetDefaultNovaProcess(IStoryteller storyteller, IProject project, IUser user)
+        {
+            /*
+                [S]--[P]--+--[UT1]--+--[ST2]--+--[E]
+            */
+
+            ThrowIf.ArgumentNull(storyteller, nameof(storyteller));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Create default Nova process artifact
+            var addedProcessArtifact = storyteller.CreateAndSaveNovaProcessArtifact(project, user);
+
+            // Get default Nova process
+            var novaProcess = storyteller.GetNovaProcess(user, addedProcessArtifact.Id);
+
+            Assert.IsNotNull(novaProcess, "The Nova process returned from GetNovaProcess() was null.");
+
+            return novaProcess;
         }
 
         /// <summary>

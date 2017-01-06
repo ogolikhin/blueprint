@@ -24,7 +24,7 @@ import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/chang
 import {ItemTypePredefined, LockedByEnum, RolePermissions} from "../../../main/models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
-import {SessionSvcMock} from "../../../shell/login/mocks.spec";
+import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -103,6 +103,7 @@ describe("BpArtifactInfo", () => {
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("analytics", () => analytics);
         $provide.service("collectionService", CollectionServiceMock);
+        $provide.service("itemInfoService", ItemInfoServiceMock);
     }));
 
     beforeEach(inject((
@@ -110,7 +111,8 @@ describe("BpArtifactInfo", () => {
         _$q_: ng.IQService,
         _$rootScope_: ng.IRootScopeService,
         _projectManager_: IProjectManager,
-        _loadingOverlayService_: ILoadingOverlayService
+        _loadingOverlayService_: ILoadingOverlayService,
+        _itemInfoService_: ItemInfoServiceMock
         ) => {
         $compile = _$compile_;
         $q = _$q_;
@@ -198,6 +200,39 @@ describe("BpArtifactInfo", () => {
 
             // assert
             expect(controller.toolbarActions.filter(action => action instanceof OpenImpactAnalysisAction).length).toBeGreaterThan(0);
+        });
+
+        it("shows the artifact toolbar for live artifact", () => {
+            // arrange
+            const artifact = artifactManager.selection.getArtifact();
+            artifact.predefinedType = ItemTypePredefined.TextualRequirement;
+            const template = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+
+            // act
+            const element: ng.IAugmentedJQuery = $compile(template)(scope);
+            const controller = element.controller("bpArtifactInfo") as BpArtifactInfoController;
+            scope.$digest();
+
+            // assert
+            expect(element[0].querySelectorAll(".toolbar__container").length).toBeGreaterThan(0);
+        });
+
+        it("doesn't show the artifact toolbar for deleted artifact", () => {
+            // arrange
+            const artifact = artifactManager.selection.getArtifact();
+            artifact.predefinedType = ItemTypePredefined.TextualRequirement;
+            artifact.artifactState.deleted = true;
+            const template = "<bp-artifact-info></bp-artifact-info>";
+            const scope = $rootScope.$new();
+
+            // act
+            const element: ng.IAugmentedJQuery = $compile(template)(scope);
+            const controller = element.controller("bpArtifactInfo") as BpArtifactInfoController;
+            scope.$digest();
+
+            // assert
+            expect(element[0].querySelectorAll(".toolbar__container").length).toBe(0);
         });
     });
 

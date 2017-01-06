@@ -63,7 +63,7 @@ module.exports = {
             {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
             {from: '../src/redirect/silverlight-links.js', to: './static/redirect-silverlight-links.js'},
 
-            {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
+            {from: '../libs/tinymce/**', to: './libs'},
 
             {from: '../libs/mxClient/icons', to: './libs/mxClient/icons'},
             {from: '../libs/mxClient/images', to: './libs/mxClient/images'},
@@ -82,7 +82,9 @@ module.exports = {
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
             {from: '../src/images/icons', to: './static/images/icons'}
-        ]),
+        ], {
+            ignore: ['*.spec.js']
+        }),
         new webpack.DefinePlugin({
             KEEN_PROJECT_ID: undefined,
             KEEN_WRITE_KEY: undefined,

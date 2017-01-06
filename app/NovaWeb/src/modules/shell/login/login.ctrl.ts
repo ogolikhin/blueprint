@@ -30,6 +30,7 @@ export class LoginCtrl extends BaseDialogController {
 
     public errorMessage: string;
     public novaUserName: string;
+    public novaDisplayName: string;
     public novaPassword: string;
 
     public novaCurrentPassword: string;
@@ -38,6 +39,8 @@ export class LoginCtrl extends BaseDialogController {
 
     public currentFormState: LoginState;
     public lastFormState: LoginState;
+
+    private _isSamlLoginAttempt: boolean;
 
     public get isInLoginForm(): boolean {
         return this.currentFormState === LoginState.LoginForm || this.lastFormState === LoginState.LoginForm;
@@ -98,6 +101,7 @@ export class LoginCtrl extends BaseDialogController {
         this.currentFormState = LoginState.LoginForm;
         this.errorMessage = session.getLoginMessage();
         this.novaUserName = session.forceUsername();
+        this.novaDisplayName = session.forceDisplayname();
 
         this.isForgetPasswordScreenEnabled = false;
 
@@ -150,6 +154,7 @@ export class LoginCtrl extends BaseDialogController {
     }
 
     public doSamlLogin(): void {
+        this._isSamlLoginAttempt = true;
         this.session.loginWithSaml(false).then(
             () => {
                 this.isLabelErrorStyleShowing = false;
@@ -197,12 +202,14 @@ export class LoginCtrl extends BaseDialogController {
             this.hasChangePasswordScreenError = true;
             this.isCurrentPasswordFieldErrorStyleShowing = true;
             return;
-        } else if (this.novaNewPassword.length < 8) {
+        }
+        if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             return;
-        } else if (this.novaNewPassword.length > 128) {
+        }
+        if (this.novaNewPassword.length > 128) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMaxLength");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
@@ -213,6 +220,20 @@ export class LoginCtrl extends BaseDialogController {
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             this.isConfirmPasswordFieldErrorStyleShowing = true;
+            return;
+        }
+        if (_.toLower(this.novaNewPassword) === _.toLower(this.novaUserName)) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
+            this.hasChangePasswordScreenError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
+            return;
+        }
+        if (this.novaDisplayName && _.toLower(this.novaNewPassword) === _.toLower(this.novaDisplayName)) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");
+            this.hasChangePasswordScreenError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
             return;
         }
 
@@ -333,11 +354,12 @@ export class LoginCtrl extends BaseDialogController {
             this.isLabelErrorStyleShowing = false;
             this.isTextFieldErrorStyleShowing = false;
             let result: ILoginInfo = new ILoginInfo();
-            if (this.novaUserName) {
+            if (this._isSamlLoginAttempt) {
+                result.samlLogin = true;
+            }
+            else if (this.novaUserName) {
                 result.userName = this.novaUserName;
                 result.password = this.novaPassword;
-            } else {
-                result.samlLogin = true;
             }
             result.loginSuccessful = false;
 

@@ -5,6 +5,7 @@ import {IMetaDataService} from "./metadata";
 import {IStatefulArtifact, IArtifactService} from "./artifact";
 import {IDispose} from "../models";
 import {Models} from "../../main/models";
+import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
 
 export interface IArtifactManager extends IDispose {
     collectionChangeObservable: Rx.Observable<IStatefulArtifact>;
@@ -29,7 +30,8 @@ export class ArtifactManager implements IArtifactManager {
         "selectionManager",
         "artifactService",
         "metadataService",
-        "dialogService"
+        "dialogService",
+        "loadingOverlayService"
     ];
 
     constructor(private $log: ng.ILogService,
@@ -37,7 +39,8 @@ export class ArtifactManager implements IArtifactManager {
                 private selectionService: ISelectionManager,
                 private artifactService: IArtifactService,
                 private metadataService: IMetaDataService,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private loadingOverlayService: ILoadingOverlayService) {
         this.artifactDictionary = {};
         this.collectionChangeSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
     }
@@ -117,6 +120,7 @@ export class ArtifactManager implements IArtifactManager {
     public autosave(showConfirm: boolean = true): ng.IPromise<any> {
         const artifact = this.selection.getArtifact();
         if (artifact) {
+            let autosaveId = this.loadingOverlayService.beginLoading();
             return artifact.save(true).catch((error) => {
                 if (showConfirm) {
                     return this.dialogService.open(<IDialogSettings>{
@@ -130,7 +134,7 @@ export class ArtifactManager implements IArtifactManager {
                 } else {
                     return this.$q.reject(error);
                 }
-            });
+            }).finally(() => this.loadingOverlayService.endLoading(autosaveId));
         }
         return this.$q.resolve();
     }

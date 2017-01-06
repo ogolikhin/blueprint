@@ -23,6 +23,8 @@ export interface ISession {
     getLoginMessage(): string;
 
     forceUsername(): string;
+
+    forceDisplayname(): string;
 }
 
 export class SessionSvc implements ISession {
@@ -50,6 +52,14 @@ export class SessionSvc implements ISession {
     public forceUsername(): string {
         if (this._currentUser) {
             return this._currentUser.login;
+        } else {
+            return undefined;
+        }
+    }
+
+    public forceDisplayname(): string {
+        if (this._currentUser) {
+            return this._currentUser.displayName;
         } else {
             return undefined;
         }
@@ -157,7 +167,7 @@ export class SessionSvc implements ISession {
                     done.resolve();
                 } else if (result.samlLogin) {
                     this.dialogService
-                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
                         .then(() => {
                             this.loginWithSaml(true).then(
                                 () => {

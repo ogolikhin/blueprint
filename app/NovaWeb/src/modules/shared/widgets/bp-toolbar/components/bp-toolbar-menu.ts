@@ -1,4 +1,3 @@
-import "./bp-toolbar-menu.scss";
 import {IBPButtonOrDropdownAction} from "../actions";
 
 export class BPToolbarMenu implements ng.IComponentOptions {

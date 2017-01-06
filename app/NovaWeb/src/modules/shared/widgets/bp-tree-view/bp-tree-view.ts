@@ -1,7 +1,7 @@
 import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "./../../../core/messages/message.svc";
+import {IMessageService} from "../../../core/messages/message.svc";
 
 /**
  * Usage:
@@ -78,6 +78,8 @@ export interface ITreeNode {
     selectable: boolean;
     /** Function returning a promise of an array of children, or undefined if children are provided through children. */
     loadChildrenAsync?(): ng.IPromise<ITreeNode[]>;
+    /*optional function that will unload the array of children from the node, only called if defined and on collapse of a node*/
+    unloadChildren?(): void;
 }
 
 export interface IColumn {
@@ -427,6 +429,18 @@ export class BPTreeViewController implements IBPTreeViewController {
                             row.classList.remove("ag-row-loading");
                         }
                 });
+            }
+            if (!vm.expanded) {
+                /*if the children can be unloaded, do it now*/
+                if (_.isFunction(vm.unloadChildren)) {
+                    /* ag-Grid: adding and removing rows is not supported when using nodeChildDetailsFunc, ie it is not supported if providing groups*
+                     * as such this is a work around
+                     */
+                    node.childrenAfterFilter = [];
+                    node.childrenAfterGroup = [];
+                    node.childrenAfterSort = [];
+                    vm.unloadChildren();
+                }
             }
         }
     };

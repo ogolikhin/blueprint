@@ -929,7 +929,8 @@ pagecontent, bp-properties-panel {
                 border-width: 1px !important;
             }
 
-            .tinymce-toolbar-hidden .mce-toolbar-grp {
+            .tinymce-toolbar-hidden .mce-toolbar-grp,
+            .tinymce-body-hide {
                 display: none;
             }
 

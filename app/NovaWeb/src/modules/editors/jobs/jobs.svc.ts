@@ -30,23 +30,22 @@ export enum JobStatus {
 }
 
 export interface IJobInfo {
-    jobId: number; 
-    status: JobStatus; 
-    jobType: JobType; 
-    project: string; 
-    submittedDateTime: Date;  
-    jobStartDateTime: Date; 
-    jobEndDateTime: Date;  
-    userId: number;  
-    userDisplayName: string; 
-    server: string;  
-    progress: number;  
-    output: string;  
-    statusChanged: boolean;  
-    hasCancelJob: boolean; 
+    jobId: number;
+    status: JobStatus;
+    jobType: JobType;
+    project: string;
+    submittedDateTime: Date;
+    jobStartDateTime: Date;
+    jobEndDateTime: Date;
+    userId: number;
+    userDisplayName: string;
+    server: string;
+    progress: number;
+    output: string;
+    statusChanged: boolean;
+    hasCancelJob: boolean;
     projectId: number;
 }
-
 
 export interface IJobsService {
     getJobs(page?: number, pageSize?: number): ng.IPromise<IJobInfo[]>;
@@ -60,23 +59,11 @@ export class JobsService implements IJobsService {
         "$log"
     ];
 
-    constructor(private $q: ng.IQService,
-                private $http: ng.IHttpService,
-                private $log: ng.ILogService) {
-    }
-
-    private appendParameters(url: string, page: number, pageSize: number): string {
-        if (page) {
-            url = url + `?page=${page}`;
-
-            if (pageSize) {
-                url = url + `&pageSize=${pageSize}`;
-            }
-        } else if (pageSize) {
-            url = url + `?pageSize=${pageSize}`;
-        }
-
-        return url;
+    constructor(
+        private $q: ng.IQService,
+        private $http: ng.IHttpService,
+        private $log: ng.ILogService
+    ) {
     }
 
     private getUrl(): string {
@@ -88,18 +75,20 @@ export class JobsService implements IJobsService {
         const deferred = this.$q.defer();
         const request: ng.IRequestConfig = {
             method: "GET",
-            url: this.appendParameters(this.getUrl(), page, pageSize),
-            params: {},
+            url: this.getUrl(),
+            params: {page: page, pageSize: pageSize},
             timeout: timeout
         };
 
-        this.$http(request).then((result) => {
-                deferred.resolve(result.data);
-            },
-            (error) => {
-                deferred.reject(error);
-            }
-        );
+        this.$http(request)
+            .then(
+                (result) => {
+                    deferred.resolve(result.data);
+                },
+                (error) => {
+                    deferred.reject(error);
+                }
+            );
 
         return deferred.promise;
     }
@@ -114,15 +103,16 @@ export class JobsService implements IJobsService {
             params: {},
             timeout: timeout
         };
-        
 
-        this.$http(request).then((result) => {
-                deferred.resolve(result.data);
-            },
-            (error) => {
-                deferred.reject(error);
-            }
-        );
+        this.$http(request)
+            .then(
+                (result) => {
+                    deferred.resolve(result.data);
+                },
+                (error) => {
+                    deferred.reject(error);
+                }
+            );
 
         return deferred.promise;
     }

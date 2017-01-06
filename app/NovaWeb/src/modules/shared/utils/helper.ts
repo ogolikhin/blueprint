@@ -151,10 +151,9 @@ export class Helper {
                             }
                         }
                         if (parent.tagName.toUpperCase() !== "SPAN") {
-                            let span = document.createElement("SPAN");
+                            const span = document.createElement("SPAN");
                             span.style.fontFamily = fontFamily;
-                            span.innerHTML = parent.innerHTML;
-                            parent.innerHTML = "";
+                            span.appendChild(child);
                             parent.appendChild(span);
                         } else {
                             parent.style.fontFamily = fontFamily;

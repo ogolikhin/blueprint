@@ -54,7 +54,7 @@ export class JobsController {
         this.loadPage(1);
     };
 
-    private loadNextPage() {
+    public loadNextPage() {
         this.loadPage(this.page + 1);
     }
     

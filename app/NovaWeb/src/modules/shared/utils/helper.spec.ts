@@ -1,4 +1,5 @@
 ﻿import * as angular from "angular";
+import "lodash";
 import {Helper} from "./helper";
 
 describe("to and from HTML", () => {
@@ -302,6 +303,83 @@ describe("Remove external images", () => {
         // Assert
         const result = angular.element(html);
         expect(result.find("img").length).toBe(2);
+    });
+});
+
+describe("replaceImgSrc", () => {
+    it("should change all 'src' of all 'img' tags (and just 'img' tags)", () => {
+        // Assert
+        const html = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img src="//dummy1.jpg">
+    <img class="dummy-class" src="//dummy2.jpg" />
+    <img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+        const expected = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img data-temp-src="//dummy1.jpg">
+    <img class="dummy-class" data-temp-src="//dummy2.jpg" />
+    <img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+
+        // Act
+        const result = Helper.replaceImgSrc(html);
+
+        // Assert
+        expect(result).toBe(expected);
+    });
+
+    it("should change all 'data-temp-src' of all 'img' tags (and just 'img' tags)", () => {
+        // Assert
+        const expected = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img src="//dummy1.jpg">
+    <img class="dummy-class" src="//dummy2.jpg" />
+    <img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+        const html = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img data-temp-src="//dummy1.jpg">
+    <img class="dummy-class" data-temp-src="//dummy2.jpg" />
+    <img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+
+        // Act
+        const result = Helper.replaceImgSrc(html, false);
+
+        // Assert
+        expect(result).toBe(expected);
+    });
+
+    it("doesn't change anything if input is not string", () => {
+        // Assert
+        let html;
+
+        // Act
+        const result = Helper.replaceImgSrc(html);
+
+        // Assert
+        expect(result).toBe(html);
     });
 });
 

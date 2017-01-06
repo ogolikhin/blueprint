@@ -25,8 +25,14 @@ namespace AdminStoreTests
         protected const int MAXIMUM_PAGESIZE_VALUE = 200;
         protected const int DEFAULT_BASELINEORREVIEWID = 83;
 
-        private string PageNullOrNegativeErrMsg = "Page value must be provided and be greater than 0";
-        private string PageSizeNullOrOutOfRangeErrMsg = I18NHelper.FormatInvariant("Page Size value must be provided and value between 1 and {0}", MAXIMUM_PAGESIZE_VALUE);
+        private static string PageNullOrNegativeErrMsg = "Page value must be provided and be greater than 0";
+        private static string PageSizeNullOrOutOfRangeErrMsg = I18NHelper.FormatInvariant("Page Size value must be provided and value between 1 and {0}", MAXIMUM_PAGESIZE_VALUE);
+
+        private Dictionary<int, string> ErrorCodeToMessageMap { get; } = new Dictionary<int, string>
+        {
+            { ErrorCodes.PageNullOrNegative, PageNullOrNegativeErrMsg },
+            { ErrorCodes.PageSizeNullOrOutOfRange, PageSizeNullOrOutOfRangeErrMsg}
+        };
 
         private List<IProject> _allProjects = null;
         private IProject _projectCustomData = null;
@@ -171,13 +177,13 @@ namespace AdminStoreTests
                 "GET {0} call should return 400 Bad Request when using without page and pageSize optional parameters!", JOBS_PATH);
 
             // Validation: Verify that error code returned from the error response
-            string expectedExceptionMessage = (errorCode.Equals(ErrorCodes.PageNullOrNegative))? PageNullOrNegativeErrMsg : PageSizeNullOrOutOfRangeErrMsg;
+            string expectedExceptionMessage = ErrorCodeToMessageMap[errorCode];
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
         [TestCase(-1, -1, ErrorCodes.PageNullOrNegative)]
-        [TestCase(-1,1, ErrorCodes.PageNullOrNegative)]
-        [TestCase(1,-1, ErrorCodes.PageSizeNullOrOutOfRange)]
+        [TestCase(-1, 1, ErrorCodes.PageNullOrNegative)]
+        [TestCase(1, -1, ErrorCodes.PageSizeNullOrOutOfRange)]
         [TestCase(0, 0, ErrorCodes.PageNullOrNegative)]
         [TestRail(227083)]
         [Description("GET Jobs using invalid values for page and pageSize parameters. Verify that 400 bad request is returned.")]
@@ -194,7 +200,7 @@ namespace AdminStoreTests
                 "GET {0} call should return 400 Bad Request when using invalid page ({1}) and invalid pageSize ({2}) parameters!", JOBS_PATH, page, pageSize);
 
             // Validation: Verify that error code returned from the error response
-            string expectedExceptionMessage = (errorCode.Equals(ErrorCodes.PageNullOrNegative)) ? PageNullOrNegativeErrMsg : PageSizeNullOrOutOfRangeErrMsg;
+            string expectedExceptionMessage = ErrorCodeToMessageMap[errorCode];
             ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 

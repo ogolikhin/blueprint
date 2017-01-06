@@ -30,7 +30,7 @@ export class Helper {
     }
 
     static escapeQuot = (stringToEscape: string): string => {
-        let content = (stringToEscape || "").toString();
+        const content = (stringToEscape || "").toString();
         return _.replace(content, /"/g, "&quot;");
     };
 

@@ -154,7 +154,7 @@ describe("addTableBorders", () => {
 describe("setFontFamilyOrOpenSans", () => {
     it("should add Open Sans if the tags don't have a font definition", () => {
         // Arrange/Act
-        let node = document.createElement("div");
+        const node = document.createElement("div");
         node.innerHTML = "<table><tr><td>Table</td></tr></table>" +
             "<p style='font-family: Arial, sans-serif'>Arial Default</p>" +
             "<p style='font-family: Arial, sans-serif'><em>Arial Em</em></p>" +
@@ -168,8 +168,9 @@ describe("setFontFamilyOrOpenSans", () => {
 
         Helper.setFontFamilyOrOpenSans(node, ["Arial", "Verdana"]);
 
-        let td = node.querySelector("td");
-        let p = node.querySelectorAll("p");
+        const td = node.querySelector("td");
+        const p = node.querySelectorAll("p");
+
         // Assert
         expect((<HTMLElement> td.firstElementChild).style.fontFamily).toContain("Open Sans");
         expect((<HTMLElement> p[0].firstElementChild).style.fontFamily).toContain("Arial");

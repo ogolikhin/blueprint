@@ -3,11 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Net.Http.Headers;
 
-namespace ServiceLibrary.Web
+namespace ServiceLibrary.Helpers
 {
     public static class WebHeaderCollectionExtensions
     {
-        public static T GetWebHeaderValue<T>(this WebHeaderCollection webHeaderCollection, string headerName)
+        public static T GetValue<T>(this WebHeaderCollection webHeaderCollection, string headerName)
         {
             string headerValue = webHeaderCollection.Get(headerName);
 

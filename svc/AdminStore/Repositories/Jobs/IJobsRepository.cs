@@ -18,6 +18,6 @@ namespace AdminStore.Repositories.Jobs
 
         Task<JobInfo> GetJob(int jobId, int userId);
 
-        Task<File> GetJobResultFile(Uri baseUri, int jobId, int userId, string sessionToken);
+        Task<File> GetJobResultFile(int jobId, int userId, Uri baseAddress, string sessionToken);
     }
 }

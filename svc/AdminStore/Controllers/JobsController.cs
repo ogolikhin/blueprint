@@ -52,7 +52,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var session = GetAuthenticatedSessionFromRequest();
+                var session = GetSession(Request);
                 int jobPageSize = GetPageSize(pageSize);
                 int jobPage = GetPage(page, 1, 1);
                 int offset = (jobPage - 1) * jobPageSize;
@@ -80,7 +80,7 @@ namespace AdminStore.Controllers
         {
             try
             {
-                var session = GetAuthenticatedSessionFromRequest();
+                var session = GetSession(Request);
                 return await _jobsRepository.GetJob(jobId, session.UserId);
             }
             catch (Exception exception)
@@ -94,8 +94,8 @@ namespace AdminStore.Controllers
         [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
         public async Task<HttpResponseMessage> GetJobResultFile(int jobId)
         {
-            var session = GetAuthenticatedSessionFromRequest();
-            var file = await _jobsRepository.GetJobResultFile(Request.RequestUri, jobId, session.UserId, Session.Convert(session.SessionId));
+            var session = GetSession(Request);
+            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, Request.RequestUri, Session.Convert(session.SessionId));
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = new StreamContent(file.ContentStream);
@@ -110,10 +110,10 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        private Session GetAuthenticatedSessionFromRequest()
+        private Session GetSession(HttpRequestMessage request)
         {
             object sessionValue;
-            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
+            if (!request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
             {
                 throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }

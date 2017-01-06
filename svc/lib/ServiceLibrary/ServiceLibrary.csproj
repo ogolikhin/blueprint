@@ -93,6 +93,8 @@
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
+    <Compile Include="Helpers\HttpWebClient.cs" />
+    <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ItemTypePredefinedExtension.cs" />
     <Compile Include="Helpers\LoggableApiController.cs" />
@@ -167,8 +169,8 @@
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
-    <Compile Include="Web\NetworkContentStream.cs" />
-    <Compile Include="Web\WebHeaderCollectionExtensions.cs" />
+    <Compile Include="Models\Files\NetworkContentStream.cs" />
+    <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>

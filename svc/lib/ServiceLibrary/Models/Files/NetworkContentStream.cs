@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace ServiceLibrary.Web
+namespace ServiceLibrary.Models.Files
 {
     // The default stream System.Net.ConnectStream from File Storage API
     // returns a stream that does not support Seek (Position, Length, Seek()).

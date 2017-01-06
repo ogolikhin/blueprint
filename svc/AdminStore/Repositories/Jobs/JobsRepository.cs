@@ -30,7 +30,7 @@ namespace AdminStore.Repositories.Jobs
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
                 new SqlUsersRepository(),
-                new FileRepository()
+                new FileRepository(new HttpWebClient())
             )
         {
         }
@@ -88,7 +88,7 @@ namespace AdminStore.Repositories.Jobs
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
         }
 
-        public async Task<File> GetJobResultFile(Uri baseUri, int jobId, int userId, string sessionToken)
+        public async Task<File> GetJobResultFile(int jobId, int userId, Uri baseAddress, string sessionToken)
         {
             var job = await GetJob(jobId, userId);
             if (job == null)
@@ -109,14 +109,9 @@ namespace AdminStore.Repositories.Jobs
             switch (job.JobType)
             {
                 case JobType.ProjectExport:
-                    var projectExportTaskStatus = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
-                    var file = await _fileRepository.GetFileAsync(baseUri, projectExportTaskStatus.Details.FileGuid, sessionToken);
-                    if (file == null)
-                    {
-                        throw new ResourceNotFoundException("Job doesn't have a result file", ErrorCodes.ResourceNotFound);
-                    }
-
-                    return file;
+                    var projectExportResult = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
+                    var fileId = projectExportResult.Details.FileGuid;
+                    return await _fileRepository.GetFileAsync(baseAddress, fileId, sessionToken);
 
                 default:
                     throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.JobResultFileNotSupported);

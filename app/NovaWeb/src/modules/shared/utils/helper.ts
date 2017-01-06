@@ -127,7 +127,7 @@ export class Helper {
             [].forEach.call(node.childNodes, function (child) {
                 if (child.nodeType === 1) { // we dig into HTML children only
                     Helper.setFontFamilyOrOpenSans(child, allowedFonts);
-                } else if (child.nodeType === 3) {
+                } else if (child.nodeType === 3 && child.textContent.trim() !== "") {
                     let parent = child.parentNode;
                     if (parent && parent.nodeType === 1) {
                         parent = parent as HTMLElement;
@@ -272,7 +272,7 @@ export class Helper {
         // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset
         const replaceFrom = cloakSrc ? " src=" : " data-temp-src=";
         const replaceTo = cloakSrc ? " data-temp-src=" : " src=";
-        const re = new RegExp("<(img.*)" + replaceFrom + "(.*)>", "gi");
+        const re = new RegExp("<(img[^>]*)" + replaceFrom + "([^>]*)>", "gi");
         return _.replace(imgTag, re, "<$1" + replaceTo + "$2>");
     }
 }

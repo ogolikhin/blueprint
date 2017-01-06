@@ -468,7 +468,7 @@ namespace Model.StorytellerModel.Impl
             {
                 string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'",
                         Storyteller.APPLICATION_SETTINGS_TABLE, Storyteller.STORYTELLER_LIMIT_KEY);
-                var result = DatabaseHelper.ExecuteSingleValueSqlQuery<object>(query, "Value");
+                var result = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(query, "Value");
                 return ParseStorytellerLimitFromDb(result);
             }
         }

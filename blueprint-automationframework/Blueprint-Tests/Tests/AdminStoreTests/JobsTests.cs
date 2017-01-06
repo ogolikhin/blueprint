@@ -126,7 +126,7 @@ namespace AdminStoreTests
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 1, 1)]
         [TestRail(213052)]
-        [Description("GET Jobs using a user doesn't have permission to projects. Verify that an empty JobResult is returned.")]
+        [Description("GET Jobs using a user that doesn't have permission to projects. Verify that an empty JobResult is returned.")]
         public void GetJobs_SearchWithoutPermissionOnProjects_VerifyEmptyJobResult(
             int baselineOrReviewId,
             int page,
@@ -166,7 +166,7 @@ namespace AdminStoreTests
         {
             // Setup: Not required
 
-            // Execute: GetJobs without page and pageSize optional parameters
+            // Execute: GetJobs without page or pageSize optional parameters
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobs(_adminUser, page: page, pageSize: pageSize),
                 "GET {0} call should return 400 Bad Request when using without page and pageSize optional parameters!", JOBS_PATH);
 

@@ -16,6 +16,7 @@ namespace ServiceLibrary.Repositories
 
             // Act
             var repository = new FileRepository(httpWebClient);
+            repository = null;
         }
     }
 }

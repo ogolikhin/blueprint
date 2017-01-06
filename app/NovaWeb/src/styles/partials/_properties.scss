@@ -1297,7 +1297,7 @@ pagecontent, bp-properties-panel {
         height: #{$property-min-height + 23px + 12px}; // + label's height + margin-bottom
     }
 
-    .formly .formly-field label {
+    .formly .formly-label {
         margin-right: 0;
         padding: 0;
         width: $property-input-width;

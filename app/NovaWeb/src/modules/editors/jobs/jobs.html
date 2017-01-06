@@ -34,45 +34,55 @@
                     ng-repeat="item in $ctrl.jobs track by $index">
                     <div class="row small-gutter">
                         <div class="col-md-1 text-center">
-                            <h2 class="font-blue margin-top--none jobs__text--no-wrap">
-                                <i class="icon-document"></i>   
-                            </h2>
+                            <div class="row">
+                                <div class="font-blue jobs__itemsicon">
+                                    <i class="icon-document"></i>   
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="font-blue jobs__type">
+                                    {{$ctrl.getType(item.jobType)}}
+                                </div>                    
+                            </div>
                         </div>
                         <div class="col-md-10">
-                            <div class="row">
-                                <div class="col-md-11">
-                                   <div class="font-blue margin-bottom--none jobs__title" bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">
-                                       JOB{{item.jobId}} (Project: {{item.project}})
+                            <div class="row jobs__firstrow">
+                                <div class="col-md-3">
+                                   <div class="font-blue">
+                                       JOB{{item.jobId}}
                                    </div>
-                                </div>                            
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>{{::$root.config.labels["Jobs_User"]}}: </strong>
-                                    <span>{{item.userDisplayName}}</span>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                    <span>{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
                                 </div>     
-                                <div class="col-md-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
-                                    <strong class="jobs__status-label--left">{{::$root.config.labels["Jobs_Status"]}}: </strong>
-                                    <span ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>
-                                    <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress">{{item.progress}}%</uib-progressbar>
+                                <div class="col-md-5">
+                                    <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
+                                    <span>&nbsp;{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
                                 </div>                           
                             </div>
-                            <div class="row">                       
-                                <div class="col-md-4">
-                                    <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
-                                    <span>{{$ctrl.getType(item.jobType)}}</span>
+                            <div class="row jobs__secondrow">
+                                <div class="col-md-3">
+                                    <i class="fonticon2-project jobs__projecticon--size"></i>
+                                    <span bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">{{item.project}}</span>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-5">
                                     <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
                                     <span>{{$ctrl.getDateTime(item.jobStartDateTime)}}</span>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
+                                    <strong>{{::$root.config.labels["Jobs_Status"]}}:&nbsp;</strong>
+                                    <span ng-if="$ctrl.isJobRunning(item.status)">{{item.progress}}% Completed</span>
+                                    <span ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>                                    
+                                </div>                           
+                            </div>
+                            <div class="row jobs__thirdrow">                       
+                                <div class="col-md-3  bp-tooltip="{{item.userDisplayName}}" bp-tooltip-truncated="true"">
+                                    <strong>{{::$root.config.labels["Jobs_User"]}}: </strong>
+                                    <span>{{item.userDisplayName}}</span>
+                                </div>
+                                <div class="col-md-5">
                                     <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
                                     <span> {{$ctrl.getDateTime(item.jobEndDateTime)}}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>
                                 </div>
                             </div>
                         </div>

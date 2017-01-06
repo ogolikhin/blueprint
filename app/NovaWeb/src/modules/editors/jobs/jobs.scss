@@ -1,4 +1,5 @@
-@import "./../../../styles/settings/colors";
+@import "../../../styles/settings/colors";
+@import "../../../styles/settings/typography";
 
 .jobs {
     width: 100%;
@@ -68,6 +69,7 @@
     margin: 1px auto 0;
     background: white;
     border-bottom: 1px solid $gray-lightest;
+    font-size: $font-size-normal;
     &:focus, &:hover {
         background: $tree-hover-background;
     }
@@ -78,11 +80,11 @@
     }
         
     .progress {
-        max-width: 270px;
+        max-width: 200px;
         box-shadow: none;
         background-color: $gray-lightest;
         margin-bottom: 0;
-
+        height: 10px;
         .progress-bar {
             border-radius: 4px;
             background-color: $brand-secondary;
@@ -125,4 +127,33 @@
 
 .jobs__status-label--left {
     float: left;
+}
+
+.jobs__itemsicon {
+    font-size: 23px;
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+.jobs__type {
+    line-height: 13px;
+    margin-left: 10px;
+
+}
+
+.jobs__firstrow{
+    margin-top: 10px;
+}
+
+.jobs__secondrow{
+    margin-top: 3px;
+}
+
+.jobs__thirdrow{
+    margin-top: 3px;
+}
+
+
+.fonticon2-project.jobs__projecticon--size::before{
+    font-size:15px;
 }

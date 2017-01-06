@@ -1,17 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using ServiceLibrary.Models.Files;
 using ServiceLibrary.Models.Jobs;
 
 namespace AdminStore.Repositories.Jobs
 {
     public interface IJobsRepository
     {
-        Task<IEnumerable<JobInfo>> GetVisibleJobs(
-            int? userId,
+        Task<IEnumerable<JobInfo>> GetVisibleJobs
+        (
+            int userId,
             int? offset = null,
             int? limit = null,
-            JobType? jobType = JobType.None);
+            JobType? jobType = JobType.None
+        );
 
-        Task<JobInfo> GetJob(int jobId, int? userId);
+        Task<JobInfo> GetJob(int jobId, int userId);
+
+        Task<File> GetJobResultFile(int jobId, int userId, Uri baseAddress, string sessionToken);
     }
 }

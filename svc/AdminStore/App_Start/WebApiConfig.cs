@@ -20,6 +20,8 @@ namespace AdminStore
         public static string AccessControl = ConfigurationManager.AppSettings["AccessControl"];
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
+
+        public static string FileStore = ConfigurationManager.AppSettings["FileStore"];
         
         public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 

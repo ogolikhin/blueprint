@@ -10,7 +10,6 @@ using Model.JobModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using TestCommon;
 using Utilities;
@@ -25,6 +24,9 @@ namespace AdminStoreTests
         protected const string JOBS_PATH = RestPaths.Svc.AdminStore.JOBS;
         protected const int MAXIMUM_PAGESIZE_VALUE = 200;
         protected const int DEFAULT_BASELINEORREVIEWID = 83;
+
+        private string PageNullOrNegativeErrMsg = "Page value must be provided and be greater than 0";
+        private string PageSizeNullOrOutOfRangeErrMsg = I18NHelper.FormatInvariant("Page Size value must be provided and value between 1 and {0}", MAXIMUM_PAGESIZE_VALUE);
 
         private List<IProject> _allProjects = null;
         private IProject _projectCustomData = null;
@@ -74,7 +76,7 @@ namespace AdminStoreTests
                 "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, page, pageSize);
 
             // Validation: Verify that page and pageSize works
-            JobResultValidation(jobResult: jobResult, pageSize: pageSize, jobsToBeFound: jobsToBeFound);
+            JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
@@ -124,7 +126,7 @@ namespace AdminStoreTests
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 1, 1)]
         [TestRail(213052)]
-        [Description("GET Jobs using a user doesn't have permission to projects. Verify that the returned empty JobResult.")]
+        [Description("GET Jobs using a user doesn't have permission to projects. Verify that an empty JobResult is returned.")]
         public void GetJobs_SearchWithoutPermissionOnProjects_VerifyEmptyJobResult(
             int baselineOrReviewId,
             int page,
@@ -152,29 +154,37 @@ namespace AdminStoreTests
         #region 400 Bad Request Tests
         // TODO: move this ValidateServiceError from ArtifactStoreHelper to TestHelper since it's good for all error code validation tests
 
-        [TestCase]
+        [TestCase(null, 1, ErrorCodes.PageNullOrNegative)]
+        [TestCase(1,null, ErrorCodes.PageSizeNullOrOutOfRange)]
         [TestRail(213053)]
-        [Description("GET Jobs without using optional parameters. Verify that 400 bad request is returned.")]
-        public void GetJobs_GetJobsWithoutOptionalParameters_400BadRequest()
+        [Description("GET Jobs without either page or pageSize. Verify that 400 bad request is returned.")]
+        public void GetJobs_GetJobsWithoutEitherPageOrPageSize_400BadRequest(
+            int page,
+            int pageSize,
+            int errorCode
+            )
         {
             // Setup: Not required
 
             // Execute: GetJobs without page and pageSize optional parameters
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobs(_adminUser),
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobs(_adminUser, page: page, pageSize: pageSize),
                 "GET {0} call should return 400 Bad Request when using without page and pageSize optional parameters!", JOBS_PATH);
 
             // Validation: Verify that error code returned from the error response
-            string expectedExceptionMessage = "Page value must be provided and be greater than 0";
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PageNullOrNegative, expectedExceptionMessage);
+            string expectedExceptionMessage = (errorCode.Equals(ErrorCodes.PageNullOrNegative))? PageNullOrNegativeErrMsg : PageSizeNullOrOutOfRangeErrMsg;
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
-        [TestCase(-1, -1)]
-        [TestCase(0, 0)]
+        [TestCase(-1, -1, ErrorCodes.PageNullOrNegative)]
+        [TestCase(-1,1, ErrorCodes.PageNullOrNegative)]
+        [TestCase(1,-1, ErrorCodes.PageSizeNullOrOutOfRange)]
+        [TestCase(0, 0, ErrorCodes.PageNullOrNegative)]
         [TestRail(227083)]
-        [Description("GET Jobs using invalid page and pageSize parameters. Verify that 400 bad request is returned.")]
+        [Description("GET Jobs using invalid values for page and pageSize parameters. Verify that 400 bad request is returned.")]
         public void GetJobs_GetJobsWithInvalidPageAndPageSize_400BadRequest(
             int page,
-            int pageSize
+            int pageSize,
+            int errorCode
             )
         {
             // Setup: Not required
@@ -184,46 +194,8 @@ namespace AdminStoreTests
                 "GET {0} call should return 400 Bad Request when using invalid page ({1}) and invalid pageSize ({2}) parameters!", JOBS_PATH, page, pageSize);
 
             // Validation: Verify that error code returned from the error response
-            string expectedExceptionMessage = "Page value must be provided and be greater than 0";
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PageNullOrNegative, expectedExceptionMessage);
-        }
-
-        [TestCase(-1, 1)]
-        [TestRail(227093)]
-        [Description("GET Jobs using invalid page parameter. Verify that 400 bad request is returned.")]
-        public void GetJobs_GetJobsWithInvalidPage_400BadRequest(
-            int page,
-            int pageSize
-            )
-        {
-            // Setup: Not required
-
-            // Execute: GetJobs with invalid page parameter value
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobs(_adminUser, page: page, pageSize: pageSize),
-                "GET {0} call should return 400 Bad Request when using invalid page ({1}) parameter!", JOBS_PATH, page);
-
-            // Validation: Verify that error code returned from the error response
-            string expectedExceptionMessage = "Page value must be provided and be greater than 0";
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PageNullOrNegative, expectedExceptionMessage);
-        }
-
-        [TestCase(1, -1)]
-        [TestRail(227094)]
-        [Description("GET Jobs using invalid pageSize parameter. Verify that 400 bad request is returned.")]
-        public void GetJobs_GetJobsWithInvalidPageSize_400BadRequest(
-            int page,
-            int pageSize
-            )
-        {
-            // Setup: Not required
-
-            // Execute: GetJobs with invalid pageSize parameter value
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobs(_adminUser, page: page, pageSize: pageSize),
-                "GET {0} call should return 400 Bad Request when using invalid pageSize ({1}) parameter!", JOBS_PATH, pageSize);
-
-            // Validation: Verify that error code returned from the error response
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("Page Size value must be provided and value between 1 and {0}", MAXIMUM_PAGESIZE_VALUE);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PageSizeNullOrOutOfRange, expectedExceptionMessage);
+            string expectedExceptionMessage = (errorCode.Equals(ErrorCodes.PageNullOrNegative)) ? PageNullOrNegativeErrMsg : PageSizeNullOrOutOfRangeErrMsg;
+            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request Tests
@@ -295,29 +267,43 @@ namespace AdminStoreTests
         /// </summary>
         /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
         /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
-        /// <param name="jobsToBeFound"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, job content validation step gets skipped.</param>
+        /// <param name="expectedJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, job content validation step gets skipped.</param>
         private static void JobResultValidation(List<IJobInfo> jobResult,
             int pageSize,
-            List<IOpenAPIJob> jobsToBeFound = null
+            List<IOpenAPIJob> expectedJobs = null
             )
         {
             ThrowIf.ArgumentNull(jobResult, nameof(jobResult));
 
-            jobsToBeFound = jobsToBeFound ?? new List<IOpenAPIJob>();
+            expectedJobs = expectedJobs ?? new List<IOpenAPIJob>();
 
-            if (jobsToBeFound.Any())
+            if (expectedJobs.Any())
             {
                 // Job Contents comparison and validation
-                var compareCount = Math.Min(jobsToBeFound.Count, pageSize);
-                var jobsToBeFoundToCompare = jobsToBeFound.Take(compareCount).ToList();
+                var compareCount = Math.Min(expectedJobs.Count, pageSize);
+                var jobsToBeFoundToCompare = expectedJobs.Take(compareCount).ToList();
 
                 for (int i = 0; i < compareCount; i++)
                 {
-                    Assert.IsTrue(jobsToBeFoundToCompare[i].JobId.Equals(jobResult[i].JobId), "The jobId {0} was expected but jobId {1} is returned from GET jobs call.", jobsToBeFoundToCompare[i].JobId, jobResult[i].JobId);
-                    Assert.IsTrue(jobsToBeFoundToCompare[i].ProjectId.Equals(jobResult[i].ProjectId), "The projectId {0} was expected but projectId {1} is returned from GET jobs call.", jobsToBeFoundToCompare[i].ProjectId, jobResult[i].ProjectId);
-                    Assert.IsTrue(jobsToBeFoundToCompare[i].ProjectName.Contains(jobResult[i].Project), "The projectName {0} was expected to contain project value {1} from GET jobs call.", jobsToBeFoundToCompare[i].ProjectName, jobResult[i].Project);
-                    Assert.IsTrue(jobsToBeFoundToCompare[i].JobType.Equals(jobResult[i].JobType), "The jobType {0} was expected but jobType {1} is returned from GET jobs call.", jobsToBeFoundToCompare[i].JobType, jobResult[i].JobType);
-                    Assert.IsTrue(jobsToBeFoundToCompare[i].SubmittedDateTime.ToString(CultureInfo.InvariantCulture).Equals(jobResult[i].SubmittedDateTime.ToString(CultureInfo.InvariantCulture)), "The SubmittedDateTime {0} was expected but SubmittedDateTime {1} is returned from GET jobs call.", jobsToBeFoundToCompare[i].SubmittedDateTime.ToString(CultureInfo.InvariantCulture), jobResult[i].SubmittedDateTime.ToString(CultureInfo.InvariantCulture));
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobId, jobResult[i].JobId,
+                        "The jobId {0} was expected but jobId {1} is returned from GET jobs call.",
+                        jobsToBeFoundToCompare[i].JobId, jobResult[i].JobId);
+
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].ProjectId, jobResult[i].ProjectId,
+                        "The projectId {0} was expected but projectId {1} is returned from GET jobs call.",
+                        jobsToBeFoundToCompare[i].ProjectId, jobResult[i].ProjectId);
+
+                    Assert.IsTrue(jobsToBeFoundToCompare[i].ProjectName.Contains(jobResult[i].Project),
+                        "The projectName {0} was expected to contain project value {1} from GET jobs call.",
+                        jobsToBeFoundToCompare[i].ProjectName, jobResult[i].Project);
+
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobType, jobResult[i].JobType,
+                        "The jobType {0} was expected but jobType {1} is returned from GET jobs call.",
+                        jobsToBeFoundToCompare[i].JobType, jobResult[i].JobType);
+
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].SubmittedDateTime.ToStringInvariant(),
+                        jobResult[i].SubmittedDateTime.ToStringInvariant(), "The SubmittedDateTime {0} was expected but SubmittedDateTime {1} is returned from GET jobs call.",
+                        jobsToBeFoundToCompare[i].SubmittedDateTime.ToStringInvariant(), jobResult[i].SubmittedDateTime.ToStringInvariant());
                 }
             }
             else

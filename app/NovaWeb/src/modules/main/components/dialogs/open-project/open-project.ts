@@ -1,27 +1,13 @@
 import {ProjectSearchResultVM} from "../../bp-artifact-picker/search-result-vm";
 import {Helper} from "../../../../shared/utils/helper";
-import {
-    IDialogController,
-    IDialogSettings,
-    BaseDialogController
-} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {IDialogSettings, BaseDialogController} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {TreeModels} from "../../../models";
 import {IInstanceItem} from "../../../models/admin-store-models";
 import {IProjectSearchResult} from "../../../models/search-service-models";
 
 type OpenProjectVM = TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
 
-export interface IOpenProjectController extends IDialogController {
-    isProjectSelected: boolean;
-    selectedName?: string;
-    selectedDescription: string;
-
-    // BpArtifactPicker bindings
-    onSelectionChanged(selectedVMs: OpenProjectVM[]): void;
-    onDoubleClick: (vm: OpenProjectVM) => any;
-}
-
-export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
+export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private _returnValue: IInstanceItem | IProjectSearchResult;
     selectedName: string;
@@ -81,11 +67,5 @@ export class OpenProjectController extends BaseDialogController implements IOpen
             }
             this.setSelectedItem(selectedVMs.length ? selectedVMs[0] : undefined);
         }
-    }
-
-    public onDoubleClick(vm: OpenProjectVM): void {
-        this.$scope.$applyAsync(() => {
-            this.ok();
-        });
     }
 }

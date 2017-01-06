@@ -184,19 +184,19 @@ export class ProjectManager implements IProjectManager {
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
         }).then((project) => {
             if (project && project.hasOwnProperty("id")) {
-                this.openProject(project.id);
+                this.openProject(project);
             }
         });
     }
 
-    public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
+    public openProject(project): ng.IPromise<void> { // opens and selects project
         /*fixme: this function should change.
         what it needs to do is just to insert the project into the tree as a root node. Expanding it shall be done else-ware*/
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
         let openProjects = _.map(this.projectCollection.getValue(), "model.id");
-        return this.add(projectId).finally(() => {
-            const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-            this.analytics.trackEvent("open", "project", label, projectId, {
+        return this.add(project.id).finally(() => {
+            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
+            this.analytics.trackEvent("open", "project", label, project.id, {
                 openProjects: openProjects
             });
             this.loadingOverlayService.endLoading(openProjectLoadingId);
@@ -214,7 +214,7 @@ export class ProjectManager implements IProjectManager {
         }).catch((err: any) => {
             this.dialogService.alert("Refresh_Project_NotFound");
             this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
-            return this.$q.reject();
+            return this.$q.reject(err);
         });
     }
 

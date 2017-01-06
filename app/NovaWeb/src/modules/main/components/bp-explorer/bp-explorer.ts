@@ -18,31 +18,19 @@ export class ProjectExplorer implements ng.IComponentOptions {
     public transclude: boolean = true;
 }
 
-export class ProjectExplorerController {
+export interface IProjectExplorerController {
+    // BpTree bindings
+    treeApi: IBPTreeViewControllerApi;
+    projects: TreeModels.StatefulArtifactNodeVM[];
+    columns: any[];
+    onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
+    onGridReset: (isExpanding: boolean) => void;
+}
+
+export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
     private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
-
-    private _selected: TreeModels.ITreeNodeVM<any>;
-    private isLoading: boolean;
-    private pendingSelectedArtifactId: number;
-    // BpTree bindings
-
-    public treeApi: IBPTreeViewControllerApi;
-    public projects: TreeModels.StatefulArtifactNodeVM[];
-    public columns: IColumn[] = [{
-        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
-        isGroup: true,
-        cellRenderer: (params: IColumnRendererParams) => {
-            const vm = params.data as TreeModels.ITreeNodeVM<any>;
-            const icon = vm.getIcon();
-            const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
-                `${icon}<span>${label}</span></a>`;
-        }
-    }];
-
-    private resettingSelection: boolean;
 
     public static $inject: [string] = [
         "$q",
@@ -73,7 +61,6 @@ export class ProjectExplorerController {
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-
         //use context reference as the last parameter on subscribe...
         this.subscribers = [
             //subscribe for project collection update
@@ -135,6 +122,7 @@ export class ProjectExplorerController {
         }
     }
 
+    private _selected: TreeModels.ITreeNodeVM<any>;
     private get selected() {
         return this._selected;
     }
@@ -154,7 +142,10 @@ export class ProjectExplorerController {
         }
     }
 
-    private onLoadProject(projects: TreeModels.StatefulArtifactNodeVM[]) {
+    private isLoading: boolean;
+    private pendingSelectedArtifactId: number;
+
+    private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
@@ -217,23 +208,38 @@ export class ProjectExplorerController {
 
             this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
         } else {
-            if (this.treeApi) {
-                this.treeApi.deselectAll();
-            }
+            this.treeApi.deselectAll();
             this.selected = undefined;
         }
-    }
+    };
 
-    private onSelectedArtifactChange(changes: IItemChangeSet) {
+    private onSelectedArtifactChange = (changes: IItemChangeSet) => {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item) {
             this.treeApi.refreshRows((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === changes.item.id);
         }
-    }
+    };
 
     // BpTree bindings
-    public onSelect(vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void {
+
+    public treeApi: IBPTreeViewControllerApi;
+    public projects: TreeModels.StatefulArtifactNodeVM[];
+    public columns: IColumn[] = [{
+        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
+        isGroup: true,
+        cellRenderer: (params: IColumnRendererParams) => {
+            const vm = params.data as TreeModels.ITreeNodeVM<any>;
+            const icon = vm.getIcon();
+            const label = Helper.escapeHTMLText(vm.getLabel());
+            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
+                `${icon}<span>${label}</span></a>`;
+        }
+    }];
+
+    private resettingSelection: boolean;
+
+    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
         if (!this.resettingSelection && isSelected) {
             //Following has to be a const to restore current selection in case of faling navigation
             const prevSelected = this.selected;
@@ -245,5 +251,5 @@ export class ProjectExplorerController {
                 });
         }
         this.resettingSelection = false;
-    }
+    };
 }

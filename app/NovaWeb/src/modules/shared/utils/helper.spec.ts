@@ -316,8 +316,7 @@ describe("replaceImgSrc", () => {
 </head>
 <body>
     <img src="//dummy1.jpg">
-    <img class="dummy-class" src="//dummy2.jpg" />
-    <img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
+    <img class="dummy-class" src="//dummy2.jpg" /><img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
 </body>
 <script type="text/javascript" src="//dummy2.js"></script>
 </html>`;
@@ -327,8 +326,7 @@ describe("replaceImgSrc", () => {
 </head>
 <body>
     <img data-temp-src="//dummy1.jpg">
-    <img class="dummy-class" data-temp-src="//dummy2.jpg" />
-    <img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
+    <img class="dummy-class" data-temp-src="//dummy2.jpg" /><img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
 </body>
 <script type="text/javascript" src="//dummy2.js"></script>
 </html>`;
@@ -348,8 +346,7 @@ describe("replaceImgSrc", () => {
 </head>
 <body>
     <img src="//dummy1.jpg">
-    <img class="dummy-class" src="//dummy2.jpg" />
-    <img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
+    <img class="dummy-class" src="//dummy2.jpg" /><img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
 </body>
 <script type="text/javascript" src="//dummy2.js"></script>
 </html>`;
@@ -359,8 +356,7 @@ describe("replaceImgSrc", () => {
 </head>
 <body>
     <img data-temp-src="//dummy1.jpg">
-    <img class="dummy-class" data-temp-src="//dummy2.jpg" />
-    <img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
+    <img class="dummy-class" data-temp-src="//dummy2.jpg" /><img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
 </body>
 <script type="text/javascript" src="//dummy2.js"></script>
 </html>`;

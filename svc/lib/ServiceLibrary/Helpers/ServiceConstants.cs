@@ -44,5 +44,11 @@ namespace ServiceLibrary.Helpers
         public const int JobsDefaultPage = 1;
 
         public const string NoPermissions = "<No Permission>";
+
+        public const string BlueprintSessionTokenKey = "Session-Token";
+        public const string BlueprintSessionIgnoreKey = "e51d8f58-0c62-46ad-a6fc-7e7994670f34"; // random guid generated as a bypass validation header
+        public const string CookieBlueprintSessionTokenKey = "BLUEPRINT_SESSION_TOKEN";
+
+        public const int DefaultRequestTimeout = 600000;
     }
 }

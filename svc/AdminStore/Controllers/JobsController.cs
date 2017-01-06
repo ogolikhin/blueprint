@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -9,7 +12,6 @@ using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
 using AdminStore.Helpers;
 
@@ -20,25 +22,19 @@ namespace AdminStore.Controllers
     [BaseExceptionFilter]
     public class JobsController : LoggableApiController
     {
+        private const string ContentDispositionType = "attachment";
+
         internal readonly IJobsRepository _jobsRepository;
-        internal readonly IUsersRepository _sqlUserRepository;
 
         public override string LogSource => "AdminStore.JobsService";
-        
-        public JobsController() :
-            this(new JobsRepository(), new ServiceLogRepository(), new SqlUsersRepository())
+
+        public JobsController() : this(new JobsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal JobsController
-        (
-            IJobsRepository jobsRepository, 
-            IServiceLogRepository serviceLogRepository,
-            IUsersRepository sqlUserRepository
-        ) : base(serviceLogRepository)
+        internal JobsController(IJobsRepository jobsRepository, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
-            _sqlUserRepository = sqlUserRepository;
         }
 
         #region public methods
@@ -56,21 +52,16 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(IEnumerable<JobInfo>))]
         public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
-            int? userId = ValidateAndExtractUserId();
             try
             {
-                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
-                if (isUserInstanceAdmin)
-                {
-                    userId = null;
-                }
+                var session = GetSession(Request);
 
                 JobsValidationHelper jobsHelper = new JobsValidationHelper();
                 jobsHelper.Validate(page, pageSize);
 
                 int offset = (page.Value - 1) * pageSize.Value;
 
-                return Ok(await _jobsRepository.GetVisibleJobs(userId, offset, pageSize, jobType));
+                return Ok(await _jobsRepository.GetVisibleJobs(session.UserId, offset, pageSize, jobType));
             }
             catch (Exception exception)
             {
@@ -91,16 +82,11 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(JobInfo))]
         public async Task<IHttpActionResult> GetJob(int jobId)
         {
-            int? userId = ValidateAndExtractUserId();
             try
             {
-                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
-                if (isUserInstanceAdmin)
-                {
-                    userId = null;
-                }
+                var session = GetSession(Request);
 
-                return Ok(await _jobsRepository.GetJob(jobId, userId));
+                return Ok(await _jobsRepository.GetJob(jobId, session.UserId));
             }
             catch (Exception exception)
             {
@@ -109,19 +95,36 @@ namespace AdminStore.Controllers
             }
         }
 
+        [HttpGet, NoCache]
+        [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
+        public async Task<IHttpActionResult> GetJobResultFile(int jobId)
+        {
+            var session = GetSession(Request);
+            var baseAddress = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
+            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, baseAddress, Session.Convert(session.SessionId));
+
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StreamContent(file.ContentStream);
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(ContentDispositionType);
+            response.Content.Headers.ContentDisposition.FileName = file.Info.Name;
+            response.Content.Headers.ContentDisposition.FileNameStar = file.Info.Name;
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.Info.Type);
+            response.Content.Headers.ContentLength = file.Info.Size;
+
+            return ResponseMessage(response);
+        }
+
         #endregion
 
-
-        private int ValidateAndExtractUserId()
+        private Session GetSession(HttpRequestMessage request)
         {
-            // get the UserId from the session
             object sessionValue;
-            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
+            if (!request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
             {
                 throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }
 
-            return ((Session)sessionValue).UserId;
+            return (Session)sessionValue;
         }
     }
 }

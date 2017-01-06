@@ -1,7 +1,7 @@
 <div class="page-content">
     <div class="page-heading">
         <div class="artifact-heading">
-            <div class="artifact-heading-group1">                        
+            <div class="artifact-heading-group1">
                 <div class="artifact-heading-group2">
                     <div class="col-xs-2">
                         <div class="name">Jobs</div>
@@ -9,15 +9,15 @@
                     <div class="col-xs-10">
                         <div class="pull-right">
                             <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Next page" ng-click="$ctrl.loadNextPage()">
-                                    <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span> 
+                                <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span> 
                             </button>
                         </div>
                         <div class="pull-right">
                             <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Reload jobs" ng-click="$ctrl.loadPage(1)">
-                                    <span class="toolbar-button__icon ng-scope fonticon2-refresh-line"></span> 
+                                <span class="toolbar-button__icon ng-scope fonticon2-refresh-line"></span> 
                             </button>
                         </div>
-                    </div>                    
+                    </div>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
                     <div class="row small-gutter">
                         <div class="col-xs-1 text-center">
                             <h2 class="font-blue margin-top--none jobs__text--no-wrap">
-                                <i class="icon-document"></i>   
+                                <i class="icon-document"></i>
                             </h2>
                         </div>
                         <div class="col-xs-10">
@@ -44,7 +44,7 @@
                                    <div class="font-blue margin-bottom--none jobs__title" bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">
                                        JOB{{item.jobId}} (Project: {{item.project}})
                                    </div>
-                                </div>                            
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-4">
@@ -59,9 +59,9 @@
                                     <strong class="jobs__status-label--left">{{::$root.config.labels["Jobs_Status"]}}: </strong>
                                     <span ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>
                                     <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress">{{item.progress}}%</uib-progressbar>
-                                </div>                           
+                                </div>
                             </div>
-                            <div class="row">                       
+                            <div class="row">
                                 <div class="col-xs-4">
                                     <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
                                     <span>{{$ctrl.getType(item.jobType)}}</span>
@@ -78,17 +78,17 @@
                         </div>
                         <div class="col-xs-1">
                             <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
-                                <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem()" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
+                                <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item.status)" ng-click="$ctrl.downloadItem(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
                                     <i class="fonticon2-download jobs__action-icons--color jobs__icon--size"></i>
                                 </button>
                                 <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item.status)" ng-click="$ctrl.refreshJob(item.jobId)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
                                     <i class="fonticon2-refresh-line jobs__action-icons--color jobs__icon--size"></i>
-                                </button>                                
+                                </button>
                             <h2>
                         </div>
                     </div>
                 </li>
-            </ul>                
+            </ul>
         </div>
         <div class="jobs__response" ng-if="$ctrl.isJobsEmpty() && !$ctrl.isLoading">
             <div class="center-item font-larger">

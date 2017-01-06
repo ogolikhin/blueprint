@@ -158,7 +158,6 @@ namespace AdminStoreTests
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
-        // TODO: move this ValidateServiceError from ArtifactStoreHelper to TestHelper since it's good for all error code validation tests
 
         [TestCase(null, 1, ErrorCodes.PageNullOrNegative)]
         [TestCase(1,null, ErrorCodes.PageSizeNullOrOutOfRange)]
@@ -178,7 +177,7 @@ namespace AdminStoreTests
 
             // Validation: Verify that error code returned from the error response
             string expectedExceptionMessage = ErrorCodeToMessageMap[errorCode];
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
         [TestCase(-1, -1, ErrorCodes.PageNullOrNegative)]
@@ -201,7 +200,7 @@ namespace AdminStoreTests
 
             // Validation: Verify that error code returned from the error response
             string expectedExceptionMessage = ErrorCodeToMessageMap[errorCode];
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request Tests

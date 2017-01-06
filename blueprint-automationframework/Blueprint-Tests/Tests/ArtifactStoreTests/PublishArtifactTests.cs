@@ -696,7 +696,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = "The list of artifact Ids is empty.";
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request tests
@@ -745,7 +745,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} is deleted.", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         [TestCase(int.MaxValue)]
@@ -765,7 +765,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Item with ID {0} is not found.", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         #endregion 404 Not Found tests
@@ -786,7 +786,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to publish. The artifact will now be refreshed.", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublish, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublish, expectedExceptionMessage);
         }
 
         [TestCase(BaseArtifactType.Process, 1)]
@@ -806,7 +806,7 @@ namespace ArtifactStoreTests
             // Verify:
             // TODO: Also verify the 'errorContent' property that contains the dependent artifacts.
             string expectedExceptionMessage = "Specified artifacts have dependent artifacts to publish.";
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverDependencies, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverDependencies, expectedExceptionMessage);
         }
 
         #region Custom data tests
@@ -842,7 +842,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
 
         [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
@@ -882,7 +882,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifactList[index].Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
     
         #endregion Custom data tests

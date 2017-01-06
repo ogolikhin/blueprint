@@ -100,7 +100,8 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> GetJobResultFile(int jobId)
         {
             var session = GetSession(Request);
-            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, Request.RequestUri, Session.Convert(session.SessionId));
+            var baseAddress = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
+            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, baseAddress, Session.Convert(session.SessionId));
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = new StreamContent(file.ContentStream);

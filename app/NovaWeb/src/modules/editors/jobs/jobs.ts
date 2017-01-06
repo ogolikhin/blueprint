@@ -59,7 +59,7 @@ export class JobsController {
     }
     
     private getJobAction(status: JobStatus): JobAction {
-        let jobAction = JobAction.Error;
+        let jobAction = JobAction.None;
 
         switch (status) {
             case JobStatus.Completed:
@@ -72,7 +72,7 @@ export class JobsController {
                 jobAction = JobAction.Refresh;
                 break;
             default:
-                jobAction = JobAction.Error;
+                jobAction = JobAction.None;
                 break;
         }
 
@@ -85,10 +85,6 @@ export class JobsController {
 
     public canRefresh(status: JobStatus): boolean {
         return this.getJobAction(status) === JobAction.Refresh;
-    }
-
-    public isJobError(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Error;
     }
 
     public refreshJob(jobId: number): void {
@@ -109,18 +105,17 @@ export class JobsController {
         this.isLoading = true;
         this.page = page;
         this.jobs = [];
-
-        this.jobsService.getJobs(page)
+        this.jobsService.getJobs(page, this.pageLength)
             .then((result: IJobInfo[]) => {
                 this.jobs = result;
             })
             .finally(() => {
                 this.isLoading = false;
             });
-    }
+    } 
     
-    private getDate(date: Date): string {
-        return !!date ? moment(date).format("MMMM DD, YYYY") : "--";
+    private getDateTime(date: Date): string {
+        return !!date ? moment(date).format("MMMM DD, YYYY h:mm:ss a") : "--";
     }
 
     private getStatus(statusId: JobStatus): string {
@@ -145,6 +140,12 @@ export class JobsController {
                 this.$log.error(`Unknown job status: '${statusId}'`);
                 return "Unknown Status";
         }
+    }
+
+    private isValidStatus(statusId: JobStatus): boolean {
+        return statusId === JobStatus.Scheduled ||
+               statusId === JobStatus.Completed ||
+               statusId === JobStatus.Running;
     }
 
     private getType(typeId: JobType): string {
@@ -185,6 +186,13 @@ export class JobsController {
                 this.$log.error(`Unknown job type: '${typeId}'`);
                 return "Unknown";
         }
+    }
+
+    public isJobRunning(status: JobStatus): boolean {
+        if (status === JobStatus.Running) {
+            return true;
+        }
+        return false;
     }
 
     public isJobsEmpty(): boolean {

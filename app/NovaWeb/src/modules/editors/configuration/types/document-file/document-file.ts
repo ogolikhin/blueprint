@@ -145,7 +145,8 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 const dialogSettings = <IDialogSettings>{
                     okButton: localization.get("App_Button_Delete", "Delete"),
                     header: localization.get("App_UP_Attachments_Delete_Attachment_Header", "Delete Attachment"),
-                    message: localization.get("App_UP_Attachments_Delete_Attachment", "Please confirm the deletion of this attachment.")
+                    message: localization.get("App_UP_Attachments_Delete_Attachment", "Please confirm the deletion of this attachment."),
+                    css: "nova-messaging"
                 };
                 dialogService.open(dialogSettings).then(() => {
                     this.$scope.model[this.$scope.options["key"]] = null;

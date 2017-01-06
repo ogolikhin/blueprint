@@ -83,6 +83,6 @@ namespace ArtifactStore.Models
         [JsonProperty]
         public string ItemTypePrefix { get; set; }
         [JsonProperty]
-        public DateTime ReferencedDate { get; set; }
+        public DateTime? ReferencedDate { get; set; }
     }
 }

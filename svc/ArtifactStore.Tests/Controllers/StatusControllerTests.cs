@@ -1,89 +1,138 @@
-﻿//using System;
-//using System.Net;
-//using System.Net.Http;
-//using System.Threading.Tasks;
-//using System.Web.Http;
-//using System.Web.Http.Results;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using Moq;
-//using ServiceLibrary.Repositories;
-//using ServiceLibrary.Repositories.ConfigControl;
+﻿using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Results;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Helpers;
 
-//namespace ArtifactStore.Controllers
-//{
-//    [TestClass]
-//    public class StatusControllerTests
-//    {
-//        #region Constructor
+namespace ArtifactStore.Controllers
+{
+    [TestClass]
+    public class StatusControllerTests
+    {
+        #region Constructor
 
-//        [TestMethod]
-//        public void Constructor_Always_CreatesDefaultDependencies()
-//        {
-//            // Arrange
+        [TestMethod]
+        public void Constructor_Always_CreatesDefaultDependencies()
+        {
+            // Arrange
 
-//            // Act
-//            var controller = new StatusController();
+            // Act
+            var controller = new StatusController();
 
-//            // Assert
-//            Assert.IsInstanceOfType(controller.StatusRepo, typeof(SqlStatusRepository));
-//            Assert.IsInstanceOfType(controller.Log, typeof(ServiceLogRepository));
-//        }
+            // Assert
+            Assert.IsInstanceOfType(controller._statusControllerHelper, typeof(StatusControllerHelper));
+        }
 
-//        #endregion Constructor
+        #endregion Constructor
 
-//        #region GetStatus
+        #region GetStatus
 
-//        [TestMethod]
-//        public async Task GetStatus_RepositoryReturnsTrue_ReturnsOk()
-//        {
-//            // Arrange
-//            var statusRepo = new Mock<IStatusRepository>();
-//            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(true);
-//            var log = new Mock<IServiceLogRepository>();
-//            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
 
-//            // Act
-//            IHttpActionResult result = await controller.GetStatus();
+        [TestMethod]
+        public async Task GetStatus_PreAuthorizedKeysDoNotMatch_ReturnsUnauthorized()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
 
-//            // Assert
-//            Assert.IsInstanceOfType(result, typeof(OkResult));
-//        }
+            // Act
+            ResponseMessageResult result = await controller.GetStatus("NOTmypreauthorizedkey") as ResponseMessageResult;
 
-//        [TestMethod]
-//        public async Task GetStatus_RepositoryReturnsFalse_ReturnsServiceUnavailable()
-//        {
-//            // Arrange
-//            var statusRepo = new Mock<IStatusRepository>();
-//            statusRepo.Setup(r => r.GetStatus()).ReturnsAsync(false);
-//            var log = new Mock<IServiceLogRepository>();
-//            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            // Assert
+            Assert.AreEqual(HttpStatusCode.Unauthorized, result.Response.StatusCode);
+        }
 
-//            // Act
-//            var result = await controller.GetStatus() as StatusCodeResult;
+        [TestMethod]
+        public async Task GetStatus_PreAuthorizedKeysNull_ReturnsOkWithCorrectContent()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = "MyAccessInfo" });
+            statusControllerHelper.Setup(e => e.GetShorterStatus(It.IsAny<ServiceStatus>())).Returns(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = null });
+            var controller = CreateController(statusControllerHelper.Object);
 
-//            // Assert
-//            Assert.IsNotNull(result);
-//            Assert.AreEqual(HttpStatusCode.ServiceUnavailable, result.StatusCode);
-//        }
+            // Act
+            OkNegotiatedContentResult<ServiceStatus> result = await controller.GetStatus() as OkNegotiatedContentResult<ServiceStatus>;
 
-//        [TestMethod]
-//        public async Task GetStatus_RepositoryThrowsException_LogsAndReturnsInternalServerError()
-//        {
-//            // Arrange
-//            var statusRepo = new Mock<IStatusRepository>();
-//            var exception = new Exception();
-//            statusRepo.Setup(r => r.GetStatus()).Throws(exception);
-//            var log = new Mock<IServiceLogRepository>();
-//            var controller = new StatusController(statusRepo.Object, log.Object) { Request = new HttpRequestMessage() };
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("MyServiceName", result.Content.ServiceName);
+            Assert.AreEqual(null, result.Content.AccessInfo);
 
-//            // Act
-//            IHttpActionResult result = await controller.GetStatus();
 
-//            // Assert
-//            log.Verify(l => l.LogError(WebApiConfig.LogSourceStatus, exception, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
-//            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
-//        }
+        }
 
-//        #endregion GetStatus
-//    }
-//}
+        [TestMethod]
+        public async Task GetStatus_HelperReturnsGoodStatus_ReturnsOkWithCorrectContent()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName" });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
+
+            // Act
+            OkNegotiatedContentResult<ServiceStatus> result = await controller.GetStatus("mypreauthorizedkey") as OkNegotiatedContentResult<ServiceStatus>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("MyServiceName", result.Content.ServiceName);
+        }
+
+        [TestMethod]
+        public async Task GetStatus_HelperReturnsWithErrors_ReturnsInternalServerErrorWithCorrectContent()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = false, ServiceName = "MyServiceName" });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
+
+            // Act
+            ResponseMessageResult result = await controller.GetStatus("mypreauthorizedkey") as ResponseMessageResult;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(HttpStatusCode.InternalServerError, result.Response.StatusCode);
+
+            var content = await result.Response.Content.ReadAsAsync<ServiceStatus>();
+            Assert.AreEqual("MyServiceName", content.ServiceName);
+        }
+
+
+
+        private static StatusController CreateController(IStatusControllerHelper statusControllerHelper, string preAuthorizedKey = null)
+        {
+            var controller = new StatusController(statusControllerHelper, preAuthorizedKey)
+            {
+                Request = new HttpRequestMessage(),
+                Configuration = new HttpConfiguration()
+            };
+
+            return controller;
+        }
+
+        #endregion GetStatus
+
+        #region StatusUpcheck
+        [TestMethod]
+        public void GetStatusUpcheck_ReturnsOk()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName" });
+            var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
+
+            // Act
+            IHttpActionResult result = controller.GetStatusUpCheck();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+        #endregion
+    }
+}

@@ -13,6 +13,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories.ConfigControl;
+using AdminStore.Helpers;
 
 namespace AdminStore.Controllers
 {
@@ -45,19 +46,22 @@ namespace AdminStore.Controllers
         /// Returns the latest jobs.
         /// </remarks>
         /// <response code="200">OK.</response>
+        /// <response code="400">BadRequest.</response>
         [HttpGet, NoCache]
         [Route(""), SessionRequired]
         [ResponseType(typeof(IEnumerable<JobInfo>))]
-        public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
+        public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
             try
             {
                 var session = GetSession(Request);
-                int jobPageSize = GetPageSize(pageSize);
-                int jobPage = GetPage(page, 1, 1);
-                int offset = (jobPage - 1) * jobPageSize;
 
-                return await _jobsRepository.GetVisibleJobs(session.UserId, offset, jobPageSize, jobType);
+                JobsValidationHelper jobsHelper = new JobsValidationHelper();
+                jobsHelper.Validate(page, pageSize);
+
+                int offset = (page.Value - 1) * pageSize.Value;
+
+                return Ok(await _jobsRepository.GetVisibleJobs(session.UserId, offset, pageSize, jobType));
             }
             catch (Exception exception)
             {
@@ -76,12 +80,13 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("{jobId:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(JobInfo))]
-        public async Task<JobInfo> GetJob(int jobId)
+        public async Task<IHttpActionResult> GetJob(int jobId)
         {
             try
             {
                 var session = GetSession(Request);
-                return await _jobsRepository.GetJob(jobId, session.UserId);
+
+                return Ok(await _jobsRepository.GetJob(jobId, session.UserId));
             }
             catch (Exception exception)
             {
@@ -92,7 +97,7 @@ namespace AdminStore.Controllers
 
         [HttpGet, NoCache]
         [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
-        public async Task<HttpResponseMessage> GetJobResultFile(int jobId)
+        public async Task<IHttpActionResult> GetJobResultFile(int jobId)
         {
             var session = GetSession(Request);
             var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, Request.RequestUri, Session.Convert(session.SessionId));
@@ -105,7 +110,7 @@ namespace AdminStore.Controllers
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.Info.Type);
             response.Content.Headers.ContentLength = file.Info.Size;
 
-            return response;
+            return ResponseMessage(response);
         }
 
         #endregion
@@ -119,23 +124,6 @@ namespace AdminStore.Controllers
             }
 
             return (Session)sessionValue;
-        }
-
-        private int GetPageSize(int? pageSize)
-        {
-            var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);
-            if (jobPageSize <= 0)
-            {
-                return WebApiConfig.JobDetailsPageSize;
-            }
-
-            return jobPageSize;
-        }
-
-        private int GetPage(int? requestedPage, int minPage, int defaultPage)
-        {
-            int page = requestedPage.GetValueOrDefault(defaultPage);
-            return page < minPage ? defaultPage : page;
         }
     }
 }

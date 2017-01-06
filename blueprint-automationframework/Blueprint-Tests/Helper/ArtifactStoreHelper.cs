@@ -654,6 +654,18 @@ namespace Helper
         #endregion Custom Asserts
 
         /// <summary>
+        /// Creates Embedded Image html for the artifact property
+        /// </summary>
+        /// <param name="imageGUID">Image GUID for embedded image</param>
+        /// <returns>Html string</returns>
+        public static string CreateEmbeddedImageHtml(string imageGUID)
+        {
+            Assert.IsNotNullOrEmpty(imageGUID, "Image GUID should not be null or empty!");
+
+            return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
+        }
+
+        /// <summary>
         /// Gets the custom data project.
         /// </summary>
         /// <returns>The custom data project.</returns>

@@ -40,6 +40,8 @@ export class LoginCtrl extends BaseDialogController {
     public currentFormState: LoginState;
     public lastFormState: LoginState;
 
+    private _isSamlLoginAttempt: boolean;
+
     public get isInLoginForm(): boolean {
         return this.currentFormState === LoginState.LoginForm || this.lastFormState === LoginState.LoginForm;
     }
@@ -152,6 +154,7 @@ export class LoginCtrl extends BaseDialogController {
     }
 
     public doSamlLogin(): void {
+        this._isSamlLoginAttempt = true;
         this.session.loginWithSaml(false).then(
             () => {
                 this.isLabelErrorStyleShowing = false;
@@ -219,14 +222,14 @@ export class LoginCtrl extends BaseDialogController {
             this.isConfirmPasswordFieldErrorStyleShowing = true;
             return;
         }
-        if (this.novaNewPassword === this.novaUserName) {
+        if (_.toLower(this.novaNewPassword) === _.toLower(this.novaUserName)) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             this.isConfirmPasswordFieldErrorStyleShowing = false;
             return;
         }
-        if (this.novaNewPassword === this.novaDisplayName) {
+        if (this.novaDisplayName && _.toLower(this.novaNewPassword) === _.toLower(this.novaDisplayName)) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
@@ -351,11 +354,12 @@ export class LoginCtrl extends BaseDialogController {
             this.isLabelErrorStyleShowing = false;
             this.isTextFieldErrorStyleShowing = false;
             let result: ILoginInfo = new ILoginInfo();
-            if (this.novaUserName) {
+            if (this._isSamlLoginAttempt) {
+                result.samlLogin = true;
+            }
+            else if (this.novaUserName) {
                 result.userName = this.novaUserName;
                 result.password = this.novaPassword;
-            } else {
-                result.samlLogin = true;
             }
             result.loginSuccessful = false;
 

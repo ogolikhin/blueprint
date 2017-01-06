@@ -37,7 +37,11 @@ namespace ServiceLibrary.Helpers
 
         public const int DefaultSearchTimeout = 120;
 
-        public const int JobsDetailsPageSize = 10;
+        public const int JobsDefaultPageSize = 10;
+
+        public const int JobsMaxPageSize = 200;
+
+        public const int JobsDefaultPage = 1;
 
         public const string NoPermissions = "<No Permission>";
 

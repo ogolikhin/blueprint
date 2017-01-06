@@ -34,8 +34,10 @@
         public const int SqlTimeoutNumber = -2;
         public const int SqlErrorInFtsSyntax = 7630;
 
-        //Job management errors
-        public const int JobNotCompleted = 8000;
-        public const int JobResultFileNotSupported = 8001;
+        //Jobs Parameter Validation Errors
+        public const int PageNullOrNegative = 8000;
+        public const int PageSizeNullOrOutOfRange= 8001;
+        public const int JobNotCompleted = 8002;
+        public const int ResultFileNotSupported = 8003;
     }
 }

@@ -30,29 +30,26 @@ export class Helper {
     }
 
     static escapeQuot = (stringToEscape: string): string => {
-        if (stringToEscape) {
-            return stringToEscape.replace(/"/g, "&quot;");
-        }
-
-        return "";
+        const content = (stringToEscape || "").toString();
+        return _.replace(content, /"/g, "&quot;");
     };
 
     static stripHTMLTags = (stringToSanitize: string): string => {
-        const stringSanitizer = window.document.createElement("DIV");
-        stringSanitizer.innerHTML = stringToSanitize;
+        const stringSanitizer = document.createElement("DIV");
+        stringSanitizer.innerHTML = Helper.replaceImgSrc(stringToSanitize, true);
         return stringSanitizer.textContent || stringSanitizer.innerText || "";
     };
 
     static escapeHTMLText = (stringToEscape: string): string => {
-        const stringEscaper = window.document.createElement("TEXTAREA");
+        const stringEscaper = document.createElement("TEXTAREA");
         stringEscaper.textContent = stringToEscape;
         return stringEscaper.innerHTML;
     };
 
     static stripWingdings(htmlText: string): string {
-        let _htmlText = htmlText || "";
-        let wingdingsRegEx = /font-family:[ ]?['"]?Wingdings['"]?/gi;
-        return _htmlText.replace(wingdingsRegEx, "");
+        const content = (htmlText || "").toString();
+        const re = /font-family:[ ]?['"]?Wingdings['"]?/gi;
+        return _.replace(content, re, "");
     };
 
     static autoLinkURLText(node: Node) {
@@ -79,7 +76,7 @@ export class Helper {
                     Helper.autoLinkURLText(child);
                 } else if (child.nodeType === 3) {
                     let nodeText: string = child.textContent;
-                    let urls = nodeText.match(urlPattern);
+                    const urls = nodeText.match(urlPattern);
                     if (urls) {
                         urls.forEach((url) => {
                             let defaultProtocol = "";
@@ -87,9 +84,9 @@ export class Helper {
                                 defaultProtocol = "http://";
                             }
 
-                            nodeText = nodeText.replace(url, `<a href="${defaultProtocol + url}" target="_blank">${url}</a>`);
+                            nodeText = _.replace(nodeText, url, `<a href="${defaultProtocol + url}" target="_blank">${url}</a>`);
                         });
-                        let span = document.createElement("span");
+                        const span = document.createElement("span");
                         span.innerHTML = nodeText;
                         child.parentNode.replaceChild(span, child);
                     }
@@ -175,34 +172,34 @@ export class Helper {
 
     static tagsContainText(htmlText: string): boolean {
         const div = document.createElement("div");
-        div.innerHTML = (htmlText || "").toString();
+        div.innerHTML = Helper.replaceImgSrc((htmlText || "").toString(), true);
         let content = div.innerText.trim();
-        content = content.replace(/\s/gi, ""); // remove any "spacing" characters
-        content = content.replace(/[^\x00-\x7F]/gi, ""); // remove non ASCII characters
+        content = _.replace(content, /\s/gi, ""); // remove any "spacing" characters
+        content = _.replace(content, /[^\x00-\x7F]/gi, ""); // remove non ASCII characters
         return content !== "";
     }
 
-    static stripTinyMceBogusChars(html: string): string {
+    static stripTinyMceBogusChars(htmlText: string): string {
         const bogusRegEx = /<br data-mce-bogus="1">/gi;
         const zeroWidthNoBreakSpaceRegEx = /[\ufeff\u200b]/g;
 
-        let _html = html || "";
-        _html = _html.replace(bogusRegEx, "");
-        _html = _html.replace(zeroWidthNoBreakSpaceRegEx, "");
+        let content = (htmlText || "").toString();
+        content = _.replace(content, bogusRegEx, "");
+        content = _.replace(content, zeroWidthNoBreakSpaceRegEx, "");
 
-        return _html;
+        return content;
     }
 
-    static getHtmlBodyContent(html: string): string {
+    static getHtmlBodyContent(htmlText: string): string {
         // this method is for cleaning extra tags added by SilverLight on Rich Text Areas
-        let content = html || "";
-        content = content.replace(/<span class="mceNonEditable">(.*)<\/span>/gi, "$1");
-        content = content.replace(/mceNonEditable/gi, "");
-        content = content.replace(/(<a [^>]*linkassemblyqualifiedname[^>]*>.*<\/a>)/gi, `<span class="mceNonEditable">$1</span>`);
+        let content = (htmlText || "").toString();
+        content = _.replace(content, /<span class="mceNonEditable">(.*)<\/span>/gi, "$1");
+        content = _.replace(content, /mceNonEditable/gi, "");
+        content = _.replace(content, /(<a [^>]*linkassemblyqualifiedname[^>]*>.*<\/a>)/gi, `<span class="mceNonEditable">$1</span>`);
 
         const div = document.createElement("div");
-        div.innerHTML = content;
-        return div.innerHTML;
+        div.innerHTML = Helper.replaceImgSrc(content, true);
+        return Helper.replaceImgSrc(div.innerHTML, false);
     }
 
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
@@ -266,5 +263,17 @@ export class Helper {
             return false;
         }
         return true;
+    }
+
+    public static replaceImgSrc(imgTag: string, cloakSrc: boolean): string {
+        if (!_.isString(imgTag)) {
+            return imgTag;
+        }
+        // We exploit the dataset property to avoid requesting images while working with in-memory DOM elements
+        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset
+        const replaceFrom = cloakSrc ? " src=" : " data-temp-src=";
+        const replaceTo = cloakSrc ? " data-temp-src=" : " src=";
+        const re = new RegExp("<(img.*)" + replaceFrom + "(.*)>", "gi");
+        return _.replace(imgTag, re, "<$1" + replaceTo + "$2>");
     }
 }

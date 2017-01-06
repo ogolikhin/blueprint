@@ -114,7 +114,7 @@ namespace AdminStore.Repositories.Jobs
                     return await _fileRepository.GetFileAsync(baseAddress, fileId, sessionToken);
 
                 default:
-                    throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.JobResultFileNotSupported);
+                    throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.ResultFileNotSupported);
             }
         }
 
@@ -170,7 +170,7 @@ namespace AdminStore.Repositories.Jobs
             param.Add("@receiverJobServiceId", null);
             param.Add("@doNotFetchResult", doNotFetchResult);
             param.Add("@offset", offset ?? 0);
-            param.Add("@limit", limit ?? WebApiConfig.JobDetailsPageSize);
+            param.Add("@limit", limit ?? ServiceConstants.JobsDefaultPageSize);
             param.Add("@jobTypeFilter", jobType != JobType.None ? jobType : null);
 
             try
@@ -192,8 +192,8 @@ namespace AdminStore.Repositories.Jobs
 
         private JobInfo GetJobInfo
         (
-            DJobMessage jobMessage,
-            IDictionary<int, List<SystemMessage>> systemMessageMap,
+            DJobMessage jobMessage, 
+            IDictionary<int, List<SystemMessage>> systemMessageMap, 
             IDictionary<int, string> projectNameMap
         )
         {
@@ -201,9 +201,9 @@ namespace AdminStore.Repositories.Jobs
             {
                 UserDisplayName = jobMessage.DisplayName,
                 JobId = jobMessage.JobMessageId,
-                SubmittedDateTime = jobMessage.SubmittedTimestamp.Value,
-                JobStartDateTime = jobMessage.StartTimestamp,
-                JobEndDateTime = jobMessage.EndTimestamp,
+                SubmittedDateTime = DateTime.SpecifyKind(jobMessage.SubmittedTimestamp.Value, DateTimeKind.Utc),
+                JobStartDateTime = jobMessage.StartTimestamp == null ? jobMessage.StartTimestamp : DateTime.SpecifyKind(jobMessage.StartTimestamp.Value, DateTimeKind.Utc),
+                JobEndDateTime = jobMessage.EndTimestamp == null ? jobMessage.EndTimestamp : DateTime.SpecifyKind(jobMessage.EndTimestamp.Value, DateTimeKind.Utc),
                 JobType = jobMessage.Type,
                 Progress = jobMessage.Progress,
                 Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
@@ -211,10 +211,10 @@ namespace AdminStore.Repositories.Jobs
                 Status = jobMessage.Status.Value,
                 UserId = jobMessage.UserId,
                 Output = jobMessage.StatusDescription,
-                StatusChanged = jobMessage.StatusChangedTimestamp != null,
+                StatusChanged = (jobMessage.StatusChangedTimestamp != null),
                 HasCancelJob = systemMessageMap.ContainsKey(jobMessage.JobMessageId),
                 ProjectId = jobMessage.ProjectId,
-                Result = jobMessage.Result
+                Result = jobMessage.Result,
             };
         }
 

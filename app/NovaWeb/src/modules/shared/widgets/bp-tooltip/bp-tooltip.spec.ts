@@ -1,25 +1,27 @@
-import "../..";
 import * as angular from "angular";
 import "angular-mocks";
+import {BPTooltip} from "./bp-tooltip";
+import "lodash";
 
 describe("Directive BP-Tooltip", () => {
+    angular.module("bp.widgets.tooltip", [])
+        .directive("bpTooltip", BPTooltip.factory());
+
+    const template = `<div><div bp-tooltip="{{tooltipContent}}"
+                                bp-tooltip-truncated="{{isTruncated}}"
+                                bp-tooltip-limit="{{limit}}"
+                                style="{{tooltipStyle}}">{{tooltipTrigger}}</div></div>`;
+    const templateNested = `<div><div bp-tooltip="{{tooltipContent}}"
+                                      bp-tooltip-truncated="{{isTruncated}}"
+                                      style="{{tooltipStyle}}"><span>{{tooltipTrigger}}</span></div></div>`;
+    const template2xNested = `<div><div bp-tooltip="{{tooltipContent}}"
+                                        bp-tooltip-truncated="{{isTruncated}}"><div>
+                                        <div style="{{tooltipStyle}}">{{tooltipTrigger}}</div>
+                                        </div></div></div>`;
+
     const tooltipTrigger = `<div><div bp-tooltip="Tooltip's content">Tooltip trigger</div></div>`;
 
-    const tooltipTriggerNotTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true">Tooltip trigger</div></div>`;
-
-    const tooltipTriggerTruncated = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"
-                                     style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">
-                                     Tooltip trigger with looooong text</div></div>`;
-
-    const tooltipTriggerTruncatedNested = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true" 
-                                           style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">
-                                           <span>Tooltip trigger with looooong text</span></div></div>`;
-
-    const tooltipTriggerTruncatedNested2x = `<div><div bp-tooltip="Tooltip's content" bp-tooltip-truncated="true"><div>
-                                             <div style="text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;">Tooltip trigger</div>
-                                             </div></div></div>`;
-
-    beforeEach(angular.mock.module("app.shared"));
+    beforeEach(angular.mock.module("bp.widgets.tooltip"));
 
     afterEach(function () {
         angular.element("body").empty();
@@ -29,21 +31,111 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTrigger)(scope);
+                const tooltipContent = "Tooltip's content";
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).toContain("show");
-                expect(tooltip.textContent).toContain("Tooltip's content");
+                expect(tooltip.textContent).toBe(tooltipContent);
+            }
+        )
+    );
+
+    it("shows a truncated tooltip (set limit)",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                const tooltipContent = "Tooltip's content";
+                const limit = 4;
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                scope["limit"] = limit;
+                const element = $compile(template)(scope);
+                angular.element("body").append(element);
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                const trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+
+                // Assert
+                expect(tooltip).toBeDefined();
+                expect(tooltip.classList).toContain("show");
+                expect(tooltip.textContent).toBe(tooltipContent.slice(0, limit) + "…");
+            }
+        )
+    );
+
+    it("shows a truncated tooltip (default limit)",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                const defaultLimit = 250;
+                const randomString = [];
+                for (let i = 0; i < defaultLimit + 50; i++) {
+                    randomString[i] = _.random(48, 122);
+                }
+                const tooltipContent = String.fromCharCode(...randomString);
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
+                angular.element("body").append(element);
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                const trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+
+                // Assert
+                expect(tooltip).toBeDefined();
+                expect(tooltip.classList).toContain("show");
+                expect(tooltip.textContent).toBe(tooltipContent.slice(0, defaultLimit) + "…");
+            }
+        )
+    );
+
+    it("shows the whole tooltip if the limit is bigger then the tooltip's length",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                const tooltipContent = "Tooltip's content";
+                const limit = 40;
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                scope["limit"] = limit;
+                const element = $compile(template)(scope);
+                angular.element("body").append(element);
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                const trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+
+                // Assert
+                expect(tooltip).toBeDefined();
+                expect(tooltip.classList).toContain("show");
+                expect(tooltip.textContent).toBe(tooltipContent);
             }
         )
     );
@@ -52,16 +144,19 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTriggerNotTruncated)(scope);
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = "Tooltip's content";
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                scope["isTruncated"] = true;
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
                 expect(tooltip).toBeNull();
@@ -73,21 +168,26 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTriggerTruncated)(scope);
+                const tooltipContent = "Tooltip's content";
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger with looooong text";
+                scope["isTruncated"] = true;
+                scope["tooltipStyle"] = "text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;";
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).toContain("show");
-                expect(tooltip.textContent).toContain("Tooltip's content");
+                expect(tooltip.textContent).toBe(tooltipContent);
             }
         )
     );
@@ -96,21 +196,26 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTriggerTruncatedNested)(scope);
+                const tooltipContent = "Tooltip's content";
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger with looooong text";
+                scope["isTruncated"] = true;
+                scope["tooltipStyle"] = "text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;";
+                const element = $compile(templateNested)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).toContain("show");
-                expect(tooltip.textContent).toContain("Tooltip's content");
+                expect(tooltip.textContent).toBe(tooltipContent);
             }
         )
     );
@@ -119,16 +224,20 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTriggerTruncatedNested2x)(scope);
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = "Tooltip's content";
+                scope["tooltipTrigger"] = "Tooltip trigger with looooong text";
+                scope["isTruncated"] = true;
+                scope["tooltipStyle"] = "text-overflow: ellipsis; width: 50px; overflow: hidden; white-space: nowrap;";
+                const element = $compile(template2xNested)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
                 expect(tooltip).toBeNull();
@@ -140,22 +249,27 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTrigger)(scope);
+                const tooltipContent = "Tooltip's content";
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltipOver = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 trigger.dispatchEvent(new Event("mouseout", {"bubbles": true}));
-                tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltipOut = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
-                expect(tooltip).toBeNull();
+                expect(tooltipOver).toBeDefined();
+                expect(tooltipOver.textContent).toBe(tooltipContent);
+                expect(tooltipOut).toBeNull();
             }
         )
     );
@@ -164,24 +278,25 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTrigger)(scope);
+                const tooltipContent = "Tooltip's content";
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = tooltipContent;
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 scope.$digest();
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>trigger.querySelector("div.bp-tooltip");
-
                 trigger.dispatchEvent(new Event("mousedown", {"bubbles": true}));
-                tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
                 // Assert
                 expect(tooltip).toBeDefined();
                 expect(tooltip.classList).not.toContain("show");
-                expect(tooltip.textContent).toContain("Tooltip's content");
+                expect(tooltip.textContent).toBe(tooltipContent);
             }
         )
     );
@@ -190,25 +305,28 @@ describe("Directive BP-Tooltip", () => {
             inject(
                 ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                     // Arrange
-                    let scope = $rootScope.$new();
-                    let element = $compile(tooltipTrigger)(scope);
+                    const updatedContent = "Updated tooltip's content";
+                    const scope = $rootScope.$new();
+                    scope["tooltipContent"] = "Tooltip's content";
+                    scope["tooltipTrigger"] = "Tooltip trigger";
+                    const element = $compile(template)(scope);
                     angular.element("body").append(element);
                     scope.$digest();
 
                     // Act
                     $rootScope.$apply();
-                    let trigger = <HTMLElement>element[0].firstChild;
+                    const trigger = <HTMLElement>element[0].firstChild;
                     trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                    let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                    const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
-                    trigger.setAttribute("bp-tooltip", "Updated tooltip's content");
+                    trigger.setAttribute("bp-tooltip", updatedContent);
 
                     // Assert
                     expect(tooltip).toBeDefined();
                     expect(tooltip.classList).toContain("show");
 
                     setTimeout(function () {
-                        expect(tooltip.textContent).toContain("Updated tooltip's content");
+                        expect(tooltip.textContent).toBe(updatedContent);
                         done();
                     }, 100);
                 }
@@ -220,8 +338,10 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTrigger)(scope);
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = "Tooltip's content";
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 document.body.style.width = "400px";
                 document.body.style.height = "400px";
@@ -229,11 +349,11 @@ describe("Directive BP-Tooltip", () => {
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
-                let ev = document.createEvent("MouseEvent");
+                const ev = document.createEvent("MouseEvent");
                 ev.initMouseEvent(
                     "mousemove",
                     true /* bubble */, true /* cancelable */,
@@ -258,8 +378,10 @@ describe("Directive BP-Tooltip", () => {
         inject(
             ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
                 // Arrange
-                let scope = $rootScope.$new();
-                let element = $compile(tooltipTrigger)(scope);
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = "Tooltip's content";
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
                 angular.element("body").append(element);
                 document.body.style.width = "400px";
                 document.body.style.height = "400px";
@@ -267,11 +389,11 @@ describe("Directive BP-Tooltip", () => {
 
                 // Act
                 $rootScope.$apply();
-                let trigger = <HTMLElement>element[0].firstChild;
+                const trigger = <HTMLElement>element[0].firstChild;
                 trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
-                let tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
 
-                let ev = document.createEvent("MouseEvent");
+                const ev = document.createEvent("MouseEvent");
                 ev.initMouseEvent(
                     "mousemove",
                     true /* bubble */, true /* cancelable */,

@@ -197,13 +197,7 @@ namespace ServiceLibrary.Repositories
             itemsPrm.Add("@userId", userId);
             itemsPrm.Add("@addDrafts", addDrafts);
             itemsPrm.Add("@revisionId", revisionId);
-            var result = (await ConnectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
-            if (addDrafts && result == null)
-            {
-                // artifact might have been deleted in a draft only. in this case we return last published.
-                return (await GetItemInfo(itemId, userId, false, revisionId));
-            }
-            return result;
+            return (await ConnectionWrapper.QueryAsync<ItemInfo>("GetItemInfo", itemsPrm, commandType: CommandType.StoredProcedure)).SingleOrDefault();
         }
     }
 }

@@ -241,34 +241,28 @@ export class SvgImageShape extends mxActor {
             let tY: number = 0;
 
             if (!isFinite(sX)) {
-                sX = 1;
-                tX = w / 2;
+                sX = this.scale;
+                tX = (w * sX) / 2;
             }
             if (!isFinite(sY)) {
-                sY = 1;
-                tY = h / 2;
+                sY = this.scale;
+                tY = (h * sY) / 2;
             }
 
             tX += x * this.scale - nbbox.x * sX;
             tY += y * this.scale - nbbox.y * sY;
 
-            if (isFinite(sX) && isFinite(sY)) {
-                canvas.node.setAttribute("transform", "translate(" + tX + ", " + tY + ") scale(" + sX + ", " + sY + ")");
-            }
+            canvas.node.setAttribute("transform", "translate(" + tX + ", " + tY + ") scale(" + sX + ", " + sY + ")");
 
             let shadow = mxUtils.getValue(this.style, mxConstants.STYLE_SHADOW, 0);
             if (shadow) {
                 let n = <SVGElement>canvas.node;
                 let shadowNode = n.previousSibling;
                 if (shadowNode != null) {
-
                     let shadowDx = canvas.state.shadowDx * canvas.state.scale;
                     let shadowDy = canvas.state.shadowDy * canvas.state.scale;
-
-                    if (isFinite(sX) && isFinite(sY)) {
-                        let attr = "translate(" + (tX + shadowDx) + ", " + (tY + shadowDy) + ") scale(" + sX + ", " + sY + ")";
-                        (<any>shadowNode).setAttribute("transform", attr);
-                    }
+                    let attr = "translate(" + (tX + shadowDx) + ", " + (tY + shadowDy) + ") scale(" + sX + ", " + sY + ")";
+                    (<any>shadowNode).setAttribute("transform", attr);
                 }
             }
         }

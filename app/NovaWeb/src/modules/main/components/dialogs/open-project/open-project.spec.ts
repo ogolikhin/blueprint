@@ -39,7 +39,7 @@ describe("OpenProjectController", () => {
         expect(controller.returnValue).toEqual(model);
     }));
 
-    it("onSelect, when selected folder, sets selection", inject(($browser) => {
+    it("onSelect, when selected folder, sets selection", inject(() => {
         // Arrange
         const model = {
             id: 2,

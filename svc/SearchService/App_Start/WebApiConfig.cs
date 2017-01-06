@@ -21,5 +21,7 @@ namespace SearchService
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
         public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];
+
+        internal static string LogSourceStatus = "SearchService.Status";
     }
 }

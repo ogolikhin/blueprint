@@ -64,8 +64,11 @@ namespace AdminStore.Repositories.Jobs
             var actualUserId = await GetActualUserId(userId);
             var dJobMessages = await GetJobMessages(actualUserId, offset, limit, jobType, false);
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
-            var projectNameIdMap = await GetProjectNamesForUserMapping(
-                dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value).Distinct(), actualUserId);
+            var projectIds = new HashSet<int>
+            (
+                dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
+            );
+            var projectNameIdMap = await GetProjectNamesForUserMapping(projectIds, actualUserId);
 
             return dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
         }
@@ -82,7 +85,7 @@ namespace AdminStore.Repositories.Jobs
 
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });
             var projectNameMappings = job.ProjectId.HasValue ? 
-                await GetProjectNamesForUserMapping(new[] { job.ProjectId.Value }, actualUserId) : 
+                await GetProjectNamesForUserMapping(new HashSet<int> { job.ProjectId.Value }, actualUserId) : 
                 new Dictionary<int, string>();
 
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
@@ -238,7 +241,7 @@ namespace AdminStore.Repositories.Jobs
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
-        private async Task<Dictionary<int, string>> GetProjectNamesForUserMapping(IEnumerable<int> projectIds, int? userId)
+        private async Task<Dictionary<int, string>> GetProjectNamesForUserMapping(HashSet<int> projectIds, int? userId)
         {
             var projectNameIdDictionary = (await _sqlArtifactRepository.GetProjectNameByIds(projectIds)).ToDictionary(x => x.ItemId, x => x.Name);
             if (!userId.HasValue)
@@ -248,7 +251,7 @@ namespace AdminStore.Repositories.Jobs
 
             var projectIdPermissions = new List<KeyValuePair<int, RolePermissions>>();
 
-            int iterations = (int)Math.Ceiling((double)projectIds.Count() / 50);
+            int iterations = (int)Math.Ceiling((double)projectIds.Count / 50);
 
             for (int i = 0; i < iterations; i++)
             {

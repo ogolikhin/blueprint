@@ -1,27 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceLibrary.Helpers
 {
     public class HttpWebClient : IHttpWebClient
     {
-        public HttpWebRequest CreateHttpWebRequest(Uri requestUri, string method, string sessionToken, int timeout)
+        private readonly Uri _baseUri;
+        private readonly string _sessionToken;
+        private readonly int _timeout;
+
+        public HttpWebClient(Uri baseUri, string sessionToken, int timeout = ServiceConstants.DefaultRequestTimeout)
         {
+            _baseUri = baseUri;
+            _sessionToken = sessionToken;
+            _timeout = timeout;
+        }
+
+        public HttpWebRequest CreateHttpWebRequest(string requestAddress, string method)
+        {
+            var requestUri = new Uri(_baseUri, requestAddress);
             var request = WebRequest.CreateHttp(requestUri);
-            request.Headers[ServiceConstants.BlueprintSessionTokenKey] = sessionToken;
+            request.Headers[ServiceConstants.BlueprintSessionTokenKey] = _sessionToken;
             request.Method = method;
-            request.Timeout = timeout;
+            request.Timeout = _timeout;
 
             return request;
         }
 
         public async Task<HttpWebResponse> GetHttpWebResponseAsync(HttpWebRequest request)
         {
-            HttpWebResponse response = null;
+            HttpWebResponse response;
 
             try
             {
@@ -32,16 +41,8 @@ namespace ServiceLibrary.Helpers
                 if (ex.Status == WebExceptionStatus.Timeout)
                 {
                     // HttpWebRequest that gets created has ConnectionLimit = 2 by default when calling from remote host.
-                    throw new Exception
-                    (
-                        string.Format
-                        (
-                            "Timeout exception occured. Current connections: {0}, Connection limit: {1}\n{2}",
-                            request.ServicePoint.CurrentConnections,
-                            request.ServicePoint.ConnectionLimit,
-                            ex
-                        )
-                    );
+                    var message = $"Timeout exception occured. Current connections: {request.ServicePoint.CurrentConnections}, Connection limit: {request.ServicePoint.ConnectionLimit}\n{ex}";
+                    throw new Exception(message);
                 }
 
                 var exceptionResponse = ex.Response as HttpWebResponse;

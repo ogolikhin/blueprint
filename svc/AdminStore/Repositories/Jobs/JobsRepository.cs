@@ -12,6 +12,7 @@ using ServiceLibrary.Models.Files;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Models.Messaging;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Repositories.Jobs
 {
@@ -21,7 +22,6 @@ namespace AdminStore.Repositories.Jobs
         internal readonly ISqlArtifactRepository _sqlArtifactRepository;
         internal readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
         internal readonly IUsersRepository _usersRepository;
-        internal readonly IFileRepository _fileRepository;
 
         public JobsRepository() : 
             this
@@ -29,8 +29,7 @@ namespace AdminStore.Repositories.Jobs
                 new SqlConnectionWrapper(ServiceConstants.RaptorMain),
                 new SqlArtifactRepository(),
                 new SqlArtifactPermissionsRepository(),
-                new SqlUsersRepository(),
-                new FileRepository(new HttpWebClient())
+                new SqlUsersRepository()
             )
         {
         }
@@ -40,15 +39,13 @@ namespace AdminStore.Repositories.Jobs
             ISqlConnectionWrapper connectionWrapper, 
             ISqlArtifactRepository sqlArtifactRepository,
             IArtifactPermissionsRepository artifactPermissionsRepository,
-            IUsersRepository userRepository,
-            IFileRepository fileRepository
+            IUsersRepository userRepository
         )
         {
             ConnectionWrapper = connectionWrapper;
             _sqlArtifactRepository = sqlArtifactRepository;
             _artifactPermissionsRepository = artifactPermissionsRepository;
             _usersRepository = userRepository;
-            _fileRepository = fileRepository;
         }
 
         #region Public Methods
@@ -62,7 +59,7 @@ namespace AdminStore.Repositories.Jobs
         )
         {
             var actualUserId = await GetActualUserId(userId);
-            var dJobMessages = await GetJobMessages(actualUserId, offset, limit, jobType, false);
+            var dJobMessages = (await GetJobMessages(actualUserId, offset, limit, jobType, false)).ToList();
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
             var projectIds = new HashSet<int>
             (
@@ -91,7 +88,7 @@ namespace AdminStore.Repositories.Jobs
             return GetJobInfo(job, systemMessageMap, projectNameMappings);
         }
 
-        public async Task<File> GetJobResultFile(int jobId, int userId, Uri baseAddress, string sessionToken)
+        public async Task<File> GetJobResultFile(int jobId, int userId, IFileRepository fileRepository)
         {
             var job = await GetJob(jobId, userId);
             if (job == null)
@@ -114,7 +111,7 @@ namespace AdminStore.Repositories.Jobs
                 case JobType.ProjectExport:
                     var projectExportResult = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
                     var fileId = projectExportResult.Details.FileGuid;
-                    return await _fileRepository.GetFileAsync(baseAddress, fileId, sessionToken);
+                    return await fileRepository.GetFileAsync(fileId);
 
                 default:
                     throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.ResultFileNotSupported);
@@ -168,9 +165,9 @@ namespace AdminStore.Repositories.Jobs
 
             param.Add("@hidden", hidden);
             param.Add("@userId", userId);
-            param.Add("@projectId", null);
+            param.Add("@projectId");
             param.Add("@addFinished", addFinished);
-            param.Add("@receiverJobServiceId", null);
+            param.Add("@receiverJobServiceId");
             param.Add("@doNotFetchResult", doNotFetchResult);
             param.Add("@offset", offset ?? 0);
             param.Add("@limit", limit ?? ServiceConstants.JobsDefaultPageSize);

@@ -109,6 +109,11 @@ namespace AdminStore.Repositories.Jobs
             switch (job.JobType)
             {
                 case JobType.ProjectExport:
+                    if (fileRepository == null)
+                    {
+                        throw new ArgumentNullException(nameof(fileRepository));
+                    }
+
                     var projectExportResult = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
                     var fileId = projectExportResult.Details.FileGuid;
                     return await fileRepository.GetFileAsync(fileId);

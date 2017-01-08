@@ -20,7 +20,7 @@ namespace AdminStore.Controllers
     [ApiControllerJsonConfig]
     [RoutePrefix("jobs")]
     [BaseExceptionFilter]
-    public class JobsController : LoggableApiController
+    public partial class JobsController : LoggableApiController
     {
         private const string ContentDispositionType = "attachment";
 

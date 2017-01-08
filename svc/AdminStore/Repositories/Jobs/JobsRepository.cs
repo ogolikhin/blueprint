@@ -101,11 +101,6 @@ namespace AdminStore.Repositories.Jobs
                 throw new BadRequestException("Job is not completed", ErrorCodes.JobNotCompleted);
             }
 
-            if (string.IsNullOrEmpty(job.Result))
-            {
-                throw new ResourceNotFoundException("Job doesn't have a result", ErrorCodes.ResourceNotFound);
-            }
-
             switch (job.JobType)
             {
                 case JobType.ProjectExport:
@@ -216,10 +211,10 @@ namespace AdminStore.Repositories.Jobs
                 Status = jobMessage.Status.Value,
                 UserId = jobMessage.UserId,
                 Output = jobMessage.StatusDescription,
-                StatusChanged = (jobMessage.StatusChangedTimestamp != null),
+                StatusChanged = jobMessage.StatusChangedTimestamp != null,
                 HasCancelJob = systemMessageMap.ContainsKey(jobMessage.JobMessageId),
                 ProjectId = jobMessage.ProjectId,
-                Result = jobMessage.Result,
+                Result = jobMessage.Result
             };
         }
 

@@ -14,11 +14,6 @@ namespace ServiceLibrary.Repositories.Files
     public class FileRepository : IFileRepository
     {
         private const string DefaultFileName = "BlueprintFile";
-        private const string ContentDispositionHeader = "Content-Disposition";
-        private const string ContentTypeHeader = "Content-Type";
-        private const string StoredDateHeader = "Stored-Date";
-        private const string FileSizeHeader = "File-Size";
-        private const string FileChunkCountHeader = "File-Chunk-Count";
 
         private readonly IHttpWebClient _httpWebClient;
 
@@ -53,11 +48,14 @@ namespace ServiceLibrary.Repositories.Files
                     return new FileInfo
                     {
                         Name = GetFileName(response),
-                        Type = response.Headers.GetValue<MediaTypeHeaderValue>(ContentTypeHeader).MediaType,
-                        StoredDate = response.Headers.GetValue<DateTime>(StoredDateHeader),
-                        Size = response.Headers.GetValue<int>(FileSizeHeader),
-                        ChunkCount = response.Headers.GetValue<int>(FileChunkCountHeader)
+                        Type = response.Headers.GetValue<MediaTypeHeaderValue>(ServiceConstants.ContentTypeHeader).MediaType,
+                        StoredDate = response.Headers.GetValue<DateTime>(ServiceConstants.StoredDateHeader),
+                        Size = response.Headers.GetValue<int>(ServiceConstants.FileSizeHeader),
+                        ChunkCount = response.Headers.GetValue<int>(ServiceConstants.FileChunkCountHeader)
                     };
+
+                case HttpStatusCode.Unauthorized:
+                    throw new AuthenticationException("Authentication is required", ErrorCodes.UnauthorizedAccess);
 
                 case HttpStatusCode.NotFound:
                     throw new ResourceNotFoundException($"File with id {fileId} is not found", ErrorCodes.ResourceNotFound);
@@ -78,6 +76,9 @@ namespace ServiceLibrary.Repositories.Files
                 case HttpStatusCode.OK:
                     return new NetworkFileStream(response.GetResponseStream(), response.ContentLength);
 
+                case HttpStatusCode.Unauthorized:
+                    throw new AuthenticationException("Authentication is required", ErrorCodes.UnauthorizedAccess);
+
                 case HttpStatusCode.NotFound:
                     throw new ResourceNotFoundException($"File with id {fileId} is not found", ErrorCodes.ResourceNotFound);
 
@@ -88,7 +89,7 @@ namespace ServiceLibrary.Repositories.Files
 
         private static string GetFileName(HttpWebResponse response)
         {
-            var fileName = response.Headers.GetValue<ContentDispositionHeaderValue>(ContentDispositionHeader).FileName;
+            var fileName = response.Headers.GetValue<ContentDispositionHeaderValue>(ServiceConstants.ContentDispositionHeader).FileName;
 
             if (string.IsNullOrWhiteSpace(fileName))
             {

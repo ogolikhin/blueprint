@@ -13,10 +13,6 @@ namespace ServiceLibrary.Models.Jobs
 
     public class ProcessTestGenInfo
     {
-        public int ProjectId { get; set; }
-
         public int ProcessId { get; set; }
-
-        public bool GenerateForIncludedProcesses { get; set; }
     }
 }

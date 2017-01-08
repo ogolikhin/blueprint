@@ -19,7 +19,7 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized.</response>
         /// <response code="404">NotFound.</response>
         /// <response code="500">InternalServerError.</response>
-        [HttpPost, NoCache]
+        [HttpPost]
         [Route("process/testgen"), SessionRequired]
         [ResponseType(typeof(ProcessTestGenerationResult))]
         public async Task<IHttpActionResult> GenerateProcessTests([FromBody] ProcessTestGenerationRequest request)

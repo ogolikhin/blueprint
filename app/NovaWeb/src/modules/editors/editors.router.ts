@@ -1,7 +1,6 @@
 import {ItemStateController} from "./item-state/item-state.controller";
 import {IArtifactManager} from "../managers";
-import {IItemInfoService} from "../core/navigation/item-info.svc";
-import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
+import {IItemStateService} from "./item-state/item-state.svc";
 
 export class ArtifactRoutes {
 
@@ -42,21 +41,11 @@ export class ArtifactRoutes {
                     path: {array : false}
                 },
                 resolve: {
-                    itemInfo: ["$stateParams", "$q", "itemInfoService", "loadingOverlayService",
-                        ($stateParams: ng.ui.IStateParamsService,
-                         $q: ng.IQService,
-                         itemInfoService: IItemInfoService,
-                         loadingOverlayService: ILoadingOverlayService) => {
+                    itemInfo: ["$stateParams", "itemStateService",
+                        ($stateParams: ng.ui.IStateParamsService, itemStateService: IItemStateService) => {
 
                         const id = parseInt($stateParams["id"], 10);
-                        if (_.isFinite(id)) {
-                            const loaderId = loadingOverlayService.beginLoading();
-                            return itemInfoService.get(id).finally(() => {
-                                loadingOverlayService.endLoading(loaderId);
-                            });
-                        } else {
-                            return $q.reject();
-                        }
+                        return itemStateService.getItemInfoResult(id);
                     }],
                     saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
                 }

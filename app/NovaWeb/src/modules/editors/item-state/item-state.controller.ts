@@ -16,7 +16,7 @@ export class ItemStateController {
     public activeEditor: string;
 
     public static $inject = [
-        "$state",
+        "$stateParams",
         "artifactManager",
         "projectManager",
         "messageService",
@@ -24,11 +24,11 @@ export class ItemStateController {
         "navigationService",
         "itemInfoService",
         "statefulArtifactFactory",
-        "$rootScope",
+        "$timeout",
         "itemInfo"
     ];
 
-    constructor(private $state: angular.ui.IStateService,
+    constructor(private $stateParams: ng.ui.IStateParamsService,
                 private artifactManager: IArtifactManager,
                 private projectManager: IProjectManager,
                 private messageService: IMessageService,
@@ -36,10 +36,10 @@ export class ItemStateController {
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
-                private $rootScope: ng.IRootScopeService,
+                private $timeout: ng.ITimeoutService,
                 private itemInfo: IItemInfoResult) {
 
-        const version = parseInt($state.params["version"], 10);
+        const version = parseInt($stateParams["version"], 10);
 
         // TODO: remove ArtifactManager caching in future US
         const artifact = artifactManager.get(itemInfo.id);
@@ -93,7 +93,8 @@ export class ItemStateController {
             }
 
             this.activeEditor = null;
-            this.$rootScope.$applyAsync(() => {
+            this.$timeout(() => {
+                this.setSelectedArtifact(statefulArtifact);
                 this.setActiveEditor(statefulArtifact);
             });
         } else {
@@ -126,17 +127,15 @@ export class ItemStateController {
 
     private setSelectedArtifact(artifact: IStatefulArtifact) {
         // do not select artifact in explorer if navigated from another artifact
-        if (!this.$state.params["path"]) {
+        if (!this.$stateParams["path"]) {
             this.artifactManager.selection.setExplorerArtifact(artifact);
         }
 
         this.artifactManager.selection.setArtifact(artifact);
-        artifact.errorObservable().subscribeOnNext(this.onArtifactError);
+        artifact.errorObservable().subscribeOnNext(this.onArtifactError, this);
     }
 
     private setActiveEditor(artifact: IStatefulArtifact) {
-        this.setSelectedArtifact(artifact);
-
         switch (artifact.predefinedType) {
             case Models.ItemTypePredefined.GenericDiagram:
             case Models.ItemTypePredefined.BusinessProcess:
@@ -173,7 +172,7 @@ export class ItemStateController {
         }
     }
 
-    private onArtifactError = (error: IApplicationError) => {
+    private onArtifactError(error: IApplicationError) {
         if (error.statusCode === HttpStatusCode.NotFound) {
             // TODO: investigate
             this.navigationService.reloadParentState();

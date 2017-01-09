@@ -14,6 +14,7 @@ import {
     IPropertyDescriptorBuilder,
     PropertyDescriptorBuilder
 } from "./configuration/property-descriptor-builder";
+import {ItemStateService} from "./item-state/item-state.svc";
 
 angular.module("bp.editors", [
         "formly",
@@ -27,6 +28,7 @@ angular.module("bp.editors", [
         "bp.editors.jobs"
     ])
     .service("propertyDescriptorBuilder", PropertyDescriptorBuilder)
+    .service("itemStateService", ItemStateService)
     .config(ArtifactRoutes);
 
 export {IPropertyDescriptor, IPropertyDescriptorBuilder}

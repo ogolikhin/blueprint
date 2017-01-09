@@ -54,32 +54,32 @@
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                    <span>&nbsp;{{item.submittedDateTime | momentDateTime}}</span>
+                                    <span class="jobs__date">{{item.submittedDateTime | momentDateTime}}</span>
                                 </div>
                             </div>
                             <div class="row jobs__secondrow">
                                 <div class="col-xs-3">
                                     <i class="fonticon2-project jobs__projecticon--size"></i>
-                                    <span bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">{{item.project}}</span>
+                                    <span class ="jobs__projectname" bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">{{item.project}}</span>
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                    <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
+                                    <span class="jobs__date">{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
                                 </div>
                                 <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
-                                    <strong>{{::$root.config.labels["Jobs_Status"]}}:&nbsp;</strong>
-                                    <span ng-if="$ctrl.isJobRunning(item.status)">{{item.progress}}% Completed</span>
-                                    <span ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>
+                                    <strong>{{::$root.config.labels["Jobs_Status"]}}:</strong>
+                                    <span class="jobs__status" ng-if="$ctrl.isJobRunning(item.status)">{{item.progress}}% Completed</span>
+                                    <span class="jobs__status" ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>
                                 </div>
                             </div>
                             <div class="row jobs__thirdrow">
-                                <div class="col-xs-3  bp-tooltip="{{item.userDisplayName}}" bp-tooltip-truncated="true"">
+                                <div class="col-xs-3">
                                     <strong>{{::$root.config.labels["Jobs_User"]}}: </strong>
-                                    <span>{{item.userDisplayName}}</span>
+                                    <span class="jobs__authorname"  bp-tooltip="{{item.userDisplayName}}" bp-tooltip-truncated="true">{{item.userDisplayName}}</span>
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                    <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
+                                    <span class="jobs__date"> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
                                 </div>
                                 <div class="col-xs-4">
                                     <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>

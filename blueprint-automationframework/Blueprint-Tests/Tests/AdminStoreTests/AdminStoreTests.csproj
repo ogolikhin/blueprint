@@ -63,6 +63,7 @@
     <Compile Include="CustomUserIconTests.cs" />
     <Compile Include="InstanceFolderTests.cs" />
     <Compile Include="InstanceProjectTests.cs" />
+    <Compile Include="JobResultFileTests.cs" />
     <Compile Include="JobsTests.cs" />
     <Compile Include="LicensesTests.cs" />
     <Compile Include="ProjectNavigationPathTests.cs" />

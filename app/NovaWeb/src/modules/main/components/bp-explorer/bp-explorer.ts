@@ -203,7 +203,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (navigateToId !== selectedArtifactId) {
                 this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
             } else {
-                this.navigationService.reloadParentState();
+                this.navigationService.reloadCurrentState();
             }
 
             this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);

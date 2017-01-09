@@ -1,27 +1,25 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-
-import "../main";
-import {Models} from "../main/models";
-import {LocalizationServiceMock} from "../core/localization/localization.mock";
-import {MessageServiceMock} from "../core/messages/message.mock";
-import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
-import {IItemInfoService} from "../core/navigation/item-info.svc";
-import {ItemInfoServiceMock} from "../core/navigation/item-info.svc.mock";
-import {IArtifactManager} from "../managers/artifact-manager/artifact-manager";
-import {IProjectManager} from "../managers/project-manager/project-manager";
-import {IStatefulArtifact} from "../managers/artifact-manager/artifact/artifact";
-import {ArtifactManagerMock} from "../managers/artifact-manager/artifact-manager.mock";
-import {ProjectManagerMock} from "../managers/project-manager/project-manager.mock";
-import {IStatefulArtifactFactory} from "../managers/artifact-manager/artifact/artifact.factory";
-import {StatefulArtifactFactoryMock} from "../managers/artifact-manager/artifact/artifact.factory.mock";
+import "../../main";
+import {Models} from "../../main/models";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {MessageServiceMock} from "../../core/messages/message.mock";
+import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
+import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
+import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
+import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
+import {IProjectManager} from "../../managers/project-manager/project-manager";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
+import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
+import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
+import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./item-state.controller";
-import {IMessageService} from "../core/messages/message.svc";
-import {ILocalizationService} from "../core/localization/localizationService";
-import {INavigationService} from "../core/navigation/navigation.svc";
-import {MessageType, Message} from "../core/messages/message";
-import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
+import {INavigationService} from "../../core/navigation/navigation.svc";
+import {MessageType, Message} from "../../core/messages/message";
 
 describe("Item State Controller tests", () => {
     let $state: angular.ui.IStateService,
@@ -33,7 +31,6 @@ describe("Item State Controller tests", () => {
         messageService: IMessageService,
         navigationService: INavigationService,
         itemInfoService: IItemInfoService,
-        loadingOverlayService: ILoadingOverlayService,
         statefulArtifactFactory: IStatefulArtifactFactory,
         ctrl: ItemStateController,
         stateSpy;
@@ -57,7 +54,6 @@ describe("Item State Controller tests", () => {
         $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("projectManager", ProjectManagerMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
-        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
@@ -71,7 +67,6 @@ describe("Item State Controller tests", () => {
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
         _itemInfoService_: IItemInfoService,
-        _loadingOverlayService_: ILoadingOverlayService,
         _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         $state = _$state_;
@@ -83,7 +78,6 @@ describe("Item State Controller tests", () => {
         messageService = _messageService_;
         navigationService = _navigationService_;
         itemInfoService = _itemInfoService_;
-        loadingOverlayService = _loadingOverlayService_;
         statefulArtifactFactory = _statefulArtifactFactory_;
     }));
 
@@ -98,6 +92,20 @@ describe("Item State Controller tests", () => {
         if (version) {
             $state.params["version"] = version;
         }
+        const itemInfo = {
+            id: Number(id),
+            name: "text",
+            projectId: 277,
+            parentId: 277,
+            itemTypeId: 1162,
+            prefix: "RQ",
+            predefinedType: 4101,
+            versionCount: 1,
+            isDeleted: false,
+            hasChanges: false,
+            orderIndex: 20.0,
+            permissions: 8159
+        } as IItemInfoResult;
 
         return new ItemStateController(
             $state,
@@ -107,9 +115,9 @@ describe("Item State Controller tests", () => {
             localization,
             navigationService,
             itemInfoService,
-            loadingOverlayService,
             statefulArtifactFactory,
-            $rootScope);
+            $rootScope,
+            itemInfo);
     }
 
     afterEach(() => {
@@ -159,26 +167,6 @@ describe("Item State Controller tests", () => {
 
             afterEach(() => {
                 isArtifactSpy = undefined;
-            });
-
-            it("loading overlay is called", () => {
-                // arrange
-                const beginLoadingOverlaySpy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(1);
-                const endLoadingOverlaySpy = spyOn(loadingOverlayService, "endLoading");
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId});
-                    return deferred.promise;
-                });
-
-                // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
-
-                // assert
-                expect(beginLoadingOverlaySpy).toHaveBeenCalled();
-                expect(endLoadingOverlaySpy).toHaveBeenCalled();
-                expect(endLoadingOverlaySpy).toHaveBeenCalledWith(1);
             });
 
             it("diagram", () => {

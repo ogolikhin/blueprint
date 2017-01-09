@@ -174,6 +174,51 @@ namespace OpenAPITests
             Assert.That(artifact2DetailsAfter.Description.Contains(expectedImageTag), "The [Image = ID] tag didn't get saved properly!");
         }
 
+        [TestCase]
+        [TestRail(227202)]
+        [Category(Categories.ArtifactStore)]
+        [Description("Create an artifact and add text and an embedded image into one of it's Rich Text properties (using Nova).  Remove the [Image] tag from the Rich Text " +
+                     "property and save the artifact (using OpenAPI).  Verify that the image is removed in the Nova artifact.")]
+        public void Save_ArtifactWithImageInRichTextProperty_RemoveImage_ImageIsRemoved()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Process);
+            artifact.Lock(_authorUser);
+
+            const int numberOfImagesToAdd = 1;
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+
+            // Add some text after the image.
+            const string textToAppend = "<p>Appending some text here</p>";
+            artifactDetails.Description = artifactDetails.Description.Replace("</html>", textToAppend + "</html>");
+            Helper.ArtifactStore.UpdateArtifact(_authorUser, _project, artifactDetails as NovaArtifactDetails);
+
+            var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
+            var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));
+
+            var imageIds = VerifyImagesAreEmbeddedInArtifactAndGetImageIds(artifactDetails.Description, description, numberOfImagesToAdd);
+
+            // Delete the [Image] tag.
+            string imageTag = I18NHelper.FormatInvariant("[Image = {0}]", imageIds[0]);
+            Assert.That(description.TextOrChoiceValue.Contains(imageTag), "Couldn't find '{0}' in the description!", imageTag);
+            description.TextOrChoiceValue = description.TextOrChoiceValue.Replace(imageTag, string.Empty);
+
+            // Execute:
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+                "OpenAPI Save method shouldn't fail.");
+
+            // Verify:
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            Assert.That(artifactDetailsAfter.Description.Contains(textToAppend),
+                "The appended text wasn't found in the description!");
+            Assert.IsFalse(artifactDetailsAfter.Description.Contains(imageIds[0]),
+                "The embedded image ID was found in the description, even though we removed it!");
+        }
+
+        // TODO: Add a test where an image is copied to another Rich Text field.
+        // TODO: Add a test where an image is copied to a single line Rich Text field.  How should that behave?
+
         #endregion Save artifact with image tests
 
         #region Private functions

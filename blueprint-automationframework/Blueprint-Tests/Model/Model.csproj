@@ -93,10 +93,9 @@
     <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
     <Compile Include="IAlmTarget.cs" />
-    <Compile Include="ILicenseUsageInfo.cs" />
     <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />
-    <Compile Include="Impl\LicenseUsageInfo.cs" />
+    <Compile Include="Impl\LicenseUsage.cs" />
     <Compile Include="JobModel\Enums\JobType.cs" />
     <Compile Include="JobModel\IJob.cs" />
     <Compile Include="JobModel\Impl\Job.cs" />

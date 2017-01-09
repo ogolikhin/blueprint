@@ -269,7 +269,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAccessControl.GetLicenseUsage(int?, int?, List{HttpStatusCode})"/>
-        public IList<ILicenseUsageInfo> GetLicenseUsage(int? month = null, int? year = null, List < HttpStatusCode> expectedStatusCodes = null)
+        public IList<LicenseUsage> GetLicenseUsage(int? month = null, int? year = null, List < HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
@@ -285,13 +285,14 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting list of used licenses...");
 
-                var licenseUsageInfos = restApi.SendRequestAndDeserializeObject<List<LicenseUsageInfo>>(
+                var licenseUsageInfos = restApi.SendRequestAndDeserializeObject<List<LicenseUsage>>(
                     path,
                     RestRequestMethod.GET,
                     queryParameters: queryParameters,
-                    expectedStatusCodes: expectedStatusCodes);
+                    expectedStatusCodes: expectedStatusCodes,
+                    shouldControlJsonChanges: true);
 
-                return licenseUsageInfos.ConvertAll(o => (ILicenseUsageInfo)o);
+                return licenseUsageInfos;
             }
             catch (WebException ex)
             {

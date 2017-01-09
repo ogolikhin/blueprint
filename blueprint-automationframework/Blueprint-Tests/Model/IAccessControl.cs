@@ -1,4 +1,5 @@
-﻿using Model.Impl;
+﻿using Model;
+using Model.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -136,7 +137,7 @@ namespace Model
         /// <param name="year">(optional)Information for specific year. By default gets information for all years</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of ILicenseUsageInfo.</returns>
-        IList<ILicenseUsageInfo> GetLicenseUsage(int? month = null, int? year = null, List<HttpStatusCode> expectedStatusCodes = null);
+        IList<LicenseUsage> GetLicenseUsage(int? month = null, int? year = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of active sessions.

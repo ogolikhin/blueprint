@@ -21,6 +21,7 @@ namespace AdminStoreTests
     [Category(Categories.CustomData)]
     public class JobsTests : TestBase
     {
+        protected const string JOB_PATH = RestPaths.Svc.AdminStore.JOBS_id_;
         protected const string JOBS_PATH = RestPaths.Svc.AdminStore.JOBS;
         protected const int MAXIMUM_PAGESIZE_VALUE = 200;
         protected const int DEFAULT_BASELINEORREVIEWID = 83;
@@ -62,7 +63,7 @@ namespace AdminStoreTests
 
         #region 200 OK Tests
 
-        [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1 )]
+        [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 10)]
         [TestRail(227081)]
         [Description("GET Jobs using page and pageSize parameters. Verify that the returned JobResult use page and pageSize parameters.")]
@@ -104,7 +105,7 @@ namespace AdminStoreTests
                 "GET {0} call failed when using it with jobType ({1})!", JOBS_PATH, JobType.DocGen);
 
             // Validation: Verify that jobType filter works by checking the empty jobResult from Get Jobs call
-            JobResultValidation(jobResult: jobResult, pageSize: pageSize );
+            JobResultValidation(jobResult: jobResult, pageSize: pageSize);
 
         }
 
@@ -155,12 +156,29 @@ namespace AdminStoreTests
             JobResultValidation(jobResult: jobResult, pageSize: pageSize);
         }
 
+        [TestCase(DEFAULT_BASELINEORREVIEWID)]
+        [TestRail(227220)]
+        [Description("Get a Job with a user that created the job. Verify that the returned JobResult")]
+        public void GetJob_GetTheJobCreated_VerifyJobResult(int baselineOrReviewId)
+        {
+            // Setup: Create a ALM ChangeSummary job using the prepared ALM target
+            var createdJob = CreateALMSummaryJobsSetup(baselineOrReviewId, 1, _projectCustomData).First();
+
+            // Execute: Execute GetJob to retrieve the job using job ID and user
+            IJobInfo returnedJobInfo = null;
+            Assert.DoesNotThrow(() => returnedJobInfo = Helper.AdminStore.GetJob(_adminUser, createdJob.JobId),
+                "Get {0} call failed when using job Id {1}!", JOB_PATH, createdJob.JobId);
+
+            // Validation: Verify that jobResult is identical with job
+            JobResultValidation(jobResult: new List<IJobInfo>() { returnedJobInfo }, pageSize: 1, expectedJobs: new List<IOpenAPIJob>() { createdJob });
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
 
         [TestCase(null, 1, ErrorCodes.PageNullOrNegative)]
-        [TestCase(1,null, ErrorCodes.PageSizeNullOrOutOfRange)]
+        [TestCase(1, null, ErrorCodes.PageSizeNullOrOutOfRange)]
         [TestRail(213053)]
         [Description("GET Jobs without either page or pageSize. Verify that 400 bad request is returned.")]
         public void GetJobs_GetJobsWithoutEitherPageOrPageSize_400BadRequest(
@@ -242,7 +260,65 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Jobs which has invalid token", expectedExceptionMessage);
         }
 
+        [TestCase(int.MaxValue)]
+        [TestRail(227221)]
+        [Description("GET a Job with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized")]
+        public void GetJob_GetJobWithMissingSessionTokenHeader_401Unauthorized(int jobId)
+        {
+            // Setup: not required
+
+            // Execute: Execute GetJob using the user with missing session token header and dummy job Id
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: null, jobId: jobId),
+                "GET {0} call should return 401 Unauthorized if no Session-Token header was passed!", JOB_PATH);
+
+            // Validation: Exception should contain expected message.
+            const string expectedExceptionMessage = "Token is missing or malformed";
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of Nova GET Job which has no session token.", expectedExceptionMessage);
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(227222)]
+        [Description("GET a Job with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized")]
+        public void GetJob_GetJobWithInvalidSessionToken_401Unauthorized(int jobId)
+        {
+            // Setup: Not required
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute: Execute GetJob using the user with invalid session token and dummy job Id
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: userWithBadToken, jobId: jobId),
+                "GET {0} call should return 401 Unauthorized when using invalid session!", JOB_PATH);
+
+            // Validation: Exception should contain expected message.
+            const string expectedExceptionMessage = "Token is invalid";
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of Nova GET Job which has invalid token", expectedExceptionMessage);
+        }
+
         #endregion 401 Unauthorized Tests
+
+        #region 404 Not Found Tests
+
+        [TestCase(int.MaxValue)]
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestRail(227223)]
+        [Explicit(IgnoreReasons.ProductBug)] // TODO: updated after the tello bug is fixed: (https://trello.com/c/achvhWJn)
+        [Description("GET a Job using invalid job Id. Verify that 404 Not Found is returned.")]
+        public void GetJob_GetJobWithInvalidJobId_404NotFound(int jobId)
+        {
+            // Setup: Not required
+
+            // Execute: GetJob with invalid job Id
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetJob(_adminUser, jobId),
+                "GET {0} call should return 404 Not Found when using invalid job Id ({1})!", JOB_PATH, jobId);
+
+            //Validation: Verify that error code returned from the error response
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+                I18NHelper.FormatInvariant("Job does not exist with JobId: {0}", jobId));
+        }
+
+        #endregion 404 Not Found Tests
 
         #region private functions
 

@@ -115,7 +115,7 @@ export class DragDropHandler implements IDragDropHandler {
                 this.updateDragElt(false);
             }
         }
-        this.processGraph.layout.bridgesHandler.highlightBridges();
+        this.processGraph.highlightBridges();
     }
 
     private clearHighlight() {

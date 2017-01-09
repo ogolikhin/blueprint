@@ -133,6 +133,7 @@ export interface IProcessGraph {
     clearCopyGroupHighlight(): void;
     highlightCopyGroups(nodes: IDiagramNode[]): void;
     clearHighlightEdges(): void;
+    highlightBridges(): void;
     destroy(): void;
 }
 

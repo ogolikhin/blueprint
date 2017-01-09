@@ -54,7 +54,7 @@ export class ProcessGraphSelectionHelper {
                 }
 
                 this.notifySelectionChanged(selectedNodes);
-                this.processGraph.layout.bridgesHandler.highlightBridges();            
+                this.processGraph.highlightBridges();            
             }
         });
     }

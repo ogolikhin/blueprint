@@ -117,7 +117,7 @@ export interface IBPTreeViewControllerApi {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService"];
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$stateParams", "$log"];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
@@ -143,7 +143,9 @@ export class BPTreeViewController implements IBPTreeViewController {
                 private localization: ILocalizationService,
                 private $timeout: ng.ITimeoutService,
                 private windowManager: IWindowManager,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private $stateParams,
+                private $log: ng.ILogService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -187,12 +189,10 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             // Event handlers
             onRowGroupOpened: this.onRowGroupOpened,
-            onViewportChanged: this.onViewportChanged,
             onCellClicked: this.onCellClicked,
             onRowSelected: this.onRowSelected,
             onRowDoubleClicked: this.onRowDoubleClicked,
-            onGridReady: this.onGridReady,
-            onModelUpdated: this.onModelUpdated
+            onGridReady: this.onGridReady
         };
 
         this.options.context.allSelected = false;
@@ -291,20 +291,20 @@ export class BPTreeViewController implements IBPTreeViewController {
             this.options.rowDeselection = this.selectionMode !== "single";
 
             this.options.api.setColumnDefs(this.columns.map(column => ({
-                    headerName: column.headerName ? column.headerName : "",
-                    field: column.field,
-                    width: column.width,
-                    maxWidth: column.maxWidth,
-                    minWidth: column.minColWidth,
-                    suppressSizeToFit: column.suppressSizeToFit,
-                    cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
-                    cellRenderer: column.isGroup ? "group" : column.cellRenderer,
-                    cellRendererParams: column.isGroup ? this.getCellRendererParams(column) : undefined,
-                    checkboxSelection: column.isCheckboxSelection,
-                    suppressMenu: true,
-                    suppressSorting: true,
-                    headerCellRenderer: column.headerCellRenderer
-                } as agGrid.ColDef)));
+                headerName: column.headerName ? column.headerName : "",
+                field: column.field,
+                width: column.width,
+                maxWidth: column.maxWidth,
+                minWidth: column.minColWidth,
+                suppressSizeToFit: column.suppressSizeToFit,
+                cellClass: column.cellClass ? (params: agGrid.RowNode) => column.cellClass(params.data as ITreeNode) : undefined,
+                cellRenderer: column.isGroup ? "group" : column.cellRenderer,
+                cellRendererParams: column.isGroup ? this.getCellRendererParams(column) : undefined,
+                checkboxSelection: column.isCheckboxSelection,
+                suppressMenu: true,
+                suppressSorting: true,
+                headerCellRenderer: column.headerCellRenderer
+            } as agGrid.ColDef)));
 
             const selectedVMs: {[key: string]: ITreeNode} = {};
             this.options.api.getSelectedRows().forEach((row: ITreeNode) => selectedVMs[row.key] = row);
@@ -377,13 +377,6 @@ export class BPTreeViewController implements IBPTreeViewController {
         return this.$q.all(vm.children.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm)));
     }
 
-    public updateScrollbars() {
-        const viewport = this.$element[0].querySelector(".ag-body-viewport");
-        if (viewport && !this.sizeColumnsToFit) {
-            this.options.columnApi.autoSizeAllColumns();
-        }
-    };
-
     // Callbacks
 
     public getNodeChildDetails(dataItem: any): agGrid.NodeChildDetails {
@@ -422,13 +415,28 @@ export class BPTreeViewController implements IBPTreeViewController {
                     row.classList.add("ag-row-loading");
                 }
                 this.loadExpanded(vm)
-                    .then(() => this.resetGridAsync(true))
+                    .then(() => {
+                        this.resetGridAsync(true);
+                    })
                     .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
                     .finally(() => {
                         if (row) {
                             row.classList.remove("ag-row-loading");
+                            this.$timeout(() => {
+                                this.$log.debug(node);
+                                let currentNode = _.find((node as any).rowModel.rowsToDisplay, (item: any) => {
+                                    if (item.data && item.data.key === this.$stateParams.id.toString()) {
+                                        return item;
+                                    }
+                                });
+                                if (currentNode) {
+                                    currentNode.selectThisNode(true);
+                                    this.$log.debug("node: ", currentNode);
+                                }
+                            }); //500 timeout for animation
+
                         }
-                });
+                    });
             }
             if (!vm.expanded) {
                 /*if the children can be unloaded, do it now*/
@@ -443,14 +451,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                 }
             }
         }
-    };
-
-    public onModelUpdated = (event?: any) => {
-        this.updateScrollbars();
-    };
-
-    public onViewportChanged = (event?: any) => {
-        this.updateScrollbars();
     };
 
     public onCellClicked = (event: {event: MouseEvent, node: agGrid.RowNode}) => {
@@ -521,7 +521,8 @@ export class BPTreeViewController implements IBPTreeViewController {
 }
 
 export class HeaderCell {
-    constructor(public gridOptions: agGrid.GridOptions) { }
+    constructor(public gridOptions: agGrid.GridOptions) {
+    }
 
     selectAll(value: boolean) {
         this.gridOptions.api.forEachNodeAfterFilter(node => node.setSelected(value));

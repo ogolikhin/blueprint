@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Model.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -127,6 +128,15 @@ namespace Model
         /// /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
         IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets license usage information
+        /// </summary>
+        /// <param name="month">(optional)Information for specific month. By default gets information for all months</param>
+        /// <param name="year">(optional)Information for specific year. By default gets information for all years</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of ILicenseUsageInfo.</returns>
+        IList<ILicenseUsageInfo> GetLicenseUsage(int? month = null, int? year = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of active sessions.

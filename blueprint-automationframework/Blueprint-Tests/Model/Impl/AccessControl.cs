@@ -5,7 +5,8 @@ using Common;
 using Utilities;
 using Utilities.Facades;
 using Newtonsoft.Json;
-
+using Model.Impl;
+using Model;
 
 namespace Model.Impl
 {
@@ -263,6 +264,41 @@ namespace Model.Impl
             {
                 Logger.WriteError("Content = '{0}'", restApi.Content);
                 Logger.WriteError("Error while getting list of License Transactions - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAccessControl.GetLicenseUsage(int?, int?, List{HttpStatusCode})"/>
+        public IList<ILicenseUsageInfo> GetLicenseUsage(int? month = null, int? year = null, List < HttpStatusCode> expectedStatusCodes = null)
+        {
+            RestApiFacade restApi = new RestApiFacade(Address);
+            string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
+
+//            Dictionary<string, string> queryParameters = null;
+            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            if (month != null)
+                queryParameters.Add("month", month.ToString());
+            //                queryParameters = new Dictionary<string, string> { { "month", month.ToString() } };
+
+            if (year != null)
+                queryParameters.Add("year", year.ToString());
+
+            try
+            {
+                Logger.WriteInfo("Getting list of used licenses...");
+
+                var licenseUsageInfos = restApi.SendRequestAndDeserializeObject<List<LicenseUsageInfo>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters,
+                    expectedStatusCodes: expectedStatusCodes);
+
+                return licenseUsageInfos.ConvertAll(o => (ILicenseUsageInfo)o);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while getting list of license usage information - {0}", ex.Message);
                 throw;
             }
         }

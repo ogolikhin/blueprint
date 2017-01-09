@@ -74,6 +74,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 menubar: false,
                 toolbar: "bold italic underline strikethrough | fontsize fontselect forecolor format | linkstraces table" + addImagesToolbar,
                 statusbar: false,
+                body_class: this.$window.document.body.getAttribute("class"),
                 content_css: "/novaweb/libs/tinymce/content.css", // https://www.tinymce.com/docs/configure/content-appearance/#content_css
                 extended_valid_elements: "a[href|type|title|linkassemblyqualifiedname|text|canclick|isvalid|mentionid|isgroup|email|" +
                 "class|linkfontsize|linkfontfamily|linkfontstyle|linkfontweight|linktextdecoration|linkforeground|style|target|artifactid]",

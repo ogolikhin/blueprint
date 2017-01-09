@@ -1,6 +1,7 @@
 import "../../";
 import * as angular from "angular";
 import "angular-mocks";
+
 describe("Filter: Moment Date", () => {
     let momentFilter;
 
@@ -23,10 +24,9 @@ describe("Filter: Moment Date", () => {
     });
 
     it("should parse date", () => {
-        const tempDate = new Date("October 11 1980");
+        const tempDate = new Date("1980-10-11T00:00:00-04:00");
 
-        expect(momentFilter(tempDate)).toBe("1980-10-11T00:00:00-04:00");
-        expect(momentFilter(tempDate, "MMMM DD, YYYY")).toBe("October 11, 1980");
+        expect(momentFilter(tempDate)).toBe("October 11, 1980");
+        expect(momentFilter(tempDate, "YYYY-MM-DD")).toBe("1980-10-11");
     });
-
 });

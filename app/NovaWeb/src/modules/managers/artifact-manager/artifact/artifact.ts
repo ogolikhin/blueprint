@@ -602,6 +602,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public refresh(): ng.IPromise<IStatefulArtifact> {
+        let refreshId = this.services.loadingOverlayService.beginLoading();
         const deferred = this.services.getDeferred<IStatefulArtifact>();
         this.discard();
 
@@ -640,7 +641,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 this.propertyChange.onNext({item: this});
 
                 this.error.onNext(error);
-            });
+            })
+            .finally(() => this.services.loadingOverlayService.endLoading(refreshId));
 
         return deferred.promise;
     }

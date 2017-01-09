@@ -408,7 +408,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         [TestRail(165844)]
@@ -433,7 +433,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", childArtifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         [TestRail(190967)]
@@ -461,7 +461,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
         #endregion 403 Forbidden tests
@@ -485,7 +485,7 @@ namespace ArtifactStoreTests
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -508,7 +508,7 @@ namespace ArtifactStoreTests
                 "We should get a 404 Not Found when trying to delete an artifact that has already been deleted and published!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -534,7 +534,7 @@ namespace ArtifactStoreTests
                 "We should get a 404 Not Found when trying to delete a {0} that has already been deleted!", artifactType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -562,7 +562,7 @@ namespace ArtifactStoreTests
                 "We should get a 404 Not Found when trying to delete a {0} that has already been deleted and published!", artifactType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -586,7 +586,7 @@ namespace ArtifactStoreTests
             // Verify:
             if (nonExistentArtifactId > 0)  // Id's <= 0 get the generic 404 HTML page from IIS.
             {
-                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                     "You have attempted to access an artifact that does not exist or has been deleted.");
             }
         }
@@ -615,7 +615,7 @@ namespace ArtifactStoreTests
             // Verify:
             string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == artifactType).Prefix;
             string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
         }
 
         [TestRail(165844)]
@@ -642,7 +642,7 @@ namespace ArtifactStoreTests
                 // Verify:
                 string prefix = _project.ArtifactTypes.Find(a => a.BaseArtifactType == childArtifactType).Prefix;
                 string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childArtifact.Id);
-                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally
             {
@@ -678,7 +678,7 @@ namespace ArtifactStoreTests
             // Verify:
             string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == artifactType).Prefix;
             string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
         }
 
         [TestRail(190979)]
@@ -707,7 +707,7 @@ namespace ArtifactStoreTests
                 // Verify:
                 string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.ArtifactCollection).Prefix;
                 string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childCollection.Id);
-                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
             }
             finally
             {

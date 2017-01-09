@@ -138,38 +138,38 @@ p {
     margin: 0 0 8px;
 }
 
-::-webkit-scrollbar {
+.is-macosx::-webkit-scrollbar {
     height: 8px;
     width: 8px;
 }
 
-::-webkit-scrollbar-button {
+.is-macosx::-webkit-scrollbar-button {
     height: 0;
     width: 0;
 }
 
-::-webkit-scrollbar-thumb {
+.is-macosx::-webkit-scrollbar-thumb {
     background: #aaa;
     border: 0;
     border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover,
-::-webkit-scrollbar-thumb:active {
+.is-macosx::-webkit-scrollbar-thumb:hover,
+.is-macosx::-webkit-scrollbar-thumb:active {
     background: #999;
 }
 
-::-webkit-scrollbar-track {
+.is-macosx::-webkit-scrollbar-track {
     background: transparent;
     border: 0;
     border-radius: 4px;
 }
 
-::-webkit-scrollbar-track:hover,
-::-webkit-scrollbar-track:active {
+.is-macosx::-webkit-scrollbar-track:hover,
+.is-macosx::-webkit-scrollbar-track:active {
     background: #e8e8e8;
 }
 
-::-webkit-scrollbar-corner {
+.is-macosx::-webkit-scrollbar-corner {
     background: transparent;
 }

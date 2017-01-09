@@ -107,7 +107,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with a Content-Type of '{1}'!", ADD_IMAGE_PATH, contentType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
                 "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
@@ -131,7 +131,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with data that's not in JPEG or PNG format!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
                 "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.AddImage(_authorUser, imageFile);
             }, "'POST {0}' should return 400 Bad Request when called with filename parameter set in a header as null!", ADD_IMAGE_PATH);
 
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
         }
 
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
@@ -176,7 +176,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -197,7 +197,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 409 Conflict when called with images that exceed the FileStore size limit!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
                 "Specified image size is over limit.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
@@ -242,7 +242,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 400 Bad request when bad GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid format of specified image id.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid format of specified image id.");
         }
 
         [TestCase("")]
@@ -268,7 +268,7 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.GetImage(imageId);
             }, "'GET {0}' should return 404 Not Found when a image GUID not provided!", GET_IMAGE_PATH);
 
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "The image with the given GUID does not exist");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "The image with the given GUID does not exist");
         }
 
         #endregion GetImage tests

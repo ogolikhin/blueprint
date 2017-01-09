@@ -86,7 +86,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
                     userId: this.session.currentUser.id,
                     userName: this.session.currentUser.displayName,
                     itemTypePrefix: artifact.prefix,
-                    referencedDate: new Date().toISOString()
+                    referencedDate: null
                 };
                 const isContainingDocRef = this.docRefList.filter((docref) => {
                         return docref.artifactId === newDoc.artifactId;

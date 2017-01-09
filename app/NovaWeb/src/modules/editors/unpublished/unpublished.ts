@@ -73,7 +73,8 @@ export class UnpublishedController {
             this.publishService,
             this.localization,
             this.messageService,
-            this.loadingOverlayService);
+            this.loadingOverlayService,
+            this.dialogService);
 
         this.discardArtifactsButton = new DiscardArtifactsAction(
             this.publishService,

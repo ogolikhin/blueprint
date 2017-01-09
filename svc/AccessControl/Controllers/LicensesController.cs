@@ -144,7 +144,7 @@ namespace AccessControl.Controllers
         [HttpGet, NoCache]
         [Route("usage")]
         [ResponseType(typeof(IEnumerable<LicenseUsage>))]
-        public async Task<IHttpActionResult> GetLicenseUsage(int? month, int? year)
+        public async Task<IHttpActionResult> GetLicenseUsage(int? month = null, int? year = null)
         {
             try
             {

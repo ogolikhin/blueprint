@@ -1,5 +1,4 @@
-﻿using Model;
-using Model.Impl;
+﻿using Model.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;

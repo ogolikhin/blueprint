@@ -101,9 +101,8 @@ export class JobsController {
 
         this.jobsService.getJob(job.jobId)
             .then((result: IJobInfo) => {
-                const index = _.indexOf(this.jobs, _.find(this.jobs, {jobId: result.jobId}));
                 result.userDisplayName = undefined;
-                _.merge(this.jobs[index], result);
+                _.merge(job, result);
             });
     }
 

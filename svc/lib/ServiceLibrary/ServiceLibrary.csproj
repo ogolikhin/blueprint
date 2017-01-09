@@ -127,6 +127,7 @@
     <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\Jobs\ProjectExportResultDetails.cs" />
     <Compile Include="Models\Jobs\ProjectExportTaskStatus.cs" />
+    <Compile Include="Models\Jobs\JobResult.cs" />
     <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />

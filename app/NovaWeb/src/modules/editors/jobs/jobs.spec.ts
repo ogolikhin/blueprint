@@ -3,7 +3,8 @@ import {ProjectManagerMock} from "../../managers/project-manager/project-manager
 import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {IJobInfo, IJobsService, JobStatus, JobType} from "./jobs.svc";
+import {IJobsService} from "./jobs.svc";
+import {IJobInfo, JobStatus, JobType} from "./model/models";
 import {JobsController} from "./jobs";
 import * as angular from "angular";
 import "angular-mocks";
@@ -46,7 +47,7 @@ describe("Controller: Jobs", () => {
         expect(controller).toBeDefined();
         expect(controller.toolbarActions.length).toBe(0);
         expect(controller.page).toBe(1);
-        expect(controller.pageLength).toBe(10);
+        expect(controller.pageSize).toBe(10);
     });
 
     

@@ -99,8 +99,4 @@ namespace ServiceLibrary.Models.Jobs
         [JsonIgnore]
         public string Result { get; set; }
     }
-
-    public class JobResult : List<JobInfo>
-    {
-    }
 }

@@ -9,7 +9,8 @@ import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/act
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
-import {IJobsService, IJobInfo, JobStatus, JobType} from "./jobs.svc";
+import {IJobsService} from "./jobs.svc";
+import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";
 
 export class JobsComponent implements ng.IComponentOptions {
@@ -33,8 +34,11 @@ export class JobsController {
     public toolbarActions: IBPAction[];
     public isLoading: boolean;
     public page: number;
-    public pageLength: number;
- 
+    public pageSize: number;
+    public totalJobs: number;
+
+    public readonly maxPagesToShow: number = 10;
+
     constructor(
         private $log: ng.ILogService,
         private $window: ng.IWindowService,
@@ -47,7 +51,7 @@ export class JobsController {
     ) {
         this.toolbarActions = [];
         this.page = 1;
-        this.pageLength = 10;
+        this.pageSize = 10;
     }
 
     public $onInit() {
@@ -101,13 +105,16 @@ export class JobsController {
         this.$window.open(url, "_blank");
     }
 
-    private loadPage(page: number) {
+    public loadPage(page: number) {
         this.isLoading = true;
         this.page = page;
         this.jobs = [];
-        this.jobsService.getJobs(page, this.pageLength)
-            .then((result: IJobInfo[]) => {
-                this.jobs = result;
+        this.jobsService.getJobs(page, this.pageSize)
+            .then((result: IJobResult) => {
+                this.jobs = result.jobInfos;
+                if (result.totalJobCount) {
+                    this.totalJobs = result.totalJobCount;
+                }
             })
             .finally(() => {
                 this.isLoading = false;
@@ -197,6 +204,10 @@ export class JobsController {
 
     public isJobsEmpty(): boolean {
         return this.jobs.length === 0;
+    }
+
+    public showPagination(): boolean {
+        return !this.isJobsEmpty() || this.page > 1;
     }
 
     public $onDestroy() {

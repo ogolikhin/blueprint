@@ -5,8 +5,6 @@ using Common;
 using Utilities;
 using Utilities.Facades;
 using Newtonsoft.Json;
-using Model.Impl;
-using Model;
 
 namespace Model.Impl
 {

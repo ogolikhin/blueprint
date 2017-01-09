@@ -8,7 +8,7 @@ import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-over
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {IJobsService} from "./jobs.svc";
-import {IJobInfo, JobStatus, JobType} from "./model/models";
+import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobsController} from "./jobs";
 import {JobsServiceMock} from "./jobs.svc.mock";
 
@@ -46,13 +46,13 @@ describe("Controller: Jobs", () => {
     it("should exist", () => {
         expect(controller).toBeDefined();
         expect(controller.toolbarActions.length).toBe(0);
-        expect(controller.page).toBe(1);
-        expect(controller.pageSize).toBe(10);
+        expect(controller.paginationData.page).toBe(1);
+        expect(controller.paginationData.pageSize).toBe(10);
     });
 
     it("should initialize loading of jobs $onInit", () => {
         // arrange
-        const testData: IJobInfo[] = [createJob(0, JobType.DocGen, JobStatus.Completed)];
+        const testData: IJobResult = {jobInfos: [createJob(0, JobType.DocGen, JobStatus.Completed)], totalJobCount: 1};
         const jobsSpy = spyOn(jobsService, "getJobs")
             .and.returnValue($q.resolve(testData));
 
@@ -63,7 +63,7 @@ describe("Controller: Jobs", () => {
         // assert
         expect(jobsSpy).toHaveBeenCalled();
         expect(controller.isLoading).toBe(false);
-        expect(controller.page).toBe(1);
+        expect(controller.paginationData.page).toBe(1);
         expect(controller.jobs.length).toBe(1);
     });
 
@@ -244,7 +244,7 @@ describe("Controller: Jobs", () => {
     describe("loadNextPage", () => {
         it("calls service with incremented page", () => {
             // arrange
-            const oldPage = controller.page;
+            const oldPage = controller.paginationData.page;
             let requestedPage: number;
 
             spyOn(jobsService, "getJobs").and.callFake((page: number = null, pageSize: number = null, timeout?: ng.IPromise<void>) => {
@@ -261,14 +261,14 @@ describe("Controller: Jobs", () => {
 
         it("increments page size by 1", () => {
             // arrange
-            const oldPage = controller.page;
+            const oldPage = controller.paginationData.page;
             spyOn(jobsService, "getJobs").and.returnValue($q.when());
 
             // act
             controller.loadNextPage();
 
             // assert
-            expect(controller.page).toBe(oldPage + 1);
+            expect(controller.paginationData.page).toBe(oldPage + 1);
         });
     });
 

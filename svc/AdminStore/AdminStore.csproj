@@ -110,6 +110,7 @@
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
+    <Compile Include="Helpers\JobsValidationHelper.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
@@ -167,6 +168,7 @@
     <Content Include="doc\AdminStore Web Service Design.docx" />
     <Content Include="doc\AdminStore Web Service API - Swagger.URL" />
     <Content Include="doc\AdminStore Web Service API.docx" />
+    <Compile Include="Controllers\JobsController.ProcessTestGeneration.cs" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

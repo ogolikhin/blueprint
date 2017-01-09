@@ -10,18 +10,16 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using System.Net.Http.Headers;
 
 namespace SearchService.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("status")]
-    public class StatusController : LoggableApiController
+    public class StatusController : ApiController
     {
-        private const string Logsource = "SearchService.Status";
-        internal readonly IStatusControllerHelper StatusControllerHelper;
-        internal readonly string PreAuthorizedKey;
-
-        public override string LogSource => Logsource;
+        internal readonly IStatusControllerHelper _statusControllerHelper;
+        internal readonly string _expectedPreAuthorizedKey;
 
         public StatusController()
             : this
@@ -36,7 +34,7 @@ namespace SearchService.Controllers
                     },
                     "SearchService",
                     new ServiceLogRepository(),
-                    Logsource
+                    WebApiConfig.LogSourceStatus
                 ),
                 WebApiConfig.StatusCheckPreauthorizedKey
             )
@@ -45,8 +43,8 @@ namespace SearchService.Controllers
 
         internal StatusController(IStatusControllerHelper scHelper, string preAuthorizedKey)
         {
-            StatusControllerHelper = scHelper;
-            PreAuthorizedKey = preAuthorizedKey;
+            _statusControllerHelper = scHelper;
+            _expectedPreAuthorizedKey = preAuthorizedKey;
         }
 
         /// <summary>
@@ -63,20 +61,29 @@ namespace SearchService.Controllers
         public async Task<IHttpActionResult> GetStatus(string preAuthorizedKey = null)
         {
             //Check pre-authorized key
-            if (PreAuthorizedKey == null || preAuthorizedKey != PreAuthorizedKey)
+            // Refactoring for shorter status as per US955
+
+            if (preAuthorizedKey != null && preAuthorizedKey != _expectedPreAuthorizedKey)
             {
-                return Unauthorized();
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Unauthorized, "Unauthorized", new MediaTypeHeaderValue("application/json")));
+
             }
 
-            ServiceStatus serviceStatus = await StatusControllerHelper.GetStatus();
+            ServiceStatus serviceStatus = await _statusControllerHelper.GetStatus();
+            if (preAuthorizedKey == null)
+            {
+                serviceStatus = _statusControllerHelper.GetShorterStatus(serviceStatus);
+            }
 
             if (serviceStatus.NoErrors)
             {
                 return Ok(serviceStatus);
             }
-
-            var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
-            return ResponseMessage(response);
+            else
+            {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, serviceStatus);
+                return ResponseMessage(response);
+            }
         }
 
         /// <summary>

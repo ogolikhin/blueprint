@@ -11,10 +11,11 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 
 namespace ArtifactStoreTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // Ignore all tests in this class until development is done.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class ImageTests : TestBase
@@ -25,7 +26,9 @@ namespace ArtifactStoreTests
         private static Dictionary<ImageType, ImageFormat> ImageFormatMap = new Dictionary<ImageType, ImageFormat>
         {
             { ImageType.JPEG, ImageFormat.Jpeg },
-            { ImageType.PNG, ImageFormat.Png }
+            { ImageType.PNG, ImageFormat.Png },
+            { ImageType.GIF, ImageFormat.Gif },
+            { ImageType.TIFF, ImageFormat.Tiff }
         };
 
         private IUser _adminUser = null;
@@ -35,7 +38,9 @@ namespace ArtifactStoreTests
         public enum ImageType
         {
             JPEG,
-            PNG
+            PNG,
+            GIF,
+            TIFF
         }
 
         [SetUp]
@@ -64,7 +69,7 @@ namespace ArtifactStoreTests
             // Setup:
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
-            IFile returnedFile = null;
+            EmbeddedImageFile returnedFile = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -76,6 +81,9 @@ namespace ArtifactStoreTests
             Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
 
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
+                "The EmbeddedImageId should not be the same as the FileStore FileId!");
+
             // Get the file from FileStore and compare against what we uploaded.
             var fileStoreFileId = returnedFile.Guid;
             var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
@@ -83,8 +91,8 @@ namespace ArtifactStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
         }
 
-        [TestCase(20, 30, ImageType.JPEG, "text/plain")]
-        [TestCase(80, 80, ImageType.PNG, "application/json")]
+        [TestCase(20, 30, ImageType.GIF, "image/gif")]
+        [TestCase(80, 80, ImageType.TIFF, "image/tiff")]
         [TestRail(211536)]
         [Description("Try to upload a random image file to ArtifactStore but use the wrong Content-Type.  Verify 400 Bad Request is returned.")]
         public void AddImage_ValidImage_InvalidContentType_400BadRequest(int width, int height, ImageType imageType, string contentType)
@@ -99,8 +107,8 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with a Content-Type of '{1}'!", ADD_IMAGE_PATH, contentType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
-                "TODO: Fill this in when development is done.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
+                "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -123,10 +131,29 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with data that's not in JPEG or PNG format!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
-                "TODO: Fill this in when development is done.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
+                "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
+        }
+
+        [TestCase(80, 80, ImageType.PNG, "image/png")]
+        [TestRail(213049)]
+        [Description("Upload a random image file to ArtifactStore.  Make sure filename parameter is not set. Verify 400 Bad Request is returned.")]
+        public void AddImage_ValidImageWithNotSetFileName_400BadRequest(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            imageFile.FileName = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 400 Bad Request when called with filename parameter set in a header as null!", ADD_IMAGE_PATH);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
         }
 
         [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
@@ -140,7 +167,7 @@ namespace ArtifactStoreTests
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
             // Set the bad token.
-            _authorUser.SetToken(token);
+            _authorUser.Token.AccessControlToken = token;
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
@@ -149,8 +176,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 401 Unauthorized when called with an invalid token!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
-                "TODO: Fill this in when development is done.");
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -171,8 +197,8 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 409 Conflict when called with images that exceed the FileStore size limit!", ADD_IMAGE_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
-                "TODO: Fill this in when development is done.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
+                "Specified image size is over limit.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -191,37 +217,99 @@ namespace ArtifactStoreTests
             // Setup:
             var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
 
-            IFile addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
             IFile returnedFile = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                returnedFile = Helper.ArtifactStore.GetImage(addedFile.Guid);
+                returnedFile = Helper.ArtifactStore.GetImage(addedFile.EmbeddedImageId);
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
+        }
+
+        [TestCase("abcd1234")]
+        [TestRail(211550)]
+        [Description("Try to get an image with malformed ImageId GUID.  Verify it returns 400 Bad Request.")]
+        public void GetImage_MalformedImageGuid_400BadRequest(string imageId)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetImage(imageId);
+            }, "'GET {0}' should return 400 Bad request when bad GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid format of specified image id.");
         }
 
         [TestCase("")]
-        [TestCase("abcd1234")]
-        [TestRail(211550)]
-        [Description("Try to get an image with an ImageId that doesn't exist.  Verify it returns 404 Not Found.")]
+        [TestRail(213022)]
+        [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
+        public void GetImage_NoImageIdSpecified_404NotFound(string imageId)
+        {
+            // Execute:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetImage(imageId);
+            }, "'GET {0}' should return 404 Not Found when passed image GUID for non existing image!", GET_IMAGE_PATH);
+        }
+
+        [TestCase("00000000-0000-0000-0000-000000000000")]
+        [TestRail(213039)]
+        [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
         public void GetImage_NonExistingImage_404NotFound(string imageId)
         {
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetImage(imageId);
-            }, "'GET {0}' should return 404 Not Found when a non-existing image GUID is passed!", GET_IMAGE_PATH);
+            }, "'GET {0}' should return 404 Not Found when a image GUID not provided!", GET_IMAGE_PATH);
 
-            // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
-                "TODO: Fill this in when development is done.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "The image with the given GUID does not exist");
         }
 
         #endregion GetImage tests
+
+        #region Other tests
+
+        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ImageType.PNG, "image/png")]
+        [TestRail(227091)]
+        [Description("Create & publish artifact. Upload a random image file and then update artifact with this image.  " +
+        "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+        public void UpdateArtifact_AddImageToArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ImageType imageType, string contentType)
+        {
+            // Setup:
+            BaseArtifactType artifactType = BaseArtifactType.Process;
+
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            artifact.Lock(_authorUser);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+
+            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+
+            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
+
+            // Execute:
+            Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
+
+            // Verify:
+            string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint].[dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+
+            selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+        }
+
+        #endregion Other tests
 
         #region Private functions
 
@@ -231,8 +319,8 @@ namespace ArtifactStoreTests
         /// <param name="filename">The filename to look for.</param>
         private static void AssertFileNotInEmbeddedImagesTable(string filename)
         {
-            string selectQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [dbo].[EmbeddedImages] WHERE [FileName] ='{0}'", filename);
-            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(selectQuery, "FileId");
+            string fileIdQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [FileStore].[Files] WHERE [FileName] ='{0}'", filename);
+            int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, "FileId", databaseName: "FileStore");
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);

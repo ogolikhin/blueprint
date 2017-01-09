@@ -15,6 +15,7 @@ import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loadin
 import {AddToCollectionAction} from "./add-to-collection-action";
 import {BPDropdownItemAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-dropdown-action";
 import {CollectionServiceMock} from "../../../../editors/bp-collection/collection.svc.mock";
+import {ItemInfoServiceMock} from "../../../../core/navigation/item-info.svc.mock";
 
 
 describe("AddToCollectionAction", () => {
@@ -32,6 +33,7 @@ describe("AddToCollectionAction", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("collectionService", CollectionServiceMock);
+        $provide.service("itemInfoServiceMock", ItemInfoServiceMock);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService) => {
@@ -44,7 +46,8 @@ describe("AddToCollectionAction", () => {
                 localization: ILocalizationService,
                 messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
                 navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
-                collectionService: CollectionServiceMock) => {
+                collectionService: CollectionServiceMock,
+                itemInfoServiceMock: ItemInfoServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -54,7 +57,7 @@ describe("AddToCollectionAction", () => {
 
             // act
             const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
-                dialogService, navigationService, loadingOverlayService, collectionService);
+                dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
 
             const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
 
@@ -67,7 +70,8 @@ describe("AddToCollectionAction", () => {
                 localization: ILocalizationService,
                 messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
                 navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
-                collectionService: CollectionServiceMock) => {
+                collectionService: CollectionServiceMock,
+                itemInfoServiceMock: ItemInfoServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -77,7 +81,7 @@ describe("AddToCollectionAction", () => {
 
             // act
             const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
-                dialogService, navigationService, loadingOverlayService, collectionService);
+                dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
 
             const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
 
@@ -90,7 +94,8 @@ describe("AddToCollectionAction", () => {
                 localization: ILocalizationService,
                 messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
                 navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
-                collectionService: CollectionServiceMock) => {
+                collectionService: CollectionServiceMock,
+                itemInfoServiceMock: ItemInfoServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -100,7 +105,7 @@ describe("AddToCollectionAction", () => {
 
             // act
             const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
-                dialogService, navigationService, loadingOverlayService, collectionService);
+                dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
 
             const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
 

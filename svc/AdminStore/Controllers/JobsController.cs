@@ -1,44 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
-using ServiceLibrary.Repositories;
 using ServiceLibrary.Repositories.ConfigControl;
+using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("jobs")]
     [BaseExceptionFilter]
-    public class JobsController : LoggableApiController
+    public partial class JobsController : LoggableApiController
     {
         internal readonly IJobsRepository _jobsRepository;
-        internal readonly IUsersRepository _sqlUserRepository;
+        internal readonly IFileRepository _fileRepository;
 
-        public override string LogSource => "AdminStore.JobsService";
-
-        public JobsController() :
-            this(new JobsRepository(), new ServiceLogRepository(), new SqlUsersRepository())
+        public JobsController() : this(new JobsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal JobsController
-        (
-            IJobsRepository jobsRepository, 
-            IServiceLogRepository serviceLogRepository,
-            IUsersRepository sqlUserRepository
-        ) : base(serviceLogRepository)
+        internal JobsController(IJobsRepository jobsRepository, IServiceLogRepository serviceLogRepository, IFileRepository fileRepository = null) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
-            _sqlUserRepository = sqlUserRepository;
+            _fileRepository = fileRepository;
         }
+
+        public override string LogSource => "AdminStore.JobsService";
 
         #region public methods
 
@@ -49,24 +48,22 @@ namespace AdminStore.Controllers
         /// Returns the latest jobs.
         /// </remarks>
         /// <response code="200">OK.</response>
+        /// <response code="400">BadRequest.</response>
         [HttpGet, NoCache]
         [Route(""), SessionRequired]
         [ResponseType(typeof(IEnumerable<JobInfo>))]
-        public async Task<IEnumerable<JobInfo>> GetLatestJobs(int? page = 1, int? pageSize = null, JobType jobType = JobType.None)
+        public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
-            int? userId = ValidateAndExtractUserId();
             try
             {
-                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
-                if (isUserInstanceAdmin)
-                {
-                    userId = null;
-                }
-                int jobPageSize = GetPageSize(pageSize);
-                int jobPage = GetPage(page, 1, 1);
-                int offset = (jobPage - 1) * jobPageSize;
+                var session = GetSession(Request);
 
-                return await _jobsRepository.GetVisibleJobs(userId, offset, jobPageSize, jobType);
+                var jobsHelper = new JobsValidationHelper();
+                jobsHelper.Validate(page, pageSize);
+
+                var offset = (page.Value - 1) * pageSize.Value;
+
+                return Ok(await _jobsRepository.GetVisibleJobs(session.UserId, offset, pageSize, jobType));
             }
             catch (Exception exception)
             {
@@ -85,18 +82,13 @@ namespace AdminStore.Controllers
         [HttpGet, NoCache]
         [Route("{jobId:int:min(1)}"), SessionRequired]
         [ResponseType(typeof(JobInfo))]
-        public async Task<JobInfo> GetJob(int jobId)
+        public async Task<IHttpActionResult> GetJob(int jobId)
         {
-            int? userId = ValidateAndExtractUserId();
             try
             {
-                bool isUserInstanceAdmin = await _sqlUserRepository.IsInstanceAdmin(false, userId.Value);
-                if (isUserInstanceAdmin)
-                {
-                    userId = null;
-                }
+                var session = GetSession(Request);
 
-                return await _jobsRepository.GetJob(jobId, userId);
+                return Ok(await _jobsRepository.GetJob(jobId, session.UserId));
             }
             catch (Exception exception)
             {
@@ -105,35 +97,49 @@ namespace AdminStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets the result file of a supported completed job (eg Project Export)
+        /// </summary>
+        /// <param name="jobId">Job id</param>
+        /// <response code="200">Ok.</response>
+        /// <response code="400">BadRequest.</response>
+        /// <response code="401">Unauthorized.</response>
+        /// <response code="404">NotFound.</response>
+        /// <response code="500">InternalServerError.</response>
+        [HttpGet, NoCache]
+        [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
+        public async Task<IHttpActionResult> GetJobResultFile(int jobId)
+        {
+            var session = GetSession(Request);
+            var baseUri = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
+            var fileRepository = _fileRepository ?? new FileRepository(new FileHttpWebClient(baseUri, Session.Convert(session.SessionId)));
+
+            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, fileRepository);
+
+            var response = Request.CreateResponse(HttpStatusCode.OK);
+            response.Content = new StreamContent(file.ContentStream);
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = file.Info.Name,
+                FileNameStar = file.Info.Name
+            };
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.Info.Type);
+            response.Content.Headers.ContentLength = file.Info.Size;
+
+            return ResponseMessage(response);
+        }
+
         #endregion
 
-        private int GetPageSize(int? pageSize)
+        private static Session GetSession(HttpRequestMessage request)
         {
-            var jobPageSize = pageSize.GetValueOrDefault(WebApiConfig.JobDetailsPageSize);
-            if (jobPageSize <= 0)
-            {
-                return WebApiConfig.JobDetailsPageSize;
-            }
-
-            return jobPageSize;
-        }
-
-        private int GetPage(int? requestedPage, int minPage, int defaultPage)
-        {
-            int page = requestedPage.GetValueOrDefault(defaultPage);
-            return page < minPage ? defaultPage : page;
-        }
-
-        private int ValidateAndExtractUserId()
-        {
-            // get the UserId from the session
             object sessionValue;
-            if (!Request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
+            if (!request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))
             {
                 throw new AuthenticationException("Authorization is required", ErrorCodes.UnauthorizedAccess);
             }
 
-            return ((Session)sessionValue).UserId;
+            return (Session)sessionValue;
         }
     }
 }

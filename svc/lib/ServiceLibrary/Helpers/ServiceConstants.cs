@@ -37,8 +37,24 @@ namespace ServiceLibrary.Helpers
 
         public const int DefaultSearchTimeout = 120;
 
-        public const int JobsDetailsPageSize = 10;
+        public const int JobsDefaultPageSize = 10;
+
+        public const int JobsMaxPageSize = 200;
+
+        public const int JobsDefaultPage = 1;
 
         public const string NoPermissions = "<No Permission>";
+
+        public const string BlueprintSessionTokenKey = "Session-Token";
+        public const string BlueprintSessionIgnoreKey = "e51d8f58-0c62-46ad-a6fc-7e7994670f34"; // random guid generated as a bypass validation header
+        public const string CookieBlueprintSessionTokenKey = "BLUEPRINT_SESSION_TOKEN";
+
+        public const int DefaultRequestTimeout = 600000;
+
+        public const string ContentDispositionHeader = "Content-Disposition";
+        public const string ContentTypeHeader = "Content-Type";
+        public const string StoredDateHeader = "Stored-Date";
+        public const string FileSizeHeader = "File-Size";
+        public const string FileChunkCountHeader = "File-Chunk-Count";
     }
 }

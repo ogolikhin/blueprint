@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Jobs
 {
@@ -60,7 +60,9 @@ namespace ServiceLibrary.Models.Jobs
 
         ProjectExport = 0x2000,
 
-        GenerateTests = 0x4000
+        GenerateTests = 0x4000,
+
+        GenerateProcessTests = 0x8000,
     }
 
     public class JobInfo
@@ -94,10 +96,8 @@ namespace ServiceLibrary.Models.Jobs
         public bool HasCancelJob { get; set; }
 
         public int? ProjectId { get; set; }
-    }
 
-    public class JobResult : List<JobInfo>
-    {
-        
+        [JsonIgnore]
+        public string Result { get; set; }
     }
 }

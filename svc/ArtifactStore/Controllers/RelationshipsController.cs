@@ -115,8 +115,15 @@ namespace ArtifactStore.Controllers
             var artifactInfo = isDeleted ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(artifactId) :
                 await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId);
+
+            if (artifactInfo == null && !isDeleted) // artifact might have been deleted in draft only
+            {
+                artifactInfo = await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, false);
+            }
             if (artifactInfo == null)
+            {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
 
             var itemIds = new List<int> { artifactId };
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, session.UserId);

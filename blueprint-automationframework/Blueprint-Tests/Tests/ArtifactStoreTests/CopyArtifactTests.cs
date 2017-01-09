@@ -843,7 +843,7 @@ namespace ArtifactStoreTests
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "Parameter orderIndex cannot be equal to or less than 0.");
         }
 
@@ -919,7 +919,7 @@ namespace ArtifactStoreTests
                 SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
                 "You do not have permissions to copy the artifact in the selected location.");
         }
 
@@ -941,7 +941,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to copy an artifact to a different project", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts to a different project.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts to a different project.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -959,7 +959,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to copy a folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy a folder artifact to non folder/project parent.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy a folder artifact to non folder/project parent.");
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
@@ -981,7 +981,7 @@ namespace ArtifactStoreTests
                "'POST {0}' should return 403 Forbidden when user tries to copy a regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts outside of the artifact section.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts outside of the artifact section.");
         }
 
         [Category(Execute.Weekly)]
@@ -1004,7 +1004,7 @@ namespace ArtifactStoreTests
                    "'POST {0}' should return 403 Forbidden when user tries to copy a collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts that are not from the artifact section.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts that are not from the artifact section.");
         }
 
         [Category(Execute.Weekly)] 
@@ -1027,7 +1027,7 @@ namespace ArtifactStoreTests
                    "'POST {0}' should return 403 Forbidden when user tries to copy collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts that are not from the artifact section.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot copy artifacts that are not from the artifact section.");
         }
 
         #endregion 403 Forbidden tests
@@ -1050,7 +1050,7 @@ namespace ArtifactStoreTests
             // Verify:
             if (nonExistingArtifactId > 0)
             {
-                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                     I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", nonExistingArtifactId));
             }
         }
@@ -1071,7 +1071,7 @@ namespace ArtifactStoreTests
             // Verify:
             if (nonExistingArtifactId > 0)
             {
-                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                     I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", nonExistingArtifactId));
             }
         }
@@ -1093,7 +1093,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy artifact to be a child of artifact that was removed", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", targetArtifact.Id));
         }
 
@@ -1113,7 +1113,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy deleted artifact to be a child of another artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", sourceArtifact.Id));
         }
 
@@ -1135,7 +1135,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy artifact without proper permissions", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", sourceArtifact.Id));
         }
 
@@ -1157,7 +1157,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy artifact without proper permissions", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", targetArtifact.Id));
         }
 
@@ -1183,7 +1183,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy an artifact to be a child of a sub-artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact where to copy with ID {0} is not found.", subArtifacts.First().Id));
         }
 
@@ -1207,7 +1207,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy a sub-artifact to be a child of another artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", subArtifacts.First().Id));
         }
 
@@ -1225,7 +1225,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to copy a project to be a child of an artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
                 I18NHelper.FormatInvariant("Artifact to copy with ID {0} is not found.", _project.Id));
         }
 
@@ -1268,7 +1268,7 @@ namespace ArtifactStoreTests
                         "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
 
                 // Verify:
-                ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
+                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
                     I18NHelper.FormatInvariant("The number of artifacts to copy exceeds the limit - {0}.", newMaxNumberArtifactsToCopy));
             }
             finally

@@ -1,95 +1,109 @@
-<div class="jobs__results--content">
+<div class="page-content">
     <div class="page-heading">
-    <div class="responsive-header">
-        
-            <div class="artifact-heading">
-                <div class="artifact-heading-group1">                        
-                    <div class="artifact-heading-group2">
-                        <div class="col-md-2">
-                            <div class="name">Jobs</div>
+        <div class="artifact-heading">
+            <div class="artifact-heading-group1">
+                <div class="artifact-heading-group2">
+                    <div class="col-xs-2">
+                        <div class="name">Jobs</div>
+                    </div>
+                    <div class="col-xs-10">
+                        <div class="pull-right">
+                            <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Next page" ng-click="$ctrl.loadNextPage()">
+                                    <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span>
+                            </button>
                         </div>
-                        <div class="col-md-10">
-                            <div class="icon-container jobs__fr">
-                                    <i class="fonticon fonticon2-refresh-line" ng-click="$ctrl.loadPage(1)"></i>
-                            </div>
-                        </div>
-                        <div class="col-md-1">
-                            <div class="icon-container">
-                                    <i class="fonticon fonticon2-arrow-right" ng-click="$ctrl.loadNextPage()"></i>
-                            </div>
+                        <div class="pull-right">
+                            <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Reload jobs" ng-click="$ctrl.loadPage(1)">
+                                    <span class="toolbar-button__icon ng-scope fonticon2-refresh-line"></span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="jobs-ul" ng-if="!$ctrl.isJobsEmpty()">
-        <ul class="list-unstyled">
-            <li class="jobs__results--item"
-                ng-repeat="item in $ctrl.jobs track by $index">
-                <div class="row small-gutter">
-                    <div class="col-md-1 text-center">
-                        <h2 class="font-blue margin-top--none jobs__text--no-wrap">
-                            <i class="icon-document"></i>
-                        </h2>
-                    </div>
-                    <div class="col-md-11">
-                        <div class="row">
-                            <div class="col-md-11">
-                                <h5 class="font-blue margin-bottom--none jobs__text--no-wrap">
-                                    <a class="jobs__results--link" ui-sref="main.item({id: item.artifactId})">
-                                        {{item.id}}
-                                    </a>
-                                </h5>
+    <div class="page-body-wrapper">
+        <div class="page-body">
+            <div ng-if="$ctrl.isLoading" class="app-loading">
+                <span class="glyphicon glyphicon-refresh spin"></span>
+                {{::$ctrl.localization.get('App_LoadingMsg') }}
+            </div>
+
+            <ul class="list-unstyled" ng-if="!$ctrl.isLoading">
+                <li class="jobs__results--item"
+                    ng-repeat="item in $ctrl.jobs track by $index">
+                    <div class="row small-gutter">
+                        <div class="col-xs-1 text-center">
+                            <div class="row">
+                                <div class="font-blue jobs__itemsicon">
+                                    <i class="icon-document"></i>
+                                </div>
                             </div>
-                            <div class="col-md-1">
-                                <div uib-dropdown>
-                                    <span uib-dropdown-toggle>
-                                        <strong>...</strong>
-                                    </span>
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        <li ng-click="$ctrl.addDocRef() "ng-class="{disabled: !$ctrl.canDownload(item.status)}">
-                                            <a>Download</a>
-                                        </li>
-                                        <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canRefresh(item.status)}">
-                                            <a>Refresh</a>
-                                        </li>
-                                    </ul>
+                            <div class="row">
+                                <div class="font-blue jobs__type">
+                                    {{$ctrl.getType(item.jobType)}}
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Jobs_Author"]}}: </strong>
-                                <span>{{item.author}}</span>
+                        <div class="col-xs-10">
+                            <div class="row jobs__firstrow">
+                                <div class="col-xs-3">
+                                   <div class="font-blue">
+                                       JOB{{item.jobId}}
+                                   </div>
+                                </div>
+                                <div class="col-xs-5">
+                                    <span class="jobs__label">{{::$root.config.labels["Jobs_SubmittedDate"]}}:</span>
+                                    <span>{{item.submittedDateTime | momentDateTime}}</span>
+                                </div>
                             </div>
-                            <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Label_Type"]}}: </strong>
-                                <span>{{item.type}}</span>
+                            <div class="row jobs__secondrow">
+                                <div class="col-xs-3">
+                                    <i class="fonticon2-project jobs__projecticon--size"></i>
+                                    <span class ="jobs__projectname" bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">{{item.project}}</span>
+                                </div>
+                                <div class="col-xs-5">
+                                    <span class="jobs__label">{{::$root.config.labels["Jobs_StartDate"]}}:</span>
+                                    <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
+                                </div>
+                                <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
+                                    <span class="jobs__label">{{::$root.config.labels["Jobs_Status"]}}:</span>
+                                    <span class="jobs__status" ng-if="$ctrl.isJobRunning(item.status)">{{item.progress}}% Completed</span>
+                                    <span class="jobs__status" ng-if="!$ctrl.isJobRunning(item.status)"> {{$ctrl.getStatus(item.status)}}</span>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <strong>{{::$root.config.labels["Jobs_Status"]}}: </strong>
-                                <span> {{item.status}}</span>
+                            <div class="row jobs__thirdrow">
+                                <div class="col-xs-3">
+                                    <span class="jobs__label">{{::$root.config.labels["Jobs_User"]}}:</span>
+                                    <span class="jobs__authorname"  bp-tooltip="{{item.userDisplayName}}" bp-tooltip-truncated="true">{{item.userDisplayName}}</span>
+                                </div>
+                                <div class="col-xs-5">
+                                    <span class="jobs__label">{{::$root.config.labels["Jobs_EndDate"]}}:</span>
+                                    <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
+                                </div>
+                                <div class="col-xs-4">
+                                    <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                <span>{{$ctrl.getDate(item.startedOn)}}</span>
-                            </div>
-                            <div class="col-md-4">
-                                <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                <span> {{$ctrl.getDate(item.completedOn)}}</span>
-                            </div>
+                        <div class="col-xs-1">
+                            <h2 class="margin-top--none jobs__text--no-wrap jobs__action-items--center">
+                                <button class="btn btn-default btn__icon" ng-if="$ctrl.canDownload(item)" ng-click="$ctrl.downloadItem(item)" bp-tooltip="{{$ctrl.localization.get('App_Button_Download')}}">
+                                    <i class="fonticon2-download jobs__action-icons--color jobs__icon--size"></i>
+                                </button>
+                                <button class="btn btn-default btn__icon" ng-if="$ctrl.canRefresh(item)" ng-click="$ctrl.refreshJob(item)" bp-tooltip="{{$ctrl.localization.get('App_Button_Refresh')}}">
+                                    <i class="fonticon2-refresh-line jobs__action-icons--color jobs__icon--size"></i>
+                                </button>
+                            <h2>
                         </div>
                     </div>
-                </div>
-            </li>
-        </ul>                
-    </div>
-    <div class="jobs__response" ng-if="$ctrl.isJobsEmpty()">
-        <div class="center-item font-larger">
-            <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="jobs__response" ng-if="$ctrl.isJobsEmpty() && !$ctrl.isLoading">
+            <div class="center-item font-larger">
+                <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
+            </div>
         </div>
     </div>
 </div>

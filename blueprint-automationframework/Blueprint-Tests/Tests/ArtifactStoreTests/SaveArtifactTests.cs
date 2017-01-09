@@ -613,7 +613,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
         }
 
         #endregion 400 Bad Request
@@ -942,13 +942,11 @@ namespace ArtifactStoreTests
 
             int thisYear = DateTime.Now.Year;
 
-            string toChange = "value\":\"" + thisYear;
-
-            int yearOutPropertyRange = thisYear + 100;
+            string toChange = "value\":\"2016";
 
             string requestBody = JsonConvert.SerializeObject(Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id));
 
-            requestBody = requestBody.Replace(toChange, "value\":\"" + yearOutPropertyRange);
+            requestBody = requestBody.Replace(toChange, "value\":\"" + thisYear);
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
@@ -965,8 +963,8 @@ namespace ArtifactStoreTests
 
             DateTime newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
 
-            Assert.AreEqual(yearOutPropertyRange, newDate.Year,
-                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, yearOutPropertyRange, newDate.Year);
+            Assert.AreEqual(thisYear, newDate.Year,
+                    "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, thisYear, newDate.Year);
         }
 
         private const string ChoiceValueIncorrectFormat = "The value for the property CU-Choice Required with Single Choice is invalid.";
@@ -1036,7 +1034,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
-            SetProperty(propertyToChange, value, ref artifactDetails);
+            CSharpUtilities.SetProperty(propertyToChange, value, artifactDetails);
 
             INovaArtifactDetails updateResult = null;
 
@@ -1187,17 +1185,6 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// Set one primary property to specific value.
-        /// </summary>
-        /// <param name="propertyName">Name of the property in which value will be changed.</param>
-        /// <param name="propertyValue">The value to set the property to.</param>
-        /// <param name="objectToUpdate">Object that contains the property to be changed.</param>
-        private static void SetProperty<T>(string propertyName, T propertyValue, ref NovaArtifactDetails objectToUpdate)
-        {
-            objectToUpdate.GetType().GetProperty(propertyName).SetValue(objectToUpdate, propertyValue, null);
-        }
-
-        /// <summary>
         /// Gets sub-property using property name and propertytypeId
         /// </summary>
         /// <param name="objectToSearchCustomProperty">Object in which to look sub-property</param>
@@ -1239,7 +1226,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
         }
-
+        
         #endregion Private functions
     }
 }

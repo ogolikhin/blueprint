@@ -1,3 +1,4 @@
+<input type="text" class="modal-focus-stealer"/>
 <div class="modal-header">
     <h3 class="modal-title"><i class="fonticon-modal"></i><span>{{$ctrl.header}}</span></h3>
 </div>
@@ -16,10 +17,10 @@
 </div>
 <div class="modal-footer">
     <div class="nova-form-group nova-form-buttons">
-        <button class="btn btn-cancel" ng-click="$ctrl.cancel()">
+        <button class="btn btn-cancel" ng-click="$ctrl.cancel()" type="button">
             <span ng-bind="$ctrl.dialogSettings.cancelButton"></span>
         </button>
-        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()">
+        <button class="btn btn-promoted-action" ng-click="$ctrl.ok()" type="button">
             <span ng-bind="$ctrl.dialogSettings.okButton"></span>
         </button>
     </div>

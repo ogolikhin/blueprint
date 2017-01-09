@@ -21,25 +21,8 @@ namespace AdminStore
 
         public static string ConfigControl = ConfigurationManager.AppSettings["ConfigControl"];
 
-        public static int JobDetailsPageSize
-        {
-            get
-            {
-                if(ConfigurationManager.AppSettings["JobDetailsPageSize"] != null)
-                {
-                    int pageSize;
-                    if(int.TryParse(ConfigurationManager.AppSettings["JobDetailsPageSize"], out pageSize))
-                    {
-                        if(pageSize > 0)
-                        {
-                            return pageSize;
-                        }
-                    }
-                }
-                return ServiceConstants.JobsDetailsPageSize;
-            }
-        }
-
+        public static string FileStore = ConfigurationManager.AppSettings["FileStore"];
+        
         public static string ServiceLogSource = typeof(WebApiConfig).Assembly.GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0].ToString();
 
         public static string StatusCheckPreauthorizedKey = ConfigurationManager.AppSettings["StatusCheckPreauthorizedKey"];

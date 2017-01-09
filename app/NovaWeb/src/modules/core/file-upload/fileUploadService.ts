@@ -5,6 +5,9 @@ export interface IFileUploadService {
                       expirationDate?: Date,
                       progress?: (ev: ProgressEvent) => any,
                       cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult>;
+    uploadImageToFileStore(file: any,
+                      progress?: (ev: ProgressEvent) => any,
+                      cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult>;
     copyArtifactImagesToFilestore(
                       artifactIds: number[],
                       expirationDate?: Date): ng.IPromise<ICopyImageResult[]>;
@@ -63,7 +66,37 @@ export class FileUploadService implements IFileUploadService {
         return deferred.promise;
     }
 
-    
+    public uploadImageToFileStore(file: File,
+                             progress?: (ev: ProgressEvent) => any,
+                             cancelPromise?: ng.IPromise<any>): ng.IPromise<IFileResult> {
+
+        const filename: string = encodeURIComponent(file.name);
+        const request: ng.IRequestConfig | any = {
+            headers: {
+                FileName: filename
+            },
+            method: "POST",
+            url: "/svc/bpartifactstore/images/",
+            data: file,
+            uploadEventHandlers: progress ? {progress: progress} : undefined,
+            timeout: cancelPromise
+        };
+
+        return this.$http(request)
+            .then((result: ng.IHttpPromiseCallbackArg<IFileResult>) => result.data)
+            .catch((errResult: ng.IHttpPromiseCallbackArg<any>) => {
+                if (!errResult) {
+                    return this.$q.reject();
+
+                } else {
+                    const error = {
+                        statusCode: errResult.status,
+                        message: errResult.data ? errResult.data.message : ""
+                    };
+                    return this.$q.reject(error);
+                }
+            });
+    }
 
     public copyArtifactImagesToFilestore(artifactIds: number[], expirationDate?: Date): ng.IPromise<ICopyImageResult[]> {
         const deferred = this.$q.defer<any>();

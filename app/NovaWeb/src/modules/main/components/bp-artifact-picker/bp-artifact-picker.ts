@@ -341,7 +341,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 const searchCriteria: SearchServiceModels.IItemNameSearchCriteria = {
                     query: this.searchText,
                     projectIds: [this.project.id],
-                    predefinedTypeIds: this.filterItemType.id ? [] : this.selectableItemTypes,
+                    predefinedTypeIds: this.selectableItemTypes,
                     itemTypeIds: this.filterItemType.id ? [this.filterItemType.id] : [],
                     includeArtifactPath: true
                 };

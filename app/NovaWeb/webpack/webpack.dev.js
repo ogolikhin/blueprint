@@ -66,7 +66,7 @@ module.exports = {
             {from: '../node_modules/bowser/bowser.js', to: './novaweb/static/bowser.js'},
             {from: '../src/redirect/silverlight-links.js', to: './novaweb/static/redirect-silverlight-links.js'},
 
-            {from: '../libs/tinymce/plugins/tinymce-mention', to: './novaweb/libs/tinymce/plugins/mention'},
+            {from: '../libs/tinymce/**', to: './novaweb/libs'},
 
             {from: '../libs/mxClient/icons', to: './novaweb/libs/mxClient/icons'},
             {from: '../libs/mxClient/images', to: './novaweb/libs/mxClient/images'},
@@ -74,7 +74,6 @@ module.exports = {
             {from: '../libs/mxClient/resources', to: './novaweb/libs/mxClient/resources'},
             {from: '../libs/mxClient/css', to: './novaweb/libs/mxClient/css'},
             {from: '../libs/mxClient/js', to: './novaweb/libs/mxClient/js'},
-
 
             {from: '../assets', to: './novaweb/static'},
             {from: './unsupported-browser', to: './novaweb/static'},

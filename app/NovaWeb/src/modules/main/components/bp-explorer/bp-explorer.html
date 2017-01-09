@@ -1,4 +1,3 @@
-﻿
 <bp-tree-view class="explorer__tree"
               api="$ctrl.treeApi"
               ng-show="$ctrl.isProjectTreeVisible()"
@@ -10,13 +9,11 @@
 <div ng-if="!$ctrl.isProjectTreeVisible()" class="explorer__empty-state">
     <p class="explorer__empty-state-text">{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
 </div>
-<div style="overflow:hidden;display:inline-block;background:#e7ebf2">
-    <button class="btn btn-link btn-small explorer__unpublished-changes"
-            ng-click="$ctrl.navigateToUnpublishedChanges()">
-        Unpublished Changes
+<div class="explorer__bottom-navbar">
+    <button class="explorer__bottom-navbar-button btn" ng-click="$ctrl.navigateToUnpublishedChanges()" bp-tooltip="{{$ctrl.localization.get('App_Explorer_BottomBar_UnpublishedChanges')}}">
+        <span class="explorer__bottom-navbar-icons fonticon2-unpublished"></span>
     </button>
-    <button class="btn btn-link btn-small explorer__jobs"
-            ng-click="$ctrl.navigateToJobs()">
-        Jobs
+    <button class="explorer__bottom-navbar-button btn" ng-click="$ctrl.navigateToJobs()" bp-tooltip="{{$ctrl.localization.get('App_Explorer_BottomBar_Jobs')}}">
+        <span class="explorer__bottom-navbar-icons fonticon2-jobs"></span>
     </button>
 </div>

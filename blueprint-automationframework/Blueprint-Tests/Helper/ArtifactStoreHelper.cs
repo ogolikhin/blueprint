@@ -654,6 +654,18 @@ namespace Helper
         #endregion Custom Asserts
 
         /// <summary>
+        /// Creates Embedded Image html for the artifact property
+        /// </summary>
+        /// <param name="imageGUID">Image GUID for embedded image</param>
+        /// <returns>Html string</returns>
+        public static string CreateEmbeddedImageHtml(string imageGUID)
+        {
+            Assert.IsNotNullOrEmpty(imageGUID, "Image GUID should not be null or empty!");
+
+            return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
+        }
+
+        /// <summary>
         /// Gets the custom data project.
         /// </summary>
         /// <returns>The custom data project.</returns>
@@ -1213,28 +1225,6 @@ namespace Helper
                 validInlineTraceLink,
                 !validInlineTraceLink,
                 subArtifact.Description);
-        }
-
-        /// <summary>
-        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
-        /// </summary>
-        /// <param name="restResponse">The RestResponse that was returned.</param>
-        /// <param name="expectedErrorCode">The expected error code.</param>
-        /// <param name="expectedErrorMessage">The expected error message.</param>
-        public static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
-        {
-            IServiceErrorMessage serviceError = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
-            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
-
-            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
-                expectedErrorCode,
-                expectedErrorMessage);
-
-            serviceError.AssertEquals(expectedError);
         }
 
         /// <summary>

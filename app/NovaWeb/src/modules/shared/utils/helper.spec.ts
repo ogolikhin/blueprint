@@ -1,4 +1,5 @@
 ﻿import * as angular from "angular";
+import "lodash";
 import {Helper} from "./helper";
 
 describe("to and from HTML", () => {
@@ -153,7 +154,7 @@ describe("addTableBorders", () => {
 describe("setFontFamilyOrOpenSans", () => {
     it("should add Open Sans if the tags don't have a font definition", () => {
         // Arrange/Act
-        let node = document.createElement("div");
+        const node = document.createElement("div");
         node.innerHTML = "<table><tr><td>Table</td></tr></table>" +
             "<p style='font-family: Arial, sans-serif'>Arial Default</p>" +
             "<p style='font-family: Arial, sans-serif'><em>Arial Em</em></p>" +
@@ -167,8 +168,9 @@ describe("setFontFamilyOrOpenSans", () => {
 
         Helper.setFontFamilyOrOpenSans(node, ["Arial", "Verdana"]);
 
-        let td = node.querySelector("td");
-        let p = node.querySelectorAll("p");
+        const td = node.querySelector("td");
+        const p = node.querySelectorAll("p");
+
         // Assert
         expect((<HTMLElement> td.firstElementChild).style.fontFamily).toContain("Open Sans");
         expect((<HTMLElement> p[0].firstElementChild).style.fontFamily).toContain("Arial");
@@ -275,6 +277,106 @@ describe("Remove tags from an HTML element", () => {
         // Assert
         const result = angular.element(html);
         expect(result.find("span").length).toBe(0);
+    });
+});
+
+describe("Remove external images", () => {
+    const parser = new DOMParser();
+    const html = document.createElement("div");
+    html.innerHTML = `<p>Test</p>
+                      <span>Another</span>
+                      <img src="http://www.blah.com/test.png" />
+                      <img src="file:///Users/test/Downloads/longcat.gif" />
+                      <img src="https://www.blah.com/test.png" />
+                      <img src="https://www.blah.com/test.png" />
+                      <img src="https://blah.com/test.png" />
+                      <img src="https://cdn.blah.com/test.png" />
+                      <img src="//cdn.blah.com/test.png" />
+                      <img src="//localhost/test.png" />
+                      <img src="//localhost:8000/test.png" />
+                      <img src="test2.png" />
+                      <img src="/test2.png" />`;
+
+    it("only keep 2 images that are internal", () => {
+        // Act
+        Helper.stripExternalImages(html);
+
+        // Assert
+        const result = angular.element(html);
+        expect(result.find("img").length).toBe(2);
+    });
+});
+
+describe("replaceImgSrc", () => {
+    it("should change all 'src' of all 'img' tags (and just 'img' tags)", () => {
+        // Assert
+        const html = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img src="//dummy1.jpg">
+    <img class="dummy-class" src="//dummy2.jpg" /><img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+        const expected = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img data-temp-src="//dummy1.jpg">
+    <img class="dummy-class" data-temp-src="//dummy2.jpg" /><img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+
+        // Act
+        const result = Helper.replaceImgSrc(html, true);
+
+        // Assert
+        expect(result).toBe(expected);
+    });
+
+    it("should change all 'data-temp-src' of all 'img' tags (and just 'img' tags)", () => {
+        // Assert
+        const expected = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img src="//dummy1.jpg">
+    <img class="dummy-class" src="//dummy2.jpg" /><img style="width: 100%" src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+        const html = `<html>
+<head>
+    <script type="text/javascript" src="//dummy1.js"></script>
+</head>
+<body>
+    <img data-temp-src="//dummy1.jpg">
+    <img class="dummy-class" data-temp-src="//dummy2.jpg" /><img style="width: 100%" data-temp-src="//dummy2.jpg" onerror="alert('Image not found!');">
+</body>
+<script type="text/javascript" src="//dummy2.js"></script>
+</html>`;
+
+        // Act
+        const result = Helper.replaceImgSrc(html, false);
+
+        // Assert
+        expect(result).toBe(expected);
+    });
+
+    it("doesn't change anything if input is not string", () => {
+        // Assert
+        let html;
+
+        // Act
+        const result = Helper.replaceImgSrc(html, true);
+
+        // Assert
+        expect(result).toBe(html);
     });
 });
 

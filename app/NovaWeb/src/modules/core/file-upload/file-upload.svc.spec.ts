@@ -73,4 +73,47 @@ describe("File Upload", () => {
                 $httpBackend.verifyNoOutstandingRequest();
             }));
     });
+
+    describe("uploadImageToFileStore", () => {
+        it("calls server and returns result when expirationDate is specified",
+            inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
+                // Arrange
+                const file = {name: "empty.png"};
+                const data = {guid: Helper.UID, uriToFile: "http://example.com/"};
+                $httpBackend.when("POST", "/svc/bpartifactstore/images/").respond(data);
+
+                // Act
+                let error: any;
+                let result: IFileResult;
+                fileUploadService.uploadImageToFileStore(file).then(response => result = response, response => error = response);
+                $httpBackend.flush();
+
+                // Assert
+                expect(error).toBeUndefined();
+                expect(result).toEqual(data);
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
+            }));
+
+        it("calls server and returns error when the server returns an error",
+            inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {
+                // Arrange
+                const file = {name: "empty.png"};
+                const status = HttpStatusCode.ServerError;
+                const data = {message: "Internal Server Error"};
+                $httpBackend.when("POST", "/svc/bpartifactstore/images/").respond(status, data);
+
+                // Act
+                let error: any;
+                let result: IFileResult;
+                fileUploadService.uploadImageToFileStore(file).then(response => result = response, response => error = response);
+                $httpBackend.flush();
+
+                // Assert
+                expect(result).toBeUndefined();
+                expect(error).toEqual({statusCode: status, message: data.message});
+                $httpBackend.verifyNoOutstandingExpectation();
+                $httpBackend.verifyNoOutstandingRequest();
+            }));
+    });
 });

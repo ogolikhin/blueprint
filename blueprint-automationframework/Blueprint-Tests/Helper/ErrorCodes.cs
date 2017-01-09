@@ -32,6 +32,17 @@ namespace Helper
 
         //Bad request
         public const int OutOfRangeParameter = 6000;
+
+        //Timeout
+        public const int Timeout = 7000;
+        public const int SqlTimeoutNumber = -2;
+        public const int SqlErrorInFtsSyntax = 7630;
+
+        //Jobs Parameter Validation Errors
+        public const int PageNullOrNegative = 8000;
+        public const int PageSizeNullOrOutOfRange = 8001;
+        public const int JobNotCompleted = 8002;
+        public const int ResultFileNotSupported = 8003;
     }
 
     // This is the global error code being used for Blueprint-current/NoSilverlight project
@@ -90,6 +101,8 @@ namespace Helper
         public const int CannotDiscard = 129;
 
         public const int NameCannotBeEmpty = 130;
+
+        public const int ImageTypeNotSupported = 131;
 
         //--------------------------------
 

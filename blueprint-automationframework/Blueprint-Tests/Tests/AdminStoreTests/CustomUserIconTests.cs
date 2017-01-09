@@ -155,7 +155,7 @@ namespace AdminStoreTests
             }, "'GET {0}' should return 404 Not Found when get user icon called for non-existing user!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
                 I18NHelper.FormatInvariant("User does not exist with UserId: {0}", nonExistingUserId));
         }
 

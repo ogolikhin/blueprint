@@ -54,7 +54,7 @@
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_SubmittedDate"]}}: </strong>
-                                    <span>&nbsp;{{$ctrl.getDateTime(item.submittedDateTime)}}</span>
+                                    <span>&nbsp;{{item.submittedDateTime | momentDateTime}}</span>
                                 </div>
                             </div>
                             <div class="row jobs__secondrow">
@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                    <span>{{$ctrl.getDateTime(item.jobStartDateTime)}}</span>
+                                    <span>{{item.jobStartDateTime | momentDateTime}}</span>
                                 </div>
                                 <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
                                     <strong>{{::$root.config.labels["Jobs_Status"]}}:&nbsp;</strong>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                    <span> {{$ctrl.getDateTime(item.jobEndDateTime)}}</span>
+                                    <span> {{item.jobEndDateTime | momentDateTime}}</span>
                                 </div>
                                 <div class="col-xs-4">
                                     <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>

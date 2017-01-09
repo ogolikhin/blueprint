@@ -34,7 +34,7 @@ export class JobsController {
     public isLoading: boolean;
     public page: number;
     public pageLength: number;
- 
+
     constructor(
         private $log: ng.ILogService,
         private $window: ng.IWindowService,
@@ -57,7 +57,7 @@ export class JobsController {
     public loadNextPage() {
         this.loadPage(this.page + 1);
     }
-    
+
     private getJobAction(status: JobStatus): JobAction {
         let jobAction = JobAction.None;
 
@@ -112,10 +112,6 @@ export class JobsController {
             .finally(() => {
                 this.isLoading = false;
             });
-    } 
-    
-    private getDateTime(date: Date): string {
-        return !!date ? moment(date).format("MMMM DD, YYYY h:mm:ss a") : "--";
     }
 
     private getStatus(statusId: JobStatus): string {

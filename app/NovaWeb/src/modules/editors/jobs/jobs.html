@@ -100,19 +100,19 @@
                 </li>
             </ul>
             <div class="text-center">
-                   <ul  uib-pagination
-                        class="jobs__pagination"
-                        total-items="$ctrl.totalJobs"
-                        items-per-page="$ctrl.pageSize"
-                        ng-model="$ctrl.page"
-                        max-size="$ctrl.maxPagesToShow"
-                        boundary-links="true"
-                        rotate="true"
-                        force-ellipses="true"
-                        ng-change="$ctrl.loadPage($ctrl.page)"
-                        ng-if="$ctrl.showPagination()"
-                     ></ul>
-                </div>
+                <ul  uib-pagination
+                    class="jobs__pagination"
+                    total-items="$ctrl.paginationData.total"
+                    items-per-page="$ctrl.paginationData.pageSize"
+                    ng-model="$ctrl.paginationData.page"
+                    max-size="$ctrl.paginationData.maxVisiblePageCount"
+                    boundary-links="true"
+                    rotate="true"
+                    force-ellipses="true"
+                    ng-change="$ctrl.loadPage($ctrl.paginationData.page)"
+                    ng-if="$ctrl.showPagination()"
+                    ></ul>
+            </div>
         </div>
        
     </div>

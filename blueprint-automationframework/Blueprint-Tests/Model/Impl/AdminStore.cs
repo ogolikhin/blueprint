@@ -594,12 +594,13 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var restResponse = restApi.SendRequestAndDeserializeObject<JobInfo>(
+            var jobInfo = restApi.SendRequestAndDeserializeObject<JobInfo>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
-            return restResponse;
+            return jobInfo;
         }
 
 

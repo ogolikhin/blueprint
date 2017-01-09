@@ -260,16 +260,15 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Jobs which has invalid token", expectedExceptionMessage);
         }
 
-        [TestCase(DEFAULT_BASELINEORREVIEWID)]
+        [TestCase(int.MaxValue)]
         [TestRail(227221)]
         [Description("GET a Job with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized")]
-        public void GetJob_GetJobWithMissingSessionTokenHeader_401Unauthorized(int baselineOrReviewId)
+        public void GetJob_GetJobWithMissingSessionTokenHeader_401Unauthorized(int jobId)
         {
-            // Setup: Create a ALM ChangeSummary job using the prepared ALM target
-            var createdJob = CreateALMSummaryJobsSetup(baselineOrReviewId, 1, _projectCustomData).First();
+            // Setup: not required
 
-            // Execute: Execute GetJob using the user with missing session token header
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: null, jobId: createdJob.JobId),
+            // Execute: Execute GetJob using the user with missing session token header and dummy job Id
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: null, jobId: jobId),
                 "GET {0} call should return 401 Unauthorized if no Session-Token header was passed!", JOB_PATH);
 
             // Validation: Exception should contain expected message.
@@ -278,17 +277,16 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Job which has no session token.", expectedExceptionMessage);
         }
 
-        [TestCase(DEFAULT_BASELINEORREVIEWID)]
+        [TestCase(int.MaxValue)]
         [TestRail(227222)]
         [Description("GET a Job with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized")]
-        public void GetJob_GetJobWithInvalidSessionToken_401Unauthorized(int baselineOrReviewId)
+        public void GetJob_GetJobWithInvalidSessionToken_401Unauthorized(int jobId)
         {
-            // Setup: Create a ALM ChangeSummary job using the prepared ALM target
-            var createdJob = CreateALMSummaryJobsSetup(baselineOrReviewId, 1, _projectCustomData).First();
+            // Setup: Not required
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-            // Execute: Execute GetJob using the user with invalid session token
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: userWithBadToken, jobId: createdJob.JobId),
+            // Execute: Execute GetJob using the user with invalid session token and dummy job Id
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: userWithBadToken, jobId: jobId),
                 "GET {0} call should return 401 Unauthorized when using invalid session!", JOB_PATH);
 
             // Validation: Exception should contain expected message.
@@ -305,7 +303,7 @@ namespace AdminStoreTests
         [TestCase(-1)]
         [TestCase(0)]
         [TestRail(227223)]
-        [Explicit(IgnoreReasons.ProductBug)]
+        [Explicit(IgnoreReasons.ProductBug)] // TODO: updated after the tello bug is fixed: (https://trello.com/c/achvhWJn)
         [Description("GET a Job using invalid job Id. Verify that 404 Not Found is returned.")]
         public void GetJob_GetJobWithInvalidJobId_404NotFound(int jobId)
         {

@@ -156,6 +156,7 @@
 
 .fonticon2-project.jobs__projecticon--size::before {
     font-size:15px;
+    padding-right: 5px;
 }
 
 .jobs__projectname {
@@ -165,23 +166,18 @@
     white-space: nowrap;
     display: inline-block;
     position:absolute;
-    padding-left: 5px;
 }
 
 .jobs__authorname {
-    width:40%;
+    width:calc(50% - 25px);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     display: inline-block;
     position:absolute;
-    padding-left: 5px;
 }
 
-.jobs__date {
-    padding-left: 5px;
-}
-
-.jobs_status {
-    padding-left: 5px;
+.jobs__label {
+    padding-right: 5px;
+    font-weight: bold;
 }

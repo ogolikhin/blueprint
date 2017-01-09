@@ -77,7 +77,7 @@ namespace AdminStore.Repositories.Jobs
             var job = await GetJobMessage(jobId);
             if (job == null)
             {
-                return null;
+                throw new ResourceNotFoundException(string.Format("Job with id {0} is not found", jobId), ErrorCodes.ResourceNotFound);
             }
 
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });

@@ -62,22 +62,22 @@ export class BridgesHandler implements IBridgesHandler {
             if (edgeGeo) {
                 for (let i = 1; i < edgeGeo.state.absolutePoints.length; i++) {
 
-                    const p1 = edgeGeo.state.absolutePoints[i - 1];
-                    const p2 = edgeGeo.state.absolutePoints[i];
+                    const startPoint = edgeGeo.state.absolutePoints[i - 1];
+                    const endPoint = edgeGeo.state.absolutePoints[i];
 
-                    if (p1.y === p2.y) {
+                    if (startPoint.y === endPoint.y) {
                         // horizontal
-                        if (p1.x < p2.x) {
-                            horizontalLines.push(new ConnectorLine(p1, p2, edgeGeo));
+                        if (startPoint.x < endPoint.x) {
+                            horizontalLines.push(new ConnectorLine(startPoint, endPoint, edgeGeo));
                         } else {
-                            horizontalLines.push(new ConnectorLine(p2, p1, edgeGeo));
+                            horizontalLines.push(new ConnectorLine(endPoint, startPoint, edgeGeo));
                         }
                     } else {
                         // vertical
-                        if (p1.y < p2.y) {
-                            verticalLines.push(new ConnectorLine(p1, p2, edgeGeo));
+                        if (startPoint.y < endPoint.y) {
+                            verticalLines.push(new ConnectorLine(startPoint, endPoint, edgeGeo));
                         } else {
-                            verticalLines.push(new ConnectorLine(p2, p1, edgeGeo));
+                            verticalLines.push(new ConnectorLine(endPoint, startPoint, edgeGeo));
                         }
                     }
                 }

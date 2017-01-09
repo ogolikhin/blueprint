@@ -50,5 +50,11 @@ namespace ServiceLibrary.Helpers
         public const string CookieBlueprintSessionTokenKey = "BLUEPRINT_SESSION_TOKEN";
 
         public const int DefaultRequestTimeout = 600000;
+
+        public const string ContentDispositionHeader = "Content-Disposition";
+        public const string ContentTypeHeader = "Content-Type";
+        public const string StoredDateHeader = "Stored-Date";
+        public const string FileSizeHeader = "File-Size";
+        public const string FileChunkCountHeader = "File-Chunk-Count";
     }
 }

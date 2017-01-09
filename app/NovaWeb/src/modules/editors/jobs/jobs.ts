@@ -58,12 +58,19 @@ export class JobsController {
         this.loadPage(this.page + 1);
     }
 
-    private getJobAction(status: JobStatus): JobAction {
+    private getJobAction(job: IJobInfo): JobAction {
         let jobAction = JobAction.None;
 
-        switch (status) {
+        switch (job.status) {
             case JobStatus.Completed:
-                jobAction = JobAction.Download;
+                switch (job.jobType) {
+                    case JobType.ProjectExport:
+                        jobAction = JobAction.Download;
+                        break;
+                    default:
+                        jobAction = JobAction.None;
+                        break;
+                }
                 break;
             case JobStatus.Cancelling:
             case JobStatus.Running:
@@ -79,25 +86,32 @@ export class JobsController {
         return jobAction;
     }
 
-    public canDownload(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Download;
+    public canDownload(job: IJobInfo): boolean {
+        return this.getJobAction(job) === JobAction.Download;
     }
 
-    public canRefresh(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Refresh;
+    public canRefresh(job: IJobInfo): boolean {
+        return this.getJobAction(job) === JobAction.Refresh;
     }
 
-    public refreshJob(jobId: number): void {
-        this.jobsService.getJob(jobId)
+    public refreshJob(job: IJobInfo): void {
+        if (!this.canRefresh(job)) {
+            return;
+        }
+
+        this.jobsService.getJob(job.jobId)
             .then((result: IJobInfo) => {
-                const index = _.indexOf(this.jobs, _.find(this.jobs, {jobId: result.jobId}));
                 result.userDisplayName = undefined;
-                _.merge(this.jobs[index], result);
+                _.merge(job, result);
             });
     }
 
-    public downloadItem(jobId: number): void {
-        const url = `/svc/adminstore/jobs/${jobId}/result/file`;
+    public downloadItem(job: IJobInfo): void {
+        if (!this.canDownload(job)) {
+            return;
+        }
+
+        const url = `/svc/adminstore/jobs/${job.jobId}/result/file`;
         this.$window.open(url, "_blank");
     }
 
